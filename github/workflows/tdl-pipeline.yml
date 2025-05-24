@@ -1,0 +1,35 @@
+name: TDL Annotation & Validation Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  annotate-and-validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install --upgrade pip
+
+      - name: Run annotation script
+        run: python scripts/annotate_tdl.py
+
+      - name: Run comparison script
+        run: python scripts/tdl_structured_compare.py > reports/compare_report.txt
+
+      - name: Upload comparison report
+        uses: actions/upload-artifact@v4
+        with:
+          name: compare-report
+          path: reports/compare_report.txt
