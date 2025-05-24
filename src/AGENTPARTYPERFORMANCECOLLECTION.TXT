@@ -1,0 +1,114 @@
+; Created By: prakash on 2022-06-23 16:04, ID: 
+
+
+;; {24.Jun.22 06:23}      [#menu: Gateway of Tally]
+;; {24.Jun.22 06:23}         add: Option: AgentPartyPerformanceLock ;; : @@AgentPartyPerformanceDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+;; {23.Jun.22 16:49}         add: Item: before: @@locQuit: @@AgentPartyPerformanceReport: Display: RepAgentPartyPerformance
+
+
+
+     [!menu: AgentPartyPerformanceLock]
+        add: Item: before: @@locQuit: @@AgentPartyPerformanceReport: Display: RepAgentPartyPerformance
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   AgentPartyPerformanceReport: "Data Verification"
+;; AgentPartyPerformanceDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepAgentPartyPerformance]
+        use: Dsp Template
+      Title: @@AgentPartyPerformanceReport
+   Printset: Report Title: @@AgentPartyPerformanceReport
+       Form: FrmAgentPartyPerformance
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmAgentPartyPerformance]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0AgentPartyPerformance,PrtAgentPartyPerformance
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: AgentPartyPerformancebotbrk,AgentPartyPerformancebotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: AgentPartyPerformancebotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: AgentPartyPerformancebotopbrk]
+        use: dspacctitles
+  add: part: AgentPartyPerformanceTitlePart
+
+      [part: AgentPartyPerformanceTitlePart]
+       line: LnAgentPartyPerformanceTitle
+       
+      [line: LnAgentPartyPerformanceCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0AgentPartyPerformance]
+      line : LnAgentPartyPerformanceCurrPeriod
+      
+      [Part: PrtAgentPartyPerformance]
+       Line: LnAgentPartyPerformanceTitle,LnAgentPartyPerformance
+bottom Line: LnAgentPartyPerformanceTotals
+     repeat: LnAgentPartyPerformance: ColAgentPartyPerformance
+     scroll: Vertical
+ Common Border: YEs
+      Total: numf2,amtf,amtf2
+
+
+
+      [Line: LnAgentPartyPerformanceTitle]
+        use: LnAgentPartyPerformance
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: nf: set as: "Agent"
+local:field: nf2: set as: "Party"
+
+local:field: numf2: set as: "Qty."
+local:field: amtf: set as: "Sales"
+local:field: amtf2 : set as : "Collection"
+      local: field: default : style: normal bold
+
+      [Line: LnAgentPartyPerformance]
+     Fields: nf,nf2,numf2
+right field: Amtf,amtf2
+
+     Local: Field: nf: Set As: $cwAgentName
+     Local: Field: nf2: Set As: $Parent
+     Local: Field: numf2: Set As: $SaleQty
+     Local: Field: amtf: Set As:  $SaleValue
+     Local: Field: amtf2: Set As: $receiptValue
+     
+     Local: field: amtf: Format: "drcr"
+
+
+
+      [line: LnAgentPartyPerformanceTotals]
+        use: LnAgentPartyPerformance
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: numf2: set as: $$total:numf2
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      local: field: amtf2 : set as :  $$total:amtf2
+
+

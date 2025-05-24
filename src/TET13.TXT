@@ -1,0 +1,1160 @@
+ ; Created By: Khokan on 2018-12-11 18:29, ID:
+       /*
+ [style:style1]
+ font:"Times New Roman"
+ height:10
+ bold:yes
+
+ [style:style2]
+ font:"Times New Roman"
+ height:10
+ bold:no
+   */
+
+     [#menu: Gateway of Tally]
+;; {04.Sep.21 14:27}         add: Option: AgeingWiseOutstandingLock ;; : @@AgeingWiseOutstandingDemoLock
+
+     [!menu: AgeingWiseOutstandingLock]
+        add: Item: before: @@locQuit: @@AgeingWiseOutstandingReport: Display collection: colRepAgeingWiseOutstandingxx
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   AgeingWiseOutstandingReport: "Ageing Wise Outstanding Report (Agent Wise)"
+;; AgeingWiseOutstandingDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+[collection : colRepAgeingWiseOutstandingxx]
+Use         : Extract Alias Collection
+ Source Collection	: List of Ledgers
+ Variable    : Ledger Name
+ Report      :RepAgeingWiseOutstanding
+ Trigger     :cwLedgerName1  ;; cwLedgerNamex
+ Fetch       : Name
+                                
+                                
+    [Report: RepAgeingWiseOutstanding]
+        use: Dsp Template
+      Title: @@AgeingWiseOutstandingReport
+   Printset: Report Title: @@AgeingWiseOutstandingReport
+       Form: FrmAgeingWiseOutstanding
+     Export: Yes
+   ;  set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable:str1,str2
+    variable : groupname,ledgername
+    set:str1:""
+    set:str2:""
+    variable : DSPAgeByDueDate,ShowBillRange
+    set : DSPAgeByDueDate : yes
+    set : ShowBillRange : $$sysname:OverdueBills
+
+
+      [Form: FrmAgeingWiseOutstanding]
+        use: DSP Template
+;; {04.Sep.21 14:06}        Part: DspAccTitles,PrtTitle0AgeingWiseOutstanding,PrtAgeingWiseOutstanding
+       Part: PrtTitle0AgeingWiseOutstanding,PrtAgeingWiseOutstanding
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: AgeingWiseOutstandingbotbrk,AgeingWiseOutstandingbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+;; {04.Sep.21 14:10} local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:style3n
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+
+      add:button:PartyNamebotton
+      [part: AgeingWiseOutstandingbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: AgeingWiseOutstandingbotopbrk]
+        use: dspacctitles
+  add: part: AgeingWiseOutstandingTitlePart
+
+      [part: AgeingWiseOutstandingTitlePart]
+       line: LnAgeingWiseOutstandingTitle,LnAgeingWiseOutstandingTitle2
+
+      [line: LnAgeingWiseOutstandingCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf: Set As:@@cwcaption1tableundernew+" : "+##LedgerName ;; ##groupname
+;; {04.Sep.21 14:07}       Local: Field: fwf2:invisible: $$inprintmode
+      Local: Field: fwf2: Style:style2x
+      Local: Field: fwf: Style:style2x
+      
+      [part: PrtTitle0AgeingWiseOutstanding]
+      line : DSPCompanyName,DSPReportName,LnAgeingWiseOutstandingCurrPeriod
+      local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalistox2
+      local:line:DSPReportName: Local: Field: default:PrintStyle:styleCalistox2
+
+      [Part: PrtAgeingWiseOutstanding]
+       Line: LnAgeingWiseOutstandingTitle,LnAgeingWiseOutstandingTitle2,LnAgeingWiseOutstanding
+bottom Line: LnAgeingWiseOutstandingTotals,LnAgeingWiseOutstandingTotals2
+     repeat: LnAgeingWiseOutstanding: ColAgeingWiseOutstanding
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,amtf2,amtf3,amtf4,amtf5,amtf6,amtf7,amtf8,amtf9,amtf10,amtf20,amtf21,amtf22,amtf23
+
+[Collection: ColAgeingWiseOutstanding]
+
+Type :ledger
+child of: $$groupsundrydebtors
+belongs to : yes
+fetch : *
+Fetch: BillDate, Name, Parent, BillDueDate,ClosingBalance,cwcaption1item
+
+add:filter:cwPartyfilter
+
+
+compute var : myonaccount : amount : $onaccountvalue
+compute var : crbal : logical : not $$isdr:$closingbalance ;;
+
+
+compute var : clbalance : amount :  $closingbalance
+
+compute var : onacc : amount : $$InitValue:"Amount"
+
+
+compute var: d0_10  : amount : $$BillValue:Yes:no:@@mycwfromageing:@@mycwtoageing:no ;;##DSPAgeByDueDate ;;sum : $d0_10a
+compute var: d10_20 : amount : $$BillValue:Yes:no:@@mycwfromageing2:@@mycwtoageing2:no ;;sum : $d10_20
+compute var: d20_30 : amount : $$BillValue:Yes:no:@@mycwfromageing3:@@mycwtoageing3:no ;;sum : $d20_30
+compute var: d30_40 : amount : $$BillValue:Yes:no:@@mycwfromageing4:@@mycwtoageing4:no ;; {04.Sep.21 12:53} aggr compute : d30_40 : sum : $d30_40
+compute var: d40_50 : amount : $$BillValue:Yes:no:@@mycwfromageing5:@@mycwtoageing5:no ;; sum : $d40_50
+compute var: d50_60 : amount : $$BillValue:Yes:no:@@mycwfromageing6:@@mycwtoageing6:no ;; sum : $d50_60
+compute var: d60_0  : amount : $$BillValue:Yes:no:@@mycwfromageing7:@@mycwtoageing7:no ;; sum : $d60_0
+compute var: onacc  : amount : $onaccountvalue
+
+compute var: cwdummy : amount : if @@cwnotcloingbalance then $$callUpdate else $$InitValue:"Amount"
+
+
+compute : d0_10  : ##d0_10
+compute : d10_20 : ##d10_20
+compute : d20_30 : ##d20_30
+compute : d30_40 : ##d30_40
+compute : d40_50 : ##d40_50
+compute : d50_60 : ##d50_60
+compute : d60_0  : ##d60_0
+compute : onacc  : ##onacc
+
+
+ compute var: cwdummy : amount : if @@cwnotcloingbalance then $$callUpdate else $$InitValue:"Amount"
+filter:cwnotcloingbalance
+
+
+[System: Formula]
+cwnotcloingbalance:$$isdr:$closingbalance and ##ledgername=$cwcaption1item
+
+
+[collection: cwDrBillsofLedger]
+type : bills
+;; {04.Sep.21 12:33} child of :$name
+filter : cwonlyDrBills
+
+
+; 0 - 30
+compute : d0_10a : $$BillValue:Yes:No:0:30:no ;; $$fromvalue:(@@dsptodate-@@mycwtoageing):$$tovalue:(@@dsptodate):$closingbalance ;;$$asamount:2 ;;
+
+; 30 -60
+compute : d10_20 :  $$fromvalue:(@@dsptodate-@@mycwtoageing2):$$tovalue:(@@dsptodate-@@mycwfromageing2):$closingbalance ;;$$asamount:3 ;;
+
+; 60 - 90
+compute : d20_30 :  $$fromvalue:(@@dsptodate-@@mycwtoageing3):$$tovalue:(@@dsptodate-@@mycwfromageing3):$tbaldebits ;;$$asamount:4 ;;
+
+; 90-120
+compute : d30_40 :  $$fromvalue:(@@dsptodate-@@mycwtoageing4):$$tovalue:(@@dsptodate-@@mycwfromageing4):$tbaldebits ;;$$asamount:5 ;;
+
+; 120-150
+compute : d40_50 : $$fromvalue:(@@dsptodate-@@mycwtoageing5):$$tovalue:(@@dsptodate-@@mycwfromageing5):$tbaldebits ;;$$asamount:6 ;;
+
+; 150 - 180
+compute : d50_60 :  $$fromvalue:(@@dsptodate-@@mycwtoageing6):$$tovalue:(@@dsptodate-@@mycwfromageing6):$tbaldebits ;;$$asamount:7 ;;
+
+; 180  - 0
+compute : d60_0 :  $$fromvalue:(@@dsptodate-@@mycwtoageing7):$$tovalue:(@@dsptodate-@@mycwfromageing7):$tbaldebits ;;$$asamount:8 ;;$$initvalue:"amount" ;;$$fromvalue:(@@dsptodate-@@mycwtoageing7):$$tovalue:(@@dsptodate-@@mycwfromageing7):$tbaldebits
+
+
+
+[System: Formula]
+cwonlyDrBills :  if ##ledgername=$cwcaption1item:ledger:$parent then $$isdr:$closingbalance  else no
+
+
+
+
+[Line: LnAgeingWiseOutstandingTitle]
+use: LnAgeingWiseOutstanding
+option: titleopt
+
+local:field: fwf: set as: "Party"
+local:field: nf: set as: "Branch"
+local:field: amtf: set as: "Total"
+local:field: amtf2: set as: "Amount"
+
+Local: Field:amtf20: Set As:"Opening"
+Local: Field:amtf21: Set As:"";;"Payment"
+
+Local: Field:newUnAdjusted: Set As:"Un-Adjusted";;"Credit Note"
+local : field : newUnAdjusted : delete :field
+Local: Field: newUnAdjusted: Sub title : Yes
+local:field: snfx2: set as: ""
+Local: Field:amtf23: Set As:"Credit Limit"
+
+local:field: amtf3: set as:$$string:@@mycwfromageing+$$string:"-" +$$string:@@mycwtoageing  ;;+ "0-10"
+local:field: amtf4: set as:$$string:@@mycwfromageing2+$$string:"-"+$$string:@@mycwtoageing2  ;; "11-21"
+local:field: amtf5: set as:$$string:@@mycwfromageing3+$$string:"-"+$$string:@@mycwtoageing3  ;; "22-31"
+local:field: amtf6: set as:$$string:@@mycwfromageing4+$$string:"-"+$$string:@@mycwtoageing4  ;; "32-60"
+local:field: amtf7: set as:$$string:@@mycwfromageing5+$$string:"-"+$$string:@@mycwtoageing5  ;; "61-100"
+local:field: amtf8: set as:$$string:@@mycwfromageing6+$$string:"-"+$$string:@@mycwtoageing6  ;; "101-119"
+;; {04.Sep.21 14:04} local:field: amtf9: set as:$$string:@@mycwfromageing7+$$string:" "+$$string:"And Above"  ;; "120 And Above"
+local:field: amtf9: set as:$$string:"Over"+$$string:" "+$$string:@@mycwfromageing7
+local:field: amtf10: set as:"On Account"
+Local: field: DEFAULT: Align:centre
+Local: field: newUnAdjusted: Align:centre
+Local: field: FWF: Align:LEFT
+local: field: default : style: normal bold
+local: field:amtf3: type: String
+local: field:amtf4: type: String
+local: field:amtf5: type: String
+local: field:amtf6: type: String
+local: field:amtf7: type: String
+local: field:amtf8: type: String
+local: field:amtf9: type: String
+local: field:newUnAdjusted: type: String
+Local: Field: newUnAdjusted: Style:style1
+
+
+Local: Field: newUnAdjusted: Style:styleCalistox2
+Local: Field: fwf: Style:styleCalistox2
+Local: Field: nf: Style:styleCalistox2
+Local: Field:amtf: Style:styleCalistox2
+Local: Field:amtf1: Style:styleCalistox2
+Local: Field:amtf2: Style:styleCalistox2
+Local: Field:amtf3: Style:styleCalistox2
+Local: Field:amtf4: Style:styleCalistox2
+Local: Field:amtf5: Style:styleCalistox2
+Local: Field:amtf6: Style:styleCalistox2
+Local: Field:amtf7: Style:styleCalistox2
+Local: Field:amtf8: Style:styleCalistox2
+Local: Field:amtf9: Style:styleCalistox2
+Local: Field:amtf10: Style:styleCalistox2
+Local: Field:amtf20: Style:styleCalistox2
+Local: Field:amtf21: Style:styleCalistox2
+Local: Field:amtf22: Style:styleCalistox2
+Local: Field:amtf23: Style:styleCalistox2
+
+Local: Field: fwf: Color :Black
+
+
+[function : cwLogDetails2]
+parameter : title : string
+parameter : value1 : number
+parameter : value2 : number
+
+05 : log : "Value"+##title+" : "+$$string:##value1 + " - " + $$string:##value2
+10 : log : ##title+": " + $$string:(@@dsptodate-##value1)+ " " + $$string:(@@dsptodate-##value2)
+
+
+[function : cwlogDetails]
+
+0001 : log :  @@mycwfromageing
+0002 : log :  @@mycwfromageing2
+0003 : log :  @@mycwfromageing3
+0004 : log :  @@mycwfromageing4
+0005 : log :  @@mycwfromageing5
+0006 : log :  @@mycwfromageing6
+0007 : log :  @@mycwfromageing7
+0007a:log:"---- to --"
+0008 : log :  @@mycwtoageing
+0009 : log :  @@mycwtoageing2
+0011 : log : @@mycwtoageing3
+0012 : log : @@mycwtoageing4
+0013 : log : @@mycwtoageing5
+0014 : log : @@mycwtoageing6
+0015 : log : @@mycwtoageing7
+
+
+;; {04.Sep.21 13:10} 10 : call : cwLogDetails2:"1":@@mycwtoageing:0
+;; {04.Sep.21 13:10} 20 : call : cwLogDetails2:"2":@@mycwtoageing:@@mycwfromageing
+
+
+
+[Line: LnAgeingWiseOutstandingTitle2]
+use: LnAgeingWiseOutstanding
+option: titleopt
+
+local:field: fwf: set as: ""
+local:field: snfx2: set as: ""
+local:field: nf: set as: "Branch"
+local:field: amtf: set as:" Outstanding"
+local:field: amtf1: set as: ""
+local:field: amtf2: set as: "Amount"
+
+Local: Field:amtf20: Set As:"Opening"
+Local: Field:amtf21: Set As:"Payment"
+
+Local: Field:amtf22: Set As:"Credit Note"
+;; {04.Sep.21 13:10} Local: Field:amtf23: Set As:$$cwlogdetails
+
+
+;; {03.Sep.21 11:22} compute var: da_10 : amount : $$fromvalue:(@@dsptodate-@@mycwtoageing):$$tovalue:(@@dsptodate):$tbaldebits
+
+; 30 -60
+;; {03.Sep.21 11:22} compute var: d0_10 : amount : $$fromvalue:(@@dsptodate-@@mycwtoageing):$$tovalue:(@@dsptodate-@@mycwfromageing):$tbaldebits
+
+; 60 - 90
+;; {03.Sep.21 11:22} compute var: d10_20 : amount : $$fromvalue:(@@dsptodate-@@mycwtoageing2):$$tovalue:(@@dsptodate-@@mycwfromageing2):$tbaldebits
+
+; 90-120
+;; {03.Sep.21 11:22} compute var: d20_30 : amount: $$fromvalue:(@@dsptodate-@@mycwtoageing3):$$tovalue:(@@dsptodate-@@mycwfromageing3):$tbaldebits
+
+; 120-150
+;; {03.Sep.21 11:22} compute var: d30_40 : amount : $$fromvalue:(@@dsptodate-@@mycwtoageing4):$$tovalue:(@@dsptodate-@@mycwfromageing4):$tbaldebits
+
+; 150 - 180
+;; {03.Sep.21 11:22} compute var : d40_50 :amount: $$fromvalue:(@@dsptodate-@@mycwtoageing5):$$tovalue:(@@dsptodate-@@mycwfromageing5):$tbaldebits
+
+; 180  - 0
+;; {03.Sep.21 11:22} compute var  : d50_60 : amount : $$fromvalue:(@@dsptodate-@@mycwtoageing6):$$tovalue:(@@dsptodate-@@mycwfromageing6):$tbaldebits
+;; {02.Sep.21 18:16} compute var  : d50_60 : amount : $$fromvalue:(@@dsptodate-@@mycwtoageing5):$$tovalue:(@@dsptodate-@@mycwfromageing5):$tbaldebits
+;; {01.Mar.19 19:07} compute: c50_60 : $$fromvalue:(@@dsptodate-50):$$tovalue:(@@dsptodate-60):$tbalcredits
+
+
+local:field: amtf3: set as:"" ;;$$string:@@mycwfromageing+$$string:"-" +$$string:@@mycwtoageing  ;;+ "0-10"
+local:field: amtf4: set as:"" ;;$$string:@@mycwfromageing2+$$string:"-"+$$string:@@mycwtoageing2  ;; "11-21"
+local:field: amtf5: set as:"" ;;$$string:@@mycwfromageing3+$$string:"-"+$$string:@@mycwtoageing3  ;; "22-31"
+local:field: amtf6: set as:"" ;;$$string:@@mycwfromageing4+$$string:"-"+$$string:@@mycwtoageing4  ;; "32-60"
+local:field: amtf7: set as:"" ;;$$string:@@mycwfromageing5+$$string:"-"+$$string:@@mycwtoageing5  ;; "61-100"
+local:field: amtf8: set as:"" ;;$$string:@@mycwfromageing6+$$string:"-"+$$string:@@mycwtoageing6  ;; "101-119"
+local:field: amtf9: set as:"" ;;$$string:@@mycwtoageing6+$$string:" "+$$string:"And Above"  ;; "120 And Above"
+local:field: amtf10: set as:"On Account"
+Local: field: DEFAULT: Align:centre
+Local: field: FWF: Align:LEFT
+local: field: default : style: normal bold
+local: field:amtf3: type: String
+local: field:amtf4: type: String
+local: field:amtf5: type: String
+local: field:amtf6: type: String
+local: field:amtf7: type: String
+local: field:amtf8: type: String
+local: field:amtf9: type: String
+Local: Field: fwf: Style:styleCalistox2
+Local: Field: nf: Style:styleCalistox2
+Local: Field:amtf: Style:styleCalistox2
+Local: Field:amtf1: Style:styleCalistox2
+Local: Field:amtf2: Style:styleCalistox2
+Local: Field:amtf3: Style:styleCalistox2
+Local: Field:amtf4: Style:styleCalistox2
+Local: Field:amtf5: Style:styleCalistox2
+Local: Field:amtf6: Style:styleCalistox2
+Local: Field:amtf7: Style:styleCalistox2
+Local: Field:amtf8: Style:styleCalistox2
+Local: Field:amtf9: Style:styleCalistox2
+Local: Field:amtf10: Style:styleCalistox2
+Local: Field:amtf20: Style:styleCalistox2
+Local: Field:amtf21: Style:styleCalistox2
+Local: Field:amtf22: Style:styleCalistox2
+Local: Field:amtf23: Style:styleCalistox2
+Local: Field: fwf: Color :Black
+
+
+[System: Formula]
+mycwfromageing:$cwfromageing:COMPANY:##SVCURRENTCOMPANY
+mycwfromageingx:@@mycwfromageing+1
+
+mycwfromageing2:$cwfromageing2:COMPANY:##SVCURRENTCOMPANY
+mycwfromageing2x:@@mycwfromageing2+
+
+mycwfromageing3:$cwfromageing3:COMPANY:##SVCURRENTCOMPANY
+mycwfromageing3x:@@mycwfromageing3+1
+
+mycwfromageing4:$cwfromageing4:COMPANY:##SVCURRENTCOMPANY
+mycwfromageing4x:@@mycwfromageing4
+
+mycwfromageing5:$cwfromageing5:COMPANY:##SVCURRENTCOMPANY
+mycwfromageing5x:@@mycwfromageing5+1
+
+mycwfromageing6:$cwfromageing6:COMPANY:##SVCURRENTCOMPANY
+mycwfromageing6x:@@mycwfromageing6+1
+
+mycwfromageing7:  $cwfromageing7:COMPANY:##SVCURRENTCOMPANY
+mycwfromageing7x: @@mycwfromageing7+1
+
+mycwtoageing:$cwtoageing:COMPANY:##SVCURRENTCOMPANY
+mycwtoageing2:$cwtoageing2:COMPANY:##SVCURRENTCOMPANY
+mycwtoageing3:$cwtoageing3:COMPANY:##SVCURRENTCOMPANY
+mycwtoageing4:$cwtoageing4:COMPANY:##SVCURRENTCOMPANY
+mycwtoageing5:$cwtoageing5:COMPANY:##SVCURRENTCOMPANY
+mycwtoageing6:$cwtoageing6:COMPANY:##SVCURRENTCOMPANY
+mycwtoageing7:$cwtoageing7:COMPANY:##SVCURRENTCOMPANY
+
+
+[function : checklastnonzero]
+returns: number
+
+10 : do if : $cwfromageing7:COMPANY:##SVCURRENTCOMPANY <> 0 : return : $cwfromageing7:COMPANY:##SVCURRENTCOMPANY
+20 : do if : @@mycwfromageing6 <> 0 : return : @@mycwfromageing6
+30 : do if : @@mycwfromageing5 <> 0 : return : @@mycwfromageing5
+40 : do if : @@mycwfromageing4 <> 0 : return : @@mycwfromageing4
+50 : do if : @@mycwfromageing3 <> 0 : return : @@mycwfromageing3
+60 : do if : @@mycwfromageing2 <> 0 : return : @@mycwfromageing2
+70 : do if : @@mycwfromageing  <> 0 : return : @@mycwfromageing
+
+[field:newUnAdjusted]
+field:amtf21,amtf22
+width:16  ;;14 ;;20
+
+
+ [Collection: collreciptcrnote]
+
+ type :bills
+ child of:#nf1 ;;#fwf
+
+ compute:OpeningBalance1:if not $$isdr:$openingbalance then $openingbalance else ""
+;; {04.Sep.21 16:01}  compute:rcptvalue:$$FilterValue:$amount:ledgerentries:1:cwreceiptmsfilter
+;; {04.Sep.21 16:06}  compute:crnotevalue:$$FilterValue:$amount:ledgerentries:1:cwcrnotemsfilter
+
+ compute:rcptvalue:$$filtervalue:($$FNBillAllocTotal:@@AllocBillName):ledgerentries:1:cwreceiptmsfilter
+ compute:crnotevalue:$$filtervalue:($$FNBillAllocTotal:@@AllocBillName):ledgerentries:1:cwcrnotemsfilter
+
+ [Collection: collreciptcrnoteb]
+ USE: collreciptcrnotea
+ cleared:yes
+ 
+ [System: Formula]
+ cwreceiptmsfilter:$$isreceipt:$vouchertypename
+ cwcrnotemsfilter:$$iscreditnote:$vouchertypename
+ 
+
+[Line: LnAgeingWiseOutstanding]
+Fields:snfx2,fwf,nf1,dspaccname
+
+local: field: nf1: Invisible: yes
+local: field: dspdispname: Invisible: yes
+
+right field:amtf3,amtf4,amtf5,amtf6,amtf7,amtf8,amtf9,amtf43,amtf44,amtf45,amtf46,amtf47,amtf48,amtf49,amtf50,amtf10,Amtf,newUnAdjusted,amtf23  ;;,amtf33,amtf34,amtf35,amtf36,amtf37,amtf38,amtf39,amtf40
+Option: display on Enter
+
+Local: Field: amtf20: Set As:""
+Local: Field: amtf21: Set As:$$CollAmtTotal:collreciptcrnote:$rcptvalue
+Local: Field: amtf22: Set As:$$CollAmtTotal:collreciptcrnote:$crnotevalue
+Local: Field:amtf23: Set As:$CreditLimit:ledger:$name
+
+
+Local: field: amtf: Width: @@amountwidth * 1.5
+
+
+local: field: fwf: display : ledger vouchers ;;: $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+;; {17.Dec.18 18:58} local:field: fwf: set as:@@mycwtoageing2 ;$name;; "Party"
+local:field: fwf: set as:if $$stringlength:$name < 40 then $name else $$stringpart:$name:0:39;; "Party"
+local:field: nf1: set as:$name;; "Party"
+
+local:field: nf: set as:$cwBranch:LEDGER:$parent;; "Branch"
+local:field: amtf: set as:$closingbalance;; "Total Overdue"
+
+
+Local: field: amtf21: Width:7 ;;6.5 ;;9.5
+Local: field: amtf22: Width:8  ;;6.6 ;;9.5
+
+Local: field: amtf11: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf: Format:"decimals:0"  ;; "drcr"
+Local: field: amtf1: Format: "decimals:0,nocomma"  ;;"drcr"
+
+Local: field: amtf3: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf4: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf5: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf6: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf7: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf8: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf9: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf10: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf20: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf21: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf22: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf23: Format:"decimals:0,nocomma"  ;; "drcr"
+
+
+Local: Field:  amtf3: Set As:  $d0_10
+Local: Field:  amtf4: Set As:  $d10_20
+Local: Field:  amtf5: Set As:  $d20_30
+Local: Field:  amtf6: Set As:  $d30_40
+Local: Field:  amtf7: Set As:  $d40_50
+Local: Field:  amtf8: Set As:  $d50_60
+Local: Field:  amtf9: Set As:  $d60_0
+Local: Field:  amtf10: Set As: $onacc
+
+;; {01.Mar.19 19:59}  local: field: default: type: String
+ Local: Field: DEFAULT: Border: thin right
+;; {06.Dec.21 15:07}  Local: Field: default: Border: thin left
+ Local: Field: snfx2:delete: Border: thin right
+
+ Local: field:snfx2: Width:1
+
+;; {04.Sep.21 12:04}  local:field: amtf3: invisible :  @@mycwfromageing = 0 or @@mycwtoageing2 =0 ;; "11-21"
+;; {04.Sep.21 12:04}  local:field: amtf4: invisible :  @@mycwfromageing2 = 0 or @@mycwtoageing2 =0 ;; "11-21"
+;; {04.Sep.21 12:04} local:field: amtf5: invisible :  @@mycwfromageing3 = 0 or @@mycwtoageing3 =0  ;; "22-31"
+;; {04.Sep.21 12:04} local:field: amtf6: invisible :  @@mycwfromageing4 = 0 or @@mycwtoageing4 =0 ;; "32-60"
+;; {04.Sep.21 12:04} local:field: amtf7: invisible : @@mycwfromageing5 = 0 or @@mycwtoageing5 =0  ;; "61-100"
+;; {04.Sep.21 12:04} local:field: amtf8:  invisible : @@mycwfromageing6 = 0 or @@mycwtoageing6 = 0 ;; "101-119"
+local:field: amtf10:  invisible : yes
+;; {04.Sep.21 12:03} local: field: default : style: style3x
+
+Local: field: amtf: Width:9 ;;12
+Local: field: amtf1: Width:6 ;;10
+Local: field: amtf2: Width:6 ;;10
+Local: field: amtf3: Width:6 ;;10
+Local: field: amtf4: Width:6 ;;10
+Local: field: amtf5: Width:6 ;;10
+Local: field: amtf6: Width:6 ;;10
+Local: field: amtf7: Width:6 ;;10
+Local: field: amtf8: Width:6 ;;10
+Local: field: amtf9: Width:6 ;;10
+Local: field: amtf10: Width:6 ;;10
+Local: field: amtf11: Width:6 ;;10
+Local: field: amtf12: Width:6 ;;10
+Local: field: amtf23: Width:7 ;;10
+
+Local: Field:default: Style:styleCalistox
+;; {04.Sep.21 14:24} Local: Field:fwf: Style:if #amtf < #amtf23 then "styleCalistox" else "styleCalistox2"
+;;Local: Field: fwf: Color :if #amtf > #amtf23 then "blue" else "Black"
+Local: Field: snfx2: set as :if #amtf > #amtf23 then "**" else ""
+;; {04.Sep.21 14:22} Local: Field:snfx: set as:if #amtf < #amtf23 then "styleCalistox" else "styleCalistox2"
+
+
+local: field:amtf41: Invisible: yes
+local: field:amtf42: Invisible: yes
+local: field:amtf43: Invisible: yes
+local: field:amtf44: Invisible: yes
+local: field:amtf45: Invisible: yes
+local: field:amtf46: Invisible: yes
+local: field:amtf47: Invisible: yes
+local: field:amtf48: Invisible: yes
+local: field:amtf49: Invisible: yes
+local: field:amtf50: Invisible: yes
+
+ Border:Thin top:$name <> $$prevobj:$name
+
+
+
+
+[line: LnAgeingWiseOutstandingTotals]
+use: LnAgeingWiseOutstanding
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local:field: snfx2: set as: ""
+local:field: fwf: set as:"Total";; "Party"
+local:field: nf: set as:"";; "Branch"
+local:field: amtf: set as:$$total:amtf;; "Total Overdue"
+local:field: amtf1: set as:$$total:amtf1;; "Total Overdue"
+local:field: amtf2: set as:$$total:amtf2;; "Amount"
+local:field: amtf3: set as:$$total:amtf3;; "0-10"
+local:field: amtf4: set as:$$total:amtf4;; "11-21"
+local:field: amtf5: set as:$$total:amtf5;; "22-31"
+local:field: amtf6: set as:$$total:amtf6;; "32-60"
+local:field: amtf7: set as:$$total:amtf7;; "61-100"
+local:field: amtf8: set as:$$total:amtf8;; "101-119"
+local:field: amtf9: set as:$$total:amtf9;; "120 And Above"
+local:field: amtf10: set as:$$total:amtf10;; "120 And Above"
+local:field: amtf20: set as:$$total:amtf20;; "120 And Above"
+local:field: amtf21: set as:$$total:amtf21;; "120 And Above"
+local:field: amtf22: set as:$$total:amtf22;; "120 And Above"
+local:field: amtf23: set as:$$total:amtf23;; "120 And Above"
+Local: Field: fwf: Style:styleCalistox2
+Local: Field: nf: Style:styleCalistox2
+Local: Field:amtf: Style:styleCalistox2
+Local: Field:amtf1: Style:styleCalistox2
+Local: Field:amtf2: Style:styleCalistox2
+Local: Field:amtf3: Style:styleCalistox2
+Local: Field:amtf4: Style:styleCalistox2
+Local: Field:amtf5: Style:styleCalistox2
+Local: Field:amtf6: Style:styleCalistox2
+Local: Field:amtf7: Style:styleCalistox2
+Local: Field:amtf8: Style:styleCalistox2
+Local: Field:amtf9: Style:styleCalistox2
+Local: Field:amtf10: Style:styleCalistox2
+Local: Field:amtf20: Style:styleCalistox2
+Local: Field:amtf21: Style:styleCalistox2
+Local: Field:amtf22: Style:styleCalistox2
+Local: Field:amtf23: Style:styleCalistox2
+
+
+[System: Formula]
+amtf6total:$$total:amtf6/2
+amtf40total:$$total:amtf/2
+amtf6total2:@@amtf6total/@@amtf40total
+
+
+[line: LnAgeingWiseOutstandingTotals2]
+use: LnAgeingWiseOutstanding
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local:field: snfx2: set as: ""
+local:field: fwf: set as:"O/S Percentage";; "Party"
+local:field: nf: set as:"";; "Branch"
+/*
+local:field: amtf: set as:$$total:amtf ;; "Total Overdue"
+local:field: amtf1: set as:$$total:amtf1 ;; "Total Overdue"
+local:field: amtf2: set as:$$total:amtf2 ;; "Amount"
+local:field: amtf3: set as:$$total:amtf3 ;; "0-10"
+local:field: amtf4: set as:$$total:amtf4 ;; "11-21"
+local:field: amtf5: set as:$$total:amtf5 ;; "22-31"
+local:field: amtf6: set as:$$total:amtf6 ;; "32-60"
+local:field: amtf7: set as:$$total:amtf7  ;; "61-100"
+local:field: amtf8: set as:$$total:amtf8;; "101-119"
+local:field: amtf9: set as:$$total:amtf9 ;; "120 And Above"
+local:field: amtf10: set as:$$total:amtf10 ;; "120 And Above"
+local:field: amtf20: set as:$$total:amtf20 ;; "120 And Above"
+local:field: amtf21: set as:"" ;;$$total:amtf21 ;; "120 And Above"
+local:field: amtf22: set as:"" ;;$$total:amtf22 ;; "120 And Above"
+local:field: amtf23: set as:"" ;;$$total:amtf23 ;; "120 And Above"
+                       */
+                       
+replace :right field:amtf3:amtf33   ;;,amtf4,amtf5,amtf6,amtf7,amtf8,amtf9,amtf10,Amtf  ;;,amtf33,amtf34,amtf35,amtf36,amtf37,amtf38,amtf39,amtf40
+replace :right field:amtf4:amtf34   ;;,amtf4,amtf5,amtf6,amtf7,amtf8,amtf9,amtf10,Amtf  ;;,amtf33,amtf34,amtf35,amtf36,amtf37,amtf38,amtf39,amtf40
+replace :right field:amtf5:amtf35   ;;,amtf4,amtf5,amtf6,amtf7,amtf8,amtf9,amtf10,Amtf  ;;,amtf33,amtf34,amtf35,amtf36,amtf37,amtf38,amtf39,amtf40
+replace :right field:amtf6:amtf36   ;;,amtf4,amtf5,amtf6,amtf7,amtf8,amtf9,amtf10,Amtf  ;;,amtf33,amtf34,amtf35,amtf36,amtf37,amtf38,amtf39,amtf40
+replace :right field:amtf7:amtf37   ;;,amtf4,amtf5,amtf6,amtf7,amtf8,amtf9,amtf10,Amtf  ;;,amtf33,amtf34,amtf35,amtf36,amtf37,amtf38,amtf39,amtf40
+replace :right field:amtf8:amtf38   ;;,amtf4,amtf5,amtf6,amtf7,amtf8,amtf9,amtf10,Amtf  ;;,amtf33,amtf34,amtf35,amtf36,amtf37,amtf38,amtf39,amtf40
+replace :right field:amtf9:amtf39   ;;,amtf4,amtf5,amtf6,amtf7,amtf8,amtf9,amtf10,Amtf  ;;,amtf33,amtf34,amtf35,amtf36,amtf37,amtf38,amtf39,amtf40
+replace :right field:amtf:amtf40   ;;,amtf4,amtf5,amtf6,amtf7,amtf8,amtf9,amtf10,Amtf  ;;,amtf33,amtf34,amtf35,amtf36,amtf37,amtf38,amtf39,amtf40
+
+;; {07.Dec.21 15:54} add:right field:after:fwf:amtf41,amtf42,amtf43,amtf44,amtf45,amtf46,amtf47,amtf48
+
+local:field: amtf43: set as:(#amtf33/#amtf40)*100
+local:field: amtf44: set as:(#amtf34/#amtf40)*100
+local:field: amtf45: set as:(#amtf35/#amtf40)*100
+local:field: amtf46: set as:(#amtf36/#amtf40)*100
+local:field: amtf47: set as:(#amtf37/#amtf40)*100
+local:field: amtf48: set as:(#amtf38/#amtf40)*100
+local:field: amtf49: set as:(#amtf39/#amtf40)*100
+local:field: amtf50: set as:$$nettamount:#amtf43:$$nettamount:#amtf44:$$nettamount:#amtf45:$$nettamount:#amtf46:$$nettamount:#amtf47:$$nettamount:#amtf48:$$nettamount:#amtf49
+
+local: field:amtf33: Invisible: yes
+local: field:amtf34: Invisible: yes
+local: field:amtf35: Invisible: yes
+local: field:amtf36: Invisible: yes
+local: field:amtf37: Invisible: yes
+local: field:amtf38: Invisible: yes
+local: field:amtf39: Invisible: yes
+
+local: field:amtf40: Invisible: yes
+
+local: field:amtf43:delete: Invisible: yes
+local: field:amtf44:delete: Invisible: yes
+local: field:amtf45:delete: Invisible: yes
+local: field:amtf46:delete: Invisible: yes
+local: field:amtf47:delete: Invisible: yes
+local: field:amtf48:delete: Invisible: yes
+local: field:amtf49:delete: Invisible: yes
+local: field:amtf50:delete: Invisible: yes
+;; {07.Dec.21 16:03} local: field:amtf42:delete:  Invisible: yes
+;; {07.Dec.21 16:03} local: field:amtf43:delete:  Invisible: yes
+;; {07.Dec.21 16:03} local: field:amtf44:delete:  Invisible: yes
+;; {07.Dec.21 16:03} local: field:amtf45:delete:  Invisible: yes
+;; {07.Dec.21 16:03} local: field:amtf46:delete:  Invisible: yes
+;; {07.Dec.21 16:03} local: field:amtf47:delete:  Invisible: yes
+;; {07.Dec.21 16:03} local: field:amtf48:delete:  Invisible: yes
+;; {07.Dec.21 16:03} local: field:amtf49: delete: Invisible: yes
+
+
+
+local:field: amtf: set as:"";;$$total:amtf39 ;; "Total Overdue"
+
+local:field: amtf40: set as:$$total:amtf/2 ;; "Total Overdue"
+local:field: amtf1: set as:"";;$$total:amtf1 ;; "Total Overdue"
+local:field: amtf2: set as:"";;$$total:amtf2 ;; "Amount"
+
+local:field: amtf33: set as:$$total:amtf3/2 ;; "0-10"
+local:field: amtf34: set as:$$total:amtf4/2 ;; "11-21"
+local:field: amtf35: set as:$$total:amtf5/2 ;; "22-31"
+local:field: amtf36: set as:$$total:amtf6/2   ;;@@amtf6total/@@amtf40total ;; "32-60"
+
+
+local:field: amtf37: set as:$$total:amtf7/2  ;; "61-100"
+local:field: amtf38: set as:$$total:amtf8/2;; "101-119"
+local:field: amtf39: set as:$$total:amtf9/2 ;; "120 And Above"
+local:field: amtf10: set as:""  ;;$$total:amtf10 ;; "120 And Above"
+local:field: amtf20: set as:"" ;;$$total:amtf20 ;; "120 And Above"
+local:field: amtf21: set as:"" ;;$$total:amtf21 ;; "120 And Above"
+local:field: amtf22: set as:"" ;;$$total:amtf22 ;; "120 And Above"
+local:field: amtf23: set as:"" ;;$$total:amtf23 ;; "120 And Above"
+
+                       
+Local: Field: fwf: Style:styleCalistox2
+Local: Field: nf: Style:styleCalistox2
+Local: Field:amtf40: Style:styleCalistox2
+Local: Field:amtf1: Style:styleCalistox2
+Local: Field:amtf2: Style:styleCalistox2
+Local: Field:amtf33: Style:styleCalistox2
+Local: Field:amtf34: Style:styleCalistox2
+Local: Field:amtf35: Style:styleCalistox2
+Local: Field:amtf36: Style:styleCalistox2
+Local: Field:amtf37: Style:styleCalistox2
+Local: Field:amtf38: Style:styleCalistox2
+Local: Field:amtf39: Style:styleCalistox2
+
+Local: Field:amtf43: Style:styleCalistox2
+Local: Field:amtf44: Style:styleCalistox2
+Local: Field:amtf45: Style:styleCalistox2
+Local: Field:amtf46: Style:styleCalistox2
+Local: Field:amtf47: Style:styleCalistox2
+Local: Field:amtf48: Style:styleCalistox2
+Local: Field:amtf49: Style:styleCalistox2
+Local: Field:amtf50: Style:styleCalistox2
+
+Local: Field:amtf10: Style:styleCalistox2
+Local: Field:amtf20: Style:styleCalistox2
+Local: Field:amtf21: Style:styleCalistox2
+Local: Field:amtf22: Style:styleCalistox2
+Local: Field:amtf23: Style:styleCalistox2
+
+Local: field: amtf40: Width:9 ;;12
+Local: field: amtf1: Width:6 ;;10
+Local: field: amtf2: Width:6 ;;10
+Local: field: amtf33: Width:6 ;;10
+Local: field: amtf34: Width:6 ;;10
+Local: field: amtf35: Width:6 ;;10
+Local: field: amtf36: Width:6 ;;10
+Local: field: amtf37: Width:6 ;;10
+Local: field: amtf38: Width:6 ;;10
+Local: field: amtf39: Width:6 ;;10
+Local: field: amtf10: Width:6 ;;10
+Local: field: amtf11: Width:6 ;;10
+Local: field: amtf12: Width:6 ;;10
+Local: field: amtf23: Width:7 ;;10
+
+
+Local: field: amtf41: Width:6 ;;10
+Local: field: amtf42: Width:6 ;;10
+Local: field: amtf43: Width:6 ;;10
+Local: field: amtf44: Width:6 ;;10
+Local: field: amtf45: Width:6 ;;10
+Local: field: amtf46: Width:6 ;;10
+Local: field: amtf47: Width:6 ;;10
+Local: field: amtf48: Width:6 ;;10
+Local: field: amtf49: Width:6 ;;10
+Local: field: amtf50: Width:9 ;;10
+
+
+Local: field: amtf33: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf34: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf35: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf36: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf37: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf38: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf39: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf40: Format:"decimals:0,nocomma"  ;; "drcr"
+
+Local: field: amtf43: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf44: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf45: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf46: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf47: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf48: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf49: Format:"decimals:0,nocomma"  ;; "drcr"
+Local: field: amtf50: Format:"decimals:0,nocomma"  ;; "drcr"
+
+
+
+;;===================
+
+[button:PartyNamebotton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:PartyNamebotton
+
+ [report:PartyNamebotton]
+ form:PartyNamebotton
+
+ [form:PartyNamebotton]
+ part:PartyNamebotton
+
+ HEIGHT:20  ;;% PAGE
+ WIDTH:30  ;;% PAGE
+
+ [part:PartyNamebotton]
+ line:titlelinex,PartyNameline
+
+
+
+ [line:PartyNameline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Party Name"
+ Local: Field: nf:modifies:str1
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:collpartyname,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ [Collection: collpartyname]
+ type:ledger
+ title:"List of Ledger"
+;; {02.Sep.21 14:59}  add:filter:Party Ledgers
+
+  [line:Branchline1]
+ field:sp,nf
+ Local: Field: sp: Set As:"Branch"
+ Local: Field: nf:modifies:str2
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+
+ [System: Formula]
+cwPartyfilter: if $$isempty:$closingbalance then no else if $$issysname:##str1 then yes else $name =##str1
+
+
+[function: callUpdate]
+returns : amount
+variable: tempvar: amount
+
+
+;; {02.Mar.19 12:22}  00  : log : ##clbalance
+
+;; {04.Sep.21 13:16} 0x1 : if: not ($name starting with "bharti")
+;; {04.Sep.21 13:16} 0x2 : return
+;; {04.Sep.21 13:16} 0x3 : end if
+ /*
+0x : log : $name
+a1001 : log: "Original ClBalance: "+ $$string:##clbalance:"DRCR"
+a1002 : log: "d0_10: "+ $$string:##d0_10:"DRCR"
+a1003 : log: "d10_20: "+ $$string:##d10_20:"DRCR"
+a1004 : log: "d20_30: "+ $$string:##d20_30:"DRCR"
+a1005 : log: "d30_40: "+ $$string:##d30_40:"DRCR"
+a1006 : log: "d40_50: "+ $$string:##d40_50:"DRCR"
+a1007 : log: "d50_60: "+ $$string:##d50_60:"DRCR"
+;; {03.Sep.21 11:01} a1008 : log: "d60_0: "+ $$string:##d60_0:"DRCR"
+ */
+
+10: if : not $$isdr:##clbalance
+;; {02.Mar.19 12:22} 11 : log : $name
+20 : set : d0_10  : $$InitValue:"Amount"
+30 : set : d10_20 : $$InitValue:"Amount"
+40 : set : d20_30 : $$InitValue:"Amount"
+50 : set : d30_40 : $$InitValue:"Amount"
+60 : set : d40_50 : $$InitValue:"Amount"
+70 : set : d50_60 : $$InitValue:"Amount"
+80 : set : d60_0 : $$InitValue:"Amount"
+90 : set : onacc : ##clbalance
+95 : return : $$InitValue:"Amount"
+100 : end if
+
+;; checking 0-10
+;; {02.Mar.19 13:20}  0x4 : log : ##clbalance
+
+200 : if: not $$isempty:##d0_10
+210 : if: ##d0_10 >##clbalance
+220 : set : d0_10 : ##clbalance
+230 : set : clbalance : $$InitValue:"Amount"
+240 : set : d10_20 :  $$InitValue:"Amount"
+250 : set : d20_30 :  $$InitValue:"Amount"
+260 : set : d30_40 :  $$InitValue:"Amount"
+270 : set : d40_50 :  $$InitValue:"Amount"
+280 : set : d50_60 :  $$InitValue:"Amount"
+290 : set : d60_0 :  $$InitValue:"Amount"
+290a: else
+;; {04.Sep.21 13:17} 290x: log : "a"
+290c: set : clbalance : ##clbalance - ##d0_10
+;; {02.Mar.19 12:58} 290d: set : d0_10: $$InitValue:"Amount"
+295 : end if
+299 : end if
+
+300 : if: not $$isempty:##d10_20
+310 : if: ##d10_20 >##clbalance
+320 : set : d10_20 : ##clbalance
+330 : set : clbalance : $$InitValue:"Amount"
+;; {02.Mar.19 12:04} 340 : set : d10_20 :  $$InitValue:"Amount"
+350 : set : d20_30 :  $$InitValue:"Amount"
+360 : set : d30_40 :  $$InitValue:"Amount"
+370 : set : d40_50 :  $$InitValue:"Amount"
+380 : set : d50_60 :  $$InitValue:"Amount"
+390 : set : d60_0 :  $$InitValue:"Amount"
+390a: else
+;; {04.Sep.21 13:17} 390x: log : "b"
+390c: set : clbalance : ##clbalance - ##d10_20
+;; {02.Mar.19 12:58} 390d: set : d20_10: $$InitValue:"Amount"
+395 : end if
+399 : end if
+
+400 : if: not $$isempty:##d20_30
+410 : if: ##d20_30 >##clbalance
+420 : set : d20_30 : ##clbalance
+430 : set : clbalance : $$InitValue:"Amount"
+;; {02.Mar.19 12:04} 340 : set : d10_20 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:05} 350 : set : d20_30 :  $$InitValue:"Amount"
+460 : set : d30_40 :  $$InitValue:"Amount"
+470 : set : d40_50 :  $$InitValue:"Amount"
+480 : set : d50_60 :  $$InitValue:"Amount"
+490 : set : d60_0 :  $$InitValue:"Amount"
+490a: else
+;; {04.Sep.21 13:17} 490x: log : "c"
+490c: set : clbalance : ##clbalance - ##d20_30
+;; {02.Mar.19 12:59} 490d: set : d20_30: $$InitValue:"Amount"
+495 : end if
+499 : end if
+
+500 : if: not $$isempty:##d30_40
+510 : if: ##d30_40 >##clbalance
+520 : set : d30_40 : ##clbalance
+530 : set : clbalance : $$InitValue:"Amount"
+;; {02.Mar.19 12:04} 340 : set : d10_20 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:05} 350 : set : d20_30 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:06} 460 : set : d30_40 :  $$InitValue:"Amount"
+570 : set : d40_50 :  $$InitValue:"Amount"
+580 : set : d50_60 :  $$InitValue:"Amount"
+590 : set : d60_0 :  $$InitValue:"Amount"
+590a: else
+;; {04.Sep.21 13:17} 590x: log : "d"
+590c: set : clbalance : ##clbalance - ##d30_40
+
+
+
+595 : end if
+599 : end if
+
+600 : if: not $$isempty:##d40_50
+610 : if: ##d40_50 >##clbalance
+620 : set : d40_50 : ##clbalance
+630 : set : clbalance : $$InitValue:"Amount"
+;; {02.Mar.19 12:04} 340 : set : d10_20 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:05} 350 : set : d20_30 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:06} 460 : set : d30_40 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:45} 670 : set : d40_50 :  $$InitValue:"Amount"
+680 : set : d50_60 :  $$InitValue:"Amount"
+690 : set : d60_0 :  $$InitValue:"Amount"
+690a: else
+;; {04.Sep.21 13:17} 690x: log : "e"
+690c: set : clbalance : ##clbalance - ##d40_50
+;; {02.Mar.19 12:59} 690d: set : d40_50: $$InitValue:"Amount"
+
+695 : end if
+
+
+699 : end if
+
+
+
+1700 : if: not $$isempty:##d50_60
+1710 : if: ##d50_60 >##clbalance
+1720 : set : d50_60 : ##clbalance
+1730 : set : clbalance : $$InitValue:"Amount"
+;; {02.Mar.19 12:04} 340 : set : d10_20 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:05} 350 : set : d20_30 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:06} 460 : set : d30_40 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:08} 770 : set : d40_50 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:08} 780 : set : d50_60 :  $$InitValue:"Amount"
+1790 : set : d60_0 :  $$InitValue:"Amount"
+1790a: else
+;; {02.Mar.19 13:20} 1690x: log : "g"
+1790c: set : clbalance : ##clbalance - ##d50_60
+;; {02.Mar.19 12:57} 1790d: set : d30_40: $$InitValue:"Amount"
+1795 : end if
+1799 : end if
+
+800 : if: not $$isempty:##d60_0
+810 : if: ##d60_0 >##clbalance
+820 : set : d60_0 :  ##clbalance
+830 : set : clbalance : $$InitValue:"Amount"
+;; {02.Mar.19 12:04} 340 : set : d10_20 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:05} 350 : set : d20_30 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:06} 460 : set : d30_40 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:08} 770 : set : d40_50 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:08} 780 : set : d50_60 :  $$InitValue:"Amount"
+;; {02.Mar.19 12:09} 790 : set : d60_0 :  $$InitValue:"Amount"
+890a: else
+;; {02.Mar.19 13:21} 890x: log : "h"
+890c: set : clbalance : ##clbalance - ##d60_0
+;; {02.Mar.19 12:57} 890d: set : d60_0: $$InitValue:"Amount"
+895 : end if
+899 : end if
+
+990 : set : onacc : ##clbalance
+/*
+1001 : log: "ClBalance2: "+ $$string:##clbalance:"DRCR"
+1002 : log: "d0_102: "+ $$string:##d0_10:"DRCR"
+1003 : log: "d10_202: "+ $$string:##d10_20:"DRCR"
+1004 : log: "d20_302: "+ $$string:##d20_30:"DRCR"
+1005 : log: "d30_402: "+ $$string:##d30_40:"DRCR"
+1006 : log: "d40_502: "+ $$string:##d40_50:"DRCR"
+1007 : log: "d50_602: "+ $$string:##d50_60:"DRCR"
+1008 : log: "d60_02: "+ $$string:##d60_0:"DRCR"
+1009 : log: "OnAcc2: "+$$string:##onacc:"DRCR"
+*/
+;;=============================
+
+
+[line:AgeingWiseline1]
+field:sp,cwlogical
+Local: Field: sp: Set As:"Ageing Analysis"
+Local: Field: sp: Style: Normal Bold
+Local: field: sp: Width:20
+local: field:default: inactive:not $NewFoglaTelecomEnabled
+Local: Field : cwlogical : SubForm :AgeingAnalysisrep
+
+[report:AgeingAnalysisrep]
+form:AgeingAnalysisrep
+
+[form:AgeingAnalysisrep]
+part:AgeingAnalysisrep
+width:20  ;;page
+height:15  ;;%page
+[part:AgeingAnalysisrep]
+line:AgeingWiselinetitle,cwblankline,AgeingWiseline,AgeingWiseline2,AgeingWiseline3,AgeingWiseline4,AgeingWiseline5,AgeingWiseline6,AgeingWiseline7 ;;,AgeingWiseline8
+
+[line:AgeingWiselinetitle]
+field:fwfc
+Local: Field: fwfc: info:"Ageing Analysis"
+Local: Field: fwfc: Style: Normal Bold
+Local: Field: fwfc: Border: thin bottom
+
+[line:AgeingWiseline]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing
+Local: Field: numf2: storage:cwtoageing
+Local: Field: numf: Set As:0
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: numf: Skip: Yes
+Local: field: numf: Format: "zero"
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+[line:AgeingWiseline2]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing2
+Local: Field: numf2: storage:cwtoageing2
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: snfx: Skip: Yes
+Local: Field: numf: Set As:$cwtoageing
+Local: Field: numf: Skip: Yes
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+[line:AgeingWiseline3]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing3
+Local: Field: numf2: storage:cwtoageing3
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: numf: Skip: Yes
+Local: Field: numf: Set As:$cwtoageing2
+Local: Field: numf: Skip: Yes
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+[line:AgeingWiseline4]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing4
+Local: Field: numf2: storage:cwtoageing4
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: numf: Skip: Yes
+Local: Field: numf: Set As:$cwtoageing3
+Local: Field: numf: Skip: Yes
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+[line:AgeingWiseline5]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing5
+Local: Field: numf2: storage:cwtoageing5
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: numf: Skip: Yes
+Local: Field: numf: Set As:$cwtoageing4
+Local: Field: numf: Skip: Yes
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+[line:AgeingWiseline6]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing6
+Local: Field: numf2: storage:cwtoageing6
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: numf: Skip: Yes
+Local: Field: numf: Set As:$cwtoageing5
+Local: Field: numf: Skip: Yes
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+[line:AgeingWiseline7]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing7
+Local: Field: numf2: storage:cwtoageing7
+Local: Field: numf: Set As:$cwtoageing6
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: numf: Skip: Yes
+Local: Field: numf: Skip: Yes
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+[line:AgeingWiseline8]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing8
+Local: Field: numf2: storage:cwtoageing8
+Local: Field: numf: Set As:$cwtoageing7
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: numf: Skip: Yes
+Local: Field: numf: Skip: Yes
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+
+
+
+[System: UDF]
+cwfromageing:number:1200
+cwtoageing:number:1201
+cwfromageing2:number:1202
+cwtoageing2:number:1203
+cwfromageing3:number:1204
+cwtoageing3:number:1205
+cwfromageing4:number:1206
+cwtoageing4:number:1207
+cwfromageing5:number:1208
+cwtoageing5:number:1209
+cwfromageing6:number:1210
+cwtoageing6:number:1211
+cwfromageing7:number:1212
+cwtoageing7:number:1213
+cwfromageing8:number:1214
+cwtoageing8:number:1215
+
+

@@ -1,0 +1,313 @@
+; Created By: Khokan on 2021-08-25 19:26, ID: 
+
+     [#menu: Gateway of Tally]
+;; {18.Sep.21 12:15}         add: Option: khamprintLock ;; : @@khamprintDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@khamprintReport: Display Collection: collledRepkhamprint
+
+
+
+     [!menu: khamprintLock]
+        add: Item: before: @@locQuit: @@khamprintReport: Display Collection: collledRepkhamprint
+        add: Item: before: @@locQuit: Blank
+        
+        
+        
+          [Collection: collledRepkhamprint]
+
+   Use         : Extract Alias Collection
+   Source Collection	: List of Ledgers
+   Variable    : Ledger Name
+   Report      :Repkhamprint
+   Trigger     : LedgerName
+   Fetch       : Name
+        
+    [System: formula]
+   khamprintReport: "Kham Print"
+;; khamprintDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Repkhamprint]
+        use: Dsp Template
+      Title: @@khamprintReport
+   Printset: Report Title: @@khamprintReport
+       Form: Frmkhamprint
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: Frmkhamprint]
+        use: DSP Template
+;; {25.Aug.21 19:49}        Part: DspAccTitles,PrtTitle0khamprint,Prtkhamprint
+       Part:PrtTitle0khamprint,Prtkhamprint
+;; {06.Sep.21 14:47}       Width:100% Page
+;; {06.Sep.21 14:47}      Height: 100% Page
+;; {26.Aug.21 13:30}   delete:Space Top   : if $$InPrintMode then ##SVSpaceTop  else 0.05 inches
+;; {17.Sep.21 17:21} add:space left :10 ;##spaceLeftnew inch    ;;0.70 inch  ;; 0.86 inch
+;; {26.Aug.21 13:30} add:space top  :2 inch ;;##spacetopnewKham inch     ;;5.9 ;; was 5.93
+;; {17.Sep.21 17:21} add:space right:10 ;##spaceRightnew inch    ;;0.50  ;;0.63 inch
+;; {17.Sep.21 15:52} add:width      :##spacewidthnewKham inch    ;;  8.5 inch
+;; {17.Sep.21 15:52} add:height     :##spaceHeightnewKham inch   ;; 10.00 inch
+
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: khamprintbotbrk,khamprintbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+      LOCAL:Part: DSP CompanyName:LOCAL:Line  : DSP CompanyName:LOCAL:FIELD:DSP CompanyName:PrintStyle :CWPrintStyle
+      
+
+[style:CWPrintStyle]
+font:"NORMAL"
+height:18
+bold:yes
+      
+      
+      [part: khamprintbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: khamprintbotopbrk]
+        use: dspacctitles
+  add: part: khamprintTitlePart
+;; {17.Sep.21 17:23}        Vertical    : Yes
+
+      local:Part: DSP ReportTime:Invisible:yes
+      local:Part: DSP CompanyName:Invisible:yes
+
+      local:Part: DSP GCC CmpRegnNo:Invisible:yes
+      local:Part: DSP GSTCmpRegnNo:Invisible:yes
+      local:Part: DSP ReportTitle:Invisible:yes
+      local:Part: DSP PageNo:Invisible:yes
+      local:Part: DSP CompanyAddress:delete:Repeat  : DSP CompanyAddress  :  Company Address
+
+
+      [part: khamprintTitlePart]
+      part: khamprintTitleParta
+      part: khamprintTitlePartb
+      
+
+      [part: khamprintTitleParta]
+      line: LnkhamprintTitle
+
+             
+      [part: khamprintTitlePartb]
+      
+      
+       line: LnkhamprintTitleb
+       local:line: LnkhamprintTitleb: Local: field: sdf2: Width:10.5
+
+
+
+      [line: LnkhamprintCurrPeriod]
+      field:nf,fwf
+
+     local: field: fwf : style:small bold   ;;styleCalisto2
+      Local: Field: fwf: Set As:##LedgerName
+      Local: field: nf: Width:29.2
+;; {02.Aug.22 14:28}       space top  :##spacetopnewKham inch
+      space top  :2.3 inch
+
+
+     [System: Formula]
+     spacetopnewKham:$spacetopnewKham:COMPANY:##SVCURRENTCOMPANY
+
+
+      [part: PrtTitle0khamprint]
+      line : LnkhamprintCurrPeriod,LnoutstandingreportTitleaddress1,partyphline1
+      repeat:LnoutstandingreportTitleaddress1:collcwLedgeraddress2
+      
+;; {17.Sep.21 15:34}       add:width      :##spacewidthnewKham inch    ;;  8.5 inch
+;; {17.Sep.21 15:32}       add:height     :##spaceHeightnewKham inch   ;; 10.00 inch
+
+      
+      [collection :collcwLedgeraddress2]
+   type : address : ledger
+   child of : ##LedgerName
+      
+      [LINE:LnoutstandingreportTitleaddress1]
+
+      field:nf,fwf
+      Local: Field: fwf: Set As:$address
+     local: field: default : style:small   ;;styleCalisto
+      Local: field: nf: Width:29.2
+     
+      [line:partyphline1]
+       field:nf,fwf
+       Local: Field: fwf: Set As:if $$isempty:@@cwphnoms then "" else "Phone."+" "+$LedgerPhone:ledger:##LedgerName+"    "+$LedgerMobile:ledger:##LedgerName
+       local: field: default : style:small bold  ;;styleCalisto
+      Local: field: nf: Width:29.2
+
+       [System: Formula]
+       cwphnoms:$LedgerPhone:ledger:##LedgerName ;+"    "+$LedgerMobile:ledger:##LedgerName
+      
+      [Part: Prtkhamprint]
+      Part: Prtkhamprinta
+      Part: Prtkhamprintb
+       
+      [Part: Prtkhamprinta]
+       Line: LnkhamprintTitle,Lnkhamprint
+;; {25.Aug.21 19:42} bottom Line: LnkhamprintTotals
+     repeat: Lnkhamprint: Colkhamprint
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+;; {17.Sep.21 17:18}       width      :50% page
+
+;; {17.Sep.21 15:32} add:height     :##spaceHeightnewKham inch   ;; 10.00 inch
+
+
+[Collection: Colkhamprint]
+  TYPE:BILLS
+FILTER:ColkhamprintFilter
+    [system: Formula]
+;; {17.Sep.21 17:08} ColkhamprintFilter:$PARENT=##LedgerName
+ColkhamprintFilter:$$isdr:$closingbalance and $parent=##LedgerName
+
+      [Line: LnkhamprintTitle]
+        use: Lnkhamprint
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: snf1: set as: "DATE"
+local:field: Snf: set as: "BILL NO"
+local:field:AMTF: set as: "BILL AMT"
+local:field: sdf2: set as: "DATE"
+local:field: nf: set as: "PARTICULARS"
+local:field: amtf2: set as: "AMOUNT"
+Local: field: SDF: Align:LEFT
+
+Local: field: SDF2: Align:LEFT
+
+local: field: sdf: style:small bold ;;styleCalisto2
+local: field: snf: style:small bold ;;styleCalisto2
+local: field: snf1: style:small bold ;;styleCalisto2
+local: field: amtf: style:small bold ;;styleCalisto2
+local: field: sdf2: style:small bold ;;styleCalisto2
+local: field: nf: style:small bold ;;styleCalisto2
+local: field: amtf2: style:small bold ;;styleCalisto2
+
+delete:explode
+
+      [Line: Lnkhamprint]
+     Fields: snf9,snf1,Snf,AMTF  ;;,SDF2,nf,Amtf2,nf9
+;; {17.Sep.21 15:59} right field: Amtf2,nf9
+ local:field: sdf: set as:$BILLDATE;; "DATE"
+local:field: Snf1: set as:$$string:@@cwbillDays2+$$string:"/"+$$string:@@CWbillMON2+$$string:"/"+$$string:@@CWbillYR2  ;; "BILL NO"
+local:field: Snf: set as:$NAME;; "BILL NO"
+local:field:AMTF: set as:$CLOSINGBALANCE;; "BILL AMT"
+local:field: sdf2: set as:"";; "DATE"
+local:field: nf: set as:"";; "PARTICULARS"
+local:field: qtyf: set as:"";; "Qty."
+local:field: amtf2: set as:"";; "AMOUNT"
+Local: Field: AMTF: Border: thin right
+;; {17.Sep.21 16:18} local: field: default : style:styleCalisto
+local: field: default : style:small
+
+Local: field: sdf: Width:12
+Local: field: snf: Width:20 ;22
+Local: field: snf9: Width:30
+
+;; {17.Sep.21 17:17} Local: field: nf9: Width:37.5
+;; {17.Sep.21 17:17} Local: field: amtf: Width:13 ;22
+Local: field: amtf: Format: "decimals:0"
+Local: field: amtf: space right:1
+space top:0.3
+
+delete:explode
+
+
+[System: Formula]
+cwBILLDays1: $$DAYOFDATE:$BILLDATE
+CWbillMON1 : $$MONTHOFDATE:$BILLDATE
+ CWbillYR1 : $$YEAROFDATE:$BILLDATE -  2000
+
+cwbillDays2 : if @@cwBILLDays1 < 10 then "0" + $$string:@@cwBILLDays1 else $$string:@@cwBILLDays1
+CWbillMON2  : if @@CWbillMON1 < 10 then "0"+$$string:@@CWbillMON1 else $$string:@@CWbillMON1
+ CWbillYR2  : if @@CWbillYR1 < 10 then "0"+$$string:@@CWbillYR1 else $$string:@@CWbillYR1
+
+
+      [line: LnkhamprintTotals]
+        use: Lnkhamprint
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      
+       delete:explode
+      
+      
+          [Part: Prtkhamprintb]
+       Line: LnkhamprintTitleb,Lnkhamprintb
+;; {25.Aug.21 19:42} bottom Line: LnkhamprintTotals
+     repeat: Lnkhamprintb: Colkhamprintb
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+;; {17.Sep.21 15:48}       width      :##spacewidthnewKham inch    ;;  8.5 inch
+
+;; {17.Sep.21 15:32} add:height     :##spaceHeightnewKham inch   ;; 10.00 inch
+;; {17.Sep.21 17:18}            width      :50% page
+
+[Collection: Colkhamprintb]
+  TYPE:BILLS
+FILTER:ColkhamprintFilterb
+    [system: Formula]
+;; {17.Sep.21 17:08} ColkhamprintFilter:$PARENT=##LedgerName
+ColkhamprintFilterb:not $$isdr:$closingbalance and $parent=##LedgerName
+
+ ;; M J ENTERPRISES,BBBBZ/DR1
+
+      [Line: LnkhamprintTitleb]
+        use: Lnkhamprintb
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: snf1: set as: "DATE"
+local:field: Snf: set as: "BILL NO"
+local:field:AMTF: set as: "BILL AMT"
+local:field: sdf2: set as: "DATE"
+local:field: nf: set as: "PARTICULARS"
+local:field: amtf2: set as: "AMOUNT"
+Local: field: SDF: Align:LEFT
+
+Local: field: SDF2: Align:LEFT
+
+local: field: sdf: style:small bold ;;styleCalisto2
+local: field: snf: style:small bold ;;styleCalisto2
+local: field: snf1: style:small bold ;;styleCalisto2
+local: field: amtf: style:small bold ;;styleCalisto2
+local: field: sdf2: style:small bold ;;styleCalisto2
+local: field: nf: style:small bold ;;styleCalisto2
+local: field: amtf2: style:small bold ;;styleCalisto2
+ delete:explode
+ 
+      [Line: Lnkhamprintb]
+     Fields:SDF2,nf,Amtf2,nf9
+;; {17.Sep.21 15:59} right field: Amtf2,nf9
+ local:field: sdf: set as:$BILLDATE;; "DATE"
+local:field: Snf1: set as:$$string:@@cwbillDays2+$$string:"/"+$$string:@@CWbillMON2+$$string:"/"+$$string:@@CWbillYR2  ;; "BILL NO"
+local:field: Snf: set as:$NAME;; "BILL NO"
+local:field:AMTF: set as:$CLOSINGBALANCE;; "BILL AMT"
+local:field: sdf2: set as:$$string:@@cwbillDays2+$$string:"/"+$$string:@@CWbillMON2+$$string:"/"+$$string:@@CWbillYR2;; "DATE"
+local:field: nf: set as:$NAME;; "PARTICULARS"
+local:field: qtyf: set as:"";; "Qty."
+local:field: amtf2: set as:$closingbalance;; "AMOUNT"
+Local: Field: AMTF: Border: thin right
+;; {17.Sep.21 16:18} local: field: default : style:styleCalisto
+local: field: default : style:small
+Local: field: sdf: Width:12
+Local: field: snf: Width:20 ;22
+Local: field: snf9: Width:30
+Local: field: nf9: Width:37.5
+Local: field: amtf: Width:13 ;22
+Local: field: amtf: Format: "decimals:0"
+Local: field: amtf: space right:1
+space top:0.3
+ delete:explode
+

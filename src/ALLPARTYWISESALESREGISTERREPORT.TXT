@@ -1,0 +1,200 @@
+; Created By: Khokan on 2021-08-27 14:51, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: allPartywisesalesregisterreportLock ;; : @@allPartywisesalesregisterreportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@allPartywisesalesregisterreportReport: Display: RepallPartywisesalesregisterreport
+
+
+
+     [!menu: allPartywisesalesregisterreportLock]
+        add: Item: before: @@locQuit: @@allPartywisesalesregisterreportReport: Display: RepallPartywisesalesregisterreport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   allPartywisesalesregisterreportReport: "All Party wise sales register report"
+;; allPartywisesalesregisterreportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepallPartywisesalesregisterreport]
+        use: Dsp Template
+      Title: @@allPartywisesalesregisterreportReport
+   Printset: Report Title: @@allPartywisesalesregisterreportReport
+       Form: FrmallPartywisesalesregisterreport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmallPartywisesalesregisterreport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0allPartywisesalesregisterreport,PrtallPartywisesalesregisterreport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: allPartywisesalesregisterreportbotbrk,allPartywisesalesregisterreportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: allPartywisesalesregisterreportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: allPartywisesalesregisterreportbotopbrk]
+        use: dspacctitles
+  add: part: allPartywisesalesregisterreportTitlePart
+
+      [part: allPartywisesalesregisterreportTitlePart]
+       line: LnallPartywisesalesregisterreportTitle
+       
+      [line: LnallPartywisesalesregisterreportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style:style3x
+      Local: Field: fwf2: Style:style3x
+      Local: Field: fwf: Set As:"" ;; ##LedgerName
+
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf2:invisible: $$inprintmode
+
+      [part: PrtTitle0allPartywisesalesregisterreport]
+      line : LnallPartywisesalesregisterreportCurrPeriod
+      
+      [Part: PrtallPartywisesalesregisterreport]
+       Line: LnallPartywisesalesregisterreportTitle,LnallPartywisesalesregisterreport
+bottom Line: LnallPartywisesalesregisterreportTotals
+     repeat: LnallPartywisesalesregisterreport: ColallPartywisesalesregisterreport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColallPartywisesalesregisterreport]
+
+   source Collection: sourceColallPartywisesalesregisterreport
+
+by:partyledgername:$partyledgername
+by:date:$date
+by:vouchernumber:$vouchernumber
+
+;; {25.Aug.21 14:04} by:cwcaption1vch1:$..cwcaption1vch
+;; {25.Aug.21 14:04} by:cwledcity1:$cwledcity:ledger:$partyledgername
+;; {25.Aug.21 14:04} by:cwcaption1vch2:$..cwcaption2vch
+;; {25.Aug.21 14:04} by:cwcaption1vch3:$..cwcaption3vch
+aggr compute:billedqty:sum:$$CollAmtTotal:inventoryentries:$billedqty
+
+aggr compute:amount:sum:$amount
+
+aggr compute:amount1:sum:$$CollAmtTotal:inventoryentries:$amount
+compute:CWTEMPGSTEWAYTRANSPORTERNAME1:$CWTEMPGSTEWAYTRANSPORTERNAME
+compute:BILLOFLADINGNO1:$BILLOFLADINGNO
+compute:BILLOFLADINGDATE1:$BILLOFLADINGDATE
+compute:narration1:$narration
+compute:BASICFINALDESTINATION1:$BASICFINALDESTINATION
+
+[Collection: sourceColallPartywisesalesregisterreport]
+Type	   : Vouchers	: VoucherType
+Child Of   : $$VchTypesales
+Belongs To : Yes
+;; {27.Aug.21 14:52}  filter:ColPartywisesalesregreportFilter
+
+    [system: Formula]
+ColallPartywisesalesregisterreportFilter: Yes
+
+      [Line: LnallPartywisesalesregisterreportTitle]
+        use: LnallPartywisesalesregisterreport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: snf: set as:"Invoice No." ;; "INVOICE No."
+local:field: sdf: set as: "Date"
+local:field: fwf: set as:"Party & Booked To";; "PARTY & BOOKED TO"
+local:field: nf: set as:"Transport";; "TRANSPORT"
+local:field: snf2: set as:"LR Number";; "LR NUMBER"
+local:field: sdf2: set as: "LR Date"
+local:field: nf2: set as:"Remarks / Narration";; "REMARKS / NARRATION"
+local:field: snf3: set as: "Area"
+local:field: qtyf: set as: "Pcs"
+local:field: ratepf : set as : "Rate"
+local:field: amtf: set as: "Gross Amount" ;;"GROSS AMOUNT"
+
+local:field: snf: style:style2x
+local:field: sdf:style:style2x
+local:field: fwf: style:style2x
+local:field: nf:style:style2x
+local:field: snf2: style:style2x
+local:field: snf3: style:style2x
+local:field: sdf2:style:style2x
+local:field: nf2:style:style2x
+local:field: nf2: style:style2x
+local:field: qtyf: style:style2x
+local:field: ratepf :style:style2x
+local:field: amtf:style:style2x
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+
+
+      [Line: LnallPartywisesalesregisterreport]
+    Fields: snf,sdf,fwf
+right field:nf,snf2,sdf2,snf3,Qtyf,ratepf,Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+
+local:field: snf: set as:$vouchernumber;; "INVOICE No."
+local:field: sdf: set as:$date;; "DATE"
+local:field: fwf: set as:if $$isempty:$BASICFINALDESTINATION1 then $partyledgername else $partyledgername+" & "+$BASICFINALDESTINATION1 ;; "PARTY & BOOKED TO"
+local:field: nf: set as:$CWTEMPGSTEWAYTRANSPORTERNAME1;; "TRANSPORT"
+local:field: snf2: set as:$BILLOFLADINGNO1;; "LR NUMBER"
+local:field: snf3: set as:$cwledcity:ledger:$partyledgername;; "AREA"
+local:field: sdf2: set as:$BILLOFLADINGDATE1;; "LR DATE"
+local:field: nf2: set as:$narration1;; "REMARKS / NARRATION"
+
+local:field: qtyf: set as:$billedqty ;; "PCS"
+local:field: ratepf : set as :#amtf/#qtyf ;; "RATE"
+local:field: amtf: set as:$amount1;; "GROSS AMOUNT"
+
+local:field: default:style:style3x
+
+ Local: Field: default: Border: thin right
+
+
+      [line: LnallPartywisesalesregisterreportTotals]
+        use: LnallPartywisesalesregisterreport
+     option: totalOpt
+ local: field: fwf: align: right
+
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total"
+
+local: field: amtf : set as :  $$total:amtf
+local:field: snf: set as:"";; "INVOICE No."
+local:field: sdf: set as:"";; "DATE"
+local:field: fwf: set as:"";; "PARTY & BOOKED TO"
+local:field: nf: set as:"";; "TRANSPORT"
+local:field: snf2: set as:"";; "LR NUMBER"
+local:field: sdf2: set as:"";; "LR DATE"
+local:field: nf2: set as:"";; "REMARKS / NARRATION"
+local:field: nf2: set as:"";; "AREA"
+
+local:field: ratepf : set as :"";; "RATE"
+
+local:field: snf: style:style2x
+local:field: sdf:style:style2x
+local:field: fwf: style:style2x
+local:field: nf:style:style2x
+local:field: snf2: style:style2x
+local:field: snf3: style:style2x
+local:field: sdf2:style:style2x
+local:field: nf2:style:style2x
+local:field: nf2: style:style2x
+local:field: qtyf: style:style2x
+local:field: ratepf :style:style2x
+local:field: amtf:style:style2x

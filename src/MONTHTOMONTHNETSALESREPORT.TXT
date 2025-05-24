@@ -1,0 +1,662 @@
+; Created By: Khokan on 2022-08-19 10:19, ID: 
+
+     [#menu: Gateway of Tally]
+;; {19.Aug.22 17:47}         add: Option: MonthtomonthnetsalesreportLock ;; : @@MonthtomonthnetsalesreportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@MonthtomonthnetsalesreportReport: Display: RepMonthtomonthnetsalesreport
+
+
+
+     [!menu: MonthtomonthnetsalesreportLock]
+        add: Item: before: @@locQuit: @@MonthtomonthnetsalesreportReport: Display: RepMonthtomonthnetsalesreport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   MonthtomonthnetsalesreportReport: "Month to month net sales report"
+;; MonthtomonthnetsalesreportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepMonthtomonthnetsalesreport]
+        use: Dsp Template
+      Title: @@MonthtomonthnetsalesreportReport
+   Printset: Report Title: @@MonthtomonthnetsalesreportReport
+       Form: FrmMonthtomonthnetsalesreport
+     Export: Yes
+    ;; set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmMonthtomonthnetsalesreport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0Monthtomonthnetsalesreport,PrtMonthtomonthnetsalesreport
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: Monthtomonthnetsalesreportbotbrk,MonthtomonthnetsalesreportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: MonthtomonthnetsalesreportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: Monthtomonthnetsalesreportbotopbrk]
+        use: dspacctitles
+  add: part: MonthtomonthnetsalesreportTitlePart
+
+      [part: MonthtomonthnetsalesreportTitlePart]
+       line: LnMonthtomonthnetsalesreportTitle
+       
+      [line: LnMonthtomonthnetsalesreportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0Monthtomonthnetsalesreport]
+      line : LnMonthtomonthnetsalesreportCurrPeriod
+      
+      [Part: PrtMonthtomonthnetsalesreport]
+       Line: LnMonthtomonthnetsalesreportTitle,LnAPRIL,LnMAY,LnJUNE,LnJULY,LnAUG,LnSEPt,LnOCT,LnNOV,LnDEC,LnJAN,LnFEB,LnMAR
+;; {19.Aug.22 10:48}        Line: LnAPRIL,LnMAY,LnJUNE,LnJULY,LnAUG,LnSEPt,LnOCT,LnNOV,LnDEC,LnJAN,LnFEB,LnMAR
+       
+;;bottom Line: LnMonthtomonthnetsalesreportTotals
+    ;; repeat: LnMonthtomonthnetsalesreport: ColMonthtomonthnetsalesreport
+     scroll: Vertical
+;; {19.Aug.22 10:48}  Common Border: YEs
+      Total: Qtyf,amtf
+;; {19.Aug.22 10:47}      border:thin box
+;; {19.Aug.22 10:54} height:19
+
+[Collection: ColMonthtomonthnetsalesreport]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColMonthtomonthnetsalesreportFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColMonthtomonthnetsalesreportFilter: Yes
+
+      [Line: LnMonthtomonthnetsalesreportTitle]
+        use: LnAPRIL
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: fwf: set as: "Month"
+local:field: numf: set as:"Gross Sale Pcs"
+local:field: amtf: set as:"Gross Sale Amt"
+local:field: numf2: set as:"Gross Return Pcs"
+local:field: amtf2: set as:"Gross Return Amt"
+local:field: numf3: set as:"Net Sale Pcs"
+local:field: amtf3: set as:"Net Sale Amt"
+local:field: amtf4: set as:"Net Sale Amt Without GST"
+local:field: amtf5: set as:"Collection"
+;; {19.Aug.22 10:40} Local: Field:default: Skip: Yes
+
+
+local: field: fwf : style:styleCalisto2
+local: field: numf : style:styleCalisto2
+local: field: numf1 : style:styleCalisto2
+local: field: numf2 : style:styleCalisto2
+local: field: numf3 : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf1 : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+local: field: amtf3 : style:styleCalisto2
+local: field: amtf4 : style:styleCalisto2
+local: field: amtf5 : style:styleCalisto2
+Local : field : default: Lines : 0
+Local: field: default: Align: centre
+Local: Field: fwf: delete:Border: thin right
+Local: Field: numf: Border: thin left right
+Local: field: numf: Width:8.2
+
+[Line: LnAPRIL]
+Fields:fwf
+right field:numf,amtf,numf2,amtf2,numf3,amtf3,amtf4,amtf5,amtf6 ;;,amtf10,amtf11
+
+local:field: fwf: set as:"April" ;; "Month"
+local:field: numf: set as:$$reportobject:$$collectionfieldbykey:$salesbilledqty:"April":Coltes1111 ;;"Gross Sale Pcs"
+local:field: amtf: set as:$$nettamount:@@cwGrossSaleAmtmosalesnew:@@cwGrossSaleAmtmosales  ;;$$nettamount:@@salesinvamt1valueApril:@@salesdiscamt1valueApril ;;"Gross Sale Amt"
+;; {19.Aug.22 14:58} local:field: amtf: set as:$$nettamount:#amtf10:#amtf11
+
+local:field: numf2: set as:$$reportobject:$$collectionfieldbykey:$salescrbilledqty:"April":Coltes1111 ;;"Gross Return Pcs"
+local:field: amtf2: set as:$$nettamount:@@crnoteinvamtAmtmosales:@@crnoteinvamtAmtmosalesnew ;;"Gross Return Amt"
+local:field: numf3: set as:#numf-#numf2 ;;"Net Sale Pcs"
+local:field: amtf3: set as:#amtf-#amtf2 ;;"Net Sale Amt"
+local:field: amtf4: set as:#amtf3-#amtf6 ;;"Net Sale Amt Without GST"
+local:field: amtf6: set as:(#amtf3*5)/100
+
+local:field: amtf5: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:"April":Colreceiptmnet ;;"Collection"
+
+local:field: amtf10: set as:$$nettamount:@@salesinvamt1valueApril:@@salesdiscamt1valueApril
+local:field: amtf11: set as:(#amtf10*5)/100
+
+local: field: amtf6: Invisible: yes
+
+local: field: fwf : style:styleCalisto
+local: field: numf : style:styleCalisto
+local: field: numf1 : style:styleCalisto
+local: field: numf2 : style:styleCalisto
+local: field: numf3 : style:styleCalisto
+local: field: amtf : style:styleCalisto
+local: field: amtf1 : style:styleCalisto
+local: field: amtf2 : style:styleCalisto
+local: field: amtf3 : style:styleCalisto
+local: field: amtf4 : style:styleCalisto
+local: field: amtf5 : style:styleCalisto
+
+Local: Field: default: Border: thin right
+height:1.5
+
+[System: Formula]
+salesinvamt1valueApril:$$reportobject:$$collectionfieldbykey:$salesinvamt1:"April":Coltes1111
+salesdiscamt1valueApril:$$reportobject:$$collectionfieldbykey:$cwsalesdiscamt1x:"April":Coltes1111
+
+cwGrossSaleAmtmosales:$$nettamount:@@salesinvamt1valueApril:@@salesdiscamt1valueApril
+
+cwGrossSaleAmtmosalesnew:(@@cwGrossSaleAmtmosales*5)/100
+
+crnoteinvamtAmtmosales:$$nettamount:@@crnoteinvamt1allApril:@@cwcrnotediscamt1allApril
+crnoteinvamtAmtmosalesnew:(@@crnoteinvamtAmtmosales*5)/100
+
+crnoteinvamt1allApril:$$reportobject:$$collectionfieldbykey:$crnoteinvamt1:"April":Coltes1111
+cwcrnotediscamt1allApril:$$reportobject:$$collectionfieldbykey:$cwcrnotediscamt1x:"April":Coltes1111
+
+
+;;==============================================================
+
+[Collection: Coltes1111]
+source Collection: sourColtes1111
+By : FullMonthName1 	: $FullMonthName1x
+aggr compute:salesbilledqty:sum:$salesbilledqty1
+aggr compute:salescrbilledqty:sum:$salescrbilledqtyx
+
+
+aggr compute:salesamount:sum:$salesamountx
+aggr compute:salesinvamt1:sum:$salesinvamt1x
+
+aggr compute:salescramount:sum:$salescramountx
+aggr compute:crnoteinvamt1:sum:$crnoteinvamt1x
+
+aggr compute:cwsalesdiscamt1x:sum:$cwsalesdiscamt1xx
+aggr compute:cwcrnotediscamt1x:sum:$cwcrnotediscamt1xx
+
+
+search key:$FullMonthName1
+
+
+[Collection: sourColtes1111]
+
+
+source Collection: sourColallAREAWISEnetsalesReport
+by:partyledgername:$partyledgername
+;;by:vouchernumber1:$vouchernumber
+
+;;by:cwcaption1vch1:$..cwcaption1vch
+by:parent1:$parent:ledger:$partyledgername
+by:parent2:$grandparent:ledger:$partyledgername
+By : FullMonthName1x 	: $$FullMonthName:$date
+
+aggr compute:salesbilledqty1:sum:if $$issales:$vouchertypename then @@salesbilledqty2 else $$InitValue:"Quantity"
+;;compute:vouchertypename1:$vouchertypename
+compute:cwEnableNetSalesReport1:$cwEnableNetSalesReport:vouchertype:$vouchertypename
+
+aggr compute:salescrbilledqtyx:sum:if $$IsCreditNote:$vouchertypename then @@salesbilledqty2 else $$InitValue:"Quantity"
+
+aggr compute:salesamountx:sum:if $$issales:$vouchertypename then $amount else $$InitValue:"amount"
+aggr compute:salesinvamt1x:sum:if $$issales:$vouchertypename then @@salesinvamt2 else $$InitValue:"amount"
+
+aggr compute:salescramountx:sum:if $$IsCreditNote:$vouchertypename then $amount else $$InitValue:"amount"
+aggr compute:crnoteinvamt1x:sum:if $$IsCreditNote:$vouchertypename then @@salesinvamt2 else $$InitValue:"amount"
+
+aggr compute:cwsalesdiscamt1xx:sum:if $$issales:$vouchertypename then (@@cwsalesdiscamt/@@cwinvamt)*@@salesinvamt2 else $$InitValue:"amount"  ;;(($cwsalesdiscamt1/$cwinvamt1)*$salesinvamt1)
+aggr compute:cwcrnotediscamt1xx:sum:if $$IsCreditNote:$vouchertypename then (@@cwsalesdiscamt/@@cwinvamt)*@@salesinvamt2 else $$InitValue:"amount"  ;;(($cwsalesdiscamt1/$cwinvamt1)*$salesinvamt1)
+
+
+;; {14.Jul.22 11:47} filter:cwGroupsundrydebtorsfilter,cwallpartyfilter
+
+search key:$FullMonthName1
+
+;;========================================================================
+
+
+[Collection: Colreceiptmnet]
+source Collection: sourColreceiptmnet
+
+By : FullMonthName1 	:$FullMonthName1x ;; $$FullMonthName:$date
+
+aggr compute:rcptvalue:sum:$rcptvalue1
+
+search key:$FullMonthName1
+
+[Collection: sourColreceiptmnet]
+
+ source Collection: Colreceiptsou
+
+by:partyledgername:$partyledgername
+By : FullMonthName1x 	: $$FullMonthName:$date
+
+aggr compute:rcptvalue1:sum:$amount
+;; {19.Aug.22 16:33} aggr compute:rcptvalue:sum:$amount
+
+filter:cwcashreceiptfilterxx3
+;; {19.Aug.22 16:33} search key:$FullMonthName1x
+
+
+[System: Formula]
+Aprilfil:"April"
+cwcashreceiptfilterxx3:$$isobjectbelongsto:group:($parent:ledger:$partyledgername):$$Groupsundrydebtors
+
+[Line: LnMAY]
+use:LnAPRIL
+
+local:field: fwf: set as:"May" ;; "Month"
+local:field: numf: set as:$$reportobject:$$collectionfieldbykey:$salesbilledqty:"May":Coltes1111 ;;"Gross Sale Pcs"
+local:field: amtf: set as:$$nettamount:@@cwGrossSaleAmtmosalesnewMay:@@cwGrossSaleAmtmosalesMay  ;;$$nettamount:@@salesinvamt1valueApril:@@salesdiscamt1valueApril ;;"Gross Sale Amt"
+;; {19.Aug.22 14:58} local:field: amtf: set as:$$nettamount:#amtf10:#amtf11
+
+local:field: numf2: set as:$$reportobject:$$collectionfieldbykey:$salescrbilledqty:"May":Coltes1111 ;;"Gross Return Pcs"
+local:field: amtf2: set as:$$nettamount:@@crnoteinvamtAmtmosalesMay:@@crnoteinvamtAmtmosalesnewMay ;;"Gross Return Amt"
+local:field: numf3: set as:#numf-#numf2 ;;"Net Sale Pcs"
+local:field: amtf3: set as:#amtf-#amtf2 ;;"Net Sale Amt"
+local:field: amtf4: set as:#amtf3-#amtf6 ;;"Net Sale Amt Without GST"
+local:field: amtf6: set as:(#amtf3*5)/100
+
+local:field: amtf5: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:"May":Colreceiptmnet ;;"Collection"
+
+local:field: amtf10: set as:$$nettamount:@@salesinvamt1valueMay:@@salesdiscamt1valueMay
+local:field: amtf11: set as:(#amtf10*5)/100
+
+
+[System: Formula]
+salesinvamt1valueMay:$$reportobject:$$collectionfieldbykey:$salesinvamt1:"May":Coltes1111
+salesdiscamt1valueMay:$$reportobject:$$collectionfieldbykey:$cwsalesdiscamt1x:"May":Coltes1111
+
+cwGrossSaleAmtmosalesMay:$$nettamount:@@salesinvamt1valueMay:@@salesdiscamt1valueMay
+
+cwGrossSaleAmtmosalesnewMay:(@@cwGrossSaleAmtmosalesMay*5)/100
+
+crnoteinvamtAmtmosalesMay:$$nettamount:@@crnoteinvamt1allMay:@@cwcrnotediscamt1allMay
+crnoteinvamtAmtmosalesnewMay:(@@crnoteinvamtAmtmosalesMay*5)/100
+
+crnoteinvamt1allMay:$$reportobject:$$collectionfieldbykey:$crnoteinvamt1:"May":Coltes1111
+cwcrnotediscamt1allMay:$$reportobject:$$collectionfieldbykey:$cwcrnotediscamt1x:"May":Coltes1111
+
+
+[Line: LnJUNE]
+use:LnAPRIL
+
+local:field: fwf: set as:"June" ;; "Month"
+local:field: numf: set as:$$reportobject:$$collectionfieldbykey:$salesbilledqty:"June":Coltes1111 ;;"Gross Sale Pcs"
+local:field: amtf: set as:$$nettamount:@@cwGrossSaleAmtmosalesnewJune:@@cwGrossSaleAmtmosalesJune  ;;$$nettamount:@@salesinvamt1valueApril:@@salesdiscamt1valueApril ;;"Gross Sale Amt"
+;; {19.Aug.22 14:58} local:field: amtf: set as:$$nettamount:#amtf10:#amtf11
+
+local:field: numf2: set as:$$reportobject:$$collectionfieldbykey:$salescrbilledqty:"June":Coltes1111 ;;"Gross Return Pcs"
+local:field: amtf2: set as:$$nettamount:@@crnoteinvamtAmtmosalesJune:@@crnoteinvamtAmtmosalesnewJune ;;"Gross Return Amt"
+local:field: numf3: set as:#numf-#numf2 ;;"Net Sale Pcs"
+local:field: amtf3: set as:#amtf-#amtf2 ;;"Net Sale Amt"
+local:field: amtf4: set as:#amtf3-#amtf6 ;;"Net Sale Amt Without GST"
+local:field: amtf6: set as:(#amtf3*5)/100
+
+local:field: amtf5: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:"June":Colreceiptmnet ;;"Collection"
+
+local:field: amtf10: set as:$$nettamount:@@salesinvamt1valueJune:@@salesdiscamt1valueJune
+local:field: amtf11: set as:(#amtf10*5)/100
+
+[System: Formula]
+salesinvamt1valueJune:$$reportobject:$$collectionfieldbykey:$salesinvamt1:"June":Coltes1111
+salesdiscamt1valueJune:$$reportobject:$$collectionfieldbykey:$cwsalesdiscamt1x:"June":Coltes1111
+
+cwGrossSaleAmtmosalesJune:$$nettamount:@@salesinvamt1valueJune:@@salesdiscamt1valueJune
+
+cwGrossSaleAmtmosalesnewJune:(@@cwGrossSaleAmtmosalesJune*5)/100
+
+crnoteinvamtAmtmosalesJune:$$nettamount:@@crnoteinvamt1allJune:@@cwcrnotediscamt1allJune
+crnoteinvamtAmtmosalesnewJune:(@@crnoteinvamtAmtmosalesJune*5)/100
+
+crnoteinvamt1allJune:$$reportobject:$$collectionfieldbykey:$crnoteinvamt1:"June":Coltes1111
+cwcrnotediscamt1allJune:$$reportobject:$$collectionfieldbykey:$cwcrnotediscamt1x:"June":Coltes1111
+
+
+[Line: LnJULY]
+use:LnAPRIL
+local:field: fwf: set as:"July" ;; "Month"
+local:field: numf: set as:$$reportobject:$$collectionfieldbykey:$salesbilledqty:"July":Coltes1111 ;;"Gross Sale Pcs"
+local:field: amtf: set as:$$nettamount:@@cwGrossSaleAmtmosalesnewJuly:@@cwGrossSaleAmtmosalesJuly  ;;$$nettamount:@@salesinvamt1valueApril:@@salesdiscamt1valueApril ;;"Gross Sale Amt"
+;; {19.Aug.22 14:58} local:field: amtf: set as:$$nettamount:#amtf10:#amtf11
+
+local:field: numf2: set as:$$reportobject:$$collectionfieldbykey:$salescrbilledqty:"July":Coltes1111 ;;"Gross Return Pcs"
+local:field: amtf2: set as:$$nettamount:@@crnoteinvamtAmtmosalesJuly:@@crnoteinvamtAmtmosalesnewJuly ;;"Gross Return Amt"
+local:field: numf3: set as:#numf-#numf2 ;;"Net Sale Pcs"
+local:field: amtf3: set as:#amtf-#amtf2 ;;"Net Sale Amt"
+local:field: amtf4: set as:#amtf3-#amtf6 ;;"Net Sale Amt Without GST"
+local:field: amtf6: set as:(#amtf3*5)/100
+
+local:field: amtf5: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:"July":Colreceiptmnet ;;"Collection"
+
+local:field: amtf10: set as:$$nettamount:@@salesinvamt1valueJuly:@@salesdiscamt1valueJuly
+local:field: amtf11: set as:(#amtf10*5)/100
+
+
+[System: Formula]
+salesinvamt1valueJuly:$$reportobject:$$collectionfieldbykey:$salesinvamt1:"July":Coltes1111
+salesdiscamt1valueJuly:$$reportobject:$$collectionfieldbykey:$cwsalesdiscamt1x:"July":Coltes1111
+
+cwGrossSaleAmtmosalesJuly:$$nettamount:@@salesinvamt1valueJuly:@@salesdiscamt1valueJuly
+
+cwGrossSaleAmtmosalesnewJuly:(@@cwGrossSaleAmtmosalesJuly*5)/100
+
+crnoteinvamtAmtmosalesJuly:$$nettamount:@@crnoteinvamt1allJuly:@@cwcrnotediscamt1allJuly
+crnoteinvamtAmtmosalesnewJuly:(@@crnoteinvamtAmtmosalesJuly*5)/100
+
+crnoteinvamt1allJuly:$$reportobject:$$collectionfieldbykey:$crnoteinvamt1:"July":Coltes1111
+cwcrnotediscamt1allJuly:$$reportobject:$$collectionfieldbykey:$cwcrnotediscamt1x:"July":Coltes1111
+
+
+[Line: LnAUG]
+use:LnAPRIL
+local:field: fwf: set as:"August" ;; "Month"
+local:field: numf: set as:$$reportobject:$$collectionfieldbykey:$salesbilledqty:"August":Coltes1111 ;;"Gross Sale Pcs"
+local:field: amtf: set as:$$nettamount:@@cwGrossSaleAmtmosalesnewAugust:@@cwGrossSaleAmtmosalesAugust  ;;$$nettamount:@@salesinvamt1valueApril:@@salesdiscamt1valueApril ;;"Gross Sale Amt"
+;; {19.Aug.22 14:58} local:field: amtf: set as:$$nettamount:#amtf10:#amtf11
+
+local:field: numf2: set as:$$reportobject:$$collectionfieldbykey:$salescrbilledqty:"August":Coltes1111 ;;"Gross Return Pcs"
+local:field: amtf2: set as:$$nettamount:@@crnoteinvamtAmtmosalesAugust:@@crnoteinvamtAmtmosalesnewAugust ;;"Gross Return Amt"
+local:field: numf3: set as:#numf-#numf2 ;;"Net Sale Pcs"
+local:field: amtf3: set as:#amtf-#amtf2 ;;"Net Sale Amt"
+local:field: amtf4: set as:#amtf3-#amtf6 ;;"Net Sale Amt Without GST"
+local:field: amtf6: set as:(#amtf3*5)/100
+
+local:field: amtf5: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:"August":Colreceiptmnet ;;"Collection"
+
+local:field: amtf10: set as:$$nettamount:@@salesinvamt1valueAugust:@@salesdiscamt1valueAugust
+local:field: amtf11: set as:(#amtf10*5)/100
+
+[System: Formula]
+salesinvamt1valueAugust:$$reportobject:$$collectionfieldbykey:$salesinvamt1:"August":Coltes1111
+salesdiscamt1valueAugust:$$reportobject:$$collectionfieldbykey:$cwsalesdiscamt1x:"August":Coltes1111
+
+cwGrossSaleAmtmosalesAugust:$$nettamount:@@salesinvamt1valueAugust:@@salesdiscamt1valueAugust
+
+cwGrossSaleAmtmosalesnewAugust:(@@cwGrossSaleAmtmosalesAugust*5)/100
+
+crnoteinvamtAmtmosalesAugust:$$nettamount:@@crnoteinvamt1allAugust:@@cwcrnotediscamt1allAugust
+crnoteinvamtAmtmosalesnewAugust:(@@crnoteinvamtAmtmosalesAugust*5)/100
+
+crnoteinvamt1allAugust:$$reportobject:$$collectionfieldbykey:$crnoteinvamt1:"August":Coltes1111
+cwcrnotediscamt1allAugust:$$reportobject:$$collectionfieldbykey:$cwcrnotediscamt1x:"August":Coltes1111
+
+
+;;===========================================================================
+        /*
+0020		: Do If		: ##vMonth In ("July", "August", "September") 		: RETURN : "July"
+0030		: Do If		: ##vMonth In ("October", "November", "December") 	: RETURN : "October"
+0040		: Do If		: ##vMonth In ("January", "February", "March") 		: RETURN : "January"
+	*/
+
+
+[Line: LnSEPt]
+use:LnAPRIL
+local:field: fwf: set as:"September" ;; "Month"
+local:field: numf: set as:$$reportobject:$$collectionfieldbykey:$salesbilledqty:"September":Coltes1111 ;;"Gross Sale Pcs"
+local:field: amtf: set as:$$nettamount:@@cwGrossSaleAmtmosalesnewSeptember:@@cwGrossSaleAmtmosalesSeptember  ;;$$nettamount:@@salesinvamt1valueApril:@@salesdiscamt1valueApril ;;"Gross Sale Amt"
+;; {19.Aug.22 14:58} local:field: amtf: set as:$$nettamount:#amtf10:#amtf11
+
+local:field: numf2: set as:$$reportobject:$$collectionfieldbykey:$salescrbilledqty:"September":Coltes1111 ;;"Gross Return Pcs"
+local:field: amtf2: set as:$$nettamount:@@crnoteinvamtAmtmosalesSeptember:@@crnoteinvamtAmtmosalesnewSeptember ;;"Gross Return Amt"
+local:field: numf3: set as:#numf-#numf2 ;;"Net Sale Pcs"
+local:field: amtf3: set as:#amtf-#amtf2 ;;"Net Sale Amt"
+local:field: amtf4: set as:#amtf3-#amtf6 ;;"Net Sale Amt Without GST"
+local:field: amtf6: set as:(#amtf3*5)/100
+
+local:field: amtf5: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:"September":Colreceiptmnet ;;"Collection"
+
+local:field: amtf10: set as:$$nettamount:@@salesinvamt1valueSeptember:@@salesdiscamt1valueSeptember
+local:field: amtf11: set as:(#amtf10*5)/100
+
+[System: Formula]
+salesinvamt1valueSeptember:$$reportobject:$$collectionfieldbykey:$salesinvamt1:"September":Coltes1111
+salesdiscamt1valueSeptember:$$reportobject:$$collectionfieldbykey:$cwsalesdiscamt1x:"September":Coltes1111
+
+cwGrossSaleAmtmosalesSeptember:$$nettamount:@@salesinvamt1valueSeptember:@@salesdiscamt1valueSeptember
+
+cwGrossSaleAmtmosalesnewSeptember:(@@cwGrossSaleAmtmosalesSeptember*5)/100
+
+crnoteinvamtAmtmosalesSeptember:$$nettamount:@@crnoteinvamt1allSeptember:@@cwcrnotediscamt1allSeptember
+crnoteinvamtAmtmosalesnewSeptember:(@@crnoteinvamtAmtmosalesSeptember*5)/100
+
+crnoteinvamt1allSeptember:$$reportobject:$$collectionfieldbykey:$crnoteinvamt1:"September":Coltes1111
+cwcrnotediscamt1allSeptember:$$reportobject:$$collectionfieldbykey:$cwcrnotediscamt1x:"September":Coltes1111
+
+
+
+[Line: LnOCT]
+use:LnAPRIL
+local:field: fwf: set as:"October" ;; "Month"
+local:field: numf: set as:$$reportobject:$$collectionfieldbykey:$salesbilledqty:"October":Coltes1111 ;;"Gross Sale Pcs"
+local:field: amtf: set as:$$nettamount:@@cwGrossSaleAmtmosalesnewOctober:@@cwGrossSaleAmtmosalesOctober  ;;$$nettamount:@@salesinvamt1valueApril:@@salesdiscamt1valueApril ;;"Gross Sale Amt"
+;; {19.Aug.22 14:58} local:field: amtf: set as:$$nettamount:#amtf10:#amtf11
+
+local:field: numf2: set as:$$reportobject:$$collectionfieldbykey:$salescrbilledqty:"October":Coltes1111 ;;"Gross Return Pcs"
+local:field: amtf2: set as:$$nettamount:@@crnoteinvamtAmtmosalesOctober:@@crnoteinvamtAmtmosalesnewOctober ;;"Gross Return Amt"
+local:field: numf3: set as:#numf-#numf2 ;;"Net Sale Pcs"
+local:field: amtf3: set as:#amtf-#amtf2 ;;"Net Sale Amt"
+local:field: amtf4: set as:#amtf3-#amtf6 ;;"Net Sale Amt Without GST"
+local:field: amtf6: set as:(#amtf3*5)/100
+
+local:field: amtf5: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:"October":Colreceiptmnet ;;"Collection"
+
+local:field: amtf10: set as:$$nettamount:@@salesinvamt1valueOctober:@@salesdiscamt1valueOctober
+local:field: amtf11: set as:(#amtf10*5)/100
+
+[System: Formula]
+salesinvamt1valueOctober:$$reportobject:$$collectionfieldbykey:$salesinvamt1:"October":Coltes1111
+salesdiscamt1valueOctober:$$reportobject:$$collectionfieldbykey:$cwsalesdiscamt1x:"October":Coltes1111
+
+cwGrossSaleAmtmosalesOctober:$$nettamount:@@salesinvamt1valueOctober:@@salesdiscamt1valueOctober
+
+cwGrossSaleAmtmosalesnewOctober:(@@cwGrossSaleAmtmosalesOctober*5)/100
+
+crnoteinvamtAmtmosalesOctober:$$nettamount:@@crnoteinvamt1allOctober:@@cwcrnotediscamt1allOctober
+crnoteinvamtAmtmosalesnewOctober:(@@crnoteinvamtAmtmosalesOctober*5)/100
+
+crnoteinvamt1allOctober:$$reportobject:$$collectionfieldbykey:$crnoteinvamt1:"October":Coltes1111
+cwcrnotediscamt1allOctober:$$reportobject:$$collectionfieldbykey:$cwcrnotediscamt1x:"October":Coltes1111
+
+[Line: LnNOV]
+use:LnAPRIL
+Local: Field: fwf: Set As:"November"
+local:field: numf: set as:$$reportobject:$$collectionfieldbykey:$salesbilledqty:"November":Coltes1111 ;;"Gross Sale Pcs"
+local:field: amtf: set as:$$nettamount:@@cwGrossSaleAmtmosalesnewNovember:@@cwGrossSaleAmtmosalesNovember  ;;$$nettamount:@@salesinvamt1valueApril:@@salesdiscamt1valueApril ;;"Gross Sale Amt"
+;; {19.Aug.22 14:58} local:field: amtf: set as:$$nettamount:#amtf10:#amtf11
+
+local:field: numf2: set as:$$reportobject:$$collectionfieldbykey:$salescrbilledqty:"November":Coltes1111 ;;"Gross Return Pcs"
+local:field: amtf2: set as:$$nettamount:@@crnoteinvamtAmtmosalesNovember:@@crnoteinvamtAmtmosalesnewNovember ;;"Gross Return Amt"
+local:field: numf3: set as:#numf-#numf2 ;;"Net Sale Pcs"
+local:field: amtf3: set as:#amtf-#amtf2 ;;"Net Sale Amt"
+local:field: amtf4: set as:#amtf3-#amtf6 ;;"Net Sale Amt Without GST"
+local:field: amtf6: set as:(#amtf3*5)/100
+
+local:field: amtf5: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:"November":Colreceiptmnet ;;"Collection"
+
+local:field: amtf10: set as:$$nettamount:@@salesinvamt1valueNovember:@@salesdiscamt1valueNovember
+local:field: amtf11: set as:(#amtf10*5)/100
+
+[System: Formula]
+salesinvamt1valueNovember:$$reportobject:$$collectionfieldbykey:$salesinvamt1:"November":Coltes1111
+salesdiscamt1valueNovember:$$reportobject:$$collectionfieldbykey:$cwsalesdiscamt1x:"November":Coltes1111
+
+cwGrossSaleAmtmosalesNovember:$$nettamount:@@salesinvamt1valueNovember:@@salesdiscamt1valueNovember
+
+cwGrossSaleAmtmosalesnewNovember:(@@cwGrossSaleAmtmosalesNovember*5)/100
+
+crnoteinvamtAmtmosalesNovember:$$nettamount:@@crnoteinvamt1allNovember:@@cwcrnotediscamt1allNovember
+crnoteinvamtAmtmosalesnewNovember:(@@crnoteinvamtAmtmosalesNovember*5)/100
+
+crnoteinvamt1allNovember:$$reportobject:$$collectionfieldbykey:$crnoteinvamt1:"November":Coltes1111
+cwcrnotediscamt1allNovember:$$reportobject:$$collectionfieldbykey:$cwcrnotediscamt1x:"November":Coltes1111
+
+
+[Line: LnDEC]
+use:LnAPRIL
+Local: Field: fwf: Set As:"December"
+local:field: numf: set as:$$reportobject:$$collectionfieldbykey:$salesbilledqty:"December":Coltes1111 ;;"Gross Sale Pcs"
+local:field: amtf: set as:$$nettamount:@@cwGrossSaleAmtmosalesnewDecember:@@cwGrossSaleAmtmosalesDecember  ;;$$nettamount:@@salesinvamt1valueApril:@@salesdiscamt1valueApril ;;"Gross Sale Amt"
+;; {19.Aug.22 14:58} local:field: amtf: set as:$$nettamount:#amtf10:#amtf11
+
+local:field: numf2: set as:$$reportobject:$$collectionfieldbykey:$salescrbilledqty:"December":Coltes1111 ;;"Gross Return Pcs"
+local:field: amtf2: set as:$$nettamount:@@crnoteinvamtAmtmosalesDecember:@@crnoteinvamtAmtmosalesnewDecember ;;"Gross Return Amt"
+local:field: numf3: set as:#numf-#numf2 ;;"Net Sale Pcs"
+local:field: amtf3: set as:#amtf-#amtf2 ;;"Net Sale Amt"
+local:field: amtf4: set as:#amtf3-#amtf6 ;;"Net Sale Amt Without GST"
+local:field: amtf6: set as:(#amtf3*5)/100
+
+local:field: amtf5: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:"December":Colreceiptmnet ;;"Collection"
+
+local:field: amtf10: set as:$$nettamount:@@salesinvamt1valueDecember:@@salesdiscamt1valueDecember
+local:field: amtf11: set as:(#amtf10*5)/100
+
+[System: Formula]
+salesinvamt1valueDecember:$$reportobject:$$collectionfieldbykey:$salesinvamt1:"December":Coltes1111
+salesdiscamt1valueDecember:$$reportobject:$$collectionfieldbykey:$cwsalesdiscamt1x:"December":Coltes1111
+
+cwGrossSaleAmtmosalesDecember:$$nettamount:@@salesinvamt1valueDecember:@@salesdiscamt1valueDecember
+
+cwGrossSaleAmtmosalesnewDecember:(@@cwGrossSaleAmtmosalesDecember*5)/100
+
+crnoteinvamtAmtmosalesDecember:$$nettamount:@@crnoteinvamt1allDecember:@@cwcrnotediscamt1allDecember
+crnoteinvamtAmtmosalesnewDecember:(@@crnoteinvamtAmtmosalesDecember*5)/100
+
+crnoteinvamt1allDecember:$$reportobject:$$collectionfieldbykey:$crnoteinvamt1:"December":Coltes1111
+cwcrnotediscamt1allDecember:$$reportobject:$$collectionfieldbykey:$cwcrnotediscamt1x:"December":Coltes1111
+
+
+
+[Line: LnJAN]
+use:LnAPRIL
+Local: Field: fwf: Set As:"January"
+local:field: numf: set as:$$reportobject:$$collectionfieldbykey:$salesbilledqty:"January":Coltes1111 ;;"Gross Sale Pcs"
+local:field: amtf: set as:$$nettamount:@@cwGrossSaleAmtmosalesnewJanuary:@@cwGrossSaleAmtmosalesJanuary ;;$$nettamount:@@salesinvamt1valueApril:@@salesdiscamt1valueApril ;;"Gross Sale Amt"
+;; {19.Aug.22 14:58} local:field: amtf: set as:$$nettamount:#amtf10:#amtf11
+
+local:field: numf2: set as:$$reportobject:$$collectionfieldbykey:$salescrbilledqty:"January":Coltes1111 ;;"Gross Return Pcs"
+local:field: amtf2: set as:$$nettamount:@@crnoteinvamtAmtmosalesJanuary:@@crnoteinvamtAmtmosalesnewJanuary ;;"Gross Return Amt"
+local:field: numf3: set as:#numf-#numf2 ;;"Net Sale Pcs"
+local:field: amtf3: set as:#amtf-#amtf2 ;;"Net Sale Amt"
+local:field: amtf4: set as:#amtf3-#amtf6 ;;"Net Sale Amt Without GST"
+local:field: amtf6: set as:(#amtf3*5)/100
+
+local:field: amtf5: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:"January":Colreceiptmnet ;;"Collection"
+
+local:field: amtf10: set as:$$nettamount:@@salesinvamt1valueJanuary:@@salesdiscamt1valueJanuary
+local:field: amtf11: set as:(#amtf10*5)/100
+
+[System: Formula]
+salesinvamt1valueJanuary:$$reportobject:$$collectionfieldbykey:$salesinvamt1:"January":Coltes1111
+salesdiscamt1valueJanuary:$$reportobject:$$collectionfieldbykey:$cwsalesdiscamt1x:"January":Coltes1111
+
+cwGrossSaleAmtmosalesJanuary:$$nettamount:@@salesinvamt1valueJanuary:@@salesdiscamt1valueJanuary
+
+cwGrossSaleAmtmosalesnewJanuary:(@@cwGrossSaleAmtmosalesJanuary*5)/100
+
+crnoteinvamtAmtmosalesJanuary:$$nettamount:@@crnoteinvamt1allJanuary:@@cwcrnotediscamt1allJanuary
+crnoteinvamtAmtmosalesnewJanuary:(@@crnoteinvamtAmtmosalesJanuary*5)/100
+
+crnoteinvamt1allJanuary:$$reportobject:$$collectionfieldbykey:$crnoteinvamt1:"January":Coltes1111
+cwcrnotediscamt1allJanuary:$$reportobject:$$collectionfieldbykey:$cwcrnotediscamt1x:"January":Coltes1111
+
+
+
+
+[Line: LnFEB]
+use:LnAPRIL
+Local: Field: fwf: Set As:"February"
+local:field: numf: set as:$$reportobject:$$collectionfieldbykey:$salesbilledqty:"February":Coltes1111 ;;"Gross Sale Pcs"
+local:field: amtf: set as:$$nettamount:@@cwGrossSaleAmtmosalesnewFebruary:@@cwGrossSaleAmtmosalesFebruary ;;$$nettamount:@@salesinvamt1valueApril:@@salesdiscamt1valueApril ;;"Gross Sale Amt"
+;; {19.Aug.22 14:58} local:field: amtf: set as:$$nettamount:#amtf10:#amtf11
+
+local:field: numf2: set as:$$reportobject:$$collectionfieldbykey:$salescrbilledqty:"February":Coltes1111 ;;"Gross Return Pcs"
+local:field: amtf2: set as:$$nettamount:@@crnoteinvamtAmtmosalesFebruary:@@crnoteinvamtAmtmosalesnewFebruary ;;"Gross Return Amt"
+local:field: numf3: set as:#numf-#numf2 ;;"Net Sale Pcs"
+local:field: amtf3: set as:#amtf-#amtf2 ;;"Net Sale Amt"
+local:field: amtf4: set as:#amtf3-#amtf6 ;;"Net Sale Amt Without GST"
+local:field: amtf6: set as:(#amtf3*5)/100
+
+local:field: amtf5: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:"February":Colreceiptmnet ;;"Collection"
+
+local:field: amtf10: set as:$$nettamount:@@salesinvamt1valueFebruary:@@salesdiscamt1valueFebruary
+local:field: amtf11: set as:(#amtf10*5)/100
+
+[System: Formula]
+salesinvamt1valueFebruary:$$reportobject:$$collectionfieldbykey:$salesinvamt1:"February":Coltes1111
+salesdiscamt1valueFebruary:$$reportobject:$$collectionfieldbykey:$cwsalesdiscamt1x:"February":Coltes1111
+
+cwGrossSaleAmtmosalesFebruary:$$nettamount:@@salesinvamt1valueFebruary:@@salesdiscamt1valueFebruary
+
+cwGrossSaleAmtmosalesnewFebruary:(@@cwGrossSaleAmtmosalesFebruary*5)/100
+
+crnoteinvamtAmtmosalesFebruary:$$nettamount:@@crnoteinvamt1allFebruary:@@cwcrnotediscamt1allFebruary
+crnoteinvamtAmtmosalesnewFebruary:(@@crnoteinvamtAmtmosalesFebruary*5)/100
+
+crnoteinvamt1allFebruary:$$reportobject:$$collectionfieldbykey:$crnoteinvamt1:"February":Coltes1111
+cwcrnotediscamt1allFebruary:$$reportobject:$$collectionfieldbykey:$cwcrnotediscamt1x:"February":Coltes1111
+
+
+
+[Line: LnMAR]
+use:LnAPRIL
+Local: Field: fwf: Set As:"March"
+local:field: numf: set as:$$reportobject:$$collectionfieldbykey:$salesbilledqty:"March":Coltes1111 ;;"Gross Sale Pcs"
+local:field: amtf: set as:$$nettamount:@@cwGrossSaleAmtmosalesnewMarch:@@cwGrossSaleAmtmosalesMarch  ;;$$nettamount:@@salesinvamt1valueApril:@@salesdiscamt1valueApril ;;"Gross Sale Amt"
+;; {19.Aug.22 14:58} local:field: amtf: set as:$$nettamount:#amtf10:#amtf11
+
+local:field: numf2: set as:$$reportobject:$$collectionfieldbykey:$salescrbilledqty:"March":Coltes1111 ;;"Gross Return Pcs"
+local:field: amtf2: set as:$$nettamount:@@crnoteinvamtAmtmosalesMarch:@@crnoteinvamtAmtmosalesnewMarch ;;"Gross Return Amt"
+local:field: numf3: set as:#numf-#numf2 ;;"Net Sale Pcs"
+local:field: amtf3: set as:#amtf-#amtf2 ;;"Net Sale Amt"
+local:field: amtf4: set as:#amtf3-#amtf6 ;;"Net Sale Amt Without GST"
+local:field: amtf6: set as:(#amtf3*5)/100
+
+local:field: amtf5: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:"March":Colreceiptmnet ;;"Collection"
+
+local:field: amtf10: set as:$$nettamount:@@salesinvamt1valueMarch:@@salesdiscamt1valueMarch
+local:field: amtf11: set as:(#amtf10*5)/100
+border:thin bottom
+
+[System: Formula]
+salesinvamt1valueMarch:$$reportobject:$$collectionfieldbykey:$salesinvamt1:"March":Coltes1111
+salesdiscamt1valueMarch:$$reportobject:$$collectionfieldbykey:$cwsalesdiscamt1x:"March":Coltes1111
+
+cwGrossSaleAmtmosalesMarch:$$nettamount:@@salesinvamt1valueMarch:@@salesdiscamt1valueMarch
+
+cwGrossSaleAmtmosalesnewMarch:(@@cwGrossSaleAmtmosalesMarch*5)/100
+
+crnoteinvamtAmtmosalesMarch:$$nettamount:@@crnoteinvamt1allMarch:@@cwcrnotediscamt1allMarch
+crnoteinvamtAmtmosalesnewMarch:(@@crnoteinvamtAmtmosalesMarch*5)/100
+
+crnoteinvamt1allMarch:$$reportobject:$$collectionfieldbykey:$crnoteinvamt1:"March":Coltes1111
+cwcrnotediscamt1allMarch:$$reportobject:$$collectionfieldbykey:$cwcrnotediscamt1x:"March":Coltes1111
+
+
+
+border:thin bottom
+
+ ;;"January", "February", "March"
+
+      [line: LnMonthtomonthnetsalesreportTotals]
+        use: LnMonthtomonthnetsalesreport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

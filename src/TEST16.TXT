@@ -1,0 +1,168 @@
+; Created By: Khokan on 2021-09-03 20:17, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: t16Lock ;; : @@t16DemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@t16Report: Display: Rept16
+
+
+
+     [!menu: t16Lock]
+        add: Item: before: @@locQuit: @@t16Report: Display: Rept16
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   t16Report: "t16"
+;; t16DemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Rept16]
+        use: Dsp Template
+      Title: @@t16Report
+   Printset: Report Title: @@t16Report
+       Form: Frmt16
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable:str1
+    set:str1:""
+    
+      [Form: Frmt16]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0t16,Prtt16
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: t16botbrk,t16botOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+      add:button:agentnetsalesbotton
+      [part: t16botBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: t16botopbrk]
+        use: dspacctitles
+  add: part: t16TitlePart
+
+      [part: t16TitlePart]
+       line: Lnt16Title
+       
+      [line: Lnt16CurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0t16]
+      line : Lnt16CurrPeriod
+      
+      [Part: Prtt16]
+       Line: Lnt16Title,Lnt16
+bottom Line: Lnt16Totals
+     repeat: Lnt16: Colt16
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,numf,amtf2
+
+[Collection: Colt16]
+/*
+source Collection: Colt16a
+
+by:partyledgername:$partyledgername
+aggr compute:billedqty:sum:$billedqty1
+
+[Collection: Colt16a]
+*/
+;; {03.Sep.21 20:26}   source Collection: sourcwColNetcrnotereport2
+  source Collection: sourcwsalesnew
+;; {04.Sep.21 10:26} walk:inventoryentries
+by:partyledgername:$partyledgername
+;; {03.Sep.21 20:55} by:stockitemname:$stockitemname
+;; {03.Sep.21 20:55} by:date:$date
+;; {03.Sep.21 20:55} by:vouchernumber:$vouchernumber
+;; {25.Aug.21 14:08} by:cwcaption1vch1:$..cwcaption1vch
+;; {25.Aug.21 14:08} by:cwcaption1vch2:$..cwcaption2vch
+;; {03.Sep.21 21:21} aggr compute:billedqty:sum:$$number:$billedqty ;$$CollAmtTotal:inventoryentries:$billedqty
+aggr compute:billedqty:sum:$$number:$$CollnumTotal:inventoryentries:$billedqty
+
+aggr compute:amount:sum:$amount
+;; {04.Sep.21 10:10} aggr compute:amount:sum:$$CollamtTotal:inventoryentries:$amount
+;; {03.Sep.21 21:08} aggr compute:amount1:sum:$..amount
+;; {08.Jul.21 19:01}  compute:amount1:$....amount
+;; {03.Sep.21 21:16}  aggr compute:amount1:sum:$$CollAmtTotal:ledgerentries:$amount
+ aggr compute:amount1 :sum:$$FilteramtTotal:ledgerentries:salesmsFilter:$amount
+
+;; {25.Aug.21 14:08} sort :@@default:$cwcaption1vch1
+search key:$partyledgername
+filter:cwpartylednetsalesfilter
+
+[System: Formula]
+
+ 
+  ;; JAYATRI ENTERPRISES,BBBBZ/DR1
+;; JAYATRI ENTERPRISES,BBBBZ/DR1
+    [system: Formula]
+Colt16Filter: Yes
+
+      [Line: Lnt16Title]
+        use: Lnt16
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: Lnt16]
+     Fields: sdf,snf,nf,fwf
+right field: ratepf,Qtyf,Amtf,amtf2,numf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local : field : sdf : set as : $date
+ local : field : snf : set as : $vouchernumber
+ local : field : nf : set as :$baseunits:stockitem:$stockitemname
+ local : field : fwf : set as :$partyledgername
+ local : field : numf : set as :$billedqty
+ local : field : amtf : set as :$amount
+ local : field : amtf2 : set as :$amount1  ;;$$reportobject:$$collectionfieldbykey:$amount:@@keycrnotenew2:collsalesn
+ 
+ 
+ [Collection: collsalesn]
+ Type	   : Vouchers	: VoucherType
+Child Of   : $$VchTypesales
+Belongs To : Yes
+search key:$partyledgername
+fetch:partyledgername,amount
+
+
+      [line: Lnt16Totals]
+        use: Lnt16
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      local: field: amtf1 : set as :  $$total:amtf
+      local: field: amtf2 : set as :  $$total:amtf2
+      local: field: numf : set as :  $$total:numf
+
+

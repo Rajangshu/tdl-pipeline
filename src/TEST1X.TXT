@@ -1,0 +1,195 @@
+; Created By: khokan on 2022-05-18 12:22, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: ColreceiptsalesmanLock ;; : @@ColreceiptsalesmanDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ColreceiptsalesmanReport: Display: RepColreceiptsalesman
+
+
+
+     [!menu: ColreceiptsalesmanLock]
+        add: Item: before: @@locQuit: @@ColreceiptsalesmanReport: Display: RepColreceiptsalesman
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ColreceiptsalesmanReport: "Colreceiptsalesman"
+;; ColreceiptsalesmanDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepColreceiptsalesman]
+        use: Dsp Template
+      Title: @@ColreceiptsalesmanReport
+   Printset: Report Title: @@ColreceiptsalesmanReport
+       Form: FrmColreceiptsalesman
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmColreceiptsalesman]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0Colreceiptsalesman,PrtColreceiptsalesman
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: Colreceiptsalesmanbotbrk,ColreceiptsalesmanbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: ColreceiptsalesmanbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: Colreceiptsalesmanbotopbrk]
+        use: dspacctitles
+  add: part: ColreceiptsalesmanTitlePart
+
+      [part: ColreceiptsalesmanTitlePart]
+       line: LnColreceiptsalesmanTitle
+       
+      [line: LnColreceiptsalesmanCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0Colreceiptsalesman]
+      line : LnColreceiptsalesmanCurrPeriod
+      
+      [Part: PrtColreceiptsalesman]
+       Line: LnColreceiptsalesmanTitle,LnColreceiptsalesman
+bottom Line: LnColreceiptsalesmanTotals
+     repeat: LnColreceiptsalesman: ColColreceiptsalesman1
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColColreceiptsalesman1]
+
+source Collection: sourColallAREAWISEnetsalesReport
+
+by:partyledgername:$partyledgername
+by:vouchernumber:$vouchernumber
+
+;;by:cwcaption1vch1:$..cwcaption1vch
+;by:parent1:$parent:ledger:$partyledgername
+;by:parent2:$grandparent:ledger:$partyledgername
+
+by:cwcaption2item1:$cwcaption2item:ledger:$partyledgername
+
+aggr compute:salesbilledqty:sum:if $$issales:$vouchertypename then @@salesbilledqty2 else $$InitValue:"Quantity"
+;;compute:vouchertypename1:$vouchertypename
+compute:cwEnableNetSalesReport1:$cwEnableNetSalesReport:vouchertype:$vouchertypename
+
+aggr compute:salescrbilledqty:sum:if $$IsCreditNote:$vouchertypename then @@salesbilledqty2 else $$InitValue:"Quantity"
+
+aggr compute:salesamount:sum:if $$issales:$vouchertypename then $amount else $$InitValue:"amount"
+aggr compute:salesinvamt1:sum:if $$issales:$vouchertypename then @@salesinvamt2 else $$InitValue:"amount"
+
+aggr compute:salescramount:sum:if $$IsCreditNote:$vouchertypename then $amount else $$InitValue:"amount"
+aggr compute:crnoteinvamt1:sum:if $$IsCreditNote:$vouchertypename then @@salesinvamt2 else $$InitValue:"amount"
+
+aggr compute:cwsalesdiscamt1x:sum:if $$issales:$vouchertypename then (@@cwsalesdiscamt/@@cwinvamt)*@@salesinvamt2 else $$InitValue:"amount"  ;;(($cwsalesdiscamt1/$cwinvamt1)*$salesinvamt1)
+aggr compute:cwcrnotediscamt1x:sum:if $$IsCreditNote:$vouchertypename then (@@cwsalesdiscamt/@@cwinvamt)*@@salesinvamt2 else $$InitValue:"amount"  ;;(($cwsalesdiscamt1/$cwinvamt1)*$salesinvamt1)
+
+
+;; {11.Aug.22 11:40} filter:cwGroupsundrydebtorsfilter,cwallpartyfilter
+
+;search key:$partyledgername
+
+sort:@@default:$cwcaption2item1,$partyledgername
+
+filter:ColColreceiptsalesmanFilter
+
+
+[System: Formula]
+ salesinvamt1valueallsummary:$$reportobject:$$collectionfieldbykey:$salesinvamt1:#fwf:ColsalesmanWISEsummaryReport
+ cwsalesdiscamt1xallsummary:$$reportobject:$$collectionfieldbykey:$cwsalesdiscamt1x:#fwf:ColallPartywisenetsalesreport
+
+  grosssalesamtsummary:$$nettamount:@@salesinvamt1valueallsummary:@@cwsalesdiscamt1xallsummary
+  grosssalesamtsummary2:(@@grosssalesamtsummary*5)/100
+
+
+
+ crnoteinvamt1all:$$reportobject:$$collectionfieldbykey:$crnoteinvamt1:#fwf:ColsalesmanWISEsummaryReport
+ cwcrnotediscamt1all:$$reportobject:$$collectionfieldbykey:$cwcrnotediscamt1x:#fwf:ColsalesmanWISEsummaryReport
+
+ ;local:field: amtf: set as:$$nettamount:#amtf12:#amtf13
+;local:field: amtf12: set as:$$nettamount:@@salesinvamt1valueall:@@cwsalesdiscamt1xall
+;local:field: amtf13: set as:(#amtf12*5)/100
+
+ ;crnoteinvamt1all:$$reportobject:$$collectionfieldbykey:$crnoteinvamt1:#fwf:ColsalesmanWISEsummaryReport
+; cwcrnotediscamt1all:$$reportobject:$$collectionfieldbykey:$cwcrnotediscamt1x:#fwf:ColsalesmanWISEsummaryReport
+
+ 
+ [Collection: sourColColreceiptsalesman1]
+
+Type		: Vouchers	: VoucherType
+Child Of	: $$VchTypereceipt
+Belongs To	: Yes
+
+[system: Formula]
+;; {11.Aug.22 11:40} ColColreceiptsalesmanFilter:$cwcaption2item:ledger:$partyledgername="ANIL THAKUR"
+ColColreceiptsalesmanFilter:$cwcaption2item1="ANIL THAKUR"
+
+      [Line: LnColreceiptsalesmanTitle]
+        use: LnColreceiptsalesman
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+[Line: LnColreceiptsalesman]
+Fields: sdf,snf,nf1,nf2,nf,fwf
+right field: ratepf,numf,Amtf,Amtf12,Amtf13
+;; {18.May.22 13:06}      Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+local: field: fwf: alter : voucher : $$isvoucher
+;; {18.May.22 13:06} option : alter on enter
+;; {18.May.22 13:06} local : field : fwf : alter : voucher : $$isvoucher
+; local : field : fwf : alter : ledger : $$isledger
+
+Local: Field: sdf: Set As:$date
+Local: Field: snf: Set As:$vouchernumber
+ local : field : fwf : set as  :$partyledgername
+ local : field : nf1 : set as  :$cwcaption2vch1 ;; $partyledgername
+ local : field : nf2 : set as  :$cwcaption3vch1 ;; $partyledgername
+ local : field : nf  : set as  :$cwcaption2item1 ;;$cwcaption2item:ledger:$partyledgername   ;;$cwcaption3vch1
+ local : field : numf  : set as  :$salescrbilledqty ;$salesbilledqty ;;$cwcaption2item:ledger:$partyledgername   ;;$cwcaption3vch1
+;; {11.Aug.22 12:40}  local : field : amtf: set as  : $salesinvamt1
+ 
+ local:field: amtf: set as:$$nettamount:#amtf12:#amtf13  ;;$amount  ;;$$reportobject:$$collectionfieldbykey:$amount:@@keycrnotenew2:collagentsalesms  ;;  "AMOUNT"
+
+;; {14.Jul.22 12:19} local:field: amtf12: set as:$$nettamount:$salesinvamt1:$cwsalesdiscamt1x  ;;$cwsalesdiscamt1  ;;$amount  ;;$$reportobject:$$collectionfieldbykey:$amount:@@keycrnotenew2:collagentsalesms  ;;  "AMOUNT"
+local:field: amtf12: set as:$$nettamount:$crnoteinvamt1:$cwcrnotediscamt1x;;$cwsalesdiscamt1  ;;$amount  ;;$$reportobject:$$collectionfieldbykey:$amount:@@keycrnotenew2:collagentsalesms  ;;  "AMOUNT"
+
+
+local:field: amtf13: set as:(#amtf12*5)/100  ;;$amount  ;;$$reportobject:$$collectionfieldbykey:$amount:@@keycrnotenew2:collagentsalesms  ;;  "AMOUNT"
+
+
+ option : cwalterVch
+ 
+      [line: LnColreceiptsalesmanTotals]
+        use: LnColreceiptsalesman
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

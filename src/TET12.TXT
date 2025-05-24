@@ -1,0 +1,178 @@
+
+
+     [#menu: Gateway of Tally]
+        add: Option: crnoteLock ;; : @@crnoteDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@crnoteReport: Display: Repcrnote
+
+
+
+     [!menu: crnoteLock]
+        add: Item: before: @@locQuit: @@crnoteReport: Display: Repcrnote
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   crnoteReport: "crnote"
+;; crnoteDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Repcrnote]
+        use: Dsp Template
+      Title: @@crnoteReport
+   Printset: Report Title: @@crnoteReport
+       Form: Frmcrnote
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: Frmcrnote]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0crnote,Prtcrnote
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: crnotebotbrk,crnotebotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: crnotebotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: crnotebotopbrk]
+        use: dspacctitles
+  add: part: crnoteTitlePart
+
+      [part: crnoteTitlePart]
+       line: LncrnoteTitle
+       
+      [line: LncrnoteCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0crnote]
+      line : LncrnoteCurrPeriod
+      
+      [Part: Prtcrnote]
+       Line: LncrnoteTitle,Lncrnote
+bottom Line: LncrnoteTotals
+     repeat: Lncrnote: Colcrnote
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: Colcrnote]
+
+source Collection: Colcrnoteb
+;; {09.Jul.21 13:44} walk:inventoryentries ;;,ledgerentries
+by:partyledgername:$partyledgername
+by:cwcaption1vch2:$..cwcaption2vch
+aggr compute:amount:sum:$amount
+aggr compute:amount1:sum:$$CollAmtTotal:inventoryentries:$amount
+aggr compute:billedqty:sum:$$CollAmtTotal:inventoryentries:$billedqty
+;; {09.Jul.21 13:44} search key:$partyledgername
+
+[Collection: Colcrnoteb]
+
+Type		: Vouchers	: VoucherType
+;; {09.Jul.21 10:55} Child Of	: $$VchTypeCreditNote
+Child Of	: $$VchTypesales
+Belongs To	: Yes
+fetch:partyledgername,amount,cwcaption2vch
+filter:ColcrnoteFilter
+
+[Collection: Colcrnotec]
+
+Type		: Vouchers	: VoucherType
+;; {09.Jul.21 10:55} Child Of	: $$VchTypeCreditNote
+Child Of	: $$VchTypesales
+Belongs To	: Yes
+fetch:partyledgername,amount,cwcaption2vch
+filter:ColcrnoteFilter
+ search key:$partyledgername
+
+
+    [system: Formula]
+    
+    
+
+;; {09.Jul.21 11:24} cwvchBillNoamtf : $$collectionfield:@@cwbnamt:first:ledgerentries
+cwvchBillNoamtf : $$CollAmtTotal:ledgerentries:@@cwbnamt
+;; {09.Jul.21 10:24} cwbnamt :$$collectionfield:$amount:first:BILLALLOCATIONS
+cwbnamt : $$CollAmtTotal:BILLALLOCATIONS:$amount
+
+
+ColcrnoteFilter:$partyledgername="MAHABIR TEXTILES,ORBAL/ODR"
+  keyalecrnote:#fwf
+  
+      [Line: LncrnoteTitle]
+        use: Lncrnote
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: Lncrnote]
+     Fields: sdf,nf,nf2,fwf
+;; {09.Jul.21 10:54} right field: ratepf,Qtyf,Amtf
+right field: ratepf,Qtyf,Amtf,Amtf1,Amtf2,Amtf3
+
+
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local : field : sdf : set as : $date
+ local : field : fwf : set as : $partyledgername
+;; {09.Jul.21 13:50}  local : field : nf : set as : $cwcaption2vch
+ local : field : nf : set as : $cwcaption1vch2
+ local : field : qtyf : set as : $billedqty
+ local : field : amtf : set as : $amount
+;; {09.Jul.21 13:41}  local : field : amtf2: set as :$$reportobject:$$collectionfieldbykey:@@cwvchBillNoamtf:@@keyalecrnote:ColNetcrnotereportne
+ local : field : amtf1: set as :$amount1
+ local : field : amtf2: set as :$$reportobject:$$collectionfieldbykey:$amount:@@keycrnote:ColNetcrnotereportne
+ local : field : amtf3: set as :$$reportobject:$$collectionfieldbykey:$amount1:@@keycrnote:ColNetcrnotereportne
+ 
+ 
+ [Collection: ColNetcrnotereportne]
+
+source Collection: sourColNetcrnotereport
+by:partyledgername:$partyledgername
+by:cwcaption1vch2:$..cwcaption2vch
+aggr compute:amount:sum:$amount
+aggr compute:amount1:sum:$$CollAmtTotal:inventoryentries:$amount
+aggr compute:billedqty:sum:$$CollAmtTotal:inventoryentries:$billedqty
+
+sort :@@default:$cwcaption1vch1
+search key:$partyledgername+$cwcaption1vch2
+
+
+      [line: LncrnoteTotals]
+        use: Lncrnote
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

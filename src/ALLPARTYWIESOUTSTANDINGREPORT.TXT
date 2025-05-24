@@ -1,0 +1,285 @@
+; Created By: Khokan on 2021-08-27 10:32, ID: 
+
+     [#menu: Gateway of Tally]
+;; {27.Aug.21 13:31}         add: Option: AllpartywiesoutstandingreportLock ;; : @@AllpartywiesoutstandingreportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@AllpartywiesoutstandingreportReport: Display: RepAllpartywiesoutstandingreport
+
+
+
+     [!menu: AllpartywiesoutstandingreportLock]
+        add: Item: before: @@locQuit: @@AllpartywiesoutstandingreportReport: Display: RepAllpartywiesoutstandingreport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   AllpartywiesoutstandingreportReport: "All Party wise outstanding report"
+;; AllpartywiesoutstandingreportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepAllpartywiesoutstandingreport]
+    use: Dsp Template
+      Title: @@AllpartywiesoutstandingreportReport
+   Printset: Report Title: @@AllpartywiesoutstandingreportReport
+       Form: FrmAllpartywiesoutstandingreport
+     Export: Yes
+   ;;  set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+
+      variable:str1
+      set:str1:""
+
+      [Form: FrmAllpartywiesoutstandingreport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0Allpartywiesoutstandingreport,PrtAllpartywiesoutstandingreport,PrtAllpartywiesoutstandingreport2
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: Allpartywiesoutstandingreportbotbrk,AllpartywiesoutstandingreportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+          add:button:agentbotton
+ local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+      [part: AllpartywiesoutstandingreportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: Allpartywiesoutstandingreportbotopbrk]
+        use: dspacctitles
+  add: part: AllpartywiesoutstandingreportTitlePart
+
+      [part: AllpartywiesoutstandingreportTitlePart]
+      part:AllpartywiesoutstandingreportTitleParta
+      part:AllpartywiesoutstandingreportTitlePartb
+      
+      [part:AllpartywiesoutstandingreportTitleParta]
+      line: LnAllpartywiesoutstandingreportTitle
+      
+      [part:AllpartywiesoutstandingreportTitlePartb]
+       line: LnAllpartywiesoutstandingreportTitleb
+
+      [line: LnAllpartywiesoutstandingreportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf2: Style:styleCalisto
+      Local: Field: fwf: Style:styleCalisto
+      Local: Field: fwf2:invisible: $$inprintmode
+
+      [part: PrtTitle0Allpartywiesoutstandingreport]
+      line : LnAllpartywiesoutstandingreportCurrPeriod
+
+      [Part: PrtAllpartywiesoutstandingreport]
+      Part: PrtAllpartywiesoutstandingreporta
+
+      Part: PrtAllpartywiesoutstandingreportb
+      
+      [Part: PrtAllpartywiesoutstandingreporta]
+       Line: LnAllpartywiesoutstandingreportTitle,LnAllpartywiesoutstandingreport
+
+     repeat: LnAllpartywiesoutstandingreport: ColAllpartywiesoutstandingreport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+    Width:50  ;;% page
+    
+[Collection: ColAllpartywiesoutstandingreport]
+  type:bills
+
+ filter:ColAllpartywiesoutstandingreportFilter,cwparentagfilter
+ fetch:ledgerentries.ledgerentries.cwnetsales
+
+    [system: Formula]
+ColAllpartywiesoutstandingreportFilter:$$isdr:$closingbalance
+
+
+
+
+      [Line: LnAllpartywiesoutstandingreportTitle]
+        use: LnAllpartywiesoutstandingreport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Bill No"
+local:field: fwf: set as: "Party Name"
+local:field: amtf: set as: "Dr. Amount"
+Local: field: DEFAULT: Align:centre
+Local: field: FWF: Align:LEFT
+local:field: numf: set as:"Due Days"
+local: field: numf : style:styleCalisto2
+
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: snf : style:styleCalisto2
+
+      [Line: LnAllpartywiesoutstandingreport]
+      Fields: sdf,snf,fwf
+right field:numf, Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$billdate;; "Date"
+local:field: snf: set as:@@cwnetsales2 ;; "Date"
+
+local:field: snf: set as:$name ;;+"   "+@@cwnetsales3  ;; "Vch No"
+local:field: fwf: set as:$parent+"   "+@@cwnetsales3  ;; "Vch No"
+local:field: amtf: set as:$closingbalance;; "Dr. Amount"
+;; {06.Jul.21 19:16} local:field: snf: set as:@@CreditPeriod ;; "Dr. Amount"
+local:field: numf: set as:@@DSPToDate - $BillDate ;; "Dr. Amount"
+
+Local: Field:DEFAULT: Border: thin right
+Local: Field:sdf: Border: thin left right
+
+local: field: DEFAULT : style:styleCalisto
+Local: field: snf: Width:10
+Local: field:numf: Width:12
+;; {27.Aug.21 10:56} local: field: snf: Invisible: yes
+border:thin bottom
+
+[part:PrtAllpartywiesoutstandingreport2]
+part:PrtAllpartywiesoutstandingreport2a
+part:PrtAllpartywiesoutstandingreport2b
+
+   
+   [part:PrtAllpartywiesoutstandingreport2a]
+   line: LnAllpartywiesoutstandingreportTotals,LnoutstandingreportTotalsnettolatx
+     Width:50  ;;% page
+     
+   [line: LnAllpartywiesoutstandingreportTotals]
+   use: LnAllpartywiesoutstandingreport
+   option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Dr.Total"
+
+local: field: amtf : set as :$$CollAmtTotal:ColAllpartywiesoutstandingreport:$closingbalance
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+
+
+
+[line:LnoutstandingreportTotalsnettolatx]
+use: LnAllpartywiesoutstandingreport
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "NET O/S"
+
+local: field: amtf : set as :$$CollAmtTotal:ColAllpartywiesoutstandingreport:$closingbalance-$$CollAmtTotal:ColAllpartywiesoutstandingreportb:$closingbalance
+Local: field: amtf: Format: "drcr"
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+
+
+[Part: PrtAllpartywiesoutstandingreportb]
+
+
+       Line: LnAllpartywiesoutstandingreportTitleb,LnAllpartywiesoutstandingreportb
+
+     repeat: LnAllpartywiesoutstandingreportb: ColAllpartywiesoutstandingreportb
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+    Width:50  ;;% page
+    
+[Collection: ColAllpartywiesoutstandingreportb]
+  type:bills
+
+ filter:ColAllpartywiesoutstandingreportFilterb,cwparentagfilter
+ fetch:ledgerentries.ledgerentries.cwnetsales
+
+    [system: Formula]
+ColAllpartywiesoutstandingreportFilterb:not $$isdr:$closingbalance  ;;and $parent=##LedgerName
+
+
+
+
+      [Line: LnAllpartywiesoutstandingreportTitleb]
+        use: LnAllpartywiesoutstandingreportb
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+
+;; {26.Aug.21 18:51} local:field: snf: set as: "Vch No"
+local:field: fwf: set as:"Particulars"
+local:field: amtf: set as: "Cr. Amount"
+local:field: snf: set as: "Mode of credit"
+local: field: snf : style:styleCalisto2
+Local: field: FWF: Align:LEFT
+local: field: default : style: normal bold
+Local: field: DEFAULT: Align:centre
+
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+Local : field : snf: Lines : 0
+
+[Line: LnAllpartywiesoutstandingreportb]
+Fields: sdf,snf,fwf
+right field:Amtf
+Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$billdate;; "Date"
+local:field: fwf: set as:$name;; "Vch No"
+local:field: amtf: set as:$closingbalance;; "cr. Amount"
+Local: Field:DEFAULT: Border: thin right
+
+;; {31.Aug.21 15:31} local:field: snf: set as:@@CreditPeriod ;;"Due Date"
+local:field: snf: set as:if @@cwrecvchtype="Receipt" then (if not $$isempty:@@cwTransactionTypec  then @@cwTransactionTypec else "Cash") else @@cwModeofcredit
+Local: Field:DEFAULT: Border: thin right
+local: field: DEFAULT : style:styleCalisto
+Local: field: snf: Width:10
+
+border:thin bottom
+
+[part:PrtAllpartywiesoutstandingreport2b]
+line: LnAllpartywiesoutstandingreportTotalsb
+   Width:50% page
+
+[line: LnAllpartywiesoutstandingreportTotalsb]
+use: LnAllpartywiesoutstandingreportb
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Cr.Total"
+local: field: snf: set as: ""
+
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+
+
+local: field: amtf : set as :$$CollAmtTotal:ColAllpartywiesoutstandingreportb:$closingbalance
+
+

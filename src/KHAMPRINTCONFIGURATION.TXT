@@ -1,0 +1,143 @@
+; Created By: Khokan on 2021-08-26 12:54, ID: 
+
+; Created By: Khokan on 2021-06-21 12:09, ID:
+
+[line:cwinvprintingline2newKham]
+ field:long prompt,cwlogical
+
+
+ Local: Field: long prompt: info:"Printing Configuration (Kham)"
+
+ Local: field: long prompt : Width:32.5
+ Local: Field : cwlogical : SubForm :PrintingConfrep2Kham: $$value
+ Local: Field: long prompt: Color : blue
+ Local: Field: cwlogical: Color : blue
+ Local: Field: long prompt: Style: Normal Bold
+ Local: Field: cwlogical: Style: Normal Bold
+
+
+
+
+ [report:PrintingConfrep2Kham]
+ form:PrintingConfform2Kham
+
+ [form:PrintingConfform2Kham]
+ part:PrintingConfpart2Kham
+ width:20  ;;% page
+ height:50  ;;% page
+
+ [part:PrintingConfpart2Kham]
+ line:cwinvprintingline2xKham, heightnewlineKham,widthnewlineKham,topnewlineKham  ;,LeftnewlineKham,RightnewlineKham  ;;,topnewline2,spacebottomnew,SapceNetAmountPart,SapceGrossAmountPart,spacenettamtline2newtop,spacenettamtline2new  ;;,SapceNetAmountPart,SapceGrossAmountPart,spacenettamtline2newtop,spacenettamtline2new,spacegrossamtline2new
+
+
+ [line:cwinvprintingline2xKham]
+ field:fwfc
+
+ Local: Field: fwfc: info:"Printing Configuration"
+ Local: Field: fwfc: Border: thin bottom
+ Local: field: fwfc: Width:20
+ Local: Field: fwfc: Style: Normal Bold
+
+[line:heightnewlineKham]
+field:sp,spaceHeightnewKham
+Local: Field: sp: Set As:"Sapce Height (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceHeightnewKham]
+Use : Number Field
+Modifies:spaceHeightnewKham
+set as:##spaceHeightnewKham
+
+
+[Variable: spaceHeightnewKham]
+Persistent  : Yes
+Type        : Number
+
+;;=====================
+
+[line:widthnewlineKham]
+field:sp,spacewidthnewKham
+Local: Field: sp: Set As:"Sapce Width (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spacewidthnewKham]
+Use : Number Field
+Modifies:spacewidthnew
+set as:##spacewidthnew
+
+
+[Variable : spacewidthnewKham]
+Persistent: Yes
+Type      : Number
+
+;;=================
+
+[line:LeftnewlineKham]
+field:sp,spaceLeftnewKham
+Local: Field: sp: Set As:"Sapce Left (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceLeftnewKham]
+Use : Number Field
+Modifies:spaceLeftnewKham
+set as:##spaceLeftnewKham
+
+[Variable : spaceLeftnewKham]
+Persistent: Yes
+Type      : Number
+
+;;=====================
+
+[line:RightnewlineKham]
+field:sp,spaceRightnewKham
+Local: Field: sp: Set As:"Sapce Right (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceRightnewKham]
+Use : Number Field
+Modifies:spaceRightnewKham
+set as:##spaceRightnewKham
+
+
+[Variable: spaceRightnewKham]
+Persistent  : Yes
+Type        : Number
+
+
+
+;;========================
+
+[line:topnewlineKham]
+field:sp,spacetopnewKham
+Local: Field: sp: Set As:"Sapce Top (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spacetopnewKham]
+Use : Number Field
+Modifies:spacetopnewKham
+set as:##spacetopnewKham
+
+
+[Variable : spacetopnewKham]
+Persistent: Yes
+Type      : Number
+
+
+ 
+;;=============================================================================
+
+ 
+[System: Variables]
+spaceHeightnewKham:12.50  ;;10
+spacewidthnewKham:8.10
+spaceLeftnewKham:0.50
+spaceRightnewKham:0.50
+
+spacetopnewKham:3 ;;0.50
+
+

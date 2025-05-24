@@ -1,0 +1,12 @@
+; Created By: Khokan on 2021-03-03 14:50, ID: 
+
+[#menu: Gateway of Tally]
+add:item :before:@@locquit:"1. MIS":menu:mismenu1
+
+
+[menu:mismenu1]
+title:"Mis Menu"
+;; {03.Mar.21 14:51} add:item:@@MIFromJobWorkerReport: Display: RepMIFromJobWorker
+add: Item: Blank
+
+

@@ -1,0 +1,190 @@
+; Created By: Khokan on 2021-12-10 10:08, ID: 
+
+     [#menu: Gateway of Tally]
+;; {10.Dec.21 13:02}         add: Option: TopNitemsaleLock ;; : @@TopNitemsaleDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@TopNitemsaleReport: Display: RepTopNitemsale
+
+
+
+     [!menu: TopNitemsaleLock]
+        add: Item: before: @@locQuit: @@TopNitemsaleReport: Display: RepTopNitemsale
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   TopNitemsaleReport: "Top N Item Sale"
+;; TopNitemsaleDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepTopNitemsale]
+        use: Dsp Template
+      Title: @@TopNitemsaleReport
+   Printset: Report Title: @@TopNitemsaleReport
+       Form: FrmTopNitemsale
+     Export: Yes
+    ; set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmTopNitemsale]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0TopNitemsale,PrtTopNitemsale
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: TopNitemsalebotbrk,TopNitemsalebotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+
+      [part: TopNitemsalebotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: TopNitemsalebotopbrk]
+        use: dspacctitles
+  add: part: TopNitemsaleTitlePart
+
+      [part: TopNitemsaleTitlePart]
+       line: LnTopNitemsaleTitle
+       
+      [line: LnTopNitemsaleCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+  
+     Local: Field: fwf2: Style:styleCalisto
+      Local: Field: fwf: Style:styleCalisto
+
+
+      [part: PrtTitle0TopNitemsale]
+      line : LnTopNitemsaleCurrPeriod
+      
+      [Part: PrtTopNitemsale]
+       Line: LnTopNitemsaleTitle,LnTopNitemsale
+bottom Line: LnTopNitemsaleTotals
+     repeat: LnTopNitemsale  ;;: ColTopNitemsale
+     set:10
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColTopNitemsale]
+source collection:sourColTopNitemsale
+walk:inventoryentries
+
+by:stockitemname:$stockitemname
+by:cwminuitem1:$cwminuitem
+aggr compute:billedqty:sum:$billedqty
+aggr compute:amount:sum:$amount
+
+sort:@@default:$billedqty
+
+
+ [collection:sourColTopNitemsale]
+ Type : Vouchers:VoucherType
+ChildOf : $$VchTypesales
+Belongs To : Yes
+
+
+      [Line: LnTopNitemsaleTitle]
+        use: LnTopNitemsale
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: SnfX: set as: "SL"
+local:field: nf: set as:"ITEM";; "Description"
+local:field: fwf: set as:"DESCRIPTION";; "Description"
+
+local:field: amtf: set as: "SALE AMT (GROSS)"
+local:field: QTYF: set as: "SALE PCS"
+local:field: QTYF2: set as: "MTR"
+local:field: QTYF3: set as: "KGS"
+local:field: QTYF4: set as: "OTH"
+
+local: field: snfx : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: NF : style:styleCalisto2
+local: field: qtyf : style:styleCalisto2
+local: field: qtyf2 : style:styleCalisto2
+local: field: qtyf3 : style:styleCalisto2
+local: field: qtyf4 : style:styleCalisto2
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+Local: field: fwf:indent:4
+
+
+[Line: LnTopNitemsale]
+Fields: snfx,nf,fwf
+right field:Amtf,qtyf,qtyf2,qtyf3,qtyf4
+
+Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf1 : Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf2 : Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf3 : Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf4 : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+
+local:field: SnfX: set as:$$line ;; "SL"
+
+local:field: nf: set as:$$CollectionField:$stockitemname:$$line:ColTopNitemsale ;;"DESCRIPTION";; "Description"
+local:field: fwf: set as:$$CollectionField:$cwminuitem1:$$line:ColTopNitemsale ;;"DESCRIPTION";; "Description"
+
+local:field: amtf: set as:$$CollectionField:$amount:$$line:ColTopNitemsale    ;; "SALE AMT (GROSS)"
+local:field: QTYF: set as:$$CollectionField:$billedqty:$$line:ColTopNitemsale   ;; "SALE PCS"
+local:field: QTYF2: set as:"" ;; "MTR"
+local:field: QTYF3: set as:"" ;; "KGS"
+local:field: QTYF4: set as:"" ;; "OTH"
+local: field: DEFAULT : style:styleCalisto
+Local: field: NF: Width:25
+Local: field: AMTF: Width:20
+Local: field: QTYF: Width:12
+Local: field: QTYF1: Width:12
+Local: field: QTYF2: Width:12
+Local: field: QTYF3: Width:12
+
+Local: Field: DEFAULT: Border: thin right
+
+border:thin bottom
+
+
+[line: LnTopNitemsaleTotals]
+use: LnTopNitemsale
+option: totalOpt
+local: field: fwf: align: right
+local:field: SnfX: set as:"" ;; "SL"
+local:field: fwf: set as:"Report Total" ;;"DESCRIPTION";; "Description"
+
+local:field: amtf: set as:$$total:amtf ;; "SALE AMT (GROSS)"
+local:field: QTYF: set as:$$total:qtyf ;; "SALE PCS"
+local:field: QTYF2: set as:$$total:qtyf2;; "MTR"
+local:field: QTYF3: set as:$$total:qtyf3 ;; "KGS"
+local:field: QTYF4: set as:$$total:qtyf4 ;; "OTH"
+
+
+local: field: amtf : style:styleCalisto2
+local: field: qtyf : style:styleCalisto2
+local: field: qtyf2 : style:styleCalisto2
+local: field: qtyf3 : style:styleCalisto2
+local: field: qtyf4 : style:styleCalisto2
+

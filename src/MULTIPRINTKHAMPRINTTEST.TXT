@@ -1,0 +1,163 @@
+; Created By: khokan on 2022-05-26 10:50, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: multiprintkhamprinttestLock ;; : @@multiprintkhamprinttestDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@multiprintkhamprinttestReport: Display: Repmultiprintkhamprinttest
+
+
+
+     [!menu: multiprintkhamprinttestLock]
+        add: Item: before: @@locQuit: @@multiprintkhamprinttestReport: Display: Repmultiprintkhamprinttest
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   multiprintkhamprinttestReport: "multiprintkhamprinttest"
+;; multiprintkhamprinttestDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Repmultiprintkhamprinttest]
+        use: Dsp Template
+      Title: @@multiprintkhamprinttestReport
+   Printset: Report Title: @@multiprintkhamprinttestReport
+       Form: Frmmultiprintkhamprinttest
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+
+      [Form: Frmmultiprintkhamprinttest]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0multiprintkhamprinttest,Prtmultiprintkhamprinttest
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: multiprintkhamprinttestbotbrk,multiprintkhamprinttestbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+   add:button:cwagentsalesbotton2
+   
+      [part: multiprintkhamprinttestbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: multiprintkhamprinttestbotopbrk]
+        use: dspacctitles
+  add: part: multiprintkhamprinttestTitlePart
+
+      [part: multiprintkhamprinttestTitlePart]
+       line: LnmultiprintkhamprinttestTitle
+       
+      [line: LnmultiprintkhamprinttestCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0multiprintkhamprinttest]
+      line : LnmultiprintkhamprinttestCurrPeriod
+      
+      [Part: Prtmultiprintkhamprinttest]
+       Line: LnmultiprintkhamprinttestTitle,Lnmultiprintkhamprinttest
+bottom Line: LnmultiprintkhamprinttestTotals
+     repeat: Lnmultiprintkhamprinttest: Colmultiprintkhamprinttest
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: Colmultiprintkhamprinttest]
+    TYPE:BILLS
+filter:ColmultiprintkhamprinttestFilterx
+
+   [System: Formula]
+ColmultiprintkhamprinttestFilterx:if $$issysname:##str12 then yes else $parent =##str12
+
+      [Line: LnmultiprintkhamprinttestTitle]
+        use: Lnmultiprintkhamprinttest
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+
+local:field: amtf: set as: "dr.Value"
+local:field: amtf1: set as: "cr.Value"
+
+local: field: default : style: normal bold
+
+[Line: Lnmultiprintkhamprinttest]
+Fields: sdf,nf,fwf
+right field:Amtf,Amtf1
+
+Option: Alter on Enter
+
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local:field: sdf: set as:$billedqty ;; "Date"
+local:field: nf: set as:$name  ;; "Name"
+local:field: fwf: set as:$parent ;; "Description"
+
+local:field: amtf: set as:if $$isdr:$closingbalance then $closingbalance else "";; "dr.Value"
+local:field: amtf1: set as:if not $$isdr:$closingbalance then $closingbalance else "" ;; "cr.Value"
+Local: field: amtf: Format: "drcr"
+Local: field: amtf1: Format: "drcr"
+
+
+      [line: LnmultiprintkhamprinttestTotals]
+        use: Lnmultiprintkhamprinttest
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+
+  [button:cwagentsalesbotton2]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:cwagentsalesbotton2
+
+
+ [report:cwagentsalesbotton2]
+ form:cwagentsalesbotton2
+
+ [form:cwagentsalesbotton2]
+ part:cwagentsalesbotton2
+
+ HEIGHT:20  ;;% PAGE
+ WIDTH:30  ;;% PAGE
+
+ [part:cwagentsalesbotton2]
+ line:cwtitlelinex,cwagentsalesbotton2
+
+ [line:cwagentsalesbotton2]
+ field:sp,nf
+
+ Local: Field: sp: info: "Name"
+
+
+ Local: Field: nf:modifies:str12
+ Local: Field: default: Style: small
+
+ Local:Field:nf:table:collcwledx
+ Local:Field:nf:Show table: Always
+
+
+ Local: field: sp: Width:20
+ 
+ [Collection: collcwledx]
+ type:ledger

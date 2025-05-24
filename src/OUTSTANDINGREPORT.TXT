@@ -1,0 +1,512 @@
+; Created By: Khokan on 2021-02-10 12:02, ID:
+
+
+     [#menu: Gateway of Tally]
+;; {25.May.21 13:00}         add: Option: outstandingreportLock ;; : @@outstandingreportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@outstandingreportReport: Display Collection: collledos  ;;: Repoutstandingreport
+
+
+
+     [!menu: outstandingreportLock]
+        add: Item: before: @@locQuit: @@outstandingreportReport: Display Collection: collledos  ;;: Repoutstandingreport
+        add: Item: before: @@locQuit: Blank
+        
+        
+        
+     [Collection: collledos]
+
+   Use         : Extract Alias Collection
+   Source Collection	: List of Ledgers
+   Variable    : Ledger Name
+   Report      :Repoutstandingreport
+   Trigger     : LedgerName
+   Fetch       : Name
+
+   [Report: LedgerNamex]   ;;Auto Report
+
+            Use     : Collection Variable
+            Local   : Line : Collection Variable : Field : LedgerNamex
+            Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Ledger"
+
+
+            [Field: LedgerNamex]
+
+          Use         : Name Field
+          Key         : Create Ledger
+          Modifies    : LedgerName
+          Table       :collbrokerx  ;; List of ExtractLedgers
+          Show Table  : Always
+          CommonTable : No
+
+	
+        
+    [System: formula]
+   outstandingreportReport: "Party wise outstanding report"
+;; outstandingreportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Repoutstandingreport]
+        use: Dsp Template
+      Title: @@outstandingreportReport
+   Printset: Report Title: @@outstandingreportReport
+       Form: Frmoutstandingreport
+     Export: Yes
+     set : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+      variable:str1
+    set:str1:""
+    
+      [Form: Frmoutstandingreport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0outstandingreport,Prtoutstandingreport  ;;,Prtoutstandingreport1 ;;Prtoutstandingreport2
+        bottom part:Prtoutstandingreport1
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: outstandingreportbotbrk,outstandingreportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+;; {25.Aug.21 13:15}          add:button:agentbotton
+local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+ Replace: Button: F2 Change Period: Change DYBK Date
+ Replace: Button: ChangeItem  : DYBK ChgVchType
+   
+      [part: outstandingreportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+     ;;Vertical    : Yes
+     
+;; {16.May.22 14:51}       part:cwEXPINVPageBreak
+      
+      [part: cwEXPINVPageBreak]
+      part: cwEXPINVPageBreaka
+      
+      [part: cwEXPINVPageBreaka]
+       line:cwblankline
+       
+      [part: cwEXPINVPageBreakb]
+      
+      Line: cwEXPINVPageBreak
+      [Line: cwEXPINVPageBreak]
+      Right Fields    : Info Field
+      Local           : Field : Info Field    : Info : $$LocaleString:"continued ..."
+      Space Top       : 2
+
+      [part: outstandingreportbotopbrk]
+        use: dspacctitles
+  add: part: outstandingreportTitlePart
+
+      [part: outstandingreportTitlePart]
+      part: outstandingreportTitleParta
+      part: outstandingreportTitlePartb
+        border:thin box
+
+[part: outstandingreportTitleParta]
+      
+line: LnoutstandingreportTitle
+
+Width:50% page
+
+;;=============================================
+  [part: outstandingreportTitlePartb]
+  line:LnoutstandingreportTitleB
+   Width:50% page
+  Local: field: sdf: Width:10.2
+
+
+
+
+
+[collection :collcwLedgeraddress]
+type : address : ledger
+ child of : ##LedgerName
+
+       
+      [line: LnoutstandingreportCurrPeriod]
+      field: fwf,nf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style:styleCalisto2
+      Local: Field: fwf: Style:styleCalisto2
+      Local: Field: NF: Style:styleCalisto2
+      Local: Field: fwf: Set As:##LedgerName
+
+      Local: Field: nf: Set As:$$ReptField:Name:2:ledger:##LedgerName
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf2:invisible: $$inprintmode
+      
+      
+      
+      [line:LnoutstandingreportTitleaddress]
+      field:fwf
+      Local: Field: fwf: Set As:$address
+      Local: Field: fwf: Style:styleCalisto
+      
+      [part: PrtTitle0outstandingreport]
+      line : LnoutstandingreportCurrPeriod,LnoutstandingreportTitleaddress,partyphline
+            repeat:LnoutstandingreportTitleaddress:collcwLedgeraddress
+            
+           [line:partyphline]
+           field:fwf
+           Local: Field: fwf: Set As:"Phone."+" "+$LedgerPhone:ledger:##LedgerName+"    "+$LedgerMobile:ledger:##LedgerName
+           
+          local: field: FWF : style:styleCalisto
+          space bottom:0.5
+          
+
+      
+      [Part: Prtoutstandingreport]
+      Part: PrtoutstandingreportA
+      Part: PrtoutstandingreportB
+      border:thin box
+
+    
+      [Part: PrtoutstandingreportA]
+      
+      
+       Line: LnoutstandingreportTitle,Lnoutstandingreport
+;; {10.Feb.21 12:22} bottom Line: LnoutstandingreportTotals
+;; {16.May.22 14:45} bottom Line: Lnoutstandingreporttotala,Lnoutstandingreporttotala2
+
+
+     repeat: Lnoutstandingreport: Coloutstandingreport
+     scroll: Vertical
+     Float:No
+ Common Border: YEs
+      Total: Qtyf,amtf
+           Width:50% page
+           
+[Collection: Coloutstandingreport]
+type:bills
+
+ filter:ColoutstandingreportFilter,cwparentagfilter
+ fetch:ledgerentries.ledgerentries.cwnetsales
+ 
+    [system: Formula]
+ColoutstandingreportFilter:$$isdr:$closingbalance and $parent=##LedgerName
+      cwnetsales2:$$CollectionField:$cwnetsales:First:ledgerentries
+      cwnetsales3:if @@cwnetsales2="yes" then "Net" else ""
+      
+      [Line: LnoutstandingreportTitle]
+        use: Lnoutstandingreport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: fwf: set as: "Bill No"
+local:field: amtf: set as: "Dr. Amount"
+Local: field: DEFAULT: Align:centre
+Local: field: FWF: Align:LEFT
+local:field: numf: set as:"Due Days"
+local: field: numf : style:style2x
+
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local:field: fwf:indent:10
+height:1.2
+
+      [Line: Lnoutstandingreport]
+     Fields: sdf,fwf,snf
+right field:numf, Amtf
+
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$billdate;; "Date"
+local:field: snf: set as:@@cwnetsales2 ;; "Date"
+
+local:field: fwf: set as:$name+"   "+@@cwnetsales3;; "Vch No"
+local:field: amtf: set as:$closingbalance;; "Dr. Amount"
+;; {06.Jul.21 19:16} local:field: snf: set as:@@CreditPeriod ;; "Dr. Amount"
+local:field: numf: set as:(@@DSPToDate - $BillDate)+1 ;; "Dr. Amount"
+
+Local: Field:DEFAULT: Border: thin right
+Local: Field:sdf: Border: thin left right
+
+local: field: DEFAULT : style:styleCalisto
+Local: field: snf: Width:10
+Local: field:numf: Width:12
+local: field: snf: Invisible: yes
+
+border:thin bottom
+height:1.2
+
+[line: LnoutstandingreportTotals]
+;; {08.Apr.22 15:48} use: Lnoutstandingreport
+use: LnoutstandingreportTitle
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Dr.Total"
+
+local: field: amtf : set as :$$CollAmtTotal:Coloutstandingreport:$closingbalance
+local: field: sdf : style:styleCalistox3
+local: field: fwf : style:styleCalistox3
+local: field: amtf : style:styleCalistox3
+height:1.2
+
+     /*
+[line:LnoutstandingreportTotalsnettolat]
+;; {08.Apr.22 15:47} use: Lnoutstandingreport
+use: LnoutstandingreportTitle
+;; {09.Mar.22 11:41} field:sdf,amtf
+option: totalOpt
+add:field:amtf9
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as:#amtf9 ;; "NET O/S"
+local: field: sdf: set as: "NET O/S"
+
+local: field: amtf9 : set as :$$CollAmtTotal:Coloutstandingreport:$closingbalance-$$CollAmtTotal:Coloutstandingreportb:$closingbalance
+local: field: amtf : set as :"" ;;$$CollAmtTotal:Coloutstandingreport:$closingbalance-$$CollAmtTotal:Coloutstandingreportb:$closingbalance
+Local: field: amtf: Format: "drcr"
+Local: field: amtf9: Format: "drcr"
+Local: field: fwf: Align:left
+
+local: field: amtf9: Invisible: yes
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: sdf: type: String
+Local: Field: sdf: Border: thin left right
+Local: field: amtf: Align:left
+
+height:1.2
+    */
+    
+[Part: PrtoutstandingreportB]
+Line: LnoutstandingreportTitleB,LnoutstandingreportB
+;; {16.May.22 14:42} bottom Line: LnoutstandingreportTotalsB
+;; {16.May.22 14:42} bottom Line:  Lnoutstandingreporttotalb,Lnoutstandingreporttotalb2
+
+     repeat: LnoutstandingreportB: ColoutstandingreportB
+     scroll: Vertical
+     Float: No
+    Width:50% page
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColoutstandingreportB]
+type:bills
+filter:ColoutstandingreportFilterB ;;,cwparentagfilter
+fetch:BillCreditPeriod
+fetch:BillCreditPeriod
+ fetch:ledgerentries.ledgerentries.vouchertypename
+
+    [system: Formula]
+ColoutstandingreportFilterB:not $$isdr:$closingbalance and $parent=##LedgerName
+
+[Line: LnoutstandingreportTitleB]
+
+use: LnoutstandingreportB
+option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+
+;; {26.Aug.21 18:51} local:field: snf: set as: "Vch No"
+local:field: fwf: set as:"Mode of credit"  ;;"Particulars"
+local:field: amtf: set as: "Cr. Amount"
+local:field: snf: set as: "Mode of credit"
+local: field: snf : style:styleCalisto2
+Local: field: FWF: Align:LEFT
+local: field: default : style: normal bold
+Local: field: DEFAULT: Align:centre
+
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+Local : field : snf: Lines : 0
+local:field: fwf:indent:12
+
+height:1.2
+
+[Line: LnoutstandingreportB]
+Fields: sdf,fwf
+right field:Amtf
+Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$billdate;; "Date"
+;; {02.Mar.22 11:02} local:field: fwf: set as:$name;; "Vch No"
+local:field: amtf: set as:$closingbalance;; "cr. Amount"
+Local: Field:DEFAULT: Border: thin right
+
+;; {31.Aug.21 15:31} local:field: snf: set as:@@CreditPeriod ;;"Due Date"
+;; {02.Mar.22 11:02} local:field: snf: set as:if @@cwrecvchtype="Receipt" then (if not $$isempty:@@cwTransactionTypec  then @@cwTransactionTypec else "Cash") else @@cwModeofcredit
+local:field: fwf: set as:if @@cwrecvchtype="Receipt" then (if not $$isempty:@@cwTransactionTypec  then @@cwTransactionTypec else "Cash") else @@cwModeofcredit
+Local: Field:DEFAULT: Border: thin left
+
+local: field: DEFAULT : style:styleCalisto
+Local: field: snf: Width:10
+border:thin bottom
+height:1.2
+
+/*
+[line: LnoutstandingreportTotalsB]
+;; {08.Apr.22 15:47} use: LnoutstandingreportB
+use: LnoutstandingreportTitleB
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: snf: set as: ""
+local: field: fwf: set as: "Cr.Total"
+
+local: field: sdf : style:styleCalistox3
+local: field: fwf : style:styleCalistox3
+local: field: amtf : style:styleCalistox3
+
+
+local: field: amtf : set as :$$CollAmtTotal:Coloutstandingreportb:$closingbalance
+height:1.2
+        */
+
+[line: LnoutstandingreportTotalsBNETTOTAL2]
+use: LnoutstandingreportB
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: ""
+local: field: fwf: set as:""
+local: field: snf: set as:""
+ local: field: sdf: set as: ""
+local: field: sdf : style:styleCalistox3
+local: field: fwf : style:styleCalistox3
+local: field: amtf : style:styleCalistox3
+height:1.2
+
+local: field: amtf : set as :""
+
+
+
+;;=============================================================
+
+
+ [Part: Prtoutstandingreport1]
+ Part: Prtoutstandingreport1A
+ Part: Prtoutstandingreport1B
+ border:thin box
+ [Part: Prtoutstandingreport1A]
+ Line: Lnoutstandingreporttotala,Lnoutstandingreporttotala2
+ Width:50% page
+ 
+[Line: Lnoutstandingreporttotala]
+;; {08.Apr.22 15:45}  use: Lnoutstandingreport
+ use: LnoutstandingreportTitle
+ delete:option
+add:option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Dr.Total"
+ Local: Field: sdf: Set As:""
+ local:field: numf: set as:""
+local: field: amtf : set as :$$CollAmtTotal:Coloutstandingreport:$closingbalance
+local: field: sdf : style:styleCalistox3
+local: field: fwf : style:styleCalistox3
+local: field: amtf : style:styleCalistox3
+
+
+[Line: Lnoutstandingreporttotala2]
+;; {08.Apr.22 15:45}  use: Lnoutstandingreport
+;; {08.Apr.22 16:02}  use: LnoutstandingreportTitle
+ use: LnoutstandingreportTitle
+ delete:option
+add:option: totalOpt
+add:field:amtf9
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as:#amtf9 ;; "NET O/S"
+local: field: sdf: set as: "NET O/S"
+local:field: numf: set as:""
+local: field: amtf9 : set as :$$CollAmtTotal:Coloutstandingreport:$closingbalance-$$CollAmtTotal:Coloutstandingreportb:$closingbalance
+local: field: amtf : set as :"" ;;$$CollAmtTotal:Coloutstandingreport:$closingbalance-$$CollAmtTotal:Coloutstandingreportb:$closingbalance
+Local: field: amtf: Format: "drcr"
+Local: field: amtf9: Format: "drcr"
+Local: field: fwf: Format: "drcr"
+Local: field: fwf: Align:left
+
+local: field: amtf9: Invisible: yes
+local: field: sdf : style:styleCalistox3
+local: field: fwf : style:styleCalistox3
+local: field: amtf : style:styleCalistox3
+local: field: sdf: type: String
+local: field: fwf: type: amount
+Local: Field: sdf: Border: thin left right
+Local: field: amtf: Align:left
+height:1.2
+ 
+ [Part: Prtoutstandingreport1B]
+ Line: Lnoutstandingreporttotalb,Lnoutstandingreporttotalb2
+ Width:50% page
+ 
+ [Line: Lnoutstandingreporttotalb]
+   use:LnoutstandingreportTitleB
+ local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: snf: set as: ""
+local: field: fwf: set as: "Cr.Total"
+ Local: Field: sdf: Set As:""
+ Local: Field: sdf2: Set As:""
+local: field: sdf : style:styleCalistox3
+local: field: fwf : style:styleCalistox3
+local: field: amtf : style:styleCalistox3
+
+
+local: field: amtf : set as :$$CollAmtTotal:Coloutstandingreportb:$closingbalance
+;; {08.Apr.22 15:39} height:1.2
+
+[Line: Lnoutstandingreporttotalb2]
+   use:LnoutstandingreportTitleB
+ local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: ""
+local: field: fwf: set as:""
+local: field: snf: set as:""
+ local: field: sdf: set as: ""
+local: field: sdf : style:styleCalistox3
+local: field: fwf : style:styleCalistox3
+local: field: amtf : style:styleCalistox3
+height:1.2
+
+local: field: amtf : set as :""
+;;=============================================================
+
+[part:Prtoutstandingreport2]
+part:Prtoutstandingreport2a
+part:Prtoutstandingreport2b
+
+[part:Prtoutstandingreport2a]
+line:LnoutstandingreportTotals,LnoutstandingreportTotalsnettolat
+
+[part:Prtoutstandingreport2b]
+line:LnoutstandingreportTotalsB,LnoutstandingreportTotalsBNETTOTAL2
+
+

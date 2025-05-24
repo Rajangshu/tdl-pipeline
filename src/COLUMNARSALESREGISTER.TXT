@@ -1,0 +1,52 @@
+; Created By: khokan on 2022-05-14 16:07, ID: 
+
+
+[System: Formula]
+cwmssalesopt:$$issales:##vouchertypename
+
+[#Line: DSP ColVchDetail]
+add:option:cwDSPColVchDetailopt:@@cwmssalesopt and @@MinuSareeEnabled
+
+[!Line: cwDSPColVchDetailopt]
+add:field:before:DBC VchType:cwcaption1field,cwcaption2field,cwcaption3field
+
+
+ Local: Field: cwcaption1field: Set As:$cwcaption1vch
+ Local: Field: cwcaption2field: Set As:$cwcaption2vch
+ Local: Field: cwcaption3field: Set As:$cwcaption3vch
+
+[#Line: DSP ColVchTitle]
+add:option:cwDSPColVchTitleopt:@@cwmssalesopt and @@MinuSareeEnabled
+
+[!Line: cwDSPColVchTitleopt]
+Local: Field: cwcaption1field: Set As:$$LocaleString:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+Local: Field: cwcaption2field: Set As:$$LocaleString:$cwcaption2:COMPANY:##SVCURRENTCOMPANY
+Local: Field: cwcaption3field: Set As:$$LocaleString:$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+
+
+[Field: cwcaption1field]
+Use         : Short Name Field
+Width       : 0
+Style       : Normal
+Bound       : 8,15
+Scroll      : Yes
+Border      : Thin Left
+
+[Field: cwcaption2field]
+Use         : Short Name Field
+Width       : 0
+Style       : Normal
+Bound       : 8,15
+Scroll      : Yes
+Border      : Thin Left
+
+[Field: cwcaption3field]
+Use         : Short Name Field
+Width       : 0
+Style       : Normal
+Bound       : 8,15
+Scroll      : Yes
+Border      : Thin Left
+
+
+

@@ -1,0 +1,123 @@
+; Created By: Khokan on 2021-09-17 14:25, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: t17Lock ;; : @@t17DemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@t17Report: Display: Rept17
+
+
+
+     [!menu: t17Lock]
+        add: Item: before: @@locQuit: @@t17Report: Display: Rept17
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   t17Report: "t17"
+;; t17DemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Rept17]
+        use: Dsp Template
+      Title: @@t17Report
+   Printset: Report Title: @@t17Report
+       Form: Frmt17
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: Frmt17]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0t17,Prtt17
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: t17botbrk,t17botOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: t17botBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: t17botopbrk]
+        use: dspacctitles
+  add: part: t17TitlePart
+
+      [part: t17TitlePart]
+       line: Lnt17Title
+       
+      [line: Lnt17CurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0t17]
+      line : Lnt17CurrPeriod
+      
+      [Part: Prtt17]
+       Line: Lnt17Title,Lnt17
+bottom Line: Lnt17Totals
+     repeat: Lnt17: Colt17
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: Colt17]
+type:bills
+;; {17.Sep.21 13:57}  by:billtype:$billtype
+;; {17.Sep.21 14:52}        fetch:billtype,OnAccountValue
+;; {17.Sep.21 14:52}        	Fetch		: LedgerEntries.*
+;; {17.Sep.21 14:52}         Compute		: BillType			:$BillType ;;if $IsAdvance Then $$SysName:Advance Else if $$SysName:OnAccount = "On Account" then $$SysName:OnAccount else if  $$SysName:NewRef = "New Ref" then $$SysName:NewRef else if $$SysName:AgstRef = "Agst Ref" then $$SysName:AgstRef else ""
+    Fetch:AllLedgerEntries.BillAllocations.BillType
+
+    [system: Formula]
+Colt17Filter: Yes
+
+      [Line: Lnt17Title]
+        use: Lnt17
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: Lnt17]
+     Fields: sdf,nf,snf,fwf
+right field: ratepf,Qtyf,Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local : field : sdf : set as : $billdate
+ local : field : snf : set as : $$CollectionField:($$CollectionField:$billtype:First:BillAllocations):First:LedgerEntries
+ local : field : fwf : set as : $name
+ local : field : nf : set as :$BillType  ;; $$CollectionField:$billtype:First:BillAllocations
+
+
+      [line: Lnt17Totals]
+        use: Lnt17
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

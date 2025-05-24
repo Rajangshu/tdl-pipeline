@@ -1,0 +1,214 @@
+; Created By: Khokan on 2021-03-25 19:25, ID:
+
+     [#menu: Gateway of Tally]
+        add: Option: testcrLock ;; : @@testcrDemoLock
+
+
+     [#menu : cw_Debug_menu]
+        add: Item: before: @@locQuit: @@testcrReport: Display: Reptestcr
+
+
+
+     [!menu: testcrLock]
+        add: Item: before: @@locQuit: @@testcrReport: Display: Reptestcr
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   testcrReport: "testcr"
+;; testcrDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: Reptestcr]
+        use: Dsp Template
+      Title: @@testcrReport
+   Printset: Report Title: @@testcrReport
+       Form: Frmtestcr
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+
+      [Form: Frmtestcr]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0testcr,Prttestcr
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: testcrbotbrk,testcrbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: testcrbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: testcrbotopbrk]
+        use: dspacctitles
+  add: part: testcrTitlePart
+
+      [part: testcrTitlePart]
+       line: LntestcrTitle
+
+      [line: LntestcrCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0testcr]
+      line : LntestcrCurrPeriod
+
+      [Part: Prttestcr]
+       Line: LntestcrTitle,Lntestcr
+bottom Line: LntestcrTotals
+     repeat: Lntestcr:Colreceipt  ;;sourColtestcr  ;; Coltestcr
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+
+
+[Collection: Coltestcr]
+Collection: Coltestcra
+Collection: Coltestcrb
+
+[Collection: Coltestcra]
+type :bills
+
+ child of:#fwf  ;;#nf1
+;; {26.Mar.21 18:43}  compute:rcptvalue:$$FilteramtTotal:ledgerentries:cwreceiptfilterxxnew:$amount
+ compute:rcptvalue:$$FilteramtTotal:ledgerentries:cwreceiptfilterxxnew:@@cwFNBillAllocTotal
+
+ cleared:yes
+;; {18.May.21 10:55}  filter:cwreceiptfilterxxnew2
+
+ [System: Formula]
+ cwreceiptfilterxxnew:$$isreceipt:$vouchertypename  ;and $name=#nf
+ cwreceiptfilterxxnew2:yes ;;$name=#nf
+
+ [Collection: Coltestcrb]
+ use: Coltestcra
+ cleared:no
+
+
+[Collection: sourColtestcr]
+source Collection: sourColtestcrx
+;; {17.May.21 19:28} walk:inventoryentries
+by:partyledgername:$partyledgername
+by:vouchernumber:$vouchernumber
+
+[Collection: sourColtestcrx]
+Type	: Vouchers : Vouchertype
+Child of : $$VchTypesales
+Belongs To : Yes
+fetch:partyledgername,amount
+;; {26.Mar.21 18:26} filter:ColtestcrFilter
+;; {25.Mar.21 19:26}  parmvar:svfromdate:date:##svfromdate
+;; {25.Mar.21 19:26}  parmvar:svtodate:date:@@Endingdate
+    [system: Formula]
+ColtestcrFilter:$vouchernumber="M-20-21/150"
+
+      [Line: LntestcrTitle]
+        use: Lntestcr
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: Lntestcr]
+     Fields: sdf,sdf2,nf,nf1,fwf
+right field: snf,Qtyf,Amtf,amtf2
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local : field : sdf : set as : $billdate
+ local : field : nf : set as : $vouchernumber
+ local : field : nf1 : set as : $partyledgername
+ local : field : fwf : set as : $parent
+ local : field : snf : set as : $vouchertypename1
+ Local: Field: amtf: Set As:$amount
+;; {26.Mar.21 17:24}  Local: Field: amtf2: Set As:$$FilterValue:$rcptvalue:collrx:1:cwreFilterx
+ Local: Field: amtf2: Set As:$rcptvalue  ;;$$CollAmtTotal:Coltestcr:$rcptvalue
+ Local: Field: sdf2: Set As:$rcptvaluedate ;$$CollectionField:$rcptvaluedate:First:Coltestcr
+
+
+
+
+
+[Collection: collrx]
+
+/*
+source Collection: collrxa
+walk:ledgerentries
+by:ledgername:$ledgername
+by:name:$name
+aggr compute:rcptvalue:sum:$amount
+add:filter:cwreceiptnewfilterxx
+
+[Collection: collrxa]
+Type	: Vouchers : Vouchertype
+Child of : $$VchTypereceipt
+Belongs To : Yes
+  */
+
+
+
+ Collection: collrAx
+ Collection: collrBx
+
+ [Collection: collrAx]
+ type :bills
+
+;; {26.Mar.21 17:43}   by:partyledgername1:$parent
+;; {26.Mar.21 17:43}   by:name1:$name
+;; {26.Mar.21 17:43}   by:date:$date
+ child of:#fwf  ;;$partyledgername
+;; {20.Mar.21 17:38}  ParmVar :svfromdate : date : ##varvchdate
+;; {20.Mar.21 17:38}  ParmVar :svtodate : date : ##varvchdate
+;; {26.Mar.21 17:43}  compute:rcptvalue:$amount ;;$$FilterValue:$amount:ledgerentries:(-1):cwreceiptfilterxx
+ compute:rcptvalue:$$FilterValue:$amount:ledgerentries:(-1):cwreceiptfilter
+ compute:rcptvaluedate:$billdate  ;;$$FilterValue:$date:ledgerentries:(-1):cwreceiptfilter
+ compute:vouchertypename1:$$CollectionField:$vouchertypename:First:ledgerentries
+;; {26.Mar.21 17:39}  filter:cwreceiptnewfilterxx,cwreceiptfilter
+ cleared:yes
+ 
+ fetch:ledgerentries.ledgerentries.vouchertypename
+ filter:cwreceiptvchtypemsnew
+ filter:cwreceiptfilterxxnew2
+
+ [System: Formula]
+ cwreceiptfilterxx:yes
+  cwreceiptnewfilterxx:$name="M-20-21/150" ;#snf
+  cwreceiptvchtypemsnew:$$isreceipt:$vouchertypename ="Receipt" ;;$$CollectionField:$vouchertypename:(-1):ledgerentries="Receipt"
+
+ [Collection: collrBx]
+ USE: collrax
+ cleared:no
+
+
+
+      [line: LntestcrTotals]
+        use: Lntestcr
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+; Created By: Khokan on 2021-05-17 19:25, ID:

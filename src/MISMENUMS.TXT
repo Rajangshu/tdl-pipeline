@@ -1,0 +1,246 @@
+; Created By: Khokan on 2021-05-25 13:00, ID:
+
+[#menu: Gateway of Tally]
+add:item :before:@@locquit:"1. MIS":menu:mismenu1ms
+
+
+[menu:mismenu1ms]
+title:"Mis Menu"
+
+
+/*add: Item:@@supplierpartyaddressbookReportReport: Display Collection:collRepsupplierpartyaddressbookReport ;;: RepsupplierpartyaddressbookReport
+add: Item: Blank
+
+add: Item: Blank
+add: Item:@@LRpendingUpdatereportReport: alter: RepLRpendingUpdatereport
+add: Item: Blank
+add: Item:@@salesRegisterReport: Display: RepsalesRegister
+add: Item: Blank
+add: Item:@@salesReturnRegisterReport: Display: RepsalesReturnRegister
+add: Item: Blank
+add: Item:@@AgentWiseAgeingReportReport: Display Collection: collRepAgentWiseAgeingReport
+add: Item: Blank
+add: Item:@@DailyCollectionReportReport: Display: RepDailyCollectionReport
+add: Item: Blank
+*/
+;;add: Item:@@NetsalesreportReport: Display: RepNetsalesreport
+
+add : key item :"Outstanding Report" : O: menu : OutstandingReport
+add: Item: Blank
+
+add : key item :"Outstanding Ageing Wise" : A: menu : OutstandingAgeingWiseReport
+
+add: Item: Blank
+
+add : key item :"Net Sales  Report" : N: menu : NetSalesReport
+add: Item: Blank
+add : key item :"Sales  Register Report" : S: menu : SalesRegisterReport
+add: Item: Blank
+
+add : key item :"Sales Return Register Report" : R: menu : SalesReturnRegisterReport
+add: Item: Blank
+
+add : key item :"Collction Report" : C: menu : Collction Report
+add: Item: Blank
+add : key item :"Multi Print Outstanding " : M: menu : Multi Print Outstanding
+add: Item: Blank
+add: Item: @@LRPendingReportReport: alter: RepLRPendingReport
+add: Item: Blank
+add: Item:@@LrreportReport: Display: RepLrreport
+add: Item: Blank
+;; {30.Aug.21 11:46} add: Item:@@AgentWiseAgeingReportReport: Display Collection: collRepAgentWiseAgeingReport
+;; {02.Sep.21 16:10} add: Item: @@AgentWiseAgeingReport2Report: Display Collection: collRepAgentWiseAgeingReport2
+;; {16.Apr.22 14:46} add: Item: @@AgeingWiseOutstandingReport: Display collection: colRepAgeingWiseOutstandingxx
+;; {16.Apr.22 14:46} add: Item: Blank
+add: Item: @@khamprintReport: Display Collection: collledRepkhamprint
+add: Item: Blank
+add: Item: @@multiprintkhamprintReport: print Collection: collRepmultiprintkhamprint
+add: Item: Blank
+add: Item: @@vchregreportReport: Display: Repvchregreport
+add: Item: Blank
+add: Item: @@TopNitemsaleReport: Display: RepTopNitemsale
+add: Item: Blank
+add: Item: @@salesreportReport: Display: Repsalesreport
+add: Item: Blank
+add:item:@@CustomerMasterreportReport: Display collection : collRepCustomerMasterreport
+add: Item: Blank
+add: Item: @@ComperativeNetsaleCollectionReport: Display Collection: collRepComperativeNetsaleCollection
+add: Item: Blank
+add: Item:@@SalemanComperativeNetsaleandCollectionReport: Display Collection: collRepSalemanComperativeNetsaleCollection
+add: Item: Blank
+add: Item: @@TopSellersReport:Display collection : collRepTopSellers
+add: Item: Blank
+
+add : key item :"Top Sales Products" : P: menu : TopSalesProducts
+
+[menu : TopSalesProducts]
+add: Item: @@TopSalesProductsQtyWiseReport: Display Collection:collRepTopSalesProductsQtyWise
+add: Item: Blank
+add: Item: @@TopSalesProductsValuewiseReport: Display Collection:collRepTopSalesProductsValuewise
+add: Item: Blank
+
+[MENU:OutstandingAgeingWiseReport]
+add: Item: @@AgeingWiseOutstandingReport: Display collection: colRepAgeingWiseOutstandingxx
+add: Item: Blank
+;; {16.Apr.22 17:55} add: Item: @@allAgeingWiseOutstandingReport: print collection:AllAgentRepAgeingWiseOutstanding
+;; {16.Apr.22 17:55} add: Item: Blank
+
+add: Item: @@PartyWiseAgeingWiseOutstandingReport: Display : RepPartyWiseAgeingWiseOutstanding
+add: Item: Blank
+add: Item: @@salesmanWiseAgeingReportReport: Display collection : colRepsalesmanWiseAgeingReport
+add: Item: Blank
+
+
+[MENU:OutstandingReport]
+
+add: Item:@@outstandingreportReport: Display Collection: collledos  ;;: Repoutstandingreport
+add: Item: Blank
+add: Item: @@AllpartywiesoutstandingreportReport: Display: RepAllpartywiesoutstandingreport
+add: Item: Blank
+
+add: Item: @@AGENTWISEOutstandingReportReport: Display Collection: collRepAGENTWISEOutstandingReport
+add: Item: Blank
+add: Item: @@allAGENTWISEOutstandingReportReport: Display: RepallAGENTWISEOutstandingReport
+add: Item: Blank
+
+add: Item: @@SalesmanTWISEOutstandingReportReport: Display Collection: collRepSalesmanTWISEOutstandingReport
+add: Item: Blank
+add: Item: @@allSALESMANWISEOutstandingReportReport: Display: RepallSALESMANWISEOutstandingReport
+add: Item: Blank
+
+add: Item: @@AreaTWISEOutstandingReportReport: Display Collection: collRepAreaTWISEOutstandingReport
+add: Item: Blank
+add: Item:@@allAREAWISEOutstandingReportReport: Display: RepallAREAWISEOutstandingReport
+add: Item: Blank
+
+add: Item: @@ZoneWISEOutstandingReportReport: Display Collection: collRepZoneWISEOutstandingReport
+add: Item: Blank
+add: Item: @@ALLZONEWISEOutstandingReportReport: Display: RepALLZONEWISEOutstandingReport
+add: Item: Blank
+
+add: Item: @@CitywiseoutstandingreportReport: Display: RepCitywiseoutstandingreport
+add: Item: Blank
+
+add: Item: @@sundrycreitorsoutsandingReport: Display Collection: collRepsundrycreitorsoutsanding
+
+add: Item: Blank
+ 
+[menu:NetSalesReport]
+add: Item:@@PartywisenetsalesreportReport: Display Collection: colllRepPartywisenetsalesreport
+
+add: Item: Blank
+add: Item:  @@allPartywisenetsalesreportReport: Display: RepallPartywisenetsalesreport
+add: Item: Blank
+;; {05.Aug.22 11:40} add: Item: @@agntwisenetsalesreportReport: Display Collection: colllRepAgentwisenetsalesreport
+
+add: Item:  @@ItemwisenetsalesreportReport: Display collection:collRepstockitemrep3new
+add: Item: Blank
+
+add: Item:  @@allItemwisenetsalesreportReport: Display: RepallItemwisenetsalesreport
+add: Item: Blank
+
+add: Item: @@AGENTWISEnetsalesreportnewReport: Display Collection: colllRepAGENTWISEnetsalesreportnew
+add: Item: Blank
+add: Item:  @@allAGENTWISEnetsalesreportnewReport: Display: RepallAGENTWISEnetsalesreportnew
+add: Item: Blank
+
+
+;; {05.Aug.22 11:43} add: Item: @@allAGENTWISEnetsalesreportReport: Display: RepallAGENTWISEnetsalesreport
+;; {05.Aug.22 11:43} add: Item: Blank
+
+;; {09.Aug.22 10:15} add: Item: @@salesmanwisenetsalesreportReport: Display Collection: colllRepsalesmanwisenetsalesreport
+add: Item: @@SALESMANWISEnetsalesreportnewReport: Display Collection: dispcolllRepSALESMANWISEnetsalesreportnew ;;: RepSALESMANWISEnetsal
+
+add: Item: Blank
+;; {09.Aug.22 10:16} add: Item: @@allSALESMANWISEnetsalesreportReport: Display: RepallSALESMANWISEnetsalesreport
+add: Item: @@allSALESMANWISEnetsalesreportnewReport: Display: RepallSALESMANWISEnetsalesreportnew
+add: Item: Blank
+
+;; {09.Aug.22 10:18} add: Item:@@AREAwisenetsalesreportReport: Display Collection: colllRepAREAwisenetsalesreport
+add: Item:@@AREAWISEnetsalesReportnewReport: Display Collection: collRepAREAWISEnetsalesReportnew  ;;: RepAREAWISEnetsalesReportnew
+add: Item: Blank
+;; {09.Aug.22 10:16} add: Item:@@allAREAWISEnetsalesReportReport: Display: RepallAREAWISEnetsalesReport
+add: Item:@@allAREAWISEnetsalesReportnewReport: Display: RepallAREAWISEnetsalesReportnew
+add: Item: Blank
+
+add: Item:@@ZONEwisenetsalesreportReport: Display Collection: colllRepZONEwisenetsalesreport
+add: Item:Blank
+add: Item:@@allZONEWISEnetsalesReportReport: Display: RepallZONEWISEnetsalesReport
+add: Item:Blank
+
+add: Item:@@CitywisenetreportReport: Display: RepCitywisenetreport
+
+add: Item: Blank
+add: Item: @@SalesmanwisesalescollectionsummeryrepReport: Display: RepSalesmanwisesalescollectionsummeryrep
+
+add: Item:Blank
+add: Item:@@agentwisesalescollectionsummaryreportReport: Display: Repagentwisesalescollectionsummaryreport
+add: Item:Blank
+add: Item:@@MonthtomonthnetsalesreportReport: Display: RepMonthtomonthnetsalesreport
+add: Item:Blank
+
+
+[menu : SalesRegisterReport]
+add: Item:@@PartywisesalesregisterreportReport: Display Collection: colllRepPartywisesalesregisterreport  ;;:  RepPartywisesalesregisterreport
+add: Item: Blank
+add: Item: @@AGENTWISEsalesregiterreportReport:Display Collection: colllRepAGENTWISEsalesregiterreport
+add: Item: Blank
+add: Item: @@salesmanWISEsalesregiterreportReport:Display Collection: colllRepsalesmanWISEsalesregiterreport
+add: Item: Blank
+add: Item: @@AREAWISEsalesregiterReportReport: Display Collection: collRepAREAWISEsalesregiterReport ;;: RepAREAWISEsalesregiterReport
+add: Item: Blank
+add: Item: @@ZONEWISEsalesregiterReportReport: Display Collection: colllRepZONEWISEsalesregiterReport
+add: Item: Blank
+add: Item: @@CitywisesalesregisterreportReport: Display: RepCitywisesalesregisterreport
+add: Item: Blank
+add: Item: @@DailySalesRegisterReport: Display: RepDailySalesRegister
+add: Item: Blank
+
+
+[menu :SalesReturnRegisterReport]
+;;add: Item:@@PartywisesalesReturnregisterreportReport: Display Collection: colllRepPartywisesalesReturnregisterreport
+;;add: Item:Blank
+;;add: Item:@@AllPartywisesalesReturnregisterreportReport: Display :RepAllPartywisesalesReturnregisterreport
+;;add: Item:Blank
+
+add: Item:@@AGENTWISEsalesReturnregiterreportReport: Display Collection: colllRepAGENTWISEsalesReturnregiterreport
+add: Item:Blank
+add: Item:@@AllWISEsalesReturnregiterreportReport: Display :RepAllWISEsalesReturnregiterreport
+add: Item:Blank
+add: Item:@@salesReturnmanWISEsalesReturnregiterreportReport: Display Collection: colllRepsalesReturnmanWISEsalesReturnregiterreport
+add: Item:Blank
+;; {29.Apr.22 09:48} add: Item:@@AllsalesReturnmanWISEAllsalesReturnregiterreportReport: Display :RepAllsalesReturnmanWISEAllsalesReturnregiterreport
+add: Item:@@ALLSALSEMENWISEsalesReturnreportReport: Display: RepALLSALSEMENWISEsalesReturnreport
+add: Item:Blank
+add: Item:@@AREAWISEsalesReturnregiterReportReport: Display Collection: collRepAREAWISEsalesReturnregiterReport
+add: Item:Blank
+add: Item:@@AllAREAWISEsalesReturnregiterReportReport: Display :RepAllAREAWISEsalesReturnregiterReport
+add: Item:Blank
+add: Item:@@SALERETURNREGISTERReport: Display: RepSALERETURNREGISTER
+add: Item:Blank
+add: Item:@@SALERETURNSUMMARYReport: Display: RepSALERETURNSUMMARY
+
+[menu :CollctionReport]
+add: Item:@@partywisecollctionreportReport: Display Collection: colllReppartywisecollctionreport  ;;: Reppartywisecollctionreport
+add: Item: Blank
+add: Item:@@AGENTWISEollctionreportReport: Display Collection: colllRepAGENTWISEollctionreport
+add: Item: Blank
+add: Item:@@SALESMANWISEcollctionreportReport: Display Collection: collRepSALESMANWISEcollctionreport
+add: Item: Blank
+add: Item: @@AREAWISEcollctionreportReport: Display Collection: collRepAREAWISEcollctionreport
+add: Item: Blank
+add: Item:@@ZONEWISEcollctionreportReport: Display Collection: colllRepZONEWISEcollctionreport
+add: Item: Blank
+add: Item: @@CitywisecollctionreportReport: Display: RepCitywisecollctionreport
+
+[menu :Multi Print Outstanding]
+
+add: Item:@@multiprintAGENTWISEOutstandingReportReport: print Collection: collRepmultiprintAGENTWISEOutstandingReport
+add: Item: Blank
+add: Item:@@multiprintSALESMANWISEOutstandingReportReport: print Collection: collRepmultiprintSALESMANWISEOutstandingReport
+add: Item: Blank
+add: Item: @@multiprintAREAWISEOutstandingReportReport: print Collection: collRepmultiprintAREAWISEOutstandingReport
+add: Item: Blank
+add: Item: @@multiprintZONEWISEOutstandingReportReport: print Collection: collRepmultiprintZONEWISEOutstandingReport  ;;: RepmultiprintZONEWISEOutstandingReport
+add: Item: Blank
+

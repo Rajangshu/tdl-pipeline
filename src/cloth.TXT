@@ -1,0 +1,424 @@
+
+                    
+[include : Termsconditions.txt]
+[include : crDaysdemo.txt]
+
+[System : formula]
+crDDRmo:@@cwNormal="yes"
+
+MinuSareeDEmoMode : no  ;; yes to enable demo no to allow full access
+minusareedemodate : '9/21/2022'
+minusareeedudate : '9/1/2022'
+
+MinuSareeDemoDt : if @@MinuSareeDEmoMode then if @@CWEdu then $date <= @@MinuSareeedudate else $date <= @@MinuSareedemodate else yes
+MinuSareeMachDemoDate : if @@MinuSareeDEmoMode then if @@CWEdu then $$machinedate <= @@MinuSareeedudate else $$machinedate <= @@MinuSareedemodate else yes
+MinuSareeSales : $$issales:$vouchertypename and @@MinuSareeDemoDt
+
+[System : Formula] ;; Demo Formula
+cwShowDemoForm: @@MinuSareeDEmoMode
+cwShowDemoDate: @@MinuSareedemodate
+cwShowDemoDate2: @@MinuSareeedudate
+
+[system : udf]
+MinuSareeEnabled : logical : 111 ;; change this value.
+cwenablefn : logical : 112 ;; change this value.1
+
+;--------------------------------------------- Company Config
+
+[#Form: Company Operations]
+                Switch   : MinuSareeLowerRel  : MinuSareeNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : MinuSareeCurrenRel : MinuSareeFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : MinuSareeNOTFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End : MinuSareeConfig
+                                
+[!Form : MinuSareeFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : MinuSareeConfig
+local : line : cwTestConfig : local : field : short name field : tool tip: "Double-Click for browsing to CircuitWorld.in"
+
+
+[#Part  : CMP TallyShopFeatures Left]
+ Add :  Line : At End  : MinuSareeConfig,cwinvprintingline2new,AgeingWiseline1,cwprintcofiline,cwinvqrcodeprintingline2new,chgprintformatline
+
+[Line : MinuSareeConfig]
+Field : MinuSareeConfigTitle,MinuSareeConfig
+right field : Short name field
+Local: Field: short name field : info: "sales@circuitworld.in"
+Local: Field: short name field: case : normal
+Local: Field: short name field: Color : blue
+;;Local: Field: short name field: border : thin bottom
+Local: Field: short name field: width : 0
+
+
+key  : cwMinuSareeBrowse
+
+[key : cwMinuSareeBrowse]
+key : left double click
+action : browse : "www.circuitworld.in"
+
+
+
+[line:chgprintformatline]
+field:sp,cwlogical
+Local: Field: sp: Set As:"Change Print Format?"
+Local: Field: cwlogical:storage:cwChangePrintFormat
+Local: field: sp: Width:20
+
+[Field: MinuSareeConfigTitle]
+Use : medium prompt
+info: "Enable MinuSaree?"
+width : 0
+
+[Field: MinuSareeConfig]
+Use: logical field
+Set As: $MinuSareeEnabled
+storage: MinuSareeEnabled
+
+
+[System: Formula]
+MinuSareeEnabled :$MinuSareeEnabled:COMPANY:##SVCURRENTCOMPANY
+cwenablefn :$cwenablefn:COMPANY:##SVCURRENTCOMPANY
+
+
+[line:cwprintcofiline]
+field:long prompt,cwlogical
+Local: Field:Long prompt: Set As:"Enable F/N Print Format? "
+Local: Field: CWLOGICAL: storage:cwenablefn
+
+;---------------------------------------------
+
+;; {12.Apr.21 12:15}   [include : vch1.txt]
+; UDF
+[include : MinuSareeUDF.txt]
+
+
+; Master Changes 
+ [include :Features.txt]
+ [include :ledgermaster.txt]
+ [include :ledgermaster2.txt]
+ [include :vchtype.txt]
+ 
+ ;;RAM MOHAN DAS & SON
+
+; Transaction Changes
+[include : salesvoucher.txt]
+[include : purchasevoucherchg.txt]
+[include :crnotevoucher.txt]
+[include :receiptvoucher.txt]
+[include :crnotevouchertype.txt]
+
+
+; invoice Changes
+[include : mismenums.txt]
+
+[include : salesinvoice.txt]
+[include : salesinvoice1.txt]
+
+[include : Packingslipsalesinv.txt]
+[include : fnsalesinv.txt]
+
+[include : fnPrintingConfiguration.txt]
+;; {10.Apr.21 13:09} [include : test1.txt]
+
+[include :vchuser.txt]
+;; {08.Jun.22 16:40} [include :salesrep.txt]
+
+; Report Changes
+;; {03.Mar.21 15:56} [include : mismenu1.txt]
+
+[include :groupvoucherreportchg.txt]
+
+[include :style.txt]
+[include :salesRegister.txt]
+[include :columnarsalesRegister.txt]
+[include :LedgerAdd.txt]
+[include :RepCmpMaster.txt]
+
+;; {10.Feb.21 11:58} [include :salesbrokerreport.txt]
+
+[include : PartySupplierAddressBook.txt]
+[include : Netsalesreport.txt]
+[include : LRpendingUpdatereport.txt]
+[include :salesRegisternew.txt]
+[include :salesReturnRegister.txt]
+
+[include :AgentWiseAgeingReport.txt]
+[include :AgentWiseAgeingReport2.txt]
+[include :AgentWiseAgeingReport1.txt]
+
+
+;;----------------------------------------------------
+[include : tet13.txt]    ;;"Ageing Wise Outstanding Report (Agent Wise)"
+;;[include : AllAgentwise.txt]    ;;AgentWiseAgeingReport1
+[include : Allpartywise.txt]    ;;AgentWiseAgeingReport1
+;; {08.Jun.22 14:42} [include : Allpartywise2.txt]    ;;AgentWiseAgeingReport1
+
+
+
+[include : salesmanWiseAgeingReport.txt]
+
+;;----------------------------------------------------
+
+[include :DailyCollectionReport.txt]
+;; {25.May.22 17:58} [include :t12.txt]
+
+[include :Auditreport.txt]
+[include :Stockreport.txt]
+
+;; {22.May.21 17:15} [include : t10.txt]
+;; {09.Jul.21 14:16} [include : tet12.txt]
+
+;;MAHESH MODI,BIS
+
+;;DEEPAK DIRECT PARTY,RAK
+;;DIRECT 1,DRT
+
+;; {14.Jun.22 12:17} [include : testsales.txt]
+;;=====  outstandingreport======================================================
+
+  ;;VENUS ENTERPRISES,BBBBZ/DR1
+  
+[include : sundrycreitorsoutsanding.txt]
+
+[include :outstandingreport.txt]
+
+;; {26.Aug.21 18:56} [include :AREAWISEOutstandingReportnew.txt]
+[include :Citywiseoutstandingreport.txt]
+
+[include :AGENTWISEOutstandingReport.txt]     ;;cwcaption1tableundernew report f11 ----f6
+[include :SALESMANWISEOutstandingReport.txt]  ;;  ;;cwcaption2tableundernew report f11 ----f6
+[include :AREAWISEOutstandingReport.txt]     ;;;;cwcaption3tableundernew report f11 ----f6
+[include :ZONEWISEOutstandingReport.txt]     ;;cwcaption4tableundernew report f11 ----f6
+
+
+[include :Allpartywiesoutstandingreport.txt]
+[include :allAGENTWISEOutstandingReport.txt]     ;;cwcaption1tableundernew report f11 ----f6
+[include :allSALESMANWISEOutstandingReport.txt]     ;;cwcaption2tableundernew report f11 ----f6
+[include :allAREAWISEOutstandingReport.txt]     ;;;;cwcaption3tableundernew report f11 ----f6
+[include :ALLZONEWISEOutstandingReport.txt]     ;;cwcaption4tableundernew report f11 ----f6
+
+;;multiprint
+
+[include :multiprintAGENTWISEOutstandingReport.txt]     ;;cwcaption1tableundernew report f11 ----f6
+[include :multiprintSALESMANWISEOutstandingReport.txt]  ;;  ;;cwcaption2tableundernew report f11 ----f6
+[include :multiprintAREAWISEOutstandingReport.txt]     ;;;;cwcaption3tableundernew report f11 ----f6
+[include :multiprintZONEWISEOutstandingReport.txt]     ;;;;cwcaption4tableundernew report f11 ----f6
+
+
+[include :LRPendingupateReport.txt]
+[include :LRPendingReport.txt]
+[include :khamprint.txt]
+[include :multiprintkhamprint.txt]
+
+;; {26.May.22 12:30} [include :trecpt.txt]
+
+;; {23.Apr.22 12:39} [include:testkhamprint.txt]
+
+
+[include :khamprintConfiguration.txt]
+
+
+;; {04.Sep.21 19:58} [include : TEST.txt]
+;; {28.Aug.21 14:08} [include : TEST1.txt]
+;; {31.May.22 10:47} [include : test0.txt]
+
+
+;;1. All ------ wise Report
+
+;;=========Net sales============================================================
+ 
+;; {14.Jun.22 17:01}  [include :testsales.txt]
+ 
+;; {25.May.22 15:40}  [include :cwallagentwise.txt]
+
+;; {14.Jul.22 14:34} [include : testreceipt.txt]
+ 
+ [include :Partywisenetsalesreport.txt]
+ [include :AGENTWISEnetsalesreport.txt]     ;;cwcaption1tableundernew report f11 ----f6
+ [include :SALESMANWISEnetsalesreport.txt]     ;;cwcaption2tableundernew report f11 ----f6
+ [include :AREAWISEnetsalesReport.txt]     ;;;;cwcaption3tableundernew report f11 ----f6
+
+
+ [include :AGENTWISEnetsalesreportnew.txt]     ;;cwcaption1tableundernew report f11 ----f6
+ [include :SALESMANWISEnetsalesreportnew.txt]     ;;cwcaption2tableundernew report f11 ----f6
+ [include :AREAWISEnetsalesReportnew.txt]     ;;;;cwcaption3tableundernew report f11 ----f6
+
+
+ [include :ZONEWISEnetsalesReport.txt]     ;;;;cwcaption4tableundernew report f11 ----f6
+ [include :Citywisenetreport.txt]
+
+  [include :allPartywisenetsalesreport.txt]
+
+
+  [include :allAGENTWISEnetsalesreport.txt]  ;;cwcaption1tableundernew report f11 ----f6
+  [include :allSALESMANWISEnetsalesreport.txt]  ;;cwcaption2tableundernew report f11 ----f6
+  [include :allAREAWISEnetsalesReport.txt]     ;;;;cwcaption3tableundernew report f11 ----f6
+
+
+  [include :allAGENTWISEnetsalesreportnew.txt]  ;;cwcaption1tableundernew report f11 ----f6
+  [include :allSALESMANWISEnetsalesreportnew.txt]  ;;cwcaption2tableundernew report f11 ----f6
+  [include :allAREAWISEnetsalesReportnew.txt]     ;;;;cwcaption3tableundernew report f11 ----f6
+  
+  
+  [include :allZONEWISEnetsalesReport.txt]     ;;;;cwcaption4tableundernew report f11 ----f6
+
+;; {04.Sep.21 12:04}   [include : test15.txt]
+;; {17.Sep.21 12:48}   [include : test16.txt]
+ ;; [include : test17.txt]
+ 
+;; {19.Jul.22 11:04}   [include : test171.txt]
+
+;;==========SALESREGISTER=======================================================
+
+   [include :Partywisesalesregisterreport.txt]
+   [include :AGENTWISEsalesregiterreport.txt]     ;;cwcaption1tableundernew report f11 ----f6
+   [include :SALESMANWISEsalesregiterreport.txt]     ;;cwcaption2tableundernew report f11 ----f6
+   [include :AREAWISEsalesregiterReport.txt]     ;;;;cwcaption3tableundernew report f11 ----f6
+   [include :ZONEWISEsalesregiterReport.txt]     ;;;;cwcaption3tableundernew report f11 ----f6
+   
+   [include :Citywisesalesregisterreport.txt]
+   
+;; {28.Aug.21 10:47}     [include :allPartywisesalesregisterreport.txt]
+;; {28.Aug.21 10:47}     [include :allAGENTWISEsalesregiterreport.txt]     ;;cwcaption1tableundernew report f11 ----f6
+;; {28.Aug.21 10:47}     [include :allSALESMANWISEsalesregiterreport.txt]     ;;cwcaption2tableundernew report f11 ----f6
+;; {28.Aug.21 10:47}      [include :allAREAWISEsalesregiterReport.txt]     ;;;;cwcaption3tableundernew report f11 ----f6
+;; {28.Aug.21 10:47}      [include :allZONEWISEsalesregiterReport.txt]     ;;;;cwcaption3tableundernew report f11 ----f6
+
+[include : agentwisesalescollectionsummaryreport.txt]
+
+;;=============================collctionreport==========================================================================
+
+[include : partywisecollctionreport.txt]
+
+[include :AGENTWISEollctionreport.txt]     ;;cwcaption1tableundernew report f11 ----f6
+[include :SALESMANWISEcollctionreport.txt]     ;;cwcaption2tableundernew report f11 ----f6
+[include :AREAWISEcollctionreport.txt]     ;;;;cwcaption3tableundernew report f11 ----f6
+[include :ZONEWISEcollctionreport.txt]     ;;;;cwcaption3tableundernew report f11 ----f6
+[include :Citywisecollctionreport.txt]
+
+[include : Salesmanwisesalescollectionsummeryrep.txt]
+
+;; {04.Jul.22 17:43} [include : Salesmanwisesalescollectionsummeryrep1.txt]
+;;[include : test1x.txt]
+
+;;==============================Sales Return=====================================
+
+ [include :PartywisesalesReturnregister.txt]
+
+ [include :ALLPartywisesalesReturnregister.txt]
+ 
+ [include :AGENTWISEsalesReturnregiterreport.txt]
+ 
+
+ 
+ [include :SALESMANWISEsalesReturnregiterreport.txt]
+ 
+
+ 
+ [include :AREAWISEsalesReturnregiterReport.txt]
+ 
+
+ [include :AllAGENTWISEsalesReturnregiterreport.txt]  ;;SALE RETURN AGENT WISE
+ [include :ALLAREAWISEsalesReturnregiterReport.txt]  ;;"AREA WISE"
+ 
+ [include :ALLSALSEMENWISEsalesReturnreport.txt] ;;SALSEMEN WISE
+ 
+ [include :SALERETURNREGISTER]
+ [include :SALERETURNSUMMARY]
+ 
+ ;;[include :DailySalesRegister.txt]
+;;===================================================================
+
+[include :salesreport.txt]
+[include :topitemsalesreport.txt]
+[include :DailySalesRegister.txt]
+
+;;[include :ComperativeNetsaleandCollectionnew.txt]
+
+;;==============================================================
+
+;; {06.Oct.22 12:05} [include :ComperativeNetsaleandCollection1.txt]  ;;old ok
+
+[include :ComperativeNetsaleandCollection.txt]
+[include :Comperativetestrep.txt]
+
+
+[include :SalemanComperativeNetsaleandCollection.txt]
+
+[include :TopSellers.txt]
+[include :TopSalesProductsQtyWise.txt]
+[include :TopSalesProductsValuewise.txt]
+
+
+;; {23.Jun.22 16:04} [include :testcompany.txt]
+
+
+;; {24.Jun.22 06:52} [include : AgentPartyPerformanceCollection.txt]
+
+;; {19.Aug.22 17:48} [include :tes1111.txt]
+[include :tes222.txt]
+;;============================================
+
+[include : Itemwisenetsalesreport.txt]     ;; Anil
+[include :allItemwisenetsalesreport.txt]    ;; Anil
+
+
+[include : Monthtomonthnetsalesreport.txt]
+;;============================================
+
+;; {31.Mar.22 13:09}  [include : ledgermasterchgnew.txt]
+[include : CustomerMasterreport.txt]  ;;Ledger Master
+
+;;[include : e:\d7comps\tprime\CommonVars.txt]
+;;[include : e:\d7comps\tprime\tallyserial.txt]
+;;[include : e:\d7comps\tprime\servervouchers.txt]
+;;[include : e:\d7comps\tprime\commonudf.txt]
+;;[include : e:\d7comps\tprime\commonborders.txt]
+;;[include : e:\d7comps\tprime\Cwwbst.txt]
+;;[include : e:\d7comps\tprime\addwbstno.txt]
+;;[include : e:\d7comps\tprime\CMPWBSTNO.txt]
+;;[include : e:\d7comps\tprime\cwwaybills.txt]
+;;[include : e:\d7comps\tprime\cmpIECNo.txt]
+;;[include : e:\d7comps\tprime\addtableinconsignee.txt]
+;;[include : e:\d7comps\tprime\LedTANNo.txt]
+;;[include : e:\d7comps\tprime\LedCSTNo.txt]
+;;[include : e:\d7comps\tprime\batchchange.txt]
+
+;; {10.Feb.21 11:58} [include : e:\d7comps\tprime\broker.txt] ;; for enabling broker
+            /*
+[system : formula]
+ cwBrokerYesNo :@@issales  ;;condition to enable broker
+ cwCommissionApplicable : no ;;condition to enable Commission
+ cwAgentAmtSkip : yes ;;condition to skip Amount for Agent
+ cwLedgerBroker: yes ;;if broker table from ledger then yes else no
+ cwGroupBroker : no ;;if broker table from group then yes else no
+ cwCostBroker : no ;; if broker table from Cost Centre
+
+   cwUseDefBroker : no ;; for accessing Default Broker from Ledger Master
+ brokerinCreditor : no ;; if you want default broker in creditor also
+;; also Include CommonUdf
+
+
+ [#Part  : CMP TallyShopFeatures Left]
+ Add :  Line : At End  : CMP cwEnableSalesmanTable
+           */
+
+;;================================
+
+
+;;Create by - Admin, Dated - 01/04/2021 on 11:15 a.m.
+;;Alter by - Kundan, Dated - 05-04-2021 on 12:15 a.m.
+;;Alter by - Amit, Dated - 05/04/2021 on 03:45 p.m.
+
+
+
+;;Log Details - Click
+
+
+
+;;===================================================
+
+;;[include : test01.txt]
+
+

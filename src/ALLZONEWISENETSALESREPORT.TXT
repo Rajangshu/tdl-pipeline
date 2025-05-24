@@ -1,0 +1,350 @@
+; Created By: Khokan on 2021-08-27 14:11, ID: 
+
+     [#menu: Gateway of Tally]
+;; {27.Aug.21 14:48}         add: Option: allZONEWISEnetsalesReportLock ;; : @@allZONEWISEnetsalesReportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@allZONEWISEnetsalesReportReport: Display: RepallZONEWISEnetsalesReport
+
+
+
+     [!menu: allZONEWISEnetsalesReportLock]
+        add: Item: before: @@locQuit: @@allZONEWISEnetsalesReportReport: Display: RepallZONEWISEnetsalesReport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   allZONEWISEnetsalesReportReport:"All"+" "+@@cwcaption4tableundernew+" "+"wise net sales report"
+;; allZONEWISEnetsalesReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepallZONEWISEnetsalesReport]
+        use: Dsp Template
+      Title: @@allZONEWISEnetsalesReportReport
+   Printset: Report Title: @@allZONEWISEnetsalesReportReport
+       Form: FrmallZONEWISEnetsalesReport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    
+       variable:str1,str2
+    set:str1:""
+    set:str2:""
+
+     
+      [Form: FrmallZONEWISEnetsalesReport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0allZONEWISEnetsalesReport,PrtallZONEWISEnetsalesReport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: allZONEWISEnetsalesReportbotbrk,allZONEWISEnetsalesReportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+        add:button:allzonenetsalesbotton
+
+local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+      [part: allZONEWISEnetsalesReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: allZONEWISEnetsalesReportbotopbrk]
+        use: dspacctitles
+  add: part: allZONEWISEnetsalesReportTitlePart
+
+      [part: allZONEWISEnetsalesReportTitlePart]
+       line: LnallZONEWISEnetsalesReportTitle,LnallZONEWISEnetsalesReportTitle2
+       
+      [line: LnallZONEWISEnetsalesReportCurrPeriod]
+    field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: style3x
+      Local: Field: fwf2: Style:style3x
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf: Set As:##LedgerName
+        Local: Field: fwf2:invisible: $$inprintmode
+
+
+      [part: PrtTitle0allZONEWISEnetsalesReport]
+      line : LnallZONEWISEnetsalesReportCurrPeriod
+      
+      [Part: PrtallZONEWISEnetsalesReport]
+       Line: LnallZONEWISEnetsalesReportTitle,LnallZONEWISEnetsalesReportTitle2,LnallAGENTWISEnetsalesreportTitle3,LnallZONEWISEnetsalesReport
+bottom Line: LnallZONEWISEnetsalesReportTotals
+     repeat: LnallZONEWISEnetsalesReport: ColallZONEWISEnetsalesReport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+     Total: Qtyf,amtf,amtf1,amtf2,amtf3,amtf4,amtf5,numf,numf1,numf2,numf3,numf4
+
+[Collection: ColallZONEWISEnetsalesReport]
+source Collection: sorcColallZONEWISEnetsalesReport
+
+by:partyledgername:$partyledgername
+
+;; {25.Aug.21 15:03} by:cwcaption1vch1:$..cwcaption1vch
+;; {25.Aug.21 14:04} by:cwledcity1:$cwledcity:ledger:$ZONEledgername
+;; {25.Aug.21 16:20} by:cwcaption1vch2:$..cwcaption2vch
+by:cwcaption1vch4:$..cwcaption4vch
+aggr compute:billedqty:sum:$$CollAmtTotal:inventoryentries:$billedqty
+
+aggr compute:amount:sum:$amount
+
+aggr compute:amount1:sum:$$CollAmtTotal:inventoryentries:$amount
+ filter:cwcaption4netsalesvch4filter,cwpartylednetsalesfilter
+sort:@@DEFAULT:$cwcaption1vch4
+
+[Collection: sorcColallZONEWISEnetsalesReport]
+Type	   : Vouchers	: VoucherType
+Child Of   : $$VchTypesales
+Belongs To : Yes
+
+    [system: Formula]
+ColallZONEWISEnetsalesReportFilter: Yes
+
+      [Line: LnallZONEWISEnetsalesReportTitle]
+        use: LnallZONEWISEnetsalesReport
+     option: titleopt
+local:field: fwf: set as:@@cwcaption4tableundernew ;; "PARTY NAME"
+local:field: nf: set as:"Party Name" ;; "PARTY NAME"
+
+local:field: grsales: set as:"Gross Sales" ;; "GROSS SALE"
+local:field: grSRIN: set as:"Gross Sals Return";; "GROSS SALE RETURN"
+
+local:field: numf3: set as:"Net Sales" ;; "NET SALE"
+local:field: amtf3: set as:"Gross Sale Less Gross Sales Return" ;; "GROSS SALE LESS GROSS SALE RETURN "
+local:field: amtf4: set as:"Net Sale With Gst Less Crn";; "NET SALE WITH GST LESS CRN"
+local:field: amtf5: set as:"Colleection"  ;; "COLLECTION"
+
+
+local: field: default : style: normal bold
+
+local : field : grsales : delete :field
+local : field : grSRIN : delete :field
+Local: Field:grsales : Sub title : Yes
+Local: Field:grSRIN : Sub title : Yes
+Local: field: grSRIN: Align:centre
+Local: field: grsales: Align:centre
+Local: field: default: Align:centre
+local : field : grsales : cells :2
+local : field : grSRIN :cells :2
+local : field : snetsales : cells :2
+
+Local: field: snf: Align:left
+Local: field: fwf: Align:left
+Local: field: nf: Align:left
+Local: Field:grsales : Border: thin bottom
+Local: Field:grSRIN : Border: thin bottom
+Local : field : default: Lines : 0
+Local: field: default: Align:centre
+Local: field: nf: Align:centre
+Local: field: fwf: Align:left
+
+local: field: grsales : style:styleCalisto2
+ local: field: grSRIN : style:styleCalisto2
+ local: field: fwf : style:styleCalisto2
+ local: field: nf : style:styleCalisto2
+local: field: numf : style:styleCalisto2
+local: field: numf1 : style:styleCalisto2
+local: field: numf2 : style:styleCalisto2
+local: field: numf3 : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf1 : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+local: field: amtf3 : style:styleCalisto2
+local: field: amtf4 : style:styleCalisto2
+local: field: amtf5 : style:styleCalisto2
+
+
+[Line: LnallZONEWISEnetsalesReportTitle2]
+use: LnallZONEWISEnetsalesReport
+option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: fwf: set as: ""
+
+local:field: numf: set as:"Pcs";; "PCS"
+local:field: numf2: set as: "Pcs"
+local:field: amtf: set as: "Amount"
+local:field: amtf2: set as: "Amount"
+local:field: numf3: set as: "Pcs"
+local:field: amtf3: set as: "Amount"
+local:field: amtf4: set as: "Amount"
+local:field: amtf5: set as: "Amount"
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+
+local: field: grsales : style:styleCalisto2
+ local: field: grSRIN : style:styleCalisto2
+ local: field: fwf : style:styleCalisto2
+local: field: numf : style:styleCalisto2
+local: field: numf1 : style:styleCalisto2
+local: field: numf2 : style:styleCalisto2
+local: field: numf3 : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf1 : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+local: field: amtf3 : style:styleCalisto2
+local: field: amtf4 : style:styleCalisto2
+local: field: amtf5 : style:styleCalisto2
+
+[Line: LnallAGENTWISEnetsalesreportTitle3]
+use: LnallZONEWISEnetsalesReport
+
+delete:explode
+
+ local:field: fwf: set as:$$CollectionField:$cwcaption1vch4:First:ColallZONEWISEnetsalesReport ;;$partyledgername  ;;"Party";; "PARTY & BOOKED TO"
+ local:field: nf: set as:"" ;;$cwcaption1vch3  ;;"Area";; "TRANSPORT"
+
+ local:field: numf: set as:""  ;; "PCS"
+ local:field: numf2: set as:"" ;;  "PCS"
+ local:field: amtf: set as:""  ;;  "AMOUNT"
+ local:field: amtf2: set as:""  ;;  "AMOUNT"
+ local:field: numf3: set as:""  ;; "PCS"
+ local:field: amtf3: set as:""  ;;  "AMOUNT"
+ local:field: amtf4: set as:""  ;; "AMOUNT"
+ local:field: amtf5: set as:""  ;; "AMOUNT"
+
+  local:field: default:style:styleCalisto2
+
+  delete:border:thin bottom
+  local:field: fwf:style:styleCalistox2
+
+[Line: LnallZONEWISEnetsalesReport]
+Fields:nf,fwf
+right field: grsales,grSRIN,numf3,amtf3,amtf4,amtf5
+Option: Alter on Enter
+
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+
+local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: nf: set as:$partyledgername
+local:field: fwf: set as:$cwcaption1vch4
+
+local:field: numf: set as:$billedqty;; "PCS"
+local:field: amtf: set as:$amount1  ;;  "AMOUNT"
+local:field: numf2: set as:$$reportobject:$$collectionfieldbykey:$billedqty:@@ZONEkeycrnotenew:cwColNetcrnotereportZONE ;;  "PCS"
+
+local:field: amtf2: set as:$$reportobject:$$collectionfieldbykey:$amount1:@@ZONEkeycrnotenew:cwColNetcrnotereportZONE   ;;  "AMOUNT"
+local:field: numf3: set as:#numf-#numf2  ;;  "PCS"
+local:field: amtf3: set as:#amtf-#amtf2  ;;  "AMOUNT"
+
+local:field: amtf4: set as: if $$isempty:@@cwcrnoteamount then $amount else $amount-@@cwcrnoteamountZONE ;; "AMOUNT"
+local:field: amtf5: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:@@ZONEkeycrnotenew:ColreceiptZONE  ;; "AMOUNT"
+
+Local: Field: SNF: Set As:##LEDGERNAME
+Local: Field: default: Border: thin right
+
+Local: field: numf: Width:10
+Local: field: numf2: Width:10
+Local: field: amtf: Width:15
+Local: field: amtf2: Width:15
+local: field: default : style:styleCalisto
+ border:thin bottom
+ 
+ add:explode:expZoneWISEsalesRep:$$line = $$numitems or $cwcaption1vch4 <> $$nextobj:$cwcaption1vch4
+
+ [part:expZoneWISEsalesRep]
+ line:expZoneWISEsalesRep
+
+ [line:expZoneWISEsalesRep]
+  use: LnallZONEWISEnetsalesReport
+  delete:explode
+
+ local:field: fwf: set as:$$nextobj:$cwcaption1vch4 ;;$partyledgername  ;;"Party";; "PARTY & BOOKED TO"
+ local:field: nf: set as:"" ;;$cwcaption1vch3  ;;"Area";; "TRANSPORT"
+
+ local:field: numf: set as:""  ;; "PCS"
+ local:field: numf2: set as:"" ;;  "PCS"
+ local:field: amtf: set as:""  ;;  "AMOUNT"
+ local:field: amtf2: set as:""  ;;  "AMOUNT"
+ local:field: numf3: set as:""  ;; "PCS"
+ local:field: amtf3: set as:""  ;;  "AMOUNT"
+ local:field: amtf4: set as:""  ;; "AMOUNT"
+ local:field: amtf5: set as:""  ;; "AMOUNT"
+
+  local:field: fwf:style:styleCalistox2
+
+  delete:border:thin bottom
+ 
+
+      [line: LnallZONEWISEnetsalesReportTotals]
+        use: LnallZONEWISEnetsalesReport
+     option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total"
+
+
+local:field: numf: set as:$$total:numf;; "PCS"
+local:field: numf2: set as:$$total:numf2 ;;  "PCS"
+local:field: amtf: set as:$$total:amtf ;;  "AMOUNT"
+local:field: amtf2: set as:$$total:amtf2 ;;  "AMOUNT"
+local:field: numf3: set as:$$total:numf3 ;; "PCS"
+local:field: amtf3: set as:$$total:amtf3 ;;  "AMOUNT"
+local:field: amtf4: set as: $$total:amtf4 ;; "AMOUNT"
+local:field: amtf5: set as:$$total:amtf5 ;; "AMOUNT"
+
+
+local: field: grsales : style:styleCalisto2
+ local: field: grSRIN : style:styleCalisto2
+ local: field: fwf : style:styleCalisto2
+local: field: numf : style:styleCalisto2
+local: field: numf1 : style:styleCalisto2
+local: field: numf2 : style:styleCalisto2
+local: field: numf3 : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf1 : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+local: field: amtf3 : style:styleCalisto2
+local: field: amtf4 : style:styleCalisto2
+local: field: amtf5 : style:styleCalisto2
+
+;;==========================
+
+
+ [button:allzonenetsalesbotton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:cwcaption4tableundernew
+
+ [report:cwcaption4tableundernew]
+ form:cwcaption4tableundernew
+
+ [form:cwcaption4tableundernew]
+ part:cwcaption4tableundernew
+
+ HEIGHT:20% PAGE
+ WIDTH:30% PAGE
+
+ [part:cwcaption4tableundernew]
+ line:cwtitlelinex,agentbotton,cwcaption4tableundernew
+
+ [line:cwcaption4tableundernew]
+ field:sp,nf
+ Local: Field: sp: Set As:@@cwcaption4tableundernew
+ Local: Field: nf:modifies:str2
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:colwcaption4table,Not Applicable
+ Local: Field: nf: Show table: Always
+
+
+ [System: Formula]
+
+cwcaption4netsalesvch4filter:if $$issysname:##str2 then yes else $cwcaption1vch4 =##str2

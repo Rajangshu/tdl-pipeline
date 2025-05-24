@@ -1,0 +1,223 @@
+; Created By: Khokan on 2022-02-26 15:18, ID:
+
+
+ [#part: MST LED Explode Sundry]
+ ADD:OPTION:MSTLEDEXSROPT:@@MinuSareeEnabled
+ [!PART:MSTLEDEXSROPT]
+
+ add:line:Salespersonlinems,asmline,AgentLINE,RSMLINE
+
+ [line:Salespersonlinems]
+ field:long prompt,nf
+ Local: Field:long prompt: Set As:"Salesperson"
+ Local: Field: NF: storage:cwSalesperson
+
+ Local: Field:nf: table:cwcollSalesperson,Not Applicable
+ Local: Field:nf: Show table: Always
+ local:field:nf:variable:svcost centre
+ local:field:NF:key:Create Cost Centre, Alter CstCtr
+  Local: Field: nf: Style: Normal Bold
+  Local: Field: nf1: Set As:$cwSalespersonCC:$parent:costcentre:#nf ;;$cwSalesperson ;;$costcentrename
+
+ [Collection:cwcollSalesperson]
+ Type: Cost Centre
+ title:"List of Sales Person"
+;; {10.Mar.22 16:25}  child of:"Sales person"
+
+
+format:$name,10
+;; {10.Mar.22 15:51} format:$cwSalespersonCC,10
+;; {10.Mar.22 15:51} format:$cwASMCC,10
+;;format:$parent,10
+;;format:@@cwSalespersonCCopt,10
+;;format:@@cwasmCCopt,10
+;;format:@@cwAgentCCopt,10
+;;format:@@CWRSMccopt,10
+
+ filter:cwSalespersonCC ;;,cwSalespersonCC
+
+fetch:cwSalespersonCC,cwASMCC,cwAgentCC,cwRSMCC,parent
+
+[System: Formula]
+cwSalespersonCC:@@cwSalespersonCCopt="yes" or @@cwasmCCopt="yes" or @@cwAgentCCopt="yes" or @@CWRSMopt="yes"
+ CWASMfil:$CWASM="yes"
+ cwSalespersonCCopt:$cwSalespersonCC:costcentre:$parent
+ cwasmCCopt:$cwASMCC:costcentre:$parent
+ cwAgentCCopt:$cwAgentCC:costcentre:$parent
+ CWRSMccopt:$CWRSMcc:costcentre:$parent
+;; Salespersonfilter:if $parent="Salesman" then @@cwSalespersonCC else if $parent="ASM" then @@cwSalespersonCC else ""
+
+ [line:asmline]
+ field:long prompt,nf
+ Local: Field:long prompt: Set As:"ASM"
+ Local: Field: NF: storage:CWASM
+
+ Local: Field: nf: table:cwcollASM,Not Applicable
+ Local: Field: nf: Show table: Always
+ local:field:nf:variable:svcost centre
+ local:field:NF:key:Create Cost Centre, Alter CstCtr
+ Local: Field: nf: Style: Normal Bold
+
+ [Collection:cwcollASM]
+ Type: Cost Centre
+ title:"List of ASM"
+;; child of:"ASM"
+filter:cwSalespersonCC ;;,CWASMfil
+ /*
+format:$name,10
+;; {10.Mar.22 15:51} format:$cwSalespersonCC,10
+;; {10.Mar.22 15:51} format:$cwASMCC,10
+format:$parent,10
+format:@@cwSalespersonCCopt,10
+format:@@cwasmCCopt,10
+*/
+fetch:cwSalespersonCC,cwASMCC,cwAgentCC,cwRSMCC
+
+ [LINE:AgentLINE]
+
+ field:long prompt,nf
+ Local: Field:long prompt: Set As:"Agent"
+ Local: Field: NF: storage:CWAgent
+
+ Local: Field: nf: table:cwcollAgent,Not Applicable
+ Local: Field: nf: Show table: Always
+ local:field:nf:variable:svcost centre
+ local:field:NF:key:Create Cost Centre, Alter CstCtr
+  Local: Field: nf: Style: Normal Bold
+
+ [Collection:cwcollAgent]
+ Type: Cost Centre
+ title:"List of Agent"
+ ;;child of:"Agent"
+
+ filter:cwSalespersonCC ;;,CWASMfil
+ /*
+format:$name,10
+;; {10.Mar.22 15:51} format:$cwSalespersonCC,10
+;; {10.Mar.22 15:51} format:$cwASMCC,10
+format:$parent,10
+format:@@cwSalespersonCCopt,10
+format:@@cwasmCCopt,10
+*/
+fetch:cwSalespersonCC,cwASMCC,cwAgentCC,cwRSMCC
+
+ [LINE:RSMLINE]
+
+ field:long prompt,nf
+ Local: Field:long prompt: Set As:"RSM"
+ Local: Field: NF: storage:CWRSM
+
+ Local: Field: nf: table:cwcollCWRSM,Not Applicable
+ Local: Field: nf: Show table: Always
+ local:field:nf:variable:svcost centre
+ local:field:NF:key:Create Cost Centre, Alter CstCtr
+  Local: Field: nf: Style: Normal Bold
+
+ [Collection:cwcollCWRSM]
+ Type: Cost Centre
+ title:"List of RSM"
+ ;;child of:"RSM"
+
+ filter:cwSalespersonCC ;;,CWASMfil
+ /*
+format:$name,10
+;; {10.Mar.22 15:51} format:$cwSalespersonCC,10
+;; {10.Mar.22 15:51} format:$cwASMCC,10
+format:$parent,10
+format:@@cwSalespersonCCopt,10
+format:@@cwasmCCopt,10
+*/
+fetch:cwSalespersonCC,cwASMCC,cwAgentCC,cwRSMCC
+
+ ;;=========================================================
+ [#form:cost centre]
+ add:part:rsmpart
+
+ [part:rsmpart]
+ line:Salespersonline1,ASMline1,Agentline1,rsmline1,Cityline1,Zoneline1
+
+ [line:Salespersonline1]
+ field:sp,cwlogical
+ Local: Field: sp: Set As:"Is Salesperson"
+ Local: Field: cwlogical: storage:cwSalespersonCC
+
+ [line:ASMline1]
+  field:sp,cwlogical
+ Local: Field: sp: Set As:"Is ASM"
+ Local: Field: cwlogical: storage:cwASMCC
+
+ [line:Agentline1]
+  field:sp,cwlogical
+ Local: Field: sp: Set As:"Is Agent"
+ Local: Field: cwlogical: storage:cwAgentCC
+
+ [line:rsmline1]
+ field:sp,cwlogical
+ Local: Field: sp: Set As:"Is RSM"
+ Local: Field: cwlogical: storage:cwRSMCC
+
+  [line:Cityline1]
+ field:sp,cwlogical
+ Local: Field: sp: Set As:"Is City"
+ Local: Field: cwlogical: storage:cwCityCC
+
+ [line:Zoneline1]
+ field:sp,cwlogical
+ Local: Field: sp: Set As:"Is Zone"
+ Local: Field: cwlogical: storage:cwZoneCC
+
+ ;;=========================================================
+
+
+
+ [#Part: LED Mailing Address]
+  ADD:OPTION:MSTLEDAddressEXSROPT:@@MinuSareeEnabled
+ [!PART:MSTLEDAddressEXSROPT]
+
+ add:Bottom Line	:Cityline,Zoneline
+ Height      :12
+
+ [line:Cityline]
+ field:long prompt,nf
+ Local: Field:long prompt: Set As:"City"
+ Local: Field: NF: storage:CWledCity
+
+ Local: Field: nf: table:cwcollCity,Not Applicable
+ Local: Field: nf: Show table: Always
+ local:field:nf:variable:svcost centre
+ local:field:NF:key:Create Cost Centre, Alter CstCtr
+ Local: Field: nf: Style: Normal Bold
+
+ [Collection:cwcollCity]
+ Type: Cost Centre
+ title:"List of City"
+;; {10.Mar.22 18:15}  child of:"City"
+filter:cwCityCCoptfilter
+
+ [System: Formula]
+
+cwCityCCoptfilter:@@cwCityCCopt="yes" or @@cwZoneCCopt="yes"
+
+cwCityCCopt:$cwCityCC:costcentre:$parent
+ cwZoneCCopt:$cwZoneCC:costcentre:$parent
+
+
+
+[line:Zoneline]
+ field:long prompt,nf
+ Local: Field:long prompt: Set As:"Zone"
+ Local: Field: NF: storage:CWledZone
+
+ Local: Field: nf: table:cwcollZone,Not Applicable
+ Local: Field: nf: Show table: Always
+ local:field:nf:variable:svcost centre
+ local:field:NF:key:Create Cost Centre, Alter CstCtr
+  Local: Field: nf: Style: Normal Bold
+
+ [Collection:cwcollZone]
+ Type: Cost Centre
+ title:"List of Zone"
+;; {10.Mar.22 18:15}  child of:"Zone"
+ filter:cwCityCCoptfilter
+
+

@@ -1,0 +1,217 @@
+; Created By: Khokan on 2021-06-10 16:10, ID: 
+
+     [#menu: Gateway of Tally]
+;; {11.Jun.21 10:52}         add: Option: DailyCollectionReportLock ;; : @@DailyCollectionReportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@DailyCollectionReportReport: Display: RepDailyCollectionReport
+
+
+
+     [!menu: DailyCollectionReportLock]
+        add: Item: before: @@locQuit: @@DailyCollectionReportReport: Display: RepDailyCollectionReport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   DailyCollectionReportReport: "Daily Collection Report"
+;; DailyCollectionReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepDailyCollectionReport]
+        use: Dsp Template
+      Title: @@DailyCollectionReportReport
+   Printset: Report Title: @@DailyCollectionReportReport
+       Form: FrmDailyCollectionReport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmDailyCollectionReport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0DailyCollectionReport,PrtDailyCollectionReport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: DailyCollectionReportbotbrk,DailyCollectionReportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+     local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+      [part: DailyCollectionReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: DailyCollectionReportbotopbrk]
+        use: dspacctitles
+  add: part: DailyCollectionReportTitlePart
+
+      [part: DailyCollectionReportTitlePart]
+       line: LnDailyCollectionReportTitle
+       
+      [line: LnDailyCollectionReportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0DailyCollectionReport]
+      line : LnDailyCollectionReportCurrPeriod
+      
+      [Part: PrtDailyCollectionReport]
+       Line: LnDailyCollectionReportTitle,LnDailyCollectionReportTitle2,LnDailyCollectionReportTitle3,LnDailyCollectionReport
+bottom Line: LnDailyCollectionReportTotals
+     repeat: LnDailyCollectionReport: ColDailyCollectionReport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,amtf1,amtf2,amtf3,amtf4,amtf5,amtf6,amtf7
+
+[Collection: ColDailyCollectionReport]
+
+    Use: Vouchers of Company
+     delete: filter : daybookfilter
+
+compute:baknname1:$$CollectionField:$ledgername:2:ledgerentries
+compute:baknparentname1:$parent:ledger:@@cwcashparent
+
+Filter: ColDailyCollectionReportFilter,baknname1filter,IsNonOptionalCancelledVchs
+
+sort:@@default:$baknname1  ;;,$vouchernumber	
+    [system: Formula]
+ColDailyCollectionReportFilter:$$isreceipt:$vouchertypename
+
+baknname1filter:yes ;$$IsLedOfGrp:@@cwcashparent:$$GroupBank OR $$IsLedOfGrp:@@cwcashparent:$$GroupBankOD="yes"
+
+cwcashparent:$$CollectionField:$ledgername:2:ledgerentries
+
+
+[Line: LnDailyCollectionReportTitle]
+use: LnDailyCollectionReport
+option: titleopt4
+;;     local: field:default: set as: $$DescName
+
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Voucher No"
+local:field:snf2: set as: "Party Details"
+local:field:snf3: set as: "Cheque No"
+local:field: fwf: set as: ""
+
+local:field: collamoutf: set as: "Coll Amount"
+
+local : field : collamoutf : delete : field
+local: field: collamoutf: type: String
+Local: field: collamoutf: Align:centre
+
+local: field: default : style: normal bold
+
+
+
+[Line: LnDailyCollectionReportTitle2]
+use: LnDailyCollectionReport
+option: titleopt3
+
+local:field: sdf: set as:"" ;;    "Date"
+local:field: snf: set as:"" ;; "Voucher No"
+local:field:snf2: set as:"" ;; "Party Details"
+local:field:snf3: set as:"" ;; "Cheque No"
+local:field: fwf: set as: ""
+Local: Field: amtf: Set As:"Reciept"
+Local: Field: amtf2: Set As:"Refund"
+
+
+[field:collamoutf]
+field:amtf,amtf2
+width:20
+
+[Line: LnDailyCollectionReport]
+Fields: sdf,snf,snf2,fwf
+right field: snf3,collamoutf
+
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+Local: Field: nf: Set As:$baknname1  ;;$baknparentname1  ;;$baknparentname1  ;;$parent:ledger:$baknname1  ;$baknname1
+
+local:field: sdf: set as:$date ;;    "Date"
+local:field: snf: set as:$vouchernumber ;; "Voucher No"
+local:field:snf2: set as:$$ReptField:Name:2:ledger:#fwf ;; "Party Details"
+local:field:snf3: set as:$AllLedgerEntries[1, @@IsBankLedgr].BankAllocations[1].InstrumentNumber ;; "Cheque No"
+local:field: fwf: set as:$ledgername
+Local: Field: amtf: Set As:$Amount
+Local: Field: amtf2: Set As:""
+
+Local: field: amtf: Width:10
+Local: field: amtf2: Width:10
+explode:receiptbankexp:$$line=$$numitems or $baknname1 <> $$nextobj:$baknname1
+Local: field: sdf: Align:left
+
+[System: Formula]
+CashBankEntriesx:yes
+
+[line:LnDailyCollectionReportTitle3]
+use: LnDailyCollectionReport
+
+;; {10.Jun.21 18:15} local: field: fwf: align: right
+local: field: default : style: normal bold
+local:field: sdf: set as:"" ;;    "Date"
+local:field: snf: set as:"" ;; "Voucher No"
+local:field:snf2: set as:"" ;; "Party Details"
+local:field:snf3: set as:"" ;; "Cheque No"
+local:field: fwf: set as:$$CollectionField:$baknname1:First:ColDailyCollectionReport
+Local: Field: amtf: Set As:""
+Local: Field: amtf2: Set As:""
+
+Local: Field: fwf: Style: Normal Bold
+
+[part:receiptbankexp]
+line:receiptbankexp
+
+[line:receiptbankexp]
+use: LnDailyCollectionReport
+delete:explode
+
+local:field: sdf: set as:"" ;;    "Date"
+local:field: snf: set as:"" ;; "Voucher No"
+local:field:snf2: set as:"" ;; "Party Details"
+local:field:snf3: set as:"" ;; "Cheque No"
+local:field: fwf: set as: $$nextobj:$baknname1
+Local: Field: amtf: Set As:""
+Local: Field: amtf2: Set As:""
+Local: Field: fwf: Style: Normal Bold
+delete:option : alter on enter
+
+
+
+
+[line: LnDailyCollectionReportTotals]
+use: LnDailyCollectionReport
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local:field: sdf: set as:"" ;;    "Date"
+local:field: snf: set as:"" ;; "Voucher No"
+local:field:snf2: set as:"" ;; "Party Details"
+local:field:snf3: set as:"" ;; "Cheque No"
+local:field: fwf: set as: "Total"
+Local: Field: default: Style: Normal Bold
+Local: field: fwf: Align: Right ;;centre
+
+Local: Field: amtf: Set As:$$total:amtf
+Local: Field: amtf2: Set As:""
+
+

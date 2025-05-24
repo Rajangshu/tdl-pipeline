@@ -1,0 +1,151 @@
+; Created By: joy on 2021-10-06 15:53, ID: 
+
+
+     [#menu: Gateway of Tally]
+;; {06.Oct.21 16:12}         add: Option: LedgermasterLock ;; : @@LedgermasterDemoLock
+
+
+;; {12.Feb.19 10:15}      [#menu : cw_Debug_menu]
+;; {12.Feb.19 10:15}         add: Item: before: @@locQuit: @@LedgermasterReport: Display: RepLedgermaster
+
+
+
+     [!menu: LedgermasterLock]
+        add: Item: before: @@locQuit: @@LedgermasterReport: Display: RepLedgermaster
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   LedgermasterReport: "Ledgermaster"
+;; LedgermasterDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: RepLedgermaster]
+        use: Dsp Template
+      Title: @@LedgermasterReport
+   Printset: Report Title: @@LedgermasterReport
+       Form: FrmLedgermaster
+     Export: Yes
+;; {12.Feb.19 10:26}      set  : svfromdate : ##svcurrentdate
+;; {12.Feb.19 10:26}      set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     variable:ledgername
+
+      [Form: FrmLedgermaster]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0Ledgermaster,PrtLedgermaster
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: Ledgermasterbotbrk,LedgermasterbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: LedgermasterbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: Ledgermasterbotopbrk]
+        use: dspacctitles
+  add: part: LedgermasterTitlePart
+
+      [part: LedgermasterTitlePart]
+       line: LnLedgermasterTitle
+
+      [line: LnLedgermasterCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0Ledgermaster]
+      line : LnLedgermasterCurrPeriod
+
+      [Part: PrtLedgermaster]
+       Line: LnLedgermasterTitle,LnLedgermaster
+bottom Line: LnLedgermasterTotals
+     repeat: LnLedgermaster: ColLedgermaster
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColLedgermaster]
+     Type :ledger
+     Filter: ColLedgermasterFilter  ;;,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColLedgermasterFilter:if $$issysname:##ledgername then yes else $name=##ledgername
+
+      [Line: LnLedgermasterTitle]
+        use: LnLedgermaster
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: fwf: set as: "Name"
+local:field: nf: set as: "Address1"
+local:field: nf1: set as: "Address2"
+local:field: nf2: set as: "Address3"
+local:field: nf3 : set as : "Address4"
+local:field: nf4 : set as : "Price Level"
+local:field: nf5 : set as : "GST IN"
+local:field: nf6 : set as : "State Name"
+local:field: nf7 : set as : "Pin Code"
+
+      local: field: default : style: normal bold
+
+      [Line: LnLedgermaster]
+     Fields: fwf,d1
+right fields:nf,d2,nf1,d3,nf2,d4,nf3,d5,nf5,d7,nf6,d8,nf7,d9
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : ledger : $$isledger
+option : alter on enter
+local : field : fwf : alter : ledger : $$isledger
+;; local : field : fwf : alter : ledger : $$isledger
+ local:field: fwf: set as:$name   ;; "Name"
+local:field: nf: set as:@@cwLedAddress1xx   ;; "Address1"
+local:field: nf1: set as:@@cwLedAddress2xx   ;; "Address2"
+local:field: nf2: set as:@@cwLedAddress3xx   ;; "Address3"
+local:field: nf3 : set as :@@cwLedAddress4xx   ;;"Address4"
+local:field: nf4 : set as :$PriceLevel   ;; "Price Level"
+local:field: nf5 : set as :$PartyGSTIN  ;; "GST IN"
+local:field: nf6 : set as :$LedStateName  ;; "State Name"
+local:field: nf7 : set as :$pincode  ;; "Pin code"
+
+Local: field: fwf: Width:400
+Local: field: nf: Width:400
+Local: field: nf1: Width:400
+Local: field: nf2: Width:400
+Local: field: nf3: Width:400
+Local: field: fwf: max:600
+Local: field: nf: max:600
+Local: field: nf1: max:600
+Local: field: nf2: max:600
+Local: field: nf3: max:600
+
+  [collection: cwRepledAdd]
+  type : address : ledger
+  child of : $name
+  
+  [System: Formula]
+ cwLedAddress1xx : $$collectionfield:$address:first:cwRepledAdd
+cwLedAddress2xx : $$collectionfield:$address:2:cwRepledAdd
+cwLedAddress3xx : $$collectionfield:$address:3:cwRepledAdd
+cwLedAddress4xx : $$collectionfield:$address:4:cwRepledAdd
+
+
+      [line: LnLedgermasterTotals]
+        use: LnLedgermaster
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

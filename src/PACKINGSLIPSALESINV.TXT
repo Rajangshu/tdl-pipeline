@@ -1,0 +1,554 @@
+; Created By: Khokan on 2021-04-10 17:30, ID: 
+          /*
+
+[#Report: Printed Invoice]
+
+;; {17.Aug.21 16:30}  delete:Print Set	
+;; {17.Aug.21 16:30}  delete:Set	
+ 
+;; {17.Aug.21 16:30} set : svprintcopies :@@cwsalePrintCopies
+;; {17.Aug.21 16:30} PrintSet : SVPrintCopies :@@cwsalePrintCopies
+
+[#Report: GST Printed Invoice]
+;; {17.Aug.21 15:04}   add : option : GSTPackingslipsalesinvOpt:@@issales
+
+;; {17.Aug.21 15:04} [!report:GSTPackingslipsalesinvOpt]
+
+
+set : svprintcopies :@@cwsalePrintCopies         ;;@@GSTInvCopies
+PrintSet : SVPrintCopies :@@cwsalePrintCopies  ;;@@cwcustomization
+
+[System: Formula]
+cwsalePrintCopies:if ##PRNTYPE = @@CWBL1 then 1 else ##SAPrintCopies
+
+[#Part: PCFG SalesNumberCopies]
+
+  [#Part	: SV Output Medium]
+  border:thin box
+  
+[#Line	: Print Copies]
+
+   border:thin box
+   
+;; {17.Aug.21 16:31}    add:field:snf
+;; {17.Aug.21 16:31}      Local: Field: snf: Set As:if ##PRNTYPE = @@CWBL1 then 1 else ##SAPrintCopies
+   
+    [#Object: VchCfg PrintCopies]
+
+	Use			: Output Configuration
+    Name        : @@PrintCopies
+    Value       :@@cwsalePrintCopies  ;; ##SVPrintCopies
+   
+[#Field: DSP PrintCopies]
+
+Set             : $$String:@@cwsalePrintCopies  ;;1 ;##SVPrintCopies
+
+[#Field: PCFG NumberCopies]
+Set             : $$String:@@cwsalePrintCopies  ;;1 ;##SVPrintCopies
+
+[#Line: PCFG NumberCopies]
+;; {17.Aug.21 16:31} add:field:snf
+;; {17.Aug.21 16:31} Local: Field: snf: Set As:if ##PRNTYPE = @@CWBL1 then 1 else ##SAPrintCopies
+
+
+
+
+[#Field: DSP PrintFileName]
+
+;; {17.Aug.21 14:45} Set as: if $$IsEmpty:##SVPrintFileName then $$MakeExportName:##PrintFileName:"" else $$MakeExportName:##SVPrintFileName:""
+               */
+;;====================================================================================
+
+
+
+
+	
+
+[#Report: VCH Print Configure]
+;; {18.Aug.21 14:35} local:field:default:border:thin box
+
+;; {18.Aug.21 14:35} add:PrintSet    : Report Title: $$LocaleString:"F/N2"  ;;"Cheque Printing"
+
+;; {18.Aug.21 14:35} add:Set  	: ReportSubTitle : "F/N4"
+
+
+;;====================================================================================
+
+ [#Form: Sales Color]
+ add:option:msSalesColoropt:@@MinuSareeEnabled
+ [!form:msSalesColoropt]
+;; {15.May.23 12:27} ADD:print:after:Printed Invoice:cwfnsalesinvOptms,cwPackingslipsalesinvOpt
+ ADD:print:after:Printed Invoice:cwPackingslipsalesinvOpt  ;;,cwfnsalesinvOptms
+
+ [#Form: Sales Color]
+ add:option:msSalesColoropt2:@@cwenablefn
+ [!form:msSalesColoropt2]
+;; {15.May.23 12:27} ADD:print:after:Printed Invoice:cwfnsalesinvOptms,cwPackingslipsalesinvOpt
+ADD:print:after:Printed Invoice:cwfnsalesinvOptms
+
+
+
+[#Form: Credit Note Color]
+;; {15.May.23 12:27}  add:option:mscrnoteColoropt:@@MinuSareeEnabled
+ [!form:mscrnoteColoropt]
+ADD:print:after:DCNotePrint:cwfnsalesinvOptms
+
+
+
+[report:cwfnsalesinvOptms]
+	Use         : Voucher
+    Print       : VCHPrintConfigure
+	Delete      : Set
+	form:cwfnsalesinvOptms
+;; {18.Aug.21 12:32}     add:PrintSet : Report SubTitle :"F/N"
+
+;; {18.Aug.21 12:32}      add:PrintSet:ReportTitle:"F/N"
+;; {18.Aug.21 14:15} add:Set         : SVPrintMode   : "F/N1"  ;;@@PrintNormal
+;; {18.Aug.21 14:15} add:PrintSet    : Report Title: $$LocaleString:"F/N3"  ;;"Cheque Printing"
+add:Title       : $$LocaleString:"F/N"  ;;"Cheque Printing"
+
+
+[report:cwPackingslipsalesinvOpt]
+	Use         : Voucher
+    Print       : VCHPrintConfigure
+	Delete      : Set
+	form:cwPackingslipsalesinvOpt
+    add:Title       : $$LocaleString:"Packing Slip"
+
+;; {18.Aug.21 14:15}      add:PrintSet : Report SubTitle :"Packing Slip"
+;; {18.Aug.21 14:15}      add:PrintSet:ReportTitle:"Packing Slip1"
+
+[report:cwsalesinvOpt]
+	Use         : Voucher
+    Print       : VCHPrintConfigure
+	Delete      : Set
+	add      : Set:SAPrintCopies
+	form:cwsalesinvOpt
+	
+;;add:PrintSet : Report SubTitle :"Invoice"
+
+
+
+;;====================================================================================
+
+
+[#form : Simple Printed Invoice]
+;; {13.Apr.21 18:11}    add : option : PackingslipsalesinvOpt :not ##logi1 and @@issales
+;; {17.Aug.21 17:28}    add : option : PackingslipsalesinvOpt :@@cwcustomization and @@issales
+
+[#form : ComprehensiveInvoice]
+;; {29.Apr.22 10:40}    add : option : PackingslipsalesinvOpt :@@cwcustomization and @@issales
+   add : option : PackingslipsalesinvOpt :@@cwcustomization and @@issales
+
+[!form : PackingslipsalesinvOpt]
+[form : cwPackingslipsalesinvOpt]
+Delete : Part
+Delete : Bottom Part
+Delete : Page Break
+   add : Top part : PackingslipsalesinvTopPart,PackingslipsalesinvTopPart1,PackingslipsalesinvTopPart2,PackingslipsalesinvTopPart3
+   add : Part : PackingslipsalesinvInvACCPart
+   Add : bottom Part : PackingslipsalesinvBottomPart1, PackingslipsalesinvBottomPart,PackingslipsalesinvBottomPart2
+   add : page Break : PackingslipsalesinvCLBreak, PackingslipsalesinvOPBreak
+   delete:Space Top   : @@InvSmpSpace inch
+   add:Space Top   :0.25 inch
+
+;; {17.Aug.21 17:37}      Space Top   : 0 inch
+    Space Right : if $$InPixelMode then 0.5 else 0 inch
+    Space Left  : (if $$InPixelMode then @@InvSmpSpaceLeft else 0) inch
+;; {17.Aug.21 17:37}     Space Bottom: 0 inch
+
+    Height      : @@InvSmpHeight inch
+    Width       : @@InvSmpWidth inch
+    
+    
+    
+    
+[Part: PackingslipsalesinvBottomPart1]
+
+Lines       : TermsofDeliveryBottomPart1,TermsofDeliveryBottomPart2
+Repeat      : TermsofDeliveryBottomPart2 : BasicOrderTerms
+ border:thin left right
+ 
+[line: TermsofDeliveryBottomPart1]
+use : PackingslipsalesinvInvLine
+delete : explode
+local : field: default : type : string
+;;SpaceBottom : 0.25
+ local : field : snf: set as :""
+ local: field: fwf : set as : "Terms of Delivery :"
+ Local: Field: snf2: Set As:""
+ Local: Field: snf3: Set As:""
+
+ local : field : qtyf : set as : ""
+
+
+ Local: Field: default: Style: Normal Bold
+ 
+ 
+[line: TermsofDeliveryBottomPart2]
+use : PackingslipsalesinvInvLine
+delete : explode
+local : field: default : type : string
+
+local : field : snf: set as :""
+local: field: fwf : set as :$BasicOrderTerms
+Local: Field: snf2: Set As:""
+Local: Field: snf3: Set As:""
+
+local : field : qtyf : set as : ""
+
+
+;;Local: Field: default: Style: Normal Bold
+
+
+ [Part : PackingslipsalesinvCLBreak]
+
+   part : PackingslipsalesinvBottomPart1,PackingslipsalesinvBottomPart,PackingslipsalesinvBottomPart2
+ Vertical    : Yes
+ 
+ [Part : PackingslipsalesinvOpBreak]
+  part : PackingslipsalesinvTopPart ;;,PackingslipsalesinvTopPart1
+
+ [part : PackingslipsalesinvTopPart]
+ delete:line:taxline,cmpnameline,cmpaddlineps,invnolineps
+ delete:repeat:cmpaddlineps:companyaddress
+  part:PackingslipsalesinvTopParta,PackingslipsalesinvTopPartb,PackingslipsalesinvTopPartc
+  
+  [part:PackingslipsalesinvTopParta]
+   Line		: Qurlogoline
+  QRCode		: @@eInvoiceQRCValue : Yes
+
+;; {31.Mar.22 16:41}  Width:12
+;; {31.Mar.22 16:41}  space left:23	
+
+  [line:Qurlogoline]
+  field:snf
+ Local: Field: snf: Set As:""
+  
+  [part:PackingslipsalesinvTopPartb]
+   line:taxline,cmpnameline,cmpaddlineps  ;;,invnolineps
+   repeat:cmpaddlineps:companyaddress
+
+  [part:PackingslipsalesinvTopPartc]
+
+line:cwirnline,cwacknoline,cwackdtline
+
+[line:cwirnline]
+field:sp,nf
+Local: Field: sp: Set As:if $$isempty:@@gsteinvirn then "" else "IRN"
+Local: Field: nf: Set As:@@gsteinvirn
+Local: field: sp: Width:7
+Local : field : nf: Lines : 0
+Local: Field: default: Style:small
+[line:cwacknoline]
+use:cwirnline
+
+Local: Field:sp:Set As:if $$isempty:@@cwackno then "" else "ACK NO."
+Local: Field:nf:Set As:@@cwackno ;;+" "+@@cwakcdate+@@cwdate;;"Date"+" "+@@cwdate
+
+ 
+[line:cwackdtline]
+ use:cwirnline
+
+Local: Field:sp:Set As:if $$isempty:@@cwackdate then "" else "Date:"
+Local: Field:nf:Set As:@@cwackdate    ;;++" "+@@cwakcdate+@@cwdate;;"Date"+" "+@@cwdate
+
+
+[System: Formula]
+cwackno:If ##IseInvPSPrintAfterSave Then ##eInvPSAckNo Else $IRNAckNo
+cwackdate:If ##IseInvPSPrintAfterSave Then $$String:##eInvPSAckDate Else $$String:$IRNAckDate
+
+ [line:cmpnameline]
+ field:fwfc
+ Local: Field: fwfc: Set As:@@cmpmailname
+;; {10.Apr.21 17:34}  Local: Field: fwfc: Style:style1x
+Local: Field: default: Style: large Bold
+space top:0.5
+
+ 
+ [line:cmpaddlineps]
+ field:fwfc
+
+ Local: Field: fwfc: Set As:$address
+;; {10.Apr.21 17:34}   Local: Field: fwfc: Style:style2
+   [line:taxline]
+;; {17.Aug.21 17:38}  field:nf,fwfc,nf1,copyfield
+ field:fwfc  ;;,nf1,copyfield
+ Local: Field: fwfc: Set As:"PACKING SLIP" ;;@@invtitle
+ Local: Field: nf1: Set As:##SVPrintCopy  ;#copyfield
+ Local: Field: nf: Set As:#copyfield
+
+ local: field: copyfield: Invisible: yes
+ Local: Field: default: Style: Normal Bold
+  Local: Field: fwfc: border:thin bottom
+
+   [part:PackingslipsalesinvTopPart1]
+   
+ line:invnolineps
+ 
+ [line:invnolineps]
+ field:sp,nf
+ rightfield:sp2,sdf
+ Local: Field: sp: Set As:"Packing No"
+ Local: Field: sp2: Set As:"Date"
+ Local: Field: nf: Set As:$vouchernumber
+ Local: Field: sdf: Set As:@@cwshortmfdm
+local: field: sdf: type: String
+Local: field: sp: Width:13
+Local: field: sp2: Width:6
+
+ Local: Field: nf: Style: Normal Bold
+
+ Local: Field: sdf: Style: Normal Bold
+ border:thin box
+ height:1.5
+ space top:0.5
+ Local: field: sdf: Align:left
+
+[part:PackingslipsalesinvTopPart2]
+part:PackingslipsalesinvTopPart2a,PackingslipsalesinvTopPart2b
+border:thin box
+
+[part:PackingslipsalesinvTopPart2a]
+line:billtolineps1,billtolineps,billaddlineps,billtostatelineps,billtostatecodelineps,billtogstinlineps
+
+Repeat  : billaddlineps :  cwParty
+border:thin right
+
+[line:billtolineps1]
+field:fwf
+Local: Field: fwf: Set As:"Details of Receiver (Billed to)"
+border:thin bottom
+Local: Field: fwf: Style: Normal Bold
+height:1.5
+
+[line:billtolineps]
+field:fwf
+Local   : Field : fwf  : Set as    :$PARTYMAILINGNAME  ;; $partyledgername
+space bottom:0.3
+
+Local: Field: fwf: Style: Normal Bold
+[line:billaddlineps]
+field:fwf
+Local   : Field : fwf  : Set as    :$Address
+ space bottom:0.3
+
+[line:billtostatelineps]
+field:nf,snf
+Local: Field:nf: Set As:$LedStateName:ledger:$partyledgername
+Local: Field:snf: Set As:$PinCode:ledger:$partyledgername
+space bottom:0.3
+
+[line:billtostatecodelineps]
+field:fwf
+Local: Field: fwf: Set As:@@cwstatecodenew
+space bottom:0.3
+
+
+[line:billtogstinlineps]
+field:fwf
+Local: Field: fwf: Set As:if $$isempty:$PARTYGSTIN then "" else "GSTIN : "+$PARTYGSTIN
+
+space bottom:0.3
+Local: Field: fwf: Style: Normal Bold
+
+[part:PackingslipsalesinvTopPart2b]
+
+line:shiptolineps1,shiptolineps,shiptoaddlineps,shiptostatelineps,shiptostatecodelineps,shiptogstinlineps
+
+Repeat  : shiptoaddlineps :BASICBUYERADDRESS
+
+[line:shiptolineps1]
+field:fwf
+Local: Field: fwf: Set As:"Details of Consignee (Booked to)"
+border:thin bottom
+Local: Field: fwf: Style: Normal Bold
+height:1.5
+
+[line:shiptolineps]
+field:fwf
+Local: Field: FWF: Set As:$CONSIGNEEMAILINGNAME ;;$BASICBUYERNAME
+space bottom:0.3
+Local: Field: fwf: Style: Normal Bold
+
+[line:shiptoaddlineps]
+field:fwf
+Local: Field: fwf: Set As:$BASICBUYERADDRESS
+space bottom:0.3
+
+[line:shiptostatelineps]
+field:nf,snf
+
+Local: Field: nf: Set As:$CONSIGNEESTATENAME
+Local: Field:snf: Set As:$PinCode:ledger:$BASICBUYERNAME
+ space bottom:0.3
+
+[line:shiptostatecodelineps]
+field:fwf
+ Local: Field: fwf: Set As:@@cwstateshipcodenew
+
+ space bottom:0.3
+
+
+[line:shiptogstinlineps]
+field:fwf
+
+Local: Field: fwf: Set As:if $$isempty:$CONSIGNEEGSTIN then "" else "GSTIN : "+$CONSIGNEEGSTIN
+space bottom:0.3
+Local: Field: fwf: Style: Normal Bold
+
+ [part:PackingslipsalesinvTopPart3]
+ line:satnamline,remarksline
+ border:thin left right
+
+ [line:satnamline]
+ field:fwf
+ Local: Field: fwf: Set As:$cwtempGSTewayTransporterName +" "+ $cwnofobales
+ Local: Field: snf: Set As:$cwnofobales
+ Local: Field: default: Style: Normal Bold
+
+ [line:remarksline]
+ field:snf,fwf
+ Local: Field: snf: Set As:"Remarks :"
+ Local: Field: fwf: Set As:$narration
+ Local : field : fwf: Lines : 0
+
+ [part : PackingslipsalesinvINVACCPart]
+Parts       : PackingslipsalesinvInvPart ;;, PackingslipsalesinvAccPart
+CommonBorder: Yes
+Vertical    : Yes
+Scroll      : Vertical
+Float       : No
+;;Total       :
+
+border:thin left right
+
+ [part : PackingslipsalesinvInvPart]
+  line : PackingslipsalesinvInvLineTitle,PackingslipsalesinvInvLine  ;;,PackingslipsalesinvInvLineTotal
+repeat : PackingslipsalesinvInvLine : Inventory Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+
+ [Line : PackingslipsalesinvInvLine]
+ field : snf,fwf
+right field :snf2,snf3,qtyf,EXPINVHSNSACDetails
+local: field: EXPINVHSNSACDetails: Invisible: yes
+
+local : field : fwf : set as :$cwminuitem ;; @@invitemname
+local : field: snf :set as : $$linenumber-1
+Local: Field: SNF2: Set As:#EXPINVHSNSACDetails
+local : field : qtyf : set as : $billedqty
+Local: Field:SNF3: Set As:$BASEUNITS:STOCKITEM:$STOCKITEMNAME
+
+explode : PackingslipsalesinvBUDPart : $basicuserdescription != ''
+;; {13.Apr.21 15:04} explode : PackingslipsalesinvBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+Local: field: QTYF: Format: "NOsymbol"
+Local: field: snf: Width:5
+Local: Field: default: Border: thin right
+Local: field: snf2: Width:10
+Local: field: snf3: Width:8
+
+[line: PackingslipsalesinvInvLineTitle]
+ use : PackingslipsalesinvInvLine
+delete : explode
+local : field: default : type : string
+
+ local : field : snf: set as : "Sl No."
+ local: field: fwf : set as : "Product Description"
+ Local: Field: snf2: Set As:"HSN/SAC"
+ Local: Field: snf3: Set As:"UOM"
+
+ local : field : qtyf : set as : "Quantity"
+
+  border:thin bottom
+ Local: Field: default: Style: Normal Bold
+
+ local : field : qtyf : align : right
+ local: field : ratef : align : right
+ local : field : amtf : align : right
+  border:thin top bottom
+
+[part : PackingslipsalesinvBatchPart]
+line : PackingslipsalesinvBatchLine
+repeat : PackingslipsalesinvBatchLine : BatchAllocations
+
+[line : PackingslipsalesinvBatchLine]
+  use : PackingslipsalesinvBUDLine
+local : field : fwf : set as : $batchname
+
+[part : PackingslipsalesinvBUDPart]
+line: PackingslipsalesinvBUDLine
+repeat : Packingslipsalesinvbudline : basicuserdescription
+
+[line : PackingslipsalesinvBudLine]
+ use  : PackingslipsalesinvINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : $basicuserdescription
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : ""
+
+[line : PackingslipsalesinvInvLineTotal]
+ use  : PackingslipsalesinvINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : ""
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : $$collamttotal:inventoryentries:$amount
+local : field : amtf : border :thin top
+space bottom : 0.05
+
+
+ [part : PackingslipsalesinvACCPart]
+  line : PackingslipsalesinvACCLine
+repeat : PackingslipsalesinvACCLine : Ledger Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+ [Line : PackingslipsalesinvACCLine]
+   use : PackingslipsalesinvINVLine
+empty : $ledgername = $partyledgername or $$issysname:$ledgername or $$isempty:$amount
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"NoZero,Percentage"
+local : field : ratef  : set as : $basicrateofinvoicetax
+local : field : snf : set as : ""
+local : field : fwf : set as : $ledgername
+local : field : qtyf : set as : ""
+delete : explode
+
+  [part : PackingslipsalesinvBottomPart]
+   line : PackingslipsalesinvTotLine
+
+  [line : PackingslipsalesinvTotLine]
+    use : PackingslipsalesinvACCLine
+ delete : empty
+  local : field : ratef  : set as :""
+  local : field : fwf : set as : "Total"
+  Local: Field: QTYF: Set As:$$collamttotal:inventoryentries:$BILLEDQTY
+  local : field : fwf : align : right
+  local : field : amtf : format : "ShowBaseSymbol"
+  border:thin box
+
+  Local: Field: default: Style: Normal Bold
+
+  [PART:PackingslipsalesinvBottomPart2]
+  LINE:cwblankline,cwblankline1,cwblankline2,AUTHORIESLINE
+
+  [LINE:AUTHORIESLINE]
+  FIELD:FWF,FWF2
+
+  Local: Field: FWF: Set As:"Authorised Signatory"
+  Local: Field: FWF2: Set As:@@FORCMPMAIL2
+  Local: field: FWF2: Align: Right ;;centre
+
+  Local: Field: fwf2: Style: Normal Bold

@@ -1,0 +1,646 @@
+; Created By: Khokan on 2020-01-28 14:21, ID:
+
+
+     [#menu: Gateway of Tally]
+;; {25.May.21 13:01}         add: Option: supplierpartyaddressbookReportLock ;; : @@supplierpartyaddressbookReportDemoLock
+
+     [!menu: supplierpartyaddressbookReportLock]
+        add: Item: before: @@locQuit: @@supplierpartyaddressbookReportReport: Display Collection:collRepsupplierpartyaddressbookReport ;;: RepsupplierpartyaddressbookReport
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   supplierpartyaddressbookReportReport: "Party & Supplier Address Book"
+;; supplierpartyaddressbookReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+
+ [Collection:collRepsupplierpartyaddressbookReport]
+
+ Use	: Extract Alias Collection
+ Source Collection	: List of Groups
+ Title       		: $$LocaleString:"List of Groups"
+ Collection  		: Primary
+ Variable    		: Group Name
+ Report      		:RepsupplierpartyaddressbookReport
+ Trigger     		: GroupNamex
+ Fetch			: Name, ReserveName, Parent
+
+
+ [Report: GroupNamex]
+ Use     : Collection Variable
+ Local   : Line : Collection Variable : Field : GroupNamex
+ Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Group"
+
+ [Field: GroupNamex]
+
+ Use         : Name Field
+ Key         : Create Group
+ Set as      : if ##GroupName = "" then $$SysName:Primary else ##GroupName
+ Modifies    : GroupName
+ delete:Table       : Group Summary Extract
+ add:Table       : collGroupSummaryExtract
+ Show Table  : Always
+ CommonTable : No
+
+
+ [Collection: collGroupSummaryExtract]
+ type:group
+ title:"List of Groups"
+ add:filter:cwdrcrfilter
+
+ [System: Formula]
+ cwdrcrfilter:$$IsBelongsTo:$$GroupSundryDebtors OR $$IsBelongsTo:$$GroupSundryCreditors
+
+ [Report: RepsupplierpartyaddressbookReport]
+ use: Dsp Template
+ Title: @@supplierpartyaddressbookReportReport
+ Printset: Report Title: @@supplierpartyaddressbookReportReport
+ Form: FrmsupplierpartyaddressbookReport
+ Export: Yes
+ set  : svfromdate : ##svcurrentdate
+ set  : svTodate : ##svcurrentdate
+ Local       : Button   : RelReports        : Inactive : Yes
+
+ variable:str1,str2,str3,str4,str5,str6,str7,str8,str9,str10,str11,str12,str13,str14,str15,str16
+
+ set:str1:""
+ set:str2:""
+ set:str3:""
+ set:str4:""
+ set:str5:""
+ set:str6:""
+ set:str7:""
+ set:str8:""
+ set:str9:""
+ set:str10:""
+ set:str11:""
+ set:str12:""
+ set:str13:""
+ set:str14:""
+ set:str15:""
+ set:str16:""
+
+
+ [variable : str14]
+     type : string
+  default : ""
+ persistent: no
+
+ [variable : str15]
+     type : string
+  default : ""
+ persistent: no
+
+ [variable : str16]
+     type : string
+  default : ""
+ persistent: no
+
+ [system : variable]
+ str14 : ""
+ str15 : ""
+ str16 : ""
+
+
+ [Form: FrmsupplierpartyaddressbookReport]
+ use: DSP Template
+ Part: DspAccTitles,PrtTitle0supplierpartyaddressbookReport,PrtsupplierpartyaddressbookReport
+ Width: 100% Page
+ Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+ delete: page break
+ add: page break: supplierpartyaddressbookReportbotbrk,supplierpartyaddressbookReportbotOpbrk
+ Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+add:button:bottonnew1
+local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+
+      [part: supplierpartyaddressbookReportbotBrk]
+       line: EXPINV PageBreak
+       border: thin top
+
+      [part: supplierpartyaddressbookReportbotopbrk]
+        use: dspacctitles
+  add: part: supplierpartyaddressbookReportTitlePart
+
+      [part: supplierpartyaddressbookReportTitlePart]
+       line: LnsupplierpartyaddressbookReportTitle
+
+      [line: LnsupplierpartyaddressbookReportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: style1
+      Local: Field: fwf2: Style: style1
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf: Set As:##GroupName
+      Local: Field: fwf2:invisible: $$inprintmode
+      Local: Field: fwf: Style:style2x
+      Local: Field: fwf2: Style:style2x
+
+      [part: PrtTitle0supplierpartyaddressbookReport]
+      line : LnsupplierpartyaddressbookReportCurrPeriod
+
+      [Part: PrtsupplierpartyaddressbookReport]
+       Line: LnsupplierpartyaddressbookReportTitle,LnsupplierpartyaddressbookReport
+bottom Line: LnsupplierpartyaddressbookReportTotals
+     repeat: LnsupplierpartyaddressbookReport: ColsupplierpartyaddressbookReport
+     scroll: both
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColsupplierpartyaddressbookReport]
+type:ledger
+child of:##GroupName
+belongs to:yes
+
+filter:CustomerNamefilter,Customercodefilter,AccountingGroupfilter,SalesPersonfilter,LedStateNamefilter,LedStateNamefilter,PINCodefilter
+filter:Countryfilter,ContactPersonNamefilter,panfilter,RegistrationTypefilter,GSTNumberfilter
+filter:  cwledCaptionnewfilter,cwledCaptionnew2filter,cwledCaptionnew3filter,cwledCaptionnew4filter,cwledCaptionnew5filter
+
+[system: Formula]
+ColsupplierpartyaddressbookReportFilter:$$isobjectbelongsto:group:($parent:ledger:$parent):##GroupName
+
+[Line: LnsupplierpartyaddressbookReportTitle]
+use: LnsupplierpartyaddressbookReport
+option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: fwf: set as: "Customer Name"
+local:field: SNF: set as: "Customer Code"
+local:field: SNF2: set as: "Accounting Group"
+local:field: SNF3: set as: "Sales Person"
+local:field: SNF4: set as: "Address Line - 1"
+local:field: SNF5: set as: "Address Line - 2"
+local:field: SNF6: set as: "Address Line - 3"
+local:field: SNF7: set as: "State"
+local:field: SNF8: set as: "PIN Code"
+local:field: SNF9: set as: "Country"
+local:field: NUMF: set as: "Credit Limit (Rs)"
+local:field: SNF10: set as: "Credit Days"
+local:field: SNF11: set as: "Contact Person Name"
+local:field: SNF12: set as: "Land Line "   ;;(Phone No)
+local:field: SNF13: set as: "Mobile Number"
+local:field: SNF14: set as: "Fax Number"
+local:field: SNF15: set as: "Email Address"
+local:field: SNF16: set as: "CC to (If Any)"
+local:field: SNF17: set as: "Website"
+local:field: SNF18: set as: "Bank Name"
+local:field: SNF19: set as: "Account Number"
+local:field: SNF20: set as: "IFSC Code"
+local:field: SNF21: set as: "PAN"
+local:field: SNF22: set as: "Registration Type"
+local:field: SNF23: set as: "GST Number"
+
+local:field: SNF25: set as:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+local:field: SNF26: set as:$cwcaption2:COMPANY:##SVCURRENTCOMPANY
+local:field: SNF27: set as:$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+local:field: SNF28: set as:$cwcaption4:COMPANY:##SVCURRENTCOMPANY
+local:field: SNF29: set as:$cwcaption5:COMPANY:##SVCURRENTCOMPANY
+local:field: SNF30: set as:$cwcaption6:COMPANY:##SVCURRENTCOMPANY
+
+
+
+
+Local: Field: fwf: Style:style2x
+Local: Field: numf: Style:style2x
+Local: Field: snf: Style:style2x
+Local: Field: snf1: Style:style2x
+Local: Field: snf2: Style:style2x
+Local: Field: snf3: Style:style2x
+Local: Field: snf4: Style:style2x
+Local: Field: snf5: Style:style2x
+Local: Field: snf6: Style:style2x
+Local: Field: snf7: Style:style2x
+Local: Field: snf8: Style:style2x
+Local: Field: snf9: Style:style2x
+Local: Field: snf10: Style:style2x
+Local: Field: snf11: Style:style2x
+Local: Field: snf12: Style:style2x
+Local: Field: snf13: Style:style2x
+Local: Field: snf14: Style:style2x
+Local: Field: snf15: Style:style2x
+Local: Field: snf16: Style:style2x
+Local: Field: snf17: Style:style2x
+Local: Field: snf18: Style:style2x
+Local: Field: snf19: Style:style2x
+Local: Field: snf20: Style:style2x
+Local: Field: snf21: Style:style2x
+Local: Field: snf22: Style:style2x
+Local: Field: snf23: Style:style2x
+Local: Field: snf24: Style:style2x
+
+Local: Field: snf25: Style:style2x
+Local: Field: snf26: Style:style2x
+Local: Field: snf27: Style:style2x
+Local: Field: snf28: Style:style2x
+Local: Field: snf29: Style:style2x
+Local: Field: snf30: Style:style2x
+Local: Field: snf31: Style:style2x
+Local: Field: snf35: Style:style2x
+Local: Field: snf36: Style:style2x
+Local: Field: snf37: Style:style2x
+Local: Field: snf38: Style:style2x
+Local: Field: snf39: Style:style2x
+Local: Field: snf40: Style:style2x
+Local: Field: snf41: Style:style2x
+
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+Local: field: fwf: indent:6
+Local : field : default: Lines : 0
+
+
+
+[Line: LnsupplierpartyaddressbookReport]
+Fields: fwf
+;; {03.Mar.21 14:35} right field:snf,snf2,snf3,snf4,snf5,snf6,snf7,snf35,snf36,snf37,snf38,snf39,snf40,snf41,snf25,snf26,snf27,snf28,snf29,snf30,snf31,snf8,snf9,numf,snf10,snf11,snf12,snf13,snf14,snf15,snf16,snf17,snf18,snf19,snf20,snf21,snf22,snf23
+right field:snf,snf2,snf3,snf4,snf5,snf6,snf7,snf25,snf26,snf27,snf28,snf29,snf30,numf,snf10,snf11,snf12,snf13,snf14,snf15,snf16,snf17,snf18,snf19,snf20,snf21,snf22,snf23
+Option: Alter on Enter
+
+local: field: fwf: alter : LEDGER : $$isLEDGER
+option : alter on enter
+local : field : fwf : alter : LEDGER : $$isLEDGER
+
+local:field: fwf: set as:$name ;;"Customer Name"
+local:field: SNF: set as: $$ReptField:Name:2:ledger:$name ;;"Customer Code"
+local:field: SNF2: set as:$parent ;; "Accounting Group"
+local:field: SNF3: set as:$cwbroker ;; "Sales Person"
+local:field: SNF4: set as:$$CollectionField:$Address:First:Address  ;; "Address Line - 1"
+local:field: SNF5: set as:$$CollectionField:$Address:2:Address  ;; "Address Line - 2"
+local:field: SNF6: set as:$$CollectionField:$Address:3:Address  ;; "Address Line - 3"
+local:field: SNF7: set as:$LedStateName ;; "State"
+local:field: SNF8: set as:$PinCode ;; "PIN Code"
+local:field: SNF9: set as:$CountryofResidence ;;CountryName ;; "Country"
+local:field: NUMF: set as:$CreditLimit ;; "Credit Limit (Rs)"
+local:field: SNF10: set as:$BillCreditPeriod ;; "Credit Days"
+local:field: SNF11: set as:$LedgerContact ;; "Contact Person Name"
+local:field: SNF12: set as:$LedgerPhone ;; "Land Line "   ;;(Phone No)
+local:field: SNF13: set as:$LedgerMobile ;; "Mobile Number"
+local:field: SNF14: set as:$LedgerFax ;; "Fax Number"
+local:field: SNF15: set as:$EMail ;; "Email Address"
+local:field: SNF16: set as:$EMailCC ;; "CC to (If Any)"     IsBillWiseOn
+local:field: SNF17: set as:$Website ;; "Website"
+local:field: SNF18: set as:$(ledger,#fwf).PAYMENTDETAILS[1].bankname ;; "Bank Name"
+local:field: SNF19: set as:$(ledger,#fwf).PAYMENTDETAILS[1].ACCOUNTNUMBER ;; "Account Number"
+local:field: SNF20: set as:$(ledger,#fwf).PAYMENTDETAILS[1].IFSCODE ;; "IFSC Code"
+local:field: SNF21: set as:$IncomeTaxNumber ;; "PAN"
+local:field: SNF22: set as:$GSTRegistrationType ;; "Registration Type"
+local:field: SNF23: set as:$PartyGSTIN ;; "GST Number"
+
+local:field: SNF25: set as:$cwcaption1item
+local:field: SNF26: set as:$cwcaption2item
+local:field: SNF27: set as:$cwcaption3item
+local:field: SNF28: set as:$cwcaption4item
+local:field: SNF29: set as:$cwcaption5item
+local:field: SNF30: set as:$cwcaption6item
+local:field: SNF31: set as:$cwcaption7item
+
+Local: Field:DEFAULT: Style:style3x
+Local: Field: DEFAULT: Border: thin right
+Local: field: numf: Format: "nozero,decimals:2"
+Local: field: numf: Width:13
+
+local:field: SNF25:Invisible:if $$isempty:$cwcaption1:COMPANY:##SVCURRENTCOMPANY then yes else no
+local:field: SNF26:Invisible:if $$isempty:$cwcaption2:COMPANY:##SVCURRENTCOMPANY then yes else no
+local:field: SNF27:Invisible:if $$isempty:$cwcaption3:COMPANY:##SVCURRENTCOMPANY then yes else no
+local:field: SNF28:Invisible:if $$isempty:$cwcaption4:COMPANY:##SVCURRENTCOMPANY then yes else no
+local:field: SNF29:Invisible:if $$isempty:$cwcaption5:COMPANY:##SVCURRENTCOMPANY then yes else no
+local:field: SNF30:Invisible:if $$isempty:$cwcaption6:COMPANY:##SVCURRENTCOMPANY then yes else no
+local:field: SNF31:Invisible:if $$isempty:$cwcaption1:COMPANY:##SVCURRENTCOMPANY then yes else no
+
+
+[line: LnsupplierpartyaddressbookReportTotals]
+use: LnsupplierpartyaddressbookReport
+option: totalOpt
+local:field: fwf: set as:"" ;;"Customer Name"
+local:field: SNF: set as: "" ;;"Customer Code"
+local:field: SNF2: set as:"" ;; "Accounting Group"
+local:field: SNF3: set as:"" ;; "Sales Person"
+local:field: SNF4: set as:"" ;; "Address Line - 1"
+local:field: SNF5: set as:"" ;; "Address Line - 2"
+local:field: SNF6: set as:"" ;; "Address Line - 3"
+local:field: SNF7: set as:"" ;; "State"
+local:field: SNF8: set as:"" ;; "PIN Code"
+local:field: SNF9: set as:"" ;; "Country"
+local:field: NUMF: set as:"" ;; "Credit Limit (Rs)"
+local:field: SNF10: set as:"" ;; "Credit Days"
+local:field: SNF11: set as:"" ;; "Contact Person Name"
+local:field: SNF12: set as:"" ;; "Land Line "   ;;(Phone No)
+local:field: SNF13: set as:"" ;; "Mobile Number"
+local:field: SNF14: set as:"" ;; "Fax Number"
+local:field: SNF15: set as:"" ;; "Email Address"
+local:field: SNF16: set as:"" ;; "CC to (If Any)"
+local:field: SNF17: set as:"" ;; "Website"
+local:field: SNF18: set as:"" ;; "Bank Name"
+local:field: SNF19: set as:"" ;; "Account Number"
+local:field: SNF20: set as:"" ;; "IFSC Code"
+local:field: SNF21: set as:"" ;; "PAN"
+local:field: SNF22: set as:"" ;; "Registration Type"
+local:field: SNF23: set as:"" ;; "GST Number"
+
+local:field: SNF25: set as:""
+local:field: SNF26: set as:""
+local:field: SNF27: set as:""
+local:field: SNF28: set as:""
+local:field: SNF29: set as:""
+local:field: SNF30: set as:""
+local:field: SNF31: set as:""
+local:field: SNF35: set as:""
+local:field: SNF36: set as:""
+local:field: SNF37: set as:""
+local:field: SNF38: set as:""
+local:field: SNF39: set as:""
+local:field: SNF40: set as:""
+local:field: SNF41: set as:""
+
+
+Local: Field: fwf: Style:style2x
+Local: Field: numf: Style:style2x
+Local: Field: snf: Style:style2x
+Local: Field: snf1: Style:style2x
+Local: Field: snf2: Style:style2x
+Local: Field: snf3: Style:style2x
+Local: Field: snf4: Style:style2x
+Local: Field: snf5: Style:style2x
+Local: Field: snf6: Style:style2x
+Local: Field: snf7: Style:style2x
+Local: Field: snf8: Style:style2x
+Local: Field: snf9: Style:style2x
+Local: Field: snf10: Style:style2x
+Local: Field: snf11: Style:style2x
+Local: Field: snf12: Style:style2x
+Local: Field: snf13: Style:style2x
+Local: Field: snf14: Style:style2x
+Local: Field: snf15: Style:style2x
+Local: Field: snf16: Style:style2x
+Local: Field: snf17: Style:style2x
+Local: Field: snf18: Style:style2x
+Local: Field: snf19: Style:style2x
+Local: Field: snf20: Style:style2x
+Local: Field: snf21: Style:style2x
+Local: Field: snf22: Style:style2x
+Local: Field: snf23: Style:style2x
+Local: Field: snf24: Style:style2x
+
+Local: Field: snf25: Style:style2x
+Local: Field: snf26: Style:style2x
+Local: Field: snf27: Style:style2x
+Local: Field: snf28: Style:style2x
+Local: Field: snf29: Style:style2x
+Local: Field: snf30: Style:style2x
+Local: Field: snf31: Style:style2x
+Local: Field: snf35: Style:style2x
+Local: Field: snf36: Style:style2x
+Local: Field: snf37: Style:style2x
+Local: Field: snf38: Style:style2x
+Local: Field: snf39: Style:style2x
+Local: Field: snf40: Style:style2x
+Local: Field: snf41: Style:style2x
+
+;;=================================
+
+ [button:bottonnew1]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:bottonnewrep1
+
+ [report:bottonnewrep1]
+ form:bottonnewrep1
+
+ [form:bottonnewrep1]
+ part:bottonnewrep1
+
+ WIDTH:30% PAGE
+
+ [part:bottonnewrep1]
+
+ line:CustomerName1,CustomerCode1,SalesPersonline,Stateline1,PINCodeline1,Countryline1,ContactPersonName1,PANline1,RegistrationTypeline1,GSTNumberline1+
+ ,cwLedgerDetailsrep2x1,cwLedgerDetailsrep2x2,cwLedgerDetailsrep2x3,cwLedgerDetailsrep2x4,cwLedgerDetailsrep2x5
+
+ [line:CustomerName1]
+ field:sp,nf
+ local:field:sp: set as: "Customer Name"
+
+ Local: Field: nf:modifies:str1
+ Local: field: sp: Width:20
+ space bottom:0.5
+ Local: Field: nf: table:colledger,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ [Collection: colledger]
+ type:ledger
+ title:"List of ledger"
+
+ [line:CustomerCode1]
+ field:sp,nf
+ local:field:sp: set as: "Customer Code"
+
+ Local: Field: nf:modifies:str2
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+ [line:AccountingGroupline]
+ field:sp,nf
+ local:field:sp: set as: "Accounting Group"
+
+ Local: Field: nf:modifies:str3
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+ Local: Field: nf: table:colgr,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ [Collection: colgr]
+ type:group
+ title:"List of Group"
+
+ [line:SalesPersonline]
+ field:sp,nf
+
+ local:field:sp: set as: "Sales Person"
+
+ Local: Field: nf:modifies:str4
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+ Local: Field: nf: table:cwBrokerTableLedger,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ [line:Stateline1]
+ field:sp,nf
+
+ local:field:sp: set as: "State"
+
+ Local: Field: nf:modifies:str5
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+ Local: Field: nf:Table: Indian States, Not Applicable
+ Local: Field: nf:Show table: Always
+
+ [line:PINCodeline1]
+ field:sp,nf
+ local:field:sp: set as: "PIN Code"
+
+ Local: Field: nf:modifies:str6
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+ [line:Countryline1]
+ field:sp,nf
+ local:field:sp: set as: "Country"
+
+ Local: Field: nf:modifies:str7
+ Local: Field: nf:Table: List Of Countries, Not Applicable
+ Local: Field: nf: Show table: Always
+
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+ [line:ContactPersonName1]
+ field:sp,nf
+
+ local:field: sp: set as: "Contact Person Name"
+
+ Local: Field: nf:modifies:str8
+
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+ [line:PANline1]
+ field:sp,nf
+
+ local:field: sp: set as: "PAN"
+
+ Local: Field: nf:modifies:str9
+
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+ [line:RegistrationTypeline1]
+ field:sp,nf
+
+ local:field: sp: set as: "Registration Type"
+
+ Local: Field: nf:modifies:str10
+ Local: Field: nf:Table	     : GSTDealerType			
+ Local: Field: nf:Show Table : Always
+
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+ [line:GSTNumberline1]
+ field:sp,nf
+
+ local:field: sp: set as: "GST Number"
+
+ Local: Field: nf:modifies:str11
+
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+
+ [line:cwLedgerDetailsrep2x1]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+ Local: Field: nf:modifies:str12
+Local: Field: default: Style: small
+
+Local:Field:nf:table:cwcaption1tableundercc,Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+
+Local: Field:nf:Table : cwcaption1tableundersc, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:Table : cwcaption1tableunderled, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+ Local: field: sp: Width:20
+
+
+[line:cwLedgerDetailsrep2x2]
+field:sp,nf
+Local: Field:sp: Set As:$cwcaption2:COMPANY:##SVCURRENTCOMPANY
+Local: Field: nf:modifies:str13
+Local: Field: default: Style: small
+
+Local:Field:nf:table:cwcaption2tableundercc,Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+
+Local: Field:nf:Table      : cwcaption2tableundersc, Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:Table      : cwcaption2tableunderled, Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: field: sp: Width:20
+remove if:$$isempty:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+
+
+[line:cwLedgerDetailsrep2x3]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+Local: Field: nf:modifies:str14
+Local: Field: default: Style: small
+
+Local:Field:nf:table:cwcaption3tableundercc,Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+Local: Field:nf:Table      : cwcaption3tableundersc, Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:Table      : cwcaption3tableunderled, Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: field: sp: Width:20
+
+remove if:$$isempty:$cwcaption2:COMPANY:##SVCURRENTCOMPANY
+
+[line:cwLedgerDetailsrep2x4]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption4:COMPANY:##SVCURRENTCOMPANY
+Local: Field: nf:modifies:str15
+Local: Field: default: Style: small
+Local:Field:nf:table:cwcaption4tableundercc,Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+Local: Field:nf:Table      : cwcaption4tableundersc, Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:Table      : cwcaption4tableunderled, Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: field: sp: Width:20
+
+remove if:$$isempty:$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+
+[line:cwLedgerDetailsrep2x5]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption5:COMPANY:##SVCURRENTCOMPANY
+Local: Field: nf:modifies:str16
+Local: Field: default: Style: small
+
+Local:Field:nf:table:cwcaption5tableundercc,Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+Local: Field:nf:Table      : cwcaption5tableundersc, Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:Table      : cwcaption5tableunderled, Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: field: sp: Width:20
+remove if:$$isempty:$cwcaption4:COMPANY:##SVCURRENTCOMPANY
+
+ [System: Formula]
+ CustomerNamefilter:if $$issysname:##str1 then yes else $name =##str1
+ Customercodefilter:if $$issysname:##str2 then yes else @@CustomerCodex =##str2
+ AccountingGroupfilter:if $$issysname:##str3 then yes else $parent =##str3
+ SalesPersonfilter:if $$issysname:##str4 then yes else $cwbroker =##str4
+ LedStateNamefilter:if $$issysname:##str5 then yes else $LedStateName =##str5
+ PINCodefilter:if $$issysname:##str6 then yes else $PinCode =##str6
+ Countryfilter:if $$issysname:##str7 then yes else $CountryofResidence =##str7
+ ContactPersonNamefilter:if $$issysname:##str8 then yes else $LedgerContact =##str8
+ panfilter:if $$issysname:##str9 then yes else $IncomeTaxNumber =##str9
+ RegistrationTypefilter:if $$issysname:##str10 then yes else $GSTRegistrationType =##str10
+ GSTNumberfilter:if $$issysname:##str11 then yes else $PartyGSTIN =##str11
+
+ cwledCaptionnewfilter:if $$issysname:##str12 then yes else $cwcaption1item =##str12
+ cwledCaptionnew2filter:if $$issysname:##str13 then yes else $cwcaption2item =##str13
+ cwledCaptionnew3filter:if $$issysname:##str14 then yes else $cwcaption3item =##str14
+ cwledCaptionnew4filter:if $$issysname:##str15 then yes else $cwcaption4item =##str15
+ cwledCaptionnew5filter:if $$issysname:##str16 then yes else $cwcaption5item =##str16
+
+ CustomerCodex:$$ReptField:Name:2:ledger:$name
+
+

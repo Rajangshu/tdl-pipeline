@@ -1,0 +1,148 @@
+; Created By: joy on 2021-10-06 17:37, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: CmpMasterLock ;; : @@CmpMasterDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@CmpMasterReport: Display: RepCmpMaster
+
+
+
+     [!menu: CmpMasterLock]
+        add: Item: before: @@locQuit: @@CmpMasterReport: Display: RepCmpMaster
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   CmpMasterReport: "CmpMaster"
+;; CmpMasterDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepCmpMaster]
+        use: Dsp Template
+      Title: @@CmpMasterReport
+   Printset: Report Title: @@CmpMasterReport
+       Form: FrmCmpMaster
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmCmpMaster]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0CmpMaster,PrtCmpMaster
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: CmpMasterbotbrk,CmpMasterbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: CmpMasterbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: CmpMasterbotopbrk]
+        use: dspacctitles
+  add: part: CmpMasterTitlePart
+
+      [part: CmpMasterTitlePart]
+       line: LnCmpMasterTitle
+       
+      [line: LnCmpMasterCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0CmpMaster]
+      line : LnCmpMasterCurrPeriod
+      
+      [Part: PrtCmpMaster]
+       Line: LnCmpMasterTitle,LnCmpMaster
+bottom Line: LnCmpMasterTotals
+     repeat: LnCmpMaster: ColCmpMaster
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColCmpMaster]
+       type:company
+       
+/*
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColCmpMasterFilter,IsNonOptionalCancelledVchs   */
+
+    [system: Formula]
+ColCmpMasterFilter: Yes
+
+      [Line: LnCmpMasterTitle]
+        use: LnCmpMaster
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: fwf: set as: "Name"
+local:field: nf: set as: "Address1"
+local:field: nf1: set as: "Address2"
+local:field: nf2: set as: "Address3"
+local:field: nf3 : set as : "Address4"
+local:field: nf4 : set as : "Address5"
+local:field: nf5 : set as : "GST IN"
+local:field: nf6 : set as : "State Name"
+local:field: nf7 : set as : "Pin Code"
+      local: field: default : style: normal bold
+
+      [Line: LnCmpMaster]
+     Fields: fwf,d1
+right fields:nf,d2,nf1,d3,nf2,d4,nf3,d5,nf4,d6,nf5,d7,nf6,d8,nf7,d9
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+
+local:field: fwf: set as:$name ;; "Name"
+local:field: nf: set as:@@cwCmpAddr1 ;; "Address1"
+local:field: nf1: set as:@@cwCmpAddr2 ;; "Address2"
+local:field: nf2: set as:@@cwCmpAddr3 ;; "Address3"
+local:field: nf3 : set as :@@cwCmpAddr4 ;; "Address4"
+local:field: nf4 : set as :@@cwCmpAddr5 ;; "Address5"
+local:field: nf5 : set as :@@cwGSTNNumber ;; "GST IN"
+local:field: nf6 : set as :$StateName ;; "State Name"
+local:field: nf7 : set as :$PinCode ;; "Pin Code"
+
+
+Local: field: fwf: Width:400
+Local: field: nf: Width:400
+Local: field: nf1: Width:400
+Local: field: nf2: Width:400
+Local: field: nf3: Width:400
+Local: field: nf4: Width:400
+Local: field: fwf: max:600
+Local: field: nf: max:600
+Local: field: nf1: max:600
+Local: field: nf2: max:600
+Local: field: nf3: max:600
+Local: field: nf4: max:600
+
+
+      [line: LnCmpMasterTotals]
+        use: LnCmpMaster
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

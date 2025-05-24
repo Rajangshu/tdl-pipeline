@@ -1,0 +1,64 @@
+; Created By: Khokan on 2021-09-06 17:17, ID: 
+
+     [#menu: Gateway of Tally]
+;; {06.Sep.21 19:30}         add: Option: multiprintSALESMANWISEOutstandingReportLock ;; : @@multiprintSALESMANWISEOutstandingReportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@multiprintSALESMANWISEOutstandingReportReport: Display: RepmultiprintSALESMANWISEOutstandingReport
+
+
+
+     [!menu: multiprintSALESMANWISEOutstandingReportLock]
+        add: Item: before: @@locQuit: @@multiprintSALESMANWISEOutstandingReportReport: print Collection: collRepmultiprintSALESMANWISEOutstandingReport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   multiprintSALESMANWISEOutstandingReportReport:@@cwcaption2tableundernew+" "+"wise O/S Statement"
+;; multiprintSALESMANWISEOutstandingReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+
+       [Collection: collRepmultiprintSALESMANWISEOutstandingReport]
+
+  Use         : Extract Alias Collection
+   Source Collection	: List of Ledgers
+   Variable    : Ledger Name
+   Report      :RepmultiprintSALESMANWISEOutstandingReport
+   Trigger     : cwLedgerName2
+   Fetch       : Name
+
+     
+    [Report: RepmultiprintSALESMANWISEOutstandingReport]
+    
+    use:RepmultiprintAGENTWISEOutstandingReport
+    
+   delete:Title: @@multiprintAGENTWISEOutstandingReportReport
+   delete:Printset: Report Title: @@multiprintAGENTWISEOutstandingReportReport
+   
+   add:Title: @@multiprintSALESMANWISEOutstandingReportReport
+   add:Printset: Report Title: @@multiprintSALESMANWISEOutstandingReportReport
+;; {06.Sep.21 17:19}        Form: FrmmultiprintSALESMANWISEOutstandingReport
+;; {06.Sep.21 17:19}      Export: Yes
+;; {06.Sep.21 17:19}      set  : svfromdate : ##svcurrentdate
+;; {06.Sep.21 17:19}      set  : svTodate : ##svcurrentdate
+;; {06.Sep.21 17:19}     Local       : Button   : RelReports        : Inactive : Yes
+
+local:part: multiprintAGENTWISEOutstandingReportTitlePart:local:line:DSPCompanyName:Local: Field:nf:set as:@@multiprintSALESMANWISEOutstandingReportReport
+local:part: PrtTitle0multiprintAGENTWISEOutstandingReport:local:line:DSPCompanyName:Local: Field:nf:set as:@@multiprintSALESMANWISEOutstandingReportReport
+
+ local:Collection: ColmultiprintAGENTWISEOutstandingReport:delete:filter:cwnotcloingbalancemultiprint
+ local:Collection: ColmultiprintAGENTWISEOutstandingReport:add:filter:cwnotcloingbalancemultiprintitem2
+ 
+   local:Collection: ColmultiprintAGENTWISEOutstandingReporta:delete:filter:ColmultiprintAGENTWISEOutstandingReportFilterdr
+   local:Collection: ColmultiprintAGENTWISEOutstandingReportb:delete:filter:ColmultiprintAGENTWISEOutstandingReportFiltercr
+   
+ local:Collection: ColmultiprintAGENTWISEOutstandingReporta:add:filter:ColmultiprintAGENTWISEOutstandingReportFiltercritem2
+ local:Collection: ColmultiprintAGENTWISEOutstandingReportb:add:filter:ColmultiprintAGENTWISEOutstandingReportFilterdritem2x
+  local:part:multiagentpart:local:line:multiprintAGENTline:Local: Field: fwf: Set As:##LedgerName
+ 
+ [System: Formula]
+ cwnotcloingbalancemultiprintitem2:##ledgername=$cwcaption2item and (not $$isempty:$OnAccountValue or not $$isempty:$closingbalance)
+ ColmultiprintAGENTWISEOutstandingReportFiltercritem2:if $cwcaption2item:ledger:$parent=##LedgerName then $$isdr:$closingbalance else no
+ ColmultiprintAGENTWISEOutstandingReportFilterdritem2x:if $cwcaption2item:ledger:$parent=##LedgerName then not $$isdr:$closingbalance else no
+
+

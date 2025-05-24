@@ -1,0 +1,266 @@
+; Created By: Khokan on 2021-08-31 10:25, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: multiprintAGENTLock ;; : @@multiprintAGENTDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@multiprintAGENTReport: Display: RepmultiprintAGENT
+
+
+
+     [!menu: multiprintAGENTLock]
+        add: Item: before: @@locQuit: @@multiprintAGENTReport: print: RepmultiprintAGENT
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   multiprintAGENTReport: "Multi print agent wise"
+;; multiprintAGENTDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+
+
+;;============================================
+[#Line: LR PartyName]
+;; {31.Aug.21 14:02} border:thin box
+;; {31.Aug.21 14:01} add:field:nf
+;; {31.Aug.21 14:01} Local: Field: nf: Set As: $cwcaption1item:ledger:#LedgerName
+
+[System: Formula]
+cwalllegeragentfilter:yes ;;$cwcaption1item:ledger:#LedgerName ="DEEPAK DIRECT PARTY,RAK"
+
+;;============================================
+     
+    [Report: RepmultiprintAGENT]
+    
+    /*
+;; {31.Aug.21 11:44}       use:Group Ledger Outstandings
+;; {31.Aug.21 12:18} use:Confirmation of Accounts
+use:Ledger GroupLedgerVouchers
+
+local:collection:AllLedger:add:filter:cwalllegeragentfilter
+local:part:LR Party:add:line:lragentlin
+local:part:LR Party:local:line:LRPartyName:add:field:nf
+local:part:LR Party:local:line:LRPartyName:border:thin box
+local:part:LR Party:Local: Field: nf: Set As: $cwcaption1item:ledger:#LedgerName
+
+
+[line:lragentlin]
+field:nf
+Local: Field: nf: Set As: $cwcaption1item:ledger:#LedgerName
+
+      */
+;;====================================================================
+           use:Confirmation of Accounts ;;Ledger GroupLedgerVouchers
+           set:GroupName:"pg"
+           set: ExtractMode:"Confirmation of Accounts"
+           	Set			: InConfirmMode 	: yes
+          /*
+        use: Dsp Template
+      Title: @@multiprintAGENTReport
+   Printset: Report Title: @@multiprintAGENTReport
+       Form: FrmmultiprintAGENT
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+            */
+       
+
+      [Form: FrmmultiprintAGENT]
+
+
+
+      use: DSP Template
+       Part: DspAccTitles,PrtTitle0multiprintAGENT,PrtmultiprintAGENT  ;;,PrtmultiprintAGENT2
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: multiprintAGENTbotbrk,multiprintAGENTbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+
+
+
+    
+      [part: multiprintAGENTbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: multiprintAGENTbotopbrk]
+        use: dspacctitles
+  add: part: multiprintAGENTTitlePart
+
+      [part: multiprintAGENTTitlePart]
+       line: LnmultiprintAGENTTitle
+;; {04.Sep.21 15:29}        part: PrtmultiprintAGENT2
+       
+      [line: LnmultiprintAGENTCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0multiprintAGENT]
+      line : LnmultiprintAGENTCurrPeriod
+      
+      [Part: PrtmultiprintAGENT]
+
+      Part: PrtmultiprintAGENTa
+      Part: PrtmultiprintAGENTb
+;; {31.Aug.21 18:33}      Vertical    : yes
+      
+      [Part: PrtmultiprintAGENTa]
+       Line: LnmultiprintAGENTTitle,LnmultiprintAGENT
+;; {31.Aug.21 17:59} bottom Line: LnmultiprintAGENTTotals
+     repeat: LnmultiprintAGENT: ColmultiprintAGENT
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+      width:50 % page
+      border:thin right
+      
+[Collection: ColmultiprintAGENT]
+TYPE:BILLS
+
+Filter: ColmultiprintAGENTFilter,ColmultiprintAGENTFilter2
+FETCH:cwcaption1item
+sort:@@default:$parent
+
+    [system: Formula]
+ColmultiprintAGENTFilter:yes ;$cwcaption1item:ledger:$parent="DEEPAK DIRECT PARTY,RAK";;"MAHESH MODI,BIS"   ;; "MAHABIR BASTRALAYA,BBBBZ/MD"   ;;MAHESH MODI,BIS
+ColmultiprintAGENTFilter2:$$isdr:$closingbalance
+
+      [Line: LnmultiprintAGENTTitle]
+        use: LnmultiprintAGENT
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Bill No"
+local:field: fwf: set as: "Mode of credit";; "MODE OF CREDIT"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Dr.Value"
+
+local: field: default : style: normal bold
+
+      [Line: LnmultiprintAGENT]
+     Fields: sdf,snf,fwf,nf
+right field:Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+
+local:field: sdf: set as:$billdate ;; "Date"
+local:field: snf: set as:$name;; "Name"
+local:field: nf: set as:#ledgername;; "Name"
+local:field: fwf: set as:$parent;; "Description"
+
+local:field: amtf: set as:$closingbalance;; "Dr.Value"
+Local: field: amtf: Format: "drcr"
+ 
+ delete:explode
+
+;; {31.Aug.21 18:30}    next page : yes
+   
+[line: LnmultiprintAGENTTotals]
+use: LnmultiprintAGENT
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total"
+local: field: fwf: set as: ""
+local: field: amtf : set as :  $$total:amtf
+local:field: sdf: set as:"" ;; "Date"
+local:field: nf: set as:"";; "Name"
+local:field: fwf: set as:"";; "Description"
+local:field: qtyf: set as:"";; "Qty."
+
+
+;;==================================
+
+
+      [Part: PrtmultiprintAGENTb]
+       Line: LnmultiprintAGENTTitleb,LnmultiprintAGENTb
+;; {31.Aug.21 17:59} bottom Line: LnmultiprintAGENTTotalsb
+     repeat: LnmultiprintAGENTb: ColmultiprintAGENTb
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+               width:50 % page
+               
+[Collection: ColmultiprintAGENTb]
+TYPE:BILLS
+
+Filter: ColmultiprintAGENTFilterb,ColmultiprintAGENTFilterb2
+FETCH:cwcaption1item
+sort:@@default:$parent
+
+    [system: Formula]
+ColmultiprintAGENTFilterb:yes ;;$cwcaption1item:ledger:$parent="DEEPAK DIRECT PARTY,RAK" ;;"MAHESH MODI,BIS"   ;; "MAHABIR BASTRALAYA,BBBBZ/MD"   ;;MAHESH MODI,BIS
+  ColmultiprintAGENTFilterb2:not $$isdr:$closingbalance
+  
+      [Line: LnmultiprintAGENTTitleb]
+        use: LnmultiprintAGENTb
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Bill No"
+local:field: fwf: set as:"Mode of credit";; "MODE OF CREDIT"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Cr.Value"
+
+local: field: default : style: normal bold
+
+      [Line: LnmultiprintAGENTb]
+     Fields: sdf,snf,fwf
+right field:Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+
+local:field: sdf: set as:$billdate ;; "Date"
+local:field: snf: set as:$name;; "Name"
+local:field: fwf: set as:$parent;; "Description"
+
+local:field: amtf: set as:$closingbalance;; "Dr.Value"
+Local: field: amtf: Format: "drcr"
+
+  delete:explode
+;; {31.Aug.21 18:30}    next page : yes
+
+[line: LnmultiprintAGENTTotalsb]
+use: LnmultiprintAGENTb
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total"
+local: field: fwf: set as: ""
+local: field: amtf : set as :  $$total:amtf
+local:field: sdf: set as:"" ;; "Date"
+local:field: nf: set as:"";; "Name"
+local:field: fwf: set as:"";; "Description"
+local:field: qtyf: set as:"";; "Qty."
+
+
+
+
+

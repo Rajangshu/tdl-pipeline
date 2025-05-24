@@ -1,0 +1,332 @@
+; Created By: Khokan on 2021-06-10 16:59, ID: 
+
+
+     [#menu: Gateway of Tally]
+;; {02.Sep.21 14:46}         add: Option: AgeingReportLock ;; : @@AgeingReportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@AgeingReportReport: Display: RepAgeingReport
+
+
+
+     [!menu: AgeingReportLock]
+        add: Item: before: @@locQuit: @@AgeingReportReport: Display Collection: collRepAgeingReport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   AgeingReportReport: "Ageing Report"
+;; AgeingReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+
+
+ [Collection: collRepAgeingReport]
+ Use         : Extract Alias Collection
+ Source Collection	: List of Ledgers
+ Variable    : Ledger Name
+ Report      :RepAgeingReport
+ Trigger     : cwLedgerNamex
+ Fetch       : Name
+     
+    [Report: RepAgeingReport]
+        use: Dsp Template
+      Title: @@AgeingReportReport
+   Printset: Report Title: @@AgeingReportReport
+       Form: FrmAgeingReport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+       variable:str3,str2,str4,str5
+
+    set:str2:""
+      [Form: FrmAgeingReport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0AgeingReport,PrtAgeingReport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: AgeingReportbotbrk,AgeingReportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+     button:cwagentbotton
+     
+     local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+     
+      [part: AgeingReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: AgeingReportbotopbrk]
+        use: dspacctitles
+  add: part: AgeingReportTitlePart
+
+      [part: AgeingReportTitlePart]
+       line: LnAgeingReportTitle
+       
+      [line: LnAgeingReportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf: Set As:##LedgerName
+      Local: Field: fwf2:invisible: $$inprintmode
+
+      [part: PrtTitle0AgeingReport]
+      line : LnAgeingReportCurrPeriod
+      
+      [Part: PrtAgeingReport]
+       Line: LnAgeingReportTitle,LnAgeingReportTitle2,LnAgeingReport
+bottom Line: LnAgeingReportTotals
+     repeat: LnAgeingReport: ColAgeingReport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColAgeingReport]
+   Type        : Ledger
+ Fetch		: Name, Parent,closingbalance,cwcaption1item
+ child of  :$$GroupSundryDebtors
+ belongs to:yes
+ add:filter:ColAgentWiseAgeingReport2Filter,cwpartyagefilter,ColAgentWiseAgeingReport2Filter2,ColAgentWiseAgeingReport2Filter3
+
+
+    [system: Formula]
+ColAgeingReportFilter: Yes
+
+      [Line: LnAgeingReportTitle]
+        use: LnAgeingReport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: fwf: set as: "Party Name"
+local:field: amtf: set as: "0-30"
+local:field: amtf2: set as: "31-60"
+local:field: amtf3: set as: "61-90"
+local:field: amtf4: set as: "91-120"
+local:field: amtf5: set as: "121-150"
+local:field: amtf6: set as: "151-180"
+local:field: amtf7: set as: "Over 180"
+local:field: amtf48: set as: "Over 180"
+Local: Field:amtf8: Set As:"Total"
+Local: Field:unadjustedf: Set As:"Un-Adjusted"
+Local: Field:amtf11: Set As:"Interest"
+Local: Field:amtf12: Set As:"Party "
+Local: Field:amtf50: Set As:"total cr"
+Local: Field: unadjustedf: Sub title : Yes
+local : field : unadjustedf : delete :field
+local : field : unadjustedf :Align:centre
+;; {10.Jun.21 14:13} local : field : default :Align:centre
+;; {10.Jun.21 14:13} local : field : fwf :Align:centre
+
+local: field: fwf : style:style2x
+local: field: amtf : style: style2x
+local: field: unadjustedf : style: style2x
+local: field: amtf2 : style: style2x
+local: field: amtf3 : style: style2x
+local: field: amtf4 : style: style2x
+local: field: amtf5 : style:style2x
+local: field: amtf6 : style: style2x
+local: field: amtf7 : style: style2x
+local: field: amtf8 : style:style2x
+local: field: amtf9 : style:style2x
+local: field: amtf10 : style:style2x
+local: field: amtf11 : style: style2x
+local: field: amtf12 : style:style2x
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+Local: Field: unadjustedf: Border: thin bottom
+
+
+[Line: LnAgeingReportTitle2]
+
+     use: LnAgeingReport
+     option: titleopt
+     local:field: fwf: set as: ""
+local:field: amtf: set as: "Tally"
+local:field: amtf2: set as: "Tally"
+local:field: amtf3: set as: "Tally"
+local:field: amtf4: set as: "Tally"
+local:field: amtf5: set as: "Tally"
+local:field: amtf6: set as: "Tally"
+local:field: amtf7: set as: "Tally"
+local:field: amtf48: set as: "Days"
+Local: Field:amtf8: Set As:"Outstanding"
+Local: Field:amtf9: Set As:"Payment"
+Local: Field:amtf1: Set As:"Opening"
+Local: Field:amtf10: Set As:"Credit Note"
+
+Local: Field:amtf11: Set As:""
+Local: Field:amtf12: Set As:"Credit Limit"
+Local: Field:amtf50: Set As:"total cr"
+Local: Field:amtf45: Set As:"after 151"
+Local: Field:amtf47: Set As:"after 180"
+Local: field: amtf9: Align:centre
+Local: field: amtf10: Align:centre
+local: field: fwf : style:style2x
+local: field: amtf : style: style2x
+;; {11.Jun.21 16:54} local: field: unadjustedf : style: small bold
+local: field: amtf2 : style:style2x
+local: field: amtf3 : style: style2x
+local: field: amtf4 : style: style2x
+local: field: amtf5 : style: style2x
+local: field: amtf6 : style: style2x
+local: field: amtf7 : style: style2x
+local: field: amtf8 : style: style2x
+local: field: amtf9 : style: style2x
+local: field: amtf10 : style: style2x
+local: field: amtf1 : style: style2x
+local: field: amtf11 : style: style2x
+local: field: amtf12 : style: style2x
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+
+
+[System: Formula]
+
+
+
+[Line: LnAgeingReport]
+Fields:fwf
+;; {02.Sep.21 12:42} right field:Amtf,Amtf2,Amtf3,Amtf4,Amtf5,Amtf6,Amtf7,Amtf8,unadjustedf,Amtf11,Amtf12
+right field:Amtf,Amtf2,Amtf3,Amtf4,Amtf5,Amtf6,amtf45,amtf46,amtf47,Amtf7,amtf48,amtf49,amtf50,Amtf8,unadjustedf,Amtf11,Amtf12
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+Local: Field: default: Border: thin right
+
+
+local:field: fwf: set as:$name
+local:field: amtf: set as:@@cwdrvalcled30
+local:field: amtf2: set as: @@cwdrvalcled60
+local:field: amtf3: set as: @@cwdrvalcled90
+local:field: amtf4: set as: @@cwdrvalcled120
+local:field: amtf5: set as:@@cwdrvalcled150
+
+;;=====================
+
+local:field: amtf6: set as: @@cwdrvalcled180
+local:field: amtf45: set as:if not $$isdr:#amtf46 then #amtf46  else $$InitValue:"Amount"
+local:field: amtf46: set as:if $$isempty:#amtf6 then $$InitValue:"Amount" else $$nettamount:#amtf47:#amtf6
+
+local:field: amtf47: set as:if not $$isdr:#amtf49 then #amtf49  else $$InitValue:"Amount"
+
+;;============================
+local:field: amtf7: set as:@@cwdrval180overcled ;; "Days"
+Local: Field: amtf48: Set As:  if $$isempty:#amtf7 then $$InitValue:"Amount" else $$nettamount:#amtf49:#amtf7 ;;if $$isempty:#amtf7 or $$isempty:#amtf49 then $$InitValue:"Amount" else if not $$isdr:#amtf49 then $$asamount:7 else if $$isdr:#amtf49 then #amtf49 else $$nettamount:#amtf49:#amtf7
+Local: Field: amtf49: Set As:$$NettAmount:@@cwdrval180overcled:#amtf50 ;@@cwdrval180overcled
+local:field: amtf50: set as:@@cwtotalosamtms ;; "Days"
+
+
+
+
+;;=======================================
+Local: Field:amtf8: Set As:$ClosingBalance   ;;"Total"
+Local: Field:amtf11: Set As:"";;"Interest"
+Local: Field:amtf12: Set As:$CreditLimit:ledger:$name;;"Party "
+
+
+Local: Field: amtf1: Set As:@@cwopvalms2
+Local: Field: amtf9: Set As:@@cwrecvalms
+Local: Field: amtf10: Set As:$$CollAmtTotal:collrx:$crnotevalue
+Local: Field: amtf13: Set As:@@cwtotalosamtms
+
+Local: field: amtf9: Width:9.8
+Local: field: amtf10: Width:9.8
+Local: field: amtf1: Width:9.8
+
+Local: field: amtf: Format: "drcr"
+Local: field: amtf1: Format: "drcr"
+Local: field: amtf2: Format: "drcr"
+Local: field: amtf3: Format: "drcr"
+Local: field: amtf4: Format: "drcr"
+Local: field: amtf5: Format: "drcr"
+Local: field: amtf6: Format: "drcr"
+Local: field: amtf7: Format: "drcr"
+Local: field: amtf8: Format: "drcr"
+Local: field: amtf9: Format: "drcr"
+Local: field: amtf10: Format: "drcr"
+Local: field: amtf11: Format: "drcr"
+Local: field: amtf12: Format: "drcr"
+Local: field: amtf13: Format: "drcr"
+Local: field: amtf20: Format: "drcr"
+Local: field: amtf21: Format: "drcr"
+Local: field: amtf22: Format: "drcr"
+Local: field: amtf23: Format: "drcr"
+Local: field: amtf24: Format: "drcr"
+Local: field: amtf25: Format: "drcr"
+Local: field: amtf26: Format: "drcr"
+Local: field: amtf27: Format: "drcr"
+Local: field: amtf28: Format: "drcr"
+Local: field: amtf29: Format: "drcr"
+Local: field: amtf30: Format: "drcr"
+Local: field: amtf31: Format: "drcr"
+Local: field: amtf32: Format: "drcr"
+Local: field: amtf33: Format: "drcr"
+Local: field: amtf34: Format: "drcr"
+Local: field: amtf35: Format: "drcr"
+Local: field: amtf36: Format: "drcr"
+Local: field: amtf37: Format: "drcr"
+Local: field: amtf38: Format: "drcr"
+Local: field: amtf39: Format: "drcr"
+Local: field: amtf40: Format: "drcr"
+Local: field: amtf41: Format: "drcr"
+Local: field: amtf42: Format: "drcr"
+Local: field: amtf43: Format: "drcr"
+Local: field: amtf44: Format: "drcr"
+Local: field: amtf45: Format: "drcr"
+Local: field: amtf46: Format: "drcr"
+Local: field: amtf47: Format: "drcr"
+Local: field: amtf48: Format: "drcr"
+Local: field: amtf49: Format: "drcr"
+Local: field: amtf50: Format: "drcr"
+Local: field: amtf51: Format: "drcr"
+Local: field: amtf52: Format: "drcr"
+Local: field: amtf53: Format: "drcr"
+Local: field: amtf54: Format: "drcr"
+Local: field: amtf55: Format: "drcr"
+
+
+
+local: field: default : style: style3x
+
+Local: field: amtf: Width:11
+Local: field: amtf1: Width:11
+Local: field: amtf2: Width:11
+Local: field: amtf3: Width:11
+Local: field: amtf4: Width:11
+Local: field: amtf5: Width:11
+Local: field: amtf6: Width:11
+Local: field: amtf7: Width:11
+Local: field: amtf8: Width:11
+
+Local: field: amtf11: Width:11
+Local: field: amtf12: Width:11
+
+
+
+      [line: LnAgeingReportTotals]
+        use: LnAgeingReport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

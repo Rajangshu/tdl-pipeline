@@ -1,0 +1,239 @@
+; Created By: Khokan on 2021-05-22 17:32, ID: 
+
+     [#menu: Gateway of Tally]
+;; {25.May.21 13:02}         add: Option: salesReturnRegisterLock ;; : @@salesReturnRegisterDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@salesReturnRegisterReport: Display: RepsalesReturnRegister
+
+
+
+     [!menu: salesReturnRegisterLock]
+        add: Item: before: @@locQuit: @@salesReturnRegisterReport: Display: RepsalesReturnRegister
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   salesReturnRegisterReport: "Sales Return Register"
+;; salesReturnRegisterDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepsalesReturnRegister]
+        use: Dsp Template
+      Title: @@salesReturnRegisterReport
+   Printset: Report Title: @@salesReturnRegisterReport
+       Form: FrmsalesReturnRegister
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    
+     variable:str2,str3,str4,str5,str6,str7,str8
+    set:str2:""
+    set:str3:""
+    set:str4:""
+    set:str5:""
+    set:str6:""
+
+
+     
+      [Form: FrmsalesReturnRegister]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0salesReturnRegister,PrtsalesReturnRegister
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: salesReturnRegisterbotbrk,salesReturnRegisterbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+add:button:cwsnoteregbotton
+  local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+      [part: salesReturnRegisterbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: salesReturnRegisterbotopbrk]
+        use: dspacctitles
+  add: part: salesReturnRegisterTitlePart
+
+      [part: salesReturnRegisterTitlePart]
+       line: LnsalesReturnRegisterTitle
+       
+      [line: LnsalesReturnRegisterCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0salesReturnRegister]
+      line : LnsalesReturnRegisterCurrPeriod
+      
+      [Part: PrtsalesReturnRegister]
+       Line: LnsalesReturnRegisterTitle,LnsalesReturnRegister
+bottom Line: LnsalesReturnRegisterTotals
+     repeat: LnsalesReturnRegister: ColsalesReturnRegister
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,Qtyf2
+
+[Collection: ColsalesReturnRegister]
+   source Collection: sourceColsalesretRegister
+
+walk:inventoryentries
+by:date:$date
+by:partyledgername:$partyledgername
+by:vouchernumber:$vouchernumber
+by:stockitemname:$stockitemname
+by:cwcaption1vch1:$..cwcaption1vch
+by:cwcaption1vch2:$..cwcaption2vch
+by:cwcaption1vch3:$cwledcity:ledger:$partyledgername
+
+aggr compute:billedqty:sum:$billedqty
+aggr compute:amount:sum:$amount
+compute:cwfreshKata1:$cwfreshKata
+
+compute:masterid:$masterid
+
+
+
+filter:cwmsitemnamefilter,cwnssalesmanfilternew,areanamefilnw,agentnamefil
+
+[Collection: sourceColsalesretRegister]
+Type	  : Vouchers : VoucherType
+Child Of  : $$VchTypeCreditNote
+Belongs To: Yes
+
+
+    [system: Formula]
+ColsalesReturnRegisterFilter: Yes
+
+[Line: LnsalesReturnRegisterTitle]
+use: LnsalesReturnRegister
+option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: snf: set as: "Product"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Fresh Rtn Qty."
+local:field: qtyf2: set as: "Kata/Seconds Rtn Qty."
+local:field: amtf: set as: "Rtn Value"
+
+local: field: default : style: normal bold
+
+
+local:field:snf2: set as: "Agent"
+local:field:snf3: set as: "SalesMan"
+local:field:SNF4: set as: "Area"
+      
+Local: field: default: Align:centre
+Local: field: snf: Align:left
+Local: field: fwf: Align:left
+Local : field : default: Lines : 0
+
+
+[Line: LnsalesReturnRegister]
+Fields:snf,snf2,snf3,snf4,fwf
+right field: Qtyf,qtyf2,Amtf
+
+;; {22.May.21 17:40}      Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf2 : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+;; {22.May.21 17:40}      local: field: fwf: alter : voucher : $$isvoucher
+;; {22.May.21 17:40} option : alter on enter
+;; {22.May.21 17:40} local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+
+local:field: snf: set as:$$ReptField:Name:2:stockitem:$stockitemname;; "Product"
+local:field: fwf: set as:$stockitemname;; "Description"
+local:field: qtyf: set as:if $cwfreshKata1="Fresh" then $billedqty else ""  ;; "Fresh Rtn Qty."
+local:field: qtyf2: set as:if $cwfreshKata1="Kata" then $billedqty else "" ;; "Kata/Seconds Rtn Qty."
+local:field: amtf: set as:$amount;; "Rtn Value"
+
+local:field:snf2: set as:$cwcaption1vch1  ;; "Agent"
+local:field:snf3: set as:$cwcaption1vch2  ;; "SalesMan"
+local:field: SNF4: set as:$cwcaption1vch3  ;; "Area"
+
+
+Local: Field: default: Border: thin right
+  add:option: cwalterVch     ;;job work tcp acha
+
+
+[line: LnsalesReturnRegisterTotals]
+use: LnsalesReturnRegister
+
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total"
+local:field: snf: set as:"";; "Product"
+;; {22.May.21 17:41} local:field: fwf: set as:"";; "Description"
+local:field: qtyf: set as:$$total:qtyf;; "Fresh Rtn Qty."
+local:field: qtyf2: set as:$$total:qtyf2 ;; "Kata/Seconds Rtn Qty."
+local:field: amtf: set as:$$total:amtf ;; "Rtn Value"
+
+local:field:snf2: set as:"";; "Agent"
+local:field:snf3: set as:"";; "SalesMan"
+local:field: SNF4: set as:"";; "Area"
+
+;;==============================
+
+[button:cwsnoteregbotton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:cwsnoteregbotton
+
+ [report:cwsnoteregbotton]
+ form:cwsnoteregbotton
+
+ [form:cwsnoteregbotton]
+ part:cwsnoteregbotton
+
+ HEIGHT:20  ;;% PAGE
+ WIDTH:30  ;;% PAGE
+
+ [part:cwsnoteregbotton]
+ line:titlelinexns,cwnsstkledline,Agentsmnsline2,salesmnsline,arealinexnw
+
+
+ [line:Agentsmnsline2]
+ field:sp,nf
+ Local: Field: sp: Set As:"Agent Name" ;;"Sales Man"
+ Local: Field: nf:modifies:str7
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:cwcaption1tableunderled, Not Applicable
+ Local: Field: nf: Show table: Always
+  Local: field: nf: Width:30
+  
+  [line:arealinexnw]
+ field:sp,nf
+ Local: Field: sp: Set As:"Area"
+ Local: Field: nf:modifies:str8
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+;; {07.Jul.21 13:23}  Local: Field: nf: table:cwcaption3tableundercc, Not Applicable
+;; {07.Jul.21 13:23}  Local: Field: nf: Show table: Always
+  Local: field: nf: Width:30
+  
+  [System: Formula]
+  agentnamefil:if $$issysname:##str7 then yes else $cwcaption1vch1 =##str7
+  areanamefilnw:if $$issysname:##str8 then yes else $cwcaption1vch3 =##str8
+
+
+

@@ -1,0 +1,190 @@
+; Created By: Khokan on 2021-08-26 11:32, ID: 
+
+     [#menu: Gateway of Tally]
+;; {26.Aug.21 11:48}         add: Option: SALESMANWISEcollctionreportLock ;; : @@SALESMANWISEcollctionreportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@SALESMANWISEcollctionreportReport: Display Collection: collRepSALESMANWISEcollctionreport  ;;: RepSALESMANWISEcollctionreport
+
+
+
+     [!menu: SALESMANWISEcollctionreportLock]
+        add: Item: before: @@locQuit: @@SALESMANWISEcollctionreportReport: Display Collection: collRepSALESMANWISEcollctionreport  ;;: RepSALESMANWISEcollctionreport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   SALESMANWISEcollctionreportReport:@@cwcaption2tableundernew+" "+"wise collction report"
+;; SALESMANWISEcollctionreportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+
+[Collection: collRepSALESMANWISEcollctionreport]
+
+
+  Use         : Extract Alias Collection
+   Source Collection	: List of Ledgers
+   Variable    : Ledger Name
+   Report      :RepSALESMANWISEcollctionreport
+   Trigger     : cwLedgerName2
+   Fetch       : Name
+     
+    [Report: RepSALESMANWISEcollctionreport]
+        use: Dsp Template
+      Title: @@SALESMANWISEcollctionreportReport
+   Printset: Report Title: @@SALESMANWISEcollctionreportReport
+       Form: FrmSALESMANWISEcollctionreport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmSALESMANWISEcollctionreport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0SALESMANWISEcollctionreport,PrtSALESMANWISEcollctionreport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: SALESMANWISEcollctionreportbotbrk,SALESMANWISEcollctionreportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+ local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+ local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+ local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+ local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+ local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+ local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+    [part: SALESMANWISEcollctionreportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: SALESMANWISEcollctionreportbotopbrk]
+        use: dspacctitles
+  add: part: SALESMANWISEcollctionreportTitlePart
+
+      [part: SALESMANWISEcollctionreportTitlePart]
+       line: LnSALESMANWISEcollctionreportTitle
+       
+      [line: LnSALESMANWISEcollctionreportCurrPeriod]
+   field: fwf,nf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style:style3x
+      Local: Field: fwf: Style:style3x
+      Local: Field: NF: Style:style3x
+      Local: Field: fwf: Set As:##LedgerName
+
+      Local: Field: nf: Set As:$$ReptField:Name:2:ledger:##LedgerName
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf2:invisible: $$inprintmode
+
+      [part: PrtTitle0SALESMANWISEcollctionreport]
+      line : LnSALESMANWISEcollctionreportCurrPeriod
+      
+      [Part: PrtSALESMANWISEcollctionreport]
+       Line: LnSALESMANWISEcollctionreportTitle,LnSALESMANWISEcollctionreport
+bottom Line: LnSALESMANWISEcollctionreportTotals
+     repeat: LnSALESMANWISEcollctionreport: ColSALESMANWISEcollctionreport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColSALESMANWISEcollctionreport]
+
+ source Collection: Colreceiptsouagentcoll
+ by:date:$date
+ by:vouchernumber:$vouchernumber
+ by:partyledgername:$partyledgername
+ compute:cwcaption2item1:$cwcaption2item:ledger:$partyledgername
+ by:vouchertypename:$vouchertypename
+ aggr compute:rcptvalue:sum:$amount
+ compute:chqno:$AllLedgerEntries[1, @@IsBankLedgr].BankAllocations[1].InstrumentNumber
+
+search key:$partyledgername
+  filter:ColSALESMANWISEcollctionreportFilter
+
+
+
+ /*   type:bills
+;; {26.Aug.21 10:16}   compute:cwrecvchtype:$$CollectionField:$vouchertypename:First:ledgerentries
+
+ filter:ColSALESMANWISEcollctionreportFilter,ColAGENTWISEollctionreportFilter2 ;;,cwparentagfilter
+ fetch:ledgerentries.ledgerentries.cwnetsales
+ fetch:ledgerentries.ledgerentries.vouchertypename
+fetch:ledgerentries.BANKALLOCATIONS.INSTRUMENTNUMBER
+fetch:cwcaption1item
+
+*/
+    [system: Formula]
+;; {18.Sep.21 12:55} ColSALESMANWISEcollctionreportFilter:$cwcaption2item:ledger:$parent=##LedgerName
+ColSALESMANWISEcollctionreportFilter:$cwcaption2item:ledger:$partyledgername=##LedgerName
+
+      [Line: LnSALESMANWISEcollctionreportTitle]
+        use: LnSALESMANWISEcollctionreport
+     option: titleopt
+local:field: sdf: set as: "Date"
+local:field: fwf: set as: "Party"
+local:field: SNF: set as: "Chq No"
+local:field: NF: set as: "Mode of Payment"
+
+local:field: amtf: set as: "Receipt"
+
+
+ local: field: sdf : style:style2x
+local: field: fwf : style:style2x
+local: field: SNF : style:style2x
+local: field: NF : style:style2x
+local: field: amtf : style:style2x
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+
+
+      [Line: LnSALESMANWISEcollctionreport]
+Fields: sdf,fwf  ;;,nf2
+right field: SNF,nf,Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$date ;; "DATE"
+local:field: fwf: set as:$partyledgername  ;$parent ;; "PARTY"  $$collectionfield:@@cwVchINSNO2:2:LedgerEntries
+local:field: SNF: set as:$chqno  ;;@@recmyNewChqNoa  ;; "CHQ NO"
+local:field: NF: set as:$vouchernumber ;;$name ;; "MODE OF PAYMENT"
+local:field: NF2: set as:$cwcaption1item1 ;$parent:ledger:$partyledgername ; $$CollectionField:$vouchertypename:First:ledgerentries ;; "MODE OF PAYMENT"
+
+local:field: amtf: set as:$rcptvalue  ;;$closingbalance ;; "RECEIPT"
+  local: field: DEFAULT : style:style3x
+
+;; {26.Aug.21 11:08}   Local: field: amtf: Format: "drcr"
+  Local: Field: default: Border: thin right
+;; {17.Sep.21 18:46}   Local: field: amtf: Format: "drcr"
+  border:thin bottom
+  
+      [line: LnSALESMANWISEcollctionreportTotals]
+        use: LnSALESMANWISEcollctionreport
+   option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+local:field: sdf: set as:"" ;; "DATE"
+
+local:field: SNF: set as:"" ;; "CHQ NO"
+local:field: NF: set as:"" ;; "MODE OF PAYMENT"
+
+local:field: amtf: set as:"" ;; "RECEIPT"
+      local: field: amtf : set as :  $$total:amtf
+
+ local: field: sdf : style:style2x
+local: field: fwf : style:style2x
+local: field: SNF : style:style2x
+local: field: NF : style:style2x
+local: field: amtf : style:style2x
+

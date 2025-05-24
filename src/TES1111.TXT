@@ -1,0 +1,150 @@
+; Created By: khokan on 2022-05-26 16:10, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: tes1111Lock ;; : @@tes1111DemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@tes1111Report: alter: Reptes1111
+
+
+
+     [!menu: tes1111Lock]
+        add: Item: before: @@locQuit: @@tes1111Report: alter: Reptes1111
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   tes1111Report: "tes1111"
+;; tes1111DemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Reptes1111]
+        use: Dsp Template
+      Title: @@tes1111Report
+   Printset: Report Title: @@tes1111Report
+       Form: Frmtes1111
+     Export: Yes
+  ;;   set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: Frmtes1111]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0tes1111,Prttes1111
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: tes1111botbrk,tes1111botOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: tes1111botBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: tes1111botopbrk]
+        use: dspacctitles
+  add: part: tes1111TitlePart
+
+      [part: tes1111TitlePart]
+       line: Lntes1111Title
+       
+      [line: Lntes1111CurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0tes1111]
+      line : Lntes1111CurrPeriod
+      
+      [Part: Prttes1111]
+       Line: Lntes1111Title,Lntes1111
+bottom Line: Lntes1111Totals
+     repeat: Lntes1111:Coltes1111  ;;sourColreceiptmnet1 ;; Coltes1111
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf1
+      
+      
+      [Collection: sourColreceiptmnet1]
+
+ source Collection: Colreceiptsounew
+
+;; {19.Aug.22 16:26} by:partyledgername:$partyledgername
+By : FullMonthName1 	:$date ;; $$FullMonthName:$date
+
+aggr compute:rcptvalue:sum:$amount
+;; {19.Aug.22 16:25} filter:cwnotreceiptfilterxx,cwcashreceiptfilterxx,cwcashreceiptfilterxx2,cwcashreceiptfilterxx3
+filter:cwcashreceiptfilterxx3
+ sort:@@default:$partyledgername
+ 
+[System: Formula]
+ cwnotreceiptfilterxx:not $partyledgername="cash"
+ cwcashreceiptfilterxx:not $parent:ledger:$partyledgername="Bank OD A/c"
+ cwcashreceiptfilterxx2:not $parent:ledger:$partyledgername="Bank Accounts"
+;; {19.Aug.22 16:24}  cwcashreceiptfilterxx3:not $parent:ledger:$partyledgername="Sundry Creditors"
+ cwcashreceiptfilterxx3:$$isobjectbelongsto:group:($parent:ledger:$partyledgername):$$Groupsundrydebtors
+
+[Collection: Colreceiptsounew]
+
+   Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColrcptpaymFilter,IsNonOptionalCancelledVchs
+
+
+
+
+
+    [system: Formula]
+Coltes1111Filter: Yes
+
+      [Line: Lntes1111Title]
+        use: Lntes1111
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: Lntes1111]
+     Fields: snf,nf,fwf
+right field: numf,amtf,amtf1
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local : field : sdf : set as : $date
+ local : field : fwf : set as : $partyledgername
+ local : field : nf : set as : $parent:ledger:$partyledgername
+ local : field : snf : set as : $FullMonthName1
+ local : field : numf : set as : $salesbilledqty
+ local : field : amtf : set as :$salesamount
+ local : field : amtf1 : set as :if $$line=1 then #amtf else $$nettamount:$$prevlinefield:#amtf
+;; {19.Aug.22 16:13}  Local: field: amtf: Format: "drcr"
+;; {19.Aug.22 16:13}  Local: field: amtf1: Format: "drcr"
+
+
+      [line: Lntes1111Totals]
+        use: Lntes1111
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf1 : set as :$$prevlinefield ;;  $$total:amtf1
+
+

@@ -1,0 +1,336 @@
+; Created By: khokan on 2022-04-13 17:34, ID: 
+
+     [#menu: Gateway of Tally]
+;; {13.Apr.22 18:04}         add: Option: DailySalesRegisterLock ;; : @@DailySalesRegisterDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@DailySalesRegisterReport: Display: RepDailySalesRegister
+
+
+
+     [!menu: DailySalesRegisterLock]
+        add: Item: before: @@locQuit: @@DailySalesRegisterReport: Display: RepDailySalesRegister
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   DailySalesRegisterReport: "Daily Sales Register"
+;; DailySalesRegisterDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepDailySalesRegister]
+        use: Dsp Template
+      Title: @@DailySalesRegisterReport
+   Printset: Report Title: @@DailySalesRegisterReport
+       Form: FrmDailySalesRegister
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable:str2,str3,str4,str5,str6,str7,str8,str9,str10
+    set:str2:""
+    set:str3:""
+    set:str4:""
+    set:str5:""
+    set:str6:""
+    set:str8:""
+    set:str9:""
+    set:str10:""
+     
+      [Form: FrmDailySalesRegister]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0DailySalesRegister,PrtDailySalesRegister
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: DailySalesRegisterbotbrk,DailySalesRegisterbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+     button:cwsregbottonds
+
+      [part: DailySalesRegisterbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: DailySalesRegisterbotopbrk]
+        use: dspacctitles
+  add: part: DailySalesRegisterTitlePart
+
+      [part: DailySalesRegisterTitlePart]
+       line: LnDailySalesRegisterTitle
+       
+      [line: LnDailySalesRegisterCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+;; {13.Apr.22 17:51}       Local: Field: fwf: Style: normal bold
+;; {13.Apr.22 17:51}       Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+  
+   Local: Field: fwf2: Style:styleCalisto2
+   Local: Field: fwf: Style:styleCalisto2
+
+      [part: PrtTitle0DailySalesRegister]
+      line : LnDailySalesRegisterCurrPeriod
+      
+      [Part: PrtDailySalesRegister]
+       Line: LnDailySalesRegisterTitle,LnDailySalesRegister
+bottom Line: LnDailySalesRegisterTotals
+     repeat: LnDailySalesRegister: ColDailySalesRegister
+     scroll: Vertical
+ Common Border: YEs
+      Total: numf,amtf
+
+[Collection: ColDailySalesRegister]
+source Collection: sourceColDailySalesRegister
+walk:inventoryentries
+by:date:$date
+by:vouchernumber:$vouchernumber
+by:partyledgername:$partyledgername
+by:stockitemname:$stockitemname
+aggr compute:billedqty:$$number:$billedqty
+compute:amount1:$..amount
+compute:cwledcity1:$cwledcity:ledger:$partyledgername
+compute:cwledpincode1:$pincode:ledger:$partyledgername
+compute:BillDate1:@@cwbillOverDue
+compute:cwcaption1vch1:$..cwcaption1vch
+compute:cwcaption2vch1:$..cwcaption2vch
+compute:cwcaption3vch1:$..cwcaption3vch
+compute:masterid:$masterid
+
+fetch:billdate
+filter:cwcwledcity1filterds,cwnspartymsnfilterds,cwmsitemnamefilterds,cwnsagentfilterds,cwnssalesmfilternewds,cwareafilterds
+filter:cwcwledpincodefilterds
+
+ [System: Formula]
+cwnspartymsnfilterds:if $$issysname:##str8 then yes else $partyledgername =##str8
+cwcwledcity1filterds:if $$issysname:##str9 then yes else $cwledcity1 =##str9
+cwcwledpincodefilterds:if $$issysname:##str10 then yes else $cwledpincode1 =##str10
+cwmsitemnamefilterds:if $$issysname:##str3 then yes else $stockitemname =##str3
+
+
+cwnsagentfilterds:if $$issysname:##str4 then yes else $cwcaption1vch1 =##str4
+cwnssalesmfilternewds:if $$issysname:##str5 then yes else $cwcaption2vch1 =##str5
+cwareafilterds:if $$issysname:##str6 then yes else $cwcaption3vch1 =##str6
+
+
+
+
+[Collection: sourceColDailySalesRegister]
+    Type	   : Vouchers	: VoucherType
+Child Of   : $$VchTypesales
+Belongs To : Yes
+
+    [system: Formula]
+ColDailySalesRegisterFilter:$$issales:$vouchertypename
+
+[System: Formula]
+
+cwbillOverDue : If ($$IsEmpty:$ClosingBalance AND NOT $$IsEmpty:@BillClearedDate) Then @BillClearedDate - @@CreditPeriod Else ##DSPToDate - @@CreditPeriod
+
+
+      [Line: LnDailySalesRegisterTitle]
+        use: LnDailySalesRegister
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Voucher No"
+local:field: fwf: set as: "Party Name"
+local:field: snf2: set as: "Agent"
+local:field: snf3: set as: "Salesperson"
+local:field: snf4: set as: "Area"
+local:field: snf5: set as: "City"
+local:field: snf6: set as: "Pin Code"
+local:field: sdf2: set as: "Over Due Days"
+local:field: nf  : set as: "Products"
+local:field: numf: set as: "Qty."
+local:field: snfx: set as: "UOM"
+local:field: amtf: set as: "Amount"
+
+local: field: sdf : style:styleCalisto2
+local: field: snf : style:styleCalisto2
+local: field: snf1 : style:styleCalisto2
+local: field: snf2 : style:styleCalisto2
+local: field: snf3 : style:styleCalisto2
+local: field: snf4 : style:styleCalisto2
+local: field: snf5 : style:styleCalisto2
+local: field: snf6 : style:styleCalisto2
+local: field: sdf2 : style:styleCalisto2
+local: field: snf7 : style:styleCalisto2
+local: field: snf8 : style:styleCalisto2
+local: field: snf9 : style:styleCalisto2
+local: field: nf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: numf : style:styleCalisto2
+local: field: snfx : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+Local: field:default: Align: centre
+Local: field:fwf: Align: left
+
+[Line: LnDailySalesRegister]
+Fields: sdf,snf,fwf
+right field: snf2,snf3,snf4,snf5,snf6,sdf2,nf,numf,snfx,Amtf
+;; {13.Apr.22 17:48}      Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+;; {13.Apr.22 17:48}      local: field: fwf: alter : voucher : $$isvoucher
+;; {13.Apr.22 17:48} option : alter on enter
+;; {13.Apr.22 17:48} local : field : fwf : alter : voucher : $$isvoucher
+
+local:field: sdf: set as:if $$line=1 then $date else if $vouchernumber <> $$prevobj:$vouchernumber  then $date else "" ;; "Date"
+local:field: snf: set as:if $$line=1 then $vouchernumber else if $vouchernumber <> $$prevobj:$vouchernumber  then $vouchernumber else "" ;;  "Voucher No"
+local:field: fwf: set as:if $$line=1 then $partyledgername else if $vouchernumber <> $$prevobj:$vouchernumber  then $partyledgername else ""  ;;  "Party Name"
+local:field: snf2: set as:if $$line=1 then $cwcaption1vch1 else if $vouchernumber <> $$prevobj:$vouchernumber  then $cwcaption1vch1 else ""  ;;  "Agent"
+local:field: snf3: set as:if $$line=1 then $cwcaption2vch1 else if $vouchernumber <> $$prevobj:$vouchernumber  then $cwcaption2vch1 else ""  ;;  "Salesperson"
+local:field: snf4: set as:if $$line=1 then $cwcaption3vch1 else if $vouchernumber <> $$prevobj:$vouchernumber  then $cwcaption3vch1 else ""  ;;  "Area"
+local:field: snf5: set as:if $$line=1 then $cwledcity1 else if $vouchernumber <> $$prevobj:$vouchernumber  then $cwledcity1 else ""   ;;  "City"
+local:field: nf: set as:$stockitemname ;;  "Products"
+local:field: numf: set as:$billedqty ;;  "Qty."
+local:field: snfx: set as:$baseunits:stockitem:$stockitemname ;;  "UOM"
+local:field: amtf: set as:if $$line=1 then $amount1 else if $vouchernumber <> $$prevobj:$vouchernumber  then $amount1 else ""  ;;  "Amount"
+local:field: snf6: set as:if $$line=1 then $cwledpincode1 else if $vouchernumber <> $$prevobj:$vouchernumber  then $cwledpincode1 else "" ;;"Pin Code"
+Local: Field: sdf2: Set As:if $$line=1 then $BillDate1 else if $vouchernumber <> $$prevobj:$vouchernumber  then $BillDate1 else ""
+
+add:option: cwalterVch
+local: field: DEFAULT : style:styleCalisto
+Local: Field: default: Border: thin right
+
+[line: LnDailySalesRegisterTotals]
+use: LnDailySalesRegister
+option: totalOpt
+local: field: fwf: align: right
+local:field: sdf: set as:"" ;; "Date"
+local:field: snf: set as:"" ;;  "Voucher No"
+local:field: fwf: set as:"Total" ;;  "Party Name"
+local:field: snf2: set as:"" ;;  "Agent"
+local:field: snf3: set as:"" ;;  "Salesperson"
+local:field: snf4: set as:"" ;;  "Area"
+local:field: snf5: set as:"" ;;  "City"
+local:field: nf: set as:"" ;;  "Products"
+local:field: numf: set as:$$total:numf ;;  "Qty."
+local:field: snfx: set as:"" ;;  "UOM"
+local:field: amtf: set as:$$total:amtf ;;  "Amount"
+
+ local: field: sdf : style:styleCalisto2
+local: field: snf : style:styleCalisto2
+local: field: snf1 : style:styleCalisto2
+local: field: snf2 : style:styleCalisto2
+local: field: snf3 : style:styleCalisto2
+local: field: snf4 : style:styleCalisto2
+local: field: snf5 : style:styleCalisto2
+local: field: nf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: numf : style:styleCalisto2
+local: field: snfx : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+
+
+
+;;===========================
+
+[button:cwsregbottonds]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:cwsregbottonds
+
+ [report:cwsregbottonds]
+ form:cwsregbottonds
+
+ [form:cwsregbottonds]
+ part:cwsregbottonds
+
+ HEIGHT:30  ;;% PAGE
+ WIDTH:30  ;;% PAGE
+
+ [part:cwsregbottonds]
+ line:titlelinexns,customernslineds,cwnsstkledlineds,Agentsmnslinexds,salesmnslinexds,arealinexds,cwcwledcitylineDS,cwPinCodeLine
+
+ [line:customernslineds]
+ field:sp,nf
+ Local: Field: sp: Set As:"Party Name"
+ Local: Field: nf:modifies:str8
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:cwledms, Not Applicable
+ Local: Field: nf: Show table: Always
+  Local: field: nf: Width:30
+
+
+ [line:cwnsstkledlineds]
+ field:sp,nf
+ Local: Field: sp: Set As:"Item Name"
+ Local: Field: nf:modifies:str3
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+  Local: Field: nf: table:stockitem, Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: field: nf: Width:30
+
+
+ [line:Agentsmnslinexds]
+ field:sp,nf
+ Local: Field: sp: Set As:"Agent Name" ;;"Sales Man"
+ Local: Field: nf:modifies:str4
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:cwcaption1tableunderled, Not Applicable
+ Local: Field: nf: Show table: Always
+  Local: field: nf: Width:30
+
+
+  [line:salesmnslinexds]
+ field:sp,nf
+ Local: Field: sp: Set As:"Sales Man"
+ Local: Field: nf:modifies:str5
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:cwcaption2tableunderled, Not Applicable
+ Local: Field: nf: Show table: Always
+  Local: field: nf: Width:30
+
+
+     [line:arealinexds]
+ field:sp,nf
+ Local: Field: sp: Set As:"Area"
+ Local: Field: nf:modifies:str6
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+
+  Local: field: nf: Width:30
+
+
+  [line:cwcwledcitylineDS]
+ field:sp,nf
+ Local: Field: sp: Set As:"City"
+ Local: Field: nf:modifies:str9
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+
+  Local: field: nf: Width:30
+
+[line:cwPinCodeLine]
+field:sp,nf
+Local: Field: sp: Set As:"Pincode"
+ Local: Field: nf:modifies:str10
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+
+  Local: field: nf: Width:30
+

@@ -1,0 +1,270 @@
+; Created By: khokan on 2022-05-24 16:30, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: cwallagentwiseLock ;; : @@cwallagentwiseDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@cwallagentwiseReport: Display: Repcwallagentwise
+
+
+
+     [!menu: cwallagentwiseLock]
+        add: Item: before: @@locQuit: @@cwallagentwiseReport: Display: Repcwallagentwise
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   cwallagentwiseReport: "cwallagentwise"
+;; cwallagentwiseDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Repcwallagentwise]
+        use: Dsp Template
+      Title: @@cwallagentwiseReport
+   Printset: Report Title: @@cwallagentwiseReport
+       Form: Frmcwallagentwise
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+      variable:str1,str2
+    set:str1:""
+    set:str2:""
+    
+      [Form: Frmcwallagentwise]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0cwallagentwise,Prtcwallagentwise
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: cwallagentwisebotbrk,cwallagentwisebotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+   add:button:allagentnetsalesbotton
+   
+      [part: cwallagentwisebotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: cwallagentwisebotopbrk]
+        use: dspacctitles
+  add: part: cwallagentwiseTitlePart
+
+      [part: cwallagentwiseTitlePart]
+       line: LncwallagentwiseTitle
+       
+      [line: LncwallagentwiseCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0cwallagentwise]
+      line : LncwallagentwiseCurrPeriod
+      
+      [Part: Prtcwallagentwise]
+       Line: LncwallagentwiseTitle,LncwallagentwiseTitle1,Lncwallagentwise
+bottom Line: LncwallagentwiseTotals
+     repeat: Lncwallagentwise: Colcwallagentwise
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,amtf1,amtf2,amtf3,amtf4,amtf5,amtf6,amtf7,amtf8,amtf9,amtf10,amtf11,amtf12,amtf13,amtf14,amtf15,amtf16,amtf17,amtf18,amtf19,amtf20,amtf21,amtf22,amtf23,amtf24
+
+[Collection: Colcwallagentwise]
+   type:ledger
+child of:$$Groupsundrydebtors
+
+fetch:cwcaption1item
+;; {24.May.22 17:04} filter:cwColpartyFilter ;,cwColpartyFilter2 ;,cwcaption1netsalesvch1filter
+filter:ColcwallagentwiseFilter,cwColpartyFilter2,cwcaption1netsalesvch1filter
+ sort:@@default:$cwcaption1item
+ 
+    [system: Formula]
+ColcwallagentwiseFilter:not $$IsEmpty:$TBalDebits or not $$IsEmpty:$TBalCredits   ;; $TBalClosing  ;;$StkClBalance  ;;$StkOutQty
+
+
+  [Line: LncwallagentwiseTitle1]
+        use: Lncwallagentwise
+
+
+local:field: fwf: set as:$$CollectionField:$cwcaption1item:First:Colcwallagentwise
+
+      [Line: LncwallagentwiseTitle]
+        use: Lncwallagentwise
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: fwf: set as: "Description"
+
+local:field: amtf: set as:"Inv. Value"
+local:field: amtf2: set as:"Tax Value"
+local:field: amtf1: set as:"Round Off Value"
+local:field: amtf4: set as:"Taxable Value"
+
+local:field: amtf3: set as:"Disc. Value"
+
+local:field: amtf10: set as:"Net Sales"
+
+
+local:field: amtf11: set as:"cr. Note Inv. Value"
+local:field: amtf15: set as:"Round Off Value"
+
+local:field: amtf12: set as:"cr. Note Tax Value"
+local:field: amtf14: set as:"cr. Note Taxable Value"
+
+local:field: amtf13: set as:"cr. Note Disc. Value"
+
+local:field: amtf20: set as:"Net cr. Note"
+local:field: amtf21: set as:"Net Value"
+
+
+local: field: default : style: normal bold
+
+[Line: Lncwallagentwise]
+Fields:fwf  ;;,nf1
+right field:Amtf,amtf1,Amtf2,Amtf3,amtf4,Amtf10,Amtf11,Amtf12,Amtf13,amtf15,amtf20,amtf21
+
+Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+
+local:field: fwf: set as:$name ;; "Description"
+local:field: nf1: set as:$cwcaption1item
+
+local:field: amtf: set as:$$reportobject:$$collectionfieldbykey:$cwinvamt1:@@keysales1:collsaleamt ;;"Inv. Value"
+local:field: amtf1: set as:$$reportobject:$$collectionfieldbykey:$cwroundamt1:@@keysales1:collsaleamt ;;"Inv. Value"
+
+local:field: amtf2: set as:$$reportobject:$$collectionfieldbykey:$taxamount1:@@keysales1:collsaleamt ;;"Tax Value"
+local:field: amtf3: set as:$$reportobject:$$collectionfieldbykey:$disamount1:@@keysales1:collsaleamt
+
+local:field: amtf4: set as:(#amtf-#amtf3) ;;#amtf2
+
+local:field: amtf10: set as:$$reportobject:$$collectionfieldbykey:$amount:@@keysales1:collsaleamt ;;"Net Sales"
+
+
+local:field: amtf11: set as:$$reportobject:$$collectionfieldbykey:$crcwinvamt1:@@keysales1:cwColNetcrnotereport2new  ;;"cr. Inv. Value"
+local:field: amtf12: set as:$$reportobject:$$collectionfieldbykey:$crtaxamount1:@@keysales1:cwColNetcrnotereport2new ;;"cr.Tax Value"
+local:field: amtf13: set as:$$reportobject:$$collectionfieldbykey:$crdisamount1:@@keysales1:cwColNetcrnotereport2new ;;"cr.Taxable Value"
+local:field: amtf15: set as:$$reportobject:$$collectionfieldbykey:$cwroundamtcr1:@@keysales1:cwColNetcrnotereport2new ;;"cr.Taxable Value"
+
+;; {24.May.22 17:49} local:field: amtf13: set as:"" ;;"cr.Disc. Value"
+
+local:field: amtf20: set as:$$reportobject:$$collectionfieldbykey:$cramount:@@keysales1:cwColNetcrnotereport2new  ;;"cr.Net"
+ Local: Field: amtf21: Set As:#amtf4-#amtf12
+Local: Field: default: Border: thin right
+
+
+add:explode:expAgentWISEsalesRep2:$$line = $$numitems or $cwcaption1item <> $$nextobj:$cwcaption1item
+
+[part:expAgentWISEsalesRep2]
+line:expAgentWISEsalesRep2
+
+[line:expAgentWISEsalesRep2]
+  use: Lncwallagentwise
+delete:explode
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: ""
+      local: field: fwf: set as: $$nextobj:$cwcaption1item
+
+[System: Formula]
+keysales1:#fwf
+
+[Collection: collsaleamt]
+ source Collection: sourcollsaleamt
+
+by:partyledgername:$partyledgername
+
+;; {24.May.22 16:38} aggr compute:billedqty:sum:$$number:$$CollnumTotal:inventoryentries:$billedqty
+
+aggr compute:amount:sum:$amount ;;$$CollnumTotal:inventoryentries:$amount
+aggr compute:cwinvamt1:sum:@@cwinvamt
+
+aggr compute:amount1 :sum:$$FilteramtTotal:ledgerentries:salesmsFilter:$amount
+aggr compute:cwroundamt1 :sum:$$FilteramtTotal:ledgerentries:salesmscwroundFilter:$amount
+aggr compute:taxamount1 :sum:$$FilteramtTotal:ledgerentries:saledisallowesFilter2:$amount
+aggr compute:disamount1 :sum:$$FilteramtTotal:ledgerentries:salediscFilter:$amount
+
+search key:$partyledgername
+
+[System: Formula]
+saledisallowesFilter2:$taxtype:ledger:$ledgername  = "GST" or $taxtype:ledger:$ledgername  = "TDS"
+
+salediscFilter:$AppropriateFor:ledger:$ledgername  = "GST"
+salesmscwroundFilter:$ledgername contains "round"
+
+[Collection: sourcollsaleamt]
+
+Type	   : Vouchers	: VoucherType
+Child Of   : $$VchTypesales
+Belongs To : Yes
+
+
+ [Collection: cwColNetcrnotereport2new]
+
+source Collection: sourcwColNetcrnotereport2new
+
+
+by:partyledgername:$partyledgername
+
+;; {24.May.22 16:38} aggr compute:billedqty:sum:$$number:$$CollnumTotal:inventoryentries:$billedqty
+
+aggr compute:cramount:sum:$amount ;;$$CollnumTotal:inventoryentries:$amount
+aggr compute:crcwinvamt1:sum:@@cwinvamt
+
+aggr compute:cramount1 :sum:$$FilteramtTotal:ledgerentries:salesmsFilter:$amount
+aggr compute:crtaxamount1 :sum:$$FilteramtTotal:ledgerentries:saledisallowesFilter2:$amount
+aggr compute:crdisamount1 :sum:$$FilteramtTotal:ledgerentries:salediscFilter:$amount
+aggr compute:cwroundamtcr1 :sum:$$FilteramtTotal:ledgerentries:salesmscwroundFilter:$amount
+
+search key:$partyledgername
+
+
+[Collection: sourcwColNetcrnotereport2new]
+Type		: Vouchers	: VoucherType
+Child Of	: $$VchTypeCreditNote
+Belongs To	: Yes
+
+
+      [line: LncwallagentwiseTotals]
+        use: Lncwallagentwise
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      local: field: amtf1 : set as :  $$total:amtf1
+      local: field: amtf2 : set as :  $$total:amtf2
+      local: field: amtf3 : set as :  $$total:amtf3
+      local: field: amtf4 : set as :  $$total:amtf4
+      local: field: amtf5 : set as :  $$total:amtf5
+      local: field: amtf6 : set as :  $$total:amtf6
+      local: field: amtf7 : set as :  $$total:amtf7
+      local: field: amtf8 : set as :  $$total:amtf8
+      local: field: amtf9 : set as :  $$total:amtf9
+      local: field: amtf10 : set as :  $$total:amtf10
+      local: field: amtf11 : set as :  $$total:amtf11
+      local: field: amtf12 : set as :  $$total:amtf12
+      local: field: amtf13 : set as :  $$total:amtf13
+      local: field: amtf14 : set as :  $$total:amtf14
+      local: field: amtf15 : set as :  $$total:amtf15
+      local: field: amtf16 : set as :  $$total:amtf16
+      local: field: amtf17 : set as :  $$total:amtf17
+      local: field: amtf18 : set as :  $$total:amtf18
+      local: field: amtf19 : set as :  $$total:amtf19
+      local: field: amtf20 : set as :  $$total:amtf20
+      local: field: amtf21 : set as :  $$total:amtf21
+      local: field: amtf22 : set as :  $$total:amtf22
+      local: field: amtf23 : set as :  $$total:amtf23
+

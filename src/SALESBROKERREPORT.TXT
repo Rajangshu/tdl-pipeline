@@ -1,0 +1,211 @@
+; Created By: Khokan on 2021-02-09 18:53, ID: 
+
+
+ [#menu: Gateway of Tally]
+        add: Option: AgentWiseOutstanding2Lock
+
+[!menu: AgentWiseOutstanding2Lock]
+;; {09.Feb.21 18:54}         add: Item: before: @@locQuit: @@AgentWiseOutstanding2Report: Display collection: collAgentLedger
+        add: Item: before: @@locQuit: @@AgentWiseOutstanding2Report: Display Collection: collledstatement  ;;: RepAgentWiseOutstanding2
+        add: Item: before: @@locQuit: Blank
+
+   [Collection: collledstatement]
+
+   Use         : Extract Alias Collection
+   Source Collection	: List of Ledgers
+   Variable    : Ledger Name
+   Report      :RepAgentWiseOutstanding2
+   Trigger     : LedgerNamex
+   Fetch       : Name
+
+   [Report: LedgerNamex]   ;;Auto Report
+
+            Use     : Collection Variable
+            Local   : Line : Collection Variable : Field : LedgerNamex
+            Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Ledger"
+
+
+            [Field: LedgerNamex]
+
+          Use         : Name Field
+          Key         : Create Ledger
+          Modifies    : LedgerName
+          Table       :cwBrokerTableLedger  ;; List of ExtractLedgers
+          Show Table  : Always
+          CommonTable : No
+
+	
+
+
+    [System: formula]
+   AgentWiseOutstanding2Report: "Sales Broker Wise Outstanding"
+      cwagentfilternew:$parent=@@cwbroker
+
+    [Report: RepAgentWiseOutstanding2]
+        use: Dsp Template
+      Title: @@AgentWiseOutstanding2Report
+   Printset: Report Title: @@AgentWiseOutstanding2Report
+       Form: FrmAgentWiseOutstanding2
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+
+      [Form: FrmAgentWiseOutstanding2]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0AgentWiseOutstanding2,PrtAgentWiseOutstanding2
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: AgentWiseOutstanding2botbrk,AgentWiseOutstanding2botOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+
+      [part: AgentWiseOutstanding2botBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: AgentWiseOutstanding2botopbrk]
+        use: dspacctitles
+  add: part: AgentWiseOutstanding2TitlePart
+
+      [part: AgentWiseOutstanding2TitlePart]
+       line: LnAgentWiseOutstanding2Title
+
+      [line: LnAgentWiseOutstanding2CurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style:style3
+      Local: Field: fwf2: Style: style3
+      Local: Field: fwf2: Set As: @@dspDateStr
+       Local: Field: fwf: Set As:"Name    :  "+##LedgerName
+      Local: Field: fwf2:invisible: $$inprintmode
+
+
+      [part: PrtTitle0AgentWiseOutstanding2]
+      line : LnAgentWiseOutstanding2CurrPeriod
+
+      [Part: PrtAgentWiseOutstanding2]
+       Line: LnAgentWiseOutstanding2Title,LnAgentWiseOutstanding2
+bottom Line: LnAgentWiseOutstanding2Totals
+     repeat: LnAgentWiseOutstanding2: ColAgentWiseOutstanding2
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,amtf2,amtf3,amtf4,amtf5,amtf6
+
+
+         [Collection: ColAgentWiseOutstanding2]
+    Collection: ColAgentWiseOutstanding2A
+    Collection: ColAgentWiseOutstanding2B
+    sort : @@default : $name
+    filter:ColAgentWiseOutstanding2Filter
+
+    [Collection: ColAgentWiseOutstanding2A]
+       type:bills
+     cleared:yes
+     filter:ColAgentWiseOutstanding2Filter
+
+    [Collection: ColAgentWiseOutstanding2B]
+    use:ColAgentWiseOutstanding2A
+     cleared:no
+
+    [system: Formula]
+ ColAgentWiseOutstanding2Filter:##LedgerName=$cwbroker
+ cwsalesfilternew:$$issales:$vouchertypename
+ cwcreditnotefilternew:$$iscreditnote:$vouchertypename
+ cwrecptfilternew:$$isreceipt:$vouchertypename
+ cwBillGSTValue : $$FilterAmtTotal:LedgerEntries:cwsalesfilternew:@@cwVCHGSTVAlue
+
+      [Line: LnAgentWiseOutstanding2Title]
+        use: LnAgentWiseOutstanding2
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Vch No."
+local:field: fwf: set as: "Party Name"
+local:field: amtf: set as: "Gross Sale"
+local:field: amtf2: set as: "Nett Sale"
+local:field: amtf3: set as: "Total GST Amount"
+local:field: amtf4: set as: "Gross Sales Return"
+local:field: amtf5: set as: "Receipt Amount"
+local:field: amtf6: set as: "Outstanding"
+local:field: numf : set as : "Due Days"
+local: field: sdf : style: style1
+local: field: snf : style: style1
+local: field: fwf : style: style1
+local: field: amtf : style: style1
+local: field: amtf2 : style: style1
+local: field: amtf3 : style: style1
+local: field: amtf4 : style: style1
+local: field: amtf5 : style: style1
+local: field: amtf6 : style: style1
+local: field: numf : style: style1
+Local : field : amtf3: Lines : 2
+Local : field : amtf4: Lines : 2
+Local : field : amtf5: Lines : 2
+Local: field:default: Align:centre
+Local: field:fwf:delete: Align:centre
+
+ [System: Formula]
+
+ cwDiscLedger :$cwIsDiscount:ledger:$ledgername="yes"
+ cwDiscValue : $$filteramttotal:LedgerEntries:cwDiscLedger:$amount
+ cwDiscValue2:$$FilterAmtTotal:LedgerEntries:cwsalesfilternew:@@cwDiscValue
+ cwDiscValue3:$$FilterAmtTotal:LedgerEntries:cwcreditnotefilternew:@@cwDiscValue
+
+ cwinvamtnew:$$FilteramtTotal:ledgerentries:cwsalesfilternew:@@cwinvamt
+ cwGrossSalesReturn:$$FilteramtTotal:ledgerentries:cwcreditnotefilternew:@@cwinvamt
+
+      [Line: LnAgentWiseOutstanding2]
+     Fields: sdf,snf,fwf
+right fields:Amtf,Amtf2,Amtf3,Amtf4,Amtf5,Amtf6,numf,nf8
+
+;; {16.Sep.19 17:40}      Option: Alter on Enter
+;; {21.Nov.19 12:49}      option : cwalterVch
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+;; {21.Nov.19 12:56}      local: field: fwf: alter : voucher : $$isvoucher
+;; {21.Nov.19 12:56} option : alter on enter
+;; {21.Nov.19 12:56} local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$billdate  ;; "Date"
+local:field: snf: set as:$name ;; "Vch No."
+local:field: fwf: set as:$ledgername  ;; "Party Name"
+local:field: amtf: set as:$$FilteramtTotal:ledgerentries:cwsalesfilternew:$amount  ;; "Gross Sale"
+local:field: amtf2: set as:@@cwinvamtnew;;+@@cwDiscValue2  ;; "Nett Sale"
+local:field: amtf3: set as:@@cwBillGSTValue   ;; "Total GST Amount"
+local:field: amtf4: set as:@@cwGrossSalesReturn;;+@@cwDiscValue3  ;; "Gross Sales Return"
+local:field: amtf5: set as:$$filtervalue:(@@cwFNBillAllocTotal):LedgerEntries:1:cwrecptfilternew  ;; "Receipt Amount"
+local:field: amtf6: set as:$closingbalance  ;; "Outstanding"
+local:field: numf : set as :@@DSPtoDate-$billdate  ;; "Due Days"
+
+;; {09.Feb.21 19:05} option : display on enter
+;; {09.Feb.21 19:04} local : field :nf8 :  Display     : Ledger Vouchers
+;; {09.Feb.21 19:04} local : field :nf8 :  set as:$ledgername
+;; {09.Feb.21 19:04} local : field :nf8 :  variable:ledger name
+local : field :nf8 : invisible:yes
+
+
+Local: Field: default: Border: thin right
+
+
+Local: Field: default: Style:style2
+
+
+[line: LnAgentWiseOutstanding2Totals]
+use: LnAgentWiseOutstanding2
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: style1
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total : "
+local: field: amtf : set as :  $$total:amtf
+local: field: amtf2 : set as :  $$total:amtf2
+local: field: amtf3 : set as :  $$total:amtf3
+local: field: amtf4 : set as :  $$total:amtf4
+local: field: amtf5 : set as :  $$total:amtf5
+local: field: amtf6 : set as :  $$total:amtf6
+
+

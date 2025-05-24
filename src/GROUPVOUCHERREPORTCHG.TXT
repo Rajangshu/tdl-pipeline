@@ -1,0 +1,155 @@
+; Created By: khokan on 2022-07-06 12:40, ID: 
+
+/*
+
+[#Form: Group Vouchers]
+
+
+;; {06.Jul.22 13:21} local:part:DSP VchTitle:local:Line: DSP VchAccTitles:add:right field:At beginning:snf10 ;;,snf11,snf12
+
+local:part:DSP VchTitle:local:Line: DSP VchAccTitles:Local: Field: snf10: set as:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+local:part:DSP VchTitle:local:Line: DSP VchAccTitles:Local: Field: snf11: set as: $cwcaption2:COMPANY:##SVCURRENTCOMPANY
+local:part:DSP VchTitle:local:Line: DSP VchAccTitles:Local: Field: snf12: set as: $cwcaption3:COMPANY:##SVCURRENTCOMPANY
+
+local:part:GV Body:local:Line: DSP VchDetail:add:right field:At beginning:snf10,snf11,snf12
+local:part:GV Body:local:Line: DSP VchDetail:Local: Field: snf10: Set As:$cwcaption1item:ledger:#dspvchledaccount ; ;;#dspvchledaccount
+local:part:GV Body:local:Line: DSP VchDetail:Local: Field: snf11: Set As:$cwcaption2item:ledger:#dspvchledaccount ; ;;#dspvchledaccount
+local:part:GV Body:local:Line: DSP VchDetail:Local: Field: snf12: Set As:$cwcaption3item:ledger:#dspvchledaccount ;  ;;#dspvchledaccount
+ */
+
+ ;;=================================
+ 
+
+ [#Form: Group Vouchers]
+ 
+ [#Line: DSP VchAccTitles]
+add:right field:At beginning:snf10,snf11,snf12,amtf,snf1
+Local: field: snf1: Width:13
+
+ Local: Field: snf10: set as:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf11: set as: $cwcaption2:COMPANY:##SVCURRENTCOMPANY
+ Local: Field: snf12: set as: $cwcaption3:COMPANY:##SVCURRENTCOMPANY
+
+
+
+[#Line: DSP VchDetail]
+add:right field:At beginning:snf10,snf11,snf12  ;;,snf13
+Local: Field: snf10: Set As:$cwcaption1item:ledger:$GrpName ; ;;#dspvchledaccount
+Local: Field: snf11: Set As:$cwcaption2item:ledger:$GrpName ; ;;#dspvchledaccount
+Local: Field: snf12: Set As:$cwcaption3item:ledger:$GrpName ;  ;;#dspvchledaccount
+
+[#Collection: Vouchers of Group]
+add:filter: cwcaption1agentgrvchfilter,cwcaptionsalesman2vchfilter,cwareagrvchfilter
+
+
+[System: Formula]
+cwcaption1agentgrvchfilter:if $$issysname:##str1 then yes else @@cwagentgrvch =##str1
+cwagentgrvch:$cwcaption1item:ledger:$GrpName
+
+cwcaptionsalesman2vchfilter:if $$issysname:##str2 then yes else @@cwsalesmangrvch =##str2
+cwsalesmangrvch:$cwcaption2item:ledger:$GrpName
+
+
+cwareagrvchfilter:if $$issysname:##str3 then yes else @@cwareagrvch =##str3
+cwareagrvch:$cwcaption3item:ledger:$GrpName
+
+;;===================================
+
+[#REPORT: Group Vouchers]
+variable:str1,str2,str3
+set:str1:""
+set:str2:""
+set:str3:""
+
+[#form: Group Vouchers]
+ add:button:deliverybottonx
+ 
+[button:deliverybottonx]
+ key:alt+f7
+ title:"Filter"
+ 
+ Action : Modify Variables:deliveryrepx
+
+ [report:deliveryrepx]
+ form:deliveryformx
+
+ [form:deliveryformx]
+ part:deliverypartx
+
+ HEIGHT:40  ;;% PAGE
+ WIDTH:30  ;;% PAGE
+
+ [part:deliverypartx]
+ line:titlelinex,cwcapline1x,cwcapline2x,cwcapline3x
+
+
+ [line:cwcapline1x]
+ field:sp,nf
+
+ Local: Field: nf:modifies:str1
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+
+Local: Field: sp: Set As:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+Local: Field: nf: Set As:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY
+
+
+Local: field: sp: Width:28
+space top:0.5
+
+Local:Field:nf:table:cwcaption1tableundercc,Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+
+Local: Field:nf:Table : cwcaption1tableundersc, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:Table : cwcaption1tableunderled, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:nf:option:optcc:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf:option:optsc:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:option:optled:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+[line:cwcapline2x]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption2:COMPANY:##SVCURRENTCOMPANY
+Local: Field: nf: Set As:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY
+;;remove if :$$isempty:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+Local: field: sp: Width:28
+space top:0.5
+ Local: Field: nf:modifies:str2
+ Local: Field: sp: Style: Normal Bold
+ 
+Local:Field:nf:table:cwcaption2tableundercc,Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+
+Local: Field:nf:Table      : cwcaption2tableundersc, Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:Table      : cwcaption2tableunderled, Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:nf:option:optcc:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf:option:optsc:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:option:optled:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+
+[line:cwcapline3x]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+local: field: sp: type: String:forced
+
+;;remove if :$$isempty:$cwcaption2:COMPANY:##SVCURRENTCOMPANY
+ Local: Field: sp: Style: Normal Bold
+Local: field: sp: Width:28
+space top:0.5
+
+ Local: Field: nf:modifies:str3
+Local:Field:nf:table:cwcaption3tableundercc,Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+Local: Field:nf:Table      : cwcaption3tableundersc, Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:Table      : cwcaption3tableunderled, Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:nf:option:optcc:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf:option:optsc:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:option:optled:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+

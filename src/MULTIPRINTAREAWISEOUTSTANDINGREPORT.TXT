@@ -1,0 +1,68 @@
+; Created By: Khokan on 2021-09-06 17:37, ID: 
+
+     [#menu: Gateway of Tally]
+;; {06.Sep.21 19:31}         add: Option: multiprintAREAWISEOutstandingReportLock ;; : @@multiprintAREAWISEOutstandingReportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@multiprintAREAWISEOutstandingReportReport: Display: RepmultiprintAREAWISEOutstandingReport
+
+
+
+     [!menu: multiprintAREAWISEOutstandingReportLock]
+        add: Item: before: @@locQuit: @@multiprintAREAWISEOutstandingReportReport: print Collection: collRepmultiprintAREAWISEOutstandingReport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   multiprintAREAWISEOutstandingReportReport:@@cwcaption3tableundernew+" "+"wise O/S Statement"
+;; multiprintAREAWISEOutstandingReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+
+  [Collection: collRepmultiprintAREAWISEOutstandingReport]
+  
+
+   Use         		: Extract Alias Collection
+   Source	Collection	: List of Cost Centres
+    Title       		: $$LocaleString:"List of Cost Centres"
+    Format      		: $CstCatName
+    Filter      		: CostCentreFilter
+    Report      		:RepmultiprintAREAWISEOutstandingReport
+    Variable    		: SCostCentre
+    Trigger     		: SCostCentrex
+    
+    
+
+
+     
+    [Report: RepmultiprintAREAWISEOutstandingReport]
+    use:RepmultiprintAGENTWISEOutstandingReport
+
+   delete:Title: @@multiprintAGENTWISEOutstandingReportReport
+   delete:Printset: Report Title: @@multiprintAGENTWISEOutstandingReportReport
+
+   add:Title: @@multiprintAREAWISEOutstandingReportReport
+   add:Printset: Report Title: @@multiprintAREAWISEOutstandingReportReport
+
+
+ local:part: multiprintAGENTWISEOutstandingReportTitlePart:local:line:DSPCompanyName:Local: Field:nf:set as:@@multiprintAREAWISEOutstandingReportReport
+ local:part: PrtTitle0multiprintAGENTWISEOutstandingReport:local:line:DSPCompanyName:Local: Field:nf:set as:@@multiprintAREAWISEOutstandingReportReport
+
+ local:Collection: ColmultiprintAGENTWISEOutstandingReport:delete:filter:cwnotcloingbalancemultiprint
+ local:Collection: ColmultiprintAGENTWISEOutstandingReport:add:filter:cwnotcloingbalancemultiprintitem3
+
+ local:Collection: ColmultiprintAGENTWISEOutstandingReporta:delete:filter:ColmultiprintAGENTWISEOutstandingReportFilterdr
+ local:Collection: ColmultiprintAGENTWISEOutstandingReportb:delete:filter:ColmultiprintAGENTWISEOutstandingReportFiltercr
+
+ local:Collection: ColmultiprintAGENTWISEOutstandingReporta:add:filter:Colmultiprintareafiltermp
+ local:Collection: ColmultiprintAGENTWISEOutstandingReportb:add:filter:ColmultiprintAGENTWISEOutstandingReportFilterdritem3x
+
+ local:part:multiagentpart:local:line:multiprintAGENTline:Local: Field: fwf: Set As:##SCostCentre
+
+ [System: Formula]
+ cwnotcloingbalancemultiprintitem3:##SCostCentre=$cwcaption3item and (not $$isempty:$OnAccountValue or not $$isempty:$closingbalance)
+
+ Colmultiprintareafiltermp:if $cwcaption3item:ledger:$parent=##SCostCentre then $$isdr:$closingbalance else no
+
+ ColmultiprintAGENTWISEOutstandingReportFilterdritem3x:if $cwcaption3item:ledger:$parent=##SCostCentre then not $$isdr:$closingbalance else no
+
+

@@ -1,0 +1,233 @@
+; Created By: Khokan on 2021-04-12 12:43, ID: 
+
+[#Form: SV Print Config]
+
+[#Form: VCHPRN Sales]
+;; {29.Apr.22 18:04}  add : option : myButtons: @@MinuSareeEnabled and @@issales
+;; {17.Aug.21 19:25}  add : option : myButtons2: @@MinuSareeEnabled and @@IsCreditNote
+
+ [!form : mybuttons2]
+  add : bottom button : at beginning : cwNormalInvoice ;;,cwSc,cwDC
+
+ [!form : mybuttons]
+  add : bottom button : at beginning : cwNormalInvoice,cwSc,cwDC
+
+ [button : cwNormalInvoice]
+ title : @@CWNORMALz
+ ;;action list : setni,unsetsc,unsetdc
+ ACTION : SET : SASimple : YES
+ action : set : Prntype : @@CWNORMALz
+
+ key : alt + 1
+
+
+ [button : cwSC]
+  title : @@cwBL1
+
+ key : alt + 2
+ action : set  : Prntype : @@cwBL1
+
+ [button : cwDC]
+ title : @@cwBL2
+ ;;action list : setdc,unsetni,unsetsc
+ key : alt + 3
+ action : set : prntype : @@cwBL2
+
+
+
+
+ [VARIABLE : PRNTYPE]
+      TYPE : STRING
+ PERSISTENT : YES
+   DEFAULT : "Normal Invoice"
+
+   [system : variables]
+   PRNTYPE : "Normal Invoice"
+
+   [SYSTEM : FORMULA]
+ CWNORMALz : "Normal Invoice"
+     CWBL1 : "Packing Slip"
+     cwbl2 :"F/N"
+     
+ [System: Formula]
+     cwNormalInvoicenew:##PRNTYPE = @@CWNORMALz
+     cwcustomization:##PRNTYPE = @@CWBL1  ;;Packing Slip"
+     cwtransport:##PRNTYPE = @@cwbl2  ;;"F/N"
+
+     [System: Formula]
+     cwNormalInvoicenew:##PRNTYPE = @@CWNORMALz
+     cwcustomization:##PRNTYPE = @@CWBL1  ;;Packing Slip"
+     cwtransport:##PRNTYPE = @@cwbl2   ;;"F/N"
+
+
+;;======================================================
+
+
+[#Collection: Sales VoucherDetails]
+
+
+add:object:SAModeTermsnew
+
+[Object: SAModeTermsnew]
+
+Use      : Vch Output Configuration
+Name	:@@SAModeTermsnew
+Value	: ##SAModeTermsnew
+
+Action	: ConfigAction :  Set: SAModeTermsnew : NOT ##SAModeTermsnew
+
+
+	
+[variable:SAModeTermsnew]
+Persistent  : Yes
+Type        : Logical
+
+[System: Variables]
+SAModeTermsnew:no
+
+[System: Formula]
+SAModeTermsnew:"Show Mode/Terms of Payment"
+
+
+;;======================================================
+
+
+
+[#Part: EXPINV DueDate]
+ add:option:cwEXPINVDueDateopt:@@issales and NOT ##SAModeTermsnew
+ [!part:cwEXPINVDueDateopt]
+Local       : Field : EXPINV SubTitle : Info    : $$LocaleString:"" ;;"Mode/Terms of Payment"
+
+ [#Line: EXPINV DueDate]
+  add:option:cwEXPINVDueDatelineopt:@@issales and NOT ##SAModeTermsnew
+ [!line:cwEXPINVDueDatelineopt]
+ Local   : Field : Name Field : Set as :""   ;; $BasicDueDateOfPymt
+
+
+[#Part: EXPINV TopRight]
+ add:option:cwTopRightToprightopt:@@issales and @@MinuSareeEnabled
+ [!part:cwTopRightToprightopt]
+ADD:PART:cwdelieveredfromPART
+
+[PART:cwdelieveredfromPART]
+Line:cwdelieveredfromline1,cwdelieveredfromline2
+[Line:cwdelieveredfromline1]
+				
+ Field	: NF
+ Local   : Field : NF: Set as	: if $$isempty:$cwDelieveredFrom then "" else "Delievered From"
+ ;;BORDER:THIN TOP
+  Local: Field: nf: Style: small
+ ;; removeif :$$isempty:$cwDelieveredFrom
+  
+ [Line:cwdelieveredfromline2]
+ Field	: NF
+ Local: Field: nf: SET AS:$cwDelieveredFrom
+ Local: field: NF: Width:40
+ Local: Field: nf: Style: small Bold
+Local : field :nf: Lines : 0
+    ;;removeif :$$isempty:$cwDelieveredFrom
+
+   ;;SURAT: SHREE SMBSJI TEXTILES 24ACSPC0722G1ZZ
+            /*
+ [#Part: EXPINV SaleTopLeft]
+ 
+ add:option:cwexpSaleTopLeftopt:@@issales and @@MinuSareeEnabled
+ [!part:cwexpSaleTopLeftopt]
+ 
+ delete:Part:EXPINV Consignee, EXPINV Buyer, EXPINV Contact
+ add:Part:EXPINV Buyer, EXPINV Consignee, EXPINV Contact
+ 
+ [#Part: EXPINV SalesTopLeftWithLogo]
+ add:option:cwexpSaleTopLeftopt:@@issales and @@MinuSareeEnabled
+          */
+ [#Part: EXPINV Destination]
+ add:option:cwexpDestinationopt:@@issales and @@MinuSareeEnabled
+ [!part:cwexpDestinationopt]
+ Local       : Field : EXPINV SubTitle : Info : $$LocaleString:"Destination / Book To"
+  
+ [#Line: EXPINV Destination]
+;; {05.Apr.22 14:57}   add:option:cwexpDestinationlineopt:@@issales and @@MinuSareeEnabled
+;; {05.Apr.22 14:57}  [!line:cwexpDestinationlineopt]
+;; {05.Apr.22 14:57}  Local   : Field : Name Field : Set as : if $$isempty:$cwmsBuyerCity then $cwledcity:ledger:$BASICBUYERNAME else $cwmsBuyerCity
+ 
+ 
+ [#Part: EXPINV BasicLeft]
+  add:option:cwexpBasicLeftopt:@@issales and @@MinuSareeEnabled
+ [!part:cwexpBasicLeftopt]
+ add:part:cwnofobales
+ 
+ [part:cwnofobales]
+  Lines       : EXPINV SubTitle
+  BottomLines : EXPINVnoofbale
+  Local       : Field : EXPINV SubTitle : Info    : $$LocaleString:"No. of Bales"
+  Local       : Field : EXPINV SubTitle : Width   : 25% Page
+					Local       : Field : EXPINV SubTitle : Cells   : ($$Quotient:@@ExcelCellColumn:4)
+  Height      : 9 mms
+  Border      : Full Thin Bottom
+     
+  [line:EXPINVnoofbale]
+  field:name field
+  Local: Field: name field: Set As:$cwnofobales
+  Local   : Field : Name Field : Width  : 25% Page
+  Local: Field: default: Style: Normal Bold
+   
+  [#Part: EXPINV Basicright]
+  add:option:cwexpBasicrightopt:@@issales and @@MinuSareeEnabled
+  [!part:cwexpBasicrightopt]
+  add:part:trspart
+
+ [part:trspart]
+  Lines       : EXPINV SubTitle
+  BottomLines : EXPINVtrspart
+  Local       : Field : EXPINV SubTitle : Info    : $$LocaleString:"Transporter Name"
+  Local       : Field : EXPINV SubTitle : Width   : 25% Page
+  Local       : Field : EXPINV SubTitle : Cells   : ($$Quotient:@@ExcelCellColumn:4)
+  Height      : 9 mms
+  Border      : Full Thin Bottom
+
+  [line:EXPINVtrspart]
+  field:name field
+   Local: Field: name field: Set As:$cwtempGSTewayTransporterName
+   
+   Local   : Field : Name Field : Width  : 25% Page
+  Local: Field: default: Style: Normal Bold
+  
+  
+  [#Field: EXPINV Desc]
+    add:option:cwexpdescopt:(@@issales or @@isCreditNote )and @@MinuSareeEnabled
+  [!field:cwexpdescopt]
+    FullWidth   : Yes
+    Width       : 0
+    Lines       : 0
+    Set as      :if $$isempty:$cwminuitem then $stockitemname else $cwminuitem
+    
+
+
+   [#Field: EXPINV AccRate]
+   add:option:cwexpaccrateopt:@@issales and @@MinuSareeEnabled
+   [!field:cwexpaccrateopt]
+   
+    Use         : Rate Price Field
+    Type        : Number
+    Align       : Right
+    Format      : "NoZero,Decimals:-1"
+    Style       : Normal Italic
+  Set as	:if $cwdiscpernew:ledger:$ledgername="yes" then "" else (If @@IsTaxHeadSecEdCess then $$AsAmount:$$GETSTXRates:"SecondaryCessRate":"SerLedger" else IF @@IsTaxHeadEdCess then $$AsAmount:$$GETSTXRates:"CessRate":"SerLedger" else  If @@IsTaxHeadServiceTax then $$AsAmount:$$GETSTXRates:"ServiceTaxRate":"SerLedger" else +
+				  If @@IsSBCTaxTypeLedger then @@STSBCRateInPrint else If @@IsKKCTaxTypeLedger then @@STKKCRateInPrint else if ##SATCSDetails AND @@TaxLedgerHasTCS AND NOT $$IsSysName:$TDSRateName:Ledger:$LedgerName then @@TCSITTaxRate else +
+				  $BasicRateOfInvoiceTax)
+				  
+				  
+				  
+				  
+				  
+ [#Field: EXPINV AccRatePer]
+ add:option:cwexpaccratepercopt:@@issales and @@MinuSareeEnabled
+  [!field:cwexpaccratepercopt]
+    Use         : Rate Units Field
+    Type        : String
+    Align       : Left
+    Style       : Normal Italic
+    Border      : Thin Left
+ Set as		:if $cwdiscpernew:ledger:$ledgername="yes" then "" else ( If ((@@IsTaxHeadSecEdCess OR @@IsTaxHeadEdCess OR @@IsTaxHeadServiceTax OR @@IsSBCTaxTypeLedger OR @@IsKKCTaxTypeLedger) AND ##vcatfound) then "%" else if $$IsEmpty:$BasicRateOfInvoiceTax then "" +
+				  else If @@IsGSTCessOnQtyLed Then "Unit" Else "%")
+				

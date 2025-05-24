@@ -1,0 +1,247 @@
+; Created By: Khokan on 2021-08-30 18:36, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: multiprintAGENTWISEOutstandingReport2Lock ;; : @@multiprintAGENTWISEOutstandingReport2DemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@multiprintAGENTWISEOutstandingReport2Report: Display: RepmultiprintAGENTWISEOutstandingReport2
+
+
+
+     [!menu: multiprintAGENTWISEOutstandingReport2Lock]
+        add: Item: before: @@locQuit: @@multiprintAGENTWISEOutstandingReport2Report: Display: RepmultiprintAGENTWISEOutstandingReport2
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   multiprintAGENTWISEOutstandingReport2Report: "Multi print AGENT WISE OutstandingReport2"
+;; multiprintAGENTWISEOutstandingReport2DemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepmultiprintAGENTWISEOutstandingReport2]
+        use: Dsp Template
+      Title: @@multiprintAGENTWISEOutstandingReport2Report
+   Printset: Report Title: @@multiprintAGENTWISEOutstandingReport2Report
+       Form: FrmmultiprintAGENTWISEOutstandingReport2
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmmultiprintAGENTWISEOutstandingReport2]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0multiprintAGENTWISEOutstandingReport2,PrtmultiprintAGENTWISEOutstandingReport2
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: multiprintAGENTWISEOutstandingReport2botbrk,multiprintAGENTWISEOutstandingReport2botOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: multiprintAGENTWISEOutstandingReport2botBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: multiprintAGENTWISEOutstandingReport2botopbrk]
+        use: dspacctitles
+  add: part: multiprintAGENTWISEOutstandingReport2TitlePart
+
+      [part: multiprintAGENTWISEOutstandingReport2TitlePart]
+       line: LnmultiprintAGENTWISEOutstandingReport2Title
+       
+      [line: LnmultiprintAGENTWISEOutstandingReport2CurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0multiprintAGENTWISEOutstandingReport2]
+      line : LnmultiprintAGENTWISEOutstandingReport2CurrPeriod
+      
+      [Part: PrtmultiprintAGENTWISEOutstandingReport2]
+      Part: PrtmultiprintAGENTWISEOutstandingReport2A
+      Part: PrtmultiprintAGENTWISEOutstandingReport2B
+
+      [Part: PrtmultiprintAGENTWISEOutstandingReport2A]
+       Line: LnmultiprintAGENTWISEOutstandingReport2Title,LnmultiprintAGENTWISEOutstandingReport2
+bottom Line: LnmultiprintAGENTWISEOutstandingReport2Totals
+     repeat: LnmultiprintAGENTWISEOutstandingReport2: ColmultiprintAGENTWISEOutstandingReport2X
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColmultiprintAGENTWISEOutstandingReport2X]
+TYPE:LEDGER
+child of:$$Groupsundrydebtors
+filter:ColmultiprintAGENTWISEOutstandingReport2FilterBnew
+
+
+[Collection: ColmultiprintAGENTWISEOutstandingReport2]
+   TYPE:BILLS
+   SORT:@@DEFAULT:$PARENT
+   
+  FILTER:ColmultiprintAGENTWISEOutstandingReport2Filter,ColmultiprintAGENTWISEOutstandingReport2FilterB2
+
+    [system: Formula]
+ColmultiprintAGENTWISEOutstandingReport2Filter:$$ISDR:$CLOSINGBALANCE
+;; {30.Aug.21 19:24} ColmultiprintAGENTWISEOutstandingReport2FilterB2:#nf2=$parent
+
+      [Line: LnmultiprintAGENTWISEOutstandingReport2Title]
+        use: LnmultiprintAGENTWISEOutstandingReport2
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+
+local:field: amtf: set as: "DR. Value"
+local:field: amtf2: set as: "CR. Value"
+
+      local: field: default : style: normal bold
+
+      [Line: LnmultiprintAGENTWISEOutstandingReport2]
+     Fields: sdf,nf,fwf
+right field:Amtf,nf2 ;,AMTF2
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local : field : sdf : set as : $BILLdate
+ local : field : NF : set as : $NAME
+ local : field : NF2 : set as : $NAME
+ local : field : FWF : set as : $PARENT
+ local : field : AMTF : set as : $CLOSINGBALANCE
+ local : field : AMTF2 : set as : $CLOSINGBALANCE
+ Local: field: AMTF: Format: "DR,CR"
+ Local: field: AMTF2: Format: "DR,CR"
+ local: field: nf2: Invisible: yes
+ next page : yes
+ 
+  EXPLODE:LEDGERCREXP1
+
+ [PART:LEDGERCREXP1]
+ LINE:LEDGERCREXP1
+ repeat: LEDGERCREXP1: ColmultiprintAGENTWISEOutstandingReport2
+
+ [LINE:LEDGERCREXP1]
+ use: LnmultiprintAGENTWISEOutstandingReport2
+DELETE:EXPLODE
+
+local : field : sdf : set as : $BILLdate
+ local : field : NF : set as : $NAME
+ local : field : NF2 : set as : $$prevline
+ local : field : FWF : set as : $PARENT
+ local : field : AMTF : set as : $CLOSINGBALANCE
+ local : field : AMTF2 : set as : $CLOSINGBALANCE
+;; {30.Aug.21 19:39}   next page : yes
+
+
+      [line: LnmultiprintAGENTWISEOutstandingReport2Totals]
+        use: LnmultiprintAGENTWISEOutstandingReport2
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      
+      
+      
+       [Part: PrtmultiprintAGENTWISEOutstandingReport2B]
+       Line: LnmultiprintAGENTWISEOutstandingReport2TitleB,LnmultiprintAGENTWISEOutstandingReport2B
+bottom Line: LnmultiprintAGENTWISEOutstandingReport2TotalsB
+     repeat: LnmultiprintAGENTWISEOutstandingReport2B: ColmultiprintAGENTWISEOutstandingReport2BX
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+      BORDER:THIN LEFT
+
+
+     [Collection: ColmultiprintAGENTWISEOutstandingReport2BX]
+TYPE:LEDGER
+child of:$$Groupsundrydebtors
+filter:ColmultiprintAGENTWISEOutstandingReport2FilterBnew
+
+[Collection: ColmultiprintAGENTWISEOutstandingReport2B]
+
+   TYPE:BILLS
+   SORT:@@DEFAULT:$PARENT
+   FILTER:ColmultiprintAGENTWISEOutstandingReport2FilterB,ColmultiprintAGENTWISEOutstandingReport2FilterB2
+
+    [system: Formula]
+ColmultiprintAGENTWISEOutstandingReport2FilterBnew:not $$ISempty:$CLOSINGBALANCE and $cwcaption1item="MAHESH MODI,BIS"
+ColmultiprintAGENTWISEOutstandingReport2FilterB:NOT $$ISDR:$CLOSINGBALANCE
+ColmultiprintAGENTWISEOutstandingReport2FilterB2:#nf2=$parent
+
+      [Line: LnmultiprintAGENTWISEOutstandingReport2TitleB]
+        use: LnmultiprintAGENTWISEOutstandingReport2B
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+
+local:field: amtf: set as: "DR. Value"
+local:field: amtf2: set as: "CR. Value"
+
+      local: field: default : style: normal bold
+
+      [Line: LnmultiprintAGENTWISEOutstandingReport2B]
+     Fields: sdf,nf,fwf,nf2
+right field:Amtf2 ;,AMTF2
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local : field : sdf : set as : $BILLdate
+ local : field : NF : set as : $NAME
+ local : field : NF2 : set as : $NAME
+ local : field : FWF : set as : $PARENT
+ local : field : AMTF : set as : $CLOSINGBALANCE
+ local : field : AMTF2 : set as : $CLOSINGBALANCE
+ Local: field: AMTF: Format: "DR,CR"
+ Local: field: AMTF2: Format: "DR,CR"
+ local: field: nf2: Invisible: yes
+ next page : yes
+ EXPLODE:LEDGERCREXP
+ 
+ [PART:LEDGERCREXP]
+ LINE:LEDGERCREXP
+ repeat: LEDGERCREXP: ColmultiprintAGENTWISEOutstandingReport2B
+ 
+ [LINE:LEDGERCREXP]
+ use: LnmultiprintAGENTWISEOutstandingReport2B
+DELETE:EXPLODE
+
+local : field : sdf : set as : $BILLdate
+ local : field : NF : set as : $NAME
+ local : field : NF2 : set as : $$prevline
+ local : field : FWF : set as : $PARENT
+ local : field : AMTF : set as : $CLOSINGBALANCE
+ local : field : AMTF2 : set as : $CLOSINGBALANCE
+;; {30.Aug.21 19:40}       next page : yes
+
+[line: LnmultiprintAGENTWISEOutstandingReport2TotalsB]
+use: LnmultiprintAGENTWISEOutstandingReport2B
+option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

@@ -1,0 +1,736 @@
+; Created By: Khokan on 2021-02-09 10:33, ID: 
+
+[#Part: MST LED Explode Sundry]
+add:option:cwMSTLEDDetailsoptnew:@@MinuSareeEnabled
+[!part:cwMSTLEDDetailsoptnew]
+add:line:msdiscline,cwTransporternameLEDline
+[line:msdiscline]
+field:long prompt,numf
+Local: Field: long prompt: Set As:"Discount %"
+Local: Field:numf: storage:cwdiscper
+Local: Field: numf: Style: Normal Bold
+Local: field: numf: Align:left
+Local: field:numf: Format: "percentage"
+
+
+ [Line:cwTransporternameLEDline]
+				
+ Field	: Medium Prompt,nf
+ Local   : Field : Medium Prompt     : Set as	: $$LocaleString:"Transporter Name"
+ Local: Field: nf: storage:cwtempGSTewayTransporterName
+
+ Local: Field: nf: Style: Normal Bold
+ Local: Field: nf: table:collTransporternled,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+
+ [Collection: collTransporternled]
+  type:ledger
+  title:"List of Transporter Name"
+  child of:"Transporter"
+
+
+
+;;==================================================
+
+[#Part: MST LED Explode IndirExp]
+[#Part:MST LED Explode Sales]
+add:option:cwMSTLEDDetailsoptnewopt:@@MinuSareeEnabled
+[!part:cwMSTLEDDetailsoptnewopt]
+add:line:enabledisline,enableProductdisline,enablevchlevline
+
+[line:enabledisline]
+field:long prompt,cwlogical
+Local: Field: long prompt: Set As:"Use for Partywise Discount:"
+Local: Field:cwlogical: storage:cwdiscpernew
+Local: Field: default: Style: Normal Bold
+
+ [line:enableProductdisline]
+field:long prompt,cwlogical
+Local: Field: long prompt: Set As:"Use for Productwise Discount:"
+Local: Field:cwlogical: storage:cwproductdiscpernew
+Local: Field: default: Style: Normal Bold
+
+
+
+ [line:enablevchlevline]
+field:long prompt,cwlogical
+Local: Field: long prompt: Set As:"Use for Vch Level Discount (Qty X Rate):"
+Local: Field:cwlogical: storage:cwuseforvchlevdisc
+Local: Field: default: Style: Normal Bold
+
+;;vch type System date :mach.dt.
+
+
+;;==============================================================================
+ [#Part: LED Mailing Address]
+ add:option:cwLEDMailingAddressnew:@@MinuSareeEnabled
+[!part:cwLEDMailingAddressnew]
+	
+ add:BottomLine:after:LEDState:ledcityline
+ 
+ [line:ledcityline]
+ Fields : Medium Prompt,snf
+ Local : Field : Medium Prompt	: Set as : $$LocaleString:"City"
+ Local: Field: snf: storage:cwledcity
+ Local: Field: snf: Style: Normal Bold
+ 
+;; {27.Aug.21 17:56}  Local: Field: snf: table:collcwledcity ,Not Applicable
+;; {27.Aug.21 17:56}  Local: Field: snf: Show table: Always
+;; {27.Aug.21 17:56}  Local: Field: snf:dynamic:""
+ 
+;; {27.Aug.21 17:56}  [Collection: collcwledcity]
+;; {27.Aug.21 17:56}  type:ledger
+    
+;;=================================
+[#Part: MST LED Details]
+[#Part: MST LED Explode Sundry]
+add:option:cwMSTLEDDetailsopt:@@MinuSareeEnabled
+[!part:cwMSTLEDDetailsopt]
+
+line:itemcaption1,itemcaption2,itemcaption3,itemcaption4,itemcaption5,itemcaption6  ;;,itemcaption7,itemcaption8,itemcaption9,itemcaption10
+
+[line:MachineDetails1]
+field:fwfc
+Local: Field: fwfc:info:"Machine Details"
+Local: Field: fwfc: Border: thin bottom
+Local: Field: fwfc: Style: Normal Bold
+
+[line:itemcaption1]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+;; {31.Jul.21 13:19} Local: Field: nf: Set As:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY
+Local: Field: nf: storage:cwcaption1item
+
+Local: field: sp: Width:28
+space top:0.5
+
+Local:Field:nf:table:cwcaption1tableundercc,Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+
+Local: Field:nf:Table : cwcaption1tableundersc, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:Table : cwcaption1tableunderled, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:nf:option:optcc:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf:option:optsc:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:option:optled:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field: nf: Style: Normal Bold
+
+[!field:optcc]
+ variable:svcost centre
+ key:Create Cost Centre , Alter CstCtr
+
+ [!field:optsc]
+ Keys       : Create Stock Category , Alter StkCat
+ Variable   : SV Stock Category
+
+ [!field:optled]
+  Keys       : Create Ledger , Alter Ledger
+  Variable   : SVLedger
+  
+ [Collection:cwcaption1tableunderled]
+ Type:ledger
+ title:"List of "+@@cwcaption1title
+ child of:@@cwcaption1tableundernew
+
+
+ [Collection:cwcaption1tableundersc]
+ Type: Stock Category
+ title:"List of "+@@cwcaption1title
+ child of:@@cwcaption1tableundernew
+
+ [Collection:cwcaption1tableundercc]
+ Type: Cost Centre
+ title:"List of "+@@cwcaption1title
+ child of:@@cwcaption1tableundernew
+
+ [System: Formula]
+ cwcaption1title:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+ cwcaption1tableundernew:$cwcaption1tableunder:COMPANY:##SVCURRENTCOMPANY
+
+
+[line:itemcaption2]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption2:COMPANY:##SVCURRENTCOMPANY
+;; {31.Jul.21 13:19} Local: Field: nf: Set As:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY
+remove if :$$isempty:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+Local: field: sp: Width:28
+space top:0.5
+Local: Field: nf: storage:cwcaption2item
+
+Local:Field:nf:table:cwcaption2tableundercc,Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+
+Local: Field:nf:Table      : cwcaption2tableundersc, Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:Table      : cwcaption2tableunderled, Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:nf:option:optcc:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf:option:optsc:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:option:optled:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field: nf: Style: Normal Bold
+
+ [Collection:cwcaption2tableunderled]
+ Type:ledger
+ title:"List of "+@@cwcaption2title
+ child of:@@cwcaption2tableundernew
+
+ [Collection:cwcaption2tableundersc]
+ Type: Stock Category
+ title:"List of "+@@cwcaption2title
+ child of:@@cwcaption2tableundernew
+
+ [Collection:cwcaption2tableundercc]
+ Type: Cost Centre
+ title:"List of "+@@cwcaption2title
+ child of:@@cwcaption2tableundernew
+
+ [System: Formula]
+ cwcaption2title:$cwcaption2:COMPANY:##SVCURRENTCOMPANY
+ cwcaption2tableundernew:$cwcaption2tableunder:COMPANY:##SVCURRENTCOMPANY
+
+
+[line:itemcaption3]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+local: field: sp: type: String:forced
+
+remove if :$$isempty:$cwcaption2:COMPANY:##SVCURRENTCOMPANY
+Local: field: sp: Width:28
+space top:0.5
+Local: Field: nf: storage:cwcaption3item
+
+Local:Field:nf:table:cwcaption3tableundercc,Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+Local: Field:nf:Table      : cwcaption3tableundersc, Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:Table      : cwcaption3tableunderled, Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:nf:option:optcc:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf:option:optsc:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:option:optled:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field: nf: Style: Normal Bold
+
+
+
+
+[Collection:cwcaption3tableunderledccc]
+ Type:ledger
+
+ [Collection:cwcaption3tableunderled]
+ Type:ledger
+ title:"List of "+@@cwcaption3title
+ child of:@@cwcaption3tableundernew
+
+ [Collection:cwcaption3tableundersc]
+ Type: Stock Category
+ title:"List of "+@@cwcaption3title
+ child of:@@cwcaption3tableundernew
+
+ [Collection:cwcaption3tableundercc]
+ Type: Cost Centre
+ title:"List of "+@@cwcaption3title
+ child of:@@cwcaption3tableundernew
+
+ [System: Formula]
+ cwcaption3title:$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+ cwcaption3tableundernew:$cwcaption3tableunder:COMPANY:##SVCURRENTCOMPANY
+
+[line:itemcaption4]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption4:COMPANY:##SVCURRENTCOMPANY
+;; {22.Jan.20 14:47} Local: Field: nf: Set As:$caption4table:COMPANY:##SVCURRENTCOMPANY
+remove if :$$isempty:$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+Local: field: sp: Width:28
+space top:0.5
+Local: Field: nf: storage:cwcaption4item
+
+
+
+Local:Field:nf:table:cwcaption4tableundercc,Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+Local: Field:nf:Table      : cwcaption4tableundersc, Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:Table      : cwcaption4tableunderled, Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:nf:option:optcc:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf:option:optsc:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:option:optled:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field: nf: Style: Normal Bold
+
+ [Collection:cwcaption4tableunderled]
+ Type:ledger
+ title:"List of "+@@cwcaption4title
+ child of:@@cwcaption4tableundernew
+
+ [Collection:cwcaption4tableundersc]
+ Type: Stock Category
+ title:"List of "+@@cwcaption4title
+ child of:@@cwcaption4tableundernew
+
+ [Collection:cwcaption4tableundercc]
+ Type: Cost Centre
+ title:"List of "+@@cwcaption4title
+ child of:@@cwcaption4tableundernew
+
+ [System: Formula]
+ cwcaption4title:$cwcaption4:COMPANY:##SVCURRENTCOMPANY
+ cwcaption4tableundernew:$cwcaption4tableunder:COMPANY:##SVCURRENTCOMPANY
+
+[line:itemcaption5]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption5:COMPANY:##SVCURRENTCOMPANY
+
+remove if :$$isempty:$cwcaption4:COMPANY:##SVCURRENTCOMPANY
+Local: field: sp: Width:28
+space top:0.5
+Local: Field: nf: storage:cwcaption5item
+
+Local:Field:nf:table:cwcaption5tableundercc,Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+;; {21.Jan.20 16:49} local:field:nf:variable:svcost centre
+;; {21.Jan.20 16:49} local:field:nf:key:Create Cost Centre, Alter CstCtr
+
+
+Local: Field:nf:Table      : cwcaption5tableundersc, Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+;; {21.Jan.20 16:49} Local: Field:nf:Keys       : Create Stock Category, Alter StkCat
+;; {21.Jan.20 16:49} Local: Field:nf:Variable   : SV Stock Category
+
+
+Local: Field:nf:Table      : cwcaption5tableunderled, Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="ledger"
+;; {21.Jan.20 16:49} Local: Field:nf:Keys       : Create Ledger, Alter Ledger
+;; {21.Jan.20 16:49} Local: Field:nf:Variable   : SVLedger
+
+Local: Field:nf:option:optcc:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf:option:optsc:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:option:optled:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field: nf: Style: Normal Bold
+
+ [Collection:cwcaption5tableunderled]
+ Type:ledger
+ title:"List of "+@@cwcaption5title
+ child of:@@cwcaption5tableundernew
+
+ [Collection:cwcaption5tableundersc]
+ Type: Stock Category
+ title:"List of "+@@cwcaption5title
+ child of:@@cwcaption5tableundernew
+
+ [Collection:cwcaption5tableundercc]
+ Type: Cost Centre
+ title:"List of "+@@cwcaption5title
+ child of:@@cwcaption5tableundernew
+
+ [System: Formula]
+ cwcaption5title:$cwcaption5:COMPANY:##SVCURRENTCOMPANY
+ cwcaption5tableundernew:$cwcaption5tableunder:COMPANY:##SVCURRENTCOMPANY
+
+[line:itemcaption6]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption6:COMPANY:##SVCURRENTCOMPANY
+
+remove if :$$isempty:$cwcaption5:COMPANY:##SVCURRENTCOMPANY
+Local: field: sp: Width:28
+space top:0.5
+Local: Field: nf: storage:cwcaption6item
+
+Local:Field:nf:table:cwcaption6tableundercc,Not Applicable:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+Local: Field:nf:Table      : cwcaption6tableundersc, Not Applicable:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+
+Local: Field:nf:Table      : cwcaption6tableunderled, Not Applicable:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field:nf:option:optcc:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf:option:optsc:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:option:optled:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field: nf: Style: Normal Bold
+
+ [Collection:cwcaption6tableunderled]
+ Type:ledger
+ title:"List of "+@@cwcaption6title
+ child of:@@cwcaption6tableundernew
+
+ [Collection:cwcaption6tableundersc]
+ Type: Stock Category
+ title:"List of "+@@cwcaption6title
+ child of:@@cwcaption6tableundernew
+
+ [Collection:cwcaption6tableundercc]
+ Type: Cost Centre
+ title:"List of "+@@cwcaption6title
+ child of:@@cwcaption6tableundernew
+
+ [System: Formula]
+ cwcaption6title:$cwcaption6:COMPANY:##SVCURRENTCOMPANY
+ cwcaption6tableundernew:$cwcaption6tableunder:COMPANY:##SVCURRENTCOMPANY
+
+[line:itemcaption7]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption7:COMPANY:##SVCURRENTCOMPANY
+
+remove if :$$isempty:$cwcaption6:COMPANY:##SVCURRENTCOMPANY
+Local: field: sp: Width:28
+space top:0.5
+Local:Field:nf:table:cwcaption7tableundercc,Not Applicable:$cwcaption7table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+local:field:nf:variable:svcost centre
+;; {21.Jan.20 16:49} local:field:nf:key:Create Cost Centre, Alter CstCtr
+Local: Field: nf: storage:cwcaption7item
+
+Local: Field:nf:Table      : cwcaption7tableundersc, Not Applicable:$cwcaption7table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+;; {21.Jan.20 16:49} Local: Field:nf:Keys       : Create Stock Category, Alter StkCat
+;; {21.Jan.20 16:49} Local: Field:nf:Variable   : SV Stock Category
+
+
+Local: Field:nf:Table      : cwcaption7tableunderled, Not Applicable:$cwcaption7table:COMPANY:##SVCURRENTCOMPANY="ledger"
+;; {21.Jan.20 16:49} Local: Field:nf:Keys       : Create Ledger, Alter Ledger
+;; {21.Jan.20 16:49} Local: Field:nf:Variable   : SVLedger
+
+Local: Field:nf:option:optcc:$cwcaption7table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf:option:optsc:$cwcaption7table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:option:optled:$cwcaption7table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+ [Collection:cwcaption7tableunderled]
+ Type:ledger
+ title:"List of "+@@cwcaption7title
+ child of:@@cwcaption7tableundernew
+
+ [Collection:cwcaption7tableundersc]
+ Type: Stock Category
+ title:"List of "+@@cwcaption7title
+ child of:@@cwcaption7tableundernew
+
+ [Collection:cwcaption7tableundercc]
+ Type: Cost Centre
+ title:"List of "+@@cwcaption7title
+ child of:@@cwcaption7tableundernew
+
+ [System: Formula]
+ cwcaption7title:$cwcaption7:COMPANY:##SVCURRENTCOMPANY
+ cwcaption7tableundernew:$cwcaption7tableunder:COMPANY:##SVCURRENTCOMPANY
+
+[line:itemcaption8]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption8:COMPANY:##SVCURRENTCOMPANY
+
+remove if :$$isempty:$cwcaption7:COMPANY:##SVCURRENTCOMPANY
+Local: field: sp: Width:28
+space top:0.5
+
+Local:Field:nf:table:cwcaption8tableundercc,Not Applicable:$cwcaption8table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+;; {21.Jan.20 16:50} local:field:nf:variable:svcost centre
+;; {21.Jan.20 16:50} local:field:nf:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: nf: storage:cwcaption8item
+Local: Field:nf:Table      : cwcaption8tableundersc, Not Applicable:$cwcaption8table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+
+Local: Field:nf:Table      : cwcaption8tableunderled, Not Applicable:$cwcaption8table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:nf:option:optcc:$cwcaption8table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf:option:optsc:$cwcaption8table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:option:optled:$cwcaption8table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+ [Collection:cwcaption8tableunderled]
+ Type:ledger
+ title:"List of "+@@cwcaption8title
+ child of:@@cwcaption8tableundernew
+
+ [Collection:cwcaption8tableundersc]
+ Type: Stock Category
+ title:"List of "+@@cwcaption8title
+ child of:@@cwcaption8tableundernew
+
+ [Collection:cwcaption8tableundercc]
+ Type: Cost Centre
+ title:"List of "+@@cwcaption8title
+ child of:@@cwcaption8tableundernew
+
+ [System: Formula]
+ cwcaption8title:$cwcaption8:COMPANY:##SVCURRENTCOMPANY
+ cwcaption8tableundernew:$cwcaption8tableunder:COMPANY:##SVCURRENTCOMPANY
+
+
+
+[line:itemcaption9]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption9:COMPANY:##SVCURRENTCOMPANY
+
+remove if :$$isempty:$cwcaption8:COMPANY:##SVCURRENTCOMPANY
+Local: field: sp: Width:28
+space top:0.5
+Local: Field: nf: storage:cwcaption9item
+Local: Field:nf: table:cwcaption9tableundercc,Not Applicable:$cwcaption9table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf: Show table: Always
+;; {21.Jan.20 16:58} local:field:nf:variable:svcost centre
+;; {21.Jan.20 16:58} local:field:nf:key:Create Cost Centre, Alter CstCtr
+
+
+Local: Field:nf:Table      : cwcaption9tableundersc, Not Applicable:$cwcaption9table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+;; {21.Jan.20 16:58} Local: Field:nf:Keys       : Create Stock Category, Alter StkCat
+;; {21.Jan.20 16:58} Local: Field:nf:Variable   : SV Stock Category
+
+Local: Field:nf:Table      : cwcaption9tableunderled, Not Applicable:$cwcaption9table:COMPANY:##SVCURRENTCOMPANY="ledger"
+;; {21.Jan.20 16:58} Local: Field:nf:Keys       : Create Ledger, Alter Ledger
+;; {21.Jan.20 16:58} Local: Field:nf:Variable   : SVLedger
+
+Local: Field:nf:option:optcc:$cwcaption9table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf:option:optsc:$cwcaption9table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:option:optled:$cwcaption9table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+ [Collection:cwcaption9tableunderled]
+ Type:ledger
+ title:"List of "+@@cwcaption9title
+ child of:@@cwcaption9tableundernew
+
+ [Collection:cwcaption9tableundersc]
+ Type: Stock Category
+ title:"List of "+@@cwcaption9title
+ child of:@@cwcaption9tableundernew
+
+ [Collection:cwcaption9tableundercc]
+ Type: Cost Centre
+ title:"List of "+@@cwcaption9title
+ child of:@@cwcaption9tableundernew
+
+ [System: Formula]
+ cwcaption9tableundernew:$cwcaption9tableunder:COMPANY:##SVCURRENTCOMPANY
+ cwcaption9title:$cwcaption9:COMPANY:##SVCURRENTCOMPANY
+
+[line:itemcaption10]
+field:sp,nf
+Local: Field: sp: Set As:$cwcaption10:COMPANY:##SVCURRENTCOMPANY
+
+remove if :$$isempty:$cwcaption9:COMPANY:##SVCURRENTCOMPANY
+Local: field: sp: Width:28
+space top:0.5
+Local: Field: nf: storage:cwcaption10item
+Local:Field:nf:table:cwcaption10tableundercc,Not Applicable:$cwcaption10table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:nf:Show table: Always
+;; {21.Jan.20 16:50} local:field:nf:variable:svcost centre
+;; {21.Jan.20 16:50} local:field:nf:key:Create Cost Centre, Alter CstCtr
+
+
+Local: Field:nf:Table      : cwcaption10tableundersc, Not Applicable:$cwcaption10table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+;; {21.Jan.20 16:50} Local: Field:nf:Keys       : Create Stock Category, Alter StkCat
+;; {21.Jan.20 16:50} Local: Field:nf:Variable   : SV Stock Category
+
+Local: Field:nf:Table      : cwcaption10tableunderled, Not Applicable:$cwcaption10table:COMPANY:##SVCURRENTCOMPANY="ledger"
+;; {21.Jan.20 16:50} Local: Field:nf:Keys       : Create Ledger, Alter Ledger
+;; {21.Jan.20 16:50} Local: Field:nf:Variable   : SVLedger
+
+
+Local: Field:nf:option:optcc:$cwcaption10table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf:option:optsc:$cwcaption10table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:option:optled:$cwcaption10table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+ [Collection:cwcaption10tableunderled]
+ Type:ledger
+ title:"List of "+@@cwcaption10title
+ child of:@@cwcaption10tableundernew
+
+ [Collection:cwcaption10tableundersc]
+ Type: Stock Category
+ title:"List of "+@@cwcaption10title
+ child of:@@cwcaption10tableundernew
+
+ [Collection:cwcaption10tableundercc]
+ Type: Cost Centre
+ title:"List of "+@@cwcaption10title
+ child of:@@cwcaption10tableundernew
+
+ [System: Formula]
+ cwcaption10title:$cwcaption10:COMPANY:##SVCURRENTCOMPANY
+ cwcaption10tableundernew:$cwcaption10tableunder:COMPANY:##SVCURRENTCOMPANY
+
+
+ ;;==========================================================================================
+
+  [#Line: LEDALLOC CTLineOne]
+  add:option:LEDALLOCCTLineOneopt:@@MinuSareeEnabled
+  [!line:LEDALLOCCTLineOneopt]
+  
+  add : fields :snf,snf2, snf3, snf4, snf5, snf6
+
+Local: Field: snf: Set As:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf2: Set As:$cwcaption2:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf3: Set As:$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf4: Set As:$cwcaption4:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf5: Set As:$cwcaption5:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf6: Set As:$cwcaption6:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf: Skip: Yes
+Local: Field: snf2: Skip: Yes
+Local: Field: snf3: Skip: Yes
+Local: Field: snf4: Skip: Yes
+Local: Field: snf5: Skip: Yes
+Local: Field: snf6: Skip: Yes
+                        /*
+local: field: snf: Invisible:if $$isempty:$cwcaption1item then "yes" else "no"
+local: field: snf2: Invisible:if $$isempty:$cwcaption2item then "yes" else "no"
+local: field: snf3: Invisible:if $$isempty:$cwcaption3item then "yes" else "no"
+local: field: snf4: Invisible:if $$isempty:$cwcaption4item then "yes" else "no"
+local: field: snf5: Invisible:if $$isempty:$cwcaption5item then "yes" else "no"
+local: field: snf6: Invisible:if $$isempty:$cwcaption6item then "yes" else "no"
+                     */
+
+
+  [#Line: LEDALLOC CTLineTwo]
+  add:option:LEDALLOCCTLinetwoopt:@@MinuSareeEnabled
+  [!line:LEDALLOCCTLinetwoopt]
+  
+  add : fields : snf,snf2, snf3, snf4, snf5, snf6
+Local: Field: snf : info:""
+Local: Field: snf1 : info:""
+Local: Field: snf2 : info:""
+Local: Field: snf3 : info:""
+Local: Field: snf4 : info:""
+Local: Field: snf5 : info:""
+Local: Field: snf6 : info:""
+Local: Field: snf7 : info:""
+                                /*
+local: field: snf: Invisible:if $$isempty:$cwcaption1item then "yes" else "no"
+local: field: snf2: Invisible:if $$isempty:$cwcaption2item then "yes" else "no"
+local: field: snf3: Invisible:if $$isempty:$cwcaption3item then "yes" else "no"
+local: field: snf4: Invisible:if $$isempty:$cwcaption4item then "yes" else "no"
+local: field: snf5: Invisible:if $$isempty:$cwcaption5item then "yes" else "no"
+local: field: snf6: Invisible:if $$isempty:$cwcaption6item then "yes" else "no"
+                           */
+
+
+
+  [#Line: LEDALLOC MainLine]
+  add:option:LEDALLOCCMainLineopt:@@MinuSareeEnabled
+  [!line:LEDALLOCCMainLineopt]
+  
+
+  add : field : snf,snf2, snf3, snf4, snf5, snf6
+
+Local: Field: snf: storage:cwcaption1vch
+Local: Field: snf2: storage:cwcaption2vch
+Local: Field: snf3: storage:cwcaption3vch
+
+
+Local: Field: snf4: storage:cwcaption4vch
+Local: Field: snf5: storage:cwcaption5vch
+Local: Field: snf6: storage:cwcaption6vch
+
+
+Local: Field: snf : set as:$$owner:$$owner:$cwcaption1item
+Local: Field: snf2: set as:$$owner:$$owner:$cwcaption2item
+Local: Field: snf3: set as:$$owner:$$owner:$cwcaption3item
+
+
+Local: Field: snf4:set as:$$owner:$$owner:$cwcaption4item
+Local: Field: snf5:set as:$$owner:$$owner:$cwcaption5item
+Local: Field: snf6:set as:$$owner:$$owner:$cwcaption6item
+
+local: field: snf: type: String:forced
+local: field: snf2: type: String:forced
+local: field: snf3: type: String:forced
+local: field: snf4: type: String:forced
+local: field: snf5: type: String:forced
+local: field: snf6: type: String:forced
+
+
+local: field: snf:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf1:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf2:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf3:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf4:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf5:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf6:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+
+
+local: field: snf: Invisible:if $$isempty:($cwcaption1:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf2: Invisible:if $$isempty:($cwcaption2:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf3: Invisible:if $$isempty:($cwcaption3:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf4: Invisible:if $$isempty:($cwcaption4:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf5: Invisible:if $$isempty:($cwcaption5:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf6: Invisible:if $$isempty:($cwcaption6:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+
+                          
+Local:Field:snf:table:cwcaption1tableundercc,Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf:Show table: Always
+
+Local: Field:snf:Table : cwcaption1tableundersc, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf:Table : cwcaption1tableunderled, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf:option:optcc:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf:option:optsc:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf:option:optled:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field: snf: Style: Normal Bold
+
+
+Local:Field:snf2:table:cwcaption2tableundercc,Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf2:Show table: Always
+
+Local: Field:snf2:Table : cwcaption2tableundersc, Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf2:Table : cwcaption2tableunderled, Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf2:option:optcc:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf2:option:optsc:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf2:option:optled:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+Local:Field:snf3:table:cwcaption3tableundercc,Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf3:Show table: Always
+
+Local: Field:snf3:Table : cwcaption3tableundersc, Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf3:Table : cwcaption3tableunderled, Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf3:option:optcc:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf3:option:optsc:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf3:option:optled:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field: snf3: Style: Normal Bold
+
+
+
+Local:Field:snf4:table:cwcaption4tableundercc,Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf4:Show table: Always
+
+Local: Field:snf4:Table : cwcaption4tableundersc, Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf4:Table : cwcaption4tableunderled, Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf4:option:optcc:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf4:option:optsc:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf4:option:optled:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field: snf4: Style: Normal Bold
+
+
+
+
+Local:Field:snf5:table:cwcaption5tableundercc,Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf5:Show table: Always
+
+Local: Field:snf5:Table : cwcaption5tableundersc, Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf5:Table : cwcaption5tableunderled, Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf5:option:optcc:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf5:option:optsc:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf5:option:optled:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field: snf5: Style: Normal Bold
+
+
+
+
+Local:Field:snf6:table:cwcaption1tableundercc,Not Applicable:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf6:Show table: Always
+
+Local: Field:snf6:Table : cwcaption6tableundersc, Not Applicable:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf6:Table : cwcaption6tableunderled, Not Applicable:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf6:option:optcc:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf6:option:optsc:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf6:option:optled:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field: snf6: Style: Normal Bold
+
+
+
+
+
+
+

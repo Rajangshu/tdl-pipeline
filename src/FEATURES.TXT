@@ -1,0 +1,344 @@
+; Created By: Khokan on 2021-02-08 18:51, ID: 
+
+
+[#Part  : CMP TallyShopFeatures Left]
+Add :  Line :MinuSareeConfig,detailsline ,fndeline1,eunicledline,cwinvprintingline2newKham
+
+
+[line:detailsline]
+field:sp,cwlogical
+
+Local: Field: sp: Set As:"Details"
+Local: Field: cwlogical: storage:cwDetails
+
+Local: Field : cwlogical : SubForm : detailslinerep: $$value
+Local: field: sp: Width:20
+
+[report:detailslinerep]
+form:detailslinerep
+
+[form:detailslinerep]
+part:detailslinerep
+
+[part:detailslinerep]
+line:caption0,caption1,caption2,caption3,caption4,caption5,caption6  ;;,caption7,caption8,caption9,caption10
+
+
+
+[line:caption0]
+field:SNFX,nf,nf1,nf2,snf,cwlogical
+
+Local: Field: snfx: info: "Sl No."
+Local: Field: nf: info: "Caption"
+Local: Field: nf1: info: "Field Type"
+Local: Field: nf2: info: "Field Value Type"
+Local: Field: snf: info: "Under"
+Local: Field: cwlogical: info: "Print ?"
+local: field: cwlogical: type: String
+Local: Field: default: Style: Normal Bold
+border:thin TOP bottom
+
+[line:caption1]
+field:SNFX,NF,nf1,nf2,snf,cwlogical
+
+ Local: Field: snfx: info: "1"
+Local: Field: NF: STORAGE:cwcaption1
+Local: Field: NF1: STORAGE:cwFieldType1
+Local: Field: NF2: STORAGE:cwcaption1table
+Local: Field: sNF: STORAGE:cwcaption1tableunder
+Local: Field: cwlogical: STORAGE:cwcaption1printyn
+
+Local: Field: nf2: table:colltable,Not Applicable
+Local: Field: nf2: Show table: Always
+
+Local: Field: nf1: table:collUserDefineList,Not Applicable
+Local: Field: nf1: Show table: Always
+
+;; {10.Jan.20 17:33} Local: Field: nf2: Skip:if #nf1=@@cwUserDefine then Yes else no
+;; {10.Jan.20 17:33} Local: Field: snf: Skip:if #nf1=@@cwUserDefine then Yes else no
+
+space bottom:0.3
+
+Local: Field: nf1: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: nf2: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: snf: Skip:if $$issysname:#nf then "Yes" else "no"
+
+[Collection: collUserDefineList]
+ title:"Field Type"
+listname:@@cwUserDefine
+listname:@@cwList
+
+
+[System: Formula]
+cwUserDefine:"User Define"
+cwList:"List"
+
+[Collection: colltable]
+title:"Field Value Type"
+listname:@@cwtablecostcentre
+listname:@@cwtableCategory
+listname:@@cwtableNA
+listname:@@cwtableLedger
+
+[System: Formula]
+cwtablecostcentre:"Cost Centre"
+cwtableCategory:"Stock Category"
+cwtableLedger:"Ledger"
+
+;;cwtableNA:"N/A"
+
+[line:caption2]
+field:SNFX,NF,nf1,nf2,snf,cwlogical
+Local: Field: snfx:info:"2"
+
+Local: Field: NF: STORAGE:cwcaption2
+Local: Field: nf1: STORAGE:cwFieldType2
+Local: Field: NF2: STORAGE:cwcaption2table
+Local: Field: sNF: STORAGE:cwcaption2tableunder
+Local: Field: cwlogical: STORAGE:cwcaption2printyn
+Local: Field: nf2: table:colltable,Not Applicable
+Local: Field: nf2: Show table: Always
+
+Local: Field: nf1: table:collUserDefineList,Not Applicable
+Local: Field: nf1: Show table: Always
+;; {10.Jan.20 17:33} Local: Field: nf2: Skip:if #nf1=@@cwUserDefine then Yes else no
+;; {10.Jan.20 17:33} Local: Field: snf: Skip:if #nf1=@@cwUserDefine then Yes else no
+
+space bottom:0.3
+Local: Field: nf1: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: nf2: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: snf: Skip:if $$issysname:#nf then "Yes" else "no"
+
+[line:caption3]
+field:snfx,nf,nf1,nf2,snf,cwlogical
+Local: Field: snfx: info:"3"
+Local: Field: NF: STORAGE:cwcaption3
+Local: Field: nf1: STORAGE:cwFieldType3
+Local: Field: NF2: STORAGE:cwcaption3table
+Local: Field: sNF: STORAGE:cwcaption3tableunder
+Local: Field: cwlogical: STORAGE:cwcaption3printyn
+Local: Field: nf2: table:colltable,Not Applicable
+Local: Field: nf2: Show table: Always
+
+Local: Field: nf1: table:collUserDefineList,Not Applicable
+Local: Field: nf1: Show table: Always
+;; {10.Jan.20 17:33} Local: Field: nf2: Skip:if #nf1=@@cwUserDefine then Yes else no
+;; {10.Jan.20 17:33} Local: Field: snf: Skip:if #nf1=@@cwUserDefine then Yes else no
+
+space bottom:0.3
+Local: Field: nf1: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: nf2: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: snf: Skip:if $$issysname:#nf then "Yes" else "no"
+
+[line:caption4]
+field:snfx,nf,nf1,nf2,snf,cwlogical
+
+Local: Field: snfx:info:"4"
+Local: Field: NF: STORAGE:cwcaption4
+Local: Field: nf1: STORAGE:cwFieldType4
+Local: Field: NF2: STORAGE:cwcaption4table
+Local: Field: SNF: STORAGE:cwcaption4tableunder
+Local: Field: cwlogical: STORAGE:cwcaption4printyn
+Local: Field: nf2: table:colltable,Not Applicable
+Local: Field: nf2: Show table: Always
+
+Local: Field: nf1: table:collUserDefineList,Not Applicable
+Local: Field: nf1: Show table: Always
+;; {10.Jan.20 17:33} Local: Field: nf2: Skip:if #nf1=@@cwUserDefine then Yes else no
+;; {10.Jan.20 17:33} Local: Field: snf: Skip:if #nf1=@@cwUserDefine then Yes else no
+space bottom:0.3
+Local: Field: nf1: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: nf2: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: snf: Skip:if $$issysname:#nf then "Yes" else "no"
+
+[line:caption5]
+field:snfx,nf,nf1,nf2,SNF,cwlogical
+
+Local: Field: snfx: info:"5"
+Local: Field: NF: STORAGE:cwcaption5
+Local: Field: nf1: STORAGE:cwFieldType5
+Local: Field: NF2: STORAGE:cwcaption5table
+Local: Field: SNF: STORAGE:cwcaption5tableunder
+Local: Field: cwlogical: STORAGE:cwcaption1printyn
+Local: Field: nf2: table:colltable,Not Applicable
+Local: Field: nf2: Show table: Always
+
+Local: Field: nf1: table:collUserDefineList,Not Applicable
+Local: Field: nf1: Show table: Always
+;; {10.Jan.20 17:33} Local: Field: nf2: Skip:if #nf1=@@cwUserDefine then Yes else no
+;; {10.Jan.20 17:33} Local: Field: snf: Skip:if #nf1=@@cwUserDefine then Yes else no
+
+space bottom:0.3
+Local: Field: nf1: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: nf2: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: snf: Skip:if $$issysname:#nf then "Yes" else "no"
+
+[line:caption6]
+field:snfx,nf,nf1,nf2,SNF,cwlogical
+Local: Field: snfx: info:"6"
+Local: Field: NF: STORAGE:cwcaption6
+Local: Field: nf1: STORAGE:cwFieldType6
+Local: Field: NF2: STORAGE:cwcaption6table
+Local: Field: SNF: STORAGE:cwcaption6tableunder
+Local: Field: cwlogical: STORAGE:cwcaption6printyn
+Local: Field: nf2: table:colltable,Not Applicable
+Local: Field: nf2: Show table: Always
+
+Local: Field: nf1: table:collUserDefineList,Not Applicable
+Local: Field: nf1: Show table: Always
+;; {10.Jan.20 17:33} Local: Field: nf2: Skip:if #nf1=@@cwUserDefine then Yes else no
+;; {10.Jan.20 17:33} Local: Field: snf: Skip:if #nf1=@@cwUserDefine then Yes else no
+space bottom:0.3
+Local: Field: nf1: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: nf2: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: snf: Skip:if $$issysname:#nf then "Yes" else "no"
+
+[line:caption7]
+field:snfx,nf,nf1,nf2,SNF,cwlogical
+Local: Field: snfx: info:"7"
+Local: Field: NF: STORAGE:cwcaption7
+Local: Field: nf1: STORAGE:cwFieldType7
+Local: Field: NF2: STORAGE:cwcaption7table
+Local: Field: SNF: STORAGE:cwcaption7tableunder
+Local: Field: cwlogical: STORAGE:cwcaption7printyn
+Local: Field: nf2: table:colltable,Not Applicable
+Local: Field: nf2: Show table: Always
+
+Local: Field: nf1: table:collUserDefineList,Not Applicable
+Local: Field: nf1: Show table: Always
+;; {10.Jan.20 17:33} Local: Field: nf2: Skip:if #nf1=@@cwUserDefine then Yes else no
+;; {10.Jan.20 17:33} Local: Field: snf: Skip:if #nf1=@@cwUserDefine then Yes else no
+
+space bottom:0.3
+Local: Field: nf1: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: nf2: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: snf: Skip:if $$issysname:#nf then "Yes" else "no"
+
+[line:caption8]
+field:snfx,nf,nf1,nf2,SNF,cwlogical
+Local: Field: snfx: info:"8"
+Local: Field: NF: STORAGE:cwcaption8
+Local: Field: nf1: STORAGE:cwFieldType8
+Local: Field: NF2: STORAGE:cwcaption8table
+Local: Field: cwlogical: STORAGE:cwcaption8printyn
+Local: Field: SNF: STORAGE:cwcaption8tableunder
+
+Local: Field: nf2: table:colltable,Not Applicable
+Local: Field: nf2: Show table: Always
+
+Local: Field: nf1: table:collUserDefineList,Not Applicable
+Local: Field: nf1: Show table: Always
+;; {10.Jan.20 17:32} Local: Field: nf2: Skip:if #nf1=@@cwUserDefine then Yes else no
+;; {10.Jan.20 17:32} Local: Field: snf: Skip:if #nf1=@@cwUserDefine then Yes else no
+space bottom:0.3
+Local: Field: nf1: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: nf2: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: snf: Skip:if $$issysname:#nf then "Yes" else "no"
+
+[line:caption9]
+field:snfx,nf,nf1,nf2,SNF,cwlogical
+Local: Field: snfx:info:"9"
+Local: Field: NF: STORAGE:cwcaption9
+Local: Field: nf1: STORAGE:cwFieldType9
+Local: Field: NF2: STORAGE:cwcaption9table
+Local: Field: SNF: STORAGE:cwcaption9tableunder
+Local: Field: cwlogical: STORAGE:cwcaption9printyn
+Local: Field: nf2: table:colltable,Not Applicable
+Local: Field: nf2: Show table: Always
+;; {10.Jan.20 17:32} Local: Field: nf2: Skip:if #nf1=@@cwUserDefine then Yes else no
+;; {10.Jan.20 17:32} Local: Field: snf: Skip:if #nf1=@@cwUserDefine then Yes else no
+
+
+Local: Field: nf1: table:collUserDefineList,Not Applicable
+Local: Field: nf1: Show table: Always
+
+Local: Field: nf1: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: nf2: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: snf: Skip:if $$issysname:#nf then "Yes" else "no"
+space bottom:0.3
+
+[line:caption10]
+field:snfx,nf,nf1,nf2,SNF,cwlogical
+Local: Field: snfx: info:"10"
+Local: Field: NF: STORAGE:cwcaption10
+Local: Field: nf1: STORAGE:cwFieldType10
+Local: Field: NF2: STORAGE:cwcaption10table
+Local: Field: cwlogical: STORAGE:cwcaption10printyn
+Local: Field: SNF: STORAGE:cwcaption10tableunder
+Local: Field: nf2: table:colltable,Not Applicable
+Local: Field: nf2: Show table: Always
+;; {10.Jan.20 17:32} Local: Field: nf2: Skip:if #nf1=@@cwUserDefine then Yes else no
+;; {10.Jan.20 17:32} Local: Field: snf: Skip:if #nf1=@@cwUserDefine then Yes else no
+
+Local: Field: nf1: table:collUserDefineList,Not Applicable
+Local: Field: nf1: Show table: Always
+Local: Field: nf1: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: nf2: Skip:if $$issysname:#nf then "Yes" else "no"
+Local: Field: snf: Skip:if $$issysname:#nf then "Yes" else "no"
+
+space bottom:0.3
+
+;;=======================================================
+
+ [line:fndeline1]
+ field:sp,cwlogical
+ Local: Field: sp: Set As:"F/N Details"
+ Local: Field : cwlogical : SubForm : fnderep1: $$value
+ Local: field: sp: Width:18
+
+ [report:fnderep1]
+ form:fnderep1
+
+ [form:fnderep1]
+ part:fnderep1
+
+ [part:fnderep1]
+ line:fnmsline1,natureline1,valuinline1,fromtoline1
+
+ [line:fnmsline1]
+ field:sp,snf
+ Local: Field: sp: Set As:"M/S Title"
+ Local: Field: snf: storage:cwmstitle
+ Local: field: sp: Width:20
+ space bottom:0.5
+ Local: Field: nf: Style: Normal Bold
+ 
+
+ [line:natureline1]
+ field:sp,nf
+ Local: Field: sp: Set As:"Nature Of Goods"
+ Local: Field: nf: storage:cwNatureOfGoods
+ Local: field: sp: Width:20
+ space bottom:0.5
+ Local: Field: nf: Style: Normal Bold
+
+
+ [line:valuinline1]
+ field:sp,snf
+ Local: Field: sp: Set As:"Value of Insurance"
+ Local: Field: snf: storage:cwValueofInsurance
+ Local: field: sp: Width:20
+ local : field : numf : format :"Decimals:2,NoZero"
+ space bottom:0.5
+ Local: Field: snf: Style: Normal Bold
+
+
+  [line:fromtoline1]
+ field:sp,snf
+ Local: Field: sp: Set As:"From"
+ Local: Field: sp2: Set As:"To"
+ Local: Field: snf: storage:cwfromfn
+ Local: Field: snf: Style: Normal Bold
+ Local: field: sp: Width:20
+
+
+ [line:eunicledline]
+ field:sp,cwlogical
+
+ Local: Field: sp: Set As:"For unique Party Ledger?"
+ Local: Field: cwlogical: storage:cwenicforparty
+ Local: field: sp: Width:20
+
+ space bottom:0.5
+
+

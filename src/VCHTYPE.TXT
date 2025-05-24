@@ -1,0 +1,56 @@
+; Created By: Khokan on 2021-04-27 16:29, ID: 
+
+ [#Part: VTYP Behaviour]
+
+ add:option:newVTYPBehaviourmsopt:@@MinuSareeEnabled
+ [!part:newVTYPBehaviourmsopt]
+
+ add:line:cwSystemdateline
+
+ [line:cwSystemdateline]
+ field:long prompt,cwlogical
+
+ Local: Field: long prompt: Set As:"System date?"
+ Local: Field: cwlogical: storage:cwSystemdatems
+ Local: Field: default: Style: Normal Bold
+ 
+ 
+ [System: Formula]
+ cwSystemdatemsopt:$cwSystemdatems:vouchertype:$vouchertypename
+  issaletop:$$issales:$parent
+
+
+ [#Part: VTYP Behaviour]
+
+ add:option:cwEnableInvoiceCostopt:@@issaletop and @@MinuSareeEnabled
+ [!part:cwEnableInvoiceCostopt]
+
+ add:line:cwEnableInvoiceCost
+
+ [line:cwEnableInvoiceCost]
+ field:long prompt,cwlogical
+
+ Local: Field: long prompt: Set As:"Enable Invoice Costomization?"
+ Local: Field: cwlogical: storage:cwEnableInvoiceCost
+ Local: Field: default: Style: Normal Bold
+ 
+ 
+ 
+  [#Part: VTYP Behaviour]
+
+ add:option:cwEnableCostnwopt:@@MinuSareeEnabled
+ [!part:cwEnableCostnwopt]
+
+ add:line:cwEnableCostnw
+
+ [line:cwEnableCostnw]
+ field:long prompt,cwlogical
+
+ Local: Field: long prompt: Set As:"Enable Costomization?"
+ Local: Field: cwlogical: storage:cwEnableCostnw
+ Local: Field: default: Style: Normal Bold
+ 
+ ;;========================================
+ 
+
+

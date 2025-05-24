@@ -1,0 +1,385 @@
+; Created By: Khokan on 2021-05-22 13:47, ID: 
+
+
+     [#menu: Gateway of Tally]
+;; {25.May.21 13:02}         add: Option: salesRegisterLock ;; : @@salesRegisterDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@salesRegisterReport: Display: RepsalesRegister
+
+
+
+     [!menu: salesRegisterLock]
+        add: Item: before: @@locQuit: @@salesRegisterReport: Display: RepsalesRegister
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   salesRegisterReport: "Sales Register"
+;; salesRegisterDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepsalesRegister]
+        use: Dsp Template
+      Title: @@salesRegisterReport
+   Printset: Report Title: @@salesRegisterReport
+       Form: FrmsalesRegister
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable:str2,str3,str4,str5,str6,str7,str8
+    set:str2:""
+    set:str3:""
+    set:str4:""
+    set:str5:""
+    set:str6:""
+     
+      [Form: FrmsalesRegister]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0salesRegister,PrtsalesRegister
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: salesRegisterbotbrk,salesRegisterbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+add:button:cwsregbotton
+ local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+      [part: salesRegisterbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: salesRegisterbotopbrk]
+        use: dspacctitles
+  add: part: salesRegisterTitlePart
+
+      [part: salesRegisterTitlePart]
+       line: LnsalesRegisterTitle
+       
+      [line: LnsalesRegisterCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0salesRegister]
+      line : LnsalesRegisterCurrPeriod
+      
+      [Part: PrtsalesRegister]
+       Line: LnsalesRegisterTitle,LnsalesRegisterTitle2,LnsalesRegister
+bottom Line: LnsalesRegisterTotals
+     repeat: LnsalesRegister: ColsalesRegister
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColsalesRegister]
+source Collection: sourceColsalesRegister
+
+walk:inventoryentries
+by:date:$date
+by:partyledgername:$partyledgername
+by:vouchernumber:$vouchernumber
+by:stockitemname:$stockitemname
+by:cwcaption1vch1:$..cwcaption1vch
+by:cwcaption1vch2:$..cwcaption2vch
+by:cwcaption1vch3:$cwledcity:ledger:$partyledgername  ;;$..cwcaption3vch
+
+aggr compute:billedqty:sum:$billedqty
+aggr compute:amount:sum:$amount
+compute:masterid:$masterid
+
+
+
+filter:cwnspartymsnfilter,cwmsitemnamefilter, cwnsagentfilter,cwnssalesmfilternew,cwareafilter
+
+[Collection: sourceColsalesRegister]
+Type	  : Vouchers : VoucherType
+Child Of  : $$VchTypesales
+Belongs To: Yes
+
+
+    [system: Formula]
+ColsalesRegisterFilter: Yes
+
+      [Line: LnsalesRegisterTitle]
+        use: LnsalesRegister
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: Snf: set as: "Bill No"
+local:field: sdf: set as: "Date"
+
+local:field: fwf: set as: "Customer / Item"
+local:field: nf: set as: "Item Name"
+
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Bill Amt (Gross)"
+local:field: ratepf : set as : "Rate"
+
+local:field:snf2: set as: "Agent"
+local:field:snf3: set as: "SalesMan"
+local:field:SNF4: set as: "Area"
+
+
+local: field: default : style: normal bold
+
+Local: field:default: Align:centre
+Local: field:fwf: Align:left
+
+      [Line: LnsalesRegister]
+     Fields: snf,sdf,snf2,snf3,snf4,fwf
+right field: Qtyf,ratepf,Amtf,amtf2,qtyf2
+;; {22.May.21 17:23}      Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+;; {22.May.21 17:21}      local: field: fwf: alter : voucher : $$isvoucher
+;; {22.May.21 17:21} option : alter on enter
+;; {22.May.21 17:21} local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+
+local:field: Snf: set as:$vouchernumber ;; "Bill No"
+local:field: sdf: set as:$date ;; "Date"
+
+local:field: fwf: set as:$partyledgername ;; "Customer"
+local:field: fwf: set as:$stockitemname;; "Item Name"
+
+local:field: qtyf: set as:$billedqty ;; "Qty."
+local:field: amtf: set as:$amount ;; "Bill Amt (Gross)"
+local:field: ratepf : setas  : #amtf/#qtyf
+
+;; {10.Jun.21 13:11} Local: Field: default: Border: thin right
+Local: field: nf: Width:60
+Local: Field: amtf2: Set As:if $$line=1 then #amtf else if $vouchernumber <> $$prevobj:$vouchernumber then #amtf else $$prevlinefield+#amtf
+Local: Field: qtyf2: Set As:if $$line=1 then #qtyf else if $vouchernumber <> $$prevobj:$vouchernumber then #qtyf else $$prevlinefield+#qtyf
+
+
+
+local:field:snf2: set as:$cwcaption1vch1  ;; "Agent"
+local:field:snf3: set as:$cwcaption1vch2  ;; "SalesMan"
+local:field: SNF4: set as:$cwcaption1vch3  ;; "Area"
+
+
+
+local: field: amtf2: Invisible: yes
+local: field: qtyf2: Invisible: yes
+local: field: QTYF: type:NUMBER
+local: field: QTYF2: type:NUMBER
+
+
+ add:option: cwalterVch     ;;job work tcp acha
+ 
+
+ explode:LnsalesRegisterpart:$$line=$$numitems or $vouchernumber <> $$nextobj:$vouchernumber
+ explode:partyexpsrpart:$$line=$$numitems or $vouchernumber <> $$nextobj:$vouchernumber
+
+
+
+ [line:LnsalesRegisterTitle2]
+  use: LnsalesRegister
+
+
+local: field: default : style: normal bold
+
+local:field: Snf: set as:"" ;; "Bill No"
+local:field: sdf: set as:"" ;; "Date"
+local:field: nf: set as:"" ;; "Date"
+
+local: field: qtyf: set as: "";;$$total:qtyf
+local: field: fwf: set as:$$CollectionField:$partyledgername:First:ColsalesRegister
+local:field: ratepf : setas  :""
+local: field: amtf : set as :"";;#amtf2
+local: field: qtyf : set as :"";;#qtyf2 ;  $$total:amtf
+Local: Field: amtf2: Set As:"";;$$prevlinefield
+Local: Field: qtyf2: Set As:"" ;;$$prevlinefield
+local:field:snf2: set as:"";; "Agent"
+local:field:snf3: set as:"";; "SalesMan"
+local:field: SNF4: set as:"";; "Area"
+
+ 
+ [part:partyexpsrpart]
+ line:partyexpsrpart
+ 
+ [line:partyexpsrpart]
+  use: LnsalesRegister
+
+;; {10.Jun.21 13:06} loca5l: field: fwf: align: right
+local: field: default : style: normal bold
+
+local:field: Snf: set as:"" ;; "Bill No"
+local:field: sdf: set as:"" ;; "Date"
+local:field: nf: set as:"" ;; "Date"
+
+local: field: qtyf: set as: "";;$$total:qtyf
+local: field: fwf: set as: $$nextobj:$partyledgername
+local:field: ratepf : setas  :""
+local: field: amtf : set as :"";;#amtf2
+local: field: qtyf : set as :"";;#qtyf2 ;  $$total:amtf
+Local: Field: amtf2: Set As:"";;$$prevlinefield
+Local: Field: qtyf2: Set As:"" ;;$$prevlinefield
+
+local:field:snf2: set as:"";; "Agent"
+local:field:snf3: set as:"";; "SalesMan"
+local:field: SNF4: set as:"";; "Area"
+
+delete:explode
+
+
+[part:LnsalesRegisterpart]
+line:LnsalesRegisterpart
+
+[line:LnsalesRegisterpart]
+use: LnsalesRegister
+
+;; {10.Jun.21 13:12} local: field: fwf: align: right
+local: field: default : style: normal bold
+local:field: Snf: set as:"" ;; "Bill No"
+local:field: sdf: set as:"" ;; "Date"
+local:field: nf: set as:"" ;; "Date"
+
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "S.NET"
+local:field: ratepf : setas  :""
+local: field: amtf : set as :#amtf2
+local: field: qtyf : set as :#qtyf2 ;  $$total:amtf
+Local: Field: amtf2: Set As:$$prevlinefield
+Local: Field: qtyf2: Set As:$$prevlinefield
+Local: Field: QTYF: Border: thin TOP
+Local: Field: AMTF: Border: thin TOP
+local:field:snf2: set as:"";; "Agent"
+local:field:snf3: set as:"";; "SalesMan"
+local:field: SNF4: set as:"";; "Area"
+
+delete:explode
+border:thin bottom
+delete:option: cwalterVch
+
+
+[line: LnsalesRegisterTotals]
+use: LnsalesRegister
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local:field: Snf: set as:"" ;; "Bill No"
+local:field: sdf: set as:"" ;; "Date"
+local:field: nf: set as:"" ;; "Date"
+
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total"
+local:field: ratepf : setas  :""
+local: field: amtf : set as :  $$total:amtf
+local:field:snf2: set as:"";; "Agent"
+local:field:snf3: set as:"";; "SalesMan"
+local:field: SNF4: set as:"";; "Area"
+
+
+
+
+;;==================
+
+
+
+[button:cwsregbotton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:cwsregbotton
+
+ [report:cwsregbotton]
+ form:cwsregbotton
+
+ [form:cwsregbotton]
+ part:cwsregbotton
+
+ HEIGHT:30% PAGE
+ WIDTH:30% PAGE
+
+ [part:cwsregbotton]
+ line:titlelinexns,customernsline,cwnsstkledline,Agentsmnslinex,salesmnslinex,arealinex
+
+ [line:customernsline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Customer"
+ Local: Field: nf:modifies:str2
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:cwledms, Not Applicable
+ Local: Field: nf: Show table: Always
+  Local: field: nf: Width:30
+
+
+ [line:cwnsstkledline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Item Name"
+ Local: Field: nf:modifies:str3
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+  Local: Field: nf: table:stockitem, Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: field: nf: Width:30
+
+
+ [line:Agentsmnslinex]
+ field:sp,nf
+ Local: Field: sp: Set As:"Agent Name" ;;"Sales Man"
+ Local: Field: nf:modifies:str4
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:cwcaption1tableunderled, Not Applicable
+ Local: Field: nf: Show table: Always
+  Local: field: nf: Width:30
+
+
+  [line:salesmnslinex]
+ field:sp,nf
+ Local: Field: sp: Set As:"Sales Man"
+ Local: Field: nf:modifies:str5
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:cwcaption2tableunderled, Not Applicable
+ Local: Field: nf: Show table: Always
+  Local: field: nf: Width:30
+
+
+     [line:arealinex]
+ field:sp,nf
+ Local: Field: sp: Set As:"Area"
+ Local: Field: nf:modifies:str6
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+;; {07.Jul.21 13:23}  Local: Field: nf: table:cwcaption3tableundercc, Not Applicable
+;; {07.Jul.21 13:23}  Local: Field: nf: Show table: Always
+  Local: field: nf: Width:30
+
+
+
+
+
+
+ [System: Formula]
+cwnspartymsnfilter:if $$issysname:##str2 then yes else $partyledgername =##str2
+cwmsitemnamefilter:if $$issysname:##str3 then yes else $stockitemname =##str3
+
+
+cwnsagentfilter:if $$issysname:##str4 then yes else $cwcaption1vch1 =##str4
+cwnssalesmfilternew:if $$issysname:##str5 then yes else $cwcaption1vch2 =##str5
+cwareafilter:if $$issysname:##str6 then yes else $cwcaption1vch3 =##str6
+
+

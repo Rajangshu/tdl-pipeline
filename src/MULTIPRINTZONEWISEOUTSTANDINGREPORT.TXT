@@ -1,0 +1,66 @@
+; Created By: Khokan on 2021-09-06 18:47, ID: 
+
+     [#menu: Gateway of Tally]
+;; {06.Sep.21 19:31}         add: Option: multiprintZONEWISEOutstandingReportLock ;; : @@multiprintZONEWISEOutstandingReportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@multiprintZONEWISEOutstandingReportReport: Display: RepmultiprintZONEWISEOutstandingReport
+
+
+
+     [!menu: multiprintZONEWISEOutstandingReportLock]
+        add: Item: before: @@locQuit: @@multiprintZONEWISEOutstandingReportReport: print Collection: collRepmultiprintZONEWISEOutstandingReport  ;;: RepmultiprintZONEWISEOutstandingReport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   multiprintZONEWISEOutstandingReportReport:@@cwcaption4tableundernew+" "+"wise O/S Statement"
+;; multiprintZONEWISEOutstandingReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+
+   [Collection: collRepmultiprintZONEWISEOutstandingReport]
+
+
+   Use         		: Extract Alias Collection
+   Source	Collection	: List of Cost Centres
+    Title       		: $$LocaleString:"List of Cost Centres"
+    Format      		: $CstCatName
+    Filter      		: CostCentreFilter
+    Report      		:RepmultiprintZONEWISEOutstandingReport
+    Variable    		: SCostCentre
+    Trigger     		: SCostCentrex1
+
+     
+    [Report: RepmultiprintZONEWISEOutstandingReport]
+
+    use:RepmultiprintAGENTWISEOutstandingReport
+
+   delete:Title: @@multiprintAGENTWISEOutstandingReportReport
+   delete:Printset: Report Title: @@multiprintAGENTWISEOutstandingReportReport
+
+   add:Title: @@multiprintZONEWISEOutstandingReportReport
+   add:Printset: Report Title: @@multiprintZONEWISEOutstandingReportReport
+;; {06.Sep.21 17:19}        Form: FrmmultiprintSALESMANWISEOutstandingReport
+;; {06.Sep.21 17:19}      Export: Yes
+;; {06.Sep.21 17:19}      set  : svfromdate : ##svcurrentdate
+;; {06.Sep.21 17:19}      set  : svTodate : ##svcurrentdate
+;; {06.Sep.21 17:19}     Local       : Button   : RelReports        : Inactive : Yes
+
+local:part: multiprintAGENTWISEOutstandingReportTitlePart:local:line:DSPCompanyName:Local: Field:nf:set as:@@multiprintZONEWISEOutstandingReportReport
+local:part: PrtTitle0multiprintAGENTWISEOutstandingReport:local:line:DSPCompanyName:Local: Field:nf:set as:@@multiprintZONEWISEOutstandingReportReport
+
+ local:Collection: ColmultiprintAGENTWISEOutstandingReport:delete:filter:cwnotcloingbalancemultiprint
+ local:Collection: ColmultiprintAGENTWISEOutstandingReport:add:filter:cwnotcloingbalancemultiprintitem4
+
+   local:Collection: ColmultiprintAGENTWISEOutstandingReporta:delete:filter:ColmultiprintAGENTWISEOutstandingReportFilterdr
+   local:Collection: ColmultiprintAGENTWISEOutstandingReportb:delete:filter:ColmultiprintAGENTWISEOutstandingReportFiltercr
+
+ local:Collection: ColmultiprintAGENTWISEOutstandingReporta:add:filter:ColmultiprintAGENTWISEOutstandingReportFiltercritem4
+ local:Collection: ColmultiprintAGENTWISEOutstandingReportb:add:filter:ColmultiprintAGENTWISEOutstandingReportFilterdritem4
+   local:part:multiagentpart:local:line:multiprintAGENTline:Local: Field: fwf: Set As:##SCostCentre
+   
+ [System: Formula]
+ cwnotcloingbalancemultiprintitem4:##SCostCentre=$cwcaption4item and (not $$isempty:$OnAccountValue or not $$isempty:$closingbalance)
+ ColmultiprintAGENTWISEOutstandingReportFiltercritem4:if $cwcaption4item:ledger:$parent=##SCostCentre then not $$isdr:$closingbalance else no
+ ColmultiprintAGENTWISEOutstandingReportFilterdritem4:if $cwcaption4item:ledger:$parent=##SCostCentre then $$isdr:$closingbalance else no
+

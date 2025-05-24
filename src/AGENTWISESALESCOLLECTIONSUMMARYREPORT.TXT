@@ -1,0 +1,389 @@
+; Created By: khokan on 2022-05-25 09:20, ID: 
+
+     [#menu: Gateway of Tally]
+;; {11.Aug.22 16:15}         add: Option: agentwisesalescollectionsummaryreportLock ;; : @@agentwisesalescollectionsummaryreportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@agentwisesalescollectionsummaryreportReport: Display: Repagentwisesalescollectionsummaryreport
+
+
+
+     [!menu: agentwisesalescollectionsummaryreportLock]
+        add: Item: before: @@locQuit: @@agentwisesalescollectionsummaryreportReport: Display: Repagentwisesalescollectionsummaryreport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   agentwisesalescollectionsummaryreportReport: "Agent wise sales collection summary report"
+;; agentwisesalescollectionsummaryreportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Repagentwisesalescollectionsummaryreport]
+        use: Dsp Template
+      Title: @@agentwisesalescollectionsummaryreportReport
+   Printset: Report Title: @@agentwisesalescollectionsummaryreportReport
+       Form: Frmagentwisesalescollectionsummaryreport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    
+      variable:str12
+    set:str12:""
+     
+      [Form: Frmagentwisesalescollectionsummaryreport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0agentwisesalescollectionsummaryreport,Prtagentwisesalescollectionsummaryreport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: agentwisesalescollectionsummaryreportbotbrk,agentwisesalescollectionsummaryreportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+ add:button:agentsalesbotton2
+ 
+      [part: agentwisesalescollectionsummaryreportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: agentwisesalescollectionsummaryreportbotopbrk]
+        use: dspacctitles
+  add: part: agentwisesalescollectionsummaryreportTitlePart
+
+      [part: agentwisesalescollectionsummaryreportTitlePart]
+       line: LnagentwisesalescollectionsummaryreportTitle
+       
+      [line: LnagentwisesalescollectionsummaryreportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0agentwisesalescollectionsummaryreport]
+      line : LnagentwisesalescollectionsummaryreportCurrPeriod
+      
+      [Part: Prtagentwisesalescollectionsummaryreport]
+       Line: LnagentwisesalescollectionsummaryreportTitle,Lnagentwisesalescollectionsummaryreport
+bottom Line: LnagentwisesalescollectionsummaryreportTotals
+     repeat: Lnagentwisesalescollectionsummaryreport: Colagentwisesalescollectionsummaryreport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,Qtyf1,Qtyf2,Qtyf3,Qtyf4,amtf,amtf1,amtf2,amtf3,amtf4,amtf5,amtf6,amtf7
+
+[Collection: Colagentwisesalescollectionsummaryreport]
+ type:ledger
+;; {11.Aug.22 10:52} child of:$$Groupsundrydebtors
+child of:@@cwcaption1tableundernew
+belongs to:yes
+
+filter:cwagentlednetsales1filterx
+;; {11.Aug.22 10:36} filter:cwnetsalesmannewfilternew,cwColpartynameFilternew1
+fetch:cwcaption1item
+sort:@@default:$cwcaption1item
+
+[Collection: Colagentwisesalescollectionsummaryreport2]
+
+   type:ledger
+child of:$$Groupsundrydebtors
+
+fetch:cwcaption1item
+;; {24.May.22 17:04} filter:cwColpartyFilter ;,cwColpartyFilter2 ;,cwcaption1netsalesvch1filter
+;; {25.May.22 15:41} filter:ColcwallagentwiseFilter,cwColpartyFilter2,cwcaption1netsalesvch1filter
+ sort:@@default:$cwcaption1item
+ filter:cwcaption1itemfilter,cwColpartyFilternew
+ 
+ [System: Formula]
+ cwcaption1itemfilter:not $$isempty:$cwcaption1item
+  cwColpartyFilternew:not $$IsEmpty:$TBalDebits or not $$IsEmpty:$TBalCredits
+  
+   [System: Formula]
+cwagentlednetsales1filter:if $$issysname:##str12 then yes else $cwcaption1item1 =##str12
+cwagentlednetsales1filterx:if $$issysname:##str12 then yes else $name =##str12
+
+  
+;;============================
+
+[Collection: Colagentwisesalessummary]
+
+ source Collection: sourColagentwisesalessummary
+
+by:cwcaption1vch1:$cwcaption1vch
+
+aggr compute:billedqty:sum:$$CollqtyTotal:inventoryentries:$billedqty
+
+aggr compute:amount:sum:$$CollnumTotal:inventoryentries:$amount
+
+search key:$cwcaption1vch1
+
+
+
+[Collection: sourColagentwisesalessummary]
+
+Type	   : Vouchers	: VoucherType
+Child Of   : $$VchTypesales
+Belongs To : Yes
+
+[Line: LnagentwisesalescollectionsummaryreportTitle]
+use: Lnagentwisesalescollectionsummaryreport
+option: titleopt
+
+local:field: fwf: set as: "Agent Name"
+
+local:field: amtf: set as: "Sales (Value)"
+local:field: qtyf: set as: "Sales (Pcs)"
+
+local:field: amtf2: set as: "Sales Return (Value)"
+local:field: qtyf2: set as: "Sales Return (Pcs)"
+
+local:field: amtf3: set as: "Credit Note(Value)"
+local:field: amtf4: set as: "Debit Note(Value)"
+
+local:field: amtf5: set as: "Net Sales (Value)"
+local:field: qtyf3: set as: "Net Sales (Pcs)"
+
+local:field: amtf6: set as: "Collection (Value)"
+
+local: field: default : style: normal bold
+
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+Local : field : default: Lines : 0
+
+
+local:field: fwf: style:styleCalisto2
+local:field: amtf: style:styleCalisto2
+local:field: amtf1: style:styleCalisto2
+local:field: amtf2: style:styleCalisto2
+local:field: amtf3: style:styleCalisto2
+local:field: amtf4: style:styleCalisto2
+local:field: amtf5: style:styleCalisto2
+local:field: amtf6: style:styleCalisto2
+local:field: qtyf: style:styleCalisto2
+local:field: qtyf1: style:styleCalisto2
+local:field: qtyf2: style:styleCalisto2
+local:field: qtyf3: style:styleCalisto2
+local:field: qtyf4: style:styleCalisto2
+local:field: qtyf5: style:styleCalisto2
+
+
+[Line: Lnagentwisesalescollectionsummaryreport]
+Fields:fwf
+right field:amtf,Qtyf,Amtf2,qtyf2,amtf3,amtf4,amtf5,qtyf3,amtf6  ;;,qtyf10
+
+Option: Alter on Enter
+;; {25.May.22 16:22} local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+
+local:field: fwf: set as:$name ;; "Agent Name"
+local:field: nf1: set as:##str12 ;;$name ;; "Agent Name"
+
+local:field: amtf: set as:$$reportobject:$$collectionfieldbykey:$amount:@@keysales1:Colagentwisesalessummary  ;;  "Sales (Value)"
+local:field: qtyf: set as:$$reportobject:$$collectionfieldbykey:$billedqty:@@keysales1:Colagentwisesalessummary  ;;  "Sales (Pcs)"
+
+local:field: amtf2: set as:$$reportobject:$$collectionfieldbykey:$scrnamount:@@keysales1:Colagentwisesalesreturnsummary ;;  "Sales Return (Value)"
+local:field: qtyf2: set as:$$reportobject:$$collectionfieldbykey:$scrnbilledqty:@@keysales1:Colagentwisesalesreturnsummary  ;;  "Sales Return (Pcs)"
+                       ;; crbilledqty
+local:field: amtf3: set as:$$reportobject:$$collectionfieldbykey:$crnamount:@@keysales1:Colagentwisesalesreturnsummary2 ;;  "Credit Note(Value)"
+local:field: amtf4: set as:$$reportobject:$$collectionfieldbykey:$drnamount:@@keysales1:ColagentwisedebitNotesummary ;;  "Debit Note(Value)"
+
+local:field: amtf5: set as:#amtf-#amtf2 ;;  "Net Sales (Value)"
+local:field: qtyf3: set as:#qtyf-#qtyf2 ;;  "Net Sales (Pcs)"
+
+local:field: amtf6: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:#fwf:ColColreceiptagentsummary ;;  "Collection (Value)"
+
+Local: Field: qtyf10: Set As:if $$line=1 then #qtyf else $$prevlinefield+#qtyf
+Local: Field: default: Border: thin right
+
+local:field: default: style:styleCalisto
+
+[System: Formula]
+keysales1:#fwf
+
+
+
+ [Collection: ColColreceiptagentsummary]
+
+ source Collection: Colreceiptsou
+
+by:cwcaption1item1:$cwcaption1item:ledger:$partyledgername
+
+aggr compute:rcptvalue:sum:$amount
+
+;;filter:ColColreceiptsalesmanFilter
+
+sort:@@default:$cwcaption1item1
+
+search key:$cwcaption1item1
+
+
+[Collection: Colreceiptagentwise]
+ source Collection:sourColreceiptagentwise
+ by:cwcaption1vch1:$cwcaption1item:ledger:$partyledgername
+ aggr compute:rcptvalue:sum:$amount
+
+ search key:$cwcaption1vch1
+
+
+ [Collection: sourColreceiptagentwise]
+
+
+ Type		: Vouchers	: VoucherType
+Child Of	: $$VchTypereceipt
+Belongs To	: Yes
+
+
+
+
+[Collection: Colagentwisesalesreturnsummary]
+
+source Collection: sourColagentwisesalesreturnsummary
+
+by:cwcaption1vch1:$cwcaption1vch  ;;$cwcaption1item:ledger:$partyledgername  ;;if $$isempty:$cwcaption1vch then ($cwcaption1item:ledger:$partyledgername) else $cwcaption1vch
+
+
+aggr compute:scrnbilledqty:sum:$$CollqtyTotal:inventoryentries:$billedqty
+aggr compute:scrnamount:sum:$$CollamtTotal:inventoryentries:$amount
+
+
+
+search key:$cwcaption1vch1
+
+
+[Collection: Colagentwisesalesreturnsummary2]
+
+source Collection: sourColagentwisesalesreturnsummary
+
+by:cwcaption1vch1:$cwcaption1item:ledger:$partyledgername
+
+
+aggr compute:crnamount:sum:$$CollamtTotal:inventoryentries:$amount
+
+search key:$cwcaption1vch1
+
+
+
+[System: Formula]
+cwEnableSalesReturn:$cwEnableSalesReturn:vouchertype:$vouchertypename
+
+
+[Collection: sourColagentwisesalesreturnsummary]
+
+Type	   : Vouchers	: VoucherType
+Child Of   : $$VchTypeCreditNote
+Belongs To : Yes
+fetch:partyledgername
+
+;;=============================
+
+[Collection: ColagentwisedebitNotesummary]
+
+source Collection: sourColagentwisedebitNotesummary
+
+by:cwcaption1vch1:$cwcaption1item:ledger:$partyledgername
+
+
+aggr compute:drnamount:sum:$$CollamtTotal:inventoryentries:$amount
+
+search key:$cwcaption1vch1
+
+
+
+[Collection: sourColagentwisedebitNotesummary]
+
+Type	   : Vouchers	: VoucherType
+Child Of   : $$VchTypedebitNote
+Belongs To : Yes
+fetch:partyledgername
+
+
+
+
+
+[line: LnagentwisesalescollectionsummaryreportTotals]
+use: Lnagentwisesalescollectionsummaryreport
+option: totalOpt
+
+local:field: fwf: set as:"Total" ;; "Agent Name"
+
+local:field: amtf: set as:$$total:amtf ;;  "Sales (Value)"
+local:field: qtyf: set as:$$total:qtyf ;;  "Sales (Pcs)"
+
+local:field: amtf2: set as:$$total:amtf ;;  "Sales Return (Value)"
+local:field: qtyf2: set as:$$total:qtyf2 ;;  "Sales Return (Pcs)"
+
+local:field: amtf3: set as:$$total:amtf3 ;;  "Credit Note(Value)"
+local:field: amtf4: set as:$$total:amtf4;;  "Debit Note(Value)"
+
+local:field: amtf5: set as:$$total:amtf5 ;;  "Net Sales (Value)"
+local:field: qtyf3: set as:$$total:qtyf3 ;;  "Net Sales (Pcs)"
+
+local:field: amtf6: set as:$$total:amtf6 ;;  "Collection (Value)"
+
+local:field: fwf: style:styleCalisto2
+local:field: amtf: style:styleCalisto2
+local:field: amtf1: style:styleCalisto2
+local:field: amtf2: style:styleCalisto2
+local:field: amtf3: style:styleCalisto2
+local:field: amtf4: style:styleCalisto2
+local:field: amtf5: style:styleCalisto2
+local:field: amtf6: style:styleCalisto2
+local:field: qtyf: style:styleCalisto2
+local:field: qtyf1: style:styleCalisto2
+local:field: qtyf2: style:styleCalisto2
+local:field: qtyf3: style:styleCalisto2
+local:field: qtyf4: style:styleCalisto2
+local:field: qtyf5: style:styleCalisto2
+
+;;===================================
+
+[button:agentsalesbotton2]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:agentsalesbotton2
+
+ [report:agentsalesbotton2]
+ form:agentsalesbotton2
+
+ [form:agentsalesbotton2]
+ part:agentsalesbotton2
+
+ HEIGHT:20  ;;% PAGE
+ WIDTH:30  ;;% PAGE
+
+ [part:agentsalesbotton2]
+ line:cwtitlelinex,agentsalesbotton2
+ 
+ [line:agentsalesbotton2]
+ field:sp,nf
+
+ Local: Field: sp: info: "Agent Name"
+
+ Local: Field: sp: Set As:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+ Local: Field: nf:modifies:str12
+ Local: Field: default: Style: small
+
+ Local:Field:nf:table:cwcaption1tableundercc,Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+ Local:Field:nf:Show table: Always
+
+ Local: Field:nf:Table : cwcaption1tableundersc, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+ Local: Field:nf:Table : cwcaption1tableunderled, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+ Local: field: sp: Width:20
+
+

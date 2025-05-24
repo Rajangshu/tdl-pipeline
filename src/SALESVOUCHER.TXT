@@ -1,0 +1,1053 @@
+
+; Created By: Khokan on 2021-02-09 12:18, ID: 
+
+
+;;========================================================
+ [#Field: Plain VCH Date]
+ ADd : Option : Plain VCH Date Control Field :@@cwSystemdatemsopt
+
+
+ [!Field : Plain VCH Date Control Field]
+ Skip : Yes
+ Setas:$$MachineDate
+
+ [#Field: Plain VCH EffDate]
+ Add :OPtion : Plain VCH EffDate Control Field : @@cwSystemdatemsopt
+
+ [!Field : Plain VCH EffDate Control Field]
+ Skip : Yes
+ Setas:$$MachineDate
+;;==========================================================
+
+
+
+ [#Part: VCHTitleLeft]
+ add:option: eiconsigneeoptpart:@@issales and @@MinuSareeEnabled
+ [!part:eiconsigneeoptpart]
+
+;; {26.Apr.21 15:53}  add:line:CWnetsalesline
+ 
+  [#Line: VCH Type]
+ add:option:cwvchtypeopt:(@@isCreditNote or @@issales) and @@MinuSareeEnabled
+ [!line:cwvchtypeopt]
+
+add: field:SNF,sp,cwlogical
+ Local: Field: SNF: info: ""
+ Local: Field: sp: Set As:"Net Sales?"
+ Local: Field:cwlogical: storage:cwnetsales
+ Local: field: sp: Width:16
+ space TOP:0.5
+
+ 
+
+ 
+
+ [#Field: EI PortDestination]
+ add:option: eiPortDestinationopt:@@issales and @@MinuSareeEnabled
+ [!field:eiPortDestinationopt]
+ set as:$cwledcity:ledger:$partyledgername
+ 
+ ;;=============================================================================
+ 
+ [#Part: EI DelNoteInfo]
+ add:option: EImDelNoteInfoopt:(@@issales or @@ispurchase) and @@MinuSareeEnabled
+ [!part:EImDelNoteInfoopt]
+
+ add:Line:cwTransporternameline,cwdelieveredfromline
+ 
+ [Line:cwTransporternameline]
+				
+ Field	: Medium Prompt,nf
+ Local   : Field : Medium Prompt     : Set as	: $$LocaleString:"Transporter Name"
+ Local: Field: nf: storage:cwtempGSTewayTransporterName
+ Local: Field: NF: Set As:$cwtempGSTewayTransporterName:LEDGER:$PARTYLEDGERNAME
+ 
+ 
+ Local: Field: nf: Style: Normal Bold
+ Local: Field: nf: table:collTransporterled,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+
+
+
+  [Collection: collTransporterled]
+  type:ledger
+  title:"List of Transporter Name"
+  child of:"Transporter"
+
+
+  [Line:cwdelieveredfromline]
+				
+ Field	: Medium Prompt,nf
+ Local   : Field : Medium Prompt     : Set as	: $$LocaleString:"Delievered From"
+ Local: Field: nf: storage:cwDelieveredFrom
+ Local: field: NF: Width:40
+ Local: field: NF:Max     	: @@MaxNarrWidth * 2
+ Local: field: NF:Lines   	: 2
+ 
+  [#Part: Consignee Additional Details]           ;;tally prime
+add : option : cwmseiConsigneeCity :  @@issales and @@MinuSareeEnabled
+
+Height      : 10
+[!part:cwmseiConsigneeCity]
+
+add :line : at beginning: cwmsconsiCity
+
+[line : cwmsconsiCity]
+
+field : medium prompt,nf
+Local: Field: medium prompt: info: "City:"
+
+Local: Field: nf: storage: cwmsconsCity
+Local: Field: nf: Set As:$cwledcity:ledger:#eibuyer
+;; {22.Apr.21 13:35} Local: Field: nf: Set As: if not @@IsMultiAddressOn or (@@IsMultiAddressOn and $$issysname:#eibuyeraddresstype) then (if $$isempty:$cwledcity:ledger:#eibuyer then $$value else $cwledcity:ledger:#eibuyer) else $$collcwMultiAddressCityPin:#eibuyeraddresstype:#eibuyer:"city"
+Local: Field: nf: Set As: if not @@IsMultiAddressOn or (@@IsMultiAddressOn and $$issysname:#eibuyeraddresstype) then (if $$isempty:$cwledcity:ledger:#eibuyer then $$value else $cwledcity:ledger:#eibuyer) else $$funcwCityFromAddressType:#eibuyeraddresstype:#eibuyer:"city"
+
+local: field: nf: type: String:forced
+Local: Field: nf: Style: Normal Bold
+
+
+
+[#part:Party Additional Details]
+add :option : cwmsBuyerCity : @@issales and @@MinuSareeEnabled
+Height      : 10
+
+[!part : cwmsBuyerCity]
+
+;; {13.Apr.21 16:24} add : bottom line : at beginning: cwmsBuyerCity
+add : line : at beginning: cwmsBuyerCity
+
+[line : cwmsBuyerCity]
+
+field : medium prompt,nf
+Local: Field: medium prompt: info: "City:"
+
+Local: Field: nf: storage: cwmsBuyerCity
+Local: Field: nf: Set As:$cwledcity:ledger:#eipartyledger
+local: field: nf: type: String:forced
+Local: Field: nf: Style: Normal Bold
+;; {22.Apr.21 11:58} Local: Field: nf: Set As: if not @@IsMultiAddressOn or (@@IsMultiAddressOn and $$issysname:#eibuyeraddresstype) then (if $$isempty:$cwledcity:ledger:#eipartyledger then $$value else $cwledcity:ledger:#eipartyledger) else $$collcwMultiAddressCityPin:#eibuyeraddresstype:#eipartyledger:"city"
+Local: Field: nf: Set As: if not @@IsMultiAddressOn or (@@IsMultiAddressOn and $$issysname:$PARTYADDRESSTYPE) then if $$isempty:$cwledcity:ledger:#eipartyledger then $$value else $cwledcity:ledger:#eipartyledger else $$funcwCityFromAddressType:$PARTYADDRESSTYPE:#eipartyledger:"city"
+
+local: field: nf: type: String:forced
+
+
+
+;;=============================================
+
+ [collection : colcwMultiAddressCityPin]
+   type : LedMultiAddressList : ledger
+   child of : ##cwpartyledger
+
+
+   [System: Formula]
+   cwAddressNameSamems : $addressname  = ##mytype
+
+ [function : funcwCityFromAddressType]
+ parameter : mytype : string
+ parameter: cwpartyledger: string
+ parameter: cwmode  : string
+
+ 11 : walk collection : colcwMultiAddressCityPin
+ 12 : if : @@cwAddressNameSamems
+
+;; {22.Apr.21 13:40}  12a: do if : ##cwmode = "City" : return : $cwpartyaddresscity
+ 12a: do if : ##cwmode = "City" : return : $cwPartymultiAddressCity
+ 12b: do if : ##cwmode = "pincode" : return : $pincode
+ 12c: end if
+ 33 : end walk
+
+
+
+;;=============================================
+ [#Line: EI Consignee]
+
+ add:option:cwmuleiconsigopt:@@issales and @@MinuSareeEnabled
+ [!line:cwmuleiconsigopt]
+
+add:field:sp6,snf1
+
+Local: Field: sp6: Set As:"No. of Bales"
+
+Local: Field: snf1: storage:cwnofobales
+
+Local: field: sp6: Width:15
+Local: Field: snf1: Style: Normal Bold
+
+
+
+
+ [#part: EI Consignee]
+  add:option:cwConsigneepartoptopt :(@@issales OR @@IsCreditNote )and @@MinuSareeEnabled
+ [!part:cwConsigneepartoptopt]
+ width:100% page
+
+ [#part: EI Optional]
+
+;; {06.Jun.22 16:32}  add:option:cwmuleieioptopt :(@@issales OR @@IsCreditNote )and @@MinuSareeEnabled
+ [!part:cwmuleieioptopt]
+ add:line:notshrep
+ 
+ [line:notshrep]
+add:right field:sp7,cwlogical
+
+
+Local: Field: sp7: Set As:"Not Show in Report?"
+
+Local: Field:cwlogical : storage:cwShowinReport
+
+Local: field: sp7: Width:23
+Local: Field: snf1: Style: Normal Bold
+Local: field: EI Consignee: Width:60
+
+
+ [#Line: EI ColumnOne]
+;; {06.Jun.22 16:32}  add:option:cweiColumnOnescropt:(@@issales or @@CreditNote) and @@MinuSareeEnabled
+ [!line:cweiColumnOnescropt]
+ 
+ add:right field:At Beginning:snfx3
+ Local: Field: snfx3: Set As:"Not Show in Report"
+ Local: field: snfx3: Width:10
+  Local: field: snfx3:line:3
+
+ [#Line: EI InvInfo]
+;; {06.Jun.22 16:32}  add:option:cwEIInvInfoscropt:(@@issales or @@CreditNote) and @@MinuSareeEnabled
+ [!line:cwEIInvInfoscropt]
+ 
+ add:right field:At Beginning:cwlogical
+ Local: Field:cwlogical : set as:$$owner:$$owner:$cwShowinReport
+ Local: Field:cwlogical : storage:cwShowinReport2
+   Local: field: cwlogical: Width:10
+
+;;=============================================
+
+
+
+
+
+ [#Field: GST ewayTransporterName]
+ add:option: EImewayTransporterNameopt:@@issales and @@MinuSareeEnabled
+ [!field:EImewayTransporterNameopt]
+ Set As:$$owner:$$owner:$cwtempGSTewayTransporterName
+
+;;============================
+
+[#field: EI Consignee]
+add:option:EIConsigneenopt:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@MinuSareeEnabled
+[!field:EIConsigneenopt]
+
+width:50
+
+
+[#part: EI Consignee]
+add:option:EIConsigneepopt:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@MinuSareeEnabled
+[!part:EIConsigneepopt]
+
+
+width:100% page
+
+
+
+[System: Formula]
+cwnewEnableInvoiceCostopt:$cwEnableCostnw:vouchertype:$vouchertypename="yes"
+
+[#part: EI Consignee]
+add:option:EIConsigneeopt:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@MinuSareeEnabled and @@cwnewEnableInvoiceCostopt
+[!part:EIConsigneeopt]
+
+add:line:after:EIConsignee:eiConsigneeline,eiConsigneeline2,CwCashDiscountLine
+width:100% page
+
+[line:eiConsigneeline]
+right field:sp,snf,sp2,snf2,sp3,snf3  ;;,sp4,snf4,sp5,snf5,sp6,snf6
+
+Local: Field: sp: Set As:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+Local: Field: sp2: Set As:$cwcaption2:COMPANY:##SVCURRENTCOMPANY
+Local: Field: sp3: Set As:$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+
+Local: Field: snf: storage:cwcaption1vch
+Local: Field: snf2: storage:cwcaption2vch
+Local: Field: snf3: storage:cwcaption3vch
+
+
+Local: Field: snf: Set As:$cwcaption1item:ledger:$partyledgername
+Local: Field: snf2: Set As:$cwcaption2item:ledger:$partyledgername
+Local: Field: snf3: Set As:$cwcaption3item:ledger:$partyledgername
+
+local: field: snf: skip:if $$isempty:($cwcaption1:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf2: skip:if $$isempty:($cwcaption2:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf3: skip:if $$isempty:($cwcaption3:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+
+
+Local: field: snf: Width:20
+Local: field: snf2: Width:20
+Local: field: snf3: Width:20
+Local: Field: snf: Style: Normal Bold
+Local: Field: snf2: Style: Normal Bold
+Local: Field: snf3: Style: Normal Bold
+
+
+Local:Field:snf:table:cwcaption1tableundercc,Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf:Show table: Always
+
+Local: Field:snf:Table : cwcaption1tableundersc, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf:Table : cwcaption1tableunderled, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf:option:optcc:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf:option:optsc:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf:option:optled:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field: snf: Style: Normal Bold
+
+
+
+
+
+Local:Field:snf2:table:cwcaption2tableundercc,Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf2:Show table: Always
+
+Local: Field:snf2:Table : cwcaption2tableundersc, Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf2:Table : cwcaption2tableunderled, Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf2:option:optcc:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf2:option:optsc:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf2:option:optled:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+
+Local:Field:snf3:table:cwcaption3tableundercc,Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf3:Show table: Always
+Local: Field:snf3:Table      : cwcaption3tableundersc, Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf3:Table      : cwcaption3tableunderled, Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf3:option:optcc:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf3:option:optsc:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf3:option:optled:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field: snf3: Style: Normal Bold
+
+
+
+[line:eiConsigneeline2]
+
+right field:sp4,snf4,sp5,snf5,sp6,snf6
+
+Local: Field: sp4: Set As:$cwcaption4:COMPANY:##SVCURRENTCOMPANY
+Local: Field: sp5: Set As:$cwcaption5:COMPANY:##SVCURRENTCOMPANY
+Local: Field: sp6: Set As:$cwcaption6:COMPANY:##SVCURRENTCOMPANY
+
+Local: Field: snf4: Set As:$cwcaption4item:ledger:$partyledgername
+Local: Field: snf5: Set As:$cwcaption5item:ledger:$partyledgername
+Local: Field: snf6: Set As:$cwcaption6item:ledger:$partyledgername
+
+Local: Field: snf4: storage:cwcaption4vch
+Local: Field: snf5: storage:cwcaption5vch
+Local: Field: snf6: storage:cwcaption6vch
+
+local: field: snf4: skip:if $$isempty:($cwcaption4:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf5: skip:if $$isempty:($cwcaption5:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf6: skip:if $$isempty:($cwcaption6:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+
+Local: field: snf4: Width:20
+Local: field: snf5: Width:20
+Local: field: snf6: Width:20
+
+Local: Field: snf4: Style: Normal Bold
+Local: Field: snf5: Style: Normal Bold
+Local: Field: snf6: Style: Normal Bold
+
+Local:Field:snf4:table:cwcaption4tableundercc,Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf4:Show table: Always
+Local: Field:snf4:Table      : cwcaption4tableundersc, Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf4:Table      : cwcaption4tableunderled, Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf4:option:optcc:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf4:option:optsc:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf4:option:optled:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+
+
+Local:Field:snf5:table:cwcaption5tableundercc,Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf5:Show table: Always
+
+
+Local: Field:snf5:Table      : cwcaption5tableundersc, Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+
+
+Local: Field:snf5:Table      : cwcaption5tableunderled, Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf5:option:optcc:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf5:option:optsc:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf5:option:optled:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+Local:Field:snf6:table:cwcaption6tableundercc,Not Applicable:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf6:Show table: Always
+Local: Field:snf6:Table      : cwcaption6tableundersc, Not Applicable:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+
+Local: Field:snf6:Table      : cwcaption6tableunderled, Not Applicable:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field:snf6:option:optcc:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf6:option:optsc:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf6:option:optled:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field: snf6: Style: Normal Bold
+
+[line:CwCashDiscountLine]
+field:sp,cwlogical ;;,sdf
+
+Local: Field: sp: info: "Is Cash Discount"
+Local: Field: cwlogical: storage:cwIsCashDiscount
+Local: field: sp: Width:24
+;; {03.Apr.24 19:00} Local: Field: sdf: Set As:$billdate
+;; {03.Apr.24 19:00} Local: Field: sdf: Border: thin box ;;left right
+
+;;========================================================================================
+
+[#line : VCHBILL CTLineOne]
+ add:option:VCHBILLCTLineOneopt:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@MinuSareeEnabled and @@cwnewEnableInvoiceCostopt
+ [!line:VCHBILLCTLineOneopt]
+
+add : fields : after : VCH ShortTitle : snf,snf2, snf3, snf4, snf5, snf6
+
+Local: Field: snf: Set As:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf2: Set As:$cwcaption2:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf3: Set As:$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf4: Set As:$cwcaption4:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf5: Set As:$cwcaption5:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf6: Set As:$cwcaption6:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf: Skip: Yes
+Local: Field: snf2: Skip: Yes
+Local: Field: snf3: Skip: Yes
+Local: Field: snf4: Skip: Yes
+Local: Field: snf5: Skip: Yes
+Local: Field: snf6: Skip: Yes
+                            /*
+local: field: snf: Invisible:if $$isempty:$cwcaption1item:ledger:$partyledgername then "yes" else "no"
+local: field: snf2: Invisible:if $$isempty:$cwcaption2item:ledger:$partyledgername then "yes" else "no"
+local: field: snf3: Invisible:if $$isempty:$cwcaption3item:ledger:$partyledgername then "yes" else "no"
+local: field: snf4: Invisible:if $$isempty:$cwcaption4item:ledger:$partyledgername then "yes" else "no"
+local: field: snf5: Invisible:if $$isempty:$cwcaption5item:ledger:$partyledgername then "yes" else "no"
+local: field: snf6: Invisible:if $$isempty:$cwcaption6item:ledger:$partyledgername then "yes" else "no"
+                          */
+
+
+
+[#line : VCHBILL CTLineTwo]
+ add:option:VCHBILLCTLineOneopt2:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@MinuSareeEnabled and @@cwnewEnableInvoiceCostopt
+ [!line:VCHBILLCTLineOneopt2]
+
+
+add : fields : after : VCH ShortTitle : snf,snf2, snf3, snf4, snf5, snf6
+Local: Field: snf : info:""
+Local: Field: snf1 : info:""
+Local: Field: snf2 : info:""
+Local: Field: snf3 : info:""
+Local: Field: snf4 : info:""
+Local: Field: snf5 : info:""
+Local: Field: snf6 : info:""
+Local: Field: snf7 : info:""
+                                   /*
+local: field: snf: Invisible:if $$isempty:$cwcaption1item:ledger:$partyledgername then "yes" else "no"
+local: field: snf2: Invisible:if $$isempty:$cwcaption2item:ledger:$partyledgername then "yes" else "no"
+local: field: snf3: Invisible:if $$isempty:$cwcaption3item:ledger:$partyledgername then "yes" else "no"
+local: field: snf4: Invisible:if $$isempty:$cwcaption4item:ledger:$partyledgername then "yes" else "no"
+local: field: snf5: Invisible:if $$isempty:$cwcaption5item:ledger:$partyledgername then "yes" else "no"
+local: field: snf6: Invisible:if $$isempty:$cwcaption6item:ledger:$partyledgername then "yes" else "no"
+                                 */
+
+
+ [#line : VCHBILL CTLineThree]
+ add:option:VCHBILLCTLineOneopt3:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@MinuSareeEnabled and @@cwnewEnableInvoiceCostopt
+ [!line:VCHBILLCTLineOneopt3]
+
+add : fields : after : VCH ShortTitle : snf, snf2, snf3, snf4, snf5, snf6
+Local: Field: snf : info:""
+Local: Field: snf1 : info:""
+Local: Field: snf2 : info:""
+Local: Field: snf3 : info:""
+Local: Field: snf4 : info:""
+Local: Field: snf5 : info:""
+Local: Field: snf6 : info:""
+Local: Field: snf7 : info:""
+
+                               /*
+local: field: snf: Invisible:if $$isempty:$cwcaption1item:ledger:$partyledgername then "yes" else "no"
+local: field: snf2: Invisible:if $$isempty:$cwcaption2item:ledger:$partyledgername then "yes" else "no"
+local: field: snf3: Invisible:if $$isempty:$cwcaption3item:ledger:$partyledgername then "yes" else "no"
+local: field: snf4: Invisible:if $$isempty:$cwcaption4item:ledger:$partyledgername then "yes" else "no"
+local: field: snf5: Invisible:if $$isempty:$cwcaption5item:ledger:$partyledgername then "yes" else "no"
+local: field: snf6: Invisible:if $$isempty:$cwcaption6item:ledger:$partyledgername then "yes" else "no"
+
+                             */
+
+[#Line: VCHBILL MainLine]
+ add:option:VCHBILLMainLineopt:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@MinuSareeEnabled and @@cwnewEnableInvoiceCostopt
+ [!line:VCHBILLMainLineopt]
+
+add : fields : after : VCHBILLName :snf,snf2, snf3, snf4, snf5, snf6
+
+Local: Field: snf: storage:cwcaption1vch
+Local: Field: snf2: storage:cwcaption2vch
+Local: Field: snf3: storage:cwcaption3vch
+
+
+Local: Field: snf4: storage:cwcaption4vch
+Local: Field: snf5: storage:cwcaption5vch
+Local: Field: snf6: storage:cwcaption6vch
+
+
+Local: Field: snf : set as:$$owner:$$owner:$cwcaption1vch
+Local: Field: snf2: set as:$$owner:$$owner:$cwcaption2vch
+Local: Field: snf3: set as:$$owner:$$owner:$cwcaption3vch
+
+
+Local: Field: snf4:set as:$$owner:$$owner:$cwcaption4vch
+Local: Field: snf5:set as:$$owner:$$owner:$cwcaption5vch
+Local: Field: snf6:set as:$$owner:$$owner:$cwcaption6vch
+
+local: field: snf: type: String:forced
+local: field: snf2: type: String:forced
+local: field: snf3: type: String:forced
+local: field: snf4: type: String:forced
+local: field: snf5: type: String:forced
+local: field: snf6: type: String:forced
+
+local: field: snf:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf1:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf2:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf3:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf4:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf5:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf6:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+
+local: field: snf: skip:if $$isempty:($cwcaption1:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf2: skip:if $$isempty:($cwcaption2:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf3: skip:if $$isempty:($cwcaption3:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf4: skip:if $$isempty:($cwcaption4:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf5: skip:if $$isempty:($cwcaption5:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf6: skip:if $$isempty:($cwcaption6:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+
+
+
+Local:Field:snf:table:cwcaption1tableundercc,Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf:Show table: Always
+
+Local: Field:snf:Table : cwcaption1tableundersc, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf:Table : cwcaption1tableunderled, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf:option:optcc:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf:option:optsc:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf:option:optled:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field: snf: Style: Normal Bold
+
+
+Local:Field:snf2:table:cwcaption2tableundercc,Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf2:Show table: Always
+
+Local: Field:snf2:Table : cwcaption2tableundersc, Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf2:Table : cwcaption2tableunderled, Not Applicable:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf2:option:optcc:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf2:option:optsc:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf2:option:optled:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+
+Local:Field:snf3:table:cwcaption3tableundercc,Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf3:Show table: Always
+Local: Field:snf3:Table      : cwcaption3tableundersc, Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf3:Table      : cwcaption3tableunderled, Not Applicable:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf3:option:optcc:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf3:option:optsc:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf3:option:optled:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field: snf3: Style: Normal Bold
+
+
+
+
+Local:Field:snf4:table:cwcaption4tableundercc,Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf4:Show table: Always
+Local: Field:snf4:Table      : cwcaption4tableundersc, Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf4:Table      : cwcaption4tableunderled, Not Applicable:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf4:option:optcc:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf4:option:optsc:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf4:option:optled:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+
+Local:Field:snf5:table:cwcaption5tableundercc,Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf5:Show table: Always
+
+
+Local: Field:snf5:Table      : cwcaption5tableundersc, Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+
+
+Local: Field:snf5:Table      : cwcaption5tableunderled, Not Applicable:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:snf5:option:optcc:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf5:option:optsc:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf5:option:optled:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+Local:Field:snf6:table:cwcaption6tableundercc,Not Applicable:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf6:Show table: Always
+Local: Field:snf6:Table      : cwcaption6tableundersc, Not Applicable:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+
+Local: Field:snf6:Table      : cwcaption6tableunderled, Not Applicable:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field:snf6:option:optcc:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:snf6:option:optsc:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:snf6:option:optled:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+
+
+Local: Field: snf6: Style: Normal Bold
+
+
+;;==============================================================
+
+[#Line: VCHBATCH ColumnOne]
+ ADD:OPTION:cwVCHBATCHColumnOneopt:(@@issales or @@isCreditNote )and @@MinuSareeEnabled
+ [!LINE:cwVCHBATCHColumnOneopt]
+ add:right field:before:vchAmtTitle:snfx2,numf2
+
+
+ Local: Field: numf2: info: "Disc."
+ local: field: NUMF2: type: String
+ Local: Field: SNFX2: info: ""
+  Local: field: numf2: Align:left
+
+
+[#Line: VCHBATCH Columntwo]
+ ADD:OPTION:cwVCHBATCHColumntwoopt:(@@issales or @@isCreditNote )and @@MinuSareeEnabled
+ [!LINE:cwVCHBATCHColumntwoopt]
+ add:right field:before:vchAmtTitle:snfx2,numf2
+ Local: Field: numf2: info: ""
+Local: Field: SNFX2: info: ""
+
+
+ [#Line : STKVCHBatch2]
+ add:option:newSTKVCHBatch2:(@@issales or @@isCreditNote )and @@MinuSareeEnabled
+ [!line:newSTKVCHBatch2]
+
+
+ add:right fields:before:VCHBATCHValue:snfx2,numf2
+ Local: Field: SNFX2: info: ""
+ Local: Field: numf2: storage:cwminudisc
+ Local: Field: numf2:skip:if $$owner:$$owner:$cwnetsales="yes" then "yes" else "no"
+  Local: field: numf2: Align:left
+  local: field: numf2: inactive:@@NoBaseUnits OR @@BatchAllocBreak
+  Local: field: numf2: Format: "nozero,decimals:2"
+;;==============================================================
+
+ [#Line: EI ColumnOne]
+ add:option:cweiColumnOneopt:@@issales and @@MinuSareeEnabled
+ [!line:cweiColumnOneopt]
+ add:right field: At Beginning:nf,numf3,SNF1,snf,numf,SNFX
+add:right field:before:VCH AmtTitle:snfx2,numf2
+ Local: Field: nf: info: "Additional Description"
+
+ Local       : Field :nf    : Width    : @@LongWidth+25
+ 
+  Local: Field: snf: info: "HSN/SAC"
+  Local: Field: snf1: info: ""
+Local: Field: numf: info: "Tax%"
+Local: Field: numf2: info: "Disc."
+Local: Field: SNFX: info: ""
+Local: Field: SNFX2: info: ""
+Local: Field: numf3: info: "Selling Rate"
+ Local: field: numf: Align: centre
+ Local: field: numf2: Align:left
+
+  [#Line: EI ColumnTwo]
+ add:option:cweiColumntwoopt:@@issales and @@MinuSareeEnabled
+ [!line:cweiColumntwoopt]
+ add:right field: At Beginning:nf,numf3,SNF1,snf,numf,SNFX
+  add:right field:before:VCH AmtTitle:snfx2,numf2
+ Local: Field: nf: info: ""
+
+ Local       : Field :nf    : Width    : @@LongWidth+25
+  Local: Field: SNFX2: info: ""
+  Local: Field: snf: info: ""
+Local: Field: snf1: info: ""
+Local: Field: numf: info: ""
+Local: Field: numf2: info: ""
+Local: Field: numf3: info: ""
+Local: Field: SNFX: info: ""
+Local: Field: numf2: info: ""
+
+ 
+ [#Line: cI InvInfo]
+  add:option:cweiinvopt:@@issales and @@MinuSareeEnabled
+  
+ [#Line: EI InvInfo]
+ add:option:cweiinvopt:@@issales and @@MinuSareeEnabled
+ [!line:cweiinvopt]
+ 
+ Local       : Field : Vch StockItem    : Width    : @@LongWidth+25
+ Local       : Field :nf    : Width    : @@LongWidth+25
+ 
+ add:right field: At Beginning:nf,numf3,SNF1,snf,numf,snfx
+;; {18.Apr.22 13:24}  add:right field: At Beginning:nf,ratef,SNF1,snf,numf,snfx
+  add:right field:before:VCH Value:snfx2,numf2,amtf
+  Local: Field: SNFX2: info: ""
+  
+ Local: Field: SNF1: info: ""
+ Local: Field: SNFX: info: ""
+ Local: Field: nf: storage:cwminuitem
+ Local: Field: numf2: storage:cwminudisc
+ Local: Field: numf3: storage:cwSellingRates
+ Local: Field:amtf: storage:cwminudiscamt
+ Local: Field:amtf: Set As:$$asamount:#vchbilledqty*#numf2
+ local: field: amtf: Invisible: yes
+ 
+ Local: Field: numf2: Set As:$$CollectionField:$cwminudisc:First:batchallocations
+
+
+ Local: Field: nf: Set As:$stockitemname
+ Local: Field: nf: Style: Normal Bold
+ Local: field: numf: Align: centre
+;; {17.Jan.24 12:38}  Local: Field: snf: Set As:@@cwitemHSNCode
+ Local: Field: snf: Set As:$$cwGetHSNCodeFor:$stockitemname ;;@@cwitemHSNCode
+ Local: Field: numf: Set As:@@cwgstitemrate
+ Local: Field: snf: Skip: Yes
+ Local: Field: numf: Skip: Yes
+ Local: field: numf: Format: "nozero,percentage"
+ Local: field: numf2: Format: "nozero,decimals:2"
+ Local: field: numf3: Format: "nozero,decimals:2"
+ Local: Field: snf: storage:cwhsncode
+;; {18.Apr.22 16:54}  Local: Field: numf3: Set As:@@StdSalesPriceX
+;; {18.Apr.22 16:24}  Local: Field: numf3: Set As:$$number:$$currentvalue:$standardcost:stockitem:$StockItemName
+;; {18.Apr.22 16:25}  Local: Field: numf3: Set As: $$number:@@cwmidacustrate
+ Local: Field: numf3: Set As:$$number:@@StdSellRate
+
+
+ Local: Field: numf4: Set As:$$number:$StandardPrice:StockItem:##StockItemName
+Local: Field: numf: storage:cwgstper
+
+ Local: Field: numf2:skip:if $$owner:$$owner:$cwnetsales="yes" then "yes" else "no"
+ 
+ Local: Field: snf: Skip: Yes
+ Local: Field: numf: Skip: Yes
+ Local: field: numf2: Align:left
+ 
+ Local: Field: snf: Style: Normal Bold
+ Local: Field: numf: Style: Normal Bold
+ Local: Field: numf2: Style: Normal Bold
+ Local: Field: numf: Inactive    : $$IsEnd:$StockItemName OR @@NoBaseUnits
+ Local: Field: nf: Inactive    : $$IsEnd:$StockItemName OR @@NoBaseUnits
+ 
+ Local: Field: snf25: table:colstcostsales ,Not Applicable
+ Local: Field: snf25: Show table: Always
+ 
+ ;;========================================
+ [Function:cwGetHSNCodeFor]
+parameter : myitemname : string
+returns : string
+;; {10.Sep.20 22:11} object:stockitem:##myitemname
+
+10 : return: $$GetNonEmptyValFromHierarchy:"GST":@@dsptodate:"":"sales":$StockItemName:"Main location":"":"HSNCode"
+;;====================================
+ [System : Formula]
+ 
+ [System: Formula]
+cwmidacustrate:$$CurrentValue:$StandardPrice:StockItem:$StockItemName
+
+StandDateX     :$Date <= $$ReqObject:$Date
+StdPurCostX    :$$FilterValue:$Rate:StdPurCostX:Last:StandDateX
+StdSalesPriceX :$$FilterValue:$Rate:StdRatePriceX:Last:StandDateX
+
+[Collection: colstcostsales]
+source collection:sourcolstcostsales
+walk:StandardCostList
+
+;; {18.Apr.22 14:40} by:StockItemName:$StockItemName
+by:Name:$..Name
+compute:rate:$rate
+
+;; {18.Apr.22 14:40} add:format:$StockItemName,10
+add:format:$Name,10
+add:format:$rate,10
+fetch:*.*
+
+[collection:sourcolstcostsales]
+type:stockitem
+
+[Collection : StdRatePriceX]
+	
+    Type		: StandardPriceList	: Stock Item
+	Childof		: $StockItemName
+	
+      fetch:rate
+      
+[Collection: StdPurCostX]
+
+    Type        : StandardCostList    : StockItem
+    Child of    : $StockItemName
+    fetch:rate
+
+ ;;SAREE OPARA GULAB B.P. (BOX) S.NET
+ ;;===================================================================
+ 
+ [#Field: cI AccRate]
+ add:option:cweiAccRateopt:@@issales and @@MinuSareeEnabled
+ 
+ [#Field: EI AccRate]
+ add:option:cweiAccRateopt:@@issales and @@MinuSareeEnabled
+
+ [!field:cweiAccRateopt]
+;; {22.Apr.21 12:43}  Set as	:if $cwdiscpernew:ledger:$ledgername="yes" then $cwdiscper:ledger:$partyledgername*-1 else (If ##InVchFill Then $$Value Else @SetVal)
+ Set as	:if $$owner:$$owner:$cwnetsales="yes" then (If ##InVchFill Then $$Value Else @SetVal)  else @@cwdiscpernewopt
+
+ skip:if $$owner:$$owner:$cwnetsales="yes" then "yes" else "no"
+;; {06.Apr.22 13:40}    border:thin box
+ 
+ [System: Formula]
+ cwdiscpernewopt:if $cwdiscpernew:ledger:$ledgername="yes" then $cwdiscper:ledger:$partyledgername*-1 else (If ##InVchFill Then $$Value Else @SetVal)
+
+ [#Field: VCHBATCH Discount]
+ add:option:VCHBATCHDiscountopt:@@issales and @@MinuSareeEnabled
+ [!field:VCHBATCHDiscountopt]
+ 
+ skip:if $$owner:$$owner:$cwnetsales="yes" then "yes" else "no"
+ 
+ [#Field: VCHDiscount]
+  add:option:VCHDiscountopt:@@issales and @@MinuSareeEnabled
+ [!field:VCHDiscountopt]
+ skip:if $$owner:$$owner:$cwnetsales="yes" then "yes" else "no"
+ 
+
+;;====================================
+
+[System: Formula]
+cwminudiscamtvalue:$$CollAmtTotal:inventoryentries:$cwminudiscamt
+cwproductdiscpernewopt:$cwproductdiscpernew:ledger:$ledgername="yes"
+cwuseforvchlevdiscopt:$cwuseforvchlevdisc:ledger:$ledgername="yes"
+
+[#Line: EI AccInfo]
+add:option:newAccInfosales:@@issales
+[!LINE:newAccInfosales]
+
+add:field:nf,snfx,numf,snfx2,numf2,amtf9
+Local: Field: nf: info: ""
+Local: Field: snfx: info: if @@cwuseforvchlevdiscopt then "Qty :" else ""
+Local: Field: snfx2: info: if @@cwuseforvchlevdiscopt then "Rate :" else ""
+Local: Field: numf: Set As:if @@cwuseforvchlevdiscopt then @@cwinvBqtyN else ""
+Local: Field: numf: Skip: Yes
+Local: Field: amtf9: Set As:#numf*#numf2
+Local: Field: numf2:skip:if $$owner:$$owner:$cwnetsales="yes"  then "yes" else "no"
+local: field: amtf9: Invisible: yes
+
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+Local: Field: amtf9: storage:cwqtyrateval
+Local: Field: numf2: storage:cwledateval
+Local: field: numf: Format: "decimals:2,nozero"
+Local: field: numf2: Format: "decimals:2,nozero"
+
+Local: field: eiaccdesc: Width:60
+
+[#Line: CI AccInfo]
+add:option:newCIAccInfosales:@@issales
+[!line:newCIAccInfosales]
+
+add:field:nf,snfx,numf,snfx2,numf2,amtf9
+Local: Field: nf: info: ""
+Local: Field: snfx: info: if @@cwuseforvchlevdiscopt then "Qty :" else ""
+Local: Field: snfx2: info: if @@cwuseforvchlevdiscopt then "Rate :" else ""
+Local: Field: numf: Set As:if @@cwuseforvchlevdiscopt then @@cwinvBqtyN else ""
+Local: Field: numf: Skip: Yes
+Local: Field: amtf9: Set As:#numf*#numf2
+local: field: amtf9: Invisible: yes
+
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+Local: Field: amtf9: storage:cwqtyrateval
+Local: Field: numf2: storage:cwledateval
+Local: field: numf: Format: "decimals:2,nozero"
+Local: field: numf2: Format: "decimals:2,nozero"
+
+Local: field: ciaccdesc: Width:60
+
+
+
+[#Line: EI AccInfo]
+add:option:newAccInfo:(@@isCreditNote or @@issales) and @@MinuSareeEnabled
+[!LINE:newAccInfo]
+Local: Field:EI Value :Set as: if  @@cwuseforvchlevdiscopt then #amtf9*-1 else if  @@cwproductdiscpernewopt then @@cwminudiscamtvalue*-1 else If @@IsBangladeshVATOn AND $TaxType:Ledger:$LedgerName=@@SDTaxType Then @SDAmount Else +
+ If (@@AsRounding) then (@RoundedPrevTotal - @OnPrevTotalVal) else +
+                  If ((@@IsIndian OR @@IsMalaysia) AND @@TaxLedgerHasService) OR (@@IsIndian AND @@TaxLedgerHasTCS AND @@TCSInvoices) +
+				  Then @TaxBillAmt else +
+				  If @@TDSInVoucher then @TDSDedAmt Else @RoundedVal
+
+
+
+[#Line: CI AccInfo]
+add:option:newCIAccInfo:(@@isCreditNote or @@issales) and @@MinuSareeEnabled
+[!line:newCIAccInfo]
+
+
+Local: Field:CI Value :Set as:if @@cwuseforvchlevdiscopt then #amtf9*-1 else if  @@cwproductdiscpernewopt then @@cwminudiscamtvalue*-1 else If @@IsBangladeshVATOn AND $TaxType:Ledger:$LedgerName=@@SDTaxType Then @SDAmount Else +
+ If (@@AsRounding) then (@RoundedPrevTotal - @OnPrevTotalVal) else +
+                  If ((@@IsIndian OR @@IsMalaysia) AND @@TaxLedgerHasService) OR (@@IsIndian AND @@TaxLedgerHasTCS AND @@TCSInvoices) +
+				  Then @TaxBillAmt else +
+				  If @@TDSInVoucher then @TDSDedAmt Else @RoundedVal
+
+
+
+;;====================================
+
+
+ [#Part: GST TransAdditionalDetails]
+ add:option:newDBLLINENarrationXnew:@@issales and @@MinuSareeEnabled
+ [!part:newDBLLINENarrationXnew]	
+ add:Line:before: GST TransAdditionalDetails:fndeline
+
+
+
+
+ 
+ [line:fndeline]
+ field:sp,cwlogical
+ Local: Field: sp: Set As:"F/N Details"
+ Local: Field : cwlogical : SubForm : fnderep: $$value
+ Local: field: sp: Width:18
+ 
+ [report:fnderep]
+ form:fnderep
+ 
+ [form:fnderep]
+ part:fnderep
+ 
+ [part:fnderep]
+ line:noofline,natureline,pmline,valuinline,spinline,trnmalline,fromtoline
+ 
+ [line:noofline]
+  field:sp,nf
+ Local: Field: sp: Set As:"No of Packages"
+ Local: Field: nf: storage:cwnofobales
+ Local: field: sp: Width:20
+
+ Local: Field: nf: Set As:$cwnofobales  ;;$$owner:$$owner:$cwNoofPackages
+ space bottom:0.5
+ Local: Field: nf: Style: Normal Bold
+
+   [line:natureline]
+    field:sp,nf
+ Local: Field: sp: Set As:"Nature Of Goods"
+ Local: Field: nf: storage:cwNatureOfGoods
+ Local: Field: nf: Set As:$cwNatureOfGoods:COMPANY:##SVCURRENTCOMPANY
+  Local: field: sp: Width:20
+ space bottom:0.5
+ Local: Field: nf: Style: Normal Bold
+
+
+ [line:pmline]
+  field:sp,nf
+ Local: Field: sp: Set As:"Private Marks"
+ Local: Field: nf: storage:cwPrivateMarks
+ Local: Field: nf: Set As:$vouchernumber
+  Local: field: sp: Width:20
+ space bottom:0.5
+ Local: Field: nf: Style: Normal Bold
+
+
+ [line:valuinline]
+  field:sp,snf
+ Local: Field: sp: Set As:"Value of Insurance"
+ Local: Field: snf: storage:cwValueofInsurance
+ Local: field: sp: Width:20
+ local : field : numf : format :"Decimals:2,NoZero"
+
+ space bottom:0.5
+ Local: Field: snf: Style: Normal Bold
+ Local: Field: snf: Set As:$cwValueofInsurance:COMPANY:##SVCURRENTCOMPANY
+
+ [line:spinline]
+  field:sp,nf
+ Local: Field: sp: Set As:"Special Instructions"
+ Local: Field: nf: storage:cwSpecialInstructions
+  Local: field: sp: Width:20
+  Local: Field: nf: Set As: $$CollectionField:$cwminuitem:First:inventoryentries
+   Local: field: nf: Width:40
+  space bottom:0.5
+ Local: Field: nf: Style: Normal Bold
+
+ [line:trnmalline]
+  field:sp,nf
+ Local   : Field : sp     : Set as	: $$LocaleString:"Transporter Name"
+ Local: Field: nf: storage:cwtempGSTewayTransporterName
+ Local: Field: NF: Set As:$cwtempGSTewayTransporterName:LEDGER:$PARTYLEDGERNAME
+
+ Local: field: sp: Width:20
+ space bottom:0.5
+ 
+ Local: Field: nf: Style: Normal Bold
+ 
+ Local: Field: nf: Style: Normal Bold
+ Local: Field: nf: table:collTransporterled,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+
+ 
+ [line:trnmaaddlline]
+  field:sp,nf
+ Local   : Field : sp     : Set as	: $$LocaleString:"Adress"
+ Local: Field: nf: storage:cwTransporteradd1
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+ Local: Field: nf: Style: Normal Bold
+
+ 
+ [line:trnmaaddlline1]
+  field:sp,nf
+ Local   : Field : sp     : Set as	: $$LocaleString:""
+ Local: Field: nf: storage:cwTransporteradd2
+ Local: field: sp: Width:20
+
+
+ Local: Field: nf: Style: Normal Bold
+ 
+  [line:trnmacontpersline1]
+  field:sp,nf
+ Local   : Field : sp     : Set as	: $$LocaleString:"Contact Person"
+ Local: Field: nf: storage:cwTransportercontperson
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+ Local: Field: nf: Style: Normal Bold
+ 
+  [line:trnmacontnolline1]
+  field:sp,nf
+ Local   : Field : sp     : Set as	: $$LocaleString:"Contact No."
+ Local: Field: nf: storage:cwTransportercontno
+ Local: field: sp: Width:20
+  space bottom:0.5
+
+ Local: Field: nf: Style: Normal Bold
+
+ 
+ [line:fromtoline]
+ field:sp,snf,sp2,snf2
+ Local: Field: sp: Set As:"From"
+ Local: Field: sp2: Set As:"To"
+ Local: Field: snf: storage:cwfromfn
+ Local: Field: snf2: storage:cwtofn
+ Local: Field: snf: Set As:$cwfromfn:COMPANY:##SVCURRENTCOMPANY
+ Local: Field: snf2: Set As:$cwmsconsCity
+
+ Local: field: sp: Width:20
+ Local: field: sp2: Width:6
+ Local: Field: snf: Style: Normal Bold
+ Local: Field: snf2: Style: Normal Bold
+ 
+ 
+ 
+

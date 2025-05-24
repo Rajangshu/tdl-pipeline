@@ -1,0 +1,223 @@
+; Created By: khokan on 2022-06-04 10:51, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: testsalesLock ;; : @@testsalesDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@testsalesReport: Display: Reptestsales
+
+
+
+     [!menu: testsalesLock]
+        add: Item: before: @@locQuit: @@testsalesReport: Display: Reptestsales
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   testsalesReport: "testsales"
+;; testsalesDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Reptestsales]
+        use: Dsp Template
+      Title: @@testsalesReport
+   Printset: Report Title: @@testsalesReport
+       Form: Frmtestsales
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable:str1,str2
+    set:str1:""
+    set:str2:""
+    
+      [Form: Frmtestsales]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0testsales,Prttestsales
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: testsalesbotbrk,testsalesbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+    add:button:allagentnetsalesbottonz
+    
+      [part: testsalesbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: testsalesbotopbrk]
+        use: dspacctitles
+  add: part: testsalesTitlePart
+
+      [part: testsalesTitlePart]
+       line: LntestsalesTitle
+       
+      [line: LntestsalesCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0testsales]
+      line : LntestsalesCurrPeriod
+      
+      [Part: Prttestsales]
+       Line: LntestsalesTitle,LntestsalesTitle2,Lntestsales
+bottom Line: LntestsalesTotals
+     repeat: Lntestsales:Coltestsales
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,Qtyf2,amtf,amtf2,amtf3
+      
+      
+
+      
+[Collection: Coltestsales]
+ source Collection: sourColtestsales
+by:partyledgername:$partyledgername
+by:vouchernumber1:$vouchernumber
+
+by:cwcaption1vch3:$..cwcaption3vch
+by:parent1:$parent:ledger:$partyledgername
+by:parent2:$grandparent:ledger:$partyledgername
+
+aggr compute:salesbilledqty:sum:if $$issales:$vouchertypename then @@salesbilledqty2 else $$InitValue:"Quantity"
+compute:vouchertypename1:$vouchertypename
+compute:cwEnableNetSalesReport1:$cwEnableNetSalesReport:vouchertype:$vouchertypename
+
+aggr compute:salescrbilledqty:sum:if $$IsCreditNote:$vouchertypename then @@salesbilledqty2 else $$InitValue:"Quantity"
+
+aggr compute:salesamount:sum:if $$issales:$vouchertypename then $amount else $$InitValue:"amount"
+aggr compute:salesinvamt1:sum:if $$issales:$vouchertypename then @@salesinvamt2 else $$InitValue:"amount"
+
+aggr compute:salescramount:sum:if $$IsCreditNote:$vouchertypename then $amount else $$InitValue:"amount"
+aggr compute:crnoteinvamt1:sum:if $$IsCreditNote:$vouchertypename then @@salesinvamt2 else $$InitValue:"amount"
+
+filter:cwGroupsundrydebtorsfilter,cwpartyledgernamefilter
+
+ sort:@@default:$cwcaption1vch3
+ 
+[Collection: sourColtestsales]
+
+
+   Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColsalessrFilterx,IsNonOptionalCancelledVchs
+
+
+filter:ColallAGENTWISEnetsalesreportFilterx
+
+ [system: Formula]
+ ColallAGENTWISEnetsalesreportFilterx:NOT $PARENT:LEDGER:$partyledgername="Cash in Hand"
+ ColsalessrFilterx:($$issales:$vouchertypename or $$IsCreditNote:$vouchertypename) and @@cwEnableNetSalesReportx  ;;$$isreceipt:$vouchertypename)
+;; {14.Jun.22 11:49}  ColsalessrFilterx:$$issales:$vouchertypename and @@cwEnableNetSalesReportx  ;;$$isreceipt:$vouchertypename)
+;; {14.Jun.22 12:11}  ColsalessrFilterx:$$IsCreditNote:$vouchertypename and @@cwEnableNetSalesReportx  ;;$$isreceipt:$vouchertypename)
+
+  cwEnableNetSalesReportx:$cwEnableNetSalesReport:vouchertype:$vouchertypename="yes"
+  
+      [Line: LntestsalesTitle2]
+       use: Lntestsales
+      Local: Field:nf: Set As: $$CollectionField:$cwcaption1vch3:First:Coltestsales
+      
+      [Line: LntestsalesTitle]
+        use: Lntestsales
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: qtyf2: set as: "Qty."
+local:field: amtf: set as: "sales Value"
+local:field: amtf2: set as: "cr noteValue"
+local:field: amtf3: set as: "receipt Value"
+
+local: field: default : style: normal bold
+
+[Line: Lntestsales]
+ field:fwf,nf,snf,snf2
+ right field:qtyf,qtyf2,amtf,amtf2,amtf3
+ 
+ local:field: snf: set as:$cwEnableNetSalesReport1;;$cwcaption1vch3  ;;$cwcaption1vch1 ;; "Name"
+ local:field: snf2: set as:$vouchernumber1
+ local:field: nf: set as:$vouchertypename1 ;;$cwcaption1vch3  ;;$cwcaption1vch1 ;; "Name"
+local:field: fwf: set as:$partyledgername  ;; "Description"
+local:field: qtyf: set as:$salesbilledqty ;; "Qty."
+local:field: qtyf2: set as:$salescrbilledqty ;; "Qty."
+local:field: amtf: set as:$salesamount ;; "sales Value"
+local:field: amtf2: set as:$salescramount  ;; "cr noteValue"
+local:field: amtf3: set as:$$reportobject:$$collectionfieldbykey:$rcptvalue:#fwf:Colreceipt  ;; "AMOUNT"
+
+;; {14.Jun.22 11:54} add:explode:expAREAWISEsalesRepx:$$line = $$numitems or $cwcaption1vch3 <> $$nextobj:$cwcaption1vch3
+
+[part:expAREAWISEsalesRepx]
+line:expAREAWISEsalesRepx
+
+[line:expAREAWISEsalesRepx]
+delete:explode
+use:Lntestsales
+ local:field: nf: set as:$$nextobj:$cwcaption1vch3  ;;$cwcaption1vch1 ;; "Name"
+local:field: fwf: set as:"" ;;$partyledgername  ;; "Description"
+local:field: qtyf: set as:"" ;;$salesbilledqty ;; "Qty."
+local:field: qtyf2: set as:"" ;;$salescrbilledqty ;; "Qty."
+local:field: amtf: set as:"" ;;$salesamount ;; "sales Value"
+local:field: amtf2: set as:"" ;;$salescramount  ;; "cr noteValue"
+local:field: amtf3: set as:"" ;;$$reportobject:$$collectionfieldbykey:$rcptvalue:#fwf:Colreceipt  ;; "AMOUNT"
+
+
+      [line: LntestsalesTotals]
+        use: Lntestsales
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: qtyf2: set as: $$total:qtyf2
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      local: field: amtf2 : set as :  $$total:amtf2
+      local: field: amtf3 : set as :  $$total:amtf3
+      
+      
+    [button:allagentnetsalesbottonz]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:allagentnetsalesbottonz
+
+ [report:allagentnetsalesbottonz]
+ form:allagentnetsalesbottonz
+
+ [form:allagentnetsalesbottonz]
+ part:allagentnetsalesbottonz
+
+ HEIGHT:20% PAGE
+ WIDTH:30% PAGE
+
+ [part:allagentnetsalesbottonz]
+ line:cwtitlelinex,allagentnetsalesbottonz
+
+ [line:allagentnetsalesbottonz]
+ field:sp,nf
+ Local: Field: sp: Set As:@@cwcaption1tableundernew
+ Local: Field: nf:modifies:str2
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:collledp,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ [Collection: collledp]
+ type:ledger
+
+
+ [System: Formula]
+
+cwpartyledgernamefilter:if $$issysname:##str2 then yes else $partyledgername =##str2
+
+
+

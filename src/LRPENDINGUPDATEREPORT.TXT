@@ -1,0 +1,247 @@
+; Created By: Khokan on 2021-05-18 11:11, ID: 
+
+[System: Formula]
+AllowCurrReportActionxx		: ($$InDisplayMode or $$InalterMode) AND NOT ($$IsSubReport OR $$IsAutoReport)
+
+[#Menu: Print TopMenu]
+       delete:Key Item    	: @@locCurrentReport		: R : Print Report	: (.)	: @@AllowCurrReportAction
+       add:Key Item    	:before:@@locOtherReport: @@locCurrentReport		: R : Print Report	: (.)	: @@AllowCurrReportActionxx
+
+
+[#Menu: Export TopMenu]
+
+	Indent			: @@locIndentReports
+	delete:Key Item    	: @@locCurrentReport		: R : Export Report	: (.)	: @@AllowCurrReportAction	
+	add:Key Item    	:before:@@locOtherReport: @@locCurrentReport		: R : Export Report	: (.)	: @@AllowCurrReportActionxx	
+
+
+
+  ;;====================================================================================
+
+
+     [#menu: Gateway of Tally]
+;; {25.May.21 13:02}         add: Option: LRpendingUpdatereportLock ;; : @@LRpendingUpdatereportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@LRpendingUpdatereportReport: alter: RepLRpendingUpdatereport
+
+
+
+     [!menu: LRpendingUpdatereportLock]
+        add: Item: before: @@locQuit: @@LRpendingUpdatereportReport: alter: RepLRpendingUpdatereport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   LRpendingUpdatereportReport: "LR Pending Update Report"
+;; LRpendingUpdatereportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepLRpendingUpdatereport]
+        use: Dsp Template
+      Title: @@LRpendingUpdatereportReport
+   Printset: Report Title: @@LRpendingUpdatereportReport
+       Form: FrmLRpendingUpdatereport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    Multi Objects:ColLRpendingUpdatereport
+     
+      [Form: FrmLRpendingUpdatereport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0LRpendingUpdatereport,PrtLRpendingUpdatereport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: LRpendingUpdatereportbotbrk,LRpendingUpdatereportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+    local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+      [part: LRpendingUpdatereportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: LRpendingUpdatereportbotopbrk]
+        use: dspacctitles
+  add: part: LRpendingUpdatereportTitlePart
+
+      [part: LRpendingUpdatereportTitlePart]
+       line: LnLRpendingUpdatereportTitle
+       
+      [line: LnLRpendingUpdatereportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: default: Skip: Yes
+
+  invisible: $$inprintmode
+
+      [part: PrtTitle0LRpendingUpdatereport]
+      line : LnLRpendingUpdatereportCurrPeriod
+      
+      [Part: PrtLRpendingUpdatereport]
+       Line: LnLRpendingUpdatereportTitle,LnLRpendingUpdatereport
+bottom Line: LnLRpendingUpdatereportTotals
+     repeat: LnLRpendingUpdatereport: ColLRpendingUpdatereport
+     scroll:both  ;; Vertical
+ Common Border: YEs
+      Total: Qtyf,qtyf2,qtyf3,numf
+
+[Collection: ColLRpendingUpdatereport]
+
+    Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColhFilter,cwledcityfilter,ColLRpendingUpdatereportFilter,IsNonOptionalCancelledVchs
+
+/*
+Type	   : Vouchers : VoucherType
+Child Of   : $$VchTypesales
+Belongs To : Yes
+filter:ColLRpendingUpdatereportFilter
+  */
+    [system: Formula]
+ColLRpendingUpdatereportFilter:$$isempty:$BillofLadingNo
+ColhFilter:$$issales:$vouchertypename
+
+cwledcityfilter:not ($cwledcity:ledger:$partyledgername="kolkata")
+
+      [Line: LnLRpendingUpdatereportTitle]
+        use: LnLRpendingUpdatereport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: snf: set as: "Bill No"
+local:field: sdf: set as: "Date"
+local:field: fwf: set as: "Party Name"
+local:field: snf2: set as: "Area"
+local:field: snf3: set as: "Booked Party"
+local:field: nf: set as: "Dispatch From"
+local:field: numf: set as: "No of Bales"
+local:field: qtyf2: set as: "Pcs"
+local:field: nf2: set as: "Transporters"
+local:field: nf3: set as: "Direct Disp"
+local:field: nf4: set as: "LR No"
+local:field: sdf2: set as: "LR Date"
+
+local:field:snf5: set as: "Agent"
+local:field:snf6: set as: "SalesMan"
+
+local : field : nf4 : delete : storage
+local : field : sdf2 : delete : storage
+local: field: qtyf: type: String
+
+ Local: field: default: Align:centre
+
+local: field: default : style: normal bold
+
+[Line: LnLRpendingUpdatereport]
+Fields:snf,sdf,fwf
+right field:snf2,snf3,nf,numf,qtyf2,nf2,nf3,nf4,sdf2
+
+Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf2 : Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf3 : Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local: field: fwf: alter : voucher : $$isvoucher
+
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+
+local:field: snf: set as:$vouchernumber ;; "Bill No"
+local:field: sdf: set as:$date;; "Date"
+local:field: fwf: set as:$partyledgername;; "Party Name"
+local:field: snf2: set as:$cwledcity:ledger:$partyledgername   ;;$cwcaption1vch  ;;$$ReptField:Name:2:ledger:$partyledgername ;; "Area"
+local:field: snf3: set as:"" ;; "Booked Party"
+local:field: nf: set as:$BasicShippedBy ;; "Dispatch From"
+local:field: qtyf: set as:@@cwinvbQty;; "No of Bales"
+local:field: qtyf2: set as:@@cwinvbQty ;; "Pcs"
+local:field: nf2: set as:$cwtempGSTewayTransporterName ;; "Transporters"
+local:field: nf3: set as:"SHOP";; "Direct Disp"
+
+Local: Field: nf4: Set As:$BillofLadingNo
+Local: Field: sdf2: Set As:$BillofLadingDate
+
+Local: Field: nf4: storage:BillofLadingNo
+Local: Field: sdf2: storage:BillofLadingDate
+Local: Field: qtyf3: Set As:if $$line=1 then #qtyf else $$prevlinefield+#qtyf
+
+local:field:snf5: set as:$cwcaption1vch ;; "Agent"
+local:field:snf6: set as:$cwcaption2vch ;; "SalesMan"
+
+
+local: field: qtyf: type:quantity:Secondary units
+local: field: qtyf3: type:quantity:Secondary units
+;; {18.May.21 13:12} local: field: numf: type:number:Secondary units
+
+Local: Field: numf: Set As:@@cwSecondarysalesQty
+Local: Field: snf9: Set As:@@cwSecondarysalesQty
+
+Local: Field: fwf: Skip: Yes
+local:field: snf:Skip: Yes
+local:field: sdf:Skip: Yes
+local:field: fwf:Skip: Yes
+local:field: snf2:Skip: Yes
+local:field: snf3:Skip: Yes
+local:field: snf4:Skip: Yes
+local:field: snf5:Skip: Yes
+local:field: snf6:Skip: Yes
+local:field: nf:Skip: Yes
+local:field: qtyf:Skip: Yes
+local:field: qtyf2:Skip: Yes
+local:field: nf2:Skip: Yes
+local:field: numf:Skip: Yes
+local:field: nf3:Skip: Yes
+
+Local: Field: default: Border: thin right
+
+ [System: Formula]
+  cwSecondarysalesQty : $$string:@@cwsalesQty:"Secondary,shortform,compact"
+ cwsalesQty : $$collqtytotal:inventoryentries:$billedqty
+
+
+[line: LnLRpendingUpdatereportTotals]
+use: LnLRpendingUpdatereport
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total"
+local:field: snf: set as:"";; "Bill No"
+local:field: sdf: set as:"";; "Date"
+
+local:field: snf2: set as:"";; "Area"
+local:field: snf3: set as:"";; "Booked Party"
+local:field: nf: set as:"" ;; "Dispatch From"
+local:field: qtyf: set as:#qtyf3  ;$$total:qtyf2  ;;$$total:qtyf ;; "No of Bales"
+local:field: qtyf2: set as:$$total:qtyf2 ;; "Pcs"
+local:field: nf2: set as:"";; "Transporters"
+local:field: nf3: set as:"";; "Direct Disp"
+local:field: nf4: set as:"";; "Direct Disp"
+local:field: sdf2: set as:"";; "Direct Disp"
+local:field: numf: set as:$$total:numf
+Local: Field: qtyf3: Set As:$$prevlinefield
+local:field:snf5: set as:"";; "Agent"
+local:field:snf6: set as:"";; "SalesMan"
+
+
+local : field : nf4 : delete : storage
+local : field : sdf2 : delete : storage
+
+
+local: field: qtyf: type:quantity:Secondary units
+local: field: qtyf3: type:quantity:Secondary units
+
+

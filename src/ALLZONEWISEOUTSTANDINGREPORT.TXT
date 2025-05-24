@@ -1,0 +1,309 @@
+; Created By: Khokan on 2021-08-27 12:41, ID: 
+
+
+     [#menu: Gateway of Tally]
+;; {27.Aug.21 13:33}         add: Option: ALLZONEWISEOutstandingReportLock ;; : @@ALLZONEWISEOutstandingReportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ALLZONEWISEOutstandingReportReport: Display: RepALLZONEWISEOutstandingReport
+
+
+
+     [!menu: ALLZONEWISEOutstandingReportLock]
+        add: Item: before: @@locQuit: @@ALLZONEWISEOutstandingReportReport: Display: RepALLZONEWISEOutstandingReport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ALLZONEWISEOutstandingReportReport:"All"+" "+@@cwcaption4tableundernew+" "+"wise outstanding report"
+;; ALLZONEWISEOutstandingReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepALLZONEWISEOutstandingReport]
+        use: Dsp Template
+      Title: @@ALLZONEWISEOutstandingReportReport
+   Printset: Report Title: @@ALLZONEWISEOutstandingReportReport
+       Form: FrmALLZONEWISEOutstandingReport
+     Export: Yes
+   ;;  set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     variable:str1,str2
+    set:str1:""
+    set:str2:""
+    
+      [Form: FrmALLZONEWISEOutstandingReport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0ALLZONEWISEOutstandingReport,PrtALLZONEWISEOutstandingReport,PrtALLZONEWISEOutstandingReport2
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: ALLZONEWISEOutstandingReportbotbrk,ALLZONEWISEOutstandingReportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+button:allzonebotton
+local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+      [part: ALLZONEWISEOutstandingReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ALLZONEWISEOutstandingReportbotopbrk]
+        use: dspacctitles
+  add: part: ALLZONEWISEOutstandingReportTitlePart
+
+      [part: ALLZONEWISEOutstandingReportTitlePart]
+       line: LnALLZONEWISEOutstandingReportTitle
+       
+      [line: LnALLZONEWISEOutstandingReportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style:styleCalisto
+      Local: Field: fwf: Style:styleCalisto
+      Local: Field: fwf: Set As:##LedgerName
+      Local: Field: nf: Set As:$$ReptField:Name:2:ledger:##LedgerName
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf2:invisible: $$inprintmode
+
+      [part: PrtTitle0ALLZONEWISEOutstandingReport]
+      line : LnALLZONEWISEOutstandingReportCurrPeriod
+      
+      [Part: PrtALLZONEWISEOutstandingReport]
+      Part: PrtALLZONEWISEOutstandingReporta
+      Part: PrtALLZONEWISEOutstandingReportb
+
+
+      [Part: PrtALLZONEWISEOutstandingReporta]
+         Line: LnALLZONEWISEOutstandingReportTitle,LnALLZONEWISEOutstandingReport
+
+     repeat: LnALLZONEWISEOutstandingReport: ColALLZONEWISEOutstandingReport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+       Width:50% page
+       
+[Collection: ColALLZONEWISEOutstandingReport]
+      type:bills
+filter:ColALLZONEWISEOutstandingReportFilter,cwparentagfilter,cwallzonefilter
+fetch:BillCreditPeriod,cwcaption1vch,cwcaption2vch,cwcaption3vch,cwcaption4vch,cwcaption5vch,cwcaption6vch
+
+
+    [system: Formula]
+ColALLZONEWISEOutstandingReportFilter:$$isdr:$closingbalance
+
+
+
+
+
+      [Line: LnALLZONEWISEOutstandingReportTitle]
+        use: LnALLZONEWISEOutstandingReport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Bill No"
+local:field: fwf: set as: @@cwcaption1tableundernew
+local:field: nf: set as:"Party"
+local:field: numf: set as:"Due Days"
+
+
+local:field: amtf: set as: "Bill Amt"
+
+local: field: default : style: normal bold
+Local: field: default: Align:centre
+Local: field:fwf: Align:left
+local: field: sdf : style:styleCalisto2
+local: field: sNf : style:styleCalisto2
+local: field: nf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: numf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+
+      [Line: LnALLZONEWISEOutstandingReport]
+     Fields: sdf,snf,nf,fwf
+right field:numf,Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$billdate;; "Date"
+local:field: snf: set as:$name;; "Bill No"
+local:field: fwf: set as:$cwcaption4vch;; "Bill No"
+local:field: nf: set as:$parent;; "Bill No"
+local:field: numf: set as::@@DSPToDate - $BillDate;;"Due Days"
+
+
+local:field: amtf: set as:$closingbalance ;; "Bill Amt"
+Local: Field: default: Border: thin right
+local: field: default : style:styleCalisto
+Local: field: snf: Width:8
+border:thin bottom
+
+   [Part: PrtALLZONEWISEOutstandingReportb]
+         Line: LnALLZONEWISEOutstandingReportTitleb,LnALLZONEWISEOutstandingReportb
+
+     repeat: LnALLZONEWISEOutstandingReportb: ColALLZONEWISEOutstandingReportb
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+       Width:50% page
+       
+[Collection: ColALLZONEWISEOutstandingReportb]
+      type:bills
+filter:ColALLZONEWISEOutstandingReportFilterb,cwparentagfilter,cwallzonefilter
+fetch:BillCreditPeriod,cwcaption1vch,cwcaption2vch,cwcaption3vch,cwcaption4vch,cwcaption5vch,cwcaption6vch
+
+
+    [system: Formula]
+ColALLZONEWISEOutstandingReportFilterb:not $$isdr:$closingbalance
+
+
+      [Line: LnALLZONEWISEOutstandingReportTitleb]
+        use: LnALLZONEWISEOutstandingReportb
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+
+;; {26.Aug.21 18:51} local:field: snf: set as: "Vch No"
+local:field: fwf: set as: @@cwcaption1tableundernew
+local:field: nf: set as:"Party"
+local:field: amtf: set as: "Cr. Amount"
+local:field: snf: set as: "Bill No"
+local: field: snf : style:styleCalisto2
+Local: field: FWF: Align:LEFT
+local: field: default : style: normal bold
+Local: field: DEFAULT: Align:centre
+
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: nf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+
+      [Line: LnALLZONEWISEOutstandingReportb]
+ Fields: sdf,SNF,nf,fwf
+right field:Amtf
+Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$billdate;; "Date"
+local:field: SNf: set as:$name;; "Vch No"
+local:field: fwf: set as:$cwcaption4vch;; "Vch No"
+local:field: nf: set as:$parent;; "Vch No"
+local:field: amtf: set as:$closingbalance;; "cr. Amount"
+Local: Field:DEFAULT: Border: thin right
+
+;; {25.Aug.21 12:56} local:field: snf: set as:@@CreditPeriod ;;"Due Date"
+Local: Field:DEFAULT: Border: thin right
+local: field: DEFAULT : style:styleCalisto
+Local: field: snf: Width:10
+border:thin bottom
+
+ [part:PrtALLZONEWISEOutstandingReport2]
+ part:PrtALLZONEWISEOutstandingReport2a
+
+ part:PrtALLZONEWISEOutstandingReport2b
+
+ [part:PrtALLZONEWISEOutstandingReport2a]
+ line: LnALLZONEWISEOutstandingReportTotals,LnALLZONEWISEOutstandingReportTotals2
+    Width:50% page
+ 
+
+
+ [line: LnALLZONEWISEOutstandingReportTotals]
+ use: LnALLZONEWISEOutstandingReport
+ option: totalOpt
+
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Dr.Total"
+
+local: field: amtf : set as :$$CollAmtTotal:ColALLZONEWISEOutstandingReport:$closingbalance
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+
+[line:LnALLZONEWISEOutstandingReportTotals2]
+use: LnALLZONEWISEOutstandingReport
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "NET O/S"
+
+local: field: amtf : set as :$$CollAmtTotal:ColALLZONEWISEOutstandingReport:$closingbalance-$$CollAmtTotal:ColALLZONEWISEOutstandingReportb:$closingbalance
+Local: field: amtf: Format: "drcr"
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+
+
+   [part:PrtALLZONEWISEOutstandingReport2b]
+   line: LnALLZONEWISEOutstandingReportTotalsb
+        Width:50% page
+      [line: LnALLZONEWISEOutstandingReportTotalsb]
+        use: LnALLZONEWISEOutstandingReport
+     option: totalOpt
+  local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Cr.Total"
+
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+
+local: field: amtf : set as :$$CollAmtTotal:ColALLZONEWISEOutstandingReportb:$closingbalance
+
+
+
+[button:allzonebotton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:allzonebotton
+
+ [report:allzonebotton]
+ form:allzonebotton
+
+ [form:allzonebotton]
+ part:allzonebotton
+
+ HEIGHT:20  ;;% PAGE
+ WIDTH:30  ;;% PAGE
+
+ [part:allzonebotton]
+ line:cwtitlelinex,agentbotton,allzonebotton
+
+  [line:allzonebotton]
+ field:sp,nf
+ Local: Field: sp: Set As:@@cwcaption4tableundernew
+ Local: Field: nf:modifies:str2
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:colwcaption4table,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ 
+[System: Formula]
+
+ cwallzonefilter:if $$issysname:##str2 then yes else $cwcaption4vch =##str2
+ 
+

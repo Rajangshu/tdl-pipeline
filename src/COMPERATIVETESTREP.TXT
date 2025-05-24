@@ -1,0 +1,314 @@
+; Created By: Khokan on 2022-08-23 11:18, ID: 
+
+     [#menu: Gateway of Tally]
+;; {08.Nov.22 16:13}         add: Option: ComperativetestrepLock ;; : @@ComperativetestrepDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ComperativetestrepReport: Display: RepComperativetestrep
+
+
+
+     [!menu: ComperativetestrepLock]
+        add: Item: before: @@locQuit: @@ComperativetestrepReport: Display: RepComperativetestrep
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ComperativetestrepReport: "Comperativetestrep"
+;; ComperativetestrepDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepComperativetestrep]
+        use: Dsp Template
+      Title: @@ComperativetestrepReport
+   Printset: Report Title: @@ComperativetestrepReport
+       Form: FrmComperativetestrep
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmComperativetestrep]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0Comperativetestrep,PrtComperativetestrep
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: Comperativetestrepbotbrk,ComperativetestrepbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: ComperativetestrepbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: Comperativetestrepbotopbrk]
+        use: dspacctitles
+  add: part: ComperativetestrepTitlePart
+
+      [part: ComperativetestrepTitlePart]
+       line: LnComperativetestrepTitle
+       
+      [line: LnComperativetestrepCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0Comperativetestrep]
+      line : LnComperativetestrepCurrPeriod
+      
+      [Part: PrtComperativetestrep]
+       Line: LnComperativetestrepTitle,LnComperativetestrep
+bottom Line: LnComperativetestrepTotals
+     repeat: LnComperativetestrep: ColComperativetestrep
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,numf,numf1,numf2,numf3,numf4,numf5
+      
+      [System: Formula]
+      BillTypeFilter:yes
+
+[Collection: ColComperativetestrep]
+
+Collection: ColComperativetestrep1
+Collection: ColComperativetestrep2
+ sort:@@default:$cwAgentName1,$parent
+ 
+[Collection: ColComperativetestrep1]
+
+
+   Type : Bills
+
+fetch : cwcaption1vch
+fetch : LedgerEntries.InventoryEntries.BilledQty
+fetch : LedgerEntries.vouchernumber
+fetch : LedgerEntries.vouchertypename
+fetch : LedgerEntries.BillType
+fetch : BillType
+
+;; {23.Aug.22 12:37} fetch : LedgerEntries.LedgerEntries.vouchertypename
+
+;;by:parent:$parent
+;;compute:BillType:$BillType
+;; {23.Aug.22 13:28} compute:BillType1:$$CollectionField:$BillType:First:BillAllocations
+;; {23.Aug.22 13:36} compute:BillType1: $$FilterValue:$BillType:BillAllocations:1:BillTypeFilter
+
+compute:vouchernumber1: $$CollectionField:$vouchernumber:First:LedgerEntries
+compute:vouchertypename1: $$CollectionField:$vouchertypename:First:LedgerEntries
+
+;; {23.Aug.22 11:05} compute : cwAgentName1 : if not $$isempty:$cwcaption1vch then $cwcaption1vch else $cwcaption1vch:ledger:$parent ;;$$filterValue:$cwcaption1vch:LedgerEntries:1:cwAgentNameExists
+compute : cwAgentName1 : $cwcaption1item:ledger:$parent ;;$$filterValue:$cwcaption1vch:LedgerEntries:1:cwAgentNameExists
+;; {23.Aug.22 14:54} compute : cwSalesDuringThePeriodQty : if ($$CollectionField:$vouchertypename:First:LedgerEntries) = "sales" or ($$CollectionField:$vouchertypename:First:LedgerEntries) = "sales Return" then $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@cwQty else $$value
+;; {24.Aug.22 14:24} compute : cwSalesDuringThePeriodQty : if @@cwsalessalesReturn="sales" or @@cwsalessalesReturn="sales Return" then $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@salesbilledqty2 else $$value
+
+;; {11.Oct.22 10:15} compute : cwSalesDuringThePeriodQty :if @@cwsalessalesReturn="sales" or @@cwsalessalesReturn="Receipt" then @@cwsalesqtycns else $$InitValue:"Number"
+compute : cwSalesDuringThePeriodQty :if @@cwsalessalesReturn="sales" then @@cwsalesqtycns else $$InitValue:"Number"
+;; {11.Oct.22 10:20} compute : cwSalesDuringThePeriodQty :@@cwsalessalesReturn="Receipt" then @@cwsalesqtycns else $$InitValue:"Number"
+
+compute : cwSalesDuringThePeriodQty :if @@cwsalessalesReturn="sales"  then @@cwsalesqtycns else $$InitValue:"Number"
+;; {10.Oct.22 12:36} compute : cwSalesDuringThePeriodQty :if @@cwsalessalesReturn="sales" then @@cwsalesqtycns else $$InitValue:"Number"
+
+;; {10.Oct.22 15:32} compute : cwSalesDuringThePeriodQtyscr :if @@cwsalessalesReturn="sales Return" then @@cwsalesqtycns else $$InitValue:"Number"
+;; {10.Oct.22 16:06} compute : cwSalesDuringThePeriodQtyscr :@@cwsalesqtycns  ;;if @@cwsalessalesReturn="sales Return" then @@cwsalesqtycns else $$InitValue:"Number"
+
+;; {23.Aug.22 15:10} compute : cwSalesDuringThePeriodAmount :if ($$CollectionField:$vouchertypename:First:LedgerEntries) = "sales" or ($$CollectionField:$vouchertypename:First:LedgerEntries) = "sales Return" then $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@cwFNBillAllocTotal else $$value
+;; {10.Oct.22 16:05} compute : cwSalesDuringThePeriodAmount :if @@cwsalessalesReturn="sales" or @@cwsalessalesReturn="sales Return" then $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@salesinvamt2 else $$value
+
+
+compute : cwSalesDuringThePeriodQtyscr :if @@cwsalessalesReturn="sales Return" then $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@cwsalesbilledqtyms2 else $$value
+
+compute : cwSalesDuringThePeriodAmount :if @@cwsalessalesReturn="sales Return" then $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@salesinvamt2 else $$value
+
+compute : cwReceiptDuringThePeriod : $$filterNumTotal:LedgerEntries:cwReceiptsDuringThePeriod:@@cwFNBillAllocTotal
+
+;; {10.Oct.22 15:53} compute : vouchertypename1 :  $$CollectionField:$vouchertypename:First:LedgerEntries
+
+compute :cwbillno1 : $$getcwbillno1:$name
+
+
+filter:cwDebtorsBills,vouchertypename1filter ;;,CWGSTPymtBillsofCurrentPeriod ;;,ColComperativetestrepFilter  ;;,cwAgentNameExists
+
+;; {11.Oct.22 10:52} filter:CWGSTPymtBillsofCurrentPeriodfilter ;;,CWGSTPymtBillsofCurrentPeriod ;;,ColComperativetestrepFilter  ;;,cwAgentNameExists
+;;sort:@@default:$vouchernumber1
+
+keep source: no
+
+;; {23.Aug.22 14:40} cleared : yes
+;; {06.Oct.22 14:41} FILTER:cwAgentName1FILTER
+
+
+[System: Formula]
+;; {01.Nov.22 12:36} vouchertypename1filter:@@vouchertypename1filteropt="sales"  ;or @@vouchertypename1filteropt="sales Return"
+vouchertypename1filter:@@vouchertypename1filteropt="sales Return"
+
+vouchertypename1filteropt:$$CollectionField:$vouchertypename:First:LedgerEntries
+;; {10.Oct.22 17:39} cwSalesCrNoteDuringThePeriodqty2:if $$line=1 then  @@cwSalesCrNoteDuringThePeriodqty else if $vouchernumber1 <> $$prevobj:$vouchernumber1 then @@cwSalesCrNoteDuringThePeriodqty else $$InitValue:"Number"
+cwSalesCrNoteDuringThePeriodqty2:if $$line=1 then  1 else if $vouchernumber1 <> $$prevobj:$vouchernumber1 then 2 else $$InitValue:"Number"
+
+cwSalesCrNoteDuringThePeriodqty:if @@cwsalessalesReturn="sales Return" then $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@cwsalesbilledqtyms2 else $$value
+
+ ;;=======sales ==============================
+ 
+  ;;M J ENTERPRISES,BBBBZ/DR1  ;;SE/22-23/000967   ;;GR/22-23/0063  500  ;;  E/22-23/000967 500  ;;27/4/22
+  
+ 
+ ;; KHAZANA HOUSE,BBBBZ/CP  ;; ;SE/22-23/000883
+ 
+ ;;=======sales ret.=======================
+ 
+ ;; SHREE JAGANNATH SAREE,ORCUT/DHJ     ;;SE/22-23/0032    ===30 30 30
+ ;; SHRI KRISHNA SYNTHETICS,UPRON/GARG  ;; SE/22-23/0003 === 73   73
+ ;; KOMAL TEXTILES,ORCUT/DHJ            ;; SE/22-23/0045 ===   1248  1248  1248
+ ;; S.B.TEXTILE,ORCUT/DHJ               ;; SE/22-23/0061 ===  64, 160
+
+
+
+
+cwDebtorsBills: $$isobjectbelongsto:group:($parent:ledger:$parent):$$Groupsundrydebtors
+
+CWGSTPymtBillsofCurrentPeriodfilter:$parent="KHAZANA HOUSE,BBBBZ/CP"   ;;sales
+
+;; {11.Oct.22 10:51} CWGSTPymtBillsofCurrentPeriodfilter:$parent="SHREE JAGANNATH SAREE,ORCUT/DHJ "
+
+;;CWGSTPymtBillsofCurrentPeriodfilter:$parent="S.B.TEXTILE,ORCUT/DHJ"
+
+CWGSTPymtBillsofCurrentPeriod: $BillDate <= @@DSPToDate AND $BillDate >= @@DSPFromDate
+
+cwAgentName1FILTER:$cwcaption1item:ledger:$parent="CASH PARTY,DIRECT"
+
+cwbilldatefil:$date >= @@dspToDate
+
+
+;; {24.Aug.22 14:19} cwsalesqtycns:if @@cwsalessalesReturn="sales" then $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@salesbilledqty2 else $$value
+cwsalesqtycns:$$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriodcns:@@cwsalesbilledqtyms2   ;;else $$value
+cwsalesReturnqtycns:if @@cwsalessalesReturn="sales Return" then $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriodcns:@@salesbilledqty2 else $$value
+
+;; {24.Aug.22 17:21} cwSalesCrNoteDuringThePeriodcns : ($date >= @@dspFromDate and $date <= @@dspToDate) and ($$isSales:$voucherTypeName or $$IsCreditNote:$voucherTypeName )
+
+;; {25.Aug.22 10:52} cwSalesCrNoteDuringThePeriodcns :($billdate >= @@dspFromDate and $billdate <= @@dspToDate) and (@@cwsalessalesReturn="sales" )
+
+cwSalesCrNoteDuringThePeriodcns :($date >= @@dspFromDate and $date <= @@dspToDate) and (@@cwsalessalesReturn="sales" )
+
+cwsalesbilledqtyms2:$$FilternumTotal:inventoryentries:cwbaseunitsFiltermss:@@CwBILLEDqTYNum  ;;$billedqty
+
+cwbaseunitsFiltermss:$baseunits:stockitem:$stockitemname="pcs"
+
+
+ ;;"sales" "sales Return"
+
+ 
+
+[Collection: ColComperativetestrep2]
+use: ColComperativetestrep1
+
+cleared : yes
+
+    [system: Formula]
+;; {24.Aug.22 14:27} ColComperativetestrepFilter:$parent="NAURATAN AGARWAL,NBISL/NDIN"
+;; {24.Aug.22 16:03} ColComperativetestrepFilter:$parent="KANHAIYALAL SAJJAN KUMAR,BBBBZ/SD"
+;; {24.Aug.22 16:19} ColComperativetestrepFilter:$parent="VENUS ENTERPRISES,BBBBZ/DR1"
+ColComperativetestrepFilter:$parent="SHRI KRISHNA SYNTHETICS,UPRON/GARG"
+
+
+;; EBONY FABRICS,BBBBZ/DR1 ;;3 3  ;;-3
+
+;;VENUS ENTERPRISES,BBBBZ/DR1 ;;9  150;;0 ,159
+
+;;SHRI KRISHNA SYNTHETICS,UPRON/GARG ;; -73 -73 ;;73
+
+
+      [Line: LnComperativetestrepTitle]
+        use: LnComperativetestrep
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: numf: set as: "sales Qty."
+local:field: numf2: set as: "sales Return.Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+ [Line: LnComperativetestrep]
+ Fields:nf4,snf1,snf3,sdf,snf2,snf,nf,fwf
+ right field: numf,numf2,Amtf,numf3,numf4
+
+ Option: Alter on Enter
+ local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+ ;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+
+ local:field: ratepf : setas  : #amtf/#qtyf
+ local: field: fwf: alter : voucher : $$isvoucher
+
+ option : alter on enter
+
+ local : field : fwf : alter : voucher : $$isvoucher
+
+ ;; local : field : fwf : alter : ledger : $$isledger
+ local : field : sdf : set as : $billdate
+ local : field : snf3 : set as :$cwbillno1  ;;$$collectionfield:@@cwbn:first:ledgerentries
+ 
+ Local: Field: snf3: Border: thin box ;;left right
+ 
+ local : field : snf1 : set as :$vouchernumber1
+ local : field : snf : set as :$name
+ local : field : snf2:set as : $vouchernumber
+ local : field : nf4 : set as : $vouchertypename1
+ local : field : nf : set as : $cwAgentName1
+ local : field : nf2 : set as : $vouchertypename1
+ local : field : fwf : set as :$parent
+ local : field : numf : set as : $cwSalesDuringThePeriodQty
+ local : field : numf2 : set as : $cwSalesDuringThePeriodQtyscr
+ local : field : amtf : set as : $cwSalesDuringThePeriodAmount
+ local : field : numf3 : set as : if $$line=1 then #numf else $$prevlinefield+#numf
+ local : field : numf4 : set as :if $$line=1 then  #numf2 else if $vouchernumber1 <> $$prevobj:$vouchernumber1 then #numf2 else $$InitValue:"Number"
+
+
+ [Function:getcwbillno1]
+;; {25.Aug.22 12:03}    parameter:myname:string
+   variable:myname:string
+
+   ;; 111:log:$$numitems:ledgerentries ;;BillAllocations
+
+   25 :walk collection: BillAllocations
+   
+   300:set:myname:$name
+
+   301:log:##myname1
+   
+   /*
+   435:if :$$loopindex > 1
+
+  445:Continue
+  446:end if
+     */
+   536 :end walk
+
+   640 :return : ##myname
+
+
+
+
+      [line: LnComperativetestrepTotals]
+        use: LnComperativetestrep
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      local: field: numf : set as :  $$total:numf
+      local: field: numf1 : set as :  $$total:numf
+      local: field: numf2 : set as :  $$total:numf2
+      local: field: numf3 : set as :  $$total:numf3
+      local: field: numf4 : set as :  $$total:numf4
+
+

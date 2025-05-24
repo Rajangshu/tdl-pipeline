@@ -1,0 +1,408 @@
+; Created By: khokan on 2022-06-28 16:46, ID:
+
+     [#menu: Gateway of Tally]
+;; {29.Jun.22 15:01}         add: Option: TopSalesProductsQtyWiseLock ;; : @@TopSalesProductsQtyWiseDemoLock
+
+
+     [#menu : cw_Debug_menu]
+        add: Item: before: @@locQuit: @@TopSalesProductsQtyWiseReport: Display Collection:collRepTopSalesProductsQtyWise ;;: RepTopSalesProductsQtyWise
+
+
+
+     [!menu: TopSalesProductsQtyWiseLock]
+        add: Item: before: @@locQuit: @@TopSalesProductsQtyWiseReport: Display Collection:collRepTopSalesProductsQtyWise ;;: RepTopSalesProductsQtyWise
+        add: Item: before: @@locQuit: Blank
+
+
+       [Collection:collRepTopSalesProductsQtyWise]
+      	Use                     : Extract Alias Collection
+	Source Collection       : List of StockGroups
+	Title                   : $$LocaleString:"List of Stock Groups"
+    delete:Collection  			: Primary
+	Variable                : Stock Group Name
+	Report                  : RepTopSalesProductsQtyWise
+	Trigger                 : Stock Group Name
+	Fetch                   : Name
+
+    [System: formula]
+   TopSalesProductsQtyWiseReport: "Top Sales Products - Qty Wise"
+;; TopSalesProductsQtyWiseDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: RepTopSalesProductsQtyWise]
+        use: Dsp Template
+      Title: @@TopSalesProductsQtyWiseReport
+   Printset: Report Title: @@TopSalesProductsQtyWiseReport
+       Form: FrmTopSalesProductsQtyWise
+     Export: Yes
+   ;  set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+
+
+
+    list variable : cwTopSellersqty
+    list variable : cwTopSellersFinalqty
+    variable : num1
+
+  ;;  set : num1 : $$cwfillTopSellersqty
+     variable:logi1,str1,num2,num3,num4
+     set:logi1:no
+     set:str1:""
+     set:num2:0
+     set:num3:0
+     set:num4:0
+
+  [collection: ColTopSellersMainCollectionqty]
+  datasource : variable : cwTopSellersFinalqty
+
+  format: $itemname,30
+  format: $saleqty,30
+  format: $saleRank,10
+  format: $SaleReturnValue,30
+  format: $saleReturnRank,10
+
+
+  format: $netRank,10
+  sort : @@default : -1*$netRank
+
+  filter:cwtopsalesstockitemnamesfilter,cwsaleRankfilternew2,saleReturnRankfilternew2  ;;,cwnetRankfilternew2
+  
+ ;; filter : netRankLT10
+
+  [System: Formula]
+;; {29.Jun.22 10:10}   netRankLT10 : $netRank < 10
+  cwsaleRankfilternew2:if $$isempty:##num2 then yes else $saleRank =##num2
+ saleReturnRankfilternew2:if $$isempty:##num3 then yes else $saleReturnRank =##num3
+ cwnetRankfilternew2:if $$isempty:##num4 then yes else $netRank =##num4
+
+
+     [collection: ColTopSellersSalesqty]
+  datasource : variable : cwTopSellersqty
+  format: $itemname,30
+
+  format: $saleReturnqty,30
+  format: $saleRank,10
+  format: $saleReturnRank,10
+
+  format: $saleqty,40
+  format: $SaleReturnValue,50
+
+
+  sort : @@default :  $$number:$saleqty
+
+
+    [variable: cwTopSellersFinalqty]
+    variable : itemname : string
+    variable : saleqty : quantity
+    variable : saleReturnqty : quantity
+    variable : saleRank: number
+    variable : saleReturnRank : number
+
+    variable : saleValue : amount
+
+    variable : SaleReturnValue : amount
+
+    variable : netRank: number
+
+
+
+    [variable: cwTopSellersqty]
+    variable : itemname : string
+    variable : saleqty : quantity
+    variable : saleReturnqty : quantity
+
+    variable : saleValue : amount
+    variable : saleRank: number
+    variable : SaleReturnValue : amount
+    variable : saleReturnRank : number
+
+    [function: cwfillTopSellersqty]
+    variable: rowIndex : number
+    variable : itemname : string
+
+    variable : ctr : number: 1
+
+    ;  setting Collection key
+    10 : list delete : cwTopSellersqty
+    20 : walk collection: ColTopSellersqty
+;; {27.Jun.22 19:36}     21 : do if : $$loopindex =1 : log : $parent
+    25 : set : itemname : $itemname
+    30 : list add : cwTopSellersqty: ##itemname
+    40 : set : rowIndex : $$listIndex:cwTopSellersqty:##itemname
+    50 : set : cwTopSellersqty[##rowIndex].itemname : ##itemname
+
+    55 : set : cwTopSellersqty[##rowIndex].saleqty : $saleqty
+    56 : set : cwTopSellersqty[##rowIndex].saleReturnqty : $saleReturnqty
+
+    60 : set : cwTopSellersqty[##rowIndex].saleValue : $saleValue
+    70 : set : cwTopSellersqty[##rowIndex].SaleReturnValue : $SaleReturnValue
+    80 : set : cwTopSellersqty[##rowIndex].saleReturnRank: if $$isempty:$saleReturnqty then 1 else ##ctr
+
+    90 : set : ctr : ##ctr + 1
+    100: end walk
+
+    ; setting Sales Key
+    105: set : ctr : 1
+    110 : list delete : cwTopSellersFinalqty
+    120 : walk collection: ColTopSellersSalesqty
+;; {27.Jun.22 19:36}     121 : do if : $$loopindex =1 : log : $partyname
+    125 : set : itemname : $itemname
+    130 : list add : cwTopSellersFinalqty : ##itemname
+    140 : set : rowIndex : $$listIndex:cwTopSellersFinalqty:##itemname
+    150 : set : cwTopSellersFinalqty[##rowIndex].itemname : ##itemname
+
+    155 : set : cwTopSellersFinalqty[##rowIndex].saleqty : $saleqty
+    156 : set : cwTopSellersFinalqty[##rowIndex].saleReturnqty : $saleReturnqty
+
+    160 : set : cwTopSellersFinalqty[##rowIndex].saleRank: if $$isempty:$saleqty then 1 else ##ctr
+
+    165 : set : cwTopSellersFinalqty[##rowIndex].saleReturnRank : $saleReturnRank
+;; {29.Jun.22 10:44}     165 : set : cwTopSellersFinalqty[##rowIndex].saleReturnRank : if $$isempty:$saleReturnqty then 1 else ##ctr
+
+   ;; 168 : set : cwTopSellersFinalqty[##rowIndex].saleValue : $saleValue
+
+   ;; 170 : set : cwTopSellersFinalqty[##rowIndex].SaleReturnValue : $SaleReturnValue
+     185 : set : cwTopSellersFinalqty[##rowIndex].netRank: ##ctr * $saleReturnRank
+
+    190 : set : ctr : ##ctr + 1
+    200 : end walk
+
+
+
+      [Form: FrmTopSalesProductsQtyWise]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0TopSalesProductsQtyWise,PrtTopSalesProductsQtyWise
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: TopSalesProductsQtyWisebotbrk,TopSalesProductsQtyWisebotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+    add:button:showRankbotton
+
+local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+ add:button:TopSalesProductsbotton
+set : num1 : $$cwfillTopSellersqty
+
+      [part: TopSalesProductsQtyWisebotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: TopSalesProductsQtyWisebotopbrk]
+        use: dspacctitles
+  add: part: TopSalesProductsQtyWiseTitlePart
+
+      [part: TopSalesProductsQtyWiseTitlePart]
+       line: LnTopSalesProductsQtyWiseTitle
+
+      [line: LnTopSalesProductsQtyWiseCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+
+      Local: Field: fwf: Set As:##StockGroupName
+      Local: Field: fwf2: invisible: $$inprintmode
+      local: field: fwf : style:styleCalisto2
+      local: field: fwf2 : style:styleCalisto2
+
+      [part: PrtTitle0TopSalesProductsQtyWise]
+      line : LnTopSalesProductsQtyWiseCurrPeriod
+
+      [Part: PrtTopSalesProductsQtyWise]
+       Line: LnTopSalesProductsQtyWiseTitle,LnTopSalesProductsQtyWise
+bottom Line: LnTopSalesProductsQtyWiseTotals
+     repeat: LnTopSalesProductsQtyWise:ColTopSellersMainCollectionqty ;;ColTopSellersMainCollectionqty ;; ColTopSalesProductsQtyWise
+     scroll: Vertical
+ Common Border: YEs
+     ;; Total: Qtyf, Qtyf1, Qtyf2
+
+[Collection: ColTopSalesProductsQtyWise]
+
+[Collection: ColTopSellersqty]
+source Collection: sourColTopSalesProductsQtyWise
+walk:inventoryentries
+
+by:itemname:$stockitemname
+aggr compute:saleqty:sum:if $$issales:$vouchertypename then $billedqty else $$InitValue:"Quantity"
+aggr compute:saleReturnqty:sum:if $$IsCreditNote:$vouchertypename then $billedqty else $$InitValue:"Quantity"
+;;aggr compute : SaleValue    : sum :if $$issales:$vouchertypename then $amount else $$InitValue:"amount"
+
+
+filter:cwStockGroupNamefilter
+
+[Collection: sourColTopSalesProductsQtyWise]
+ Use: Vouchers of Company
+ delete: filter : daybookfilter
+ Filter: ColTopSalesProductsQtyWiseFilter,IsNonOptionalCancelledVchs
+
+
+[system: Formula]
+ColTopSalesProductsQtyWiseFilter:$$issales:$vouchertypename or $$IsCreditNote:$vouchertypename
+
+cwStockGroupNamefilter:$$isobjectbelongsto:StockGroup:($parent:stockitem:$itemname):##StockGroupName
+cwtopsalesstockitemnamesfilter:if $$issysname:##str1 then yes else $itemname =##str1
+
+[Line: LnTopSalesProductsQtyWiseTitle]
+use: LnTopSalesProductsQtyWise
+option: titleopt
+
+local:field: fwf: set as: "Product"
+local:field: qtyf: set as: "Sales Qty"
+local:field: numf: set as: "Sales Rank"
+local:field: qtyf2: set as: "Sales Return Qty"
+local:field: numf2: set as: "Sales Return Rank"
+local:field: numf3: set as: "Total Point"
+local:field: numf4: set as: "Rank"
+
+local: field: fwf : style:styleCalisto2
+local: field: numf : style:styleCalisto2
+local: field: qtyf : style:styleCalisto2
+local: field: qtyf2 : style:styleCalisto2
+local: field: numf2 : style:styleCalisto2
+local: field: numf3 : style:styleCalisto2
+local: field: numf4 : style:styleCalisto2
+
+Local : field : default: Lines : 0
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+
+[Line: LnTopSalesProductsQtyWise]
+Fields:fwf
+right field:Qtyf,numf,qtyf2,numf2,numf3,numf4
+Option: Alter on Enter
+
+local:field: qtyf : Format : "Short Form, No Compact,NoZero"
+local:field: qtyf2 : Format : "Short Form, No Compact,NoZero"
+
+local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+
+local:field: fwf: set as:$itemName ;; "Product"
+local:field: qtyf: set as:$saleqty ;; "Sales Qty"
+local:field: numf: set as:$saleRank ;; "Sales Rank"
+local:field: qtyf2: set as:$saleReturnqty ;; "Sales Return Qty"
+local:field: numf2: set as:$saleReturnRank ;; "Sales Return Rank"
+local:field: numf3: set as:$netRank ;; "Total Point"
+Local: Field: numf4: Set As: if $$line = 1 then 1 else if $$prevobj:$netRank = $netRank then $$prevlinefield else $$prevlinefield + 1
+
+local: field: default : style:styleCalisto
+Local: Field:default: Border: thin right
+
+local: field: numf: Invisible:Not ##logi1
+local: field: numf2: Invisible:Not ##logi1
+local: field: numf3: Invisible:Not ##logi1
+Local: field: qtyf: Width:15
+Local: field: qtyf2: Width:15
+
+empty : if ##num4 = 0 then no else  $$line > ##num4
+
+
+[line: LnTopSalesProductsQtyWiseTotals]
+use: LnTopSalesProductsQtyWise
+option: totalOpt
+local:field: fwf: set as:"" ;; "Product"
+local:field: qtyf: set as:"" ;; "Sales Qty"
+local:field: numf: set as:"" ;; "Sales Rank"
+local:field: qtyf2: set as:"" ;; "Sales Return Qty"
+local:field: numf2: set as:"" ;; "Sales Return Rank"
+local:field: numf3: set as:"" ;; "Total Point"
+local:field: numf4: set as:"" ;; "Rank"
+
+local: field: fwf : style:styleCalisto2
+local: field: numf : style:styleCalisto2
+local: field: qtyf : style:styleCalisto2
+local: field: qtyf2 : style:styleCalisto2
+local: field: numf2 : style:styleCalisto2
+local: field: numf3 : style:styleCalisto2
+local: field: numf4 : style:styleCalisto2
+
+
+;;========================
+
+
+[button:TopSalesProductsbotton]
+
+
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:TopSalesProductsbotton
+
+ [report:TopSalesProductsbotton]
+ form:TopSalesProductsbotton
+
+ [form:TopSalesProductsbotton]
+ part:TopSalesProductsbotton
+
+ HEIGHT:30  ;;% PAGE
+ WIDTH:30  ;;% PAGE
+
+ [part:TopSalesProductsbotton]
+ line:cwtitlelinex,TopSalesProductstockitemlinesr,Salesrankline1,SalesReturnline,Totalrankline1
+
+
+
+[line:TopSalesProductstockitemlinesr]
+ field:sp,nf
+
+Local: Field: sp: Set As:"Item Name"
+Local: field: sp: Width:12
+
+space top:0.5
+
+Local: Field: nf:modifies:str1
+Local:Field:nf:table:stockitem,Not Applicable
+Local:Field:nf:Show table: Always
+Local: field: sp: Width:15
+local: field: default : style:styleCalisto2
+
+[line:Salesrankline1]
+ field:sp,numf
+
+Local: Field: sp: Set As:"Sales Rank"
+Local: field: sp: Width:15
+
+space top:0.5
+
+Local: Field: numf:modifies:num2
+
+Local: field: sp: Width:15
+local: field: default : style:styleCalisto2
+Local: field: numf: Align:left
+
+
+[line:SalesReturnline]
+ field:sp,numf
+
+Local: Field: sp: Set As:"Sales Return Rank"
+
+
+space top:0.5
+Local: field: sp: Width:15
+local: field: default : style:styleCalisto2
+
+Local: Field: numf:modifies:num3
+Local: field: numf: Align:left
+
+[line:Totalrankline1]
+ field:sp,numf
+
+Local: Field: sp: Set As:"Rank"
+Local: field: sp: Width:15
+local: field: default : style:styleCalisto2
+
+Local: field: numf: Align:left
+space top:0.5
+
+Local: Field: numf:modifies:num4

@@ -1,0 +1,1048 @@
+; Created By: khokan on 2022-06-20 12:55, ID:
+
+
+     [#menu: Gateway of Tally]
+;; {15.May.23 11:07}         add: Option: ComperativeNetsaleCollectionLock ;; : @@ComperativeNetsaleCollectionDemoLock
+
+
+;; {23.Jun.22 17:02}      [#menu : cw_Debug_menu]
+;; {23.Jun.22 17:02}         add: Item: before: @@locQuit: @@ComperativeNetsaleCollectionReport: Display: RepComperativeNetsaleCollection
+
+
+
+ [!menu: ComperativeNetsaleCollectionLock]
+ add: Item: before: @@locQuit: @@ComperativeNetsaleCollectionReport: Display Collection: collRepComperativeNetsaleCollection  ;;: RepComperativeNetsaleCollection
+ add: Item: before: @@locQuit: Blank
+
+      [System: formula]
+   ComperativeNetsaleCollectionReport: "Comparative Net Sales and Collection"
+;; ComperativeNetsaleCollectionDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+
+
+[Collection: collRepComperativeNetsaleCollection]
+
+
+ Use         		: Extract Alias Collection
+ Source	Collection	: List of ledgers
+;;	object:CostCentre
+
+ Title       		: $$LocaleString:"List of"
+
+;; {23.Feb.16 18:25}     Format : $CstCatName
+;; {23.Feb.16 18:25}     Filter : CostCentreFilter
+
+ Report      		:RepComperativeNetsaleCollection
+ Variable    		:str1,str2,str3
+ variable:ledgername  ;;sledger
+ Trigger   :Svcompanyx	
+
+;;==============================================================================
+
+
+    [Report : Svcompanyx]
+
+    Use     : Collection Variable
+    Title   : $$LocaleString:""
+    Local   : Line : Collection Variable :Field:sp,Svcompanyx,snfx,Companysdf,snfx2,Companysdf2
+    Local   : Line : Collection Variable :Local: Field: sp: info:"Company Name:"
+    Local   : Line : Collection Variable :Local: Field: sp2: info:"Company Dt:"
+    Local   : Line : Collection Variable :Local: Field: snfx: info:"From:"
+    Local   : Line : Collection Variable :Local: Field: snfx2: info:"To:"
+
+    Local   : Line : Collection Variable : Local: field: sp: Width:17
+
+    Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Company"
+
+    Local: Part: Modify Variables:add:line:CompanyNameline,ledNameline  ;;CompanyNameline2
+
+    Variable  :str1,str2,str3,sdf1,sdf2,sdf3,sdf4,sdf5,sdf6
+
+
+[Field: Svcompanyx]
+
+Use         :Name Field
+Table       :collnameCompany  ;; List of ExtractLedgers
+Show Table  :Always
+
+set always  :yes
+Modifies    :str1
+Width:40
+
+[field:Companysdf]
+ use : short date field
+ style : normal
+set always : yes
+width : @@shortwidth - 1
+Modifies    :sdf1
+
+[field:Companysdf2]
+ use : short date field
+ style : normal
+set always : yes
+width : @@shortwidth - 1
+Modifies    :sdf2
+
+[collection :collnameCompany]
+Type	: Company
+ title:"List of Companies"
+;; {24.Jun.22 06:40} Child Of:##svcurrentcompany
+
+[Field: Svcompanyx2]
+
+Use         :Name Field
+Table       :collnameCompany  ;; List of ExtractLedgers
+Show Table  :Always
+
+set always  :yes
+Modifies    :str2
+Width:40
+
+[line:CompanyNameline]
+Field:sp,Svcompanyx2,snfx,Companysdf3,snfx2,Companysdf4
+
+ Local: Field: sp: info:"Company Name:"
+ Local: Field: sp2: info:"Company Dt:"
+ Local: Field: snfx: info:"From:"
+ Local: Field: snfx2: info:"To:"
+Local: field: sp: Width:17
+
+[Field: Svcompanyx3]
+
+Use         :Name Field
+Table       :collnameCompany  ;; List of ExtractLedgers
+Show Table  :Always
+
+set always  :yes
+Modifies    :str3
+Width:40
+
+[field:Companysdf3]
+ use : short date field
+ style : normal
+set always : yes
+width : @@shortwidth - 1
+Modifies    :sdf3
+
+[field:Companysdf4]
+ use : short date field
+ style : normal
+set always : yes
+width : @@shortwidth - 1
+Modifies    :sdf4
+
+[line:CompanyNameline2]
+Field:sp,Svcompanyx3,snfx,Companysdf5,snfx2,Companysdf6
+
+Local: Field: sp: info:"Company Name:"
+Local: Field: sp2: info:"Company Dt:"
+Local: Field: snfx: info:"From:"
+Local: Field: snfx2: info:"To:"
+Local: field: sp: Width:17
+
+
+[field:Companysdf5]
+ use : short date field
+ style : normal
+set always : yes
+width : @@shortwidth - 1
+Modifies    :sdf5
+
+[field:Companysdf6]
+ use : short date field
+ style : normal
+set always : yes
+width : @@shortwidth - 1
+Modifies    :sdf6
+
+
+[line:ledNameline]
+field:snf
+
+Local: Field: snf:set as:"Cash"
+Local: Field: snf:Modifies   :ledgername
+
+
+;; {24.Jun.22 13:26} Local: Field: snf:Table      :cwcollledgrx,Primary
+
+;; {24.Jun.22 12:19} Local: Field: snf:Table      :Primary
+;; {24.Jun.22 13:26} Local: Field: snf:Show Table : Always
+
+
+;; {24.Jun.22 13:04} Local: Field: snf:set as:"Cash"
+;; {24.Jun.22 13:15} Local: Field: snf:read only:yes
+
+;; {24.Jun.22 13:22} Local: Field: snf:set as:" Primary" ;;"Cash"
+;; {24.Jun.22 12:32} Local: Field: snf:set as:"NotApplicable" ;;"Cash"
+;; {24.Jun.22 12:30} Local: Field: snf:set as:"Cash"
+
+
+
+
+
+ [Collection: cwcollledgrx]
+  type:costcentre ;;group
+
+[Report: RepComperativeNetsaleCollection]
+use: Dsp Template
+Title: @@ComperativeNetsaleCollectionReport
+Printset: Report Title: @@ComperativeNetsaleCollectionReport
+Form: FrmComperativeNetsaleCollection
+Export: Yes
+set  : svfromdate : ##svcurrentdate
+set  : svTodate : ##svcurrentdate
+Local       : Button   : RelReports        : Inactive : Yes
+variable : num1
+set : num1 : $$cwFillDetails
+
+variable:str8,str9
+set:str8:""
+set:str9:""
+
+[Form: FrmComperativeNetsaleCollection]
+use: DSP Template
+Part: DspAccTitles,PrtTitle0ComperativeNetsaleCollection,PrtComperativeNetsaleCollection
+Width: 100% Page
+Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+ delete: page break
+ add: page break: ComperativeNetsaleCollectionbotbrk,ComperativeNetsaleCollectionbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+    add:button:Comperativenetbotton
+
+      [part: ComperativeNetsaleCollectionbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ComperativeNetsaleCollectionbotopbrk]
+        use: dspacctitles
+  add: part: ComperativeNetsaleCollectionTitlePart
+
+      [part: ComperativeNetsaleCollectionTitlePart]
+       line: LnComperativeNetsaleCollectionTitle,LnComperativeNetsaleCollectionTitle2,LnComperativeNetsaleCollectionTitle3
+
+      [line: LnComperativeNetsaleCollectionCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0ComperativeNetsaleCollection]
+      line : LnComperativeNetsaleCollectionCurrPeriod
+
+      [Part: PrtComperativeNetsaleCollection]
+       Line: LnComperativeNetsaleCollectionTitle,LnComperativeNetsaleCollectionTitle2,LnComperativeNetsaleCollectionTitle3,LnComperativeNetsaleCollection
+bottom Line: LnComperativeNetsaleCollectionTotals
+     repeat: LnComperativeNetsaleCollection: varComperativeNetsale
+     scroll: Vertical
+ Common Border: YEs
+      Total:numf,amtf,amtf2,numf2,amtf3,amtf4,numf3,amtf,amtf6, amtf10, amtf11, amtf12, amtf13
+
+
+
+ [Line: LnComperativeNetsaleCollectionTitle]
+ use: LnComperativeNetsaleCollection
+     option: titleopt
+
+local:field: newnumf : set as :##str1
+local:field: newnumf2 : set as :##str2
+local:field: newnumf3 : set as :##str3
+
+local : field : newnumf : delete :FIELD
+local : field : newnumf2 : delete :FIELD
+local : field : newnumf3 : delete :FIELD
+
+Local: field: newnumf: Align:centre
+Local: field: newnumf2: Align:centre
+Local: field: newnumf3: Align:centre
+
+Local: Field: newnumf: Sub title : Yes
+Local: Field: newnumf2: Sub title : Yes
+Local: Field: newnumf3: Sub title : Yes
+Local: Field:newnumf : Sub title : Yes
+
+Local: Field:newnumf2 : Sub title : Yes
+Local: Field:newnumf3 : Sub title : Yes
+local: field: FWF : style:styleCalisto2
+
+local: field: newnumf : style:styleCalisto2
+local: field: newnumf2 : style:styleCalisto2
+local: field: newnumf3 : style:styleCalisto2
+
+local: field: numf2 : style:styleCalisto2
+local: field: amtf3 : style:styleCalisto2
+local: field: amtf4 : style:styleCalisto2
+
+local: field: numf3 : style:styleCalisto2
+local: field: amtf4 : style:styleCalisto2
+local: field: amtF5 : style:styleCalisto2
+local: field: amtF6 : style:styleCalisto2
+
+local: field: amtf10 : style:styleCalisto2
+local: field: amtf11 : style:styleCalisto2
+local: field: amtf12 : style:styleCalisto2
+local: field: amtf13 : style:styleCalisto2
+
+ [Line: LnComperativeNetsaleCollectionTitle2]
+        use: LnComperativeNetsaleCollection
+     option: titleopt
+
+local:field: newnumf : set as :$$string:##sdf1 +" to "+$$string:##sdf2
+local:field: newnumf2 : set as :$$string:##sdf3 +" to "+$$string:##sdf4
+local:field: newnumf3 : set as :$$string:##sdf5 +" to "+$$string:##sdf6
+local: field:newnumf : type: String
+local: field:newnumf1 : type: String
+local: field:newnumf2 : type: String
+local: field:newnumf3 : type: String
+
+
+Local: field: newnumf: Align:centre
+Local: field: newnumf2: Align:centre
+Local: field: newnumf3: Align:centre
+
+local : field : newnumf : delete :FIELD
+local : field : newnumf2 : delete :FIELD
+local : field : newnumf3 : delete :FIELD
+
+Local: Field: newnumf: Sub title : Yes
+Local: Field: newnumf2: Sub title : Yes
+Local: Field: newnumf3: Sub title : Yes
+Local: Field:newnumf : Sub title : Yes
+
+Local: Field:newnumf2 : Sub title : Yes
+Local: Field:newnumf3 : Sub title : Yes
+
+local: field: nf : style:styleCalisto2
+local: field: FWF : style:styleCalisto2
+
+local: field: newnumf : style:styleCalisto2
+local: field: newnumf2 : style:styleCalisto2
+local: field: newnumf3 : style:styleCalisto2
+
+local: field: numf2 : style:styleCalisto2
+local: field: amtf3 : style:styleCalisto2
+local: field: amtf4 : style:styleCalisto2
+
+local: field: numf3 : style:styleCalisto2
+local: field: amtf4 : style:styleCalisto2
+local: field: amtF5 : style:styleCalisto2
+local: field: amtF6 : style:styleCalisto2
+
+local: field: amtf10 : style:styleCalisto2
+local: field: amtf11 : style:styleCalisto2
+local: field: amtf12 : style:styleCalisto2
+local: field: amtf13 : style:styleCalisto2
+
+[Line: LnComperativeNetsaleCollectionTitle3]
+use: LnComperativeNetsaleCollection
+option: titleopt
+
+;;local: field:default: set as: $$DescName
+
+local:field: fwf : set as :"Party Name"
+local:field: nf : set as :"Agent Name"
+local:field: numf : set as :"Net Sale Qty"
+local:field: amtf : set as :"Net Sale Amt"
+local:field: amtf2 : set as :"Collection"
+
+local:field: numf2 : set as :"Net Sale Qty"
+local:field: amtf3 : set as :"Net Sale Amt"
+local:field: amtf4 : set as :"Collection"
+
+local:field: numf3 : set as :"Net Sale Qty"
+local:field: amtf5 : set as :"Net Sale Amt"
+local:field: amtf6 : set as :"Collection"
+
+local: field: amtf11: type: String
+local: field: amtf13: type: String
+
+local:field: amtf10 : set as :"Sale Variation"
+local:field: amtf11 : set as :"Sale Varn %"
+local:field: amtf12 : set as :"Coll Variation"
+local:field: amtf13 : set as :"Coll Varn %"
+
+Local: field: DEFAULT: Align:centre
+Local: field: FWF: Align:LEFT
+Local : field : DEFAULT: Lines : 0
+
+local: field: FWF : style:styleCalisto2
+local: field: nf : style:styleCalisto2
+
+local: field: numf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+
+local: field: numf2 : style:styleCalisto2
+local: field: amtf3 : style:styleCalisto2
+local: field: amtf4 : style:styleCalisto2
+
+local: field: numf3 : style:styleCalisto2
+local: field: amtf4 : style:styleCalisto2
+local: field: amtF5 : style:styleCalisto2
+local: field: amtF6 : style:styleCalisto2
+
+local: field: amtf10 : style:styleCalisto2
+local: field: amtf11 : style:styleCalisto2
+local: field: amtf12 : style:styleCalisto2
+local: field: amtf13 : style:styleCalisto2
+
+Local: field: default: Align:centre
+Local: field: numf: Align:centre
+Local: field: fwf: Align:left
+
+
+
+[field:newnumf]
+field:numf,amtf,amtf2
+WIDTH:30
+
+[field:newnumf2]
+field:numf2,amtf3,amtf4
+WIDTH:30
+
+[field:newnumf3]
+field:numf3,amtf5,amtf6
+WIDTH:25
+
+
+
+
+[Line: LnComperativeNetsaleCollection]
+Fields: nf,fwf                                            ; for agent total
+right field:newnumf,newnumf2,AMTF10,AMTF11,AMTF12,AMTF13, amtf14, amtf15,amtf16,amtf17,amtf18,amtf19,amtf20,amtf21,amtf22,amtf23
+
+Local: Field: nf: Set As: if $$line = 1 or $$prevobj:$agentName <> $agentName then $agentName else ""
+Local: Field: fwf: Set As: $varPartyName
+
+ Local: Field: nf1: Set As:$agentName
+ Local: Field: nf2: Set As:##str9
+
+local:field: numf : set as :$varNetSalesQty1  ;;"Net Sale Qty"
+local:field: amtf : set as : $varNetSalesAmt1 ;;"Net Sale Amt"
+local:field: amtf2 : set as :$varnetsalescoll1  ;;"Collection"
+
+local:field: numf2 : set as :$varnetsalesqty2 ;;"Net Sale Qty"
+local:field: amtf3 : set as :$varnetsalesamt2 ;;"Net Sale Amt"
+local:field: amtf4 : set as :$varnetsalescoll2 ;;"Collection"
+
+local:field: numf3 : set as : "";;"Net Sale Qty"
+local:field: amtf5 : set as :"" ;;"Net Sale Amt"
+local:field: amtf6 : set as :"" ;;"Collection"
+
+local:field: amtf10 : set as : $varnetsalesamt2 - $varnetsalesamt1 ;;"Sale Variation"
+
+local: field: amtf11: type: number
+local: field: amtf13: type: number
+
+local:field: amtf11 : set as : 100 * (#amtf10 /#amtf) ;;"Sale Varn %"
+
+local:field: amtf12 : set as : $varnetsalescoll2 -  $varnetsalescoll1 ;;"Coll Variation"
+
+local:field: amtf13 : set as : 100 * (#amtf12 / #amtf2) ;;"Coll Varn %"
+
+Local: Field: DEFAULT: Border: thin right
+Local: field: NUMF: Width:9
+Local: field: AMTF: Width:9.6
+Local: field: AMTF2: Width:9.6
+
+Local: field: NUMF2: Width:9
+Local: field: AMTF3: Width:9.6
+Local: field: AMTF4: Width:9.6
+
+Local: field: NUMF3: Width:7
+Local: field: AMTF5: Width:8
+Local: field: AMTF6: Width:8
+
+
+
+local: field: amtf14: type: number
+local: field: amtf17: type: number
+
+Local: Field: amtf14: Set As: if $$line = 1 or #nf <> "" then #numf else #numf + $$prevlinefield
+Local: Field: amtf15: Set As: if $$line = 1 or #nf <> "" then #amtf else #amtf + $$prevlinefield
+Local: Field: amtf16: Set As: if $$line = 1 or #nf <> "" then #amtf2 else #amtf2 + $$prevlinefield
+Local: Field: amtf17: Set As: if $$line = 1 or #nf <> "" then #numf2 else #numf2 + $$prevlinefield
+Local: Field: amtf18: Set As: if $$line = 1 or #nf <> "" then #amtf3 else #amtf3 + $$prevlinefield
+Local: Field: amtf19: Set As: if $$line = 1 or #nf <> "" then #amtf4 else #amtf4 + $$prevlinefield
+
+Local: Field: amtf20: Set As: if $$line = 1 or #nf <> "" then #amtf10 else #amtf10 + $$prevlinefield
+Local: Field: amtf21: Set As: if $$line = 1 or #nf <> "" then #amtf12 else #amtf12 + $$prevlinefield
+;; {24.Jun.22 07:19} Local: Field: amtf22: Set As: if $$line = 1 or #nf <> "" then #amtf4 else #amtf4 + $$prevlinefield
+;; {24.Jun.22 07:19} Local: Field: amtf23: Set As: if $$line = 1 or #nf <> "" then #amtf4 else #amtf4 + $$prevlinefield
+
+local: field: amtf14: Invisible: yes
+local: field: amtf15: Invisible: yes
+local: field: amtf16: Invisible: yes
+local: field: amtf17: Invisible: yes
+local: field: amtf18: Invisible: yes
+local: field: amtf19: Invisible: yes
+local: field: amtf20: Invisible: yes
+local: field: amtf21: Invisible: yes
+local: field: amtf22: Invisible: yes
+local: field: amtf23: Invisible: yes
+
+
+local: field: FWF : style:styleCalisto
+local: field: nf : style:styleCalisto2
+
+local: field: numf : style:styleCalisto
+local: field: amtf : style:styleCalisto
+local: field: amtf2 : style:styleCalisto
+
+local: field: numf2 : style:styleCalisto
+local: field: amtf3 : style:styleCalisto
+local: field: amtf4 : style:styleCalisto
+
+local: field: numf3 : style:styleCalisto
+local: field: amtf4 : style:styleCalisto
+local: field: amtF5 : style:styleCalisto
+local: field: amtF6 : style:styleCalisto
+
+local: field: amtf10 : style:styleCalisto
+local: field: amtf11 : style:styleCalisto
+local: field: amtf12 : style:styleCalisto
+local: field: amtf13 : style:styleCalisto
+
+
+
+explode : cwAgentTotal : $$line = $$numitems or $agentName <> $$nextObj:$agentName
+
+space bottom : 0.10
+
+[part: cwAgentTotal]
+line : cwAgentTotal
+
+[line: cwAgentTotal]
+use: LnComperativeNetsaleCollection
+
+delete : explode
+
+Local: Field: nf: Set As: ""
+Local: Field: fwf: Set As: "Total:"
+
+Local: Field: numf : Set As: $$prevline:#amtf14
+local:field: amtf : set as : $$prevline:#amtf15 ;;"Net Sale Amt"
+local:field: amtf2 : set as :$$prevline:#amtf16  ;;"Collection"
+
+local:field: numf2 : set as :$$prevline:#amtf17 ;;"Net Sale Qty"
+local:field: amtf3 : set as :$$prevline:#amtf18 ;;"Net Sale Amt"
+local:field: amtf4 : set as :$$prevline:#amtf19 ;;"Collection"
+
+local:field: numf3 : set as : "";;"Net Sale Qty"
+local:field: amtf5 : set as :"" ;;"Net Sale Amt"
+local:field: amtf6 : set as :"" ;;"Collection"
+
+local:field: amtf10 : set as : $$prevline:#amtf20 ;;"Sale Variation"
+
+
+local:field: amtf12 : set as : $$prevline:#amtf21 ;;"Coll Variation"
+
+border : thin top
+
+space bottom : 0.5
+local: field: FWF : style:styleCalisto2
+local: field: nf : style:styleCalisto2
+
+local: field: numf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+
+local: field: numf2 : style:styleCalisto2
+local: field: amtf3 : style:styleCalisto2
+local: field: amtf4 : style:styleCalisto2
+
+local: field: numf3 : style:styleCalisto2
+local: field: amtf4 : style:styleCalisto2
+local: field: amtF5 : style:styleCalisto2
+local: field: amtF6 : style:styleCalisto2
+
+local: field: amtf10 : style:styleCalisto2
+local: field: amtf11 : style:styleCalisto2
+local: field: amtf12 : style:styleCalisto2
+local: field: amtf13 : style:styleCalisto2
+
+
+
+[line: LnComperativeNetsaleCollectionTotals]
+use: LnComperativeNetsaleCollection
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total"
+
+local:field: numf : set as :$$TOTAL:NUMF ;;"Net Sale Qty"
+local:field: amtf : set as :$$TOTAL:AMTF ;;"Net Sale Amt"
+local:field: amtf2 : set as :$$TOTAL:AMTF2 ;;"Collection"
+
+local:field: numf2 : set as :$$TOTAL:NUMF2 ;;"Net Sale Qty"
+local:field: amtf3 : set as :$$TOTAL:AMTF3 ;;"Net Sale Amt"
+local:field: amtf4 : set as :$$TOTAL:AMTF4 ;;"Collection"
+
+local:field: numf3 : set as :$$TOTAL:NUMF3 ;;"Net Sale Qty"
+local:field: amtf5 : set as :$$TOTAL:AMTF5 ;;"Net Sale Amt"
+local:field: amtf6 : set as :$$TOTAL:AMTF6 ;;"Collection"
+
+local:field: amtf10 : set as :$$TOTAL:AMTF10 ;;"Sale Variation"
+;; {24.Jun.22 07:12} local:field: amtf11 : set as :$$total:amtf11 ;;"Sale Varn %"
+local:field: amtf12 : set as :$$total:amtf12 ;;"Coll Variation"
+;; {24.Jun.22 07:12} local:field: amtf13 : set as :$$total:amtf13 ;;"Coll Varn %"
+
+
+
+local: field: FWF : style:styleCalisto2
+
+local: field: numf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+
+local: field: numf2 : style:styleCalisto2
+local: field: amtf3 : style:styleCalisto2
+local: field: amtf4 : style:styleCalisto2
+
+local: field: numf3 : style:styleCalisto2
+local: field: amtf4 : style:styleCalisto2
+local: field: amtF5 : style:styleCalisto2
+local: field: amtF6 : style:styleCalisto2
+
+local: field: amtf10 : style:styleCalisto2
+local: field: amtf11 : style:styleCalisto2
+local: field: amtf12 : style:styleCalisto2
+local: field: amtf13 : style:styleCalisto2
+
+;;=======================================================================
+
+
+
+[variable :varComperativeNetsale]
+
+variable : uniqueRow : string
+variable : agentName : String
+variable : varpartyname : string
+
+variable : varnetsalesqty1 : number
+variable : varnetsalesamt1 : amount
+variable : varnetsalescoll1 : amount
+
+variable : varnetsalesqty2 : number
+variable : varnetsalesamt2 : amount
+variable : varnetsalescoll2 : amount
+
+
+variable : varSaleVariation : amount
+variable : varSaleVarn : amount
+variable : varCollVariation : amount
+variable : varCollVarn : amount
+
+[system : variable]
+list variable : varComperativeNetsale
+
+[collection : varComperativeNetsale]
+data source: variable : varComperativeNetsale
+
+format : $agentName,10
+format : $varpartyname,10
+
+format : $varnetsalesqty1,10
+format : $varnetsalesamt1,10
+format : $varnetsalescoll1,10
+
+format : $varnetsalesqty2,10
+format : $varnetsalesamt2,10
+format : $varnetsalescoll2,10
+
+format : $varnetsalesqty3,10
+format : $varnetsalesamt3,10
+format : $varnetsalescoll3,10
+
+format : $varSaleVariation,10
+format : $varSaleVarn,10
+format : $varCollVariation,10
+format : $varCollVarn,10
+
+
+;; {27.Jun.22 18:37} sort : @@default : -1 * $varnetsalesamt1
+;---------------------------------
+
+       filter:cwpartycomfilter,cwcvaragentfilter
+
+[System: Formula]
+cwpartycomfilter:if $$issysname:##str8 then yes else $varpartyname =##str8
+;; {24.Jun.22 12:06} cwcvaragentfilter:$agentName =##str9 ;;if $$issysname:##str9 then yes else $agentName =##str9
+cwcvaragentfilter:if $$issysname:##str9 then yes else $agentName =##str9
+
+cwagentNamefilt:if $$line = 1 or $$prevobj:$agentName <> $agentName then $agentName else ""
+
+[function: cwFillDetails]
+; Company1 : ##str1, ##sdf1, ##sdf2
+; Company2 : ##str2, ##sdf3, ##sdf4
+;; {24.Jun.22 06:09} variable :svfrodate : date
+;; {24.Jun.22 06:09} variable : svtodate : date
+
+00 : LIST DELETE	: varComperativeNetsale
+
+02 : set : svfromdate : ##sdf1
+03 : set : svtodate : ##sdf2
+
+
+10 : call : cwFillCompanyDetails:##str1:##sdf1:##sdf2:1
+
+
+14 : set : svfromdate : ##sdf3
+15 : set : svtodate : ##sdf4
+
+16 : refresh tdl
+
+18 : set : svCurrentCompany : ##str2
+
+20 : call : cwFillCompanyDetails2:##str2:##sdf3:##sdf4:2
+
+
+
+[function: cwFillCompanyDetails]
+parameter : myCompanyName : string
+parameter : asvFromDate : date
+parameter : asvTodate : date
+parameter : fieldNo : number
+
+
+variable: rowIndex : number : 0
+variable: xSteps : number : 0
+
+variable: UniqueRowId : string
+
+variable: currAgentName : string
+variable: currPartyName : string
+
+variable: saleQty : number
+variable: saleAmt : amount
+variable: rcptAmt : amount
+
+variable: CurrentCompanyCounter : number : 0
+
+03 : set : svCurrentCompany : ##myCompanyName
+
+010 : log : "Getting Details for: "+##svCurrentCompany + " " + $$string:##asvfromdate + " - " + $$string:##asvtodate
+
+020 : set : currentCompanyCounter : $$numitems:ColAgentPartyPerformance
+
+030 : do if : ##currentCompanyCounter = 0 : continue
+
+040 : start progress : ##CurrentCompanyCounter : "Processing Details of " + ##svCurrentCompany  ;;+ " (" + $$string:##fieldNo + ")" + " for " + $$string:@@dspFromDate + " - " + $$string:@@dspToDate
+
+050 : walk collection : ColAgentPartyPerformance
+
+060 : set: currAgentName : $cwAgentName
+070 : set: currPartyName: $Parent
+080 : set: saleQty : $saleQty
+090 : set: saleAmt : $saleValue
+100 : set: rcptAmt : $receiptValue
+
+110 : set: UniqueRowId : ##currAgentName + "xx"+ ##currPartyName
+
+120 : if : not $$listfind:varComperativeNetsale:##UniqueRowId
+130 : list add : varComperativeNetsale : ##UniqueRowId
+140 : set: rowIndex : $$listIndex:varComperativeNetsale:##UniqueRowId
+150 : set: varComperativeNetsale[##rowIndex].uniqueRow : ##UniqueRowId
+160 : else
+170 : set: rowIndex : $$listIndex:varComperativeNetsale:##UniqueRowId	
+180 : end if
+
+200 : set: varComperativeNetsale[##rowIndex].agentName : ##currAgentName
+210 : set : varComperativeNetsale[##rowIndex].varpartyname : ##currPartyName
+
+220 : if : ##fieldNo = 1
+230 : set : varComperativeNetsale[##rowIndex].varnetsalesqty1 : ##saleQty
+240 : set : varComperativeNetsale[##rowIndex].varnetsalesamt1 : ##saleAmt
+250 : set : varComperativeNetsale[##rowIndex].varnetsalescoll1: ##rcptAmt
+255 : end if
+
+257 : if : ##fieldNo =2
+260 : set : varComperativeNetsale[##rowIndex].varnetsalesqty2 : ##saleQty
+270 : set : varComperativeNetsale[##rowIndex].varnetsalesamt2 : ##saleAmt
+280 : set : varComperativeNetsale[##rowIndex].varnetsalescoll2: ##rcptAmt
+295 : end if
+
+350 : inc : XSteps
+
+400 : show progress : ##xSteps
+410 : end walk
+420 : end progress
+
+
+
+;-------------------------- 2
+
+[function: cwFillCompanyDetails2]
+parameter : myCompanyName : string
+parameter : asvFromDate : date
+parameter : asvTodate : date
+parameter : fieldNo : number
+
+
+variable: rowIndex : number : 0
+variable: xSteps : number : 0
+
+variable: UniqueRowId : string
+
+variable: currAgentName : string
+variable: currPartyName : string
+
+variable: saleQty : number
+variable: saleAmt : amount
+variable: rcptAmt : amount
+
+variable: CurrentCompanyCounter : number : 0 ;;$$numitems:ColAgentPartyPerformance
+
+03 : set : svCurrentCompany : ##myCompanyName
+
+010 : log : "Getting Details for: "+##svCurrentCompany + " " + $$string:##asvfromdate + " - " + $$string:##asvtodate
+
+020 : set : currentCompanyCounter : $$numitems:ColAgentPartyPerformance2
+
+031 : do if : ##currentCompanyCounter = 0 : continue
+
+040 : start progress : ##CurrentCompanyCounter : "Processing Details of " + ##svCurrentCompany  ;;+ " (" + $$string:##fieldNo + ")" + " for " + $$string:@@dspFromDate + " - " + $$string:@@dspToDate
+
+050 : walk collection : ColAgentPartyPerformance2
+
+
+060 : set: currAgentName : $cwAgentName
+070 : set: currPartyName: $Parent
+080 : set: saleQty : $saleQty
+090 : set: saleAmt : $saleValue
+100 : set: rcptAmt : $receiptValue
+
+110 : set: UniqueRowId : ##currAgentName + "xx"+ ##currPartyName
+
+120 : if : not $$listfind:varComperativeNetsale:##UniqueRowId
+130 : list add : varComperativeNetsale : ##UniqueRowId
+140 : set: rowIndex : $$listIndex:varComperativeNetsale:##UniqueRowId
+150 : set: varComperativeNetsale[##rowIndex].uniqueRow : ##UniqueRowId
+160 : else
+170 : set: rowIndex : $$listIndex:varComperativeNetsale:##UniqueRowId	
+180 : end if
+
+200 : set: varComperativeNetsale[##rowIndex].agentName : ##currAgentName
+210 : set : varComperativeNetsale[##rowIndex].varpartyname : ##currPartyName
+
+220 : if : ##fieldNo = 1
+230 : set : varComperativeNetsale[##rowIndex].varnetsalesqty1 : ##saleQty
+240 : set : varComperativeNetsale[##rowIndex].varnetsalesamt1 : ##saleAmt
+250 : set : varComperativeNetsale[##rowIndex].varnetsalescoll1: ##rcptAmt
+255 : end if
+
+257 : if : ##fieldNo =2
+260 : set : varComperativeNetsale[##rowIndex].varnetsalesqty2 : ##saleQty
+270 : set : varComperativeNetsale[##rowIndex].varnetsalesamt2 : ##saleAmt
+280 : set : varComperativeNetsale[##rowIndex].varnetsalescoll2: ##rcptAmt
+295 : end if
+
+
+350 : inc : XSteps
+
+400 : show progress : ##xSteps
+410 : end walk
+420 : end progress
+
+; --------------------------------------------------------------------------
+
+      [Collection: ColAgentPartyPerformance]
+      source collection : ColAgentPartyPerformanceSRc
+      by : cwAgentName  : $cwAgentName1
+      by : Parent  : $parent
+      aggr compute : SaleQty      : sum : $cwSalesDuringThePeriodQty
+      aggr compute : SaleValue    : sum : $cwSalesDuringThePeriodAmount
+      aggr compute : ReceiptValue : sum : $cwReceiptDuringThePeriod
+
+      sort : @@default : $cwAgentName,$parent
+      filter : cwBillsHavingEntries
+
+
+[System: Formula]
+cwBillsHavingEntries : not ($$isempty:$SaleQty and $$isEmpty:$saleVAlue and $$isempty:$receiptValue)
+
+[Collection: ColAgentPartyPerformanceSRc]
+Collection: ColAgentPartyPerformancePending
+Collection: ColAgentPartyPerformanceCleared
+
+[Collection: ColAgentPartyPerformancePending]
+Type : Bills
+
+fetch : cwcaption1vch
+fetch : LedgerEntries.InventoryEntries.BilledQty
+fetch : LedgerEntries.vouchertypename
+
+;; {23.Aug.22 16:15} compute : cwAgentName1 : if not $$isempty:$cwcaption1vch then $cwcaption1vch else $cwcaption1vch:ledger:$parent ;;$$filterValue:$cwcaption1vch:LedgerEntries:1:cwAgentNameExists
+compute : cwAgentName1 :$cwcaption1item:ledger:$parent
+
+compute : cwSalesDuringThePeriodQty : $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@cwQty
+
+compute : cwSalesDuringThePeriodAmount : $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@cwFNBillAllocTotal
+
+compute : cwReceiptDuringThePeriod : $$filterNumTotal:LedgerEntries:cwReceiptsDuringThePeriod:@@cwFNBillAllocTotal
+
+
+;; {06.Oct.22 17:07} compute : cwSalesDuringThePeriodQty : if @@cwsalessalesReturn="sales" or @@cwsalessalesReturn="sales Return"  then $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@cwQty else $$InitValue:"Number"
+;; {10.Oct.22 11:13} compute : cwSalesDuringThePeriodQty : if @@cwsalessalesReturn="sales" then @@cwnetsalescns else if @@cwsalessalesReturn="sales Return" then @@cwnetsalescns*-1 else $$InitValue:"Number"
+
+
+;; {28.Oct.22 11:39} compute : cwSalesDuringThePeriodQty : if @@cwsalessalesReturn="sales" then @@cwsalesqtycns else if @@cwsalessalesReturn="sales Return" then @@cwsalesqtycns*-1 else $$InitValue:"Number"
+;; {28.Oct.22 11:46} compute : cwSalesDuringThePeriodQty : if @@cwsalessalesReturn="Sales Return" then @@cwsalesqtycns*-1 else $$InitValue:"Number"
+
+;;compute : cwSalesDuringThePeriodQty : if @@cwsalessalesReturn="sales" or @@cwsalessalesReturn="Receipt" then @@cwsalesqtycns else $$InitValue:"Number"
+
+      ;;    if @@cwsalessalesReturn="sales" or @@cwsalessalesReturn="Receipt" then @@cwsalesqtycns else $$InitValue:"Number"
+;; {01.Nov.22 12:09} compute : cwSalesDuringThePeriodAmount : if @@cwsalessalesReturn="sales" or @@cwsalessalesReturn="Sales Return" then $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@cwFNBillAllocTotal else $$InitValue:"Amount"
+
+
+;; {23.Aug.22 17:29} compute : cwSalesDuringThePeriodQty :$$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@cwcnssalesbilledqty2
+
+
+filter: cwDebtorsBills ;;,vouchertypename1filter
+
+keep source: no
+
+[System: Formula]
+
+cwDebtorsBills: $$isobjectbelongsto:group:($parent:ledger:$parent):$$Groupsundrydebtors
+
+;; {28.Oct.22 11:46} cwQty : if $$issales:$vouchertypename then @@cwGetBilledQtyNumber else if $$iscreditnote:$voucherTypename then -1 * @@cwGetBilledQtyNumber else @@cwGetBilledQtyNumber
+;; {01.Nov.22 12:44} cwQty : if $$issales:$vouchertypename then @@cwGetBilledQtyNumber else if $$iscreditnote:$voucherTypename then -1 * @@cwGetBilledQtyNumber else @@cwGetBilledQtyNumber
+
+cwQty : if $$issales:$vouchertypename and @@cwEnableNetSalesReportx2 then @@cwGetBilledQtyNumber else if $$iscreditnote:$voucherTypename and @@cwEnableNetSalesReportx2 then -1 * @@cwGetBilledQtyNumber else @@cwGetBilledQtyNumber
+
+;; {23.Aug.22 17:51} cwQty : if @@cwsalessalesReturn="sales" then @@cwGetBilledQtyNumber else if @@cwsalessalesReturn="sales Return" then -1 * @@cwGetBilledQtyNumber else @@cwGetBilledQtyNumber
+
+cwGetBilledQtyNumber : $$collnumtotal:InventoryEntries:@@cwBilledQtyNum
+
+cwAgentNameExists : not $$isempty:$cwcaption1vch
+cwEntryDuringThePeriod : $date >= @@dspFromDate and $date <= @@dspToDate
+;; {27.Jun.22 14:44} cwSalesCrNoteDuringThePeriod : ($date >= @@dspFromDate and $date <= @@dspToDate) and ($$isSales:$voucherTypeName or $voucherTypeName = "sales return" )
+;; {01.Nov.22 12:50} cwSalesCrNoteDuringThePeriod : ($date >= @@dspFromDate and $date <= @@dspToDate) and ($$isSales:$voucherTypeName or $$IsCreditNote:$voucherTypeName )
+cwSalesCrNoteDuringThePeriod : ($date >= @@dspFromDate and $date <= @@dspToDate) and ($$isSales:$voucherTypeName  or $$IsCreditNote:$voucherTypeName )  ;;and @@cwEnableNetSalesReportx2
+cwReceiptsDuringThePeriod  : ($date >= @@dspFromDate and $date <= @@dspToDate) and ($$isReceipt:$voucherTypeName)
+
+
+[Collection: ColAgentPartyPerformanceCleared]
+use : ColAgentPartyPerformancePending
+cleared : yes
+
+
+
+
+; ------------------------
+
+      [Collection: ColAgentPartyPerformance2]
+      source collection : ColAgentPartyPerformanceSRc2
+      by : cwAgentName  : $cwAgentName1
+      by : Parent  : $parent
+      aggr compute : SaleQty      : sum : $cwSalesDuringThePeriodQty
+      aggr compute : SaleValue    : sum : $cwSalesDuringThePeriodAmount
+      aggr compute : ReceiptValue : sum : $cwReceiptDuringThePeriod
+
+      sort : @@default : $cwAgentName,$parent
+      filter : cwBillsHavingEntries
+
+
+[Collection: ColAgentPartyPerformanceSRc2]
+Collection: ColAgentPartyPerformancePending2
+Collection: ColAgentPartyPerformanceCleared2
+
+[Collection: ColAgentPartyPerformancePending2]
+Type : Bills
+
+fetch : cwcaption1vch
+fetch : LedgerEntries.InventoryEntries.BilledQty
+
+
+compute : cwAgentName1 : if not $$isempty:$cwcaption1vch then $cwcaption1vch else $cwcaption1vch:ledger:$parent ;;$$filterValue:$cwcaption1vch:LedgerEntries:1:cwAgentNameExists
+compute : cwSalesDuringThePeriodQty : $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@cwQty
+compute : cwSalesDuringThePeriodAmount : $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@cwFNBillAllocTotal
+
+compute : cwReceiptDuringThePeriod : $$filterNumTotal:LedgerEntries:cwReceiptsDuringThePeriod:@@cwFNBillAllocTotal
+
+
+;; {24.Aug.22 12:16} compute : cwSalesDuringThePeriodQty :if @@cwsalessalesReturn="sales" or @@cwsalessalesReturn="sales Return" then $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@cwQty else $$InitValue:"Number"
+;; {28.Oct.22 11:29} compute : cwSalesDuringThePeriodQty : if @@cwsalessalesReturn="sales" then @@cwnetsalescns else if @@cwsalessalesReturn="sales Return" then @@cwnetsalescns*-1 else $$InitValue:"Number"
+;; {28.Oct.22 11:46} compute : cwSalesDuringThePeriodQty : if @@cwsalessalesReturn="Sales Return" then @@cwnetsalescns*-1 else $$InitValue:"Number"
+
+;; {01.Nov.22 12:06} compute : cwSalesDuringThePeriodAmount : if @@cwsalessalesReturn="sales" or @@cwsalessalesReturn="Sales Return" then $$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@cwFNBillAllocTotal else $$InitValue:"Amount"
+
+;; {23.Aug.22 17:29} compute : cwSalesDuringThePeriodQty :$$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@cwcnssalesbilledqty2
+
+filter: cwDebtorsBills,vouchertypename1filter
+
+keep source: no
+
+[System: Formula]
+cwcnssalesbilledqty2:$$FilternumTotal:inventoryentries:cwcnsbaseunitsFilter:@@cwQtynew
+cwcnsbaseunitsFilter:$baseunits:stockitem:$stockitemname="pcs"
+ cwQtynew:$$number:$billedqty
+ 
+ cwnetsalescns:$$FilterNumTotal:LedgerEntries:cwSalesCrNoteDuringThePeriod:@@salesbilledqty2
+ 
+[Collection: ColAgentPartyPerformanceCleared2]
+use : ColAgentPartyPerformancePending
+cleared : yes
+
+;;============================
+
+
+[button:Comperativenetbotton]
+
+key:f7
+ title:"Filter"
+ Action : Modify Variables:Comperativenetbotton
+
+ [report:Comperativenetbotton]
+ form:Comperativenetbotton
+
+ [form:Comperativenetbotton]
+ part:Comperativenetbotton
+
+;; {26.Feb.22 17:54}  HEIGHT:20% PAGE
+ WIDTH:30% PAGE
+
+ [part:Comperativenetbotton]
+ line:titlelinexn1,Customernameline1,Agentlinex1
+
+ [line:titlelinexn1]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: Normal Bold
+ space bottom:0.5
+
+ [line:Customernameline1]
+ field:sp,nf
+ Local: Field: sp: Set As:"Customer Name"
+ Local: Field: nf:modifies:str8
+ space bottom:0.5
+ Local: field: sp: Width:18
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:collcCustomer,Not Applicable
+ Local: Field: nf: Show table: Always
+
+
+
+[line:Agentlinex1]
+ field:sp,nf
+ Local: Field: sp: Set As:$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+ Local: Field: nf:modifies:str9
+ space bottom:0.5
+ Local: field: sp: Width:18
+ Local: Field: sp: Style: Normal Bold
+Local: Field:nf:Table : cwcaption1tableundersc, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:Table : cwcaption1tableunderled, Not Applicable:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="ledger"
+
+Local: Field:nf:option:optcc:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local: Field:nf:option:optsc:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Stock Category"
+Local: Field:nf:option:optled:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="ledger"
+Local: Field: nf: Style: Normal Bold
+

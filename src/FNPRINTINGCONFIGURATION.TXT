@@ -1,0 +1,259 @@
+; Created By: Khokan on 2021-06-21 12:09, ID: 
+
+[line:cwinvprintingline2new]
+ field:long prompt,cwlogical
+
+
+ Local: Field: long prompt: info:"Printing Configuration (F/N)"
+
+ Local: field: long prompt : Width:32.5
+ Local: Field : cwlogical : SubForm :PrintingConfrep2: $$value
+ Local: Field: long prompt: Color : blue
+ Local: Field: cwlogical: Color : blue
+ Local: Field: long prompt: Style: Normal Bold
+ Local: Field: cwlogical: Style: Normal Bold
+
+
+
+
+ [report:PrintingConfrep2]
+ form:PrintingConfform2
+
+ [form:PrintingConfform2]
+ part:PrintingConfpart2
+ width:20  ;;% page
+ height:50  ;;% page
+
+ [part:PrintingConfpart2]
+ line:cwinvprintingline2x, heightnewline,widthnewline,Leftnewline,Rightnewline,topnewline  ;;,topnewline2,spacebottomnew,SapceNetAmountPart,SapceGrossAmountPart,spacenettamtline2newtop,spacenettamtline2new  ;;,SapceNetAmountPart,SapceGrossAmountPart,spacenettamtline2newtop,spacenettamtline2new,spacegrossamtline2new
+
+
+ [line:cwinvprintingline2x]
+ field:fwfc
+
+ Local: Field: fwfc: info:"Printing Configuration"
+ Local: Field: fwfc: Border: thin bottom
+ Local: field: fwfc: Width:20
+ Local: Field: fwfc: Style: Normal Bold
+
+[line:heightnewline]
+field:sp,spaceHeightnew
+Local: Field: sp: Set As:"Sapce Height (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceHeightnew]
+Use : Number Field
+Modifies:spaceHeightnew
+
+
+[Variable: spaceHeightnew]
+Persistent  : Yes
+Type        : Number
+
+;;=====================
+
+[line:widthnewline]
+field:sp,spacewidthnew
+Local: Field: sp: Set As:"Sapce Width (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spacewidthnew]
+Use : Number Field
+Modifies:spacewidthnew
+
+
+[Variable : spacewidthnew]
+Persistent: Yes
+Type      : Number
+
+;;=================
+
+[line:Leftnewline]
+field:sp,spaceLeftnew
+Local: Field: sp: Set As:"Sapce Left (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceLeftnew]
+Use : Number Field
+Modifies:spaceLeftnew
+
+[Variable : spaceLeftnew]
+Persistent: Yes
+Type      : Number
+
+;;=====================
+
+[line:Rightnewline]
+field:sp,spaceRightnew
+Local: Field: sp: Set As:"Sapce Right (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceRightnew]
+Use : Number Field
+Modifies:spaceRightnew
+
+
+[Variable: spaceRightnew]
+Persistent  : Yes
+Type        : Number
+
+
+
+;;========================
+
+[line:topnewline]
+field:sp,spacetopnew
+Local: Field: sp: Set As:"Sapce Top (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spacetopnew]
+Use : Number Field
+Modifies:spacetopnew
+
+
+[Variable : spacetopnew]
+Persistent: Yes
+Type      : Number
+
+/*
+;;============================
+
+[line:topnewline2]
+field:sp,spacetopnew2
+Local: Field: sp: Set As:"Sapce Top 2  (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spacetopnew2]
+Use : Number Field
+Modifies:spacetopnew2
+
+
+[Variable : spacetopnew2]
+Persistent: Yes
+Type      : Number
+
+;;==============================================================================
+
+[line:SapceNetAmountPart]
+field:sp,spaceNetAmtPart
+Local: Field: sp: Set As:"Sapce Net Amount Part  (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceNetAmtPart]
+Use : Number Field
+Modifies:spaceNetAmtPart
+
+
+[Variable : spaceNetAmtPart]
+Persistent: Yes
+Type      : Number
+
+;;===============================================
+
+
+[line:SapceGrossAmountPart]
+field:sp,spaceGrossAmtPart
+Local: Field: sp: Set As:"Sapce Gross Amount Part  (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceGrossAmtPart]
+Use : Number Field
+Modifies:spaceGrossAmtPart
+
+
+[Variable : spaceGrossAmtPart]
+Persistent: Yes
+Type      : Number
+
+;;======================================================
+
+[line:spacenettamtline2newtop]
+ field:sp,spacenettamtfield2top
+ Local: Field: sp: Set As:"Sapce Nett Amt Top"
+ SPACE TOP:0.5
+ Local: field: sp: Width:24
+
+ [Field:spacenettamtfield2top]
+ Use : Number Field
+ Modifies:spacenettamttop2
+
+ [Variable: spacenettamttop2]
+ Persistent  : Yes
+ Type        : Number
+
+ [line:spacenettamtline2new]
+ field:sp,spacenettamtfield2new
+ Local: Field: sp: Set As:"Sapce Nett Amt Bottom"
+ SPACE TOP:0.5
+ Local: field: sp: Width:24
+
+ [Field:spacenettamtfield2new]
+ Use : Number Field
+ Modifies:spacenettamt2bottom
+
+
+ [Variable: spacenettamt2bottom]
+ Persistent  : Yes
+ Type        : Number
+
+;;====================================
+
+ [line:spacegrossamtline2new]
+ field:sp,spacegrossamtnew
+ Local: Field: sp: Set As:"Sapce Gross Amt Bottom"
+ SPACE TOP:0.5
+ Local: field: sp: Width:24
+
+ [Field:spacegrossamtnew]
+ Use : Number Field
+ Modifies:spacegrossamtnew
+
+
+ [Variable: spacegrossamtnew]
+ Persistent  : Yes
+ Type        : Number
+
+ ;;======================
+  [line:spacebottomnew]
+ field:sp,spacebototmamtnew
+ Local: Field: sp: Set As:"Sapce Bottom (Inches)123"
+ SPACE TOP:0.5
+ Local: field: sp: Width:24
+
+ [Field:spacebototmamtnew]
+ Use : Number Field
+ Modifies:spacebototmamtnew
+
+
+ [Variable: spacebototmamtnew]
+ Persistent  : Yes
+ Type        : Number
+
+               */
+
+;;=============================================================================
+
+[System: Variables]
+spaceHeightnew:10
+spacewidthnew:8.10
+spaceLeftnew:0.50
+spaceRightnew:0.50
+
+spacetopnew:0.50
+
+    /*
+spacetopnew2:0.50
+spaceNetAmtPart:1
+spaceGrossAmtPart:1
+spacenettamttop2:0.20
+spacenettamt2bottom:0.20
+spacegrossamtnew:1
+spacebototmamtnew:1.25 */

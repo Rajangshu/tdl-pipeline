@@ -1,0 +1,230 @@
+; Created By: khokan on 2022-04-22 16:38, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: testkhamprintLock ;; : @@testkhamprintDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@testkhamprintReport: Display: Reptestkhamprint
+
+
+
+     [!menu: testkhamprintLock]
+        add: Item: before: @@locQuit: @@testkhamprintReport: PRINT Collection: collRepmultiprintkhamprintx ;;: Reptestkhamprint
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   testkhamprintReport: "Test Kham Print"
+;; testkhamprintDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+[Collection: collRepmultiprintkhamprintx]
+
+   Use         : Extract Alias Collection
+   Source Collection	: List of Ledgers
+   Variable    : Ledger Name
+   Report      :Reptestkhamprint
+   Trigger     : cwLedgerName1
+   Fetch       : Name
+
+     
+    [Report: Reptestkhamprint]
+        use: Dsp Template
+      Title: @@testkhamprintReport
+   Printset: Report Title: @@testkhamprintReport
+       Form: Frmtestkhamprint
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: Frmtestkhamprint]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0testkhamprint,Prttestkhamprint
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: testkhamprintbotbrk,testkhamprintbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: testkhamprintbotBrk]
+       line: EXPINV PageBreak,cwblankline,cwblankline2,cwblankline3,LntestkhamprintTitle1
+     border: thin top
+
+      [part: testkhamprintbotopbrk]
+        use: dspacctitles
+  add: part: testkhamprintTitlePart
+
+      [part: testkhamprintTitlePart]
+       line: LntestkhamprintTitle
+       
+       [line: LntestkhamprintTitle1]
+       field:fwf
+       local:field: fwf: set as:"aaaaaaa" ;;$$CollectionField:$parent:$$line:ColmultiprintAGENTWISEOutstandingReportakham
+       
+
+        
+      [line: LntestkhamprintCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0testkhamprint]
+      line : LntestkhamprintCurrPeriod
+      
+      [Part: Prttestkhamprint]
+       Line: CWLntestkhamprint
+
+     repeat: CWLntestkhamprint: Coltestkhamprint
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+      
+
+   
+[Collection: Coltestkhamprint]
+Type :ledger
+child of: $$groupsundrydebtors
+belongs to : yes
+fetch : *
+filter:cwnotcloingbalancemultiprintopt
+
+[System: Formula]
+cwnotcloingbalancemultiprintopt:##ledgername=$cwcaption1item and (not $$isempty:$OnAccountValue or not $$isempty:$closingbalance)
+
+
+[LINE:CWLntestkhamprint]
+FIELD:FWF
+Local: Field: FWF: Set As:$NAME
+next page:yes
+add:explode:LnmultiprintAGENTWISEoskhamx
+
+[part:LnmultiprintAGENTWISEoskhamx]
+Line: LntestkhamprintTitle,LnmultiprintAGENTWISEOutstandingReportkhamx
+
+ repeat:LnmultiprintAGENTWISEOutstandingReportkhamx  ;;  :ColmultiprintAGENTWISEOutstandingReportaa
+ set:$$multiRepeatControlkham
+;; {06.Sep.21 10:05}  Total: Qtyf,amtf,amtf1,amtf2
+  common border:yes
+
+[Line: LnmultiprintAGENTWISEOutstandingReportkhamx]
+
+field:snf9,snf1,nf,Amtf,sdf2,nf1,amtf2,nf9 ;;,snf1,snf2,Amtf2,nf9  ;;,amtf20,amtf21,amtf22,amtf23
+
+
+Local: field: sdf: Width:12
+Local: field: nf: Width:20 ;22
+
+remove if:$$isempty:#amtf
+
+Option: Alter on Enter
+
+local:field: sdf: set as: $$CollectionField:$billdate:$$line:ColmultiprintAGENTWISEOutstandingReportakham ;;if $$ISDR:$closingbalance then $billdate else "";; "Date"
+
+local:field: Snf1: set as:$$string:@@cwbillDays2mpdate+$$string:"/"+$$string:@@CWbillMON2mpdate+$$string:"/"+$$string:@@CWbillYR2mpdate
+
+local:field: fwf: set as:$$CollectionField:$name:$$line:ColmultiprintAGENTWISEOutstandingReportakham  ;;if $$ISDR:$closingbalance then $name else ""  ;; "Bill No"
+;; {22.Apr.22 09:42} local:field: fwf: set as:$$CollectionField:$parent:$$line:ColmultiprintAGENTWISEOutstandingReporta  ;;if $$ISDR:$closingbalance then $name else ""  ;; "Bill No"
+local:field: nf: set as:$$CollectionField:$name:$$line:ColmultiprintAGENTWISEOutstandingReporta  ;;if $$ISDR:$closingbalance then $name else ""  ;; "Bill No"
+
+local:field: numf: set as:$$CollectionField:@@cwmultiduedays:$$line:ColmultiprintAGENTWISEOutstandingReportakham
+
+local:field: amtf: set as:$$CollectionField:$closingbalance:$$line:ColmultiprintAGENTWISEOutstandingReportakham ;;if $$ISDR:$closingbalance then $closingbalance else "" ;; "Bill Amt"
+
+local:field: sdf2: set as:$$CollectionField:$billdate:$$line:ColmultiprintAGENTWISEOutstandingReportbkham ;;if not $$ISDR:$closingbalance then $billdate else ""
+local:field: nf1: set as:$$CollectionField:$name:$$line:ColmultiprintAGENTWISEOutstandingReportbkham ;;if not $$ISDR:$closingbalance then $billdate else ""
+
+;; {04.Sep.21 18:27} local:field: snf2: set as:$$CollectionField:@@cwvchtypenamems:$$line:ColmultiprintAGENTWISEOutstandingReportb
+local:field: snf2: set as:$$CollectionField:@@cwModeofcreditmulti:$$line:ColmultiprintAGENTWISEOutstandingReportbkham
+
+
+
+
+local:field: amtf2: set as:$$CollectionField:$closingbalance:$$line:ColmultiprintAGENTWISEOutstandingReportbkham  ;;if not $$ISDR:$closingbalance then $closingbalance else "" ;; "Bill Amt"
+
+
+Local: Field: amtf20: Set As:if $$line=1 then #amtf else $$prevlinefield+#amtf
+Local: Field: amtf21: Set As:if $$line=1 then #amtf2 else $$prevlinefield+#amtf2
+
+Local: Field: amtf22: Set As:if $$line=1 then #amtf else $$prevlinefield+#amtf
+Local: Field: amtf23: Set As:if $$line=1 then #amtf2 else $$prevlinefield+#amtf2
+
+;;Local: Field: amtf4: Set As:if $$line=1 then #amtf2 else if $parent <> $$prevobj:$parent then #amtf2 else $$prevlinefield+#amtf2
+
+
+;; {04.Sep.21 18:41} local: field: amtf3: Invisible: yes
+
+local: field: amtf20: Invisible: yes
+local: field: amtf21: Invisible: yes
+local: field: amtf22: Invisible: yes
+local: field: amtf23: Invisible: yes
+local: field: amtf4: Invisible: yes
+
+Local: field: SDF2: Align:LEFT
+
+Local: field: snf9: Width:30
+Local: field: nf9: Width:37.5
+
+local: field: default : style:small
+ space top:0.3
+delete:explode
+Local: Field: sdf2: Border: thin left
+ Local: Field:default: delete:Border: thin top bottom
+
+
+
+;;add:option:kptitlline
+  
+  [system: Formula]
+ ColtestkhamprintFilter: Yes
+
+[Line: LntestkhamprintTitle]
+use: Lntestkhamprint
+option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+local: field: default : style: normal bold
+
+[Line: Lntestkhamprint]
+Fields: sdf,nf,fwf
+right field: ratepf,Qtyf,Amtf
+
+Option: Alter on Enter
+
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local : field : sdf : set as : $date
+ 
+;; {22.Apr.22 17:43}  add:option:kptitlline
+   [!line:kptitlline]
+   field:nf
+   Local: Field: nf: Set As:"aaaaaaaaaaaaaaa"
+
+
+      [line: LntestkhamprintTotals]
+        use: Lntestkhamprint
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

@@ -1,0 +1,101 @@
+; Created By: Khokan on 2021-05-22 17:42, ID: 
+
+ [#Line: EI ColumnOne]
+ add:option:cweiColumnOneoptcrnote:@@isCreditNote and @@MinuSareeEnabled
+ [!line:cweiColumnOneoptcrnote]
+ add:right field: At Beginning:nf,snf1,snf9,numf
+ Local: Field: snf9: info: "Fresh/Kata"
+ Local: Field: nf: info: "Additional Description"
+ 
+
+add:right field:before:VCH AmtTitle:snfx2,numf2
+Local: Field: numf: info: "Tax%"
+Local: Field: numf2: info: "Disc."
+Local: Field: SNFX: info: ""
+Local: Field: SNFX2: info: ""
+Local: Field: snf1: info: ""
+Local: field: numf2: Align:left
+Local: Field :nf    : Width    : @@LongWidth+25
+
+
+  [#Line: EI ColumnTwo]
+ add:option:cweiColumntwooptcrnote:@@isCreditNote and @@MinuSareeEnabled
+ [!line:cweiColumntwooptcrnote]
+ add:right field: At Beginning:nf,snf9,numf
+ Local: Field: snf9: info: ""
+ Local: Field: snf1: info: ""
+ 
+ add:right field:before:VCH AmtTitle:snfx2,snf1,numf2
+ Local: Field: nf: info: ""
+ Local: Field: SNFX2: info: ""
+ Local: Field: numf2: info: ""
+ Local: Field: numf: info: ""
+  Local       : Field :nf    : Width    : @@LongWidth+25
+
+ [#Line: cI InvInfo]
+  add:option:cweiinvoptcrnote:@@isCreditNote and @@MinuSareeEnabled
+
+ [#Line: EI InvInfo]
+ add:option:cweiinvoptcrnote:@@isCreditNote and @@MinuSareeEnabled
+ [!line:cweiinvoptcrnote]
+
+  add:right field: At Beginning:nf,snf1,snf9,numf
+  
+   Local: Field: nf: storage:cwminuitem
+  
+   Local: Field: snf9: storage:cwfreshKata
+
+   Local: Field: numf: Set As:@@cwgstitemrate
+
+   Local: field: numf: Format: "nozero,percentage"
+
+  
+  
+  Local: Field: snf9: table:collcwfreshKata,Not Applicable
+  Local: Field: snf9: Show table: Always
+
+  Local       : Field :nf    : Width    : @@LongWidth+25
+  Local: Field: nf: Inactive    : $$IsEnd:$StockItemName OR @@NoBaseUnits
+  Local: Field: snf9: Inactive    : $$IsEnd:$StockItemName OR @@NoBaseUnits
+
+;;===========================================================
+  
+ add:right field:before:VCH Value:snfx2,numf2,amtf
+  Local: Field: SNFX2: info: ""
+
+ Local: Field: SNF1: info: ""
+ Local: Field: SNFX: info: ""
+ Local: Field: nf: storage:cwminuitem
+ Local: Field: numf2: storage:cwminudisc
+ Local: Field:amtf: storage:cwminudiscamt
+ Local: Field:amtf: Set As:$$asamount:#vchbilledqty*#numf2
+ local: field: amtf: Invisible: yes
+
+ Local: Field: numf2: Set As:$$CollectionField:$cwminudisc:First:batchallocations
+
+ Local: Field: nf: Set As:$stockitemname
+ Local: Field: nf: Style: Normal Bold
+ Local: field: numf: Align: centre
+
+ Local: field: numf2: Format: "nozero,decimals:2"
+
+ Local: Field: numf2:skip:if $$owner:$$owner:$cwnetsales="yes" then "yes" else "no"
+
+ Local: Field: snf: Skip: Yes
+ Local: Field: numf: Skip: Yes
+ Local: field: numf2: Align:left
+
+ Local: Field: snf: Style: Normal Bold
+ Local: Field: numf: Style: Normal Bold
+ Local: Field: numf2: Style: Normal Bold
+ Local: Field: numf2: Inactive    : $$IsEnd:$StockItemName OR @@NoBaseUnits
+
+  
+  
+  
+  [Collection: collcwfreshKata]
+  title:""
+  listname:"Fresh"
+  listname:"Kata"
+
+

@@ -1,0 +1,334 @@
+; Created By: khokan on 2022-06-20 12:55, ID:
+; Auto Column Repeat
+/*
+Criteria :
+1 Collection which will be repeated eg : stock item (for stock item name)
+1 Variable which will be repeated (which will store the value of repeated collection)
+1 left field to be repeated (at line level)
+if you want to have multiple repeated fields, then repeat one field and in that field add all the required fields
+eg : repeat : snfNew
+[field : snfnew]
+field : snf,amtf,qtyf etc whatever is required
+
+*/
+
+; Created By: suman on 2011-11-22 15:26
+
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: ComperativeNetsaleandCollectionLock: @@ComperativeNetsaleandCollectionDemoLock
+
+     [!menu: ComperativeNetsaleandCollectionLock]
+        add: Item: before: @@locQuit: @@ComperativeNetsaleandCollectionReport: Display: RepComperativeNetsaleandCollection
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   ComperativeNetsaleandCollectionReport: "Comperative Netsale & Collection "
+ ComperativeNetsaleandCollectionDemoLock: yes ;; $$MachineDate < $$Date:"02/12/2011"
+
+
+
+    [Report: RepComperativeNetsaleandCollection]
+        use: Dsp Template
+      Title: @@ComperativeNetsaleandCollectionReport
+   Printset: Report Title: @@ComperativeNetsaleandCollectionReport
+       Form: FrmComperativeNetsaleandCollection
+     Export: Yes
+   ; set  : svfromdate : ##svcurrentdate
+     ;  set  : svTodate : ##svcurrentdate
+      Repeat : MyComperativeNetsaleandCollection
+      repeat : svfromdate,svtodate
+          Variable: DoSetAutoColumn ;; this is must
+         Set : DoSetAutoColumn : Yes ;; this is must
+          Set : DspRepeatCollection : "MyComperativeNetsaleandCollection" ;;
+          Variable : SVFromDate, SVToDate
+          Variable: MyComperativeNetsaleandCollection
+
+      [Form: FrmComperativeNetsaleandCollection]
+        use: DSP Template
+       Part: DspAccTitles,LnComperativeNetsaleandCollectionCurrPeriod,PrtComperativeNetsaleandCollection ;;,PrtComperativeNetsaleandCollection2
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: ComperativeNetsaleandCollectionbotbrk,ComperativeNetsaleandCollectionbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+  option: setautovchoption : ##Dosetautocolumn AND $$SetAutoColumns:MyComperativeNetsaleandCollection ;; this is must
+
+
+ [System : Variable]
+MyComperativeNetsaleandCollection : ""
+
+
+[Variable : MyComperativeNetsaleandCollection]
+repeat : ##DspRepeatCollection
+Default : ""
+Set always : yes
+
+
+
+[Collection: MyComperativeNetsaleandCollection]    ;; this collection is for Repeated Columns
+
+Type :company ;; set required object here.
+fetch : *
+Filter : ComperativeNetsaleandCollectionFormula
+keep source : ().
+
+[System : Formula]
+ComperativeNetsaleandCollectionFormula : yes
+
+  ;; Now, set the object to actual repeat object (in this case it is stock item so we are
+  ;; modifying Stock ITem
+
+[#Object : company]
+    MyComperativeNetsaleandCollection : $nAME
+
+
+      [part: ComperativeNetsaleandCollectionbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ComperativeNetsaleandCollectionbotopbrk]
+        use: dspacctitles
+  add: part: ComperativeNetsaleandCollectionTitlePart
+
+      [part: ComperativeNetsaleandCollectionTitlePart]
+       line: LnComperativeNetsaleandCollectionTitle,LnComperativeNetsaleandCollectionTitle2
+
+      [part: LnComperativeNetsaleandCollectionCurrPeriod]
+      line: LnComperativeNetsaleandCollectionCurrPeriod
+
+      [line: LnComperativeNetsaleandCollectionCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+
+      [Part: PrtComperativeNetsaleandCollection]
+       Line: LnComperativeNetsaleandCollectionTitle,LnComperativeNetsaleandCollectionTitle2,LnComperativeNetsaleandCollection
+       bottom Line: LnComperativeNetsaleandCollectionTotals
+     repeat: LnComperativeNetsaleandCollection:Coltestcompanynew ;;ColComperativeNetsaleandCollectionVertical
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,numf
+      float:no
+;;      vertical:yes
+
+
+[Collection: Coltestcompanynew]
+
+Collection: Coltestcompany2new:myGrpCompanynew
+by:partyledgername:$partyledgername
+
+by:cwcaption1vch1:$cwcaption1vch1
+
+;; {20.Jun.22 16:09} aggr compute:salesbilledqty:sum:@@salesbilledqty2
+
+;; {20.Jun.22 16:09} aggr compute:salesamount:sum:$amount
+
+compute : myCompany1 :$myCompany1x   ;;$$LoopCollObj:$name
+
+;;sort:@@default:$cwcaption1vch1
+
+ [collection : myGrpCompanynew]
+Type	: Company
+;; {20.Jun.22 15:01} Type	: Member List	: Company
+Child Of:##svcurrentcompany ;;$$getmyname ;;"Group"
+
+compute : myCompany1 : $$LoopCollObj:$name
+
+[Collection: Coltestcompany2new]
+source Collection: sourColtestcompanynew
+
+by:partyledgername:$partyledgername
+
+by:cwcaption1vch1:$..cwcaption1vch
+by:parent1:$parent:ledger:$partyledgername
+by:parent2:$grandparent:ledger:$partyledgername
+
+aggr compute:salesbilledqty:sum:@@cwsalesqty
+
+
+aggr compute:cwsalesdiscamt1x:sum:(@@cwsalesdiscamount2/@@cwinvamt)*@@cwsalesinvamt
+
+
+aggr compute:salesamount:sum:$amount
+
+ compute : myCompany1x :$$LoopCollObj:$name
+
+ ;; sort:@@default:$cwcaption1vch1
+ 
+ 
+
+
+ [Collection: sourColtestcompanynew]
+
+ Type	   : Vouchers	: VoucherType
+Child Of   : $$VchTypesales
+Belongs To : Yes
+
+;; {20.Jun.22 17:17} Filter: ColareasalessrFilterx,ColallareawisesalesreportFilterx
+
+         /*
+  Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColtestcompanyFilter,IsNonOptionalCancelledVchs
+
+Filter: ColareasalessrFilterx,ColallareawisesalesreportFilterx
+*/
+
+
+    [system: Formula]
+ColComperativeNetsaleandCollectionVFilter: $$issales:$vouchertypename
+
+/*
+
+   [line:closingstockline]
+     use: LnComperativeNetsaleandCollection
+local:field: sdf: set as:""
+local:field: snf: set as:""
+local:field: nf: set as: "Opening Stock"
+local:field: numf : set as:$openingbalance:stockitem:##myComperativeNetsaleandCollection
+local:field:default:style:normal bold
+*/
+
+
+[Line: LnComperativeNetsaleandCollectionTitle]
+use: LnComperativeNetsaleandCollection
+option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: nf: set as: "Party Name"
+local:field: numnew : delete:field
+local:field: numnew : set as :##myComperativeNetsaleandCollection
+local:field: numf : set as :##myComperativeNetsaleandCollection
+local: field: default : style: normal bold
+ Local: Field: numnew: Sub title : Yes
+local: field: numnew: type: String
+local:field:default:align:centre
+local:field:numnew:line:0
+local: field: nf : style:styleCalisto2
+local: field: numnew : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf1 : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+local: field: amtf10 : style:styleCalisto2
+local: field: amtf11 : style:styleCalisto2
+local: field: amtf12 : style:styleCalisto2
+local: field: amtf13 : style:styleCalisto2
+
+[Line: LnComperativeNetsaleandCollectionTitle2]
+use: LnComperativeNetsaleandCollection
+option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: nf: set as: ""
+local:field: numf : set as :"Net Sale Qty"
+local:field: amtf : set as :"Net Sale Amt"
+local:field: amtf2 : set as :"Collection"
+local:field: amtf10 : set as :"Sale Variation"
+local:field: amtf11 : set as :"Sale Varn %"
+local:field: amtf12 : set as :"Coll Variation"
+local:field: amtf13 : set as :"Coll Varn %"
+local: field: default : style: normal bold
+
+local: field: numf: type: String
+local: field: amtf: type: String
+local: field: amtf2: type: String
+
+local:field:default:align:centre
+local:field:numf:line:0
+local:field:amtf:line:0
+local:field:amtf2:line:0
+
+local: field: nf : style:styleCalisto2
+local: field: numf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf1 : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+local: field: amtf10 : style:styleCalisto2
+local: field: amtf11 : style:styleCalisto2
+local: field: amtf12 : style:styleCalisto2
+local: field: amtf13 : style:styleCalisto2
+
+
+ [field:numnew]
+ field:numf,amtf,amtf2,snf
+ local:field: snf : set as :##myComperativeNetsaleandCollection
+ local: field: snf: Invisible: yes
+
+
+[Line: LnComperativeNetsaleandCollection] ;; main line
+;; {20.Jun.22 14:38}      Fields:numnew
+Fields:nf9,nf8,nf,numnew,amtf10,amtf11,amtf12,amtf13,amtf14
+;;right field: snf2
+
+Option: Alter on Enter
+
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field :sdf : alter : voucher : $$isvoucher
+
+Local: Field: nf8: Set As:$myCompany1
+Local: Field: nf9: Set As:$cwcaption1vch1
+Local: Field: nf: Set As:$partyledgername
+
+local:field: numf : set as :"";;$$reportobject:$$collectionfieldbykey:$salesbilledqty:@@cwmyitemsame:Coltestcompany
+local:field: amtf : set as :"" ;;$$reportobject:$$collectionfieldbykey:$salesamount:@@cwmyitemsame:Coltestcompany
+local:field: amtf10 : set as :"" ;;"Sale Variation"
+local:field: amtf11 : set as :"" ;;"Sale Varn %"
+local:field: amtf12 : set as :"" ;;"Coll Variation"
+local:field: amtf13 : set as :"" ;;"Coll Varn %"
+
+repeat:numnew ;;numnew ;; The Field to Repeat ;; Only Left Field is repeated
+local:field:default:border:thin left
+;; ##myComperativeNetsaleandCollection will hold the current column value.
+local: field:default : style:styleCalisto
+
+
+[System: Formula]
+;;myitemsame : $stockitemname = ##myComperativeNetsaleandCollection
+ cwmyitemsame : #myComperativeNetsaleandCollection+#nf+#nf9
+
+[field:numnew2]
+ field:numf5,amtf4,amtf5,snf5
+local: field: snf5: Invisible: yes
+
+[line:lnComperativeNetsaleandCollectiontotals]
+  use:LnComperativeNetsaleandCollection
+  Local: Field: nf: Set As:  " Total"
+  local: field: numf : set as : $$total:numf
+ option: totalOpt
+  delete : repeat
+  replace : field : numnew : numnew2
+  add : repeat : numnew2
+
+;; {20.Jun.22 14:42}    replace : field : numf : numf5
+;; {20.Jun.22 14:42}   add : repeat : numf5
+
+local: field:numf5: set as:$$total:numf
+
+local:field: amtf10 : set as :"" ;;"Sale Variation"
+local:field: amtf11 : set as :"" ;;"Sale Varn %"
+local:field: amtf12 : set as :"" ;;"Coll Variation"
+local:field: amtf13 : set as :"" ;;"Coll Varn %"
+
+ local: field: nf : style:styleCalisto2
+local: field: numnew2 : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf1 : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+local: field: amtf10 : style:styleCalisto2
+local: field: amtf11 : style:styleCalisto2
+local: field: amtf12 : style:styleCalisto2
+local: field: amtf13 : style:styleCalisto2
+
+

@@ -1,0 +1,544 @@
+; Created By: Khokan on 2021-08-28 13:12, ID: 
+
+    /*
+[#Line: DSP CfgSubTitle]
+[#Line: Company ConfigTitle]
+[#Line: DSPShowOp]
+border:thin box
+[#System: Formula]
+ShowOpBal				: $$LocaleString:"Show Opening Balance222"
+ [#System: Formula]
+	ShowOp			: $$LocaleString:"Show Opening Balance33"
+	
+	
+	[#Object: Cfg ShowOpBal]
+
+	Use		: Cfg Report Config
+	Name	: @@ShowOpBal+"111111111"
+	
+	*/
+
+     [#menu: Gateway of Tally]
+;; {06.Sep.21 14:49}         add: Option: multiprintAGENTWISEOutstandingReportLock ;; : @@multiprintAGENTWISEOutstandingReportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@multiprintAGENTWISEOutstandingReportReport: Display: RepmultiprintAGENTWISEOutstandingReport
+
+
+
+     [!menu: multiprintAGENTWISEOutstandingReportLock]
+;; {06.Sep.21 11:05}         add: Item: before: @@locQuit: @@multiprintAGENTWISEOutstandingReportReport: Display Collection: collRepmultiprintAGENTWISEOutstandingReport ;;: RepmultiprintAGENTWISEOutstandingReport
+        add: Item: before: @@locQuit: @@multiprintAGENTWISEOutstandingReportReport: print Collection: collRepmultiprintAGENTWISEOutstandingReport ;;: RepmultiprintAGENTWISEOutstandingReport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   multiprintAGENTWISEOutstandingReportReport:@@cwcaption1tableundernew+" "+"wise O/S Statement" ;;@@cwcaption1tableundernew+" "+"wise outstanding report"
+;; multiprintAGENTWISEOutstandingReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+
+       [Collection: collRepmultiprintAGENTWISEOutstandingReport]
+
+  Use         : Extract Alias Collection
+   Source Collection	: List of Ledgers
+   Variable    : Ledger Name
+   Report      :RepmultiprintAGENTWISEOutstandingReport
+   Trigger     : cwLedgerName1
+   Fetch       : Name
+
+     
+    [Report: RepmultiprintAGENTWISEOutstandingReport]
+        use: Dsp Template
+      Title: @@multiprintAGENTWISEOutstandingReportReport
+   Printset: Report Title: @@multiprintAGENTWISEOutstandingReportReport
+       Form: FrmmultiprintAGENTWISEOutstandingReport
+     Export: Yes
+    ; set  : svfromdate : ##svcurrentdate
+   ;  set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmmultiprintAGENTWISEOutstandingReport]
+        use: DSP Template
+;; {06.Sep.21 13:07}        Part: DspAccTitles,multiagentpart,PrtTitle0multiprintAGENTWISEOutstandingReport,PrtmultiprintAGENTWISEOutstandingReport
+       Part: PrtTitle0multiprintAGENTWISEOutstandingReport,multiagentpart,PrtmultiprintAGENTWISEOutstandingReport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: multiprintAGENTWISEOutstandingReportbotbrk,multiprintAGENTWISEOutstandingReportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+
+local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+DELETE:PART:DSPCompanyAddress
+
+
+[style:style3n]
+font:"timesnewroman"
+height:14
+bold:yes
+
+[style:style2n]
+font:"timesnewroman"
+height:11
+bold:no
+
+
+
+      [part: multiprintAGENTWISEOutstandingReportbotBrk]
+       line:EXPINV PageBreak
+     border: thin top
+     
+     [line: multiprintAGENTlineII]
+       field:fwfC
+       Local: Field: fwfC: Set AS:""
+
+      [part: multiprintAGENTWISEOutstandingReportbotopbrk]
+;; {06.Sep.21 13:01}         use: dspacctitles
+  add: part: multiprintAGENTWISEOutstandingReportTitlePart
+
+      [part: multiprintAGENTWISEOutstandingReportTitlePart]
+;; {06.Sep.21 13:33}        line: multiprintAGENTline1,LnmultiprintAGENTWISEOutstandingReportTitle
+
+       line:DSPCompanyName,LnmultiprintAGENTWISEOutstandingReportCurrPeriod,multiprintAGENTline,LnmultiprintAGENTWISEOutstandingReportTitle   ;;,multiledger
+      local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+      local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:styleCalisto
+        local:line:DSPReportName: Local: Field: DSPReportName:Align:RIGHT
+       local:line:DSPCompanyName: Local: Field: DSP CompanyName:Align:LEFT
+         local:line:DSPCompanyName:add:field:nf
+         local:line:DSPCompanyName:Local: Field:nf:set as:@@multiprintAGENTWISEOutstandingReportReport
+         local:line:DSPCompanyName:Local: Field:nf:style:styleCalisto2
+         local:line:DSPCompanyName:Local: Field:nf:Align:right
+
+        add:option:PrtTitle0multiprintAGENTWISEOutstandingReportOPT:##mpms
+        
+         [!PART:PrtTitle0multiprintAGENTWISEOutstandingReportOPT]
+         DELETE:LINE:LnmultiprintAGENTWISEOutstandingReportTitle
+
+      
+       [line: multiprintAGENTline1]
+       field:fwfC
+       Local: Field: fwfC: Set As:""
+
+        [part: PrtTitle0multiprintAGENTWISEOutstandingReport]
+      line :DSPCompanyName, LnmultiprintAGENTWISEOutstandingReportCurrPeriod  ;;,multiledger
+
+
+        local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+       local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:styleCalisto
+       local:line:DSPReportName: Local: Field: DSPReportName:Align:RIGHT
+       local:line:DSPCompanyName: Local: Field: DSP CompanyName:Align:LEFT
+        local:line:DSPCompanyName:add:field:nf
+        local:line:DSPCompanyName:Local: Field:nf:set as:@@multiprintAGENTWISEOutstandingReportReport
+         local:line:DSPCompanyName:Local: Field:nf:style:styleCalisto2
+         local:line:DSPCompanyName:Local: Field:nf:Align:right
+
+
+       
+      [line: LnmultiprintAGENTWISEOutstandingReportCurrPeriod]
+      field: fwf
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style:styleCalisto
+      Local: Field: fwf: Style:styleCalisto
+      Local: Field: fwf: Set As:""
+      Local: Field: nf: Set As:""
+      Local: Field: fwf: Set As: @@dspDateStr
+;; {06.Sep.21 13:42}       Local: Field: fwf2:Align:CENTRE
+;; {06.Sep.21 13:42}       Local: Field: fwf2:Align:CENTRE
+;; {06.Sep.21 12:53}       Local: Field: fwf2:invisible: $$inprintmode
+
+      
+      
+      
+
+      [part:multiagentpart]
+      line:multiprintAGENTline  ;;,multiprintagenTaddress,multiprintagenTaddress2  ;;,multipagentpartyphline
+
+      
+      [line:multiprintAGENTline]
+        field: fwf
+      Local: Field: fwf: Style:styleCalisto2
+      Local: Field: fwf: Set As:##LedgerName
+      Local: field: FWF: Align: Right ;;centre
+
+       border:thin bottom
+
+
+
+      
+      [Part: PrtmultiprintAGENTWISEOutstandingReport]
+     Line: multiledger ;;,LnmultiprintAGENTWISEOutstandingReportTitle ;;,LnmultiprintAGENTWISEOutstandingReport
+
+     set : 1
+
+     repeat: multiledger : ColmultiprintAGENTWISEOutstandingReport
+     scroll: Vertical
+;; {04.Sep.21 18:25}  Common Border: YEs
+      Total: Qtyf,amtf,amtf1,amtf2
+      with:50% page
+;; {04.Sep.21 18:25}       Border: thin box
+[Collection: ColmultiprintAGENTWISEOutstandingReport]
+
+Type :ledger
+child of: $$groupsundrydebtors
+belongs to : yes
+fetch : *
+Fetch: BillDate, Name, Parent,BillDueDate,ClosingBalance,cwcaption1item
+filter:cwnotcloingbalancemultiprint ;;,cwnotcloingbalancemultiprintdrcr
+;; {06.Sep.21 11:37} compute:cwcldramt:$$CollAmtTotal:ColmultiprintAGENTWISEOutstandingReporta:$closingbalance
+;; {06.Sep.21 11:13} compute:cwclcramt:$$CollAmtTotal:ColmultiprintAGENTWISEOutstandingReportb:$closingbalance
+
+[System: Formula]
+cwnotcloingbalancemultiprintdrcr:not $$isempty:$closingbalance  ;;not $$IsEmpty:$TBalDebits or not $$IsEmpty:$TBalCredits
+
+;; {06.Sep.21 11:58} cwnotcloingbalancemultiprint:##ledgername=$cwcaption1item  ;and not $$isempty:$closingbalance
+cwnotcloingbalancemultiprint:##ledgername=$cwcaption1item and (not $$isempty:$OnAccountValue or not $$isempty:$closingbalance)
+
+;; not $$IsEmpty:$TBalDebits or not $$IsEmpty:$TBalCredits
+
+
+
+;; {04.Sep.21 17:23} [Collection: ColmultiprintAGENTWISEOutstandingReportaa]
+;; {04.Sep.21 17:23} Collection: ColmultiprintAGENTWISEOutstandingReporta
+;; {04.Sep.21 17:23} Collection: ColmultiprintAGENTWISEOutstandingReportb
+
+[Collection: ColmultiprintAGENTWISEOutstandingReporta]
+
+TYPE:BILLS
+filter:ColmultiprintAGENTWISEOutstandingReportFilterdr
+child of:#fwfc2
+;; {04.Sep.21 16:39} sort:@@default:$parent
+
+[Collection: ColmultiprintAGENTWISEOutstandingReportb]
+TYPE:BILLS
+child of:#fwfc2
+filter:ColmultiprintAGENTWISEOutstandingReportFiltercr
+fetch:ledgerentries.ledgerentries.vouchertypename
+sort:@@default:$parent
+
+ [system: Formula]
+;; {28.Aug.21 15:54}  ColmultiprintAGENTWISEOutstandingReportFilter:$$ISDR:$closingbalance and $cwcaption1vch=##LedgerName
+ ColmultiprintAGENTWISEOutstandingReportFiltercr:if $cwcaption1item:ledger:$parent=##LedgerName then not $$isdr:$closingbalance else no
+ ColmultiprintAGENTWISEOutstandingReportFilterdr:if $cwcaption1item:ledger:$parent=##LedgerName then $$isdr:$closingbalance else no
+
+
+ [line:multiledger]
+ field:fwfc2  ;;,amtf30,amtf31
+
+ Local: Field: fwfc2: Set As:$name
+ Local: Field: amtf30: Set As:$closingbalance  ;;$closingbalance
+ Local: Field: amtf31: Set As:$OnAccountValue
+
+ Local: field: FWFC2: Align:LEFT
+
+ next page :yes
+;; Local: Field:default: Border: thin top bottom
+ local: field: FWFc2 : style:styleCalisto2
+
+ add:explode:Lnmultiprintleaddress
+ add:explode:LnmultiprintAGENTWISEos
+ add:explode:cwmultisubtotal
+ 
+ add:option:multiledgeropt:not ##mpms
+ [!line:multiledgeropt]
+  next page :no
+ 
+ 
+ [part:Lnmultiprintleaddress]
+ line:multiprintAGENTbilldetailpartaddx,multiprintAGENTbilldetailpartadd2x,multiprintAGENTbilldetailpartphx
+ 
+
+
+
+[line:multiprintAGENTbilldetailpartaddx]
+field:fwfc
+Local: Field: fwfc: Set As:$$CollectionField:$address:First:collcwLedgeraggaddress1
+local: field: fwfc : style:styleCalisto
+ delete:explode
+ Local: field: FWFC: Align:LEFT
+ 
+[line:multiprintAGENTbilldetailpartadd2x]
+field:fwfc
+Local: Field: fwfc: Set As:$$CollectionField:$address:2:collcwLedgeraggaddress1
+local: field: fwfc : style:styleCalisto
+  delete:explode
+ Local: field: FWFC: Align:LEFT
+
+[line:multiprintAGENTbilldetailpartphx]
+field:fwfc
+ Local: Field: fwfc: Set As:"Phone."+" "+$LedgerPhone:ledger:#fwfc2+"    "+$LedgerMobile:ledger:#fwfc2
+       local: field: FWFc : style:styleCalisto
+  Local: field: FWFC: Align:LEFT
+  delete:explode
+[Collection: collcwLedgeraggaddress1]
+type : address : ledger
+  child of :#fwfc2
+
+
+
+ 
+ [part:LnmultiprintAGENTWISEos]
+ line:LnmultiprintAGENTWISEOutstandingReportTitle,LnmultiprintAGENTWISEOutstandingReport
+ repeat:LnmultiprintAGENTWISEOutstandingReport;;  :ColmultiprintAGENTWISEOutstandingReportaa
+ set:$$multiRepeatControl
+;; {06.Sep.21 10:05}  Total: Qtyf,amtf,amtf1,amtf2
+ 
+ [Function: multiRepeatControl]
+ variable: drcount : number : $$numitems:ColmultiprintAGENTWISEOutstandingReporta
+ variable: crcount : number : $$numitems:ColmultiprintAGENTWISEOutstandingReportb
+;; {04.Sep.21 18:01}  01 : log : #fwfc2
+;; {04.Sep.21 18:01}  02 : log : ##drcount
+;; {04.Sep.21 18:01}  03 : log : ##crcount
+;; {04.Sep.21 18:01}  04: log : "----"
+
+ 
+ 10 : do if : ##drcount > ##crcount : return :##drcount
+ 20 : return : ##crcount
+ 
+
+
+
+
+[Line: LnmultiprintAGENTWISEOutstandingReportTitle]
+use: LnmultiprintAGENTWISEOutstandingReport
+option: titleopt
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Bill No"
+local:field: fwf: set as: "Bill No"
+local:field: nf: set as: "Bill No"
+;; {30.Aug.21 11:58} local:field: fwf: set as: ""
+local:field: numf: set as:"Due Days"
+
+
+local:field: amtf: set as: "Amount"
+
+
+local:field: sdf2: set as: "Date"
+local:field: snf2: set as: "Mode of credit"
+local:field: amtf2: set as: "Amount"
+
+local: field: default : style: normal bold
+Local: field: default: Align:centre
+Local: field:fwf: Align:left
+local: field: sdf : style:styleCalisto2
+local: field: sdf2 : style:styleCalisto2
+local: field: sdf : style:styleCalisto2
+local: field: sNf : style:styleCalisto2
+local: field: sNf2 : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: nf : style:styleCalisto2
+local: field: numf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+;; {28.Aug.21 16:27} Local: Field: amtf: Border: thin right
+
+;; {30.Aug.21 11:59}  local:field: fwf:indent:25
+delete:explode
+
+[System: Formula]
+cwmultiduedays:@@DSPToDate - $BillDate
+cwvchtypenamems: $$CollectionField:$vouchertypename:First:ledgerentries
+
+cwModeofcreditmulti:if @@cwvchtypenamems="Receipt" then (if not $$isempty:@@cwTransactionTypec  then @@cwTransactionTypec else "Cash") else @@cwModeofcredit
+ 
+[Line: LnmultiprintAGENTWISEOutstandingReport]
+;; {06.Sep.21 13:48} Fields: sdf,fwf
+;; {06.Sep.21 13:48} right field:numf,Amtf,sdf2,snf2,Amtf2,amtf20,amtf21
+field:sdf,nf,numf,Amtf,sdf2,snf1,snf2,Amtf2,amtf20,amtf21,amtf22,amtf23
+
+Option: Alter on Enter
+
+local:field: sdf: set as: $$CollectionField:$billdate:$$line:ColmultiprintAGENTWISEOutstandingReporta ;;if $$ISDR:$closingbalance then $billdate else "";; "Date"
+
+local:field: fwf: set as:$$CollectionField:$name:$$line:ColmultiprintAGENTWISEOutstandingReporta  ;;if $$ISDR:$closingbalance then $name else ""  ;; "Bill No"
+local:field: nf: set as:$$CollectionField:$name:$$line:ColmultiprintAGENTWISEOutstandingReporta  ;;if $$ISDR:$closingbalance then $name else ""  ;; "Bill No"
+;; {30.Aug.21 11:58} local:field: fwf: set as:"";;$parent;; "Bill No"
+;; {04.Sep.21 17:31} local:field: numf: set as:if $$ISDR:$closingbalance then @@DSPToDate - $BillDate else "" ;;"Due Days"
+local:field: numf: set as:$$CollectionField:@@cwmultiduedays:$$line:ColmultiprintAGENTWISEOutstandingReporta
+
+local:field: amtf: set as:$$CollectionField:$closingbalance:$$line:ColmultiprintAGENTWISEOutstandingReporta ;;if $$ISDR:$closingbalance then $closingbalance else "" ;; "Bill Amt"
+
+local:field: sdf2: set as:$$CollectionField:$billdate:$$line:ColmultiprintAGENTWISEOutstandingReportb ;;if not $$ISDR:$closingbalance then $billdate else ""
+
+;; {04.Sep.21 18:27} local:field: snf2: set as:$$CollectionField:@@cwvchtypenamems:$$line:ColmultiprintAGENTWISEOutstandingReportb
+local:field: snf2: set as:$$CollectionField:@@cwModeofcreditmulti:$$line:ColmultiprintAGENTWISEOutstandingReportb
+
+
+
+
+local:field: amtf2: set as:$$CollectionField:$closingbalance:$$line:ColmultiprintAGENTWISEOutstandingReportb  ;;if not $$ISDR:$closingbalance then $closingbalance else "" ;; "Bill Amt"
+
+
+Local: Field: amtf20: Set As:if $$line=1 then #amtf else $$prevlinefield+#amtf
+Local: Field: amtf21: Set As:if $$line=1 then #amtf2 else $$prevlinefield+#amtf2
+
+Local: Field: amtf22: Set As:if $$line=1 then #amtf else $$prevlinefield+#amtf
+Local: Field: amtf23: Set As:if $$line=1 then #amtf2 else $$prevlinefield+#amtf2
+
+;;Local: Field: amtf4: Set As:if $$line=1 then #amtf2 else if $parent <> $$prevobj:$parent then #amtf2 else $$prevlinefield+#amtf2
+
+ local: field: default : style:styleCalisto
+;; {04.Sep.21 18:41} local: field: amtf3: Invisible: yes
+local: field: amtf20: Invisible: yes
+local: field: amtf21: Invisible: yes
+local: field: amtf22: Invisible: yes
+local: field: amtf23: Invisible: yes
+local: field: amtf4: Invisible: yes
+;; {06.Sep.21 12:47} Local: field: SDF2: Width:11
+;; {06.Sep.21 12:47} Local: field: NUMF: Width:15
+Local: field: SDF2: Align:LEFT
+
+delete:explode
+Local: Field: sdf2: Border: thin left
+ Local: Field:default: delete:Border: thin top bottom
+
+;; {04.Sep.21 18:41} add:explode:cwmultisubtotal:$$line=$$numitems or $parent <> $$nextobj:$parent
+
+;; {04.Sep.21 16:46} add:explode:multiprintAGENTbilldetailpart:$$line=$$numitems or $parent <> $$nextobj:$parent
+
+
+
+[part:cwmultisubtotal]
+line:cwmultisubtotal,cwmultisubtotal2,cwmultisubtotal3
+
+[line:cwmultisubtotal]
+use: LnmultiprintAGENTWISEOutstandingReport
+delete: explode
+option: totalOpt
+
+local:field: sdf: set as:"";; "Date"
+local:field: sdf2: set as:"";; "Date"
+local:field: snf: set as:""  ;; "Bill No"
+local:field: nf: set as:""  ;; "Bill No"
+local:field: snf2: set as:"Payment Total"  ;; "Bill No"
+local:field: fwf: set as:"Bill Total"  ;; "Bill No"
+local:field: numf: set as:""
+local: field: sdf2: type: String
+
+
+local:field: amtf: set as:#amtf20  ;;$$total:amtf
+local:field: amtf20: set as:$$prevlinefield
+local:field: amtf21: set as:$$prevlinefield
+local:field: amtf22: set as:$$prevlinefield
+local:field: amtf23: set as:$$prevlinefield
+
+local:field: amtf4: set as:$$prevlinefield
+local:field: amtf2: set as:#amtf21
+Local: field: fwf: Align: Right ;;centre
+
+ local: field: sdf : style:styleCalisto2
+local: field: sdf2 : style:styleCalisto2
+local: field: sdf : style:styleCalisto2
+local: field: sNf : style:styleCalisto2
+local: field: sNf2 : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: nf : style:styleCalisto2
+local: field: numf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+
+[line:cwmultisubtotal3]
+field:nf
+
+
+
+[line:cwmultisubtotal2]
+use: LnmultiprintAGENTWISEOutstandingReport
+delete: explode
+option: totalOpt
+
+local:field: sdf: set as:"";; "Date"
+local:field: sdf2: set as:"";; "Date"
+local:field: snf: set as:""  ;; "Bill No"
+local:field: nf: set as:""  ;; "Bill No"
+local:field: snf2: set as:""  ;; "Bill No"
+local:field: nf: set as:"Net O/s"  ;; "Bill No"
+local:field: numf: set as:""
+local: field: sdf2: type: String
+
+
+local:field: amtf: set as:$$nettamount:#amtf22:#amtf23  ;;$$total:amtf
+local:field: amtf20: set as: $$prevlinefield
+local:field: amtf22: set as:$$prevlinefield
+local:field: amtf23: set as:$$prevlinefield
+local:field: amtf4: set as:" ";;$$prevlinefield
+local:field: amtf2: set as:"" ;;#amtf21
+Local: field: fwf: Align: Right ;;centre
+
+ local: field: sdf : style:styleCalisto2
+local: field: sdf2 : style:styleCalisto2
+local: field: sdf : style:styleCalisto2
+local: field: sNf : style:styleCalisto2
+local: field: sNf2 : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: nf : style:styleCalisto2
+local: field: numf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+
+
+
+[line: LnmultiprintAGENTWISEOutstandingReportTotals]
+;; {06.Sep.21 10:58} use: LnmultiprintAGENTWISEOutstandingReport
+field:Snf,AMTF
+;; {06.Sep.21 12:43} rightfields:amtf
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+
+local: field: numf: set as: ""
+local: field: sdf: set as: ""
+local: field: sdf2: set as: ""
+local: field: snf: set as: ""
+local: field: snf2: set as: ""
+local: field: Snf: set as: "Net O/S"
+
+local: field: amtf: set as :$$CollAmtTotal:ColmultiprintAGENTWISEOutstandingReport:$closingbalance
+
+Local: field: amtf31 : set as :$$prevlinefield  ;;$$CollAmtTotal:ColmultiprintAGENTWISEOutstandingReportB:$closingbalance
+;; {06.Sep.21 11:41} Local: field: amtf30 : set as :$$nettamount:#amtf30:#amtf31
+
+local: field: sdf : style:styleCalisto2
+local: field: sdf2 : style:styleCalisto2
+local: field: sdf : style:styleCalisto2
+local: field: sNf : style:styleCalisto2
+local: field: sNf2 : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: nf : style:styleCalisto2
+local: field: numf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+
+
+;;=====================================================================================
+
+
+[#Collection: Company Details]
+
+add: Object: mpms
+
+[Object: mpms]
+use : VchOutputConfiguration
+Name : @@mpms
+Value: ##mpms
+Action: ConfigAction: Set:mpms : NOT ##mpms
+
+[Variable: mpms]
+Persistent: Yes
+Type: Logical
+
+[System: Variable]
+mpms : No
+
+[System: Formula]
+mpms :"Start each A/c on a fresh page"	

@@ -1,0 +1,532 @@
+; Created By: Khokan on 2024-01-02 15:05, ID:
+
+; Created By: Khokan on 2021-04-13 17:08, ID:
+
+
+[#Part: Title Output Medium]
+
+add:option:cwtitleoutputmiumopt:@@issales and @@MinuSareeEnabled
+add:option:cwtitleoutputmiumcrnotopt:@@isCreditNote and @@MinuSareeEnabled
+
+[!part:cwtitleoutputmiumopt]
+
+add:line:titlelinenewp
+
+[line:titlelinenewp]
+field:medium prompt,snf,snf1,snf2
+Local	: Field : Medium Prompt : Info : $$LocaleString:"Title :"
+;; {17.Aug.21 19:20} Local: Field: snf: Set As:##PRNTYPE
+Local: Field: snf: Set As:"Normal Invoice"
+Local: Field: snf1: Set As:"F/N"  ;;##str1
+Local: Field: snf2: Set As:"Packingslip" ;;##str2
+Local: Field: snf3: Set As:##PRNTYPE
+Local: Field: default: style:normal bold
+;; {18.Aug.21 13:40} local: field: snf2: Invisible: yes
+local: field: snf1: Invisible:if @@cwenablefn="yes" then "no" else "yes"
+space top:0.5
+
+Local: Field: default: Color : blue
+
+;;======================================
+
+
+[#Part: Title Output Medium]
+
+;; {18.May.23 11:18} add:option:cwtitleoutputmiumopt2:@@issales and @@cwenablefn
+;; {18.May.23 11:18} add:option:cwtitleoutputmiumcrnotopt2:@@isCreditNote and @@cwenablefn
+
+[!part:cwtitleoutputmiumopt2]
+
+add:line:titlelinenewp2x
+
+[line:titlelinenewp2x]
+field:medium prompt,snf,snf1,snf2
+Local	: Field : Medium Prompt : Info : $$LocaleString:"Title :"
+;; {17.Aug.21 19:20} Local: Field: snf: Set As:##PRNTYPE
+Local: Field: snf: Set As:"Normal Invoice"
+Local: Field: snf1: Set As:"F/N"  ;;##str1
+Local: Field: snf2: Set As:"Packingslip" ;;##str2
+Local: Field: snf3: Set As:##PRNTYPE
+Local: Field: default: style:normal bold
+;; {18.Aug.21 13:40} local: field: snf2: Invisible: yes
+space top:0.5
+
+Local: Field: default: Color : blue
+
+
+
+
+[style:style1xnew]
+
+;; {18.Aug.21 14:52} font:"Calibri"
+;; {18.Aug.21 14:55} font:"normal"
+font:"Times New Roman"
+height:20
+bold:yes
+
+[!part:cwtitleoutputmiumcrnotopt]
+
+add:line:titlelinenewp2
+
+[line:titlelinenewp2]
+field:medium prompt,snf2
+Local	: Field : Medium Prompt : Info : $$LocaleString:"Title :"
+;; {17.Aug.21 19:20} Local: Field: snf: Set As:##PRNTYPE
+Local: Field: snf: Set As:"Packingslip"
+Local: Field: snf1: Set As:"F/N" ;;##str1
+Local: Field: snf2: Set As:"Normal Invoice" ;;##str2
+Local: Field: default: Style: Normal Bold
+space top:0.5
+Local: Field: default: Color : blue
+
+
+
+
+[#Form: VCHPRN Sales]
+;; {13.Apr.21 18:11}  Add: BottomButton: At Beginning: salrepnew2
+
+ [KEY : salrepnew2]
+ title:"Print Format"
+ KEY : CTRL+F8
+
+ TITLE :"F/N" ;;if ##logi1 then "Normal"  else "Packing Slip"
+ action :set : logi3 ;;:##logi3
+
+
+[#form : Simple Printed Invoice]
+;; {17.Aug.21 17:34}    add : option : fnsalesinvOpt:@@cwtransport  ;;: ##logi3 and @@issales
+
+[#form : ComprehensiveInvoice]
+;; {13.Apr.21 17:11}    add : option : fnsalesinvOpt : @@fnsalesinvSales
+ add : option : fnsalesinvOpt:@@cwtransport  ;;: ##logi3 and @@issales
+
+
+
+[!form : fnsalesinvOpt]
+
+
+Delete : Part
+Delete : Bottom Part
+Delete : Page Break
+   add : Top part : fnsalesinvTopPart1,fnsalesinvTopPart,fnsalesinvTopPart2,fnsalesinvTopPart3,fnsalesinvInvACCPart,fnsalesinvBottomPart
+   add : Part : fnsalesinvTopPart1XX,fnsalesinvTopPart1X,fnsalesinvTopPartX,fnsalesinvTopPart2X,fnsalesinvTopPart3X,fnsalesinvInvACCPartX,fnsalesinvBottomPartX
+;; {13.Apr.21 17:53}    Add : bottom Part :  fnsalesinvBottomPart
+   add : page Break : fnsalesinvCLBreak, fnsalesinvOPBreak
+
+    delete:Space Top   : @@InvSmpSpace inch
+;; {21.Jun.21 12:10}    add:Space Top   :0.25 inch
+
+add:space left :##spaceLeftnew inch    ;;0.70 inch  ;; 0.86 inch
+add:space top  :##spacetopnew inch     ;;5.9 ;; was 5.93
+add:space right:##spaceRightnew inch    ;;0.50  ;;0.63 inch
+add:width      :##spacewidthnew inch    ;;  8.5 inch
+add:height     :##spaceHeightnew inch   ;; 10.00 inch
+
+
+[form : cwfnsalesinvOptms]
+Delete : Part
+Delete : Bottom Part
+Delete : Page Break
+   add : Top part : fnsalesinvTopPart1,fnsalesinvTopPart,fnsalesinvTopPart2,fnsalesinvTopPart3,fnsalesinvInvACCPart,fnsalesinvBottomPart
+   add : Part : fnsalesinvTopPart1XX,fnsalesinvTopPart1X,fnsalesinvTopPartX,fnsalesinvTopPart2X,fnsalesinvTopPart3X,fnsalesinvInvACCPartX,fnsalesinvBottomPartX
+;; {13.Apr.21 17:53}    Add : bottom Part :  fnsalesinvBottomPart
+   add : page Break : fnsalesinvCLBreak, fnsalesinvOPBreak
+
+    delete:Space Top   : @@InvSmpSpace inch
+;; {21.Jun.21 12:10}    add:Space Top   :0.25 inch
+
+add:space left :##spaceLeftnew inch    ;;0.70 inch  ;; 0.86 inch
+add:space top  :##spacetopnew inch     ;;5.9 ;; was 5.93
+add:space right:##spaceRightnew inch    ;;0.50  ;;0.63 inch
+add:width      :##spacewidthnew inch    ;;  8.5 inch
+add:height     :##spaceHeightnew inch   ;; 10.00 inch
+
+
+
+
+[PART:fnsalesinvTopPart1XX]
+LINE:CWBLANKLINE
+HEIGHT:10
+
+[PART:fnsalesinvTopPart1X]
+USE:fnsalesinvTopPart1
+
+[PART:fnsalesinvTopPartX]
+USE:fnsalesinvTopPart
+[PART:fnsalesinvTopPart2X]
+USE:fnsalesinvTopPart2
+[PART:fnsalesinvTopPart3X]
+USE:fnsalesinvTopPart3
+[PART:fnsalesinvInvACCPartX]
+USE:fnsalesinvInvACCPart
+[PART:fnsalesinvBottomPartX]
+USE:fnsalesinvBottomPart
+
+   ;;=========================================
+
+
+ [Part : fnsalesinvCLBreak]
+   use : fnsalesinvBottomPart
+
+ [Part : fnsalesinvOpBreak]
+  part : fnsalesinvTopPart
+
+
+  [part:fnsalesinvTopPart1]
+
+  line:mstitlelinex
+   border:thin box
+
+  [line:mstitlelinex]
+  field:nf,fwfc,nf1,copyfield
+ Local: Field: fwfc: Set As:"F/NOTE" ;;@@invtitle
+ Local: Field: nf1: Set As:#copyfield
+
+ local: field: copyfield: Invisible: yes
+
+  Local: Field: fwfc: border:thin bottom
+
+ Local: Field: fwfc: Style: large Bold
+ HEIGHT:2
+ SPACE TOP:0.5
+
+ [part : fnsalesinvTopPart]
+ part : fnsalesinvTopParta
+
+ part : fnsalesinvTopPartb
+ border:thin box
+ height:12
+ [part : fnsalesinvTopPartA]
+ line:cmpfnline,cmpaddxline,gstcmpline
+
+ repeat:cmpaddxline:cwCompanyAddress
+ [Collection:cwCompanyAddress]
+	
+    Type        : Address   : Company
+    Child of    : ##SVCurrentCompany
+	Compute		: IsNumber	  	: No
+	Compute		: FixedDirection: No
+	
+    delete:Object      : Company State
+    delete:Object  	: Company CINumber
+    delete:Object      : Company Contacts
+    delete:Object		: Company FaxNo
+    delete:Object      : Company Email
+    delete:Object		: Company Website
+    Filter      : IsNotBlankAddr
+	
+    delete:Option		: Company GSTINumber	: (##IsVoucher OR ##IsMultiVchReport) AND @@IsGSTOnAppl
+    delete:Option		: Company TINTRNNumber	: (##IsVoucher OR ##IsMultiVchReport) AND @@IsVChGVATApplicable
+	
+
+
+
+
+
+
+ [LINE:cmpfnline]
+ field:fwf
+ Local: Field: fwf: Set As:@@cmpmailname
+
+ Local: Field: default: Style: large Bold
+ space top:0.5
+
+ [line:cmpaddxline]
+
+ field:fwf
+ Local: Field: fwf: Set As:$address
+   space top:0.5
+ [line:gstcmpline]
+
+ field:sp,nf,sp2,nf2
+ Local: Field: sp: Set As:"GSTIN :"
+;; {17.Jan.24 12:43}  Local: Field: nf: Set As:@@cwGSTNNumber
+ Local: Field: nf: Set As:@@VATCMPGSTNumber
+ Local: Field: sp2: Set As:"Phone :"
+ Local: Field: nf2: Set As:@@cwCmpMobile
+ Local: field: sp: Width:8
+ Local: field: sp2: Width:7
+  space top:0.5
+
+ [part : fnsalesinvTopPartB]
+ line:dtline,fromline,toline
+
+ [line:dtline]
+ field:sp,sdf
+ Local: Field: sp: Set As:"Date"
+ Local: Field: sdf: Set As:@@cwshortmfdm
+ local: field: sdf: type: String
+
+ Local: field: sdf: Align:left
+ Local: field: sp: Width:8
+ Local: field: sdf: Width:20
+  space top:0.5
+
+ [line:fromline]
+ field:sp,snf
+ Local: Field: sp: Set As:"From"
+ Local: Field: snf: Set As:$cwfromfn
+ Local: field: sp: Width:8
+ Local: field: snf: Width:20
+  space top:0.5
+
+
+ [line:toline]
+
+ field:sp,snf
+ Local: Field: sp: Set As:"To"
+ Local: Field: snf: Set As:$cwtofn
+
+  Local: field: sp: Width:8
+  Local: field: snf: Width:20
+
+   space top:0.5
+  [part:fnsalesinvTopPart2]
+  part:fnsalesinvTopPart2a,fnsalesinvTopPart2b
+  border:thin box
+
+  height:10
+
+  [part:fnsalesinvTopPart2a]
+
+  line:transline,transline1,traddline,trphline,gsttrline
+    repeat:traddline:colllcwTRANSPORTER
+
+
+    [collection: colllcwTRANSPORTER]
+  type : address : ledger
+  child of : $cwtempGSTewayTransporterName
+
+  [line:transline]
+  field:fwf
+  Local: Field: fwf: Set As:"TRANSPORTER"
+  border:thin bottom
+   space top:0.5
+   HEIGHT:1.5
+
+  [line:transline1]
+  field:snfx,fwf
+  Local: Field: snfx: Set As:"To ,"
+  Local: Field: fwf: Set As:if $$issysname:$cwtempGSTewayTransporterName then "" else $cwtempGSTewayTransporterName ;;(if @@RejInvoice then @@RejinOutPartyName else @@BuyerName)
+   Local: Field: fwf: Style: Normal Bold
+   Local: field: snfx: Width:3
+
+        space top:0.5
+
+  [line:traddline]
+  field:fwf
+  Local: Field: fwf: Set As:$address
+;; {14.Apr.21 18:57}      space top:0.5
+
+     [line:traddline2]
+  field:fwf
+  Local: Field: fwf: Set As:$cwTransporteradd2
+
+ [line:trnmacontpersline1x]
+  field:fwf
+
+ Local: Field: fwf: set as:"Contact Person :"+$cwTransportercontperson
+ Local: field: sp: Width:20
+ space top:0.5
+
+
+
+
+  [line:trphline]
+  field:fwf
+  Local: Field: fwf: Set As:if $$isempty:@@cwtrphno then "" else "Ph :"+$LedgerPhone:ledger:$cwtempGSTewayTransporterName+" "+$LedgerMobile:ledger:$cwtempGSTewayTransporterName
+      space top:0.5
+
+
+      [System: Formula]
+      cwtrphno:$LedgerMobile:ledger:$cwtempGSTewayTransporterName
+
+       [line:gsttrline]
+  field:nf,nf2
+
+  Local: Field: NF: Set As:$cwledcity:ledger:$cwtempGSTewayTransporterName +" "+$PinCode:LEDGER:$cwtempGSTewayTransporterName+" "+@@cwconLedStateNamenew
+  Local: Field: NF2: Set As:if $$isempty:($PartyGSTIN:ledger:$cwtempGSTewayTransporterName) then "" else "GSTIN : "+$PartyGSTIN:ledger:$cwtempGSTewayTransporterName
+  Local: field: NF: Width:40
+  Local: Field: NF2: Style: Normal Bold
+       space top:0.5
+
+[System: Formula]
+cwconLedStateNamenew:if $$issysname:@@cwconLedStateNamenew2 then "" else @@cwconLedStateNamenew2
+cwconLedStateNamenew2:$LedStateName:ledger:$cwtempGSTewayTransporterName
+
+  [part:fnsalesinvTopPart2b]
+  line:consline,consnameline,consaddline,CONSphline,gstconsline
+  Repeat  : consaddline :BASICBUYERADDRESS
+   BORDER:THIN LEFT
+  [line:consline]
+  field:fwf
+  Local: Field: fwf: Set As:"CONSIGNEE"
+  BORDER:THIN BOTTOM
+   space top:0.5
+   HEIGHT:1.5
+
+
+  [line:consnameline]
+   field:fwf
+;; {19.Apr.21 16:53}   Local: Field: fwf: Set As:"M/S"+" "+$CONSIGNEEMAILINGNAME  ;;$BASICBUYERNAME
+;; {25.May.22 13:29}   Local: Field: fwf: Set As:"M/S"+" "+$CONSIGNEEMAILINGNAME  ;;$BASICBUYERNAME
+  Local: Field: fwf: Set As:@@cwmstitle+" "+$CONSIGNEEMAILINGNAME  ;;$BASICBUYERNAME
+  Local: Field: FWF: Style: Normal Bold
+    space top:0.5
+
+    [System: Formula]
+    cwmstitle:$cwmstitle:COMPANY:##SVCURRENTCOMPANY
+
+  [line:consaddline]
+   field:fwf
+  Local: Field: fwf: Set As:$BASICBUYERADDRESS
+
+  [line:CONSphline]
+  field:fwf
+  Local: Field: fwf: Set As:if $$isempty:($LedgerMobile:ledger:$BASICBUYERNAME) then "" else "Ph :"+$LedgerPhone:ledger:$BASICBUYERNAME+" "+$LedgerMobile:ledger:$BASICBUYERNAME
+  space top:0.5
+
+
+  [line:gstconsline]
+  field:nf,nf2
+
+;; {29.Aug.23 14:06}   Local: Field: NF: Set As:$cwledcity:ledger:$BASICBUYERNAME +" "+$PinCode:LEDGER:$BASICBUYERNAME+" "+$CONSIGNEESTATENAME
+  Local: Field: NF: Set As:$cwledcity:ledger:$BASICBUYERNAME +" "+$Consigneepincode+" "+$CONSIGNEESTATENAME
+  Local: Field: NF2: Set As:if $$isempty:$CONSIGNEEGSTIN then "" else "GSTIN : "+$CONSIGNEEGSTIN
+  Local: field: NF: Width:40
+  Local: Field: NF2: Style: Normal Bold
+       space top:0.5
+
+ [part:fnsalesinvTopPart3]
+ line:plesline,plesline1
+ Border: thin box ;;left right
+ height:3
+
+ [line:plesline]
+ field:fwf,nf
+ Local: Field: fwf: Set As:"Please receive the undermentioned consignment and forward  by roade to"
+ Local: Field: snf: Set As:""
+ Local: Field: nf: Border: thin bottom
+ Local: field: nf: Width:55
+
+ [line:plesline1]
+ field:fwf
+ Local: Field: fwf: Set As:"station as per particulars give below"
+
+
+ [part : fnsalesinvINVACCPart]
+Parts       : fnsalesinvInvPart  ;;, fnsalesinvAccPart
+CommonBorder: Yes
+Vertical    : Yes
+;; {13.Apr.21 17:51} Scroll      : Vertical
+Float       : No
+;;Total       :
+border:thin box
+HEIGHT:6
+
+ [part : fnsalesinvInvPart]
+  line : fnsalesinvInvLineTitle,fnsalesinvInvLine  ;;,fnsalesinvInvLineTotal
+;; {13.Apr.21 17:49} repeat : fnsalesinvInvLine : Inventory Entries
+;; {13.Apr.21 17:49} Scroll : vertical
+Common border : yes
+ float : no
+
+
+ [Line : fnsalesinvInvLine]
+ field : snf,snf2,nf,numf,fwf
+
+ local: field : snf : set as :$cwnofobales ;; "No of Packages"
+ local: field: snf2 : set as :$cwNatureOfGoods ;; "Nature of Goods"
+ local: field: nf   : set as :$cwPrivateMarks ;; "Private Marks"
+ local: field: numf : set as :$cwValueofInsurance ;; "Value Insur"
+ local: field: fwf  : set as :$cwSpecialInstructions ;; "Special Instructions"
+
+;; {13.Apr.21 17:49} explode : fnsalesinvBUDPart : $basicuserdescription != ''
+;; {13.Apr.21 17:49} explode : fnsalesinvBatchPart : $batchname != "Primary batch"
+
+local : field : numf : type : string
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : numf : format :"Decimals:2,NoZero"
+Local: Field: default: Border: thin right
+Local: Field: fwf:delete: Border: thin right
+
+[line: fnsalesinvInvLineTitle]
+ use : fnsalesinvInvLine
+delete : explode
+local : field: default : type : string
+
+ local : field : snf: set as : "No of Packages"
+ local: field: snf2 : set as : "Nature of Goods"
+ local: field: nf : set as : "Private Marks"
+ local: field: numf : set as : "Value Insur"
+ local: field: fwf : set as : "Special Instructions"
+ border:thin bottom
+
+ Local : field : default: Lines : 0
+
+ Local: field: default: Align:centre
+
+[part : fnsalesinvBatchPart]
+line : fnsalesinvBatchLine
+repeat : fnsalesinvBatchLine : BatchAllocations
+
+[line : fnsalesinvBatchLine]
+  use : fnsalesinvBUDLine
+local : field : fwf : set as : $batchname
+
+[part : fnsalesinvBUDPart]
+line: fnsalesinvBUDLine
+repeat : fnsalesinvbudline : basicuserdescription
+
+[line : fnsalesinvBudLine]
+ use  : fnsalesinvINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : $basicuserdescription
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : ""
+
+[line : fnsalesinvInvLineTotal]
+ use  : fnsalesinvINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : ""
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : $$collamttotal:inventoryentries:$amount
+local : field : amtf : border :thin top
+space bottom : 0.05
+
+
+ [part : fnsalesinvACCPart]
+  line : fnsalesinvACCLine
+repeat : fnsalesinvACCLine : Ledger Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+ [Line : fnsalesinvACCLine]
+   use : fnsalesinvINVLine
+empty : $ledgername = $partyledgername or $$issysname:$ledgername or $$isempty:$amount
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"NoZero,Percentage"
+local : field : ratef  : set as : $basicrateofinvoicetax
+local : field : snf : set as : ""
+local : field : fwf : set as : $ledgername
+local : field : qtyf : set as : ""
+delete : explode
+
+ [part : fnsalesinvBottomPart]
+ line : fnsalesinvTotLine
+
+ [line : fnsalesinvTotLine]
+ field:fwf
+ Local: Field: fwf: Set As:"Remaks : " +$narration
+ Local: Field: fwf: Style: Normal Bold
+ Local : field : fwf: Lines :4
+
+
+

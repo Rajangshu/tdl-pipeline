@@ -1,0 +1,38 @@
+; Created By: khokan on 2022-04-29 12:24, ID: 
+
+ [System: Formula]
+ cwcrnotePostVoucher:$$IsCreditNote:$parent
+
+ [#Part: VTYP Behaviour]
+
+ add:option:cwEnableCostnwSalesReturnopt:@@cwcrnotePostVoucher and @@MinuSareeEnabled
+ [!part:cwEnableCostnwSalesReturnopt]
+
+ add:line:cwSalesReturnEnableCostnw
+
+ [line:cwSalesReturnEnableCostnw]
+ field:long prompt,cwlogical
+
+ Local: Field: long prompt: Set As:"Enable Sales Return Report?"
+ Local: Field: cwlogical: storage:cwEnableSalesReturn
+ Local: Field: default: Style: Normal Bold
+ 
+ 
+ [System: Formula]
+ cwsalescrnotePostVoucher:$$IsCreditNote:$parent or $$Issales:$parent
+
+ 
+ [#Part: VTYP Behaviour]
+
+ add:option:cwEnableCostnwSalesRetursalesnopt:@@cwsalescrnotePostVoucher and @@MinuSareeEnabled
+ [!part:cwEnableCostnwSalesRetursalesnopt]
+
+ add:line:cwEnableNetSalesReport
+
+ [line:cwEnableNetSalesReport]
+ field:long prompt,cwlogical
+
+ Local: Field: long prompt: Set As:"Enable Net Sales Report?"
+ Local: Field: cwlogical: storage:cwEnableNetSalesReport
+ Local: Field: default: Style: Normal Bold
+

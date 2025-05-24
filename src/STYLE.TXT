@@ -1,0 +1,68 @@
+; Created By: Khokan on 2021-02-10 12:39, ID: 
+
+
+[style:style1x]
+
+font:"Times New Roman"
+height:15
+bold:yes
+
+[style:style2x]
+
+font:"Times New Roman"
+height:10
+bold:yes
+
+[style:style3x]
+
+font:"Times New Roman"
+height:10
+bold:no
+
+[style:style4x]
+
+font:"Times New Roman"
+height:11
+bold:yes
+
+[style:style5x]
+
+font:"Times New Roman"
+height:11
+bold:no
+
+
+[style:styleCalisto]
+
+font:"Calisto MT" ;;"Times New Roman"
+height:9.3 ;;10.5
+bold:no
+
+[style:styleCalisto2]
+
+font:"Calisto MT" ;;"Times New Roman"
+height:8 ;;10.5
+bold:yes
+
+
+[style:styleCalistox]
+
+font:"Calisto MT" ;;"Times New Roman"
+height:9.8
+bold:no
+
+[style:styleCalistox2]
+
+font:"Calisto MT" ;;"Times New Roman"
+height:9.8
+bold:yes
+
+[style:styleCalistox3]
+
+font:"Calisto MT" ;;"Times New Roman"
+height:10
+bold:yes
+
+
+
+

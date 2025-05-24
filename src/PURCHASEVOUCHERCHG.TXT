@@ -1,0 +1,34 @@
+; Created By: Khokan on 2021-06-21 12:34, ID: 
+
+
+
+
+;;===========================================================
+ 
+[#field:eiconsignee]
+add:option:vchrefpurcopt:@@ispurchase and @@MinuSareeEnabled
+[!field:vchrefpurcopt]
+
+add:control:msgaSupplierInvoice:if @@refnoppt and $$increatemode  then yes else no
+
+
+
+[System: Formula]
+refnoppt: $Reference=$$FilterValue:$Reference:Colsuppinv:1:ColsuppFilter
+
+[Collection: Colsuppinv]
+Type        : Vouchers  : Ledger
+Child of    :#eiconsignee
+format:$Reference,10
+format:$ledgername,30
+fetch:Reference,ledgername
+filter:ColsuppFilter2
+
+
+[system: Formula]
+ColsuppFilter:$Reference=#vchref
+colsupp:$$FilterValue:$Reference:Colsuppinv:1:ColsuppFilter
+ColsuppFilter2:$$ispurchase:$vouchertypename
+SupplierInvoiceNo:$Reference
+msgaSupplierInvoice:"Supplier Invoice No. Duplicate !"
+

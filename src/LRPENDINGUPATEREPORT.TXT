@@ -1,0 +1,182 @@
+; Created By: Khokan on 2021-08-24 18:34, ID:
+
+     [#menu: Gateway of Tally]
+;; {24.Aug.21 19:26}         add: Option: LRPendingReportLock ;; : @@LRPendingReportDemoLock
+
+
+     [#menu : cw_Debug_menu]
+        add: Item: before: @@locQuit: @@LRPendingReportReport: alter: RepLRPendingReport
+
+
+
+     [!menu: LRPendingReportLock]
+        add: Item: before: @@locQuit: @@LRPendingReportReport: alter: RepLRPendingReport
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   LRPendingReportReport: "LR Pending Report"
+;; LRPendingReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: RepLRPendingReport]
+        use: Dsp Template
+      Title: @@LRPendingReportReport
+   Printset: Report Title: @@LRPendingReportReport
+       Form: FrmLRPendingReport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    multiobjects:ColLRPendingReport
+
+      [Form: FrmLRPendingReport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0LRPendingReport,PrtLRPendingReport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: LRPendingReportbotbrk,LRPendingReportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+      [part: LRPendingReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: LRPendingReportbotopbrk]
+        use: dspacctitles
+  add: part: LRPendingReportTitlePart
+
+      [part: LRPendingReportTitlePart]
+       line: LnLRPendingReportTitle
+
+      [line: LnLRPendingReportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style:style3x
+      Local: Field: fwf2: Style:style3x
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+  Local: Field: default: Skip: Yes
+
+      [part: PrtTitle0LRPendingReport]
+      line : LnLRPendingReportCurrPeriod
+
+      [Part: PrtLRPendingReport]
+       Line: LnLRPendingReportTitle,LnLRPendingReport
+;; {24.Aug.21 18:35} bottom Line: LnLRPendingReportTotals
+     repeat: LnLRPendingReport: ColLRPendingReport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColLRPendingReport]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColLRPendingReportFilter,ColLRPendingReportFilter2,IsNonOptionalCancelledVchs
+      fetch:BASICFINALDESTINATION,BILLOFLADINGNO,BILLOFLADINGDATE,CWTEMPGSTEWAYTRANSPORTERNAME
+
+    [system: Formula]
+ColLRPendingReportFilter:$$issales:$vouchertypename and $$isempty:$BILLOFLADINGNO
+ColLRPendingReportFilter2:not $$isempty:$CWTEMPGSTEWAYTRANSPORTERNAME
+
+      [Line: LnLRPendingReportTitle]
+        use: LnLRPendingReport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: sdf: set as: "Date"
+local:field: Snf: set as: "Invoice No."
+
+local:field: fwf: set as: "Party Name"
+local:field: SNF2: set as: "Area"
+local:field: SNF3: set as: "Booked To"
+local:field: SNF4: set as: "B/L"
+local:field: qtyf: set as: "Pcs"
+local:field: SNF5: set as: "Transport Name"
+local:field: SNF6: set as: "Dispatch From"
+local:field: SNF7: set as: "LR No"
+local:field: SDF2: set as: "LR Date"
+local: field: sdf2: type: String
+local : field : snf7 : delete : storage
+local : field : sdf2 : delete : storage
+local: field: default : style: normal bold
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+
+local: field: qtyf2: type: String
+local: field: sdf : style:style2x
+local: field: sdf2 : style:style2x
+local: field: snf : style:style2x
+local: field: fwf : style:style2x
+local: field: snf2 : style:style2x
+local: field: snf3 : style:style2x
+local: field: snf4 : style:style2x
+local: field: snf5 : style:style2x
+local: field: snf6 : style:style2x
+local: field: snf7 : style:style2x
+local: field: snf7 : style:style2x
+local: field: qtyf2 : style:style2x
+local: field: qtyf : style:style2x
+
+[Line: LnLRPendingReport]
+Fields: sdf,snf,fwf
+right field: snf2,snf3,SNF4,qtyf,snf5,snf6,snf7,sdf2
+Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf2 : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$date ;; "Date"
+local:field: Snf: set as:$vouchernumber;; "Invoice No."
+
+local:field: fwf: set as:$partyledgername;; "Party Name"
+local:field: SNF2: set as:$cwledcity:ledger:$partyledgername  ;; "Area"
+local:field: SNF3: set as:$BASICFINALDESTINATION;; "Booked To"
+;; {25.Aug.21 16:58} local:field: SNF4: set as:"";; "B/L"
+local:field: SNF4: set as:$cwnofobales  ;;$$CollQtyTotal:inventoryentries:$billedqty;; "Pcs"
+local:field: qtyf: set as:$$CollQtyTotal:inventoryentries:$billedqty;; "Pcs"
+local:field: SNF5: set as:$CWTEMPGSTEWAYTRANSPORTERNAME ;; "Transport Name"
+local:field: SNF6: set as:$$CollectionField:$godownname:First:inventoryentries;; "Dispatch From"
+local:field: SNF7: set as:$BILLOFLADINGNO;; "LR No"
+local:field: SDF2: set as:$BILLOFLADINGDATE ;; "LR Date"
+Local: Field: fwf: Skip: Yes
+Local: Field: sdf: Skip: Yes
+Local: Field: snf: Skip: Yes
+Local: Field: snf1: Skip: Yes
+Local: Field: snf2: Skip: Yes
+Local: Field: snf3: Skip: Yes
+Local: Field: snf4: Skip: Yes
+Local: Field: qtyf: Skip: Yes
+Local: Field: snf5: Skip: Yes
+Local: Field: snf6: Skip: Yes
+Local: Field: snf7: storage:BILLOFLADINGNO
+Local: Field: sdf2: storage:BILLOFLADINGDATE
+Local: Field: default: Border: thin right
+local: field: DEFAULT : style:style3x
+local: field: qtyf2: type:Secondary units
+border:thin bottom
+
+      [line: LnLRPendingReportTotals]
+        use: LnLRPendingReport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+; Created By: Khokan on 2021-08-25 17:15, ID:

@@ -1,0 +1,196 @@
+; Created By: Khokan on 2021-09-03 17:27, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: test15Lock ;; : @@test15DemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@test15Report: Display: Reptest15
+
+
+
+     [!menu: test15Lock]
+        add: Item: before: @@locQuit: @@test15Report: Display: Reptest15
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   test15Report: "test15"
+;; test15DemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Reptest15]
+        use: Dsp Template
+      Title: @@test15Report
+   Printset: Report Title: @@test15Report
+       Form: Frmtest15
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+       variable:str1
+    set:str1:""
+      [Form: Frmtest15]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0test15,Prttest15
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: test15botbrk,test15botOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+     add:button:agentnetsalesbotton
+     
+      [part: test15botBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: test15botopbrk]
+        use: dspacctitles
+  add: part: test15TitlePart
+
+      [part: test15TitlePart]
+       line: Lntest15Title
+       
+      [line: Lntest15CurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0test15]
+      line : Lntest15CurrPeriod
+      
+      [Part: Prttest15]
+       Line: Lntest15Title,Lntest15
+bottom Line: Lntest15Totals
+     repeat: Lntest15: Coltest15
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,numf,numf2
+
+[Collection: Coltest15]
+
+type:ledger
+child of:$$Groupsundrydebtors
+
+filter:Coltest15Filter,cwpartylednetsalesfilterxxxx
+/*
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: Coltest15Filter,IsNonOptionalCancelledVchs
+  */
+    [system: Formula]
+;; {03.Sep.21 17:36} Coltest15Filter:$$IsEmpty:$TBalDebits    ;; $TBalClosing  ;;$StkClBalance  ;;$StkOutQty
+;; {03.Sep.21 21:00} Coltest15Filter:not $$IsEmpty:$TBalCredits    ;; $TBalClosing  ;;$StkClBalance  ;;$StkOutQty
+Coltest15Filter:not $$IsEmpty:$TBalDebits or not $$IsEmpty:$TBalCredits   ;; $TBalClosing  ;;$StkClBalance  ;;$StkOutQty
+
+
+ cwpartylednetsalesfilterxxxx:if $$issysname:##str1 then yes else $name =##str1
+ 
+      [Line: Lntest15Title]
+        use: Lntest15
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: numf: set as: "sales qty"
+local:field: numf2: set as: "cr note qty"
+local:field: qtyf: set as: "cr qty"
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: Lntest15]
+     Fields: sdf,nf,fwf
+right field: ratepf,Qtyf,Amtf,amtf2,numf,numf2
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local : field : sdf : set as : $date
+ local : field : fwf : set as : $name
+ local : field : nf : set as : $parent
+ local : field : amtf : set as : $TBalDebits
+ local : field : amtf2 : set as : $TBalCredits
+ local : field : qtyf : set as : $StkOutQty
+;; {03.Sep.21 20:54}  local : field : numf : set as : $$reportobject:$$collectionfieldbykey:$billedqty:@@keycrnotenew2:cwsalesnew
+ local : field : numf : set as : $$reportobject:$$collectionfieldbykey:$billedqty:@@keycrnotenew2:Colt16
+ local : field : numf2 : set as : $$reportobject:$$collectionfieldbykey:$billedqty:@@keycrnotenew2:cwcrnote
+Local: Field: default: Border: thin right
+ ;;SHREE KRISHNA VASTRA BHANDAR,BICAK/BST
+     
+     ;;SAREE SEZ BP (HM BOX)
+     
+     
+  [Collection:cwcrnote]
+  
+   source Collection: sourcwcrnote
+walk:inventoryentries
+by:partyledgername:$partyledgername
+;; {03.Sep.21 20:47} by:stockitemname:$stockitemname
+;; {03.Sep.21 20:47} by:date:$date
+;; {03.Sep.21 20:47} by:vouchernumber:$vouchernumber
+;; {25.Aug.21 14:08} by:cwcaption1vch1:$..cwcaption1vch
+;; {25.Aug.21 14:08} by:cwcaption1vch2:$..cwcaption2vch
+aggr compute:billedqty:sum:$$number:$billedqty ;$$CollAmtTotal:inventoryentries:$billedqty
+ search key:$partyledgername
+     
+  [Collection: sourcwcrnote]
+ Type		: Vouchers	: VoucherType
+Child Of	: $$VchTypeCreditNote
+Belongs To	: Yes
+
+     
+     
+[Collection: cwsalesnew]
+
+source Collection: sourcwsalesnew
+walk:inventoryentries
+by:partyledgername:$partyledgername
+;; {25.Aug.21 14:08} by:cwcaption1vch1:$..cwcaption1vch
+;; {25.Aug.21 14:08} by:cwcaption1vch2:$..cwcaption2vch
+aggr compute:billedqty:sum:$$number:$billedqty ;$$CollAmtTotal:inventoryentries:$billedqty
+
+aggr compute:amount:sum:$amount
+;; {08.Jul.21 19:01}  compute:amount1:$....amount
+ aggr compute:amount1:sum:$$CollAmtTotal:inventoryentries:$amount
+
+;; {25.Aug.21 14:08} sort :@@default:$cwcaption1vch1
+search key:$partyledgername
+
+
+
+
+[Collection: sourcwsalesnew]
+
+Type	   : Vouchers	: VoucherType
+Child Of   : $$VchTypesales
+Belongs To : Yes
+
+
+
+
+      [line: Lntest15Totals]
+        use: Lntest15
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      local: field: numf : set as :  $$total:numf
+      local: field: numf1 : set as :  $$total:numf
+      local: field: numf2 : set as :  $$total:numf2
+
+

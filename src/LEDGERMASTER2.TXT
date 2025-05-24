@@ -1,0 +1,111 @@
+; Created By: Khokan on 2021-03-24 14:17, ID: 
+
+[System: Formula]
+cwenicforparty:$cwenicforparty:COMPANY:##SVCURRENTCOMPANY
+
+  [#Form: Ledger]
+ add:option:newledopt:@@cwenicforparty
+ [!form:newledopt]
+
+ add:part:at beginning:partyledcrline
+
+ local:field:mst name:set as:@@cwledname
+ local:field:mst name:set always:yes
+ local:field:mst name:width:60
+
+ [part:partyledcrline]
+ LINE:partyledcrline,panlinenew
+
+ [LINE:partyledcrline]
+ field:sp,cwlogical
+ Local: Field: sp: Set As:"Party Ledger Creation ?"
+ Local: Field: cwlogical: storage:cwiscustname
+ Local: Field: default: Style: Normal Bold
+ Local: field: sp: Width:20
+ 
+ 
+ [line:panlinenew]
+ field:sp,maillingfield,sp2,Ledpanfield
+ Local: Field: sp: Set As:"Mailling Name"
+ Local: Field: sp2: Set As:"PAN/IT No."
+ 
+ Local: field: sp: Width:15
+ Local: field: sp2: Width:15
+ local: field: default: inactive:if $cwiscustname="yes" then "no" else "yes"
+
+ [field:maillingfield]
+ use:nf
+ set always:yes
+ storage:cwmaillingname
+ Style: Normal Bold
+ width:40
+ 
+ [field:Ledpanfield]
+ use:nf
+ set always:yes
+ storage:cwledpanno
+ Style: Normal Bold
+
+ [System: Formula]
+
+ cwledname:if @@cwledname1 = " " then $$value else @@cwledname1
+
+;; {24.Mar.21 14:30}  cwledname1:@@xs1+" - "+@@xs2
+ cwledname1:@@xs1+""+@@xs2
+ xs1:if not $$isempty:#maillingfield then #maillingfield else ""
+ xs2:if not $$isempty:#Ledpanfield then #Ledpanfield else ""
+ 
+;;==================================================
+
+ [#Field: LED Mailing Name]
+ add:option:LEDMailingNameopt:@@cwenicforparty
+ [!field:LEDMailingNameopt]
+ 
+ set as: if not $$isempty:#maillingfield then #maillingfield else $name
+
+ [#Field: LED ITNo]
+ add:option:LEDitnoopt:@@cwenicforparty
+ [!field:LEDitnoopt]
+ set as: if not $$isempty:#Ledpanfield then #Ledpanfield else $$value
+ set always:yes
+
+
+
+
+ ;;=====================================================================
+ 
+
+[#Part: LED AddrTypeStatePinCode]
+add : line : before : LED AddrTypePinCode: cwLEDAddrTypeCity
+
+[line : cwLEDAddrTypeCity]
+
+Field		: Medium Prompt, snf
+Local		: Field : Medium Prompt		: Set as	: $$LocaleString:"City :"
+Local		: Field : Medium Prompt 	: Width	 	: @@NameWidth
+Local   	: Field : Default 			: Inactive	: NOT $$LocaleString:$CountryName = $$LocaleString:"India"
+;; {22.Apr.21 13:40} Local: Field: snf: storage: cwPartyAddressCity
+Local: Field: snf: storage: cwPartymultiAddressCity
+Local: Field: snf: Style: Normal Bold
+
+
+
+
+        /*
+
+[#Part: LED AddrTypeStatePinCode]
+ add:option:ledAddrTypeStatePinCodeopt:@@MinuSareeEnabled
+ [!part:ledAddrTypeStatePinCodeopt]
+
+add : line : before : LED AddrTypePinCode: cwLEDmuliAddrTypeCity
+
+[line : cwLEDmuliAddrTypeCity]
+Field		: Medium Prompt, snf,snf8
+Local: Field: snf8: storage:cwnewcityled
+Local		: Field : Medium Prompt		: Set as	: $$LocaleString:"City :"
+Local		: Field : Medium Prompt 	: Width	 	: @@NameWidth
+
+Local: Field: snf: storage: cwPartymultiAddressCity
+Local: Field: snf: Style: Normal Bold
+
+      */

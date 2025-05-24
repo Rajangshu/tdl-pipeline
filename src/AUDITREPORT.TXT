@@ -1,0 +1,516 @@
+; Created By: joy on 2021-03-27 12:35, ID:
+
+; Created By: suman on 2020-08-03 17:08, ID:
+
+
+  [#menu: Gateway of Tally]
+;; {20.Sep.21 11:42}         add: Option: vchregreportLock  ;;:@@cwOwner  ;;$$myusername="yes"  ;;:not @@MYcwskipyesno2NEW;; : @@vchregreportDemoLock
+
+     [!menu: vchregreportLock]
+        add: Item: before: @@locQuit: @@vchregreportReport: Display: Repvchregreport   ;;:$$myusername or $$myusername2 ;;and @@cwNormal3  ;;@@MYcwskipyesno2NEW
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   vchregreportReport:"Audit Report"
+;; vchregreportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: Repvchregreport]
+        use: Dsp Template
+      Title: @@vchregreportReport
+   Printset: Report Title: @@vchregreportReport
+       Form: Frmvchregreport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable:mydate,sdf1,sdf2,logi1
+    set : mydate :"" ;; $$machinedate
+    set : sdf1 :"" ;; $$machinedate
+    set : sdf2 :"" ;; $$machinedate
+    set : logi1 :yes
+  ;;  title : ##mydate
+
+      [Form: Frmvchregreport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0vchregreport,Prtvchregreport
+      Width: 100% Page
+     Height: 100% Page
+; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: vchregreportbotbrk,vchregreportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+;; {04.Oct.18 12:38}    delete : button :ChangeDybkDate
+;; {04.Oct.18 13:21} add : button :before : ChangePeriod : MachDate
+;; {16.Jul.21 18:18} add : button :MachDate,cwBtnHideShow
+add : button :MachDate,cwHideBtn,cwShowBtn
+
+   local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+      [part: vchregreportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: vchregreportbotopbrk]
+        use: dspacctitles
+  add: part: vchregreportTitlePart
+
+      [part: vchregreportTitlePart]
+       line: LnvchregreportTitle
+
+      [line: LnvchregreportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As:@@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0vchregreport]
+      line : LnvchregreportCurrPeriod
+
+      [Part: Prtvchregreport]
+       Line: LnvchregreportTitle,Lnvchregreport
+bottom Line: LnvchregreportTotals
+     repeat: Lnvchregreport: Colvchregreport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+
+[Collection: Colvchregreport]
+;; {16.Jul.21 19:53} add:option:Colvchregreportopt:not @@cwOwnerLevel
+;; {16.Jul.21 19:53} [!Collection:Colvchregreportopt]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter:myfilterenddate,myfilterenddate2,IsNonOptionalCancelledVchs,cwnewemptyfilter;;,cwalterfilter
+     add:filter:cwhideFilter
+   fetch:cwusernamenew,cwusernamenew2
+   compute : lastchangedate : $$cwgetvalue:$cwusername ;new
+
+[system: Formula]
+cwhideFilter:if   ##logi1 then not $cwSelectedLine   else Yes
+lastdt:$$cwgetvalue:$cwusernamenew
+ColvchregreportFilter:not $$isempty:@@lastdt ;;if $$isempty:##mydate then yes else $lastchangedate = ##mydate
+myfilterenddate:if $$issysname:##sdf1 then yes else $$cwgetvalue:$cwusernamenew=>##sdf1 ;;if $$issysname:##sdf1 then yes else @@lastdt > = ##sdf1
+ myfilterenddate2:if $$issysname:##sdf2 then yes else $$cwgetvalue:$cwusernamenew=<##sdf2 ;;if $$issysname:##sdf2 then yes else @@lastdt < = ##sdf2
+cwnewemptyfilter:if not $$isempty:##sdf1 then not $$isempty:($$cwgetvalue:$cwusernamenew) else yes
+
+cwvchsecfilter2 : if $$isempty:##mydate then yes else if $$isvoucher then $lastchangedate = ##mydate else yes
+cwalterfilter:not $$isempty:$cwusernamenew ;;$cworiginalamt
+
+[Line: LnvchregreportTitle]
+use: Lnvchregreport
+option: titleopt
+local:field: sdf: set as: "Date"
+local:field: fwf: set as:"Particulars"
+local:field: nf: set as: "Vch Type"
+local:field: nf2: set as: "Vch No."
+Local: Field: amtf2: Set As:"Actual Value"
+Local: Field: snf2: Set As:"Create By"
+Local: Field: snf3: Set As:"Create Date"
+local:field: amtf: set as: "Last Alter Value"
+local:field: fwf2: set as: "Audit Trail"
+local:field: nf4: set as: "Last Alter By"
+local:field: snf: set as: "Alter Count"
+local:field: nf5: set as: "Last Time"
+local:field: nf3: set as: "Alter On"
+Local : field : default: Lines : 0
+
+local: field: SDF : style: styleCalisto2
+local: field: fwf : style: styleCalisto2
+local: field: nf : style: styleCalisto2
+local: field: nf2 : style: styleCalisto2
+local: field:amtf2 : style: styleCalisto2
+local: field:snf : style: styleCalisto2
+local: field:snf1 : style: styleCalisto2
+local: field:snf2 : style: styleCalisto2
+local: field:snf3 : style: styleCalisto2
+local: field:amtf : style: styleCalisto2
+local: field:nf3 : style: styleCalisto2
+local: field:nf4 : style: styleCalisto2
+local: field:nf5 : style: styleCalisto2
+local: field:fwf2 : style: styleCalisto2
+Local: field: default: Align:centre
+Local: field: fwf: Align:left ;;centre
+Local: field: fwf2: Align:left ;;centre
+Local: field: fwf5: Align:left ;;centre
+
+[System: Formula]
+cwUserAlterLog:$$fulllist:cwusername:$cwusername
+
+[Line: Lnvchregreport]
+Fields: sdf,fwf
+right field: nf,nf2,amtf2,snf2,snf3,nf4,nf3,nf5,Amtf,snf,fwf2,fwf3
+Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$date ;; "Date"
+local:field: fwf: set as:$partyledgername ;; "Particulars"
+local:field: nf: set as:$vouchertypename ;; "Vch Type"
+local:field: nf2: set as:$vouchernumber
+local:field: amtf: set as:if not $$isempty:#nf4 then $amount else "" ;; "Value"
+local:field: fwf2: set as:$cwusername ;;new ;; "User"
+local:field: fwf3: set as:$cwusernamenew2 ;; "User"
+Local : field : fwf2: Lines : 0
+
+
+Local: Field: nf3: Set As:$lastchangedate
+Local: Field: sdf5: Set As:$lastchangedate
+Local: Field: amtf2: Set As:$cworiginalamt
+Local: Field: fwf5: Set As:if not $$increatemode then $$fulllist:cwusername:$cwusername else ""
+local:field: nf4: set as:if #snf="0" then "" else $$cwgetvaluelastby:@@cwUserAlterLog ;;#fwf2 ;; "Last Alter By"
+;; {20.Sep.21 11:36} local:field: nf4: set as:$$cwgetvaluelastby:@@cwUserAlterLog ;;#fwf2 ;; "Last Alter By"
+
+local:field: snf: set as:if not $$isempty:#nf4 then $$RoundDown:($$cwgetvaluelastcount:@@cwUserAlterLog):1 else "0" ;; "Alter Count"
+local:field: nf5: set as:$$cwgetvaluelasttime:#fwf2;; "Last Time"
+
+Local: Field: snf2: Set As:$cwCreatebyms  ;;$$cwgetcreateby:#fwf3
+;; {06.Aug.20 15:35} Local: Field: snf3: Set As:$$string:$$cwgetfastdate:#fwf2 + $$string:$$cwgetfasttime:#fwf2
+;; {20.Sep.21 11:22} Local: Field: snf3: Set As:$$string:@@cwcreatetime+" , "+$$string:@@cwcreatetime2
+Local: Field: snf3: Set As:$$string:$cwCreatedatems+" , "+$$string:$cwCreattimems
+Local: field: nf3: Width:14
+Local: field: nf5: Width:14
+
+
+Local: Field: sdf2: Set As:$lastchangedate  ;;$$cwgetvalue:#fwf2
+
+Local: Field: default: Border: thin left ;;left right
+ Border: thin bottom  ;;left right
+
+;; {30.Mar.21 16:58} local: field: fwf2: Invisible: yes
+local: field: fwf3: Invisible: yes
+
+Local: field: snf3: Width: 18
+Local: Field: default: Style: styleCalisto
+
+;; {13.Jul.21 16:20} invisible:IF ($$NumItems:ReportSelectedLines > 0) then yes else no
+;; {13.Jul.21 16:23} local: field: nf4: Invisible: ##logi1
+
+
+ [System: Formula]
+ cwcreatetime:$$cwgetfastdate:#fwf3
+ cwcreatetime2:$$cwgetfasttime:#fwf3
+
+
+
+
+[function : cwgetvalue]
+parameter : str : string
+variable : mystr : string
+variable : ctr : number : 0
+variable : tempstr : string
+10  : for token : tokenvar:##str: ","
+20 : log: ##tokenvar
+21a: incr : ctr
+21 : set : mystr : ##tokenvar
+30 : end for
+
+40 : set : tempstr : $$stringwordex:##str:",":(##ctr-1)
+
+;; {04.Oct.18 12:22} 50 : set : mystr : $$date:##tempstr
+
+;; {04.Oct.18 12:22} 51 : return : ##mystr
+
+41 : if : $$date:##tempstr <> 0
+42 : return : $$date:##tempstr
+43 : end if
+
+45 : return :##tempstr  ;; $$date:($$stringwordex:##tempstr:"-":1 + "-" + $$stringwordex:##tempstr:"-":3 + "-" +  $$stringwordex:##tempstr:"-":2)
+
+
+
+;;============================
+[function : cwgetcreateby]
+parameter : str : string
+variable : mystr : string
+variable : ctr : number : 0
+variable : tempstr : string
+10  : for token : tokenvar:##str: ","
+20 : log: ##tokenvar
+21a: incr : ctr
+21 : set : mystr : ##tokenvar
+30 : end for
+
+40 : set : tempstr : $$stringwordex:##str:",":1  ;;(##ctr-2)
+
+;; {04.Oct.18 12:22} 50 : set : mystr : $$date:##tempstr
+
+;; {04.Oct.18 12:22} 51 : return : ##mystr
+
+45 : return :##tempstr ;; ($$stringwordex:##tempstr:"-":1 + "-" + $$stringwordex:##tempstr:"-":3 + "-" +  $$stringwordex:##tempstr:"-":2)
+
+;;============================
+[function : cwgetvaluelastby]
+parameter : str : string
+variable : mystr : string
+variable : ctr : number : 0
+variable : tempstr : string
+10  : for token : tokenvar:##str: ","
+;; {30.Mar.21 15:17} 20 : log: ##tokenvar
+21a: incr : ctr
+21 : set : mystr : ##tokenvar
+30 : end for
+
+40 : set : tempstr :$$stringwordex:##str:",":(##ctr-2) ;;(##ctr-3)
+41 : log: ##tempstr
+;; {04.Oct.18 12:22} 50 : set : mystr : $$date:##tempstr
+
+;; {04.Oct.18 12:22} 51 : return : ##mystr
+
+45 : return :##tempstr ;; ($$stringwordex:##tempstr:"-":1 + "-" + $$stringwordex:##tempstr:"-":3 + "-" +  $$stringwordex:##tempstr:"-":2)
+
+
+[function : cwgetvaluelasttime]
+parameter : str : string
+variable : mystr : string
+variable : ctr : number : 0
+variable : tempstr : string
+10  : for token : tokenvar:##str: ","
+20 : log: ##tokenvar
+21a: incr : ctr
+21 : set : mystr : ##tokenvar
+30 : end for
+
+40 : set : tempstr : $$stringwordex:##str:",":##ctr ;;(##ctr-1)
+
+;; {04.Oct.18 12:22} 50 : set : mystr : $$date:##tempstr
+
+;; {04.Oct.18 12:22} 51 : return : ##mystr
+
+45 : return :##tempstr ;; ($$stringwordex:##tempstr:"-":1 + "-" + $$stringwordex:##tempstr:"-":3 + "-" +  $$stringwordex:##tempstr:"-":2)
+
+
+
+[function : cwgetvaluelastcount]
+parameter : str : string
+variable : mystr : string
+variable : ctr : number : 0
+variable : tempstr : string
+10  : for token : tokenvar:##str: ","
+20 : log: ##tokenvar
+21a: incr : ctr
+21 : set : mystr : ##tokenvar
+30 : end for
+
+
+
+45 : return :##ctr/4 ;; ($$stringwordex:##tempstr:"-":1 + "-" + $$stringwordex:##tempstr:"-":3 + "-" +  $$stringwordex:##tempstr:"-":2)
+
+;;============================
+
+
+[function : cwgetfastdate]
+parameter : str : string
+variable : mystr : string
+variable : ctr : number : 0
+variable : tempstr : string
+10  : for token : tokenvar:##str: ","
+20 : log: ##tokenvar
+21a: incr : ctr
+21 : set : mystr : ##tokenvar
+30 : end for
+
+40 : set : tempstr : $$stringwordex:##str:",":2  ;;(##ctr-1)
+
+;; {04.Oct.18 12:22} 50 : set : mystr : $$date:##tempstr
+
+;; {04.Oct.18 12:22} 51 : return : ##mystr
+
+41 : if : $$date:##tempstr <> 0
+42 : return : $$date:##tempstr
+43 : end if
+
+45 : return :##tempstr  ;; $$date:($$stringwordex:##tempstr:"-":1 + "-" + $$stringwordex:##tempstr:"-":3 + "-" +  $$stringwordex:##tempstr:"-":2)
+
+
+
+[function : cwgetfasttime]
+parameter : str : string
+variable : mystr : string
+variable : ctr : number : 0
+variable : tempstr : string
+10  : for token : tokenvar:##str: ","
+20 : log: ##tokenvar
+21a: incr : ctr
+21 : set : mystr : ##tokenvar
+30 : end for
+
+40 : set : tempstr : $$stringwordex:##str:",":3 ;;(##ctr-1)
+
+;; {04.Oct.18 12:22} 50 : set : mystr : $$date:##tempstr
+
+;; {04.Oct.18 12:22} 51 : return : ##mystr
+
+45 : return :##tempstr ;; ($$stringwordex:##tempstr:"-":1 + "-" + $$stringwordex:##tempstr:"-":3 + "-" +  $$stringwordex:##tempstr:"-":2)
+
+
+
+
+      [line: LnvchregreportTotals]
+        use: Lnvchregreport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+
+      Local: Field: snf: Set As:""
+      local: field: amtf : set as :  $$total:amtf
+      
+      local: field: SDF : style: styleCalisto2
+local: field: fwf : style: styleCalisto2
+local: field: nf : style: styleCalisto2
+local: field: nf2 : style: styleCalisto2
+local: field:amtf2 : style: styleCalisto2
+local: field:snf : style: styleCalisto2
+local: field:snf1 : style: styleCalisto2
+local: field:snf2 : style: styleCalisto2
+local: field:snf3 : style: styleCalisto2
+local: field:amtf : style: styleCalisto2
+local: field:nf3 : style: styleCalisto2
+local: field:nf4 : style: styleCalisto2
+local: field:nf5 : style: styleCalisto2
+local: field:fwf : style: styleCalisto2
+
+ ;;============================================================================
+
+
+ [button : MachDate]
+  title : "Modified On"
+  key :f7 ;;f10
+ Action : Modify Variables : mydate
+
+ [variable : mydate]
+type : date
+volatile : yes
+persistent : no
+
+[system : variable]
+ mydate:""
+
+ [report : mydate]
+ use : modifyvariables
+ Title : $$LocaleString:"View for Date"
+ Local   : Part : Modify Variables : Lines     : mydate
+ Local   : Field: MV Title         : Info      : $$LocaleString:"Change Date"
+ Local   : Field: Medium Prompt    : Invisible : Yes
+ Title	: $$LocaleString:"View for Change Date"
+
+ [Line: mydate]
+
+ Field : Medium Prompt,sp,mydate,sp2,mydate2
+ Local : Field: Medium Prompt : Info : $$LocaleString:"Change Date:"
+ Local: Field: sp: Set As:"From:"
+ Local: Field: sp2: Set As:"To:"
+ Local: field: sp: Width:6
+ Local: field: sp2: Width:6
+
+;; {04.Oct.18 15:08}  local:field:sdf2:modifies:sdf1
+;; {04.Oct.18 15:08}  local:field:sdf3:modifies:sdf2
+
+ [Field: mydate]
+
+ Use         : Short Date Field
+;; {04.Oct.18 14:39}  Set as      : ##mydate - 1
+ Modifies    :sdf1
+
+ [Field: mydate2]
+
+ Use         : Short Date Field
+;; {04.Oct.18 14:39}  Set as      : ##mydate - 1
+ Modifies    :sdf2
+
+ ;;============================================================================
+      [Button : cwBtnHideShow]
+      add:option:cwBtnHideShowopt:@@cwOwnerLevel
+[!Button:cwBtnHideShowopt]
+     KEY : Alt+ H
+;; {16.Jul.21 19:43}     TITLE :if not ##logi1 then "Show" else "Hide "
+    TITLE :"Hide "
+;; {16.Jul.21 17:18}     action :set : logi1:not ##logi1
+;; {12.Jul.21 18:35}     action :set : logi1: Remove Line
+;; {12.Jul.21 18:39}     Action  :if ##logi1 then Remove Line  else Show Removed Lines
+;; {13.Jul.21 17:37}    Scope	: Selected Lines
+    Action List	: cwHideBtn,cwRemoveLineBtn
+;; {12.Jul.21 18:48}     Action List	: FormShowRemovedLinesx,FormRemoveLinex
+;; {16.Jul.21 17:29} scope : Selected
+;; {16.Jul.21 17:29} action : call : cwStatusUpadte:yes
+
+    [Collection: CwCollSeletcedRow]
+Data Source: Report: Selected
+
+[Button: cwShowBtn]
+add:option:cwShowBtnOpt:@@cwOwnerLevel
+[!Button:cwShowBtnOpt]
+    Title:"Show"
+;; {16.Jul.21 18:19}      TITLE :if not ##logi1 then "Show" else "Hide "
+    Key     : Alt+ S
+;; {13.Jul.21 18:01}     scope : Selected
+;; {13.Jul.21 18:01}    action : call : cwStatusUpadte:no
+ action :set : logi1:not ##logi1
+;; {16.Jul.21 17:18}     Scope	: Selected Lines
+;; {16.Jul.21 17:18}     Action  : Show Removed Lines
+;; {16.Jul.21 17:18}     Mode    : Display
+
+    [Button: cwHideBtn]
+   add:option:cwHideBtnOpt:@@cwOwnerLevel
+[!Button:cwHideBtnOpt]
+      title:"Hide"
+;; {16.Jul.21 18:18}   TITLE :if not ##logi1 then "Show" else "Hide "
+    Key     : Alt+ H
+      scope : Selected
+   action : call : cwStatusUpadte:yes
+;; {16.Jul.21 17:51}    action :if ##logi1 then call : cwStatusUpadte:yes  else  cwStatusUpadte:no
+
+;; {16.Jul.21 17:24}       Scope	: Selected Lines
+;; {16.Jul.21 17:24}     Action  : Remove Line
+;; {16.Jul.21 17:24}     Mode    :Display
+
+    [Button: cwRemoveLineBtn]
+   add:option:cwRemoveLineBtnOpt:@@cwOwnerLevel
+[!Button:cwRemoveLineBtnOpt]
+      title:"Hide"
+;; {16.Jul.21 18:18}   TITLE :if not ##logi1 then "Show" else "Hide "
+    Key     : Alt+ H
+;; {16.Jul.21 19:46}       scope : Selected
+;; {16.Jul.21 19:46}    action : call : cwStatusUpadte:yes
+;; {16.Jul.21 17:51}    action :if ##logi1 then call : cwStatusUpadte:yes  else  cwStatusUpadte:no
+
+      Scope	: Selected Lines
+    Action  : Remove Line
+    Mode    :Display
+
+
+
+ ;;============================================================================
+
+       ;;===============================
+    [Function:cwStatusUpadte]
+parameter:myuser:logical
+VARIABLE:VID:STRING
+25 : walk collection : SeletcedAFSCOL
+;; {19.Jul.21 10:02} 26 : log : $masterid
+30: SET	: VID	: $$SPrintf:@@VCHMasterID:$masterid
+31 :set :myuser :#cwlogical2
+;; {19.Jul.21 10:02}  33 : log : ##myuser
+60 :modify object : (Voucher,##VID).cwSelectedLine[1].cwSelectedLine:##myuser
+
+70 : continue
+80 : end walk
+
+[Collection: SeletcedAFSCOL]
+Data Source: Report: Selected
+ ;;================================================

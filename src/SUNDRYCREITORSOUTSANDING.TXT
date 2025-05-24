@@ -1,0 +1,208 @@
+; Created By: khokan on 2022-05-16 16:35, ID:
+
+     [#menu: Gateway of Tally]
+;; {17.May.22 10:06}         add: Option: sundrycreitorsoutsandingLock ;; : @@sundrycreitorsoutsandingDemoLock
+
+
+     [#menu : cw_Debug_menu]
+        add: Item: before: @@locQuit: @@sundrycreitorsoutsandingReport: Display Collection: collRepsundrycreitorsoutsanding ;;: Repsundrycreitorsoutsanding
+
+
+
+     [!menu: sundrycreitorsoutsandingLock]
+        add: Item: before: @@locQuit: @@sundrycreitorsoutsandingReport: Display Collection: collRepsundrycreitorsoutsanding ;;: Repsundrycreitorsoutsanding
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   sundrycreitorsoutsandingReport: "Sundry Creditors outsanding"
+;; sundrycreitorsoutsandingDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+  [Collection: collRepsundrycreitorsoutsanding]
+	Use					: Extract Alias Collection
+    Source Collection	: List of Groups
+    Title       		: $$LocaleString:"List of Groups"
+    Collection  		: Primary
+    Variable    		: Group Name
+    Report      		:Repsundrycreitorsoutsanding
+    Trigger     		: GroupNamexx
+	Fetch				: Name, ReserveName, Parent
+	
+
+   [Report: GroupNamexx]   ;;Auto Report
+
+            Use     : Collection Variable
+            Local   : Line : Collection Variable : Field : GroupNamexx
+            Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Ledger"
+
+
+            [Field: GroupNamexx]
+
+          Use         : Name Field
+          Key         : Create group
+          Modifies    : Group Name
+          Table       :collsrLedgerNamex ;; List of ExtractLedgers
+          Show Table  : Always
+          CommonTable : No
+
+	  [collection:collsrLedgerNamex]
+	  type:group
+	   Title       		: $$LocaleString:"List of Groups"
+	  child of:$$GroupSundryCreditors
+	  belongs to:yes
+
+    [Report: Repsundrycreitorsoutsanding]
+        use: Dsp Template
+      Title: @@sundrycreitorsoutsandingReport
+   Printset: Report Title: @@sundrycreitorsoutsandingReport
+       Form: Frmsundrycreitorsoutsanding
+     Export: Yes
+    ;; set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+
+      [Form: Frmsundrycreitorsoutsanding]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0sundrycreitorsoutsanding,Prtsundrycreitorsoutsanding
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: sundrycreitorsoutsandingbotbrk,sundrycreitorsoutsandingbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+  local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+
+      [part: sundrycreitorsoutsandingbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: sundrycreitorsoutsandingbotopbrk]
+        use: dspacctitles
+  add: part: sundrycreitorsoutsandingTitlePart
+
+      [part: sundrycreitorsoutsandingTitlePart]
+       line: LnsundrycreitorsoutsandingTitle
+
+      [line: LnsundrycreitorsoutsandingCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf: Set As:"Group :"+" "+##GroupName
+      Local: Field: fwf2: Set As: @@dspDateStr
+  Local: Field: fwf2:invisible: $$inprintmode
+     local: field: fwf : style:styleCalisto2
+     local: field: fwf2 : style:styleCalisto2
+     
+      [part: PrtTitle0sundrycreitorsoutsanding]
+      line : LnsundrycreitorsoutsandingCurrPeriod
+
+      [Part: Prtsundrycreitorsoutsanding]
+       Line: LnsundrycreitorsoutsandingTitle,Lnsundrycreitorsoutsanding
+bottom Line: LnsundrycreitorsoutsandingTotals
+     repeat: Lnsundrycreitorsoutsanding: Colsundrycreitorsoutsanding
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,amtf1,amtf2
+
+[Collection: Colsundrycreitorsoutsanding]
+     type:bills
+     fetch:inventoryentries.ledgerentries.stockitemname
+     filter:ColsundrycreitorsoutsandingFilter
+
+    [system: Formula]
+;; {17.May.22 09:58} ColsundrycreitorsoutsandingFilter:$$isobjectbelongsto:group:($parent:ledger:$parent):$$GroupSundryCreditors=##GroupName
+ColsundrycreitorsoutsandingFilter:$$isobjectbelongsto:group:($parent:ledger:$parent):##GroupName
+
+[Line: LnsundrycreitorsoutsandingTitle]
+use: Lnsundrycreitorsoutsanding
+option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: sdf: set as: "Date"
+local:field: snf1 : set as: "Ref. No."
+local:field: nf: set as: "Batch No."
+local:field: fwf: set as: "Party's Name"
+
+local:field: amtf: set as: "Pending Amount"
+local:field: nf2: set as: "Item Name"
+local:field: snf: set as: "Age of Bill In Days"
+local:field:amtf2: set as: "Int Amt"
+
+
+local: field: sdf : style:styleCalisto2
+local: field: snf : style:styleCalisto2
+local: field: snf1 : style:styleCalisto2
+local: field: nf : style:styleCalisto2
+local: field: snf : style:styleCalisto2
+local: field: nf2 : style:styleCalisto2
+
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+
+[Line: Lnsundrycreitorsoutsanding]
+Fields: sdf,snf1,nf,fwf ;;,nf1,nf3
+right field: Amtf,nf2,snf,amtf2
+
+Option: Alter on Enter
+Local: Field: nf1: Set As:$parent:ledger:$parent
+Local: Field: nf3: Set As:$parent:group:#nf1
+  
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+
+local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+
+local:field: sdf: set as:$billdate;; "Date"
+local:field: snf1: set as:$name ;; "Ref. No."
+local:field: nf: set as:$$CollectionField:($$CollectionField:$batchname:First:inventoryentries):First:ledgerentries;; "Ref. No."
+local:field: fwf: set as:$parent ;; "Party's Name"
+
+local:field: amtf: set as:$closingbalance ;; "Pending Amount"
+local:field: nf2: set as:$$CollectionField:($$CollectionField:$stockitemname:First:inventoryentries):First:ledgerentries ;; "Item Name"
+local:field: snf: set as:@@DSPToDate - $BillDate ;; "Age of Bill In Days"
+local:field:amtf2: set as:$$CollectionField:($$CollectionField:$amount:First:inventoryentries):First:ledgerentries;; "Int Amt"
+Local: Field: default: Border: thin right
+
+local: field: default : style:styleCalisto
+
+[line: LnsundrycreitorsoutsandingTotals]
+use: Lnsundrycreitorsoutsanding
+
+option: totalOpt
+
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local:field: sdf: set as:"" ;; "Date"
+local:field: nf: set as:"" ;; "Ref. No."
+local:field: fwf: set as:"Total" ;; "Party's Name"
+
+local:field: amtf: set as:$$total:amtf ;; "Pending Amount"
+local:field: nf2: set as:"" ;; "Item Name"
+local:field: snf: set as:"" ;; "Age of Bill In Days"
+local:field:amtf2: set as:$$total:amtf2 ;; "Int Amt"
+
+
+local: field: sdf : style:styleCalisto2
+local: field: nf : style:styleCalisto2
+local: field: snf1 : style:styleCalisto2
+local: field: snf : style:styleCalisto2
+local: field: nf2 : style:styleCalisto2
+
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: amtf2 : style:styleCalisto2

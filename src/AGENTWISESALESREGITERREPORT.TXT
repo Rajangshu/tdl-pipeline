@@ -1,0 +1,243 @@
+; Created By: Khokan on 2021-08-25 18:00, ID: 
+
+     [#menu: Gateway of Tally]
+;; {25.Aug.21 18:58}         add: Option: AGENTWISEsalesregiterreportLock ;; : @@AGENTWISEsalesregiterreportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@AGENTWISEsalesregiterreportReport:Display Collection: colllRepAGENTWISEsalesregiterreport
+
+
+
+     [!menu: AGENTWISEsalesregiterreportLock]
+        add: Item: before: @@locQuit: @@AGENTWISEsalesregiterreportReport: Display Collection: colllRepAGENTWISEsalesregiterreport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   AGENTWISEsalesregiterreportReport:@@cwcaption1tableundernew+" "+"wise sales register report"
+;; AGENTWISEsalesregiterreportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+
+[Collection: colllRepAGENTWISEsalesregiterreport]
+
+
+  Use         : Extract Alias Collection
+   Source Collection	: List of Ledgers
+   Variable    : Ledger Name
+   Report      :RepAGENTWISEsalesregiterreport
+   Trigger     : cwLedgerName1
+   Fetch       : Name
+     
+    [Report: RepAGENTWISEsalesregiterreport]
+        use: Dsp Template
+      Title: @@AGENTWISEsalesregiterreportReport
+   Printset: Report Title: @@AGENTWISEsalesregiterreportReport
+       Form: FrmAGENTWISEsalesregiterreport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmAGENTWISEsalesregiterreport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0AGENTWISEsalesregiterreport,PrtAGENTWISEsalesregiterreport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: AGENTWISEsalesregiterreportbotbrk,AGENTWISEsalesregiterreportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:styleCalisto2
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style3n
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style2n
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style2n  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style2n
+
+      [part: AGENTWISEsalesregiterreportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: AGENTWISEsalesregiterreportbotopbrk]
+        use: dspacctitles
+  add: part: AGENTWISEsalesregiterreportTitlePart
+
+      [part: AGENTWISEsalesregiterreportTitlePart]
+       line: LnAGENTWISEsalesregiterreportTitle
+       
+      [line: LnAGENTWISEsalesregiterreportCurrPeriod]
+       field: fwf,nf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style:styleCalisto
+      Local: Field: fwf: Style:styleCalisto
+      Local: Field: NF: Style:styleCalisto
+      Local: Field: fwf: Set As:##LedgerName
+
+      Local: Field: nf: Set As:$$ReptField:Name:2:ledger:##LedgerName
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf2:invisible: $$inprintmode
+
+
+      [part: PrtTitle0AGENTWISEsalesregiterreport]
+      line : LnAGENTWISEsalesregiterreportCurrPeriod
+      
+      [Part: PrtAGENTWISEsalesregiterreport]
+       Line: LnAGENTWISEsalesregiterreportTitle,LnAGENTWISEsalesregiterreport
+bottom Line: LnAGENTWISEsalesregiterreportTotals
+     repeat: LnAGENTWISEsalesregiterreport: ColAGENTWISEsalesregiterreport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColAGENTWISEsalesregiterreport]
+source Collection: sourceColAGENTWISEsalesregiterreport
+
+walk:inventoryentries
+by:partyledgername:$partyledgername
+by:date:$date
+by:vouchernumber:$vouchernumber
+by:stockitemname:$stockitemname
+
+
+by:cwcaption1vch1:$..cwcaption1vch
+
+aggr compute:billedqty:sum:$$CollAmtTotal:inventoryentries:$billedqty
+
+aggr compute:amount:sum:$amount
+
+aggr compute:amount1:sum:$$CollAmtTotal:inventoryentries:$amount
+
+compute:CWTEMPGSTEWAYTRANSPORTERNAME1:$CWTEMPGSTEWAYTRANSPORTERNAME
+compute:BILLOFLADINGNO1:$BILLOFLADINGNO
+compute:BILLOFLADINGDATE1:$BILLOFLADINGDATE
+compute:narration1:$narration
+compute:BASICFINALDESTINATION1:$BASICFINALDESTINATION
+
+
+filter:ColAGENTWISEsalesregiterreportFilter
+
+[Collection: sourceColAGENTWISEsalesregiterreport]
+Type	   : Vouchers	: VoucherType
+Child Of   : $$VchTypesales
+Belongs To : Yes
+filter:cwpartylednetsalesfilter
+
+
+[system: Formula]
+ColAGENTWISEsalesregiterreportFilter:$cwcaption1vch1=##LedgerName   ;; ADITYA SYNTHETICS,BIBEG/AAK
+
+;;$cwcaption1item=##LedgerName
+
+      [Line: LnAGENTWISEsalesregiterreportTitle]
+        use: LnAGENTWISEsalesregiterreport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: snf: set as:"Invoice No." ;; "INVOICE No."
+local:field: sdf: set as: "Date"
+local:field: fwf: set as:"Party & Booked To";; "PARTY & BOOKED TO"
+local:field: nf3: set as:"Stock Item";; "TRANSPORT"
+local:field: nf: set as:"Transport";; "TRANSPORT"
+local:field: snf2: set as:"LR Number";; "LR NUMBER"
+local:field: sdf2: set as: "LR Date"
+local:field: nf2: set as:"Remarks / Narration";; "REMARKS / NARRATION"
+local:field: snf3: set as: "Area"
+local:field: qtyf: set as: "Pcs"
+local:field: ratepf : set as : "Rate"
+local:field: amtf: set as: "Gross Amount" ;;"GROSS AMOUNT"
+
+local:field: snf: style:styleCalisto2
+local:field: sdf:style:styleCalisto2
+local:field: fwf: style:styleCalisto2
+local:field: nf:style:styleCalisto2
+local:field: nf3:style:styleCalisto2
+local:field: snf2: style:styleCalisto2
+local:field: snf3: style:styleCalisto2
+local:field: sdf2:style:styleCalisto2
+local:field: nf2:style:styleCalisto2
+local:field: nf2: style:styleCalisto2
+local:field: qtyf: style:styleCalisto2
+local:field: ratepf :style:styleCalisto2
+local:field: amtf:style:styleCalisto2
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+Local: field: fwf:indent:10
+
+      [Line: LnAGENTWISEsalesregiterreport]
+     Fields: snf,sdf,fwf
+;; {23.Feb.22 11:45} right field:nf3,nf,snf2,sdf2,snf3,Qtyf,ratepf,Amtf
+right field:nf3,snf3,Qtyf,ratepf,Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+
+local:field: snf: set as:$vouchernumber;; "INVOICE No."
+local:field: sdf: set as:$date;; "DATE"
+local:field: nf3: set as:$stockitemname ;; "TRANSPORT"
+local:field: fwf: set as:if $$isempty:$BASICFINALDESTINATION1 then $partyledgername else $partyledgername+" & "+$BASICFINALDESTINATION1 ;; "PARTY & BOOKED TO"
+local:field: nf: set as:$CWTEMPGSTEWAYTRANSPORTERNAME1;; "TRANSPORT"
+local:field: snf2: set as:$BILLOFLADINGNO1;; "LR NUMBER"
+local:field: snf3: set as:$cwledcity:ledger:$partyledgername;; "AREA"
+local:field: sdf2: set as:$BILLOFLADINGDATE1;; "LR DATE"
+local:field: nf2: set as:$narration1;; "REMARKS / NARRATION"
+
+local:field: qtyf: set as:IF $$LINE=1 THEN $billedqty else if $vouchernumber <> $$prevobj:$vouchernumber  then $billedqty else "";; "PCS"
+local:field: ratepf : set as :#amtf/#qtyf ;; "RATE"
+local:field: amtf: set as:IF $$LINE=1 THEN $amount1 else if $vouchernumber <> $$prevobj:$vouchernumber  then $amount1 else "" ;; "GROSS AMOUNT"
+
+local:field: default:style:styleCalisto
+
+ Local: Field: default: Border: thin right
+  Local: field: nf: Width:20
+ Local: field: nf3: Width:30
+ Local: field: sdf: Width:6
+ Local: field: sdf2: Width:6
+ Local: field: snf: Width:12
+ Local: field: snf2: Width:8
+ Local: field: snf3: Width:7
+ Local: field: ratepf: Width:6
+;; {09.Mar.22 11:16}  Local: field: AMTF: Width:8
+ Local: field: qtyf: Width:5
+  border:thin bottom
+  
+ [line: LnAGENTWISEsalesregiterreportTotals]
+ use: LnAGENTWISEsalesregiterreport
+ option: totalOpt
+local: field: fwf: align: right
+
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total"
+
+local: field: amtf : set as :  $$total:amtf
+local:field: snf: set as:"";; "INVOICE No."
+local:field: sdf: set as:"";; "DATE"
+;; {07.Sep.21 12:01} local:field: fwf: set as:"";; "PARTY & BOOKED TO"
+local:field: nf: set as:"";; "TRANSPORT"
+local:field: snf2: set as:"";; "LR NUMBER"
+local:field: sdf2: set as:"";; "LR DATE"
+local:field: nf2: set as:"";; "REMARKS / NARRATION"
+local:field: nf3: set as:"";; "AREA"
+
+local:field: ratepf : set as :"";; "RATE"
+
+local:field: snf: style:styleCalisto2
+local:field: sdf:style:styleCalisto2
+local:field: fwf: style:styleCalisto2
+local:field: nf:style:styleCalisto2
+local:field: snf2: style:styleCalisto2
+local:field: snf3: style:styleCalisto2
+local:field: sdf2:style:styleCalisto2
+local:field: nf2:style:styleCalisto2
+local:field: nf2: style:styleCalisto2
+local:field: qtyf: style:styleCalisto2
+local:field: ratepf :style:styleCalisto2
+local:field: amtf:style:styleCalisto2
