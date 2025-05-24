@@ -1,0 +1,40 @@
+;===============================================================================
+; Annotated File: TEST0.TXT
+; This file is auto-annotated for documentation and section clarity.
+; Original code is preserved. No logic or code is changed.
+;===============================================================================
+
+; Created By: khokan on 2022-05-31 10:38, ID: 
+
+
+
+;;--------------------
+;; REPORT DEFINITION
+;;--------------------
+[report:r1]
+Form :f1
+
+[Form :f1]
+part:p1
+
+
+;;--------------------
+;; PART DEFINITION
+;;--------------------
+[part:p1]
+line:l1
+
+
+;;--------------------
+;; LINE DEFINITION
+;;--------------------
+[line:l1]
+field:f1
+
+
+;;--------------------
+;; FIELD DEFINITION
+;;--------------------
+[field:f1]
+ Use : Name Field
+
