@@ -25,6 +25,9 @@ jobs:
       - name: Run annotation script
         run: python scripts/tdl.py
 
+      - name: Create reports folder
+        run: mkdir -p reports
+
       - name: Run comparison script
         run: python scripts/tdlcompare.py > reports/compare_report.txt
 
