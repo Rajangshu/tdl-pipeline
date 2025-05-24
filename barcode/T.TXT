@@ -1,0 +1,89 @@
+; Created By: Suman on 2014-10-16 10:31, ID: 
+
+;; PRODUCT: Barcode Labels
+;; PRODUCT-ID: d87debb4-dcc8-4805-ba3b-7f75d2f47a6f
+;; AUTHOR: Circuit World 9903002059/9903039753 circuit.world@yahoo.co.in
+;; serial: 715012857
+
+[include: c:\d7comps\tcommon\tallyserial.txt]
+[include: c:\d7comps\tcommon\servervouchers.txt]
+[include: c:\d7comps\tcommon\commonfields2.txt]
+[include: c:\d7comps\tcommon\commonUDF.txt]
+[include: c:\d7comps\tcommon\commonformulae.txt]
+;;[Include: itemprefix.txt]
+[include: c:\d7comps\tcommon\refreshtdl.txt]
+[include : c:\d7comps\tcommon\commoncollection.txt]
+[include : c:\d7comps\tcommon\commonvars.txt]
+[include : c:\d7comps\tcommon\commonbarcodereport.txt]
+[include : C:\d7comps\tcommon\EnableCustomization.txt]
+[include : c:\d7comps\tcommon\AutoPartNo.txt] ;; Auto Bar Code Numbering in Part No.
+;[include : c:\d7comps\tcommon\pricelistnamesfromtally.txt]
+[include : c:\d7comps\tcommon\AppLocation.txt]
+;; {29.Jan.13 17:56} [include : C:\d7comps\tcommon\broker.txt]
+
+
+;[include : StockSummaryInNumber.txt]
+
+[include : test.txt]
+
+ ; For KD Fabrics
+;[include : kdFabrics.txt]
+
+
+
+
+
+
+
+ ; For Image n Style
+;;[include : c:\d7comps\tcommon\rateincvat.txt]
+
+ [System: Formula]
+ cwItemVatRateShowCondition : @@issales
+ cwVatrateIncShowCondition : @@issales
+ cwExchangeEnabled : no
+
+ usecwPriceLevel : yes
+ cwPriceLevelName : $pricelevel
+
+ useCustomValue : no
+;; getcustomRate : no
+
+ BarCodeInPurchase : yes
+ BarCodeInSales : yes
+ BarCodeInStkJrnl : yes
+ cwCustomizationStr : "Barcode Module"
+
+
+ [include : BarCodeLabelsUdf.txt]
+
+[include : SupplierCodeInVouchers.txt]
+[include : newcollections.txt]                  ;;----------29/1/13
+
+;;[include: StockGroupSkipping.txt] ;; Skip Barcode Label generation for selected Stock Groups.
+[include : ItemOpening.txt]
+
+;; {22.May.13 15:45} [include: newworks.txt] ;; for inforace barcode
+
+[include: invokeBarCodeModule.txt] ; Btn in Voucher;
+
+[include: BarCodeDetailsExtractReport.txt] ; Report for extraction of data from Tally to App;
+
+[include : shirt\stockitemmaster.txt]
+
+[include : MultiBatch.txt]
+
+
+
+[System: UDF]
+;cwPurchasedFrom :string : 1001
+
+[include : metia.txt]
+
+         [#line : cwBarCodeExePath]
+         Local: Field: nf: inactive: not #CMPcwEnableCustomization
+
+
+  [include:CwItemAutoQty.txt]
+
+

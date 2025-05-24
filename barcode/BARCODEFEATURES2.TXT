@@ -1,0 +1,833 @@
+; Created By: Anil on 2023-07-08 15:04, ID: 
+
+
+[#Part:frmbarcodeapplocation ]
+add:line:after:lncmpbatchfieldcaption:cwstkbatchlinexxx
+;; {14.Jul.23 11:44} border:thin box
+
+[line: cwstkbatchlinexxx]
+field:cwCustomBatchFldsConfigTitle,cwCustomBatchFldsConfig
+
+[System: Formula]
+;; {14.Jul.23 17:33} cwCustomBatchFldsEnabled :  $cwCustomBatchFldsEnabled:COMPANY:##SVCURRENTCOMPANY
+cwCustomBatchFldsEnabled :  $cwenablebatchfield:COMPANY:##SVCURRENTCOMPANY
+
+
+[Field: cwCustomBatchFldsConfigTitle]
+Use : long prompt
+info: "Additional Fields in Batch ?"
+;; {12.Nov.16 11:45} width : 0
+
+
+[Field: cwCustomBatchFldsConfig]
+Use: logical field
+Set As: $cwenablebatchfield ;;$cwCustomBatchFldsEnabled
+storage: cwenablebatchfield ;;cwCustomBatchFldsEnabled
+set always : yes
+set as : if $$value then yes else No
+SubForm :stockitemBatchcaptionfrm : $$value
+
+[Report: stockitemBatchcaptionfrm]
+title :"Stock Item Batch Additional Fields"
+Form: stockitemBatchcaptionfrm
+[Form: stockitemBatchcaptionfrm]
+Part: stockitemBatchcaptionfrm
+width : 80% page
+
+[Part: stockitemBatchcaptionfrm]
+;; {14.Jul.23 17:37} line :lnCaption0x,lnCaption0ax,lnCaption1x,lnCaption2x,lnCaption3x,lnCaption4x,lnCaption5x,lnCaption6x,lnCaption9x,lnCaption10x,lnCaption11x,lnCaption12x,lnCaption13x,lnCaption14x,cwcostcodeline
+line :lnCaption0x,lnCaption1x,lnCaption2x,lnCaption3x,lnCaption4x,lnCaption5x,lnCaption6x,lnCaption9x,lnCaption10x,lnCaption11x,lnCaption12x,lnCaption13x,lnCaption14x,cwcostcodeline
+
+
+/*[line : lnCaption0ax]
+field : sp3,cwlogical
+Local: Field: sp3: Set As: "Show in Stock Summary?"
+Local: Field: cwlogical: storage:cwshowbatchfieldinStockSummary ;;cwShowItemsInStockSummary ;;cwShowItemsBatchInStockSummary
+Local: field: sp3: Width: 20     */
+
+;;cwshowbatchfieldinStockSummary
+
+[Line: lnCaption0x]
+field:fwfc
+Local: Field: fwfc: info: "Stock Item Batch Additional Fields"
+Local: Field: fwfc: Style: Normal Bold
+Local: Field: fwfc: Border: thin bottom ;;left right
+
+[Line: lnCaption1x]
+field:cwbcspx,cwbcnfx,sp,nf2,sp2,snf
+space top :0.5
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf2: storage:cwtableFrom1 ;;cwbatchtableFrom1
+Local: Field: snf: storage:cwUnder1 ;;cwbatchUnder1
+Local: Field: nf2: table:colbatchtableFrom ,Not Applicable
+Local: Field: nf2: Show table: Always
+local: field:sp : inactive: not #cwCustombatchFldsConfig
+local: field:sp2 : inactive: not #cwCustombatchFldsConfig
+
+local: field: snf: inactive:$$issysname:#nf2
+local: field: cwbcinss: inactive:$$issysname:#nf2
+local: field: nf2: inactive:$$issysname:#cwbcnfx
+
+[Line: lnCaption2x]
+field:cwbcsp2x,cwbcnf2x,sp,nf3,sp2,snf2
+
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf3: storage:cwtableFrom2
+Local: Field: snf2: storage:cwUnder2
+Local: Field: nf3: table:coltableFrom ,Not Applicable
+Local: Field: nf3: Show table: Always
+
+local: field:cwbcsp2x : inactive: not #cwCustombatchFldsConfig
+local: field:cwbcnf2x : inactive: not #cwCustombatchFldsConfig
+local: field:sp : inactive: not #cwCustombatchFldsConfig
+local: field:sp2 : inactive: not #cwCustombatchFldsConfig
+local: field:nf3 : inactive: not #cwCustombatchFldsConfig
+local: field:nf: inactive: not #cwCustombatchFldsConfig
+
+Local: field: nf: Width:30
+local: field: snf2: inactive:$$issysname:#nf3
+local: field: nf3: inactive:$$issysname:#cwbcnf2x
+;; {26.Feb.14 18:35} Local: Field: cwbcnf2:set as:"Style"
+;; {26.Feb.14 18:35}  local:field:cwbcnf2:skip:yes
+space top :0.5
+
+
+[Line:lnCaption3x ]
+field:cwbcsp3x,cwbcnf3x,sp,nf4,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf4: storage:cwtableFrom3
+Local: Field: snf3: storage:cwUnder3
+Local: Field: nf4: table:coltableFrom ,Not Applicable
+Local: Field: nf4: Show table: Always
+
+local: field:cwbcsp3x : inactive: not #cwCustombatchFldsConfig
+local: field:cwbcnf3x : inactive: not #cwCustombatchFldsConfig
+local: field:sp : inactive: not #cwCustombatchFldsConfig
+local: field:sp2 : inactive: not #cwCustombatchFldsConfig
+local: field:nf4 : inactive: not #cwCustombatchFldsConfig
+local: field:nf: inactive: not #cwCustombatchFldsConfig
+local: field: snf3: inactive:$$issysname:#nf4
+local: field: nf4: inactive:$$issysname:#cwbcnf3x
+Local: field: nf: Width:30
+;; {26.Feb.14 18:35}  Local: Field: cwbcnf3:set as:"Season"
+;; {26.Feb.14 18:35}  local:field:cwbcnf3:skip:yes
+ space top :0.5
+
+[Line:lnCaption4x ]
+field:cwbcsp4x,cwbcnf4x,sp,nf5,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf5: storage:cwtableFrom4
+Local: Field: snf3: storage:cwUnder4
+Local: Field: nf5: table:coltableFrom ,Not Applicable
+Local: Field: nf5: Show table: Always
+
+local: field:cwbcsp4x : inactive: not #cwCustombatchFldsConfig
+local: field:cwbcnf4x : inactive: not #cwCustombatchFldsConfig
+local: field:sp : inactive: not #cwCustombatchFldsConfig
+local: field:sp2 : inactive: not #cwCustombatchFldsConfig
+local: field:nf5 : inactive: not #cwCustombatchFldsConfig
+local: field:nf: inactive: not #cwCustombatchFldsConfig
+local: field: snf3: inactive:$$issysname:#nf5
+local: field: nf5: inactive:$$issysname:#cwbcnf4x
+Local: field: nf: Width:30
+;; {26.Feb.14 18:35}  Local: Field: cwbcnf4:set as:"Size"
+;; {26.Feb.14 18:35}   local:field:cwbcnf4:skip:yes
+space top :0.5
+[Line:lnCaption5x ]
+field:cwbcsp5x,cwbcnf5x,sp,nf6,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf6: storage:cwtableFrom5
+Local: Field: snf3: storage:cwUnder5
+Local: Field: nf6: table:coltableFrom ,Not Applicable
+Local: Field: nf6: Show table: Always
+
+local: field:cwbcsp5x : inactive: not #cwCustombatchFldsConfig
+local: field:cwbcnf5x : inactive: not #cwCustombatchFldsConfig
+local: field:sp : inactive: not #cwCustombatchFldsConfig
+local: field:sp2 : inactive: not #cwCustombatchFldsConfig
+local: field:nf6 : inactive: not #cwCustombatchFldsConfig
+local: field:nf: inactive: not #cwCustombatchFldsConfig
+local: field: snf3: inactive:$$issysname:#nf6
+local: field: nf6: inactive:$$issysname:#cwbcnf5x
+Local: field: nf: Width:30
+;; {26.Feb.14 18:35}  Local: Field: cwbcnf5:set as:"Color"
+;; {26.Feb.14 18:35}   local:field:cwbcnf5:skip:yes
+space top :0.5
+
+[Line:lnCaption6x ]
+field:cwbcsp6x,cwbcnf6x,sp,nf7,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf7: storage:cwtableFrom6
+Local: Field: snf3: storage:cwUnder6
+Local: Field: nf7: table:coltableFrom ,Not Applicable
+Local: Field: nf7: Show table: Always
+
+local: field:cwbcsp6x : inactive: not #cwCustombatchFldsConfig
+local: field:cwbcnf6x : inactive: not #cwCustombatchFldsConfig
+local: field:sp : inactive: not #cwCustombatchFldsConfig
+local: field:sp2 : inactive: not #cwCustombatchFldsConfig
+local: field:nf7 : inactive: not #cwCustombatchFldsConfig
+local: field:nf: inactive: not #cwCustombatchFldsConfig
+local: field: snf3: inactive:$$issysname:#nf7
+local: field: nf7: inactive:$$issysname:#cwbcnf6x
+Local: field: nf: Width:30
+;; {26.Feb.14 18:35}  Local: Field: cwbcnf6:set as:"Featurre"
+;; {26.Feb.14 18:35}   local:field:cwbcnf6:skip:yes
+space top :0.5
+
+[Line:lnCaption9x]
+field:cwbcsp9x,cwbcnf9x,sp,nf9,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf9: storage:cwtableFrom9
+Local: Field: snf3: storage:cwUnder9
+Local: Field: nf9: table:coltableFrom ,Not Applicable
+Local: Field: nf9: Show table: Always
+
+local: field:cwbcsp9x : inactive: not #cwCustombatchFldsConfig
+local: field:cwbcnf9x : inactive: not #cwCustombatchFldsConfig
+local: field:sp : inactive: not #cwCustombatchFldsConfig
+local: field:sp2 : inactive: not #cwCustombatchFldsConfig
+local: field:nf9 : inactive: not #cwCustombatchFldsConfig
+local: field:nf: inactive: not #cwCustombatchFldsConfig
+local: field: snf3: inactive:$$issysname:#nf9
+local: field: nf9: inactive:$$issysname:#cwbcnf9x
+Local: field: nf: Width:30
+
+space top :0.5
+
+
+[Line:lnCaption10x]
+field:cwbcsp10x,cwbcnf10x,sp,nf10,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf10: storage:cwtableFrom10
+Local: Field: snf3: storage:cwUnder10
+Local: Field: nf10: table:coltableFrom ,Not Applicable
+Local: Field: nf10: Show table: Always
+
+local: field:cwbcsp9x : inactive: not #cwCustombatchFldsConfig
+local: field:cwbcnf9x : inactive: not #cwCustombatchFldsConfig
+local: field:sp : inactive: not #cwCustombatchFldsConfig
+local: field:sp2 : inactive: not #cwCustombatchFldsConfig
+local: field:nf10 : inactive: not #cwCustombatchFldsConfig
+local: field:nf: inactive: not #cwCustombatchFldsConfig
+local: field: snf3: inactive:$$issysname:#nf10
+local: field: nf10: inactive:$$issysname:#cwbcnf10x
+Local: field: nf: Width:30
+
+space top :0.5
+
+
+[Line:lnCaption11x]
+field:cwbcsp11x,cwbcnf11x,sp,nf11,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf11: storage:cwtableFrom11
+Local: Field: snf3: storage:cwUnder11
+Local: Field: nf11: table:coltableFrom ,Not Applicable
+Local: Field: nf11: Show table: Always
+
+local: field:cwbcsp11x : inactive: not #cwCustombatchFldsConfig
+local: field:cwbcnf11x : inactive: not #cwCustombatchFldsConfig
+local: field:sp : inactive: not #cwCustombatchFldsConfig
+local: field:sp2 : inactive: not #cwCustombatchFldsConfig
+local: field:nf11 : inactive: not #cwCustombatchFldsConfig
+local: field:nf: inactive: not #cwCustombatchFldsConfig
+local: field: snf3: inactive:$$issysname:#nf11
+local: field: nf11: inactive:$$issysname:#cwbcnf11x
+Local: field: nf: Width:30
+
+space top :0.5
+
+
+[Line:lnCaption12x]
+field:cwbcsp12x,cwbcnf12x,sp,nf12,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf12: storage:cwtableFrom12
+Local: Field: snf3: storage:cwUnder12
+Local: Field: nf12: table:coltableFrom ,Not Applicable
+Local: Field: nf12: Show table: Always
+
+local: field:cwbcsp12x : inactive: not #cwCustombatchFldsConfig
+local: field:cwbcnf12x : inactive: not #cwCustombatchFldsConfig
+local: field:sp : inactive: not #cwCustombatchFldsConfig
+local: field:sp2 : inactive: not #cwCustombatchFldsConfig
+local: field:nf12 : inactive: not #cwCustombatchFldsConfig
+local: field:nf1: inactive: not #cwCustombatchFldsConfig
+local: field: snf3: inactive:$$issysname:#nf12
+local: field: nf12: inactive:$$issysname:#cwbcnf12x
+Local: field: nf: Width:30
+
+space top :0.5
+
+[Line:lnCaption13x]
+field:cwbcsp13x,cwbcnf13x,sp,nf13,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf13: storage:cwtableFrom13
+Local: Field: snf3: storage:cwUnder13
+Local: Field: nf13: table:coltableFrom ,Not Applicable
+Local: Field: nf13: Show table: Always
+
+local: field:cwbcsp13x : inactive: not #cwCustombatchFldsConfig
+local: field:cwbcnf13x : inactive: not #cwCustombatchFldsConfig
+
+local: field:sp : inactive: not #cwCustombatchFldsConfig
+local: field:sp2 : inactive: not #cwCustombatchFldsConfig
+local: field:nf13 : inactive: not #cwCustombatchFldsConfig
+local: field:nf13: inactive: not #cwCustombatchFldsConfig
+local: field: snf3: inactive:$$issysname:#nf13
+local: field: nf13: inactive:$$issysname:#cwbcnf13x
+Local: field: nf: Width:30
+space top :0.5
+
+
+[Line:lnCaption14x]
+field:cwbcsp14x,cwbcnf14x,sp,nf14,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf14: storage:cwtableFrom14
+Local: Field: snf3: storage:cwUnder14
+Local: Field: nf14: table:coltableFrom ,Not Applicable
+Local: Field: nf14: Show table: Always
+
+local: field:cwbcsp14x : inactive: not #cwCustombatchFldsConfig
+local: field:cwbcnf14x : inactive: not #cwCustombatchFldsConfig
+local: field:sp : inactive: not #cwCustombatchFldsConfig
+local: field:sp2 : inactive: not #cwCustombatchFldsConfig
+local: field:nf114 : inactive: not #cwCustombatchFldsConfig
+local: field:nf: inactive: not #cwCustombatchFldsConfig
+local: field: snf3: inactive:$$issysname:#nf14
+local: field: nf14: inactive:$$issysname:#cwbcnf14x
+Local: field: nf: Width:30
+
+space top :0.5
+
+[line:cwcostcodeline]
+field:sp,snf,sp3,cwlogical
+
+Local: Field: sp: info: "Cost Code from:"
+Local: Field: snf: table:cwCostCodeFromx ,Not Applicable
+Local: Field: snf: storage: cwbatchCostCodeFrom
+;; {14.Jul.23 13:04} local: field: snf: inactive:not #cwlogical
+;; {14.Jul.23 13:04} local: field: sp: inactive:not #cwlogical
+Local: field: sp: Width: 14
+Local: field: snf: Width: 16
+Local: Field: snf: Style: Normal Bold
+
+Local: Field: sp3: Set As: "Show in Stock Summary?"
+Local: Field: cwlogical: storage:cwshowbatchfieldinStockSummary ;;cwShowItemsInStockSummary ;;cwShowItemsBatchInStockSummary
+Local: field: sp3: Width: 20
+
+
+[Collection: cwCostCodeFromx]
+title :"Cost Code from"
+listname : @@cwCostCodeFromF1
+listname : @@cwCostCodeFromF2
+listname : @@cwCostCodeFromF3
+
+[System: Formula]
+cwCostCodeFromF1 : "First"
+cwCostCodeFromF2 : "Second"
+cwCostCodeFromF3 : "Third"
+
+
+
+[field : cwbcspx]
+use : short prompt
+info: "Caption1:"
+
+[field : cwbcsp2x]
+use : short prompt
+info: "Caption2:"
+[field : cwbcsp3x]
+use : short prompt
+info: "Caption3:"
+
+[field : cwbcsp4x]
+use : short prompt
+info: "Caption4:"
+
+[field : cwbcsp5x]
+use : short prompt
+info: "Caption5:"
+
+
+[field : cwbcsp6x]
+use : short prompt
+info: "Caption6:"
+
+[field : cwbcsp7x]
+use : short prompt
+info: "Caption7:"
+
+[field : cwbcnfx]
+use : name field
+;; {26.Feb.14 18:19} info:"Brand"
+storage : cwbatchcaption1 ;;cwsortnoStrx
+
+[field : cwbcnf2x]
+use : cwbcnfx
+;; {26.Feb.14 18:19} info:"Style "
+storage: cwbatchcaption2 ;;cwsizeStrx
+
+[field : cwbcnf3x]
+use : cwbcnfx
+storage : cwbatchcaption3 ;;cwproductStrx
+
+[field : cwbcnf4x]
+use : cwbcnfx
+storage : cwproductStr2x
+
+[field : cwbcnf5x]
+use : cwbcnfx
+storage : cwproductStr3x
+
+[field : cwbcnf6x]
+use : cwbcnfx
+storage : cwproductStr4x
+
+
+[field : cwbcnf7x]
+use : cwbcnfx
+storage : cwproductStr5x
+
+
+[field : cwbcsp9x]
+use : short prompt
+info: "Caption7:"
+
+[field : cwbcsp10x]
+use : short prompt
+info: "Caption8:"
+
+[field : cwbcsp11x]
+use : short prompt
+info: "Caption9:"
+[field : cwbcsp12x]
+use : short prompt
+info: "Caption10:"
+[field : cwbcsp13x]
+use : short prompt
+info: "Caption11:"
+
+[field : cwbcsp14x]
+use : short prompt
+info: "Caption12:"
+
+[field : cwbcnf9x]
+use : cwbcnfx
+storage : cwproductStr9x
+
+[field : cwbcnf10x]
+use : cwbcnfx
+storage : cwproductStr10x
+
+[field : cwbcnf11x]
+use : cwbcnfx
+storage : cwproductStr11x
+
+[field : cwbcnf12x]
+use : cwbcnfx
+storage : cwproductStr12x
+
+[field : cwbcnf13x]
+use : cwbcnfx
+storage : cwproductStr13x
+
+[field : cwbcnf14x]
+use : cwbcnfx
+storage : cwproductStr14x
+
+
+
+
+
+
+[Collection: colbatchtableFrom]
+title:"Table From "
+listname:@@cwforledger
+listname:@@cwforcostcentre
+listname:@@cwforcostcategory
+listname:@@cwforgroup
+listname:@@cwforstockgroup
+listname:@@cwforstockcategory
+
+;;=========================
+forunder1:$cwUnder1:COMPANY:##SVCURRENTCOMPANY
+forunder2:$cwUnder2:COMPANY:##SVCURRENTCOMPANY
+forunder3:$cwUnder3:COMPANY:##SVCURRENTCOMPANY
+forunder4:$cwUnder4:COMPANY:##SVCURRENTCOMPANY
+forunder5:$cwUnder5:COMPANY:##SVCURRENTCOMPANY
+forunder6:$cwUnder6:COMPANY:##SVCURRENTCOMPANY
+forunder7:$cwUnder7:COMPANY:##SVCURRENTCOMPANY
+forunder8:$cwUnder8:COMPANY:##SVCURRENTCOMPANY
+forunder9:$cwUnder9:COMPANY:##SVCURRENTCOMPANY
+forunder10:$cwUnder10:COMPANY:##SVCURRENTCOMPANY
+forunder11:$cwUnder11:COMPANY:##SVCURRENTCOMPANY
+forunder12:$cwUnder12:COMPANY:##SVCURRENTCOMPANY
+forunder13:$cwUnder13:COMPANY:##SVCURRENTCOMPANY
+forunder14:$cwUnder14:COMPANY:##SVCURRENTCOMPANY
+
+
+
+fortable1led:$cwtableFrom1:COMPANY:##SVCURRENTCOMPANY
+fortable1ledx:@@fortable1led="ledger"
+
+fortable1gr:$cwtableFrom1:COMPANY:##SVCURRENTCOMPANY
+fortable1grx:@@fortable1gr="Group"
+
+fortable1ccst:$cwtableFrom1:COMPANY:##SVCURRENTCOMPANY
+fortable1ccstx:@@fortable1ccst="Cost Centre"
+
+fortable1cocat:$cwtableFrom1:COMPANY:##SVCURRENTCOMPANY
+fortable1cocatx:@@fortable1cocat="Cost Category"
+
+fortable1stgrp:$cwtableFrom1:COMPANY:##SVCURRENTCOMPANY
+fortable1stgrpx:@@fortable1stgrp="Stock Group"
+
+fortable1stcat:$cwtableFrom1:COMPANY:##SVCURRENTCOMPANY
+fortable1stcatx:@@fortable1stcat="Stock Category"
+
+;;----------------------------
+
+fortable2led:$cwtableFrom2:COMPANY:##SVCURRENTCOMPANY
+fortable2ledx:@@fortable2led="ledger"
+
+fortable2gr:$cwtableFrom2:COMPANY:##SVCURRENTCOMPANY
+fortable2grx:@@fortable2gr="Group"
+
+fortable2ccst:$cwtableFrom2:COMPANY:##SVCURRENTCOMPANY
+fortable2ccstx:@@fortable2ccst="Cost Centre"
+
+fortable2cocat:$cwtableFrom2:COMPANY:##SVCURRENTCOMPANY
+fortable2cocatx:@@fortable2cocat="Cost Category"
+
+fortable2stgrp:$cwtableFrom2:COMPANY:##SVCURRENTCOMPANY
+fortable2stgrpx:@@fortable2stgrp="Stock Group"
+
+fortable2stcat:$cwtableFrom2:COMPANY:##SVCURRENTCOMPANY
+fortable2stcatx:@@fortable2stcat="Stock Category"
+
+;;-------------------------------------------------
+
+
+fortable3led:$cwtableFrom3:COMPANY:##SVCURRENTCOMPANY
+fortable3ledx:@@fortable3led="ledger"
+
+fortable3gr:$cwtableFrom3:COMPANY:##SVCURRENTCOMPANY
+fortable3grx:@@fortable3gr="Group"
+
+fortable3ccst:$cwtableFrom3:COMPANY:##SVCURRENTCOMPANY
+fortable3ccstx:@@fortable3ccst="Cost Centre"
+
+fortable3cocat:$cwtableFrom3:COMPANY:##SVCURRENTCOMPANY
+fortable3cocatx:@@fortable3cocat="Cost Category"
+
+fortable3stgrp:$cwtableFrom3:COMPANY:##SVCURRENTCOMPANY
+fortable3stgrpx:@@fortable3stgrp="Stock Group"
+
+fortable3stcat:$cwtableFrom3:COMPANY:##SVCURRENTCOMPANY
+fortable3stcatx:@@fortable3stcat="Stock Category"
+
+
+;;--------------------------------------------------------
+
+ fortable4led:$cwtableFrom4:COMPANY:##SVCURRENTCOMPANY
+fortable4ledx:@@fortable4led="ledger"
+
+fortable4gr:$cwtableFrom4:COMPANY:##SVCURRENTCOMPANY
+fortable4grx:@@fortable4gr="Group"
+
+fortable4ccst:$cwtableFrom4:COMPANY:##SVCURRENTCOMPANY
+fortable4ccstx:@@fortable4ccst="Cost Centre"
+
+fortable4cocat:$cwtableFrom4:COMPANY:##SVCURRENTCOMPANY
+fortable4cocatx:@@fortable4cocat="Cost Category"
+
+fortable4stgrp:$cwtableFrom4:COMPANY:##SVCURRENTCOMPANY
+fortable4stgrpx:@@fortable4stgrp="Stock Group"
+
+fortable4stcat:$cwtableFrom4:COMPANY:##SVCURRENTCOMPANY
+fortable4stcatx:@@fortable4stcat="Stock Category"
+
+;;-------------------------------------------------------
+
+fortable5led:$cwtableFrom5:COMPANY:##SVCURRENTCOMPANY
+fortable5ledx:@@fortable5led="ledger"
+
+fortable5gr:$cwtableFrom5:COMPANY:##SVCURRENTCOMPANY
+fortable5grx:@@fortable5gr="Group"
+
+fortable5ccst:$cwtableFrom5:COMPANY:##SVCURRENTCOMPANY
+fortable5ccstx:@@fortable5ccst="Cost Centre"
+
+fortable5cocat:$cwtableFrom5:COMPANY:##SVCURRENTCOMPANY
+fortable5cocatx:@@fortable5cocat="Cost Category"
+
+fortable5stgrp:$cwtableFrom5:COMPANY:##SVCURRENTCOMPANY
+fortable5stgrpx:@@fortable5stgrp="Stock Group"
+
+fortable5stcat:$cwtableFrom5:COMPANY:##SVCURRENTCOMPANY
+fortable5stcatx:@@fortable5stcat="Stock Category"
+
+;;----------------------------------------------------
+
+fortable6led:$cwtableFrom6:COMPANY:##SVCURRENTCOMPANY
+fortable6ledx:@@fortable6led="ledger"
+
+fortable6gr:$cwtableFrom6:COMPANY:##SVCURRENTCOMPANY
+fortable6grx:@@fortable6gr="Group"
+
+fortable6ccst:$cwtableFrom6:COMPANY:##SVCURRENTCOMPANY
+fortable6ccstx:@@fortable6ccst="Cost Centre"
+
+fortable6cocat:$cwtableFrom6:COMPANY:##SVCURRENTCOMPANY
+fortable6cocatx:@@fortable6cocat="Cost Category"
+
+fortable6stgrp:$cwtableFrom6:COMPANY:##SVCURRENTCOMPANY
+fortable6stgrpx:@@fortable6stgrp="Stock Group"
+
+fortable6stcat:$cwtableFrom6:COMPANY:##SVCURRENTCOMPANY
+fortable6stcatx:@@fortable6stcat="Stock Category"
+
+;;--------------------------------------------------------------
+
+fortable7led:$cwtableFrom7:COMPANY:##SVCURRENTCOMPANY
+fortable7ledx:@@fortable7led="ledger"
+
+fortable7gr:$cwtableFrom7:COMPANY:##SVCURRENTCOMPANY
+fortable7grx:@@fortable7gr="Group"
+
+fortable7ccst:$cwtableFrom7:COMPANY:##SVCURRENTCOMPANY
+fortable7ccstx:@@fortable7ccst="Cost Centre"
+
+fortable7cocat:$cwtableFrom7:COMPANY:##SVCURRENTCOMPANY
+fortable7cocatx:@@fortable7cocat="Cost Category"
+
+fortable7stgrp:$cwtableFrom7:COMPANY:##SVCURRENTCOMPANY
+fortable7stgrpx:@@fortable7stgrp="Stock Group"
+
+fortable7stcat:$cwtableFrom7:COMPANY:##SVCURRENTCOMPANY
+fortable7stcatx:@@fortable7stcat="Stock Category"
+
+;;=============================================================================
+
+fortable9led:$cwtableFrom9:COMPANY:##SVCURRENTCOMPANY
+fortable9ledx:@@fortable9led="ledger"
+
+fortable9gr:$cwtableFrom9:COMPANY:##SVCURRENTCOMPANY
+fortable9grx:@@fortable9gr="Group"
+
+fortable9ccst:$cwtableFrom9:COMPANY:##SVCURRENTCOMPANY
+fortable9ccstx:@@fortable9ccst="Cost Centre"
+
+fortable9cocat:$cwtableFrom9:COMPANY:##SVCURRENTCOMPANY
+fortable9cocatx:@@fortable9cocat="Cost Category"
+
+fortable9stgrp:$cwtableFrom9:COMPANY:##SVCURRENTCOMPANY
+fortable9stgrpx:@@fortable9stgrp="Stock Group"
+
+fortable9stcat:$cwtableFrom9:COMPANY:##SVCURRENTCOMPANY
+fortable9stcatx:@@fortable9stcat="Stock Category"
+
+;;=====================
+
+fortable10led:$cwtableFrom10:COMPANY:##SVCURRENTCOMPANY
+fortable10ledx:@@fortable10led="ledger"
+
+fortable10gr:$cwtableFrom10:COMPANY:##SVCURRENTCOMPANY
+fortable10grx:@@fortable10gr="Group"
+
+fortable10ccst:$cwtableFrom10:COMPANY:##SVCURRENTCOMPANY
+fortable10ccstx:@@fortable10ccst="Cost Centre"
+
+fortable10cocat:$cwtableFrom10:COMPANY:##SVCURRENTCOMPANY
+fortable10cocatx:@@fortable10cocat="Cost Category"
+
+fortable10stgrp:$cwtableFrom10:COMPANY:##SVCURRENTCOMPANY
+fortable10stgrpx:@@fortable10stgrp="Stock Group"
+
+fortable10stcat:$cwtableFrom10:COMPANY:##SVCURRENTCOMPANY
+fortable10stcatx:@@fortable10stcat="Stock Category"
+
+;;=====
+
+fortable11led:$cwtableFrom11:COMPANY:##SVCURRENTCOMPANY
+fortable11ledx:@@fortable11led="ledger"
+
+fortable11gr:$cwtableFrom11:COMPANY:##SVCURRENTCOMPANY
+fortable11grx:@@fortable11gr="Group"
+
+fortable11ccst:$cwtableFrom11:COMPANY:##SVCURRENTCOMPANY
+fortable11ccstx:@@fortable11ccst="Cost Centre"
+
+fortable11cocat:$cwtableFrom11:COMPANY:##SVCURRENTCOMPANY
+fortable11cocatx:@@fortable11cocat="Cost Category"
+
+fortable11stgrp:$cwtableFrom11:COMPANY:##SVCURRENTCOMPANY
+fortable11stgrpx:@@fortable11stgrp="Stock Group"
+
+fortable11stcat:$cwtableFrom11:COMPANY:##SVCURRENTCOMPANY
+fortable11stcatx:@@fortable11stcat="Stock Category"
+;;====
+fortable12led:$cwtableFrom12:COMPANY:##SVCURRENTCOMPANY
+fortable12ledx:@@fortable12led="ledger"
+
+fortable12gr:$cwtableFrom12:COMPANY:##SVCURRENTCOMPANY
+fortable12grx:@@fortable12gr="Group"
+
+fortable12ccst:$cwtableFrom12:COMPANY:##SVCURRENTCOMPANY
+fortable12ccstx:@@fortable12ccst="Cost Centre"
+
+fortable12cocat:$cwtableFrom12:COMPANY:##SVCURRENTCOMPANY
+fortable12cocatx:@@fortable12cocat="Cost Category"
+
+fortable12stgrp:$cwtableFrom12:COMPANY:##SVCURRENTCOMPANY
+fortable12stgrpx:@@fortable12stgrp="Stock Group"
+
+fortable12stcat:$cwtableFrom12:COMPANY:##SVCURRENTCOMPANY
+fortable12stcatx:@@fortable12stcat="Stock Category"
+
+;;==
+fortable13led:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13ledx:@@fortable13led="ledger"
+
+fortable13gr:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13grx:@@fortable13gr="Group"
+
+fortable13ccst:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13ccstx:@@fortable13ccst="Cost Centre"
+
+fortable13cocat:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13cocatx:@@fortable13cocat="Cost Category"
+
+fortable13stgrp:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13stgrpx:@@fortable13stgrp="Stock Group"
+
+fortable13stcat:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13stcatx:@@fortable13stcat="Stock Category"
+
+fortable13led:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13ledx:@@fortable13led="ledger"
+
+fortable13gr:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13grx:@@fortable13gr="Group"
+
+fortable13ccst:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13ccstx:@@fortable13ccst="Cost Centre"
+
+fortable13cocat:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13cocatx:@@fortable13cocat="Cost Category"
+
+fortable13stgrp:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13stgrpx:@@fortable13stgrp="Stock Group"
+
+fortable13stcat:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13stcatx:@@fortable13stcat="Stock Category"
+;;==
+
+fortable14led:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14ledx:@@fortable14led="ledger"
+
+fortable14gr:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14grx:@@fortable14gr="Group"
+
+fortable14ccst:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14ccstx:@@fortable14ccst="Cost Centre"
+
+fortable14cocat:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14cocatx:@@fortable14cocat="Cost Category"
+
+fortable14stgrp:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14stgrpx:@@fortable14stgrp="Stock Group"
+
+fortable14stcat:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14stcatx:@@fortable14stcat="Stock Category"
+
+fortable14led:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14ledx:@@fortable14led="ledger"
+
+fortable14gr:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14grx:@@fortable14gr="Group"
+
+fortable14ccst:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14ccstx:@@fortable14ccst="Cost Centre"
+
+fortable14cocat:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14cocatx:@@fortable14cocat="Cost Category"
+
+fortable14stgrp:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14stgrpx:@@fortable14stgrp="Stock Group"
+
+fortable14stcat:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14stcatx:@@fortable14stcat="Stock Category"
+
+;;==========================
+[System: UDF]
+cwCustomBatchFldsEnabled:logical:5001
+
+cwproductStrx:string:5002
+cwproductStr2x:string:5003
+cwproductStr3x:string:5004
+cwproductStr4x:string:5005
+cwproductStr5x:string:5006
+cwproductStr9x:string:5007
+cwproductStr10x:string:5008
+cwproductStr11x:string:5009
+cwproductStr12x:string:5010
+cwproductStr13x:string:5011
+cwproductStr14x:string:5012
+cwsizeStrx:string:5013
+cwsortnoStrx:string:5014
+cwShowItemsBatchInStockSummary:logical:5015
+
+
+cwtableFrom1:string:5101
+cwtableFrom2:string:5102
+cwtableFrom3:string:5103
+cwtableFrom4:string:5104
+cwtableFrom5:string:5105
+cwtableFrom6:string:5106
+cwtableFrom7:string:5107
+cwtableFrom9:string:5108
+cwtableFrom10:string:5109
+cwtableFrom11:string:5110
+cwtableFrom12:string:5111
+cwtableFrom13:string:5112
+cwtableFrom14:string:5113
+
+cwUnder1:string:5201
+cwUnder2:string:5202
+cwUnder3:string:5203
+cwUnder4:string:5204
+cwUnder5:string:5205
+cwUnder6:string:5206
+cwUnder7:string:5207
+cwUnder9:string:5208
+cwUnder10:string:5209
+cwUnder11:string:5210
+cwUnder12:string:5211
+cwUnder13:string:5212
+cwUnder14:string:5212
+

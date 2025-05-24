@@ -1,0 +1,247 @@
+; Created By: Pg on 2013-06-01 19:01, ID: 
+;
+
+[System: Formula]
+cwAutoCreateBatchVch : @@cwAutoCreateBatch and $cwVchHasBatchFill:Vouchertype:##SVVoucherType
+
+        [#Part: VTYP Behaviour]
+        add : option : cwAutoFillBatch ;;:  @@cwAutoCreateBatch
+        
+        [!part : cwAutoFillBatch]
+        add: line : cwAutoFillBatchVch
+        
+        [line : cwAutoFillBatchVch]
+        field : long prompt,cwlogical
+        Local: Field: cwlogical: storage: cwVchHasBatchFill
+        Local: Field: long prompt: info: "Auto Fill Batches:"
+        local: field: default: inactive: not ($$isstockjrnl:$parent or $$ispurchase:$parent or $$isrcptnote:$parent or $$isPurcOrder:$parent or $$issalesOrder:$parent)
+;; {23.Jul.20 12:47}        Local: Field: default: Border: thin box ;;left right
+
+      [#collection : Active Batches VchExtract]
+      unique : $name,$batchname
+      
+
+
+    [#Part: VCH Status]
+;    ADD : LINE : cwLastCartonS
+    
+[LINE : cwLastCartonS]
+field:cwLastCartonS
+
+
+[field : cwLastCartonS]
+use : number field
+;; {01.Jun.13 19:18} border : thin box
+set as : $cwLastCarton:COMPANY:##SVCURRENTCOMPANY
+skip : yes
+
+;-----------------------------
+
+[#Part: SJ MfdBatch]
+ADD : OPTION : MYBATCHDEL : @@cwAutoCreateBatchVch
+
+[!PART : MYBATCHDEL]
+
+;; {01.Jun.13 19:31} object : InventoryEntriesIn : First
+;; {01.Jun.13 19:31} repeat : SJ MfdBatch : batch allocations
+;; {01.Jun.13 19:31} scroll : vertical
+;; {01.Jun.13 19:31} height : 1 inch
+local: line : SJ MfdBatch : delete: fields
+local: line : SJ MfdBatch : add : field : snf
+local: line : SJ MfdBatch : local: field : snf: skip : yes
+Local: Field: default: Border: thin box ;;left right
+
+  [#Line: SJ MfdItem]
+    option : myyskip : @@cwAutoCreateBatchvch
+
+
+    [!line: myyskip]
+;; {01.Jun.13 19:40}     local : field :default : skip : yes
+    local : field : MVCH BilledQty: read only : yes
+    Local: Field: MVCH BilledQty: Set As:  $$collectionfield:($$collqtytotal:batchallocations:$billedqty):1:inventoryentriesin
+    Local: Field: MVCH BilledQty: Set always : yes
+;; {01.Jun.13 19:40}     Local: Field: MVCH BilledQty: border : thin box
+
+ /*
+ADD : FIELD : BEFORE : MVCH BOMName : SP,CWLOGICAL
+LOCAL : FIELD : SP : INFO : "Auto Create Batch:"
+Local: Field : cwlogical : SubForm : cwBatchDets: $$value
+local: field: sp: inactive: not $$increatemode
+local: field: cwlogical: inactive: not $$increatemode or $$IsSysname:#MVCHStockItem
+*/
+
+
+
+
+[#field:MVCH BilledQty]
+;; {01.Apr.22 15:19} border : thin box
+sub form :cwSTKVCH BatchAllocationsFill  : @@cwAutoCreateBatchvch
+
+[report:cwSTKVCH BatchAllocationsFill]
+use : STKVCH BatchAllocations
+Form: STKVCH BatchAllocations
+local : Form: STKVCH BatchAllocations : add : part : at beginning : cwBatchDets1
+local : field : VCHBATCH Name : skip : not $$isempty:$$value
+local : field : VCHBATCH Name : delete : table
+local : field : VCHBATCH Name : add : table : End of list : $$line > 1 and $$issysname:$$Value
+;; {02.Jun.13 13:19} local : field : VCHBATCH Name : dynamic : ""
+  TITLE : ##SVGodown
+ LOCAL : FIELD : VCHBATCH Godown : SET by condition : $$line >1 : $$prevlinefield
+;; {18.Oct.14 13:47}  Local: Field: VCHBATCH Name:skip:not $$owner:$cwcreatbatch ;;not $cwcreatbatch
+;; {18.Oct.14 13:47}  Local: Field: Vch batchbilledqty:skip:not $$owner:$cwcreatbatch ;;not $cwcreatbatch
+ 
+ 
+;; {18.Oct.14 13:37}  [#field:Vch batchbilledqty]
+;; {18.Oct.14 13:36}    delete:skip
+
+[part: cwBatchDets1]
+line : cwdoFillBatches
+
+;-------------------------- sub form
+[report:cwBatchDets]
+form : cwBatchDets
+
+[form : cwBatchDets]
+part : cwBatchDets
+on : form accept : #numf <> 0 : Call : cwAutoFillBatch:#numf:#numf2
+
+[part : cwBatchDets]
+;; {02.Jun.13 12:58} object : InventoryEntriesIn : First
+line : cwBatchDets,cwBatchQty ;;,cwdoFillBatches
+;; {02.Jun.13 13:01} line : cwdoFillBatches
+Local: field: sp : Width: 0
+ local : field : default : skip : not $$increatemode or $$numitems:BatchAllocations > 1
+ 
+[line : cwBatchDets]
+field : sp,numf
+Local: Field: sp: info: "No. of Batches to Create:"
+
+
+[line : cwBatchQty]
+field : sp,numf2
+Local: Field: sp: info: "Default Qty / Batch:"
+local: field: numf2: inactive: #numf = 0
+
+
+[line : cwDoFillBatches]
+field : sp,cwlogical
+Local: Field: sp: info: "Create Batches:"
+;; {02.Jun.13 13:01} local: field : cwLogical : validate : if $$isfieldedited and $$value then $$cwAutoFillBatch:#numf:#numf2 else yes
+;; {02.Jun.13 12:54} local: field : cwLogical : delete : set always
+Local: Field : cwlogical : SubForm : cwBatchDets: $$value
+Local: Field: cwlogical: Skip: not $$increatemode or $$numitems:Batchallocations > 1
+Local: field: sp: Width: 0
+;; {14.Oct.14 14:55} Local: Field: cwlogical: storage:cwcreatbatch
+
+
+[function : cwAutoFillBatch]
+parameter : totBatchCount : number
+parameter : batchqty : number
+variable : counter : number : 1
+variable : BatchStart : number :$cwLastCarton:COMPANY:##SVCURRENTCOMPANY + 1
+
+0000 : do if : $$numitems:batchallocations >1 : return : yes
+0001 : do if : ##totBatchCount = 0 : return : yes
+;; {18.Jun.13 12:03} 0003 : LOG : #VCHGodown
+;; {02.Jun.13 12:18} 10 : log : ##totBatchCount
+;; {02.Jun.13 12:18} 20 : log : ##batchqty
+;; {02.Jun.13 12:38} 30 : set  target : InventoryEntriesIn : First
+
+40 : WHILE : ##Counter <= ##totBatchCount
+50 : do if : $$loopindex > 1 : Insert Collection Object : Batch Allocations ;;: InventoryEntriesIn : First
+51 : do if : $$loopindex = 1 : set target : Batch Allocations[1]
+60 : set value : batchname : $$zerofill:##BatchStart:@@cwNumZerosBatch
+61 : incr : BatchStart
+62 : if : not $$isempty:##BatchQty
+70 : set value : ActualQty : $$asqty:##BatchQty
+80 : set value : BilledQty : $$asqty:##BatchQty
+;; {18.Jun.13 12:19} 81 : SET VALUE : GODOWNNAME : #VCHGodown
+82 : end if
+85 : incr :Counter
+90 : end while
+
+91 : insert collection object : batch allocations
+92 : set value : batchname : $$sysname:endoflist
+100 : return : no
+
+
+
+;--------------- Update Last Serial In Company
+
+
+ [#form : voucher]
+ on : form accept : $$increatemode and @@cwAutoCreateBatchVch : call : UpdateCountInCompany
+ 
+ [function : UpdateCountInCompany]
+ variable : mylastbatchname : string : ""
+ variable : mylastbathCtr : number
+ 01 : walk collection : InventoryEntriesIn
+ 02 : walk collection : BatchAllocations
+ 03 :  do if : ##mylastbatchname < $batchname : set : mylastbatchname : $batchname
+ 05 : end walk
+ 06 : end walk
+
+;; {16.Apr.18 16:02}  10 : log : ##mylastbatchname
+ 20 : set : mylastbathCtr : $$number:##mylastbatchname
+ 30 : do if : ##mylastbathCtr = 0 : continue
+ 40 : do if : ##mylastbathCtr < $cwLastCarton:COMPANY:##SVCURRENTCOMPANY : return
+ 50 : modify object:(company,##SVCurrentCompany).cwLastCarton[1].cwLastCarton :##mylastbathCtr
+
+[#line : ei invinfo]
+add : option : mylineno
+
+[#line : ci invinfo]
+add : option : mylineno
+
+
+[#line : SJDetailsA]
+add : option : mylineno
+
+[#line : SJDetailsC]
+add : option : mylineno
+
+[!line : mylineno]
+add : field : at beginning : snfLineNo
+add : field : after :VCH StockItem: snfbatchdets
+
+
+[field :snfLineNo]
+use : numf
+set as  :$$line
+skip : yes
+invisible : yes
+storage : cwline
+
+
+[field : snfbatchdets]
+use : nf
+;set as  : if $$line = 1 then "" else if $$prevobj:$stockitemname = $stockitemname then $$prevobj:($$collectionfield:$batchname:(-1):BatchAllocations) else ""
+
+set as : if $$line = 1 then "" else $$Getfromprev:$$line:$stockitemname
+skip : yes
+border : thick box
+invisible : yes
+
+
+[function : Getfromprev]
+parameter : myline : number
+parameter : myitemname : string
+returns : string
+variable : str : string : ""
+variable : id : number : 1
+;10 : return : ##myline
+
+;x00 : log : "Checking: " + ##myitemname + " - " +  ##str +  " - " +  $$string:##myline
+
+00 : walk Collection : AllInventory Entries
+01 : do if : ##id >= ##myline : return: ##str
+
+02 : if : $stockitemname = ##myitemname
+03 : set : str : $$collectionfield:$batchname:(-1):BatchAllocations
+;; {17.Jul.15 13:38} 04 : log : ##str
+05 : end if
+
+06 : incr : id
+07 : end walk
+
+08 : return : ##str

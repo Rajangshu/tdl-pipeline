@@ -1,0 +1,14 @@
+; Created By: Pg on 2018-04-16 15:38, ID: 
+
+;; {02.Apr.21 18:04} [#Part: Company MailingDetails]
+
+[#Part  : CMP TallyShopFeatures Left]
+add: option : cwCompanyCode   ;;: @@cwCustomizationEnabled
+
+[!part : cwCompanyCode]
+add: bottom line : cwcompanycode
+
+  [line: cwcompanycode]
+field: medium prompt,snf
+Local: Field: medium prompt: info: "Company Code:"
+Local: Field: snf: storage: cwCompanycode

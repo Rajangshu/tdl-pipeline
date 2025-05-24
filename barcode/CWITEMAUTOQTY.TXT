@@ -1,0 +1,48 @@
+; Created By: Suman on 2013-07-30 16:53, ID: 
+
+  [System: Formula]
+cwSetBqty : @@issales or @@isdelnote ;; or @@issales to set Billedqty to 1
+ cwSetBqtyJrnl : no ;;for setiing billedqty to 1
+
+[#field:VCHBATCH NrmlBQty]
+add : option : cwSetBQty : @@cwSetBqty
+
+[#Field: VCHBATCH JrnlBQty]
+add : option : cwSetBQty : @@cwSetBqtyJrnl
+
+[!field : cwSetBQty]
+set as: if $$isempty:$$value then $$asqty:$cwAutoQuantity:stockitem:$stockitemname else $$value
+
+
+  [#field:VCHBATCH BilledQty]
+     add:option:cwvchbill:@@issales or @@isdelnote
+
+   [!field:cwvchbill]
+     set as: if $$isempty:$$value then $$asqty:$cwAutoQuantity:stockitem:$stockitemname else $$value
+ 
+   [#field:VCHBATCH ActualQty]
+     add:option:cwvchbillactual:@@issales or @@isdelnote or (not @@isoutwardtype and @@isbatchautoIn)
+
+   [!field:cwvchbillactual]
+     set as: if $$isempty:$$value then $$asqty:$cwAutoQuantity:stockitem:$stockitemname else $$value
+
+
+   [#field:VCH BilledQty]
+     add:option:cwvchbilledqty :(@@issales or @@isdelnote)
+
+
+
+
+    [!field:cwvchbilledqty]
+;; {29.Oct.13 11:56}       delete:set as
+      delete:set by condition
+      add:set by condition:yes: if $$isempty:$$value then $$asqty:$cwAutoQuantity:stockitem:$stockitemname else $$value   ;;off this
+      Skip Forward:yes
+;; {17.Apr.18 13:31}       border:thin box
+      
+    [#field:VCH Value]
+      add:option:cwvchvalue:@@issales or @@isdelnote
+      
+    [!field:cwvchvalue]
+       Skip Forward:yes
+

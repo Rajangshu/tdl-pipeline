@@ -1,0 +1,160 @@
+; Created By: pg on 2022-03-25 12:27, ID: 
+
+
+[#form: stock summary]
+add : option : cwShowBCinSS : @@cwShowItemsInStockSummary and $$cwSSCols < 3
+add: option : cwShowBCBInCSS : $cwshowbatchfieldinStockSummary:COMPANY:##SVCURRENTCOMPANY ;;and $$cwSSCols <4
+
+[function : cwSSCols]
+ variable : ctr : number : 0
+ 
+ 10 : if : ##DSPShowOpening
+ 11 : incr : ctr
+ 12 : log : "opening"
+ 13 : end if
+ 
+ 20 : if : ##DSPShowInwards
+ 21 : incr : ctr
+ 22 : log : "inward"
+ 23 : end if
+ 
+ 30 : if : ##DSPShowOutwards
+ 31 : incr : ctr
+ 32 : log : "outward"
+ 33 : end if
+ 
+ 40 : if : ##DSPShowClosing
+ 41 : incr : ctr
+ 42 : log : "closing"
+ 43 : end if
+ 
+ 50 : log : ##ctr
+ 60 : return : ##ctr
+
+[!form: cwShowBCinSS]
+;; {25.Mar.22 13:40} local: Line: DSP ItemTitle :local : field : default : border : thin box
+Local   : Line : DSP AccLine : add :  field : cwCF1, cwCF2, cwCF3, cwCF4, cwCF5, cwCF6,cwCF7,cwcf8,cwCF9, cwCF10,cwCF11,cwCF12
+
+[!form : cwShowBCBInCSS]
+local: Part: SSITEM Explosion : local :line: default : add : field :cwBF1, cwBF2, cwBF3
+local: field : SSBatchName : width : 50
+
+;; {25.Mar.22 15:10} local:line: DSP QtyOneTitle:add:field:after:DSP NameTitle:fwfc,cwCF1,cwCF2,cwCF3,cwCF4,cwCF5,cwCF6,cwCF7,cwCF8,cwCF9,cwCF10,cwCF11,cwCF12
+local:line: DSP QtyTwoTitle:add:field:after:DSP NameTitle:cwCF0,cwBF1,cwBF2,cwBF3
+
+
+;; {25.Mar.22 15:07} local:line: DSP QtyoneTitle:Local: field:DSP NameTitle : Width:40
+local:line: DSP QtyTwoTitle:Local: field:DSP NameTitle : Width:40
+
+
+local:line: DSP QtyTwoTitle:Local: Field: cwBF1 : delete : invisible
+local:line: DSP QtyTwoTitle:Local: Field: cwBF1 : set as : $cwbatchcaption1:COMPANY:##SVCURRENTCOMPANY
+
+local:line: DSP QtyTwoTitle:Local: Field: cwBF2 : delete : invisible
+local:line: DSP QtyTwoTitle:Local: Field: cwBF2 : set as : $cwbatchcaption2:COMPANY:##SVCURRENTCOMPANY
+
+local:line: DSP QtyTwoTitle:Local: Field: cwBF3 : delete : invisible
+local:line: DSP QtyTwoTitle:Local: Field: cwBF3 : set as : $cwbatchcaption3:COMPANY:##SVCURRENTCOMPANY
+
+
+
+
+
+
+
+
+  [field: cwCF0]
+  use : snf
+;; {25.Mar.22 12:58}   border : thin box
+  style : tiny
+  width : 10
+
+  [field: cwCF1]
+  use : cwcf0
+  set as : $cwsortno
+  invisible :not $$isstockitem or $$issysname:$cwsortnoStr:COMPANY:##SVCURRENTCOMPANY
+
+  [field: cwCF2]
+  use : cwcf0
+  set as : $cwsize
+  invisible : not $$isstockitem or $$issysname:$cwsizeStr:COMPANY:##SVCURRENTCOMPANY
+
+  [field: cwCF3]
+  use : cwcf0
+  set as : $cwproduct
+;; {25.Mar.22 13:09}    set as: $cwproductStr1:COMPANY:##SVCURRENTCOMPANY
+  invisible : not $$isstockitem or $$issysname:$cwproductStr:COMPANY:##SVCURRENTCOMPANY
+  
+  [field: cwCF4]
+  use : cwcf0
+  set as : $cwproduct2
+;; {25.Mar.22 13:09}    set as: $cwproductStr2:COMPANY:##SVCURRENTCOMPANY
+  invisible : not $$isstockitem or $$issysname:$cwproductStr2:COMPANY:##SVCURRENTCOMPANY
+  
+  [field: cwCF5]
+  use : cwcf0
+  set as : $cwproduct3
+;; {25.Mar.22 13:09}    set as: $cwproductStr3:COMPANY:##SVCURRENTCOMPANY
+  invisible : not $$isstockitem or $$issysname:$cwproductStr3:COMPANY:##SVCURRENTCOMPANY
+  
+  [field: cwCF6]
+  use : cwcf0
+  set as : $cwproduct4
+;; {25.Mar.22 13:09}    set as: $cwproductStr4:COMPANY:##SVCURRENTCOMPANY
+  invisible : not $$isstockitem or $$issysname:$cwproductStr4:COMPANY:##SVCURRENTCOMPANY
+  
+
+  [field: cwCF7]
+    use : cwcf0
+  set as : $cwproduct5
+;; {25.Mar.22 13:09}   set as: $cwproductStr5:COMPANY:##SVCURRENTCOMPANY
+;; {25.Mar.22 13:13}   invisible : $$issysname:$cwproductStr5:COMPANY:##SVCURRENTCOMPANY
+
+  [field: cwcf8]
+  use : cwcf0
+  set as : $cwproduct10
+  invisible : not $$isstockitem or $$issysname:$cwproductStr10:COMPANY:##SVCURRENTCOMPANY
+
+  [field: cwCF9]
+  use : cwcf0
+  set as : $cwproduct11
+  invisible : not $$isstockitem or $$issysname:$cwproductStr11:COMPANY:##SVCURRENTCOMPANY
+  
+  [field: cwCF10]
+  use : cwcf0
+  set as : $cwproduct12
+  invisible :not $$isstockitem or $$issysname:$cwproductStr12:COMPANY:##SVCURRENTCOMPANY
+
+  [field: cwCF11]
+    use : cwcf0
+  set as : $cwproduct13
+    invisible : not $$isstockitem or $$issysname:$cwproductStr13:COMPANY:##SVCURRENTCOMPANY
+
+
+  [field: cwCF12]
+    use : cwcf0
+  set as : $cwproduct14
+    invisible : not $$isstockitem or $$issysname:$cwproductStr14:COMPANY:##SVCURRENTCOMPANY
+    
+    
+
+;---------------- Batch Fields in Stock Summary
+
+
+  [field: cwBF1]
+  use : cwcf0
+  set as :$cwbatchcaption1
+;; {25.Mar.22 13:31}   border : thin box
+
+  [field: cwBF2]
+  use : cwcf0
+  set as :$cwbatchcaption2
+  
+  [field: cwBF3]
+  use : cwcf0
+  set as :$cwbatchcaption3
+  
+;; {25.Mar.22 13:31}   [#collection: BatchInGodownName]
+;; {25.Mar.22 13:31}   fetch : cwBatchCaption1, cwBatchCaption2, cwBatchCaption3
+]
+

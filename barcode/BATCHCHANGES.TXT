@@ -1,0 +1,740 @@
+; Created By: Akshay on 2015-05-21 10:50, ID:
+
+;;----------------- Features Changes -------------------------
+
+[Line:lncmpbarcodefrombatch ]
+ field:lp,cwlogical ,mp2,cwlogical2 ,mp3,cwlogical3,mp4,fwf
+ Local: Field:lp: info: "Barcode from Batch ?"
+ Local: Field:mp2 : info: "MRP From Batch ?"
+ Local: Field: mp3: info: "Image with Batch?"
+ Local: Field: mp4: info: "Image Location :"
+ Local: Field: sp4: Set As:"Set MRP In Sales ?"
+
+ Local: Field: cwlogical: storage:cwenablebarcodebatch
+ Local: Field: cwlogical2: storage:cwmrpenable
+Local: Field: numf: storage:cwnumberdigit
+ Local: Field:cwlogical3 :storage:cwEnableImage
+ Local: Field: fwf: storage:cwimagepath
+ Local: Field: cwlogical4: storage:cwMRpinsalesopt
+ 
+ Local: field: numf: Align: left
+ Local: Field: fwf: Style: Normal Bold
+  local: field: sp: inactive: not $cwEnableImage
+ local: field: fwf: inactive: not $cwEnableImage
+ 
+ Local: field: mp2: Width:20
+ Local: field: mp4: Width:22
+ Local: field: mp3: Width:22
+ Local: field: sp4: Width:22
+
+
+
+;;  ["Image: "]
+
+[Line: lncmpbatchfieldcaption]
+space top:.5
+field:lp,cwlogical , sp,snf,sp2,snf2,sp3,snf3,sp4,snf4,sp5,cwlogical2
+Local: Field: sp5: info: "Show in Stock Summary"
+Local: field: sp5: Width: 20
+local: field: sp5: inactive: not #cwlogical
+local: field: cwlogical2: inactive: not #cwlogical
+Local: Field: lp:  info:  "Additional fields in Batch ?"
+Local: field: lp: Width: 20
+Local: Field: sp:  info:  "Caption 1 :"
+Local: Field: sp2: info: "Caption 2 :"
+Local: Field: sp3: info: "Caption 3 :"
+
+Local: Field: cwlogical: storage: cwenablebatchfield
+Local: Field: cwlogical2: storage: cwshowbatchfieldinStockSummary
+Local: Field: snf:  storage: cwbatchcaption1
+Local: Field: snf2: storage: cwbatchcaption2
+Local: Field: snf3: storage: cwbatchcaption3
+Local: Field: snf4: storage: cwbatchCostCodeFrom
+
+
+;; {12.Nov.16 12:29} Local: Field: default: style:normal bold
+local: field: snf: inactive:not #cwlogical
+local: field: snf2: inactive:not #cwlogical or $$isempty:$cwbatchcaption1
+local: field: snf3: inactive:not #cwlogical or $$isempty:$cwbatchcaption2
+local: field: snf4: inactive:not #cwlogical
+
+local: field: sp: inactive:not #cwlogical
+local: field: sp2: inactive:not #cwlogical  or $$isempty:$cwbatchcaption1
+local: field: sp3: inactive:not #cwlogical  or $$isempty:$cwbatchcaption2
+local: field: sp4: inactive:not #cwlogical
+Local: Field: sp4: info: "Cost Code from:"
+Local: field: sp4: Width: 0
+Local: Field: snf4: table:cwCostCodeFrom ,Not Applicable
+Local: Field: snf: Style: Normal Bold
+Local: Field: snf2: Style: Normal Bold
+Local: Field: snf3: Style: Normal Bold
+Local: Field: snf4: Style: Normal Bold
+Local: field: snf4: Width: 10
+;; {13.Apr.18 22:32} Local: field: sp4: Width:18
+
+
+[Collection: cwCostCodeFrom]
+title :"Cost Code from"
+listname : @@cwCostCodeFromF1
+listname : @@cwCostCodeFromF2
+listname : @@cwCostCodeFromF3
+
+
+
+[System: Formula]
+cwCostCodeFromF1 : "First"
+cwCostCodeFromF2 : "Second"
+cwCostCodeFromF3 : "Third"
+
+
+[System: Formula]
+cwenablebatchfield:$cwenablebatchfield:COMPANY:##SVCURRENTCOMPANY
+cwbatchtitle1:$cwbatchcaption1:COMPANY:##SVCURRENTCOMPANY
+cwbatchtitle2:$cwbatchcaption2:COMPANY:##SVCURRENTCOMPANY
+cwbatchtitle3:$cwbatchcaption3:COMPANY:##SVCURRENTCOMPANY
+cwenablebarcodebatch:$cwenablebarcodebatch:COMPANY:##SVCURRENTCOMPANY
+cwmrpenable:$cwmrpenable:COMPANY:##SVCURRENTCOMPANY
+cwEnableImage:$cwEnableImage:COMPANY:##SVCURRENTCOMPANY
+cwbatchCostCodeFrom: $cwbatchCostCodeFrom:COMPANY:##SVCURRENTCOMPANY
+
+
+;;------------------------- Sales Voucher Changes -------------------------------------------
+
+  [#Line: EI ColumnOne]
+  add:option:ColumnOneslx:@@cwvtypbarcodeitem
+  [!Line: ColumnOneslx]
+  add:Fields      : before:VCH ItemTitle:snf,snf2 ;;,snf3
+  Local: Field: snf: info: "Barcode"
+  Local: Field: snf2: info: ""
+  Local: Field: snf3: info: ""
+  Local: field: VCH ItemTitle: Align:left
+  
+  
+  [#Line: EI ColumnTwo]
+  add:option:ColumnTwoslx:@@cwvtypbarcodeitem
+  [!Line:ColumnTwoslx ]
+  add:Fields      : before:VCH ItemTitle:snf,snf2 ;;,snf3
+  Local: Field: snf: info: ""
+  Local: Field: snf2: info: ""
+  Local: Field: snf3: info: ""
+
+  [#Line:ei invinfo ]
+   add:option:invinfoslx :@@cwvtypbarcodeitem ;;and @@cwduplicate
+
+  [#Line:ci invinfo ]
+   add:option:invinfoslx:@@cwvtypbarcodeitem ;;and @@cwduplicate
+
+  [!Line: invinfoslx]
+  add:Fields : before:VCH stockitem:snfx,snf,snf2 ,snf3
+  Local: Field: snf : storage:cwsceneitem    ;;batchname:batchallocations:first
+  Local: Field: snf2: storage:cwsceneitem2
+  Local: Field: snf3: storage:cwsceneitem3
+  Local: Field: snf3: Set As:#snf
+  Local: Field: snf2: Set As: $$StringPart:#snf:0:@@cwzerofillfor
+  Local: Field: snf2: Set As: $$setmyitemname:#snf ;;$$StringPart:#snf:0:@@cwzerofillfor
+  Local: Field: VCH stockitem: Set As:$(Stockitem,#snf2).name ;; #snf2
+  local: field: vch stockitem: inactive:if $cwvtypbarcodeitemwobatch:Vouchertype:##SVVoucherType then no else $$isempty:#snf
+  local: field: snf2: Invisible: yes
+  local: field: snf3: Invisible: yes
+  
+  Local: Field: snfx: Skip: Yes
+  Local: Field:snfx: Set As:$$line
+  Local: Field: snfx: storage:cwlinenumber
+  local: field: snfx: Invisible: yes
+   
+  local:field:snf:control:barcodemes: if @@cwbarcodedupoptenb then $$cwBCcheckvalue:$$value:#snfx  else no
+;; {28.Sep.24 18:34} Local: Field:snf: Border: thin box ;;left right
+  
+   [System: Formula]
+   barcodemes:"Duplicate"
+   
+   [function : setmyitemname] ;; to set item name.
+   parameter : mybarcode : string
+   variable : str : string
+   variable : i : number
+   variable : tempstr : string
+;; {25.Jun.18 17:45}    01 : log : ##mybarcode
+;; {25.Jun.18 17:45}    10 : log : @@cwzerofillfor
+   
+   11 : set : i :  @@cwzerofillfor
+   20 : while : ##i <= $$stringlength:##mybarcode
+   21 : set  : tempstr :$$stringpart:##mybarcode:0:##i
+;; {25.Jun.18 17:45}    21a : log : ##tempstr
+;; {25.Jun.18 17:45}    21b: log : $(Stockitem,##tempstr).name
+   21c: if : not $$isempty:$(Stockitem,##tempstr).name
+   21d : return : ##tempstr
+   21e : end if
+   22 : incr : i
+   23 : end while
+   
+   
+   
+  
+  
+   [function : cwBCcheckvalue]
+   parameter : itemname : string
+   parameter : rowno : number
+   000 : do if : ##itemname = "" : return : no
+;; {30.Mar.18 11:58}    01 : log : "-------"
+;; {30.Mar.18 11:58}    05 : log : ##rowno
+;; {30.Mar.18 11:58}    06 : log : ##itemname
+   10 : walk collection : InventoryEntries
+   15 : do if : $$loopindex >= ##rowno : continue
+;; {30.Mar.18 11:58}    20 : log : $stockitemname + " " + $cwsceneitem
+;; {30.Mar.18 11:58}    30: log : $$loopindex
+    20 : do if : $cwsceneitem = ##itemname : return : yes
+   40: end walk
+   50 : return : no
+
+
+  
+
+  
+
+[System: Formula]
+cwzerofillfor:$cwNumZeros:COMPANY:##SVCURRENTCOMPANY
+
+
+
+;;------------------------- Batch Changes ----------------------------------------------------
+
+
+ [#Line:vchbatchColumnOne]
+ add:option:vchbatchColumnOnebfield:@@cwenablebatchfield
+ add:option:vchbatchColumnOnemrp:@@cwmrpenable and $isdeemedpositive   ;;@@ispurchase
+  add:right field:after:VCH AmtTitle:nf5,cwlogical
+ local: field: nf5: Invisible:not @@cwEnableImage
+ local: field: cwlogical: Invisible:not @@cwEnableImage
+local : field : nf5 : info :"Image"
+local : field : nf5 : align : center
+local : field : nf5 : style : normal bold
+
+local : field : cwlogical : type : string
+local : field : cwlogical : info:"View"
+
+
+  [!Line: vchbatchColumnOnemrp]
+  add:right field:after:VCH RateUnitsTitle:numf6
+  add:right field:after:VCH AmtTitle:nf5,cwlogical
+  
+  Local: Field: numf6: info: "MRP"
+  Local: Field: nf5: info: "Image"
+  Local: Field: cwlogical: info: "Show"
+ Local: Field: cwlogical: Style: Normal Bold
+ Local: Field: nf5: Style: Normal Bold
+ Local: Field: numf6: Style: Normal Bold
+local: field: cwlogical: type: String
+local: field: numf6: type: String
+ local: field: nf5: Invisible:not @@cwEnableImage
+ local: field: cwlogical: Invisible:not @@cwEnableImage
+ 
+ [!Line: vchbatchColumnOnebfield]
+ add:right field:after:VCH BatchNameTitle:snf,snf2,snf3
+ add:right field:after:VCH AmtTitle:nf5,cwlogical
+ 
+ Local: Field: snf: info:@@cwbatchtitle1
+ Local: Field: snf2: info:@@cwbatchtitle2
+ Local: Field: snf3: info: @@cwbatchtitle3
+ Local: Field: snf: Style: Normal Bold
+ Local: Field: snf2: Style: Normal Bold
+ Local: Field: snf3: Style: Normal Bold
+
+ 
+  Local: Field: nf5: info: "Image"
+  Local: Field: cwlogical: info: "Show"
+  
+ 
+ local: field: snf: Invisible:$$isempty:@@cwbatchtitle1
+ local: field: snf2: Invisible:$$isempty:@@cwbatchtitle2
+ local: field: snf3: Invisible:$$isempty:@@cwbatchtitle3
+ 
+ local: field: nf5: Invisible:not @@cwEnableImage
+ local: field: cwlogical: Invisible:not @@cwEnableImage
+ local: field: cwlogical: type: String
+ Local: Field: nf5: Style: Normal Bold
+
+
+ [#Line: STKVCH POS BatchAllocations]
+ add: field:ratepf
+ Local: Field: ratepf: Set As: if $$issysname:#POSBATCHName or $$isempty:#POSBATCHName then $$value else $$Table:POSBATCHName:$cwmrpbatch
+ ; Local: Field: ratepf: storage:rate
+;  local: field: ratepf: Invisible: yes
+  local: field: ratepf: skip: yes
+    option : cwStorageMRPInc : @@issetincrate
+    option : cwStorageRate : Not @@issetincrate
+    
+    [!line : cwStorageRate]
+    local : field : ratepf : storage : rate
+    
+    [!line : cwStorageMRPInc]
+   ; Local: Field: ratepf: Border: thick box ;;left right
+   local : field : ratepf : storage : InclusiveTaxValue
+   
+     [!field: cwvchposrate]
+     set as : $$asrate:$$table:POSBatchName:$cwmrpbatch
+ 
+ 
+ [#Line:STKVCHBatch2]
+ add:option:STKVCHBatch2bfield:@@cwenablebatchfield
+ add:option:STKVCHBatch2mrp:@@cwmrpenable and $isdeemedpositive
+  add:option:STKVCHBatch2bfieldsl:@@cwvtypbarcodeitem or  (@@isbatchauto and not @@cwvtypbarcodeitem)
+  add:option:STKVCHBatch2itma:@@cwEnableImage
+  add:option:STKVCHBatch2bfieldsl2: @@cwmrpenable and not @@issetincrate
+   ;;border : thick box : @@cwvtypbarcodeitem
+ 
+;; {14.Mar.18 12:17}   add:field:snf11
+;; {14.Mar.18 12:17}   Local: Field: snf11: Border: thin box ;;left right
+;; {14.Mar.18 12:17}   Local: Field: snf11: Set As:$cwnewsl
+
+  
+  [#Line: STKVCH BatchTotal]
+  add:option:STKVCHBatchTotalimg:@@cwEnableImage
+  add:option:STKVCHBatchTotalimg2:@@cwmrpenable
+  
+  [!Line: STKVCHBatchTotalimg2]
+  add:right field:after:vch RateUnitsTitle:numf6
+
+    Local: Field: numf6: info: ""
+    Local: Field: numf6: Border: totals
+
+  
+  
+  [!Line: STKVCHBatchTotalimg]
+    add:right field:after:VCHBATCH ValueTotal:nf5,cwlogical
+    local: field: cwlogical: type: String
+    Local: Field: nf5: info: ""
+    Local: Field: cwlogical: info: ""
+    Local: Field: nf5: Border: totals
+    Local: Field: cwlogical: Border: totals
+  
+  [!Line: STKVCHBatch2itma]
+    add:right field:after:VCHBATCH value:nf5,cwlogical
+Local: Field: nf5: storage:cwitemimage
+Local: Field : cwlogical : SubForm : showimage: $$value
+Local: Field: nf5: Set As:#vchbatchname+"."+"jpg"
+local: field: nf5: inactive:@@NoBaseUnits OR @@BatchAllocBreak
+local: field: cwlogical: inactive:@@NoBaseUnits OR @@BatchAllocBreak
+
+  
+ 
+ [!Line: STKVCHBatch2bfield]
+  add:right field:after:VCHBATCH Name:snf,snf2,snf3
+Local: Field: snf: storage:cwbatchcaption1
+Local: Field: snf2: storage:cwbatchcaption2
+Local: Field: snf3: storage:cwbatchcaption3
+
+Local: Field: snf: Set As:if $$isempty:@@cwtabvalbatch1 then $$value else @@cwtabvalbatch1
+Local: Field: snf2: Set As:if $$isempty:@@cwtabvalbatch2 then $$value else @@cwtabvalbatch2
+Local: Field: snf3: Set As:if $$isempty:@@cwtabvalbatch3 then $$value else @@cwtabvalbatch3
+Local: Field: numf6: Set As:if $$isempty:@@cwtabvalmrp then $$value else @@cwtabvalmrp
+
+;; {13.Mar.18 18:41} Local: Field: numf6:border:thin box
+;; {13.Mar.18 18:41} Local: Field: numf10: Set As:$$table:VCHBATCHName:$cwnewsl
+;; {13.Mar.18 18:41} Local: Field: numf10:border:thin box
+
+
+local: field: snf:Inactive    : @@NoBaseUnits OR @@BatchAllocBreak
+local: field: snf2:Inactive    : @@NoBaseUnits OR @@BatchAllocBreak
+local: field: snf3:Inactive    : @@NoBaseUnits OR @@BatchAllocBreak
+ local: field: snf: Invisible:$$isempty:@@cwbatchtitle1
+ local: field: snf2: Invisible:$$isempty:@@cwbatchtitle2
+ local: field: snf3: Invisible:$$isempty:@@cwbatchtitle3
+
+
+[!Line: STKVCHBatch2bfieldsl]
+Local: Field: VCHBATCH Name:Set As:if $$line=1 and not $$isempty:$$owner:$cwsceneitem3 then $$owner:$cwsceneitem3 else $$value
+
+;; {11.Nov.16 15:15} local : field : VCHBATCH billedqty :border : thin box : @@isbatchauto
+local : field : VCHBATCH billedqty : setas:if $$isfieldedited then $$value else if @@isbatchauto then $cwAutoQuantity:stockitem:$stockitemname else if $$isempty:$billedqty then $$asqty:1 else $$value
+local : field : VCHBATCH actualqty : setas:$billedqty   ;;if @@isbatchauto then $cwAutoQuantity:stockitem:$stockitemname else if $$isempty:$actualqty then $$asqty:1 else $$value
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[!Line: STKVCHBatch2bfieldsl2]
+
+
+add: option : cwVtypeBarCodeItem  :  @@cwvtypbarcodeitem
+add: option : cwInClRateB : not @@ICFGInclTax and @@cwmrpenable
+
+[!line: cwInClRateB]
+local : field : VCHBATCH rate : delete:Set by Condition
+local : field : VCHBATCH rate : Set by Condition: not @@isdebitnote : $$table:VCHBATCHName:$cwmrpbatch
+local : field : VCHBATCH rate : Set by Condition: @@isdebitnote : $$table:VCHBATCHName:$closingvalue ;;batchrate
+;; {20.Jul.18 18:31} border:thickbox
+
+
+[!line: cwVtypeBarCodeItem]
+ Local: Field: VCHBATCH Name:Set As: if $$line=1 and not $$isempty:$$owner:$cwsceneitem3 then $$owner:$cwsceneitem3 else $$value
+ local : field : vchbatchgodown : set as : if $$line=1 and $$issysname:$$value then $$cwgetGodownvalue:#vchBatchName else $$value
+ 
+ [function : cwgetGodownvalue]
+ parameter: mbatchname : string
+;; {25.Feb.20 14:54}  00 : log : "In Function " + ##mbatchname
+
+ 10 : walk collection: Active Batches VchExtract
+
+;; {25.Feb.20 14:54}   20 : log : $godownname
+;; {25.Feb.20 14:54}  30 : log : $closingbalance
+;; {25.Feb.20 14:54}  35a : log : $name
+;; {25.Feb.20 14:54}  43 : log : $name = ##mbatchname
+
+ 11 : if : $name = ##mbatchname
+
+ 32 : return : $godownname
+ 35 : end if
+ 40 : end walk
+ 
+ 100 : return : "Main Location" ;; if not found
+
+
+
+ [#line:STKVCHBatch2]
+   add:option:cwstkvchbatopt2:@@issales and @@issetincrate
+   
+ [!line:cwstkvchbatopt2]
+local : field : VCH rateincl : delete:Set by Condition
+local : field : VCH rateincl : Set by Condition: not @@isdebitnote : $$table:VCHBATCHName:$cwmrpbatch
+local : field : VCH rateincl : Set by Condition: @@isdebitnote : $$table:VCHBATCHName:$closingvalue ;;batchrate
+
+
+
+
+
+ /*
+
+ [#Line: STKVCHBatch2]
+ delete:option:STKVCHBatch2bfieldsl:@@cwvtypbarcodeitem
+
+  add:option:STKVCHBatch2bfieldsl:@@cwvtypbarcodeitem and @@cwmrpenable
+                                                               */
+
+  [System: Formula]
+  cwmrpenable:$cwmrpenable:COMPANY:##SVCURRENTCOMPANY
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[#field : POS BatchName]
+add : option : cwSetBatchInPOSaccept : @@cwvtypbarcodeitem
+
+ 
+[!field : cwSetBatchInPOSaccept]
+set as : $cwsceneitem3
+
+
+[#Line: ei invinfo]
+;; {17.Apr.18 13:46} add:option:eiinvinfoouttype: (@@IsOutwardType and @@isbatchauto) and NOT $$IsMultiGodownOn AND (@@HasBatchWise OR NOT @@IsAddlTypeGodown)
+
+[#field: VCH billedqty]
+
+;; {17.Apr.18 13:43} add:option:eiinvinfoouttype: not( (NOT $$IsEnd:$StockItemName AND ($$IsMultiGodownOn OR @@HasBatchWise OR @@IsOrdersOn OR +
+;; {17.Apr.18 13:43}                                                   (@@HasTrackingNo AND @@IsJobOrderEnabled))) AND @@BatchesSrcColl AND @@TrackSrcColl AND @@JobOrderScrColl)
+
+ResetVal : if $$IsFieldEdited OR NOT @@InvoiceInCreate then $$Value else +
+                  if @@isbatchauto then @@cwnewbillqty else +
+                  if $$IsEmpty:$$Value then $ActualQty else $$Value
+
+[System: Formula]
+multicmpenbopt:$IsMultiGodownOn:company:##svcurrentcompany
+
+
+[!Line: eiinvinfoouttype]
+;; {10.Mar.18 12:13} local : field : VCH billedqty : setas:if not @@HasBatchWise then $billedqty else @@cwnewbillqty  ;;if not $$isfieldedited then $cwAutoQuantity:stockitem:$stockitemname  else $$value  ;;$cwAutoQuantity:stockitem:$stockitemname  ;;if not $$isfieldedited then $cwAutoQuantity:stockitem:$stockitemname  else $$value  ;;if not @@HasBatchWise then $billedqty else @@cwnewbillqty
+;; {17.Apr.18 13:42} local : field : VCH billedqty : setas: @@cwnewbillqty  ;;if not $$isfieldedited then $cwAutoQuantity:stockitem:$stockitemname  else $$value  ;;$cwAutoQuantity:stockitem:$stockitemname  ;;if not $$isfieldedited then $cwAutoQuantity:stockitem:$stockitemname  else $$value  ;;if not @@HasBatchWise then $billedqty else @@cwnewbillqty
+;; {17.Apr.18 13:45} local : field : VCH billedqty : setas: @@cwnewbillqty  ;;if not $$isfieldedited then $cwAutoQuantity:stockitem:$stockitemname  else $$value  ;;$cwAutoQuantity:stockitem:$stockitemname  ;;if not $$isfieldedited then $cwAutoQuantity:stockitem:$stockitemname  else $$value  ;;if not @@HasBatchWise then $billedqty else @@cwnewbillqty
+;; {17.Apr.18 13:42} local : field : VCH actualqty : setas:$billedqty  ;;$cwAutoQuantity:stockitem:$stockitemname
+;; {17.Apr.18 13:30}   Local: Field: default: Border: thin box ;;left right
+;; {17.Apr.18 13:52} Local: Field: default: Border: thin box ;;left right
+  [System: Formula]
+  cwnewbillqty:if not $$isfieldedited then $cwAutoQuantity:stockitem:$stockitemname  else $$value
+  con5:($$isfieldedited or @@isbatchauto)
+
+[#Line: SJDetailsD]
+add:option:SJDetailsDJRNL:@@isbatchauto and NOT $$IsMultiGodownOn AND (@@HasBatchWise OR NOT @@IsAddlTypeGodown)
+
+[!Line: SJDetailsDJRNL]
+local : field : VCHSTKJrnlBilledQty : setas:$cwAutoQuantity:stockitem:#vchstockitem
+
+[System: Formula]
+isbatchauto:$cwVchHasBatchFillQty:stockitem:#vchstockitem
+cwisbatchautoIn:$cwVchHasBatchFillQtyInward:stockitem:##svstockitem ;;#vchstockitem
+
+[!Line: STKVCHBatch2mrp]
+  add:right field:after:VCHBATCH RateUnits:numf6
+
+  Local: Field: numf6:storage:cwmrpbatch
+  local: field: numf6: type: String
+local: field: numf6: inactive:@@NoBaseUnits OR @@BatchAllocBreak
+
+ local: field: nf5: Invisible:not @@cwEnableImage
+ local: field: cwlogical: Invisible:not @@cwEnableImage
+
+[report:showimage]
+       form:showimageform
+       title : "Image"
+
+     [form:showimageform]
+       part:showimagepart,backgroundpart
+      background : ThinLineClr
+     height:80% page
+       width:50% page
+
+
+
+     [part:showimagepart]
+       line:showimageline2,showimageline2x,showimageline3
+
+       [Line: showimageline2]
+       field:snf,fwf,snfx
+       Local: Field: fwf: set as:@@myItemfilename
+       Local: Field: fwf: skip forward : yes
+       Local: Field: fwf: read only : yes
+       
+       Local: field: snf: Width:4
+       Local: Field: snf: info: "File:"
+       Local: Field: default: Style: Normal Bold
+       Local: field: fwf: Align: left
+       Local: Field: fwf: Color : if not $$IsFileExists:@@myItemfilename then "Red" else "Black"
+       Local: field: snfx: Width:2
+       
+
+        space bottom : 0.25
+        
+
+        [line : showimageline2x]
+        field : snf,snf3,snf2
+        Local: Field: default: skip forward : yes
+        Local: Field: snf: set as : "Print"
+        Local: Field: snf2: set as : "Explore"
+        Local: Field: default: Color : blue
+        local: field : snf : readonly : yes
+        local: field : snf2 : readonly : yes
+        
+        Local: Field: snf: Border: thin bottom ;;left right
+        Local: Field: snf2: Border: thin bottom ;;left right
+        Local: field: snf: Width:5
+        Local: field: snf2: Width:5
+        Local: field: snf3: Width:5
+        space bottom : 0.25
+        invisible :yes
+        
+       
+       [line : showimageline3]
+       field : fwf
+       Local: Field: fwf: Style: tiny
+       Local: Field: fwf: align : centre
+       Local: Field: fwf: info: "(Press Enter Key to Exit)"
+          Border: thick bottom ;;left right
+
+
+     [line:showimageline]
+       field:nf
+       Local: Field: nf: info:@@myItemfilename
+       Local: field: nf: Width:0
+       
+        [part:backgroundpart]
+       line:backgroundline
+       graphtype : @@myItemfilename
+       border : thick box
+
+
+     [line:backgroundline]
+       field:fwf
+       Local: Field: fwf: info:@@myItemfilename
+
+  
+ [System: Formula]
+ myItemfilename:  @@myItemfilenamepath+$cwitemimage
+ myItemfilenamepath:$cwimagepath:COMPANY:##SVCURRENTCOMPANY
+ 
+
+
+[#Line:vchbatchColumntwo]
+ add:option:vchbatchColumntwomrp:@@cwmrpenable and $isdeemedpositive  ;;and @@ispurchase
+ add:option:vchbatchColumntwoaddf:@@cwenablebatchfield and @@HasMfgDateSet
+ add:option:vchbatchColumnim:@@cwEnableImage
+ 
+ [!Line: vchbatchColumnim]
+ add:right fields:after:VCH AmtTitle:nf,cwlogical
+ Local: Field: nf: info: ""
+ Local: Field: cwlogical: info: ""
+ local: field: cwlogical: type: String
+ local: field: nf: Invisible: $isdeemedpositive
+;; {22.May.15 15:31}  local: field: cwlogical: Invisible: $isdeemedpositive
+ 
+ [!Line: vchbatchColumntwoaddf]
+ add:right fields:after: VCH ExpiryDateTitle:snf,snf2 ,snf3,snf4
+ 
+ Local: Field: snf: info: ""
+ Local: Field: snf2: info: ""
+ Local: Field: snf3: info: ""
+ Local: Field: snf4: info: ""
+ 
+ local: field: snf: Invisible:$$isempty:@@cwbatchtitle1
+ local: field: snf2: Invisible:$$isempty:@@cwbatchtitle2
+ local: field: snf3: Invisible:$$isempty:@@cwbatchtitle3
+ local: field: snf4: Invisible:$$isempty:@@cwbatchtitle3
+ 
+ [#Line: VCHBATCH Date]
+ add:option:vchbatchColumntwoaddfdate:@@cwenablebatchfield and @@HasMfgDateSet
+ 
+ 
+ [!Line: vchbatchColumntwoaddfdate]
+   add:right fields:after: VCHBATCH Expiry:snf,snf2 ,snf3 ,snf
+   Local: Field: snf: info: ""
+ Local: Field: snf2: info: ""
+ Local: Field: snf3: info: ""
+ Local: Field: snf4: info: ""
+
+ local: field: snf: Invisible:$$isempty:@@cwbatchtitle1
+ local: field: snf2: Invisible:$$isempty:@@cwbatchtitle2   ;;or @@issales
+ local: field: snf3: Invisible:$$isempty:@@cwbatchtitle2 or @@issales
+ local: field: snf: Invisible:not @@cwEnableImage
+ Local: Field: snf: Skip: Yes
+ Local: Field: snf2: Skip: Yes
+ Local: Field: snf3: Skip: Yes
+;; {22.May.15 11:51}  local: field: snf4: Invisible:$$isempty:@@cwbatchtitle3
+
+ 
+
+
+  [!Line: vchbatchColumntwomrp]
+  add:right field:after:VCH RateUnitsTitle:numf6
+;; {22.May.15 15:36}   add:right field:after:VCH AmtTitle:nf5,cwlogical
+  
+  Local: Field: numf6: info: ""
+  local: field: numf6: type: String
+  
+  
+
+[System: Formula]
+cwtabvalbatch1: $$table:vchbatchname:$cwbatchcaption1
+cwtabvalbatch2: $$table:vchbatchname:$cwbatchcaption2
+cwtabvalbatch3: $$table:vchbatchname:$cwbatchcaption3
+
+cwtabvalmrp : $$table:vchbatchname:$cwmrpbatch
+
+[#Collection: Active Batches VchExtract]
+add:option:ActiveBatchesVchExtractbfield:@@cwenablebatchfield
+
+[!Collection: ActiveBatchesVchExtractbfield]
+SubTitle  : $$LocaleString:"Name", @@ExpirySubTitle, $$LocaleString:"Balance",@@cwbatchtitle1,@@cwbatchtitle2,@@cwbatchtitle3 ,"MRP"
+format:$cwbatchcaption1,12
+format:$cwbatchcaption2,12
+format:$cwbatchcaption3,12
+format:$cwmrpbatch,10
+
+;format : $closingvalue ,10
+fetch:cwbatchcaption1,cwbatchcaption2,cwbatchcaption3,cwmrpbatch,batchrate,rate,closingvalue,cwbatpc
+
+
+;;----------------------------Item Opening Changes--------------------------------------------------------------------
+
+ [#Line: STKALLOCColumn]
+ add:option:STKALLOCColumnopitem:@@cwenablebatchfield
+ add:option:STKALLOCColumnopmrp:@@cwmrpenable and $isdeemedpositive
+ 
+ add:option:STKALLOCColumnopimage:@@cwEnableImage
+
+[!Line: STKALLOCColumnopitem]
+add:field:after:STKALLOC NameTitle:snf,snf2,snf3
+ Local: Field: snf: info:@@cwbatchtitle1
+ Local: Field: snf2: info:@@cwbatchtitle2
+ Local: Field: snf3: info: @@cwbatchtitle3
+ Local: Field: snf: Style: Normal Bold
+ Local: Field: snf2: Style: Normal Bold
+ Local: Field: snf3: Style: Normal Bold
+
+ local: field: snf: Invisible:$$isempty:@@cwbatchtitle1
+ local: field: snf2: Invisible:$$isempty:@@cwbatchtitle2
+ local: field: snf3: Invisible:$$isempty:@@cwbatchtitle3
+
+
+[!Line: STKALLOCColumnopmrp]
+ add:right field:after:STKALLOC RatePerTitle:numf6
+
+  Local: Field: numf6: info: "MRP"
+ Local: Field: numf6: Style: Normal Bold
+local: field: numf6: type: String
+
+
+[!Line: STKALLOCColumnopimage]
+ add:right field:after:STKALLOC AmtTitle:nf5,cwlogical
+ Local: Field: nf5: info: "Image"
+ Local: Field: cwlogical: info: "Show"
+ Local: Field: nf5: Style: Normal Bold
+ local: field: cwlogical: type: String
+ Local: Field: cwlogical: Style: Normal Bold
+
+
+
+
+ [#Line: STKALLOCMainLine]
+  add:option:STKALLOCMainLinea1:@@cwenablebatchfield
+ add:option:STKALLOCMainLinea2:@@cwmrpenable and $isdeemedpositive
+ 
+ add:option:STKALLOCMainLinea3image:@@cwEnableImage
+ 
+ [!Line: STKALLOCMainLinea1]
+  add:field:after:STKALLOCName:snf,snf2,snf3
+Local: Field: snf: storage:cwbatchcaption1
+Local: Field: snf2: storage:cwbatchcaption2
+Local: Field: snf3: storage:cwbatchcaption3
+
+ local: field: snf: Invisible:$$isempty:@@cwbatchtitle1
+ local: field: snf2: Invisible:$$isempty:@@cwbatchtitle2
+ local: field: snf3: Invisible:$$isempty:@@cwbatchtitle3
+
+
+ [!Line: STKALLOCMainLinea2]
+  add:right field:after:STKALLOCRatePer:numf6
+  Local: Field: numf6:storage:cwmrpbatch
+  local: field: numf6: type: String
+
+  [#line : cwSkipBatchFlds]
+  local : field :  VCHBATCH ActualQty : delete : skip
+  local : field :  VCHBATCH BilledQty : delete : skip
+
+
+ [!Line: STKALLOCMainLinea3image]
+  add:right field:after:STKALLOCAmt:nf5,cwlogical
+   Local: Field: nf5: storage:cwitemimage
+     Local: Field : cwlogical : SubForm : showimage: $$value
+Local: Field: nf5: Set As:#STKALLOCName+"."+"jpg"
+
+[#Line: STKALLOCTotal]
+ add:option:STKALLOCTotalimage:@@cwEnableImage
+ add:option:STKALLOCTotalmrpo:@@cwmrpenable and $isdeemedpositive
+ 
+ [!Line: STKALLOCTotalmrpo]
+ add:right field:after:STKALLOCRatePerTitle:numf6
+ Local: Field: numf6: info: ""
+ Local: Field: numf6: Border:totals
+ 
+ 
+ [!Line: STKALLOCTotalimage]
+  add:right field:after:STKALLOCAmtTotal:nf5,cwlogical
+  Local: Field: nf5: Set As:""
+  Local: Field: cwlogical: Set As:""
+  local: field: cwlogical: type: String
+  Local: Field: cwlogical: Skip: Yes
+  Local: Field: nf5: Skip: Yes
+  Local: Field: nf5: Border:totals
+  Local: Field: cwlogical: Border:totals
+  
+  
+  
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ 
+
+
+
+
+
+
+

@@ -1,0 +1,11 @@
+; Created By: Akshay on 2013-08-16 17:50, ID: 
+;; {16.Aug.13 17:51} [include : c:\d7comps\tcommon\NegativeStockcontrol.txt]
+
+
+    [#Field: VCHBATCH NrmlAQty]
+      add:option:VCHBATCHNrmlAQtyx:@@issales or @@isdelnote
+      [!field:VCHBATCHNrmlAQtyx]
+    control : NegativeStock : ##VCFGNegativeStock AND @@InvoiceInCreate AND $$IsNegative:@@FinalStockTotal
+
+
+

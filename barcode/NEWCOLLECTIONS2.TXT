@@ -1,0 +1,681 @@
+; Created By: Anil on 2023-07-18 17:35, ID:
+
+; Created By: Akshay on 2013-01-29 17:57, ID:
+
+
+[!field: keyled]
+Key : Create Ledger,alter ledger
+variable : svledger
+
+[!field: keygrp]
+Key : Create Group
+
+[!field: keycsct]
+Key :Create Cost Centre, Alter CstCtr
+Variable  : SV Cost Centre
+
+[!field: keycocat]
+Key :Create Cost Category, Alter CstCat
+Variable  : SV Cost Category
+[!field: keystgrpt]
+ Key      : Create Stock Group, Alter StkGrp
+ Variable : SV Stock Group
+
+ [!field: keystcat]
+ Key      :  Create Stock Category, Alter StkCat
+ Variable : SV Stock Category
+
+
+
+  [System: Formula]
+     cwbrandtitle:$cwUnder1:company:##svcurrentcompany
+     cwstyletitle:$cwUnder2:company:##svcurrentcompany
+     cwseasontitle:$cwUnder3:company:##svcurrentcompany
+     cwsizetitle:$cwUnder4:company:##svcurrentcompany
+     cwcolortitle:$cwUnder5:company:##svcurrentcompany
+     cwfuturetitle:$cwUnder6:company:##svcurrentcompany
+
+
+
+
+[Collection : coltabstcat]
+           type : Stock Category
+       Child of : @@forunder1
+         format : $name,30
+;; {31.Jan.14 12:39}           Title :@@forstockcategory
+    title:@@cwbrandtitle
+        belongs to : yes
+
+
+ [Collection : coltabstgrp]
+           type : Stock Group
+       Child of : @@forunder1
+         format : $name,30
+;; {31.Jan.14 12:39}           Title : @@forstockgroup
+  title:@@cwbrandtitle
+        belongs to : yes
+
+
+
+    [Collection : coltabcostcat]
+           type : cost Category
+       Child of : @@forunder1
+         format : $name,30
+;; {31.Jan.14 12:39}           Title :@@forcostcategory
+;; {31.Jan.14 13:01}  title:$cwtableFrom1 :company:##svcurrentcompany
+  title:@@cwbrandtitle
+        belongs to : yes
+
+    [Collection : coltabcostcentre]
+           type : cost centre
+       Child of : @@forunder1
+         format : $name,30
+
+;; {31.Jan.14 12:39}           Title :@@forcostcentre
+     title:@@cwbrandtitle
+;; {31.Jan.14 13:04}  title:"d"
+
+        belongs to : yes
+
+
+    [Collection : coltabledger]
+           type : Ledger
+       Child of : @@forunder1
+         format : $name,30
+;; {31.Jan.14 12:39}           Title : @@forledger
+  title:@@cwbrandtitle
+        belongs to : yes
+
+
+    [Collection : coltabgroup1]
+           type : Group
+       Child of : @@forunder1
+         format : $name,30
+;; {31.Jan.14 12:39}           Title : @@forgroup
+ title:@@cwbrandtitle
+         belongs to : yes
+
+
+  ;--------------------------------line 2------------------------
+
+         [Collection : coltabledger2]
+           type : Ledger
+       Child of : @@forunder2
+         format : $name,30
+          Title :@@cwstyletitle   ;;@@forledger
+        belongs to : yes
+
+        [Collection : coltabgroup2]
+           type : Group
+       Child of : @@forunder2
+         format : $name,30
+          Title :@@cwstyletitle    ;;@@forgroup
+         belongs to : yes
+
+    [Collection : coltabcostcentre2]
+           type : cost centre
+       Child of : @@forunder2
+         format : $name,30
+          Title :@@cwstyletitle   ;;@@forcostcentre
+        belongs to : yes
+
+
+    [Collection : coltabcostcat2]
+           type : cost Category
+       Child of : @@forunder2
+         format : $name,30
+          Title :@@cwstyletitle  ;;@@forcostcategory
+        belongs to : yes
+
+        [Collection : coltabstgrp2]
+           type : Stock Group
+       Child of : @@forunder2
+         format : $name,30
+          Title : @@cwstyletitle   ;;@@forstockgroup
+        belongs to : yes
+
+
+[Collection : coltabstcat2]
+           type : Stock Category
+       Child of : @@forunder2
+         format : $name,30
+          Title :@@cwstyletitle   ;;@@forstockcategory
+        belongs to : yes
+
+ ;;---------------------------------line3--------------------
+
+   [Collection : coltabledger3]
+           type : Ledger
+       Child of : @@forunder3
+         format : $name,30
+          Title :@@cwseasontitle  ;;@@forledger
+        belongs to : yes
+
+        [Collection : coltabgroup3]
+           type : Group
+       Child of : @@forunder3
+         format : $name,30
+          Title : @@cwseasontitle  ;;@@forgroup
+         belongs to : yes
+
+    [Collection : coltabcostcentre3]
+           type : cost centre
+       Child of : @@forunder3
+         format : $name,30
+          Title :@@cwseasontitle  ;;@@forcostcentre
+        belongs to : yes
+
+
+    [Collection : coltabcostcat3]
+           type : cost Category
+       Child of : @@forunder3
+         format : $name,30
+          Title :@@cwseasontitle  ;;@@forcostcategory
+        belongs to : yes
+
+        [Collection : coltabstgrp3]
+           type : Stock Group
+       Child of : @@forunder3
+         format : $name,30
+          Title :@@cwseasontitle  ;;@@forstockgroup
+        belongs to : yes
+
+
+[Collection : coltabstcat3]
+           type : Stock Category
+       Child of : @@forunder3
+         format : $name,30
+          Title :@@cwseasontitle  ;;@@forstockcategory
+        belongs to : yes
+
+
+  ;;---------------------------------line4--------------------
+
+   [Collection : coltabledger4]
+           type : Ledger
+       Child of : @@forunder4
+         format : $name,30
+          Title :@@cwsizetitle  ;;@@forledger
+        belongs to : yes
+
+        [Collection : coltabgroup4]
+           type : Group
+       Child of : @@forunder4
+         format : $name,30
+          Title : @@cwsizetitle   ;;@@forgroup
+         belongs to : yes
+
+    [Collection : coltabcostcentre4]
+           type : cost centre
+       Child of : @@forunder4
+         format : $name,30
+          Title :@@cwsizetitle  ;;@@forcostcentre
+        belongs to : yes
+
+
+    [Collection : coltabcostcat4]
+           type : cost Category
+       Child of : @@forunder4
+         format : $name,30
+          Title :@@cwsizetitle   ;;@@forcostcategory
+        belongs to : yes
+
+        [Collection : coltabstgrp4]
+           type : Stock Group
+       Child of : @@forunder4
+         format : $name,30
+          Title :@@cwsizetitle   ;;@@forstockgroup
+        belongs to : yes
+
+
+[Collection : coltabstcat4]
+           type : Stock Category
+       Child of : @@forunder4
+         format : $name,30
+          Title :@@cwsizetitle   ;;@@forstockcategory
+        belongs to : yes
+
+
+
+
+      ;;---------------------------------line5--------------------
+
+   [Collection : coltabledger5]
+           type : Ledger
+       Child of : @@forunder5
+         format : $name,30
+          Title :@@cwcolortitle  ;;@@forledger
+        belongs to : yes
+
+        [Collection : coltabgroup5]
+           type : Group
+       Child of : @@forunder5
+         format : $name,30
+          Title : @@cwcolortitle  ;;@@forgroup
+         belongs to : yes
+
+    [Collection : coltabcostcentre5]
+           type : cost centre
+       Child of : @@forunder5
+         format : $name,30
+          Title :@@cwcolortitle   ;;@@forcostcentre
+        belongs to : yes
+
+
+    [Collection : coltabcostcat5]
+           type : cost Category
+       Child of : @@forunder5
+         format : $name,30
+          Title :@@cwcolortitle   ;;@@forcostcategory
+        belongs to : yes
+
+        [Collection : coltabstgrp5]
+           type : Stock Group
+       Child of : @@forunder5
+         format : $name,30
+          Title :@@cwcolortitle   ;;@@forstockgroup
+        belongs to : yes
+
+
+[Collection : coltabstcat5]
+           type : Stock Category
+       Child of : @@forunder5
+         format : $name,30
+          Title :@@cwcolortitle    ;;@@forstockcategory
+        belongs to : yes
+
+
+
+    ;;---------------------------------line6--------------------
+
+   [Collection : coltabledger6]
+           type : Ledger
+       Child of : @@forunder6
+         format : $name,30
+          Title :@@cwfuturetitle   ;;@@forledger
+        belongs to : yes
+
+        [Collection : coltabgroup6]
+           type : Group
+       Child of : @@forunder6
+         format : $name,30
+          Title : @@cwfuturetitle   ;;@@forgroup
+         belongs to : yes
+
+    [Collection : coltabcostcentre6]
+           type : cost centre
+       Child of : @@forunder6
+         format : $name,30
+          Title :@@cwfuturetitle  ;;@@forcostcentre
+        belongs to : yes
+
+
+    [Collection : coltabcostcat6]
+           type : cost Category
+       Child of : @@forunder6
+         format : $name,30
+          Title :@@cwfuturetitle  ;;@@forcostcategory
+        belongs to : yes
+
+        [Collection : coltabstgrp6]
+           type : Stock Group
+       Child of : @@forunder6
+         format : $name,30
+          Title :@@cwfuturetitle  ;;@@forstockgroup
+        belongs to : yes
+
+
+[Collection : coltabstcat6]
+           type : Stock Category
+       Child of : @@forunder6
+         format : $name,30
+          Title :@@cwfuturetitle   ;;@@forstockcategory
+        belongs to : yes
+
+
+  ;;---------------------------------line7--------------------
+
+   [Collection : coltabledger7]
+           type : Ledger
+       Child of : @@forunder7
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forledger
+        belongs to : yes
+
+        [Collection : coltabgroup7]
+           type : Group
+       Child of : @@forunder7
+         format : $name,30
+;; {31.Jan.14 12:40}           Title : @@forgroup
+         belongs to : yes
+
+    [Collection : coltabcostcentre7]
+           type : cost centre
+       Child of : @@forunder7
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forcostcentre
+        belongs to : yes
+
+
+    [Collection : coltabcostcat7]
+           type : cost Category
+       Child of : @@forunder7
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forcostcategory
+        belongs to : yes
+
+        [Collection : coltabstgrp7]
+           type : Stock Group
+       Child of : @@forunder7
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forstockgroup
+        belongs to : yes
+
+
+[Collection : coltabstcat7]
+           type : Stock Category
+       Child of : @@forunder7
+         format : $name,30
+;; {31.Jan.14 12:41}           Title :@@forstockcategory
+        belongs to : yes
+
+
+
+ ;;====================================line7============================
+
+
+  [Collection : coltabledger9]
+           type : Ledger
+       Child of : @@forunder9
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forledger
+        belongs to : yes
+         Title :@@forunder9
+
+        [Collection : coltabgroup9]
+           type : Group
+       Child of : @@forunder9
+         format : $name,30
+;; {31.Jan.14 12:40}           Title : @@forgroup
+         belongs to : yes
+        Title :@@forunder9
+
+    [Collection : coltabcostcentre9]
+           type : cost centre
+       Child of : @@forunder9
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forcostcentre
+        belongs to : yes
+        Title :@@forunder9
+
+    [Collection : coltabcostcat9]
+           type : cost Category
+       Child of : @@forunder9
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forcostcategory
+        belongs to : yes
+        Title :@@forunder9
+
+        [Collection : coltabstgrp9]
+           type : Stock Group
+       Child of : @@forunder9
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forstockgroup
+        belongs to : yes
+         Title :@@forunder9
+
+[Collection : coltabstcat9]
+           type : Stock Category
+       Child of : @@forunder9
+         format : $name,30
+;; {31.Jan.14 12:41}           Title :@@forstockcategory
+        Title :@@forunder9
+        belongs to : yes
+
+
+ ;;====================================line8============================
+
+
+  [Collection : coltabledger10]
+           type : Ledger
+       Child of : @@forunder10
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forledger
+        belongs to : yes
+        Title :@@forunder10
+        [Collection : coltabgroup10]
+           type : Group
+       Child of : @@forunder10
+         format : $name,30
+;; {31.Jan.14 12:40}           Title : @@forgroup
+         belongs to : yes
+                  Title :@@forunder10
+    [Collection : coltabcostcentre10]
+           type : cost centre
+       Child of : @@forunder10
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forcostcentre
+        belongs to : yes
+                Title :@@forunder10
+
+    [Collection : coltabcostcat10]
+           type : cost Category
+       Child of : @@forunder10
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forcostcategory
+        belongs to : yes
+        Title :@@forunder9
+
+        [Collection : coltabstgrp10]
+           type : Stock Group
+       Child of : @@forunder10
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forstockgroup
+        belongs to : yes
+        Title :@@forunder10
+
+[Collection : coltabstcat10]
+           type : Stock Category
+       Child of : @@forunder9
+         format : $name,30
+;; {31.Jan.14 12:41}           Title :@@forstockcategory
+        belongs to : yes
+        Title :@@forunder10
+
+      ;;====================================line9============================
+
+
+  [Collection : coltabledger11]
+           type : Ledger
+       Child of : @@forunder11
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forledger
+        belongs to : yes
+          Title :@@forunder11
+
+        [Collection : coltabgroup11]
+           type : Group
+       Child of : @@forunder11
+         format : $name,30
+;; {31.Jan.14 12:40}           Title : @@forgroup
+         belongs to : yes
+   Title :@@forunder11
+
+    [Collection : coltabcostcentre11]
+           type : cost centre
+       Child of : @@forunder11
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forcostcentre
+        belongs to : yes
+    Title :@@forunder11
+
+    [Collection : coltabcostcat11]
+           type : cost Category
+       Child of : @@forunder11
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forcostcategory
+        belongs to : yes
+    Title :@@forunder11
+
+        [Collection : coltabstgrp11]
+           type : Stock Group
+       Child of : @@forunder11
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forstockgroup
+        belongs to : yes
+  Title :@@forunder11
+
+[Collection : coltabstcat11]
+           type : Stock Category
+       Child of : @@forunder11
+         format : $name,30
+;; {31.Jan.14 12:41}           Title :@@forstockcategory
+        belongs to : yes
+   Title :@@forunder11
+
+    ;;====================================line10============================
+
+
+  [Collection : coltabledger12]
+           type : Ledger
+       Child of : @@forunder12
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forledger
+        belongs to : yes
+    Title :@@forunder12
+
+        [Collection : coltabgroup12]
+           type : Group
+       Child of : @@forunder12
+         format : $name,30
+;; {31.Jan.14 12:40}           Title : @@forgroup
+         belongs to : yes
+       Title :@@forunder12
+    [Collection : coltabcostcentre12]
+           type : cost centre
+       Child of : @@forunder12
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forcostcentre
+        belongs to : yes
+         Title :@@forunder12
+
+    [Collection : coltabcostcat12]
+           type : cost Category
+       Child of : @@forunder12
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forcostcategory
+        belongs to : yes
+        Title :@@forunder11
+        [Collection : coltabstgrp12]
+           type : Stock Group
+       Child of : @@forunder12
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forstockgroup
+        belongs to : yes
+          Title :@@forunder12
+;;====================================line11============================
+
+
+  [Collection : coltabledger13]
+           type : Ledger
+       Child of : @@forunder13
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forledger
+        belongs to : yes
+        Title :@@forunder13
+        [Collection : coltabgroup13]
+           type : Group
+       Child of : @@forunder13
+         format : $name,30
+;; {31.Jan.14 12:40}           Title : @@forgroup
+         belongs to : yes
+            Title :@@forunder13
+    [Collection : coltabcostcentre13]
+           type : cost centre
+       Child of : @@forunder13
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forcostcentre
+        belongs to : yes
+             Title :@@forunder13
+
+    [Collection : coltabcostcat13]
+           type : cost Category
+       Child of : @@forunder13
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forcostcategory
+        belongs to : yes
+            Title :@@forunder13
+
+        [Collection : coltabstgrp13]
+           type : Stock Group
+       Child of : @@forunder13
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forstockgroup
+        belongs to : yes
+           Title :@@forunder13
+
+[Collection : coltabstcat13]
+           type : Stock Category
+       Child of : @@forunder13
+         format : $name,30
+;; {31.Jan.14 12:41}           Title :@@forstockcategory
+        belongs to : yes
+          Title :@@forunder13
+
+ ;;====================================line14============================
+
+
+  [Collection : coltabledger14]
+           type : Ledger
+       Child of : @@forunder14
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forledger
+        belongs to : yes
+           Title :@@forunder14
+        [Collection : coltabgroup14]
+           type : Group
+       Child of : @@forunder14
+         format : $name,30
+;; {31.Jan.14 12:40}           Title : @@forgroup
+         belongs to : yes
+            Title :@@forunder14
+    [Collection : coltabcostcentre14]
+           type : cost centre
+       Child of : @@forunder14
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forcostcentre
+        belongs to : yes
+            Title :@@forunder14
+
+    [Collection : coltabcostcat14]
+           type : cost Category
+       Child of : @@forunder14
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forcostcategory
+        belongs to : yes
+           Title :@@forunder14
+
+        [Collection : coltabstgrp14]
+           type : Stock Group
+       Child of : @@forunder14
+         format : $name,30
+;; {31.Jan.14 12:40}           Title :@@forstockgroup
+        belongs to : yes
+            Title :@@forunder14
+
+[Collection : coltabstcat14]
+           type : Stock Category
+       Child of : @@forunder14
+         format : $name,30
+;; {31.Jan.14 12:41}           Title :@@forstockcategory
+        belongs to : yes
+              Title :@@forunder14
+
+
+
+
+
+
+
+
+

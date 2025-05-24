@@ -1,0 +1,145 @@
+; Created By: Suman on 2016-11-08 15:04, ID: 
+; 100337001
+
+   [#Line: EI InvInfo]
+    add:option:cweiinvinfooptx:@@cwenableskipopt
+    add:option:cweiinvinfoLikePOS:$cwSkipLikePOS:Vouchertype:##SVVoucherType
+
+   [#Line: CI InvInfo]
+     add:option:cweiinvinfoLikePOS:$cwSkipLikePOS:Vouchertype:##SVVoucherType
+     
+   [!line:cweiinvinfooptx]
+    local:field:VCH Rate:Skip Forward:yes
+    local:field:VCH Value:Skip Forward:yes
+    
+/* New Changes for Batch and skip Pg: 2018.11.02 Begin v*/
+    [!line : cweiinvinfoLikePOS]
+
+    local:field:VCH Rate:Skip Forward:yes
+    local:field:VCH Value:Skip Forward:yes
+
+
+    local : field : vchstockitem: skip forward : not $$isempty:#snf
+
+
+
+    local : field : vchactualqty : set as : if $$issysname:$stockitemname then $$value else if $$isempty:$$value then $$asqty:1 else if @HasInvAlloc then $$CollQtyTotal:BatchAllocations:$ActualQty else  $$value
+
+    local : field : vchbilledqty : set as : if $$issysname:$stockitemname then $$value else if $$isempty:$$value then $$asqty:1 else if @HasInvAlloc then $$CollQtyTotal:BatchAllocations:$billedqty else  $$value
+
+    local : field : vchvalue : set as : $rate * ((100 - $discount) / 100)  * $billedqty
+
+     option : cwStorageMRPIncPOs : ($$increatemode ) and @@issetincrate  ;; added on 2023.10.13 ($$increatemode)    jain zari store
+     option : cwStorageRatePOs   : ($$increatemode ) and Not @@issetincrate ;; added on 2023.10.13 ($$increatemode) jain zari store
+                                   ;
+add: option : cwADDFields : $$inCreateMode ;; or $$isfieldedited:snf  ;; added on 2023.10.13 for issue pertaining to jain zari store.
+
+[!line : cwAddFields]
+    add : right field : at beginning : cwvchbatch,cwVchGodown,cwvchAqty,cwvchBQty,cwvchbatchrate
+
+
+
+     [!line : cwStorageMRPIncPOs]
+    local : field : vchrateincl : set as : if $$issysname:$stockitemname then $$value else @@cwPOSTypeRate
+
+    local : field : vchrate : set as : if $$issysname:$stockitemname then $$value else if $$isempty:$$value then #vchrateincl - (#vchrateincl * @@GSTItemRate /(100 + @@GSTItemRate)) else $$Value
+
+
+     [!line : cwStorageRatePOs]
+    local : field : vchrate : set as : if $$issysname:$stockitemname then $$value else if $$increatemode then @@cwPOSTypeRate else $$value
+
+    
+    [System: Formula]
+    cwPOSTypeRate : if $cwmrpenable:COMPANY:##SVCURRENTCOMPANY then $$FilterValue:$cwmrpbatch:cwBatchofItemVch:1:cwbsame else $$value
+    
+/*    [field : cwva1]
+    use : nf
+    set as : $$CollectionField:$batchname:First:batchallocations
+    skip : yes
+    color : blue
+    border : thick box
+*/
+
+    [collection : cwBatchofItemVch]
+    type : batch
+    child of : #vchstockitem
+    fetch : cwmrp
+    
+     [System: Formula]
+     cwbsame : $batchname = #snf
+    
+    
+    
+    [field : cwvchbatch]
+       use : nf
+    set as : if $IsBatchWiseOn:stockitem:$stockitemname then #snf else "Primary batch"
+      skip : yes
+;; {02.Nov.18 13:01}     border : thin box
+
+;add : option : cwvchbatchSkipBatchStorage :  $IsBatchWiseOn:stockitem:#vchstockitem ;;$stockitemname
+ invisible : yes
+   storage : batchname : batchallocations : first
+   
+;; {13.Oct.23 18:35}    border : thick box
+   
+   [field : cwVchGodown]
+   use : nf
+   set as : if not $$issysname:$$value or $$issysname:#cwvchbatch then $$value else if $$IsMultiGodownOn then $$cwgetGodownvalue:#cwvchbatch else "Main Location"
+   invisible : yes
+  read only : yes
+   storage : godownname : batchallocations : first
+
+ ;   [!field : cwvchbatchSkipBatchStorage]
+;; {02.Nov.18 13:02}   color: blue
+;; {02.Nov.18 13:02}   border : thick box
+   
+    [field : cwvchAqty]
+    use : qtyf
+    set as : $$asqty:1
+    option : cwvchbatchSkipAqtyStorage :  $IsBatchWiseOn:stockitem:#vchstockitem
+    skip : yes
+  invisible : yes
+  
+   [!field : cwvchbatchSkipAqtyStorage]
+   storage : Actualqty : batchallocations : first
+
+    [field : cwvchBQty]
+    use : qtyf
+    set as : $$asqty:1
+     option : cwvchbatchSkipBqtyStorage :  $IsBatchWiseOn:stockitem:#vchstockitem
+     skip : yes
+  invisible : yes
+  
+   [!field : cwvchbatchSkipBqtyStorage]
+   storage : Actualqty : batchallocations : first
+
+ 
+ [field : cwvchbatchrate]
+ use : ratepf
+ set as : if $$issysname:$stockitemname then $$value else @@cwPOSTypeRate
+ option : cwvchbatchSkipRateStorage :  $IsBatchWiseOn:stockitem:#vchstockitem
+ skip : yes
+ invisible : yes
+ 
+   [!field : cwvchbatchSkipRateStorage]
+   storage : batchrate : batchallocations : first
+
+    /* New Changes for Batch and skip Pg: 2018.11.02 End ^*/
+
+
+   [#Line: CI InvInfo]
+     add:option:cwciinvinfooptx:@@cwenableskipopt
+     
+   [!line:cwciinvinfooptx]
+      local:field:VCH Rate:Skip Forward:yes
+    local:field:VCH Value:Skip Forward:yes
+    
+
+   [#Line: STKVCH Batch2]
+     add:option:cwstkvchbatchopt:@@cwenableskipopt
+     
+   [!line:cwstkvchbatchopt]
+     Local: Field:VCHBATCH Rate : Skip Forward: not $$isempty:$$value
+     Local: Field:VCHBATCH RateUnits : Skip Forward: Yes
+     Local: Field:VCHBATCH Value:Skip Forward: not $$isempty:$$value
+

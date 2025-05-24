@@ -1,0 +1,197 @@
+; Created By: Suman on 2014-01-16 11:06, ID: 
+
+ ;;[#Menu: Stock Items]
+	 
+[#Menu: Inventory books]
+	 
+add:Key Item:before:@@locquit: @@cwshoperitem  : S : Display   	: RepShoperItemExplode
+  ;;add:Key Item:before:@@locQuit:@@cwshoperitem : s : Display:RepShoperItemExplode
+   			
+
+
+ [System: Formula]
+   cwshoperitem:"Shoper Item Export"
+   
+   
+   
+   
+
+    /* [#menu: Gateway of Tally]
+        add: Option: ShoperItemExplodeLock: @@MachDemoDate ;;ShoperItemExplodeDemoLock
+       
+     [!menu: ShoperItemExplodeLock]
+        add: Item: before: @@locQuit: @@ShoperItemExplodeReport: Display: RepShoperItemExplode
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ShoperItemExplodeReport: "ShoperItemExplode"
+;; ShoperItemExplodeDemoLock: $$MachineDate < $$Date:"02/02/2014"
+                                                                */
+    [Report: RepShoperItemExplode]
+        use: Dsp Template
+      Title: @@cwshoperitem
+   Printset: Report Title: @@cwshoperitem
+       Form: FrmShoperItemExplode
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmShoperItemExplode]
+        use: DSP Template      ;;PrtTitle0ShoperItemExplode,
+       Part: DspAccTitles,PrtShoperItemExplode
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: ShoperItemExplodebotbrk,ShoperItemExplodebotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+     add:button:cwnewbutton
+
+
+      [part: ShoperItemExplodebotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ShoperItemExplodebotopbrk]
+        use: dspacctitles
+  add: part: ShoperItemExplodeTitlePart
+
+      [part: ShoperItemExplodeTitlePart]
+       line: LnShoperItemExplodeTitle
+       
+      [line: LnShoperItemExplodeCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As:@@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0ShoperItemExplode]
+      line : LnShoperItemExplodeCurrPeriod
+      
+      [Part: PrtShoperItemExplode]
+       Line: LnShoperItemExplodeTitle,LnShoperItemExplode
+;; {16.Jan.14 13:41} bottom Line: LnShoperItemExplodeTotals
+     repeat: LnShoperItemExplode: ColShoperItemExplode
+     scroll: both ;;Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColShoperItemExplode]
+ use:stock item
+ ;; {16.Jan.14 11:52}         Use: Vouchers of Company
+;; {16.Jan.14 11:52}      delete: filter : daybookfilter
+;; {16.Jan.14 11:52}      Filter: ColShoperItemExplodeFilter,IsNonOptionalCancelledVchs
+ add:filter:ColShoperItemExplodeFilter
+
+    [system: Formula]
+ColShoperItemExplodeFilter:$partno>=##str1
+
+      [Line: LnShoperItemExplodeTitle]
+        use: LnShoperItemExplode
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+Local: Field: snf: Set As:"Stock No"
+Local: Field: nf1: Set As:"Product"
+Local: Field: snf2: Set As:$cwsortnoStr:COMPANY:##SVCURRENTCOMPANY   ;;"Brand"
+Local: Field: snf3: Set As:$cwsizeStr:COMPANY:##SVCURRENTCOMPANY  ;;"Style"
+Local: Field: snf4: Set As:$cwproductStr:COMPANY:##SVCURRENTCOMPANY  ;;"Season"
+Local: Field: snf5: Set As:$cwproductStr2:COMPANY:##SVCURRENTCOMPANY  ;;"Size"
+Local: Field: snf6: Set As:$cwproductStr3:COMPANY:##SVCURRENTCOMPANY  ;;"Color"
+Local: Field: snf7: Set As:$cwproductStr4:COMPANY:##SVCURRENTCOMPANY  ;;"Future"
+Local: Field: nf: Set As:"Item Description"
+Local: Field: numf: Set As:"TAX"
+Local: Field: numf2: Set As:"MRP"
+Local: Field: numf3: Set As:"Deler Price"
+Local: Field: numf4: Set As:"Cost Price"
+Local: Field: nf2: Set As:"Barcode Sticker Size"
+local: field: default : style: normal bold
+local:field:default:border:thin left
+local:field:default:align:centre
+
+      [Line: LnShoperItemExplode]
+       Fields:snf,nf1,snf2,snf3,snf4,snf5,snf6,snf7,nf
+     right field:numf,numf2,numf3,numf4  ;;,nf2
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+;; {16.Jan.14 12:53}      local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+;; {16.Jan.14 12:53} local : field : fwf : alter : voucher : $$isvoucher
+local : field :snf : alter : stock item : $$IsStockItem
+;; local : field : fwf : alter : ledger : $$isledger
+Local: Field: snf: Set As:$partno
+Local: Field: nf1: Set As:$parent ;;name
+Local: Field: snf2: Set As:$cwsortno
+Local: Field: snf3: Set As:$cwsize
+Local: Field: snf4: Set As:$cwproduct   ;;$cwproduct
+Local: Field: snf5: Set As:$cwproduct2   ;;$cwproduct2
+Local: Field: snf6: Set As:$cwproduct3
+Local: Field: snf7: Set As:$cwproduct4
+Local: Field: nf: Set As:$Description  ;;$Narration
+Local: Field: numf: Set As:if $rateofvat=0 then "0" else if  $rateofvat=5 then "1" else if  $rateofvat=14.5 then "2" else "  "
+Local: Field: numf2: Set As:$rateofmrp
+Local: Field: numf3: Set As:$rateofmrp
+Local: Field: numf4: Set As:@@cwcostprice
+Local: Field: nf2: Set As:""
+;; {11.Mar.14 10:19} local:field:numf:format: "ShowZero"
+local:field:numf2:format:"decimal:2,nozero"
+local:field:numf3:format:"decimal:2,nozero"
+local:field:numf4:format:"decimal:2,nozero"
+local:field:numf: type:String
+border:thin bottom
+
+
+[System: Formula]
+cwcostprice : $$CollectionField:$rate:First:rate1colx
+
+ [collection : RAte1Colx]
+  Type        : Standard Cost List    : StockItem
+    Child of    : $StockItemName
+    fetch: rate
+
+
+      [line: LnShoperItemExplodeTotals]
+        use: LnShoperItemExplode
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: amtf : set as :  $$total:amtf
+
+
+     [button:cwnewbutton]
+      title:"Filter"
+         key:f7
+   action:modify variable:newfilterreport
+
+    [report:newfilterreport]
+      title:""
+      form:newfilterform
+
+    set:str1:""
+    Variable:str1
+
+      
+     [form:newfilterform]
+       part:newfilterpart
+       
+     [part:newfilterpart]
+       line:newfilterline
+;; {31.Jan.14 18:37}        height:50 % page
+;; {31.Jan.14 18:37}        width:50 % page
+       
+      [line:newfilterline]
+        field:nf,nf2
+        Local: Field:nf: info:"Enter Part NO From"
+        local : field : nf2 :  Modifies    :str1
+        
+      
+      

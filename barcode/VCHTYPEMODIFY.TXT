@@ -1,0 +1,18 @@
+; Created By: Taniya on 2019-11-29 13:37, ID: 
+
+[#PART : CWBARCODEAUTOINVOKE]
+
+add:line:after:cwWarnonEmptypartyCode:cwcomitemline
+
+[line:cwcomitemline]
+ field: long prompt,cwlogical
+  Local: Field: long prompt: info: "Combined Stock Item in Print ?"
+  Local: Field: long prompt: width:30
+   Local: Field: cwlogical: storage:cwcomitem
+
+  Local: Field: default: Style: Normal Bold
+  
+  [System: Formula]
+  cwcomitemopt:$cwcomitem:vouchertype:$vouchertypename
+
+

@@ -1,0 +1,14 @@
+; Created By: pg on 2012-01-27 20:39
+
+[include: c:\d7comps\tcommon\nopos.txt]
+
+[#Form: POS Quick Mode]
+option : kdf
+
+[#Form: POS InPixel]
+option : kdf
+
+[!form: kdf]
+space top : 4.5 cm
+local: part : POS CompanyDetails : invisible : yes
+local: part : POS CmpTaxNumber : invisible : yes

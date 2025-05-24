@@ -1,0 +1,32 @@
+; Created By: Taniya on 2019-11-29 10:59, ID: 
+
+[#Part:frmbarcodeapplocation]
+add:line:after:cwincmrpline:cwenablelinex
+
+[line:cwenablelinex]
+field:sp,cwlogical,sp2,nf
+
+Local: Field: sp: Set As:"Enable Image?"
+Local: Field: sp2: Set As:"Image Base Path :"
+Local: Field: cwlogical: storage:cwEnableDoc
+Local: Field: nf: storage:cwBasePath
+local: field:nf: inactive:not #cwlogical
+local: field:sp2: inactive:not #cwlogical
+Local: Field: nf: Style: Normal Bold
+
+Local: field: sp: Width:25
+Local: field: sp2: Width:25
+
+
+
+[System: Formula]
+cwdocManagementEnable:$cwEnableDoc:COMPANY:##SVCURRENTCOMPANY
+cwBasePath : $cwBasePath:COMPANY:##SVCURRENTCOMPANY
+
+[System: UDF]
+cwEnableDoc:logical:1990
+cwBasePath:string:1991
+cwdoc:string:1992
+
+
+

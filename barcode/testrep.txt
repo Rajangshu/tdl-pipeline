@@ -1,0 +1,164 @@
+; Created By: Khokan on 2024-11-22 14:54, ID: 
+
+
+     [#menu: Gateway of Tally]
+        add: Option: testrepLock ;; : @@testrepDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@testrepReport: Display: Reptestrep
+  */
+
+
+     [!menu: testrepLock]
+        add: Item: before: @@locQuit: @@testrepReport: Display: Reptestrep
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   testrepReport: "testrep"
+;; testrepDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: Reptestrep]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@testrepReport
+   Printset: Report Title: @@testrepReport
+
+       Form: Frmtestrep
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: Frmtestrep]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0testrep,Prttestrep
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: testrepbotbrk,testrepbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: testrepConfigure
+
+      [part: testrepbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: testrepbotopbrk]
+        use: dspacctitles
+  add: part: testrepTitlePart
+
+      [part: testrepTitlePart]
+       line: LntestrepTitle
+       
+      [line: LntestrepCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0testrep]
+      line : LntestrepCurrPeriod
+      
+      [Part: Prttestrep]
+       Line: LntestrepTitle,Lntestrep
+bottom Line: LntestrepTotals
+     repeat: Lntestrep: Coltestrep
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: Coltestrep]
+    Collection: Colgodownstockbalancejsona:Colgodownstockbalancejsonb
+
+[Collection: Colgodownstockbalancejsona]
+
+type:batch
+Child of :$$LoopCollObj:$Name
+filter:ColtestrepFilter
+
+[Collection: Colgodownstockbalancejsonb]
+type:stockitem
+
+    [system: Formula]
+ColtestrepFilter:not $$isempty:$closingbalance and $$isNegative:$closingBalance
+
+      [Line: LntestrepTitle]
+        use: Lntestrep
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: Lntestrep]
+     Fields: testrepmastid,sdf,nf,snf,fwf
+Right Field: ratepf,Qtyf,Amtf
+
+     Option: Alter on Enter
+        key: testrepDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: nf : set as : $name
+local:field: fwf : set as : $parent
+local:field: snf : set as : $godownname
+local:field: qtyf : set as : $closingbalance
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: testrepDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: testrepDisplayVoucher
+
+ 	
+     [Report: testrepDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #testrepmastid
+	
+
+        [Field: testrepmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LntestrepTotals]
+        use: Lntestrep
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

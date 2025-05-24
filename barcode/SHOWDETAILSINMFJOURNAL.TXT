@@ -1,0 +1,182 @@
+; Created By: prakash on 2022-04-14 10:30, ID: 
+
+;; {14.Apr.22 12:56} [#Line: SJ MfdBatch]
+;; {14.Apr.22 12:56} add : option : cwshowMfgBatchDetails: $$IsBatchWiseOn and @@HasBatchWise and $cwbarcodeeachqty:COMPANY:##SVCURRENTCOMPANY
+
+[!line : cwshowMfgBatchDetails]
+ add : field : sp,cwLogical
+Local: Field : cwlogical : SubForm : cwInventoryEntriesInwards: $$value
+Local: Field: sp: info: "Details:"
+
+[#form :Voucher]
+add : option : cwShowBatchFillbutton : $cwbarcodeeachqty:COMPANY:##SVCURRENTCOMPANY and $$indisplaymode
+
+[!form : cwShowBatchFillbutton]
+add : button : cwShowBatchFillbutton
+
+[key : cwShowBatchFillbutton]
+key : alt+R
+
+[Report: cwInventoryEntriesInwards]
+title:"Batch Details"
+   form: FrmcwInventoryEntriesInwards
+    Object : allInventoryEntries:First : @@cwisDebit
+    
+    [System: Formula]
+    
+    cwisDebit : $isdeemedpositive
+    
+  [form: FrmcwInventoryEntriesInwards]
+ option: small size form
+   part: prtcwInventoryEntriesInwards
+   bottom part: prtcwInventoryEntriesBatchDetailstotal
+   height : 4 inch
+   width: 50% page
+   
+   local:field :nf2 : invisible : yes ;; $$isempty:$cwbatchcaption1:COMPANY:##SVCURRENTCOMPANY
+   local:field :nf3 : invisible : yes ;;$$isempty:$cwbatchcaption2:COMPANY:##SVCURRENTCOMPANY
+   local:field :nf4 : invisible : yes ;;$$isempty:$cwbatchcaption3:COMPANY:##SVCURRENTCOMPANY
+   
+   Local: field: nf2: Align: centre
+   Local: field: nf3: Align: centre
+   Local: field: nf4: Align: centre
+   
+   
+  [part: prtcwInventoryEntriesInwards]
+   line: lncwInventoryEntriesInwards
+   repeat : lncwInventoryEntriesInwards: allinventoryEntries
+   scroll : vertical
+
+   [line : lncwInventoryEntriesInwardsTitle]
+   use: lncwInventoryEntriesInwards
+   option: titleopt
+   Local: Field: nf: Set As:"Batch"
+   Local: Field: nf6: Set As:"Godown"
+   Local: Field: qtyf: Set As: "Qty"
+   local: field: qtyf: type: String
+    Local: Field: nf2: Set As: $cwbatchcaption1:COMPANY:##SVCURRENTCOMPANY
+   Local: Field: nf3: Set As: $cwbatchcaption2:COMPANY:##SVCURRENTCOMPANY
+   Local: Field: nf4: Set As: $cwbatchcaption3:COMPANY:##SVCURRENTCOMPANY
+    add: field : numf7
+    Local: Field: numf7: Set As: $$cwGetInItemNo
+    Local: Field: numf7: Border: thin box ;;left right
+
+    local:field : numf7: invisible : yes
+    
+    [function : cwGetInItemNo]
+    variable : ctr : number : 0
+    10 : walk : AllInventoryEntries
+    20 : inc : ctr
+    30 : if : $isdeemedpositive
+    40 : return : ##ctr
+    50 : end if
+    60 : end walk
+   
+  [line: lncwInventoryEntriesInwards]
+  field: numf,nf,nf6,qtyf,ratef,amtf,nf2,nf3,nf4
+  Local: Field: nf : set as : $stockitemname
+
+  Local: Field: qtyf: set as : $$value ;;$billedqty
+  Local: Field: amtf: set as: $amount
+  Local: Field: ratef: set as : $$value
+   explode : lncwInventoryEntriesBatchDetails
+   Local: Field: Default: skip : yes
+  Local: Field: default: Style: Normal Bold
+  space bottom : 0.5
+   remove if : not $isdeemedpositive
+   
+
+   Local: Field: nf2: Skip: Yes
+   Local: Field: nf3: Skip: Yes
+   Local: Field: nf4: Skip: Yes
+
+   
+   [part: lncwInventoryEntriesBatchDetails]
+   line:lncwInventoryEntriesInwardsTitle
+   line : lncwInventoryEntriesBatchDetails
+   repeat : lncwInventoryEntriesBatchDetails : BatchAllocations
+   local: field: nf2 : delete : skip
+   local: field: nf3 : delete : skip
+   local: field: nf4 : delete : skip
+  Local: Field: default: Style: Normal
+  scroll : vertical
+
+   
+   [line: lncwInventoryEntriesBatchDetails]
+   field : numf,nf,nf6,qtyf,ratef,amtf,nf2,nf3,nf4
+   Local: Field: nf: storage : batchname
+   Local: Field: qtyf: storage:billedqty
+   Local: Field: amtf: storage:amount
+   Local: Field: numf: Set As: $$line
+   Local: field: numf: Align: left
+   Local: Field: nf6: Set As: $godownname
+   Local: Field: ratef: Set As: $rate
+
+   Local: Field: nf6: Skip: Yes
+   Local: Field: numf: Skip: Yes
+   Local: Field: nf: Skip: Yes
+   Local: Field: qtyf: Skip: Yes
+   Local: Field: amtf: Skip: Yes
+   Local: Field: default: Border: thin box ;;left right
+   
+   Local: Field: nf2: Set As: $batchcaption1
+   Local: Field: nf3: Set As: $batchcaption2
+   Local: Field: nf4: Set As: $batchcaption3
+   
+;; {14.Apr.22 12:52}    local : field : nf2 : on : accept : yes : field accept
+;; {14.Apr.22 12:52}    local : field : nf2 : on : accept : yes : call: cwUpdBatch:#numf:1:$$value
+   
+;; {14.Apr.22 12:53}    local : field : nf3 : on : accept : yes : field accept
+;; {14.Apr.22 12:53}    local : field : nf3 : on : accept : yes : call: cwUpdBatch:#numf:2:$$value
+
+;; {14.Apr.22 12:53}    local : field : nf4 : on : accept : yes : field accept
+;; {14.Apr.22 12:53}    local : field : nf4 : on : accept : yes : call: cwUpdBatch:#numf:3:$$value
+
+
+;; {14.Apr.22 12:10}    border : thin bottom
+
+   [part:prtcwInventoryEntriesBatchDetailstotal]
+   line:  lncwInventoryEntriesBatchDetailstotal
+   
+   [line: lncwInventoryEntriesBatchDetailstotal]
+   right field : snf
+   
+   
+   [function: cwUpdBatch]
+   parameter : lineno: number
+   parameter : fieldno : number
+   parameter : value : string
+   
+   variable : CurrentVchMSTID	: string : $$Sprintf:@@VCHMasterID:$MasterID
+   object : inventoryentriesin : first
+   
+
+   20 : set target : AllInventoryEntries[#numf7]
+   40 : set target : BatchAllocations[##lineno]
+   50 : if : ##fieldno = 1
+   55 : set value : cwbatchcaption1 : ##value
+   60 : end if
+   70 : if : ##fieldno = 2
+   80 : set value : cwBatchCaption2 : ##value
+   90 : end if
+   100: if : ##fieldno = 3
+   110: set value : cwBatchCaption3 : ##value
+   120: end if
+
+;; {14.Apr.22 12:35}   130 : log target
+   
+   495 : call : cwUpdVch
+   510 : return : yes
+   
+   
+   [function : cwUpdVch]
+   400 : log :  ##CurrentVchMSTID
+   410 : log : #numf7
+   420 : log : ##lineno
+   430 : log :##fieldno
+   440 : log : ##value
+   500 : modifyobject : (voucher,##CurrentVchMSTID).allInventoryEntries[#numf7].BatchAllocations[##lineNo].cwbatchcaption1[1].cwbatchcaption1 : ##value
+
+   
+
+

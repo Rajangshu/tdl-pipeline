@@ -1,0 +1,49 @@
+; Created By: pg on 2012-02-11 16:41
+
+; BarCodeInPurchase
+; BarCodeInSales
+; BarCodeInStkJrnl
+
+
+
+[#form : Voucher]
+add : option : BarCodebuttonOpt : @@cwCustomizationEnabled
+
+[!form : BarCodebuttonOpt]
+add : button : BarCodeButton
+on : form accept : @@GenBarCodeOnSave : exec command : @@tallysmsclient  : @@paramstr
+
+ ;;========================================================
+
+[#Form		: VCHDisplay]
+ add : option : BarCodebuttonOpt : @@cwCustomizationEnabled
+
+[#Report: VCH Display]
+ Object          : Voucher : ##VoucherID
+
+
+
+;;============================================================================
+ 
+[key : BarCodeButton]
+title :"BarCode"
+key : Alt  + B
+action : exec command : @@tallysmsclient  : @@paramstr
+;inactive : not @@GetBarcodeBtnStatus
+
+ [function : cwx]
+ parameter : str : string
+  10 : log : ##str
+  20 : return : ##str
+
+[System: Formula]
+;; {18.Jan.16 14:48} paramstr : $guid+@@dlr+@@xxdate+@@dlr+$vouchertypename
+paramstr : @@cwxguid+@@dlr+@@xxdate+@@dlr+$vouchertypename
+;; {30.Mar.19 12:50} cwxguid : if $masterid = 0 then $$cwx:@@CurrVchId else $$cwx:$masterid ;;$guid
+cwxguid : if $masterid = 0 then $$string:@@CurrVchId else $$string:$masterid ;;$guid
+tallysmsclient :@@cwAppLocation
+xxdate : $$string:$date:"shortdate"
+;-----------------------------
+GetBarcodeBtnStatus : if @@BarCodeInPurchase and $$ispurchase:##SVVouchertype then yes else if @@BarCodeInSales and $$issales:##svvouchertype +
+then yes else if @@BarCodeInStkJrnl and $$isstockjrnl:##Svvouchertype then yes else no
+

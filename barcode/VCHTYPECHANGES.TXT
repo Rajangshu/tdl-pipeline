@@ -1,0 +1,65 @@
+; Created By: Suman on 2016-11-08 14:56, ID: 
+; use barcodeforeachqty.txt
+
+[#Part: VTYP Behaviour]
+add:option :VTYPBehavioursl:@@forslvtyp and @@cwenablebarcodebatch
+
+[!Part: VTYPBehavioursl]
+add:line:lnvtypacceptbarcode,lnvtypacceptbarcode2,skipamtrateline,cwSkipOtherDetails ,barcodeduplicaoptline
+
+[Line: lnvtypacceptbarcode]
+Fields      : Long Prompt, cwlogical
+ Local       : Field : Long Prompt	: Info	: $$LocaleString:"Accept Barcode Before Item ?"
+ Local: Field:cwlogical : storage:cwvtypbarcodeitem
+ Space Top   : 0.5
+ Local: Field: default: Style: Normal Bold
+ 
+ [line : lnvtypacceptbarcode2]
+ use :lnvtypacceptbarcode
+ Local       : Field : Long Prompt	: Info	: $$LocaleString:"Accept Items also ?"
+ Local: Field:cwlogical : storage:cwvtypbarcodeitemwobatch
+ local: field: cwlogical: inactive: not $cwvtypbarcodeitem
+
+
+
+[#Part: VTYP Behaviour]
+; add:line:skipamtrateline,barcodeduplicaoptline
+
+ 
+ [line:skipamtrateline]
+   field:sp,cwlogical
+  Local: Field: sp: Set As:"Skip Rate & Amount?"
+  Local: Field: cwlogical: storage:cwskiprateamt
+;; {13.Apr.18 22:15}   Local: Field: default: Color : blue
+  Local: field: sp: Width:35
+  local: field: cwlogical: inactive: not $cwvtypbarcodeitem
+
+
+[line : cwSkipOtherDetails]
+field : sp,cwlogical
+Local: Field: sp: info: "Skip Like POS?"
+Local: Field: cwlogical: storage: cwSkipLikePOS
+ Space Top   : 0.5
+   Local: field: sp: Width:35
+   
+ [line:barcodeduplicaoptline]
+   field:sp,cwlogical
+  Local: Field: sp: Set As:"Lock Duplicate Barcode Entry?"
+  Local: Field: cwlogical: storage:cwbarcodedupopt
+;; {13.Apr.18 22:15}   Local: Field: default: Color : blue
+  Local: field: sp: Width:35
+  local: field: cwlogical: inactive: not $cwvtypbarcodeitem
+
+
+
+
+  [System: Formula]
+   cwenableskipopt:$cwskiprateamt:vouchertype:$VOUCHERTYPENAME
+   cwbarcodedupoptenb:$cwbarcodedupopt:vouchertype:$VOUCHERTYPENAME
+
+;; {06.Dec.23 11:42}     forslvtyp : $$issales:$parent or $$isdelnote:$parent or $$isdebitnote:$parent or $$iscreditnote:$parent   ;;or $$isdelnote:$parent
+    forslvtyp : $$issales:$parent or $$isdelnote:$parent or $$isdebitnote:$parent or $$iscreditnote:$parent or $$IsJobMaterialIssue:$parent   ;;or $$isdelnote:$parent
+ cwvtypbarcodeitem:$cwvtypbarcodeitem:Vouchertype:##SVVoucherType
+ 
+
+   

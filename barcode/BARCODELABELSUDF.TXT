@@ -1,0 +1,145 @@
+; Created By: pg on 2011-09-19 12:33
+
+[System: UDF]
+;; <StorageName> : <Data Type> : <Storage Location>
+
+cwsortno:string:1001
+cwsize:string:1002
+cwproduct:string:1003
+cwproduct2:string:1004
+cwproduct3:string:1005
+cwproduct4:string:1006
+cwproduct5:string:1007
+
+cwCustomFldsEnabled : logical : 1010
+cwsortnoStr:string:1011
+cwsizeStr:string:1012
+cwproductStr:string:1013
+cwproductStr2:string:2001
+cwproductStr3:string:2002
+cwproductStr4:string:2003
+cwproductStr5:string:2004
+cwproductStr9:string:2005
+cwproductStr10:string:2006
+cwproductStr11:string:2007
+cwproductStr12:string:2008
+cwproductStr13:string:2009
+cwproductStr14:string:2010
+
+cwproduct10:string:2011
+cwproduct11:string:2012
+cwproduct12:string:2013
+cwproduct13:string:2014
+cwproduct14:string:2015
+
+
+cwtableFrom1:string:1014
+cwtableFrom2:string:1015
+cwtableFrom3:string:1016
+cwtableFrom4:string:3001
+cwtableFrom5:string:3002
+cwtableFrom6:string:3003
+cwtableFrom7:string:3004
+cwtableFrom9:string:3005
+cwtableFrom10:string:3006
+cwtableFrom11:string:3007
+cwtableFrom12:string:3008
+cwtableFrom13:string:3009
+cwtableFrom14:string:30010
+
+cwUnder1:string:1017
+cwUnder2:string:1018
+cwUnder3:string:1019
+cwUnder4:string:4001
+cwUnder5:string:4002
+cwUnder6:string:4003
+cwUnder7:string:4004
+cwUnder9:string:4005
+cwUnder10:string:4006
+cwUnder11:string:4007
+cwUnder12:string:4008
+cwUnder13:string:4009
+cwUnder14:string:40010
+
+
+cwCostStr:string:1020
+
+cwCostMultiplier : number : 1021
+cwCostTracking: Logical: 1022
+cwAutoQuantity:number:1023
+cwenablebatchfield:logical:1024
+
+cwenablebarcodebatch:logical:1028
+cwenableautobatch:logical:1029
+cwnumberdigit:number:1030
+cwvtypbarcodeitem:logical:1031
+cwmrpenable:logical:1035
+cwsceneitem:string:1032
+cwsceneitem2:string:1033
+cwsceneitem3:string:1034
+; this was disabled on 5.jan.17, changed from 1037 & 1038 to 5037 & 5038
+cwEnableImage:logical:5037
+cwimagepath:string:5038
+
+
+;;--------------BATCH STORAGES-------
+cwbatchcaption1:string:1025
+cwbatchcaption2:string:1026
+cwbatchcaption3:string:1027
+cwmrpbatch:string:1036
+cwitemimage:string:1039
+
+
+; to store line no in inventory entries
+cwline : number : 1040
+
+cwbatchCostCodeFrom : string : 1041 ; Cost Code field to use from Batch
+GenBarCodeOnSave : logical : 1042
+cwskiprateamt:logical:1043
+cwisincrate:logical:1044
+
+
+cwGenBarcodeLabelStockGroupWise : logical : 1045
+ cwVchHasBatchFillQtyInward : logical : 1046
+ cwMRpinsalesopt:logical:1047
+ cwsetincrate:logical:1048
+ cwbarcodedupopt:logical:1049
+  cwCostFrom : string : 1050
+  cwCostPL : string : 1051
+  cwShowPartyAliasinEntry : logical : 1052
+  cwWarnonEmptypartyCode : logical : 1053
+  cwCompanycode : string: 1054
+  cwBarcodeTemplatebyVchType: logical : 1055
+  cwBarcodeTemplateName : string : 1056
+  cwGenerateBarcodeOnOutward : logical : 1057 ; voucher type: Generate Barcode on Outward
+  cwBatchQtyOne : logical : 1058
+  cwSkipLikePOS: logical : 1059
+  
+  GenBarCodeOnSaveEdit : logical : 1060
+
+
+cwvtypbarcodeitemwobatch : logical : 1061
+
+cwrtlpricelist:string:501
+cwShowItemsInStockSummary : logical : 1062
+cwshowbatchfieldinStockSummary: logical :1063
+
+cwFillItemsFromBOM : logical: 1064 ; In Stock Journal, Fill Consumed items from BOM
+
+cwAcceptAutoFillQtyInItemMaster : logical : 1065
+
+[System: Formula]
+cwhascustomudf : $cwCustomFldsEnabled:COMPANY:##SVCURRENTCOMPANY
+cwShowItemsInStockSummary : $cwShowItemsInStockSummary:COMPANY:##SVCURRENTCOMPANY
+
+
+;;=====================================
+[System: UDF]
+cwTransferDetails:logical:8520
+cwSourceGodownaddon:string:8521
+cwTargetGodownaddon:string:8522
+cwtarVouchertypeaddon:string:8523
+cwdateaddon:date:8524
+
+
+

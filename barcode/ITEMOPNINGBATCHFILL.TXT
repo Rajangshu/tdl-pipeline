@@ -1,0 +1,143 @@
+; Created By: Akshay on 2015-06-05 14:46, ID:
+
+;; {05.Jun.15 15:34}  [#Field: STKI OpBal]
+;; {05.Jun.15 15:34}  add:Sub Form :before:STKBATCHAllocation:ITEMOPBATCHFILL:($IsBatchWiseOn OR $$IsMultiGodownOn) AND NOT $$IsEmpty:$OpeningBalance and @@cwbarcodeeachqtyx and @@cwbarcodeeachqtyx
+
+
+;; {05.Jun.15 18:54}   [#Form: STKBATCH Allocation]
+;; {05.Jun.15 18:54}   add:button:fillopbatch
+  
+  [Button:fillopbatch]
+Key     : F5
+Title   : $$LocaleString:"Fill Batch"
+Action	: modify variable : ITEMOPBATCHFILL
+
+
+  
+
+ [Report: ITEMOPBATCHFILL]
+Form: ITEMOPBATCHFILL
+title : "Enter Batch-wise Breakup Details..."
+
+[Form: ITEMOPBATCHFILL]
+Part: ITEMOPBATCHFILL
+ on : form Accept : yes : Form Accept
+  on : form Accept : yes : Call : batchbarcodefillop:$cwmfddt:$cwnewgodownname:$cwnewbcodeqty:$cwnewrate:$cwnewamount:$cwnewsl:#fldprtno:#fldbatch:#fldnuzero:#fldstno:$cwmrpbatch:$cwnewsl
+;; {09.Mar.18 13:34}   on : form Accept : yes : Call : batchbarcodefillop:$cwmfddt:$cwnewgodownname:$cwnewbcodeqty:"":$cwnewamount:#fldprtno:#fldbatch:#fldnuzero:#fldstno:$cwmrpbatch
+
+[Part: ITEMOPBATCHFILL]
+use:itembarcodedet
+
+local:line:itembarcodedet:local:field:numf3:invisible:yes
+local:line:itembarcodedet:local:field:snfx:invisible:yes
+local:line:itembarcodedet:local:field:snf:invisible:yes
+local:line:itembarcodedet:local:field:snf2:invisible:yes
+
+local:line:itembarcodedet2:local:field:numf3:invisible:yes
+;; {05.Jun.15 14:55} local:line:itembarcodedet2:local:field: :invisible:yes
+local:line:itembarcodedet2:local:field:snf:invisible:yes
+local:line:itembarcodedet2:local:field:snf2:invisible:yes
+
+local:line:itembarcodedet2:Local: Field: nf: add :table:Stockable Godown VchExtract ,Not Applicable
+
+local:line:itembarcodedet:Local: Field: sdf: delete:invisible   ;;:not $HasMfgDate:stockitem:$name
+local:line:itembarcodedet2:Local: Field: fillVCHBATCHMfdx: delete: invisible  ;;:not $HasMfgDate:stockitem:$name
+
+;; {05.Jun.15 15:11} local:line:itembarcodedet:Local: Field: sdf: add:invisible:not $HasMfgDate:stockitem:$name
+;; {05.Jun.15 15:11} local:line:itembarcodedet2:Local: Field: fillVCHBATCHMfdx: add: invisible:not $HasMfgDate:stockitem:$name
+
+
+[Function: batchbarcodefillop]
+  parameter :mftx :duedate
+  parameter :mygodown :string
+  parameter :myqty:number
+  parameter :myrate:number
+  parameter :myamount:number
+  PARAMETER : FPARTNO: STRING
+  PARAMETER : LASTBATCH : NUMBER
+  PARAMETER : FNUMZERO : NUMBER
+  PARAMETER : STARTINGNO : NUMBER
+  PARAMETER : mymrp : STRING
+
+  VARIABLE : ctr : number : $$numitems:BatchAllocations
+
+;; {16.Apr.18 16:02} 01a:log:##mftx
+;; {16.Apr.18 16:02} 01a1:log:##mygodown
+;; {16.Apr.18 16:02} 01a2:log:##myqty
+;; {16.Apr.18 16:02} 01a3:log:##myrate
+;; {16.Apr.18 16:02} 01a4:log:##mymrp
+
+
+03a: if : not $$isstockjrnl:##SVvouchertype
+03c:  while : ##ctr  >= 0
+;; {05.Jun.15 15:15} 03d: delete collection object : BatchAllocations : 1 : yes
+03d1: decr : ctr
+03e: end while
+
+03f: else
+
+;; {05.Jun.15 15:33} 03g: while : $$numitems:BatchAllocations > 0
+;; {05.Jun.15 15:33} 03h: delete collection object : BatchAllocations : 1 : yes
+;; {05.Jun.15 15:33} 03i: end while
+
+03z: end if
+
+
+
+10  : set: ctr : 1
+;; {08.Aug.14 18:00} 20 : log : ##myqty
+30 : for range  : ctr1 : number : 1 :  ##myqty
+;; {08.Aug.14 18:00} 40 : log : ##ctr
+
+
+;; {05.Jun.15 18:17} 40ab: log : $$loopindex
+;; {05.Jun.15 18:17} 45 : do if : $$loopindex > 1 : insert collection object  : BatchAllocations
+;; {05.Jun.15 15:32}  46 :set target :
+
+
+  08 : do if : ##ctr > 0 : insert collection object  : BatchAllocations
+  09 :do if : ##ctr=0:set target:BatchAllocations[1]
+
+101	: SET OBJECT
+50d : set value : MfdOn : ##mftx
+50 : set value : godownname : ##mygodown
+55 : set value : batchname  :  $$Cwmakebatchop
+
+70 : set value : billedqty : $$asqty:1 ;;##myqty
+60 : set value : Actualqty : $$asqty:1 ;;##myqty
+80 : set value : batchrate : $$asrate:##myrate ;; in fn: batchbarcodefillop
+92 : set value : cwmrpbatch: ##mymrp
+
+
+199 : set: ctr : ##ctr + 1
+;; {05.Jun.15 18:18} 2001:end if
+200 : end for
+
+
+  [function : Cwmakebatchop]
+ returns : string
+ variable : str : string
+ variable : itemline : string : #snfLineNo
+ 10 : set : str : ##fpartno
+;; {04.Sep.14 12:18}  1111 : log : "part no "+##fpartno
+;; {04.Sep.14 12:18}  1112:log : ##lastbatch
+;; {04.Sep.14 12:18}  1113: log : ##startingno
+;; {04.Sep.14 12:18}  1114 : log :  $$zerofill:($$string:##lastbatch):@@cwnumzerofill
+
+
+ 20 :  if : ##lastbatch = 0
+ 30: set : lastbatch : ##startingno
+
+ 40 : else
+ 50 : set : lastbatch : ##lastbatch + 1
+ 60 : end if
+ 70  : return : ##str + $$zerofill:($$string:##lastbatch):@@cwnumzerofill
+
+;; {03.Sep.14 16:59}  70  : return : $$zerofill:##lastbatch:@@cwnumzerofill
+
+
+
+
+
+
+

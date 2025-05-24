@@ -1,0 +1,118 @@
+; Created By: pg on 2011-09-15 20:29
+
+[#form : Stock Item]
+   add : part : at beginning : cwItemDetails
+;add : part : after : STKI Basic : cwMRP
+;;local : Part: STKI TaxDetails : add : line : cwmrp
+;;local : field : MST Name : set as : if $$increatemode  then $$getmyvalue else $$value
+local : field : STKI PartNo : set as : if $$increatemode and $$line = 1 and not $$isempty:#nf10 then $$getmyvalue else $$value
+local : field : STKI PartNo : set always : yes
+
+
+[part : cwMRP]
+line : cwmrp
+
+[line : cwmrp]
+field : mp,numf
+Local: Field: mp: info:"MRP:"
+Local: Field: numf: storage:cwmrp ;; Delete: Storage
+Local: field: numf: Format: "Decimal:2,NoZero"
+Local: field: numf: Align: Left
+
+
+[part: cwItemDetails]
+line : cwItemDetails
+
+[line : cwItemDetails]
+field : sp3,snf3,nf10,NF11
+
+Local: Field: sp: info: "Godown:"
+Local: Field: snf: storage: cwGodown
+Local: Field: snf: table: Stockable Godown VchExtract, nOT aPPLICABLE
+Local: Field: snf: Keys        : Create Godown, Alter Godown
+Local: Field: snf: Variable    : SV Godown
+;;Local: Field: snf: Storage     : Godown Name : batchallocations : first
+
+
+Local: Field: sp2: info:"Parent:"
+Local: Field: snf2 : storage: Parent
+Local: Field: snf2: table: Stock Group Extract, Primary
+Local: Field: snf2: Show Table  : Always
+Local: Field: snf2: Key         : Create Stock Group, Alter StkGrp
+Local: Field: snf2: Variable    : SV Stock Group
+Local: Field: snf2: Set as      : ##DEFStockGroupName
+Local: Field: snf2: Modifies    : DEFStockGroupName
+Local: Field: snf2: Common Table: No		
+
+Local: Field: sp3: info: "Supplier Code:"
+Local: Field: snf3: table: cwCrledger,nOT aPPLICABLE
+
+Local: Field: snf3: Keys        : Create Ledger, Alter Ledger
+Local: Field: snf3: Variable    : SV Ledger
+Local: Field: snf3: show table : always
+Local: Field: SNF3: storage: cwPurchasedFrom ;; Delete: Storage
+
+Local: Field: nf10: Set As: if $$increateMode then @@cwItemX else $$value
+Local: Field: NF11: Set As: IF $$issysname:$cwPurchasedFrom then "" else $$getmyvalue ;;$$CollectionField:$NAME:First:CWITEMX ;; $$FILTERVALUE:$NAME:STOCKITEM:LAST:HASSAMEX
+LOCAL : FIELD : NF10 : SKIP : YES
+LOCAL : FIELD : NF10 : WIDTH : @@SHORTWIDTH
+LOCAL : FIELD : NF11 : SKIP : YES
+LOCAL : FIELD : NF11 : WIDTH : @@SHORTWIDTH
+
+local: field: NF10: Invisible: yes ;; Delete: Invisible
+;;local: field: NF11: Invisible: yes ;; Delete: Invisible
+
+local : field : default : skip : not $$increatemode
+
+;;[#Field: STKALLOC Godown]
+;;delete : table
+
+[System: Formula]
+cwItemX : @@HASSAME ;; + @@cwCrPrefix1 ;;$$STRING:@@CWiTEMcNTR ;;@@cwGodownPrefix + @@cwParentPrefix + @@cwCrPrefix + @@CWiTEMcNTR
+cwGodownPrefix : if $$issysname:#snf then "" else $mycode:godown:#snf +"/"
+cwParentPrefix : if $$issysname:#snf2 then "" else $mycode:STOCKGROUP:#snf2 +"/"
+ cwCrPrefix : if $$issysname:#snf3 then "" else $$ReptField:Name:2:ledger:#snf3 ;; +"/"
+  cwCrPrefix1 : IF $$issysname:#snf3 then "" else @@cwCrPrefix +$$STRING:@@CWiTEMcNTR
+CWiTEMcNTR : $$NUMBER:@@CWITMCNTRX +1
+CWITMCNTRX : $$FILTERVALUE:$NAME:STOCKITEM:LAST:HASSAMEX
+hASSAME :  @@cwCrPrefix
+HASSAMEX : $NAME STARTING WITH #NF10 ;;+ @@cwcrprefix
+
+[COLLECTION: CWITEMX]
+USE : STOCKITEM
+;;FILTER : HASSAMEX
+SORT : @@DEFAULT : -1 * $$NUMBER:$mailingname
+
+[Function: getmyvalue]
+return : string
+variable : mystr : string
+variable : myid : number
+variable : myyr : string
+01 : set : myYr : $$yearofdate:$$machinedate - 2000
+;;02 : log : $$zerofill:##myid:5
+
+06 : set : mystr :  @@cwcrprefix ;;+ ##myyr
+07 : set : myid : 1
+;;07a : log : "Mystr: " +##mystr
+
+/*
+08 : walk collection : cwitemx
+09 : if : $mailingname starting with ##mystr
+09c : log : $mailingname
+10 : set : myid : $$number:$mailingname + 1
+15 : break
+20 : end if
+25 : end walk
+*/
+
+20 : set : myid : $$filtercount:CWITEMX:myfilterx  +1
+;;21 : log : ##myid
+;;26 : if :  ##myid = 1
+30 : return : ##mystr + $$zerofill:##myid:5
+;;31 : else
+;;32 : return : ##myid
+;;33 : end if
+
+
+[System: Formula]
+myfilterx :$mailingname starting with ##mystr

@@ -1,0 +1,379 @@
+
+[#form : stock Journal Color]
+add : option : cwBOMPostInSJ : ##UseBoM ;; $UseBoM:COMPANY:##SVCURRENTCOMPANY
+
+[!form : cwBOMPostInSJ]
+add : button: cwBOMPostInSJ
+
+[key: cwBOMPostInSJ]
+key : alt + F
+title:"Fill from BOM"
+action : call : fillcwItemsToPost
+inactive : not $cwFillItemsFromBOM:Vouchertype:##SVVoucherType
+
+[variable : cwItemsToPost]
+variable : rItemName : string
+variable : fBOMMame : string
+variable : fQty : Number
+variable : fProcessed : logical
+VARIABLE : FQTYTOPOST : NUMBER
+variable : myitemname : string
+variable : byitem : string
+variable : fGodownName : string
+
+[collection : cwItemsToPost]
+data source: variable : cwItemsToPost
+format : $rItemName,10
+format : $myitemname
+format : $fBOMMame,10
+format : $fQty,10
+format : $fProcessed,10
+format : $FQTYTOPOST,10
+format : $byitem,10
+format : $fGodownname,10
+
+[system : variable]
+list variable : cwItemsToPost
+;; {25.Apr.22 19:09} list variable : cwItemsToPost2
+
+[collection : cwGetItemDetails]
+type : stockitem
+filter : cwProducedItem
+compute : myBomName : $$CollectionField:$COMPONENTLISTNAME:last:MULTICOMPONENTLIST
+
+[System: Formula]
+cwProducedItem : $name = ##cwProducedItemName
+
+
+[function : fillcwItemsToPost]
+variable : xSteps : number : $$numitems:InventoryEntriesin  ;;   ;;InventoryEntriesOut
+variable : collCtr : number :$$numitems:InventoryEntriesin  ;;allinventoryEntries   ;;InventoryEntriesOut
+variable : OutCtr : number : $$numitems:InventoryEntriesOut  ;;allinventoryEntries   ;;InventoryEntriesOut
+variable : toClear : logical : not $$issysname:$$CollectionField:$stockitemname:First:InventoryEntriesOut
+variable : cwProducedItemName : string
+variable : cwbomname : string ;;: "Bhujia 2022.04.19"
+variable : cAmt : amount
+variable : cBranch : string
+variable : cBillType :string
+variable : cClass : string
+variable : BranchIndex : number
+variable : BranchIndex1 : number
+variable : mybom : string
+variable : myitemname: string
+variable : byitem: string
+variable : cqty : number
+variable : cqty2 : number
+variable : aGodown : string
+
+
+
+	00 : LIST DELETE	: cwItemsToPost
+	10 : start progress : ##collCtr : "Processing Data" : ##CollCtr
+	20 : walk :InventoryEntriesin
+	
+	30 : set : cwProducedItemName : $stockitemname
+	40 : set : cwBomName : $$CollectionField:$myBomName:First:cwGetItemDetails
+	
+        50 : if : ##cwbomname <> ""
+        60 : Call : CheckInsertItem:##cwProducedItemName:##cwbomname:##byitem:($$number:$actualqty):no:YES:##aGodown ;;"Main Location"
+        70 : end if
+        
+	80 : show progress : ##xSteps
+	
+        90 : end walk
+        100 : end progress
+
+    /*    199 : log : ""
+        200 : log : "Final List Start ................"
+        210 : walk collection :cwItemsToPost
+        220 : log : $myitemname
+        230 : log : $fqty
+        240 : log : $fprocessed
+        250 : log : $fqtytopost
+        260 : log : $byitem
+        270 : log object
+   */
+ /*  470 : Insert Collection Object : InventoryEntriesOut
+
+   480 : set value : isDeemedPositive  : no
+   490 : set value : stockitemname :  $myitemname
+   500 : start block
+   505 : set object
+   510 : set value : billedqty : $$asqty:$fqtytopost
+
+   520 : set value : amount : $$asamount:$fqtytopost
+   530 : end block
+
+   540 : insert Collection Object : Batch Allocations
+   550 : set value : GodownName : $fGodownName
+   560 : start block
+   565 : set object
+   570 : set value : billedqty : $$asqty:$fqtytopost
+   580 : set value : amount : $$asamount:$fqtytopost
+   590 : end block
+
+  
+   620 : set target : ..
+  */
+  
+  
+  
+  a210 : walk collection :cwItemsToPost
+  a900 : call : PostItem:False:$myitemname:"":$fqtytopost:"Primary Batch":$fgodownname ;;"Main Location"
+
+        
+        280 : end walk
+;; {26.Apr.22 14:05}         290 : log :"Final List end................"
+        310: return
+
+[function : CheckInsertItem]
+      parameter : itemname : string
+      parameter : bomname : string
+      parameter : byitemx : string
+      parameter : qty : number
+      parameter : additem : logical : yes
+      PARAMETER : ADDSUBITEM : LOGICAL : YES
+      parameter : fGodownName : string :"Main Location"
+
+      variable : branchindex : number
+      variable : pitemname : string
+      variable: xgodownname : string
+      
+	100 : if : not $$listfind:cwItemsToPost:##itemname
+
+	110 : list add : cwItemsToPost : ##itemname
+	120 : else
+	130 : end if
+	
+        140 : if : ##additem      ;;not $IsDeemedPositive
+	150 : set : BranchIndex : $$listIndex:cwItemsToPost:##itemname
+	160 : set : cwItemsToPost[##BranchIndex].fBOMMame : ##bomname
+	170 : set : cwItemsToPost[##BranchIndex].fQty : ##qty + ##cwItemsToPost[##BranchIndex].fQty
+	180 : set : cwItemsToPost[##BranchIndex].fQtyTOPOST : ##qty + ##cwItemsToPost[##BranchIndex].fQtyTOPOST
+        190 : set : cwItemsToPost[##BranchIndex].myitemname : ##itemname
+        200 : set : cwItemsToPost[##BranchIndex].byitem :##cwItemsToPost[##BranchIndex].byitem  + " " + ##byitemx + $$string:##cwItemsToPost[##BranchIndex].fQty
+        210 : set : cwItemsToPost[##BranchIndex].fGodownName : ##fGodownName
+        220 :end if
+
+
+        230 : if : ##bomname <> ""
+
+;; {29.Apr.22 12:50}         240 :do if :  ##additem : call :CheckInsertItem2:##itemname:"":"":##qty:##ADDSUBITEM
+
+        250 : walk collection : Coltdsptestx
+;; {26.Apr.22 13:52}         255 : log :"Godoenx "+$godownname
+        300 : set : cqty2 : ##qty * ($ActualQty1 / $forqty)
+        320 : set  : pitemname : $StockItemName1
+        321 : set : xgodownname : $godownname
+        390 : do if : ##pitemname<>"" : call :CheckInsertItem:##pitemname:@@getitembom2S:##itemname:##cqty2:YES:YES:##xgodownname ;;:$cwcreatesubitem1
+        410 : end walk
+        
+        420 : end if
+
+
+
+
+[Collection:Coltdsptestx ]
+       Source Collection   : ColtdsptestSTLK
+       Walk : MultiComponentList,MultiComponentItemList
+
+       compute :ComponentListName1:$ComponentListName
+       compute:StockItemName1:$StockItemName
+       compute:cwcreatesubitem1:$cwcreatesubitem
+       compute:ActualQty1:$$number:$ActualQty
+       compute : forqty : $$number:$..ComponentBasicQty
+       compute : Godownname: $GODOWNNAME
+
+     FILTER : CWSAMEBOM
+
+
+[Collection:ColtdsptestSTLK ]
+TYPE :STOCKITEM
+filter:ColtdsptestFilter
+
+    [system: Formula]
+ColtdsptestFilter: $name = ##ItemName
+CWSAMEBOM :  $ComponentListName1 =  ##bomname
+
+
+
+[Collection:ColtdsptestSTLK1 ]
+TYPE :STOCKITEM
+filter:ColtdsptestFilter1
+
+    [system: Formula]
+ColtdsptestFilter1: $name = ##pitemname   ;;and $cwEnabledbom
+getitembom : $$collectionfield:@@getitembom2:first:ColtdsptestSTLK1
+getitembom2 : $$collectionfield:$COMPONENTLISTNAME:last:MULTICOMPONENTLIST
+
+getitembom2S : @@getitembom  ;;IF $cwcreatesubitem1 THEN @@getitembom ELSE ""
+
+ cwmyaqty1 : $$asqty:##AQty
+ cwmybqty : $$asqty:##AQty
+ 
+[function : PostItem]
+parameter : isInward : logical
+parameter : ItemName : string
+parameter : ItemNameby : string
+parameter : AQty : number
+parameter : BatchName : string
+parameter : GodownName : string
+
+;; {26.Apr.22 13:49} variable : aqtystr : string :@@mynewqty
+;; {26.Apr.22 13:49} variable : bqtystr : string :@@mynewqty2
+
+0501 : if : $$tgtobject:$$IsStockJrnl:$Vouchertypename
+0502: do if : NOT ##isInward : Insert Collection Object : Inventory Entriesout
+0503: do if : ##isInward :  Insert Collection Object : Inventory Entriesout
+;; {26.Jul.23 15:45} 0503a : set target:InventoryEntriesOut[0]
+0504 : else
+0505 : Insert Collection Object : InventoryEntriesin
+;; {26.Jul.23 15:45} 0506a : set target:InventoryEnriesIn[0]
+0506 : end if
+
+
+; -- Setting Item Values
+
+;; {17.Nov.14 10:57} 0x : log : ##itemname
+0530 : Set Value : StockItemName : ##ItemName
+;; {26.Apr.22 10:58} 0530xa : Set Value : cwbyitem : ##ItemNameby
+0531 : start block
+0532 : set object
+
+05333y : log : $$asqty:##AQty
+0533x: log :@@cwmyaqty1
+0533: set value : ActualQty :if ##isInward then  $$abs:$$asqty:##AQty else -1 * $$abs:$$asqty:##AQty ;;if ##isInward then $$abs: ;;if ##isInward then $$abs:@@cwmyaqty*-1 else $$abs:@@cwmyaqty
+0534: set value : BilledQty :if ##isInward then  $$abs:$$asqty:##AQty else -1 * $$abs:$$asqty:##AQty ;;$$asqty:##AQty ;;if ##isInward then $$abs:@@cwmybqty*-1 else $$abs:@@cwmybqty
+0540: end block
+
+0545 : set value : isDeemedPositive : ##isInward
+0546: set value : Godownname : ##GodownName
+
+0560 : Insert Collection Object : BATCHALLOCATIONS
+0561: set value : Batchname : ##batchname
+0562: set value : Godownname : ##GodownName
+
+0570: start block
+0571: set object
+
+0572 : set value : isDeemedPositive : ##isInward
+                              ;; ;;@@mynewqty ;;
+0580: set value : ActualQty : if ##isInward then $$abs:$$asqty:##AQty else -1 *$$abs:$$asqty:##AQty ;; $$asqty:##AQty;; if ##isInward then $$abs:@@cwmyaqty*-1 else $$abs:@@cwmyaqty*-1
+0581: set value : BilledQty : if ##isInward then  $$abs:$$asqty:##AQty else -1 * $$abs:$$asqty:##AQty ;;$$asqty:##AQty ;;if ##isInward then $$abs:@@cwmybqty*-1 else $$abs:@@cwmybqty*-1
+0591 : end block
+
+0600 : set value : isDeemedPositive : ##isInward
+
+0610: set target : ..
+0611: set target : ..
+
+0620: return
+
+
+
+/*
+ [variable : cwItemsToPost2]
+variable : rItemName : string
+variable : fBOMMame : string
+variable : fQty : Number
+variable : fProcessed : logical
+VARIABLE : FQTYTOPOST : NUMBER
+variable : myitemname : string
+variable : byitem : string
+variable : fGodownName : string
+
+
+[collection : cwItemsToPost2]
+data source: variable : cwItemsToPost2
+format : $rItemName,10
+format : $myitemname,10
+format : $fBOMMame,10
+format : $fQty,10
+format : $fProcessed,10
+format : $FQTYTOPOST,10
+format : $byitem,10
+format : $fGodownName,10
+
+[COLLECTION : cwItemsToPost2a]
+data source: variable : cwItemsToPost
+format : $rItemName,10
+format : $fBOMMame,10
+format : $fQty,10
+format : $fProcessed,10
+format : $FQTYTOPOST,10
+format : $byitem,10
+format : $fGodownName,10
+
+[COLLECTION : cwItemsToPost2b]
+data source: variable : cwItemsToPost2
+format : $rItemName,10
+format : $fBOMMame,10
+format : $fQty,10
+format : $fProcessed,10
+format : $FQTYTOPOST,10
+format : $byitem,10
+format : $fGodownName,10
+*/
+
+
+
+/*
+        [Collection: colinventoryinout]
+        Collection: colinventoryinout1
+        Collection: colinventoryinout2
+
+        [Collection: colinventoryinout1]
+         use:InventoryEntriesout
+        [Collection: colinventoryinout2]
+         use:InventoryEntriesin
+*/       	
+
+/*
+     [function : CheckInsertItem2]
+      parameter : itemname : string
+      parameter : bomname : string
+       parameter : byitemx : string
+      parameter : qty : number
+      parameter : additem : logical :false
+
+      variable : branchindex : number
+      variable : pitemname : string
+      variable : itemstring : string
+
+;; {11.Jan.15 23:19}         01 : log: "Processing Item 2: " + ##itemname
+;; {11.Jan.15 23:19}         02 : log : "BOM: 2" + ##bomname
+;; {11.Jan.15 23:19}         03 : log : "Qty: 2" + $$string:##qty
+        44 : set :itemstring : (##itemname+$$string:##qty)
+        44.1: IF : yes ;;##additem and ##bomname <> ""
+	60 : if : not $$listfind:cwItemsToPost2:##itemstring
+	
+	
+;; {11.Jan.15 23:19}         60a: log : "adding item 2: " +##itemname
+	61 : list add : cwItemsToPost2 : ##itemstring
+	62 : else
+;; {11.Jan.15 23:19} 	36 : log: "Updating item 2"
+	70 : end if
+
+        70.1: IF : ##additem
+	71 : set : BranchIndex : $$listIndex:cwItemsToPost2:##itemstring
+	72 : set : cwItemsToPost2[##BranchIndex].fBOMMame : ##bomname
+	73 : set : cwItemsToPost2[##BranchIndex].fQty : ##qty + ##cwItemsToPost2[##BranchIndex].fQty
+	74 : set : cwItemsToPost2[##BranchIndex].fQtyTOPOST : ##qty + ##cwItemsToPost2[##BranchIndex].fQtyTOPOST
+        75 : set : cwItemsToPost2[##BranchIndex].myitemname : ##itemname
+        75a : set : cwItemsToPost2[##BranchIndex].byitem :##byitemx
+        70.2 : end if
+;; {28.Nov.14 16:47}         80 : if : ##bomname <> ""   ;;And Not $IsDeemedPositive
+        44.2 : END IF
+
+         85 : if : no
+        2001 : walk collection : Coltdsptestx
+;; {11.Jan.15 23:19}         2002 : log : "Component: " +$StockItemName1
+        3007 : set : cqty2 : ##qty * ($ActualQty1 / $forqty)
+;; {11.Jan.15 23:19}         3009 : log : "Cqty " + $$string:##cqty2
+        3010 : set  : pitemname : $StockItemName1
+;; {11.Jan.15 23:19}         3011 : log : @@getitembom
+        3012 : call :CheckInsertItem2:##pitemname:@@getitembom:##itemname:(##cqty2):no ;;do if: $cwcreatesubitem1:
+        3020 : end walk
+;; {28.Nov.14 16:47}         3900 : end if
+        3901 : end if
+*/

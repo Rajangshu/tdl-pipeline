@@ -1,0 +1,24 @@
+; Created By: pg on 2012-01-07 16:25
+
+[#line : eiconsignee]
+add : field : sp7,snf9
+Local: Field: snf9: Skip: Yes
+Local: Field: snf9: Set As: $cwpartycode:ledger:$partyledgername
+Local: Field: snf9: storage: cwSupplierCode
+;; {01.Jun.18 15:05} Local: Field: snf9: Border: thin box
+Local: Field: sp7: info: "Code:"
+local: field: sp7: Invisible: not @@cwShowPartyAliasinEntry
+
+
+;[#form : voucher]
+[#field : ei value total]
+notify : CWLedgerCodeBlank : @@cwShowPartyAliasinEntry and  @@cwWarnonEmptypartyCode and $$isempty:$cwSupplierCode
+
+
+
+[System: Formula]
+CWLedgerCodeBlank : "Please provide Party Code"
+
+
+
+

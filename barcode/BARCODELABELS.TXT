@@ -1,0 +1,181 @@
+;; {06.Aug.24 17:01}  PRODUCT: Barcode Labels
+;; PRODUCT-ID: d87debb4-dcc8-4805-ba3b-7f75d2f47a6f
+;; AUTHOR: Circuit World 9903002059/9903039753 circuit.world@yahoo.co.in
+;; serial: 715012857
+
+
+
+[include: E:\d7comps\tprime\tallyserial.txt]
+[include: E:\d7comps\tprime\servervouchers.txt]
+
+[include: E:\d7comps\tprime\commonfields2.txt]
+[include: E:\d7comps\tprime\commonfunctions.txt]
+[include: E:\d7comps\tprime\commonUDF.txt]
+[include: E:\d7comps\tprime\commonformulae.txt]
+;;[Include: itemprefix.txt]
+[include: E:\d7comps\tprime\refreshtdl.txt]
+[include : E:\d7comps\tprime\commonvars.txt]
+[include : e:\d7comps\tprime\logobj.txt]
+;;[include : E:\d7comps\tcommon\pricelistnamesfromtally.txt]
+
+
+
+;; {29.Jan.13 17:56} [include : E:\d7comps\tcommon\broker.txt]
+
+
+
+[include : E:\d7comps\tprime\commoncollection.txt]
+[include : E:\d7comps\tprime\commonbarcodereport.txt]
+;; {12.Nov.16 10:44} [include : E:\d7comps\tcommon\EnableCustomization.txt]
+;; {12.Nov.16 10:32} [include : E:\d7comps\tcommon\AutoPartNo.txt] ;; Auto Bar Code Numbering in Part No.  (note:7/10/13 requir prodip/radhakant)
+;; {12.Nov.16 10:51} [include : E:\d7comps\tcommon\AppLocation.txt]
+
+[include:barcodefeatures.txt]
+
+
+[include:barcodelist.txt]
+
+;[include : StockSummaryInNumber.txt]
+
+;; {17.Aug.13 13:32} [include : test.txt]
+
+ ; For KD Fabrics
+;[include : kdFabrics.txt]
+
+ ;--------------- Barcode for Each Qty
+ [include : barcodeforeachqty.txt]
+;; {17.Nov.23 12:33}  [include : barcodeforeachqty2.txt]
+
+;[include : BatchReportWithImage.txt]
+ [include : BatchReportWithImage2.txt]
+ [include : ItemBatchPurchasedOn.txt]
+ 
+ [include: StockSummaryAddCustomizedFields.txt]
+ 
+ ;--------------------------------------
+
+ ; For Image n Style
+;;[include : E:\d7comps\tprime\rateincvat.txt]
+
+ [System: Formula]
+ cwItemVatRateShowCondition : @@issales
+ cwVatrateIncShowCondition : @@issales
+ cwExchangeEnabled : no
+
+ usecwPriceLevel : yes
+ cwPriceLevelName : $pricelevel
+
+ useCustomValue : no
+;; getcustomRate : no
+
+ BarCodeInPurchase : yes
+ BarCodeInSales : yes
+ BarCodeInStkJrnl : yes
+ cwCustomizationStr : "Barcode Module"
+
+
+
+[include:BarCodeLabelsUdf.txt]
+
+[include : CompanyChanges.txt]
+
+ [include : batchchanges.txt]     ;;----------------akshay 21.5.15
+
+ [include : ITEMOPNINGBATCHFILL.txt]
+
+[include : SupplierCodeInVouchers.txt]
+
+[include : newcollections.txt]    ;;----------29/1/13
+
+;;[include: StockGroupSkipping.txt] ;; Skip Barcode Label generation for selected Stock Groups.
+[include : ItemOpening.txt]
+
+;; {22.May.13 15:45} [include: newworks.txt] ;; for inforace barcode
+
+[include:invokeBarCodeModule.txt] ; Btn in Voucher;
+
+[include: BarCodeDetailsExtractReport.txt] ; Report for extraction of data from Tally to App;
+
+[include :stockitemmaster.txt]
+
+;; {06.Dec.14 14:34} [include : MultiBatch.txt]
+
+
+[include:ShoperItem.txt]
+
+;; {16.Oct.14 10:32} [include:t.txt]
+
+[System: UDF]
+;cwPurchasedFrom :string : 1001
+
+;[include : metia.txt]
+
+[#line : cwBarCodeExePath]
+Local: Field: nf: inactive: not #CMPcwEnableCustomization
+         
+
+;; {06.Jan.14 16:19}   [include:CwItemAutoQty.txt]   ;; 7/10/2013  requirment radhakant/ prodip
+
+
+[include:Vchtypechanges.txt]
+[include:allvoucherchanges.txt]
+
+[include :autobatchtransfer.txt]
+
+;; {14.Apr.22 13:11}    [include : showDetailsInMFJournal.txt]   ;; addition of fields in batch level of mfg voucher is not working.
+;; {09.Feb.18 14:23} [include : testUD.txt]
+
+
+;;----------------------------new rate inc vat changes
+
+[#Line: STKVCHBatch2]
+add : option : cwrateincl: @@isincrate
+
+[#Line: CI InvInfo]
+add : option : cwrateincl: @@isincrate
+
+[#Line: eI InvInfo]
+add : option : cwrateincl: @@isincrate
+
+[!line : cwrateincl]
+Local: Field:vchrateincl :Set As:$$GetPriceFromLevel:$StockItemName:$PriceLevel:$Date:$BilledQty
+[#FIELD :VCHPOSRATE]
+add : option : cwrateinclPOS: @@isincrate
+
+[!FIELD : cwrateinclPOS]
+Set as      	:$$InclusiveTaxValue:@@ExItemRate:@@STItemRate:@@VATItemRate:@@TCSItemRate:@@ExItemMRPDutyValue:@@VATItemMRPDutyValue:@@ExItemQuantum ;; If (@TaxationEnabled AND (@@InvoiceInCreate OR NOT $$IsEmpty:$InclusiveTaxValue) AND (@@STKInclTax OR ##ICFGInclTax) AND @@SalesInvoiceMode) AND NOT (@HasBatchAllocation OR $$IsEmpty:$$Number:$InclusiveTaxValue OR (($Amount != 0) AND ($Amount != @@CalcedAmt))) Then $$InclusiveTaxValue:@@ExItemRate:@@STItemRate:@@VATItemRate:@@TCSItemRate:@@ExItemMRPDutyValue:@@VATItemMRPDutyValue:@@ExItemQuantum Else +
+
+
+;;================================taniya
+[include : myudf.txt]
+[include : f11docfile.txt]
+[include : itemlevel.txt]
+[include : Itemmaster.txt]
+[include : vchtypemodify.txt]
+[include : vchinvchanges.txt]
+
+
+
+
+;; BOM Autopost
+
+[include : BOMWitemPosting.txt]
+
+
+;;======================Anil==================
+;; {29.Jul.23 13:51} [include:barcodefeatures2.txt]
+;; {29.Jul.23 13:51} [include : batchchanges2.txt]
+;; {29.Jul.23 13:51} [include: StockSummaryAddCustomizedFields2.txt]
+;; {29.Jul.23 13:51} [include :stockitemmaster2.txt]
+;; {29.Jul.23 13:51} [include : newcollections2.txt]  ;;------7/18/23
+
+ [include: cwBatchWiseNegativeStock.tx]
+ [include: cwaddonfeatures.tx]
+;; {22.Nov.24 16:13}  [include : testrep.txt]
+ 
+;; F:\all\worksData\jainjari
+
+;; user  :   SHREEJAINJARISTORE
+;;  p.w  :   JAINJARI9
+
+

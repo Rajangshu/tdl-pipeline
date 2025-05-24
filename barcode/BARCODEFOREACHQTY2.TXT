@@ -1,0 +1,600 @@
+; Created By: Akshay on 2014-08-08 11:37, ID:
+
+
+[Line: lnbcodeforeachqty]
+field:lp,cwlogical ,sp,numf ,sp2,numf2 ,sp3,cwlogical2
+Local: Field: lp : info:"Auto Create Batch for Each Qty.(1 qty / batch.) ?"
+Local: Field:sp : info: "Prefill with Zeros :"
+Local: Field:sp2 : info: "Starting No.:"
+
+
+Local: Field: cwlogical : storage:cwbarcodeeachqty
+Local: Field: numf: storage:cwnumzerofill
+Local: Field: numf2: storage:cwbcodestnox
+Local: Field: numf: Style: Normal Bold
+Local: Field: numf2: Style: Normal Bold
+Local: field: lp: Width:42
+Local: field: sp: Width:20
+Local: field: sp2: Width:14
+local: field: sp: inactive: not $cwbarcodeeachqty
+local: field: sp2: inactive: not $cwbarcodeeachqty
+local: field: numf: inactive: not $cwbarcodeeachqty
+local: field: numf2: inactive: not $cwbarcodeeachqty
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+Local: Field: sp3: info: "Skip Auto Fill (1 Barcode for All Qty)?"
+Local: field: sp3: Width: 0
+Local: field: sp3: Width: 0
+local: field:cwlogical2: inactive: not $cwbarcodeeachqty
+Local: Field: cwlogical2: storage:cwBatchQtyOne
+
+   border:thin box
+
+[#Part: VTYP BehaviourMain]
+ADD : OPTION : CWBARCODEAUTOINVOKE : @@cwCustomizationEnabled
+
+add:option :prtgeneratebarcodeqty:@@cwbarcodeeachqty
+add : option : cwFillCusumptionFromBOM  : @@cwCustomizationEnabled
+[!PART : CWBARCODEAUTOINVOKE]
+ADD : LINE : AT BEGINNING : CWBARCODETITLE,CWBARCODEINVOKEFROMVCH,CWBARCODEINVOKEFROMVCH2,cwWarnonEmptypartyCode, cwFillCusumptionFromBOM ;;,cwGenOnOut
+add : option: cwVchtypeTempate : $cwBarcodeTemplatebyVchType:COMPANY:##SVCURRENTCOMPANY
+
+
+[!part :cwVchtypeTempate]
+add : line : after : cwWarnonEmptypartyCode : cwBarcodeTemplate
+
+  [line: cwBarcodeTemplate]
+  field: sp,snf
+  Local: Field: sp: info: "Barcode Template Name:"
+  Local: field: sp: Width: 30
+  Local: Field: snf: storage: cwBarcodeTemplatename
+  Local: Field: default: Style: Normal Bold
+  local: field: snf: Case: Normal
+
+
+
+[LINE :CWBARCODETITLE]
+    Line    	: Form SubTitle
+    Local   	: Field : Form SubTitle : Info : $$LocaleString:"Barcode Settings"
+
+
+[LINE:CWBARCODEINVOKEFROMVCH]
+field : long prompt,cwlogical
+Local: Field: long prompt: info: "Generate Barcode on Save (New Entry)?"
+Local: field: long prompt: Width: 40
+ Local: Field: long prompt: Style: Normal Bold
+  Local: Field: cwlogical: storage:GenBarCodeOnSave
+
+[LINE:CWBARCODEINVOKEFROMVCH2]
+field : long prompt,cwlogical
+Local: Field: long prompt: info: "Generate Barcode on Save (Editing)?"
+Local: field: long prompt: Width: 40
+ Local: Field: long prompt: Style: Normal Bold
+  Local: Field: cwlogical: storage:GenBarCodeOnSaveEdit
+
+
+  [line: cwWarnonEmptypartyCode]
+  use : CWBARCODEINVOKEFROMVCH
+  Local: Field: long prompt: info: "Warn on Blank Party Code"
+  Local: Field: cwlogical: storage:  cwWarnonEmptypartyCode
+  local: field: cwlogical: inactive: not @@cwShowPartyAliasinEntry
+
+ [line : cwGenOnOut]
+ field : sp,cwlogical
+ Local: Field: sp: info: "Generate Barcode on Outward?"
+ Local: Field: cwlogical: storage: cwGenerateBarcodeOnOutward
+ Local: field: sp: Width: 30
+ invisible: not $$IsJobMaterialIssue:$parent
+ Local: Field: sp: Style: Normal Bold
+
+  [System: Formula]
+  GenBarCodeOnSave : ($$increatemode and $GenBarCodeOnSave:vouchertype:##SVVouchertype) or (not $$increatemode and $GenBarCodeOnSaveEdit:vouchertype:##SVVouchertype)
+  GenBarCodeOnSaveEdit : $GenBarCodeOnSaveEdit:vouchertype:##SVVouchertype
+  cwWarnonEmptypartyCode : $cwWarnonEmptypartyCode:Vouchertype:##SVVoucherType
+
+[!Part: prtgeneratebarcodeqty]
+ ADD:LINE: before : Form SubTitle :lnbcodeforeachqtyvch
+
+[Line: lnbcodeforeachqtyvch]
+field:long prompt,cwlogical
+Local: Field: long prompt : info: "Auto Fill Batch for Each Qty.?"
+Local: Field: cwlogical : storage:cwbarcodeeachqty
+Local: Field: default: Style: Normal Bold
+Local: field: long prompt: Width:30
+
+
+[!part : cwFillCusumptionFromBOM]
+line: cwFillCusumptionFromBOM
+
+[line: cwFillCusumptionFromBOM]
+field : long prompt,cwlogical
+Local: Field: long prompt: info: "Fill Items from BOM?"
+Local: Field: cwlogical: storage: cwFillItemsFromBOM
+ local: field: default: inactive: not $$isstockjrnl:$parent
+Local: Field: default: style : normal bold
+invisible : not ##UseBoM
+
+[#line : ei invinfo]
+add : option : mylineno
+
+[#line : ci invinfo]
+add : option : mylineno
+
+
+[#line : SJDetailsA]
+add : option : mylineno
+
+[#line : SJDetailsC]
+add : option : mylineno
+
+[!line : mylineno]
+add : field : at beginning : snfLineNo
+add : field : after :VCH StockItem: snfbatchdets
+
+
+[field :snfLineNo]
+use : numf
+set as  :$$line
+skip : yes
+invisible : yes
+storage : cwline
+
+
+[field : snfbatchdets]
+use : nf
+;set as  : if $$line = 1 then "" else if $$prevobj:$stockitemname = $stockitemname then $$prevobj:($$collectionfield:$batchname:(-1):BatchAllocations) else ""
+
+set as : if $$line = 1 then "" else $$Getfromprev:$$line:$stockitemname
+skip : yes
+border : thick box
+invisible : yes
+
+
+[function : Getfromprev]
+parameter : myline : number
+parameter : myitemname : string
+returns : string
+variable : str : string : ""
+variable : id : number : 1
+;10 : return : ##myline
+
+;x00 : log : "Checking: " + ##myitemname + " - " +  ##str +  " - " +  $$string:##myline
+
+00 : walk Collection : AllInventory Entries
+01 : do if : ##id >= ##myline : return: ##str
+
+02 : if : $stockitemname = ##myitemname
+03 : set : str : $$collectionfield:$batchname:(-1):BatchAllocations
+;; {17.Jul.15 13:38} 04 : log : ##str
+05 : end if
+
+06 : incr : id
+07 : end walk
+
+08 : return : ##str
+
+/* before opening for sales.
+ [#Field: VCH StockItem]
+ add:Sub Form :itembarcodedet  : @@cwbarcodeeachqty and ($$number:$actualqty=0)  AND (@@HasBatchWise) and @@cwbarcodeeachqtyx and $isdeemedpositive and not @@IsStockJrnl
+ add:Sub Form :itembarcodedet2 : @@cwbarcodeeachqty and ($$number:$actualqty=0)  AND (@@HasBatchWise) and @@cwbarcodeeachqtyx and $isdeemedpositive and @@IsStockJrnl and NOT $$IsMultiGodownOn
+*/
+
+ [#Field: VCH StockItem]
+ add:Sub Form :itembarcodedet  : @@cwbarcodeeachqty and ($$number:$actualqty=0)  AND (@@HasBatchWise) and @@cwbarcodeeachqtyx and not @@IsStockJrnl
+ add:Sub Form :itembarcodedet2 : @@cwbarcodeeachqty and ($$number:$actualqty=0)  AND (@@HasBatchWise) and @@cwbarcodeeachqtyx and $isdeemedpositive and @@IsStockJrnl and NOT $$IsMultiGodownOn
+
+  [#Line: SJDetailsC]
+Local: Field:VCH Godown : add:Sub Form :before:Mfgr SJBatchAllocations:itembarcodedet2  :@@cwbarcodeeachqty and ($$number:$actualqty=0)  AND (@@HasBatchWise) and @@cwbarcodeeachqtyx and $isdeemedpositive and @@IsStockJrnl and $$IsMultiGodownOn
+
+add: field : cwxline
+
+;;border:thin box
+
+  [#Field: mvchgodown]
+add:Sub Form : itembarcodedet2 :@@cwbarcodeeachqty and ($$number:$actualqty=0)  AND (@@HasBatchWise) and @@cwbarcodeeachqtyx and $isdeemedpositive and @@IsStockJrnl and $$IsMultiGodownOn
+
+
+[field: cwxline]
+use : number field
+set as : $$line
+skip : yes
+invisible:yes
+;; {03.Jan.20 12:44} border : thickbox
+
+[Report: itembarcodedet2]
+use:itembarcodedet
+
+[Report: itembarcodedet3]
+use:itembarcodedet
+Local: Field: nf: ADD:table:Stockable Godown VchExtract ,Not Applicable
+
+
+
+[Report:itembarcodedet]
+Form: itembarcodedet
+title : "Enter Batch-wise Breakup Details..."
+
+[Form: itembarcodedet]
+Part: itembarcodedet
+on : form Accept : yes : Form Accept
+on : form Accept : yes : Call : batchbarcodefill:$cwautotr:$cwautoor:$cwordue:$cwmfddt:$cwnewgodownname:$cwnewbcodeqty:$cwnewrate:$cwnewdis:$cwnewamount:#fldprtno:#fldbatch:#fldnuzero:#fldstno:$cwmrpbatch:$cwfillvalcaption1:$cwfillvalcaption2:$cwfillvalcaption3:#cwxline:#cwlogical;;:$cwSize
+
+;; {13.Mar.18 18:43}   on : form Accept : yes : Call : batchbarcodefill:$cwautotr:$cwautoor:$cwordue:$cwmfddt:$cwnewgodownname:$cwnewbcodeqty:$cwnewrate:$cwnewdis:$cwnewamount:$cwnewsl:#fldprtno:#fldbatch:#fldnuzero:#fldstno:$cwmrpbatch:$cwfillvalcaption1:$cwfillvalcaption2:$cwfillvalcaption3
+;; {09.Mar.18 13:33}   on : form Accept : yes : Call : batchbarcodefill:$cwautotr:$cwautoor:$cwordue:$cwmfddt:$cwnewgodownname:$cwnewbcodeqty:"":$cwnewdis:$cwnewamount:#fldprtno:#fldbatch:#fldnuzero:#fldstno:$cwmrpbatch:$cwfillvalcaption1:$cwfillvalcaption2:$cwfillvalcaption3
+
+
+[Part: itembarcodedet]
+Line: lnstkdetx,itembarcodedet,itembarcodedet2
+
+[Line: itembarcodedet]
+option:titleopt
+field :snf ,snf2,snfx,sdf,nf ,snf3,snf4,snf5,numf,numf2,numf5,numf3,numf4,cwlogical,numf6
+Local: Field: nf: info:  "Godown Name"
+Local: Field: numf: info: "Qty."
+Local: Field: numf2: info: "Rate"
+Local: Field: numf3: info: "Dis(%)"
+Local: Field: numf4: info: "Amount"
+Local: Field: numf5: info: "MRP"
+Local: Field: sdf: info: "Mfg Dt."
+Local: Field : snfx  : Info : $$LocaleString:"Due on"
+Local: Field : snf : Info  : $$LocaleString:"Tracking No."
+Local: Field : snf2 : Info  : $$LocaleString:"Order No."
+
+ Local: Field: snf3: info:@@cwbatchtitle1
+ Local: Field: snf4: info:@@cwbatchtitle2
+ Local: Field: snf5: info: @@cwbatchtitle3
+
+ local: field: snf3: Invisible:$$isempty:@@cwbatchtitle1 or not @@cwenablebatchfield
+ local: field: snf4: Invisible:$$isempty:@@cwbatchtitle2 or not @@cwenablebatchfield
+ local: field: snf5: Invisible:$$isempty:@@cwbatchtitle3 or not @@cwenablebatchfield
+
+
+ Local: Field: cwlogical: Set As:  $isdeemedpositive
+ Local: Field: numf6: Set As: #cwxline
+ Local: Field: numf6: Border: thin box ;;left right
+ local: field: numf6: Invisible: yes
+ local: field: cwlogical: Invisible: yes
+
+local: field: nf: Invisible:If @@IsNonTrackJobVchs Then NOT $$IsMultiGodownOn Else NOT $$IsMultiGodownOn AND (@@HasBatchWise OR NOT @@IsAddlTypeGodown)
+local: field: NUMF3: Invisible: NOT @@WithDiscount
+local: field: snf: Invisible:NOT @@HasTrackingNo
+local: field: snf2: Invisible:NOT @@IsOrdersOn
+Local: field: snfx: Width:8
+local: field: sdf: Invisible:NOT @@HasMfgDateSet
+local: field: snfx: Invisible:NOT @@IsOrdersOn
+local: field: numf5: Invisible:NOT @@cwmrpenable
+Local: field: sdf: Align: left
+Local: field: sdf: Width:7
+local: field: numf5: type: String
+
+
+[field:oddue]
+use: Due Date Field
+storage :cwordue
+Invisible:NOT @@IsOrdersOn
+Format      : "Universal Date,After:$Date"
+ Width:8
+
+ [Field: fillVCHBATCHMfdx]
+  Use         : Short Date Field
+  storage :cwmfddt
+  Invisible:NOT @@HasMfgDateSet
+  Format      :  "Universal Date"
+  width:@@shortdatewidth
+  set as : ##varvchdate
+
+  [#Field: VCHBATCH Mfd]
+  delete:Format
+
+[Line: itembarcodedet2]
+field:snf,snf2,oddue,fillVCHBATCHMfdx,nf ,snf3,snf4,snf5,numf,numf2,numf5,numf3,numf4,fillVCHBATCHMfdx
+
+Local: Field: nf: storage:cwnewgodownname
+Local: Field: numf: storage:cwnewbcodeqty
+Local: Field: numf2: storage:cwnewrate
+Local: Field: numf3: storage:cwnewdis
+Local: Field: numf4: storage:cwnewamount
+Local: Field: snf: storage:cwautotr
+Local: Field: snf2: storage:cwautoor
+Local: Field: numf5: storage:cwmrpbatch
+Local: Field: snf6: storage:cwnewsl
+
+Local: Field: snf3: storage:cwfillvalcaption1
+Local: Field: snf4: storage:cwfillvalcaption2
+Local: Field: snf5: storage:cwfillvalcaption3
+
+Local: Field: numf4: Set As:(#numf*#numf2)- (#numf*#numf2)*#numf3/100
+Local: Field: nf: Set As:if $AsMfgJrnl:VoucherType:##SVVoucherType and not $$issysname:#mvchgodown then #mvchgodown else if @@IsStockJrnl then #VCHGodown else $$value
+;; {23.Jul.20 13:36} Local: Field: nf: Border: thin box: $AsMfgJrnl:VoucherType:##SVVoucherType ;;left right
+Local: Field: nf: table:Stockable Godown VchExtract ,Not Applicable:not $$IsStockJrnl:##SVVoucherType
+local: field: nf: Invisible:If @@IsNonTrackJobVchs Then NOT $$IsMultiGodownOn Else NOT $$IsMultiGodownOn AND (@@HasBatchWise OR NOT @@IsAddlTypeGodown)
+local: field: NUMF3: Invisible: NOT @@WithDiscount
+ Local: Field: nf: Keys        : Create Godown, Alter Godown
+ Local: Field: nf: Variable    : SV Godown
+
+ Local: Field: snf: table:NotApplicable,VCH InTNoBG,New Number
+ Local: Field: snf2: table: NotApplicable,VCH PoBG ,New Number
+ Local: Field: snf: Show table: Always
+ Local: Field: snf2: Show table: Always
+
+ Local: Field: snf: Key	: Create New Name
+ Local: Field: snf:Trigger :New Number : $$IsSysNameEqual:NewNumber:$$EditData
+ Local: Field: snf:Dynamic     : ""
+ Local: Field: snf2:Dynamic     : ""
+
+ Local: Field: snf2: Key	: Create New Name
+ Local: Field: snf2:Trigger : New Number : $$IsSysNameEqual:NewNumber:$$EditData
+
+
+
+ Local: field: numf: Format: "nozero,decimal:2"
+ Local: field: numf2: Format: "nozero,decimal:2"
+ Local: field: numf3: Format: "nozero,decimal:2"
+ Local: field: numf4: Format: "nozero,decimal:2"
+;; {21.May.15 17:24}  Local: field: numf5: Format: "nozero,decimal:2"
+local: field: numf5: type: String
+
+ local: field: snf: Invisible:NOT @@HasTrackingNo
+local: field: snf2: Invisible:NOT @@IsOrdersOn
+local: field: numf5: Invisible:NOT @@cwmrpenable
+ local: field: snf3: Invisible:$$isempty:@@cwbatchtitle1 or not @@cwenablebatchfield
+ local: field: snf4: Invisible:$$isempty:@@cwbatchtitle2 or not @@cwenablebatchfield
+ local: field: snf5: Invisible:$$isempty:@@cwbatchtitle3 or not @@cwenablebatchfield
+
+
+
+
+;; {08.Aug.14 17:44}  [#Form: STKVCH BatchAllocations]
+;; {08.Aug.14 17:44}  Local: part:ALLOC Title : add:line:after:ALLOC Title:lnstkdetx
+
+ [Line: lnstkdetx]
+ field:fldprtno,fldbatchprompt,fldbatch,fldnuzero,fldstno ,testx
+
+ [System: Formula]
+ cwIsOutwardType : @@isOutwardType and not $$isCreditNote:##svVoucherType
+
+ [field:fldbatchprompt]
+ use : sp
+ info: "Starting Batch (to Fill) :"
+ invisible : not @@cwIsOutwardType
+  Width:0
+
+ [field : testx]
+ use : nf
+  Skip: Yes
+;; {23.May.23 11:03}  border : thick box
+ set as: @@mybatch
+ invisible : @@cwIsOutwardType
+
+ [field:fldprtno]
+ use:snf
+ Set As:$partno:stockitem:$stockitemname
+ skip :yes
+Invisible: @@cwIsOutwardType
+
+ [System: Formula]
+ mybatch :$$collectionfield:$BatchName:(-1):itbatch
+
+ [field:fldbatch]
+ use:snf
+ setas : if @@cwIsOutwardType then $$value else if #snfbatchdets = "" then $$stringpart:$$mybatch:($$stringlength:#fldprtno):1000 else $$stringpart:#snfbatchdets:($$stringlength:#fldprtno):1000 ;; $$collectionfield:$BatchName:(-1):itbatch
+  skip :not @@cwIsOutwardType ;;yes
+   Invisible: not @@cwIsOutwardType ;; yes
+;; {20.Jul.20 15:13}  border : thick box
+; set as : @rx ;;$$number:$$stringpart:@rx:0:1
+; rx : $$collectionfield:$BatchName:(-1):itbatch ;;$$mybatch
+
+;; {20.Jul.20 15:01} table : activebatchesvchextract : @@issales
+
+  [Collection: itbatch]
+  type : batch ;;:stockitem
+  child of : $stockitemname
+  format : $BatchName ,10
+  fetch :BatchName ,stockitemname
+  sort:@@default:$$number:$BatchName
+;; {04.Aug.15 18:29}   filter : cwnonprimarybatch
+
+  [System: Formula]
+  cwnonprimarybatch : $$number:@@cwnamestart = 0
+  cwnamestart:  $$stringpart:$batchname:0:2
+  ;;($name <> "Primary Batch"
+
+
+  [Function: mybatch]
+  returns:string
+  variable:svtodate:date:@@cwCMPLastVoucher
+   10 : if : ##svtodate<##varvchdate
+  ;; 11 : set : svtodate<##varvchdate
+   12 : end if
+  ;; 11:log: @@mybatch
+   20:return :@@mybatch
+
+
+
+[System: Formula]
+fltitsame :$stockitemname = #allocname
+ [field:fldnuzero]
+ use:numf
+ setas :@@cwnumzerofill
+  skip :yes
+   Invisible: yes
+
+ [field:fldstno]
+ use:numf
+ setas:@@cwbcodestnox
+  skip :yes
+ Invisible: yes
+
+
+ [function : Cwmakebatch]
+ returns : string
+ variable : str : string
+ variable : itemline : string : #snfLineNo
+ 10 : set : str : ##fpartno
+;; {04.Sep.14 12:18}  1111 : log : "part no "+##fpartno
+;; {04.Sep.14 12:18}  1112:log : ##lastbatch
+;; {04.Sep.14 12:18}  1113: log : ##startingno
+;; {04.Sep.14 12:18}  1114 : log :  $$zerofill:($$string:##lastbatch):@@cwnumzerofill
+
+;; {20.Jul.20 15:15}  19 : log : "Last batch " + $$string:##lastbatch
+ 20 :  if : ##lastbatch = 0
+ 30: set : lastbatch : ##startingno
+
+ 40 : else
+ 50 : set : lastbatch : ##lastbatch + 1
+ 60 : end if
+;; 60X:LOG: ##STR
+ ;;60A : LOG: @@cwnumzerofill
+;; 61 : log : ##str + $$zerofill:($$string:##lastbatch):@@cwnumzerofill
+ 70  : return : ##str + $$zerofill:($$string:##lastbatch):@@cwnumzerofill
+
+;; {03.Sep.14 16:59}  70  : return : $$zerofill:##lastbatch:@@cwnumzerofill
+
+
+
+
+  [Function: batchbarcodefill]
+
+  parameter :trno :string
+  parameter :ordernox :string
+  parameter :duedtx :DueDate
+  parameter :mftx :date
+
+  parameter :mygodown :string
+  parameter :myqty:number
+  parameter :myrate:number
+  parameter :mydiscount:number
+  parameter :myamount:number
+  PARAMETER : FPARTNO: STRING
+  PARAMETER : LASTBATCH : NUMBER
+  PARAMETER : FNUMZERO : NUMBER
+  PARAMETER : STARTINGNO : NUMBER
+  PARAMETER : mymrp : STRING
+;; {17.Nov.23 11:56}   PARAMETER : mysize : STRING
+  PARAMETER : capt1 : STRING
+  PARAMETER : capt2 : STRING
+  PARAMETER : capt3 : STRING
+
+  parameter : myline : number : 1
+  parameter : myPositive : logical : yes
+
+
+  VARIABLE : ctr : number : $$numitems:BatchAllocations
+
+
+;; {24.Apr.18 13:16}   x03043 : log : $isdeemedpositive
+;; {24.Apr.18 13:16}   x3043i : log : $$line
+
+
+/*
+01a :log : ##mygodown
+01b: log : ##myqty
+01c: log : ##myrate
+01d: log : ##mydiscount
+01e: log : ##myamount
+01f: log : "----"
+ */
+
+ f011  : if : @@cwIsOutwardType
+ f012  : set : lastbatch : ##lastbatch - 1
+ f013a: set : FPARTNO : ""
+;; {20.Jul.20 15:04}  f013  : log : ##lastbatch
+ f014 : end if
+
+; 000000  : log :"test 04.09.2018"
+03a: if : not $$isstockjrnl:##SVvouchertype
+03c:  while : ##ctr  >= 0
+03d: delete collection object : BatchAllocations : 1 : yes
+03d1: decr : ctr
+03e: end while
+
+03f: else
+
+03g: while : $$numitems:BatchAllocations > 1
+03h: delete collection object : BatchAllocations : 1 : yes
+03i: end while
+
+03z: end if
+
+
+
+10  : set: ctr : 1
+
+30 : for range  : ctr1 : number : 1 :  ##myqty
+;; {24.Apr.18 13:48} 40 : log : ##ctr
+
+;; {24.Apr.18 13:48} 0343 : log : ##mygodown
+;; {01.Jul.23 16:34}   44: log :"hi"
+45 : do if : $$loopindex > 1 : insert collection object  : BatchAllocations
+;; {01.Apr.22 15:29} 46 : do if : $$loopindex = 1 and (not @@isstockjrnl) : set target : BatchAllocations[1]
+
+46 : do if : $$loopindex = 1 and ((not @@isstockjrnl) or (@@isstockjrnl and not $$IsMultiGodownOn)) : set target : BatchAllocations[1]
+
+46a : if : $$loopindex = 1 and (@@isstockjrnl and $$IsMultiGodownOn)
+46b: do if : ##myPositive : set target : InventoryEntriesIn[##myline]
+46c: do if : not ##myPositive : set target : InventoryEntriesOut[##myline]
+46d: set target : BatchAllocations[1]
+46e: end if
+
+50a : set value : TrackingNumber : ##trno
+50b : set value : OrderNo : ##ordernox
+50c : set value : OrderDueDate : ##duedtx
+50d : set value : MfdOn : ##mftx
+
+50 : set value : godownname : ##mygodown
+55 : set value : cwbatchcaption1 : ##capt1
+60 : set value : cwbatchcaption2 : ##capt2
+65 : set value : cwbatchcaption3 : ##capt3
+
+70 : set value : batchname  :  $$Cwmakebatch
+
+75 : set value : billedqty : if $cwBatchQtyOne:COMPANY:##SVCURRENTCOMPANY then $$asqty:##myqty else $$asqty:1 ;;##myqty
+78 : set value : Actualqty : if $cwBatchQtyOne:COMPANY:##SVCURRENTCOMPANY then $$asqty:##myqty else $$asqty:1 ;;##myqty
+80 : set value : batchrate : $$asrate:##myrate ;; in fn: batchbarcodefill
+90 : set value : BatchDiscount : ##mydiscount
+92 : set value : cwmrpbatch: ##mymrp
+;; {17.Nov.23 11:56} 93 : set value : cwSize: ##mysize
+
+190 : if : $cwBatchQtyOne:COMPANY:##SVCURRENTCOMPANY
+191 : break
+192 : end if
+
+199 : set: ctr : ##ctr + 1
+200 : end for
+
+
+
+[System: Formula]
+autobatchFormAccept :yes
+cwbarcodeeachqty:$cwbarcodeeachqty:COMPANY:##SVCURRENTCOMPANY
+cwbarcodeeachqtyx:$cwbarcodeeachqty:Vouchertype:##SVVoucherType
+cwnumzerofill: $cwnumzerofill:COMPANY:##SVCURRENTCOMPANY
+cwbcodestnox: $cwbcodestnox:COMPANY:##SVCURRENTCOMPANY
+
+[System: UDF]
+cwbarcodeeachqty:Logical:6001
+cwnumzerofill:number:6002
+cwnewgodownname:string:6003
+cwnewbcodeqty:number:6004
+cwnewrate:number:6005
+cwnewdis:number:6006
+cwnewamount:number:6007
+cwbcodestnox:number:6008
+cwautotr:string:6009
+cwautoor:string:60010
+cwordue:duedate:60011
+cwmfddt:date:60012
+cwfillvalcaption1:string:60013
+cwfillvalcaption2:string:60014
+cwfillvalcaption3:string:60015
+cwnewsl:string:60016
+
+
+
+
+
+
+
+
+

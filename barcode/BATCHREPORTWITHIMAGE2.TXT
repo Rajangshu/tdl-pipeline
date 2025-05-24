@@ -1,0 +1,191 @@
+
+
+
+;; {01.Apr.21 10:11}      [#menu : cw_Debug_menu]
+;; {01.Apr.21 10:11}         add: Item: before: @@locQuit: @@BatchReportWithImageReport: Display: RepBatchReportWithImage
+
+
+
+     [!menu: BatchReportWithImageLock]
+        add: Item: before: @@locQuit: @@BatchReportWithImageReport: Display: RepBatchReportWithImage
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   BatchReportWithImageReport: "Batch Report With Image"
+;; BatchReportWithImageDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: RepBatchReportWithImage]
+        use: Dsp Template
+      Title: @@BatchReportWithImageReport
+   Printset: Report Title: @@BatchReportWithImageReport
+       Form: FrmBatchReportWithImage
+     Export: Yes
+;     set  : svfromdate : ##svcurrentdate
+;     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+
+      [Form: FrmBatchReportWithImage]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0BatchReportWithImage,PrtBatchReportWithImage
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: BatchReportWithImagebotbrk,BatchReportWithImagebotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: BatchReportWithImagebotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: BatchReportWithImagebotopbrk]
+        use: dspacctitles
+  add: part: BatchReportWithImageTitlePart
+
+      [part: BatchReportWithImageTitlePart]
+       line: LnBatchReportWithImageTitle
+
+      [line: LnBatchReportWithImageCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0BatchReportWithImage]
+      line : LnBatchReportWithImageCurrPeriod
+
+      [Part: PrtBatchReportWithImage]
+       Line: LnBatchReportWithImageTitle,LnBatchReportWithImage
+bottom Line: LnBatchReportWithImageTotals
+     repeat: LnBatchReportWithImage: ColBatchReportWithImageBatch
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColBatchReportWithImageBatch]
+use : stockitem
+filter : ColBatchReportWithImageFilter
+fetch : closingbalance,stkoutqty
+
+    [system: Formula]
+ColBatchReportWithImageFilter:if $IsBatchWiseOn then @@batchbalf else no
+batchbalf : not $$isempty:$closingbalance or not $$isempty:$stkoutqty
+
+      [Line: LnBatchReportWithImageTitle]
+        use: LnBatchReportWithImage
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: nf2: set as: @@cwbatchtitle1
+local:field: nf3: set as: @@cwbatchtitle2
+local:field: nf4: set as: @@cwbatchtitle3
+local:field: NF: set as:"Name"
+local:field: qtyf: set as:"CL Qty."
+local:field: amtf: set as: "CL Value"
+local:field: ratepf : set as : "Rate"
+Local: Field: qtyf2: Set As: "Sold Qty"
+Local: Field: sdf: Set As: "Mfd On"
+Local: Field: numf2: Set As: "BatchMRP"
+
+      local: field: default : style: normal bold
+
+      [Line: LnBatchReportWithImage]
+     Fields: numf,d12, nf,D1,NF2,D2,nf3 ,D3,nf4,D4,sdf ,D5,sdf2,d14,nf5,D6,numf2
+right field:D8,Qtyf,D9,Amtf,D10,ratepf,D11,qtyf2,D13,nf6,d15
+     Option: Alter on Enter
+
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+
+ Local: Field: nf: Set As:$NAME
+ Local: Field: qtyf: Set As: $closingbalance
+ Local: Field: AMTF: Set As:$closingvalue
+ Local: Field: qtyf2: Set As: $stkoutqty
+
+ Local: Field: numf: Set As:$$explodelevel
+
+ local:field: ratepf : setas  : #amtf/#qtyf
+ 
+ local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+ local:field: qtyf2 : Format : "NoSymbol, Short Form, No Compact,NoZero"
+ explode:partbatchname;;:$$numitems:collbatch >1
+ Local: Field:default: Style: if $$explodelevel = 0 then "Normal Bold" else " Normal"
+ 
+ Local: Field: nf6: Set As: if $$explodelevel =0 then $parent else $$prevlinefield
+ 
+;; {26.Jun.15 17:48}  local: field: nf2: Invisible: $$isempty:@@cwbatchtitle1
+;; {26.Jun.15 17:48}  local: field: nf3: Invisible: $$isempty:@@cwbatchtitle2
+;; {26.Jun.15 17:48}  local: field: nf4: Invisible: $$isempty:@@cwbatchtitle3
+ 
+ 
+ Local: Field: nf5: Set As: if $$isempty:$cwitemimage then "" else @@myItemfilenamepath+$cwitemimage
+Local: Field: numf2: Set As: $cwmrpbatch
+
+OPTION : CW_SETW : $$INEXPORTMODE
+
+[!LINE : CW_setw]
+ Local: field: NF: Width: 100
+ Local: field: NF: MAX: 100
+
+ Local: field: NF2: Width: 100
+ Local: field: NF2: MAX: 100
+
+  Local: field: NF3: Width: 100
+ Local: field: NF3: MAX: 100
+
+ Local: field: NF4: Width: 100
+ Local: field: NF4: MAX: 100
+
+ Local: field: NF5: Width: 100
+ Local: field: NF5: MAX: 100
+
+
+
+
+ [part:partbatchname]
+
+  line:batchnameline
+ ;; set:$$numitems:collbatch-1
+ repeat:batchnameline:collbatchx
+ 
+  [Collection: collbatchx]
+  type:batch
+  Child of:$name  ;;$stockitemname
+  filter : batchbalf
+  fetch : *.*
+
+
+  
+ [line:batchnameline]
+ use: LnBatchReportWithImage
+ 
+  Local: Field: nf: Set As:$name
+  Local: Field: nf2: Set As:$cwbatchcaption1
+  Local: Field: nf3: Set As:$cwbatchcaption2
+  Local: Field: nf4: Set As:$cwbatchcaption3
+  Local: Field: sdf: Set As: $mfdon
+  Local: Field: sdf2: Set As: $expiryperiod
+
+; Local: Field: qtyf: Set As:$closingbalance
+Local: Field: amtf: Set As: $closingvalue
+Local: Field: ratepf: Set As: if $$number:#qtyf <> 0 then #amtf / #qtyf else 0
+ Local: Field:qtyf: Style: Normal
+ 
+ delete:explode
+ 
+
+      [line: LnBatchReportWithImageTotals]
+        use: LnBatchReportWithImage
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

@@ -1,0 +1,28 @@
+; Created By: Taniya on 2019-11-29 14:33, ID: 
+
+[#Part: EXPINV InvInfo]
+add:option:cwEXPINVInvInfonew:@@cwcomitemopt
+
+[!part:cwEXPINVInvInfonew]
+delete:Repeat      : EXPINV InvDetails    : Inventory Entries
+add:Repeat      : EXPINV InvDetails    : colcombineditem
+
+local:line:EXPINV InvDetails:local:field:EXPINV Rate:set as:$$asrate:$rate
+local:line:EXPINV InvDetails:local:field:EXPINV MRPValue:set as:@@cwitemmrprate
+
+
+[collection:colcombineditem]
+source collection:default
+walk:inventoryentries
+
+by:stockitemname:$stockitemname
+aggr compute:billedqty:sum:$billedqty
+by:rate:$rate
+by:GSTIsTransLedEx:$GSTIsTransLedEx
+by:GSTItemHSNCodeEx:$GSTItemHSNCodeEx
+by:GSTClsfnIGSTRateEx:$GSTClsfnIGSTRateEx
+by:discount:$discount
+aggr compute:amount:sum:$amount
+
+
+

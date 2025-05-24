@@ -1,0 +1,1261 @@
+; Created By: Anil on 2023-07-18 17:33, ID: 
+
+; Created By: Akshay on 2013-01-05 10:52, ID:
+
+;--------------- Loading In Config
+
+[#Form: Company Operations]
+                Switch   : cwCustomFldsLowerRel  : cwCustomFldsNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : cwCustomFldsCurrenRel : cwCustomFldsFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+
+[!Form : cwCustomFldsNOTFor3.2]
+
+
+;; {12.Nov.16 11:22} Local: Part : CMP AccFeat Left : Add : Line : At End : cwCostTracking,cwCustomFldsConfig ,lnCaption2,lnCaption3,lnCaption4,lnCaption5,lnCaption6 +
+;; {12.Nov.16 11:22} ,lnbcodeforeachqty ,lncmpbatchfieldcaption,lncmpbarcodefrombatch    ;;,lnCaption7
+
+[!Form : cwCustomFldsFor3.2]
+;; {12.Nov.16 11:22} Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : cwCostTracking,cwCustomFldsConfig ,lnCaption2,lnCaption3,lnCaption4,lnCaption5,lnCaption6 +
+;; {12.Nov.16 11:22} ,lnbcodeforeachqty,lncmpbatchfieldcaption ,lncmpbarcodefrombatch
+
+[Line : cwCustomFldsConfig]
+Field : cwCustomFldsConfigTitle,cwCustomFldsConfig
+;; {07.Jan.13 13:26} right field : Short name field
+Local: Field: short name field : info: "sales@circuitworld.in"
+Local: Field: short name field: case : normal
+Local: Field: short name field: Color : blue
+;;Local: Field: short name field: border : thin bottom
+Local: Field: short name field: width : 0
+
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf2: storage:cwtableFrom1
+Local: Field: snf: storage:cwUnder1
+Local: Field: nf2: table:coltableFrom ,Not Applicable
+Local: Field: nf2: Show table: Always
+
+local: field:cwbcsp : inactive: not #cwCustomFldsConfig
+local: field:cwbcnf : inactive: not #cwCustomFldsConfig
+local: field:sp : inactive: not #cwCustomFldsConfig
+local: field:sp2 : inactive: not #cwCustomFldsConfig
+
+
+ local: field: snf: inactive:$$issysname:#nf2
+ local: field: nf2: inactive:$$issysname:#cwbcnf
+
+;; {26.Feb.14 18:35}  Local: Field: cwbcnf:set as:"Brand"
+;; {26.Feb.14 18:34}   local:field:cwbcnf:skip:yes
+
+
+
+
+[Line: lnCaption2]
+field:cwbcsp2,cwbcnf2,sp,nf3,sp2,snf2
+
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf3: storage:cwtableFrom2
+Local: Field: snf2: storage:cwUnder2
+Local: Field: nf3: table:coltableFrom ,Not Applicable
+Local: Field: nf3: Show table: Always
+
+local: field:cwbcsp2 : inactive: not #cwCustomFldsConfig
+local: field:cwbcnf2 : inactive: not #cwCustomFldsConfig
+local: field:sp : inactive: not #cwCustomFldsConfig
+local: field:sp2 : inactive: not #cwCustomFldsConfig
+local: field:nf3 : inactive: not #cwCustomFldsConfig
+local: field:nf: inactive: not #cwCustomFldsConfig
+
+Local: field: nf: Width:30
+local: field: snf2: inactive:$$issysname:#nf3
+local: field: nf3: inactive:$$issysname:#cwbcnf2
+;; {26.Feb.14 18:35} Local: Field: cwbcnf2:set as:"Style"
+;; {26.Feb.14 18:35}  local:field:cwbcnf2:skip:yes
+space top :0.5
+
+
+[Line:lnCaption3 ]
+field:cwbcsp3,cwbcnf3,sp,nf4,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf4: storage:cwtableFrom3
+Local: Field: snf3: storage:cwUnder3
+Local: Field: nf4: table:coltableFrom ,Not Applicable
+Local: Field: nf4: Show table: Always
+
+local: field:cwbcsp3 : inactive: not #cwCustomFldsConfig
+local: field:cwbcnf3 : inactive: not #cwCustomFldsConfig
+local: field:sp : inactive: not #cwCustomFldsConfig
+local: field:sp2 : inactive: not #cwCustomFldsConfig
+local: field:nf4 : inactive: not #cwCustomFldsConfig
+local: field:nf: inactive: not #cwCustomFldsConfig
+local: field: snf3: inactive:$$issysname:#nf4
+local: field: nf4: inactive:$$issysname:#cwbcnf3
+Local: field: nf: Width:30
+;; {26.Feb.14 18:35}  Local: Field: cwbcnf3:set as:"Season"
+;; {26.Feb.14 18:35}  local:field:cwbcnf3:skip:yes
+ space top :0.5
+
+[Line:lnCaption4 ]
+field:cwbcsp4,cwbcnf4,sp,nf5,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf5: storage:cwtableFrom4
+Local: Field: snf3: storage:cwUnder4
+Local: Field: nf5: table:coltableFrom ,Not Applicable
+Local: Field: nf5: Show table: Always
+
+local: field:cwbcsp4 : inactive: not #cwCustomFldsConfig
+local: field:cwbcnf4 : inactive: not #cwCustomFldsConfig
+local: field:sp : inactive: not #cwCustomFldsConfig
+local: field:sp2 : inactive: not #cwCustomFldsConfig
+local: field:nf5 : inactive: not #cwCustomFldsConfig
+local: field:nf: inactive: not #cwCustomFldsConfig
+local: field: snf3: inactive:$$issysname:#nf5
+local: field: nf5: inactive:$$issysname:#cwbcnf4
+Local: field: nf: Width:30
+;; {26.Feb.14 18:35}  Local: Field: cwbcnf4:set as:"Size"
+;; {26.Feb.14 18:35}   local:field:cwbcnf4:skip:yes
+space top :0.5
+[Line:lnCaption5 ]
+field:cwbcsp5,cwbcnf5,sp,nf6,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf6: storage:cwtableFrom5
+Local: Field: snf3: storage:cwUnder5
+Local: Field: nf6: table:coltableFrom ,Not Applicable
+Local: Field: nf6: Show table: Always
+
+local: field:cwbcsp5 : inactive: not #cwCustomFldsConfig
+local: field:cwbcnf5 : inactive: not #cwCustomFldsConfig
+local: field:sp : inactive: not #cwCustomFldsConfig
+local: field:sp2 : inactive: not #cwCustomFldsConfig
+local: field:nf6 : inactive: not #cwCustomFldsConfig
+local: field:nf: inactive: not #cwCustomFldsConfig
+local: field: snf3: inactive:$$issysname:#nf6
+local: field: nf6: inactive:$$issysname:#cwbcnf5
+Local: field: nf: Width:30
+;; {26.Feb.14 18:35}  Local: Field: cwbcnf5:set as:"Color"
+;; {26.Feb.14 18:35}   local:field:cwbcnf5:skip:yes
+space top :0.5
+
+[Line:lnCaption6 ]
+field:cwbcsp6,cwbcnf6,sp,nf7,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf7: storage:cwtableFrom6
+Local: Field: snf3: storage:cwUnder6
+Local: Field: nf7: table:coltableFrom ,Not Applicable
+Local: Field: nf7: Show table: Always
+
+local: field:cwbcsp6 : inactive: not #cwCustomFldsConfig
+local: field:cwbcnf6 : inactive: not #cwCustomFldsConfig
+local: field:sp : inactive: not #cwCustomFldsConfig
+local: field:sp2 : inactive: not #cwCustomFldsConfig
+local: field:nf7 : inactive: not #cwCustomFldsConfig
+local: field:nf: inactive: not #cwCustomFldsConfig
+local: field: snf3: inactive:$$issysname:#nf7
+local: field: nf7: inactive:$$issysname:#cwbcnf6
+Local: field: nf: Width:30
+;; {26.Feb.14 18:35}  Local: Field: cwbcnf6:set as:"Featurre"
+;; {26.Feb.14 18:35}   local:field:cwbcnf6:skip:yes
+space top :0.5
+
+[Line:lnCaption7]
+field:cwbcsp7,cwbcnf7,sp,nf8,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf8: storage:cwtableFrom7
+Local: Field: snf3: storage:cwUnder7
+Local: Field: nf8: table:coltableFrom ,Not Applicable
+Local: Field: nf8: Show table: Always
+
+local: field:cwbcsp7 : inactive: not #cwCustomFldsConfig
+local: field:cwbcnf7 : inactive: not #cwCustomFldsConfig
+local: field:sp : inactive: not #cwCustomFldsConfig
+local: field:sp2 : inactive: not #cwCustomFldsConfig
+local: field:nf8 : inactive: not #cwCustomFldsConfig
+local: field:nf: inactive: not #cwCustomFldsConfig
+local: field: snf3: inactive:$$issysname:#nf8
+local: field: nf8: inactive:$$issysname:#cwbcnf7
+Local: field: nf: Width:30
+
+[field : cwbcsp]
+use : short prompt
+info: "Caption1:"
+
+[field : cwbcsp2]
+use : short prompt
+info: "Caption2:"
+[field : cwbcsp3]
+use : short prompt
+info: "Caption3:"
+
+[field : cwbcsp4]
+use : short prompt
+info: "Caption4:"
+
+[field : cwbcsp5]
+use : short prompt
+info: "Caption5:"
+
+
+[field : cwbcsp6]
+use : short prompt
+info: "Caption6:"
+
+[field : cwbcsp7]
+use : short prompt
+info: "Caption7:"
+
+
+
+[field : cwbcnf]
+use : name field
+;; {26.Feb.14 18:19} info:"Brand"
+storage : cwsortnoStr
+
+[field : cwbcnf2]
+use : cwbcnf
+;; {26.Feb.14 18:19} info:"Style "
+storage: cwsizeStr
+
+[field : cwbcnf3]
+use : cwbcnf
+storage : cwproductStr
+
+[field : cwbcnf4]
+use : cwbcnf
+storage : cwproductStr2
+
+[field : cwbcnf5]
+use : cwbcnf
+storage : cwproductStr3
+
+[field : cwbcnf6]
+use : cwbcnf
+storage : cwproductStr4
+
+
+[field : cwbcnf7]
+use : cwbcnf
+storage : cwproductStr5
+
+
+[field : cwbcsp9]
+use : short prompt
+info: "Caption7:"
+
+[field : cwbcsp10]
+use : short prompt
+info: "Caption8:"
+
+[field : cwbcsp11]
+use : short prompt
+info: "Caption9:"
+[field : cwbcsp12]
+use : short prompt
+info: "Caption10:"
+[field : cwbcsp13]
+use : short prompt
+info: "Caption11:"
+
+[field : cwbcsp14]
+use : short prompt
+info: "Caption12:"
+
+[field : cwbcnf9]
+use : cwbcnf
+storage : cwproductStr9
+
+[field : cwbcnf10]
+use : cwbcnf
+storage : cwproductStr10
+
+[field : cwbcnf11]
+use : cwbcnf
+storage : cwproductStr11
+
+[field : cwbcnf12]
+use : cwbcnf
+storage : cwproductStr12
+
+[field : cwbcnf13]
+use : cwbcnf
+storage : cwproductStr13
+
+[field : cwbcnf14]
+use : cwbcnf
+storage : cwproductStr14
+
+
+[Line:lnCaption9 ]
+field:cwbcsp9,cwbcnf9,sp,nf9,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf9: storage:cwtableFrom9
+Local: Field: snf3: storage:cwUnder9
+Local: Field: nf9: table:coltableFrom ,Not Applicable
+Local: Field: nf9: Show table: Always
+
+local: field:cwbcsp9 : inactive: not #cwCustomFldsConfig
+local: field:cwbcnf9 : inactive: not #cwCustomFldsConfig
+local: field:sp : inactive: not #cwCustomFldsConfig
+local: field:sp2 : inactive: not #cwCustomFldsConfig
+local: field:nf9 : inactive: not #cwCustomFldsConfig
+local: field:nf: inactive: not #cwCustomFldsConfig
+local: field: snf3: inactive:$$issysname:#nf9
+local: field: nf9: inactive:$$issysname:#cwbcnf9
+Local: field: nf: Width:30
+
+space top :0.5
+
+
+[Line:lnCaption10]
+field:cwbcsp10,cwbcnf10,sp,nf10,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf10: storage:cwtableFrom10
+Local: Field: snf3: storage:cwUnder10
+Local: Field: nf10: table:coltableFrom ,Not Applicable
+Local: Field: nf10: Show table: Always
+
+local: field:cwbcsp9 : inactive: not #cwCustomFldsConfig
+local: field:cwbcnf9 : inactive: not #cwCustomFldsConfig
+local: field:sp : inactive: not #cwCustomFldsConfig
+local: field:sp2 : inactive: not #cwCustomFldsConfig
+local: field:nf10 : inactive: not #cwCustomFldsConfig
+local: field:nf: inactive: not #cwCustomFldsConfig
+local: field: snf3: inactive:$$issysname:#nf10
+local: field: nf10: inactive:$$issysname:#cwbcnf10
+Local: field: nf: Width:30
+
+space top :0.5
+
+
+[Line:lnCaption11]
+field:cwbcsp11,cwbcnf11,sp,nf11,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf11: storage:cwtableFrom11
+Local: Field: snf3: storage:cwUnder11
+Local: Field: nf11: table:coltableFrom ,Not Applicable
+Local: Field: nf11: Show table: Always
+
+local: field:cwbcsp11 : inactive: not #cwCustomFldsConfig
+local: field:cwbcnf11 : inactive: not #cwCustomFldsConfig
+local: field:sp : inactive: not #cwCustomFldsConfig
+local: field:sp2 : inactive: not #cwCustomFldsConfig
+local: field:nf11 : inactive: not #cwCustomFldsConfig
+local: field:nf: inactive: not #cwCustomFldsConfig
+local: field: snf3: inactive:$$issysname:#nf11
+local: field: nf11: inactive:$$issysname:#cwbcnf11
+Local: field: nf: Width:30
+
+space top :0.5
+
+
+[Line:lnCaption12]
+field:cwbcsp12,cwbcnf12,sp,nf12,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf12: storage:cwtableFrom12
+Local: Field: snf3: storage:cwUnder12
+Local: Field: nf12: table:coltableFrom ,Not Applicable
+Local: Field: nf12: Show table: Always
+
+local: field:cwbcsp12 : inactive: not #cwCustomFldsConfig
+local: field:cwbcnf12 : inactive: not #cwCustomFldsConfig
+local: field:sp : inactive: not #cwCustomFldsConfig
+local: field:sp2 : inactive: not #cwCustomFldsConfig
+local: field:nf12 : inactive: not #cwCustomFldsConfig
+local: field:nf1: inactive: not #cwCustomFldsConfig
+local: field: snf3: inactive:$$issysname:#nf12
+local: field: nf12: inactive:$$issysname:#cwbcnf12
+Local: field: nf: Width:30
+
+space top :0.5
+
+[Line:lnCaption13]
+field:cwbcsp13,cwbcnf13,sp,nf13,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf13: storage:cwtableFrom13
+Local: Field: snf3: storage:cwUnder13
+Local: Field: nf13: table:coltableFrom ,Not Applicable
+Local: Field: nf13: Show table: Always
+
+local: field:cwbcsp13 : inactive: not #cwCustomFldsConfig
+local: field:cwbcnf13 : inactive: not #cwCustomFldsConfig
+
+local: field:sp : inactive: not #cwCustomFldsConfig
+local: field:sp2 : inactive: not #cwCustomFldsConfig
+local: field:nf13 : inactive: not #cwCustomFldsConfig
+local: field:nf13: inactive: not #cwCustomFldsConfig
+local: field: snf3: inactive:$$issysname:#nf13
+local: field: nf13: inactive:$$issysname:#cwbcnf13
+Local: field: nf: Width:30
+space top :0.5
+
+
+[Line:lnCaption14]
+field:cwbcsp14,cwbcnf14,sp,nf14,sp2,snf3
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf14: storage:cwtableFrom14
+Local: Field: snf3: storage:cwUnder14
+Local: Field: nf14: table:coltableFrom ,Not Applicable
+Local: Field: nf14: Show table: Always
+
+local: field:cwbcsp14 : inactive: not #cwCustomFldsConfig
+local: field:cwbcnf14 : inactive: not #cwCustomFldsConfig
+local: field:sp : inactive: not #cwCustomFldsConfig
+local: field:sp2 : inactive: not #cwCustomFldsConfig
+local: field:nf114 : inactive: not #cwCustomFldsConfig
+local: field:nf: inactive: not #cwCustomFldsConfig
+local: field: snf3: inactive:$$issysname:#nf14
+local: field: nf14: inactive:$$issysname:#cwbcnf14
+Local: field: nf: Width:30
+
+space top :0.5
+
+
+
+[Field: cwCustomFldsConfigTitle]
+Use : long prompt
+info: "Stock Item has Additional Fields ?"
+;; {12.Nov.16 11:45} width : 0
+
+[Field: cwCustomFldsConfig]
+Use: logical field
+Set As: $cwCustomFldsEnabled
+storage: cwCustomFldsEnabled
+SubForm :stockitemcaptionfrm : $$value
+
+[Report: stockitemcaptionfrm]
+title :"Stock Item Additional Fields"
+Form: stockitemcaptionfrm
+[Form: stockitemcaptionfrm]
+Part: stockitemcaptionfrm
+width : 80% page
+
+[Part: stockitemcaptionfrm]
+line :lnCaption0,lnCaption0a,lnCaption1,lnCaption2,lnCaption3,lnCaption4,lnCaption5,lnCaption6,lnCaption9,lnCaption10,lnCaption11,lnCaption12,lnCaption13,lnCaption14
+
+
+[line : lnCaption0a]
+field : sp3,cwlogical
+Local: Field: sp3: Set As: "Show in Stock Summary?"
+Local: Field: cwlogical: storage:cwShowItemsInStockSummary
+Local: field: sp3: Width: 20
+
+[Line: lnCaption0]
+field:fwfc
+Local: Field: fwfc: info: "Stock Item Additional Fields"
+Local: Field: fwfc: Style: Normal Bold
+Local: Field: fwfc: Border: thin bottom ;;left right
+
+[Line: lnCaption1]
+field:cwbcsp,cwbcnf,sp,nf2,sp2,snf
+space top :0.5
+Local: Field: nf: info: ""
+Local: Field: sp: info: "Table From :"
+Local: Field: sp2: info: "Under :"
+Local: Field: nf2: storage:cwtableFrom1
+Local: Field: snf: storage:cwUnder1
+Local: Field: nf2: table:coltableFrom ,Not Applicable
+Local: Field: nf2: Show table: Always
+local: field:sp : inactive: not #cwCustomFldsConfig
+local: field:sp2 : inactive: not #cwCustomFldsConfig
+
+local: field: snf: inactive:$$issysname:#nf2
+local: field: cwbcinss: inactive:$$issysname:#nf2
+local: field: nf2: inactive:$$issysname:#cwbcnf
+
+
+
+
+[Collection: coltableFrom]
+title:"Table From "
+listname:@@cwforledger
+listname:@@cwforcostcentre
+listname:@@cwforcostcategory
+listname:@@cwforgroup
+listname:@@cwforstockgroup
+listname:@@cwforstockcategory
+
+[System: Formula]
+
+cwCustomFldsEnabled :  $cwCustomFldsEnabled:COMPANY:##SVCURRENTCOMPANY
+
+cwforledger:"Ledger"
+cwforcostcentre:"Cost Centre"
+cwforcostcategory:"Cost Category"
+cwforgroup:"Group"
+cwforstockgroup:"Stock Group"
+cwforstockcategory:"Stock Category"
+
+forunder1:$cwUnder1:COMPANY:##SVCURRENTCOMPANY
+forunder2:$cwUnder2:COMPANY:##SVCURRENTCOMPANY
+forunder3:$cwUnder3:COMPANY:##SVCURRENTCOMPANY
+forunder4:$cwUnder4:COMPANY:##SVCURRENTCOMPANY
+forunder5:$cwUnder5:COMPANY:##SVCURRENTCOMPANY
+forunder6:$cwUnder6:COMPANY:##SVCURRENTCOMPANY
+forunder7:$cwUnder7:COMPANY:##SVCURRENTCOMPANY
+forunder8:$cwUnder8:COMPANY:##SVCURRENTCOMPANY
+forunder9:$cwUnder9:COMPANY:##SVCURRENTCOMPANY
+forunder10:$cwUnder10:COMPANY:##SVCURRENTCOMPANY
+forunder11:$cwUnder11:COMPANY:##SVCURRENTCOMPANY
+forunder12:$cwUnder12:COMPANY:##SVCURRENTCOMPANY
+forunder13:$cwUnder13:COMPANY:##SVCURRENTCOMPANY
+forunder14:$cwUnder14:COMPANY:##SVCURRENTCOMPANY
+
+
+
+fortable1led:$cwtableFrom1:COMPANY:##SVCURRENTCOMPANY
+fortable1ledx:@@fortable1led="ledger"
+
+fortable1gr:$cwtableFrom1:COMPANY:##SVCURRENTCOMPANY
+fortable1grx:@@fortable1gr="Group"
+
+fortable1ccst:$cwtableFrom1:COMPANY:##SVCURRENTCOMPANY
+fortable1ccstx:@@fortable1ccst="Cost Centre"
+
+fortable1cocat:$cwtableFrom1:COMPANY:##SVCURRENTCOMPANY
+fortable1cocatx:@@fortable1cocat="Cost Category"
+
+fortable1stgrp:$cwtableFrom1:COMPANY:##SVCURRENTCOMPANY
+fortable1stgrpx:@@fortable1stgrp="Stock Group"
+
+fortable1stcat:$cwtableFrom1:COMPANY:##SVCURRENTCOMPANY
+fortable1stcatx:@@fortable1stcat="Stock Category"
+
+;;----------------------------
+
+fortable2led:$cwtableFrom2:COMPANY:##SVCURRENTCOMPANY
+fortable2ledx:@@fortable2led="ledger"
+
+fortable2gr:$cwtableFrom2:COMPANY:##SVCURRENTCOMPANY
+fortable2grx:@@fortable2gr="Group"
+
+fortable2ccst:$cwtableFrom2:COMPANY:##SVCURRENTCOMPANY
+fortable2ccstx:@@fortable2ccst="Cost Centre"
+
+fortable2cocat:$cwtableFrom2:COMPANY:##SVCURRENTCOMPANY
+fortable2cocatx:@@fortable2cocat="Cost Category"
+
+fortable2stgrp:$cwtableFrom2:COMPANY:##SVCURRENTCOMPANY
+fortable2stgrpx:@@fortable2stgrp="Stock Group"
+
+fortable2stcat:$cwtableFrom2:COMPANY:##SVCURRENTCOMPANY
+fortable2stcatx:@@fortable2stcat="Stock Category"
+
+;;-------------------------------------------------
+
+
+fortable3led:$cwtableFrom3:COMPANY:##SVCURRENTCOMPANY
+fortable3ledx:@@fortable3led="ledger"
+
+fortable3gr:$cwtableFrom3:COMPANY:##SVCURRENTCOMPANY
+fortable3grx:@@fortable3gr="Group"
+
+fortable3ccst:$cwtableFrom3:COMPANY:##SVCURRENTCOMPANY
+fortable3ccstx:@@fortable3ccst="Cost Centre"
+
+fortable3cocat:$cwtableFrom3:COMPANY:##SVCURRENTCOMPANY
+fortable3cocatx:@@fortable3cocat="Cost Category"
+
+fortable3stgrp:$cwtableFrom3:COMPANY:##SVCURRENTCOMPANY
+fortable3stgrpx:@@fortable3stgrp="Stock Group"
+
+fortable3stcat:$cwtableFrom3:COMPANY:##SVCURRENTCOMPANY
+fortable3stcatx:@@fortable3stcat="Stock Category"
+
+
+;;--------------------------------------------------------
+
+ fortable4led:$cwtableFrom4:COMPANY:##SVCURRENTCOMPANY
+fortable4ledx:@@fortable4led="ledger"
+
+fortable4gr:$cwtableFrom4:COMPANY:##SVCURRENTCOMPANY
+fortable4grx:@@fortable4gr="Group"
+
+fortable4ccst:$cwtableFrom4:COMPANY:##SVCURRENTCOMPANY
+fortable4ccstx:@@fortable4ccst="Cost Centre"
+
+fortable4cocat:$cwtableFrom4:COMPANY:##SVCURRENTCOMPANY
+fortable4cocatx:@@fortable4cocat="Cost Category"
+
+fortable4stgrp:$cwtableFrom4:COMPANY:##SVCURRENTCOMPANY
+fortable4stgrpx:@@fortable4stgrp="Stock Group"
+
+fortable4stcat:$cwtableFrom4:COMPANY:##SVCURRENTCOMPANY
+fortable4stcatx:@@fortable4stcat="Stock Category"
+
+;;-------------------------------------------------------
+
+fortable5led:$cwtableFrom5:COMPANY:##SVCURRENTCOMPANY
+fortable5ledx:@@fortable5led="ledger"
+
+fortable5gr:$cwtableFrom5:COMPANY:##SVCURRENTCOMPANY
+fortable5grx:@@fortable5gr="Group"
+
+fortable5ccst:$cwtableFrom5:COMPANY:##SVCURRENTCOMPANY
+fortable5ccstx:@@fortable5ccst="Cost Centre"
+
+fortable5cocat:$cwtableFrom5:COMPANY:##SVCURRENTCOMPANY
+fortable5cocatx:@@fortable5cocat="Cost Category"
+
+fortable5stgrp:$cwtableFrom5:COMPANY:##SVCURRENTCOMPANY
+fortable5stgrpx:@@fortable5stgrp="Stock Group"
+
+fortable5stcat:$cwtableFrom5:COMPANY:##SVCURRENTCOMPANY
+fortable5stcatx:@@fortable5stcat="Stock Category"
+
+;;----------------------------------------------------
+
+fortable6led:$cwtableFrom6:COMPANY:##SVCURRENTCOMPANY
+fortable6ledx:@@fortable6led="ledger"
+
+fortable6gr:$cwtableFrom6:COMPANY:##SVCURRENTCOMPANY
+fortable6grx:@@fortable6gr="Group"
+
+fortable6ccst:$cwtableFrom6:COMPANY:##SVCURRENTCOMPANY
+fortable6ccstx:@@fortable6ccst="Cost Centre"
+
+fortable6cocat:$cwtableFrom6:COMPANY:##SVCURRENTCOMPANY
+fortable6cocatx:@@fortable6cocat="Cost Category"
+
+fortable6stgrp:$cwtableFrom6:COMPANY:##SVCURRENTCOMPANY
+fortable6stgrpx:@@fortable6stgrp="Stock Group"
+
+fortable6stcat:$cwtableFrom6:COMPANY:##SVCURRENTCOMPANY
+fortable6stcatx:@@fortable6stcat="Stock Category"
+
+;;--------------------------------------------------------------
+
+fortable7led:$cwtableFrom7:COMPANY:##SVCURRENTCOMPANY
+fortable7ledx:@@fortable7led="ledger"
+
+fortable7gr:$cwtableFrom7:COMPANY:##SVCURRENTCOMPANY
+fortable7grx:@@fortable7gr="Group"
+
+fortable7ccst:$cwtableFrom7:COMPANY:##SVCURRENTCOMPANY
+fortable7ccstx:@@fortable7ccst="Cost Centre"
+
+fortable7cocat:$cwtableFrom7:COMPANY:##SVCURRENTCOMPANY
+fortable7cocatx:@@fortable7cocat="Cost Category"
+
+fortable7stgrp:$cwtableFrom7:COMPANY:##SVCURRENTCOMPANY
+fortable7stgrpx:@@fortable7stgrp="Stock Group"
+
+fortable7stcat:$cwtableFrom7:COMPANY:##SVCURRENTCOMPANY
+fortable7stcatx:@@fortable7stcat="Stock Category"
+
+;;=============================================================================
+
+fortable9led:$cwtableFrom9:COMPANY:##SVCURRENTCOMPANY
+fortable9ledx:@@fortable9led="ledger"
+
+fortable9gr:$cwtableFrom9:COMPANY:##SVCURRENTCOMPANY
+fortable9grx:@@fortable9gr="Group"
+
+fortable9ccst:$cwtableFrom9:COMPANY:##SVCURRENTCOMPANY
+fortable9ccstx:@@fortable9ccst="Cost Centre"
+
+fortable9cocat:$cwtableFrom9:COMPANY:##SVCURRENTCOMPANY
+fortable9cocatx:@@fortable9cocat="Cost Category"
+
+fortable9stgrp:$cwtableFrom9:COMPANY:##SVCURRENTCOMPANY
+fortable9stgrpx:@@fortable9stgrp="Stock Group"
+
+fortable9stcat:$cwtableFrom9:COMPANY:##SVCURRENTCOMPANY
+fortable9stcatx:@@fortable9stcat="Stock Category"
+
+;;=====================
+
+fortable10led:$cwtableFrom10:COMPANY:##SVCURRENTCOMPANY
+fortable10ledx:@@fortable10led="ledger"
+
+fortable10gr:$cwtableFrom10:COMPANY:##SVCURRENTCOMPANY
+fortable10grx:@@fortable10gr="Group"
+
+fortable10ccst:$cwtableFrom10:COMPANY:##SVCURRENTCOMPANY
+fortable10ccstx:@@fortable10ccst="Cost Centre"
+
+fortable10cocat:$cwtableFrom10:COMPANY:##SVCURRENTCOMPANY
+fortable10cocatx:@@fortable10cocat="Cost Category"
+
+fortable10stgrp:$cwtableFrom10:COMPANY:##SVCURRENTCOMPANY
+fortable10stgrpx:@@fortable10stgrp="Stock Group"
+
+fortable10stcat:$cwtableFrom10:COMPANY:##SVCURRENTCOMPANY
+fortable10stcatx:@@fortable10stcat="Stock Category"
+
+;;=====
+
+fortable11led:$cwtableFrom11:COMPANY:##SVCURRENTCOMPANY
+fortable11ledx:@@fortable11led="ledger"
+
+fortable11gr:$cwtableFrom11:COMPANY:##SVCURRENTCOMPANY
+fortable11grx:@@fortable11gr="Group"
+
+fortable11ccst:$cwtableFrom11:COMPANY:##SVCURRENTCOMPANY
+fortable11ccstx:@@fortable11ccst="Cost Centre"
+
+fortable11cocat:$cwtableFrom11:COMPANY:##SVCURRENTCOMPANY
+fortable11cocatx:@@fortable11cocat="Cost Category"
+
+fortable11stgrp:$cwtableFrom11:COMPANY:##SVCURRENTCOMPANY
+fortable11stgrpx:@@fortable11stgrp="Stock Group"
+
+fortable11stcat:$cwtableFrom11:COMPANY:##SVCURRENTCOMPANY
+fortable11stcatx:@@fortable11stcat="Stock Category"
+;;====
+fortable12led:$cwtableFrom12:COMPANY:##SVCURRENTCOMPANY
+fortable12ledx:@@fortable12led="ledger"
+
+fortable12gr:$cwtableFrom12:COMPANY:##SVCURRENTCOMPANY
+fortable12grx:@@fortable12gr="Group"
+
+fortable12ccst:$cwtableFrom12:COMPANY:##SVCURRENTCOMPANY
+fortable12ccstx:@@fortable12ccst="Cost Centre"
+
+fortable12cocat:$cwtableFrom12:COMPANY:##SVCURRENTCOMPANY
+fortable12cocatx:@@fortable12cocat="Cost Category"
+
+fortable12stgrp:$cwtableFrom12:COMPANY:##SVCURRENTCOMPANY
+fortable12stgrpx:@@fortable12stgrp="Stock Group"
+
+fortable12stcat:$cwtableFrom12:COMPANY:##SVCURRENTCOMPANY
+fortable12stcatx:@@fortable12stcat="Stock Category"
+
+;;==
+fortable13led:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13ledx:@@fortable13led="ledger"
+
+fortable13gr:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13grx:@@fortable13gr="Group"
+
+fortable13ccst:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13ccstx:@@fortable13ccst="Cost Centre"
+
+fortable13cocat:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13cocatx:@@fortable13cocat="Cost Category"
+
+fortable13stgrp:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13stgrpx:@@fortable13stgrp="Stock Group"
+
+fortable13stcat:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13stcatx:@@fortable13stcat="Stock Category"
+
+fortable13led:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13ledx:@@fortable13led="ledger"
+
+fortable13gr:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13grx:@@fortable13gr="Group"
+
+fortable13ccst:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13ccstx:@@fortable13ccst="Cost Centre"
+
+fortable13cocat:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13cocatx:@@fortable13cocat="Cost Category"
+
+fortable13stgrp:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13stgrpx:@@fortable13stgrp="Stock Group"
+
+fortable13stcat:$cwtableFrom13:COMPANY:##SVCURRENTCOMPANY
+fortable13stcatx:@@fortable13stcat="Stock Category"
+;;==
+
+fortable14led:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14ledx:@@fortable14led="ledger"
+
+fortable14gr:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14grx:@@fortable14gr="Group"
+
+fortable14ccst:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14ccstx:@@fortable14ccst="Cost Centre"
+
+fortable14cocat:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14cocatx:@@fortable14cocat="Cost Category"
+
+fortable14stgrp:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14stgrpx:@@fortable14stgrp="Stock Group"
+
+fortable14stcat:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14stcatx:@@fortable14stcat="Stock Category"
+
+fortable14led:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14ledx:@@fortable14led="ledger"
+
+fortable14gr:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14grx:@@fortable14gr="Group"
+
+fortable14ccst:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14ccstx:@@fortable14ccst="Cost Centre"
+
+fortable14cocat:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14cocatx:@@fortable14cocat="Cost Category"
+
+fortable14stgrp:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14stgrpx:@@fortable14stgrp="Stock Group"
+
+fortable14stcat:$cwtableFrom14:COMPANY:##SVCURRENTCOMPANY
+fortable14stcatx:@@fortable14stcat="Stock Category"
+
+
+
+
+
+;--------------- Stock item Change
+
+ [#Form: Stock Item]
+;; {05.Jan.13 10:55} add:option:frmItemnew    :@@isnewtcp
+;; {05.Jan.13 10:55} [!form:frmItemnew]
+ add : part : after : STKI Basic : prtItemCoal
+
+ [part:prtItemCoal]
+ line:lnItemsortno,lnItemsortno2,lnItemsortno3,lnItemsortno4
+
+ [line:lnItemsortno]
+ field: Sp,stksnf,sp2,stksnf2,sp3,stksnf3
+ Local: Field: sp: info: $cwsortnoStr:COMPANY:##SVCURRENTCOMPANY  ;; contains "brand" ;;"Sort No :"
+ Local: Field: sp2: info: $cwsizeStr:COMPANY:##SVCURRENTCOMPANY ;; "Size  :"
+ Local: Field: sp3: info: $cwproductStr:COMPANY:##SVCURRENTCOMPANY ;;"Product :"
+
+ Local: Field: snf: storage:cwsortno
+ Local: Field: snf2: storage:cwsize
+ Local: Field: snf3: storage:cwproduct
+
+ Local: Field: default: Color : blue
+ local: field: sp: inactive: (not @@cwhascustomudf) or $$issysname:$cwsortnoStr:COMPANY:##SVCURRENTCOMPANY
+ local: field: sp2: inactive: (not @@cwhascustomudf) or $$issysname:$cwsizeStr:COMPANY:##SVCURRENTCOMPANY
+ local: field: sp3: inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr:COMPANY:##SVCURRENTCOMPANY
+
+
+ [line:lnItemsortno2]
+  field:sp4,stksnf4,sp5,stksnf5,sp6,stksnf6 ;;,sp7 ;;,stksnf7
+  Local: Field: sp4: info: $cwproductStr2:COMPANY:##SVCURRENTCOMPANY
+  Local: Field: sp5: info: $cwproductStr3:COMPANY:##SVCURRENTCOMPANY
+  Local: Field: sp6: info: $cwproductStr4:COMPANY:##SVCURRENTCOMPANY
+  Local: Field: sp7: info: $cwproductStr5:COMPANY:##SVCURRENTCOMPANY
+
+
+ Local: Field: default: Color : blue
+ local: field: sp4: inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr2:COMPANY:##SVCURRENTCOMPANY
+ local: field: sp5: inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr3:COMPANY:##SVCURRENTCOMPANY
+ local: field: sp6: inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr4:COMPANY:##SVCURRENTCOMPANY
+ local: field: sp7: inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr5:COMPANY:##SVCURRENTCOMPANY
+
+
+ [field:stksnf]
+ use:snf
+ Style: Normal Bold
+ storage:cwsortno
+ set always : yes
+ Show table: Always
+
+table:coltabledger,Not Applicable:@@fortable1ledx
+option : keyled : @@fortable1ledx
+table:coltabgroup1,Not Applicable:@@fortable1grx
+option : keygrp : @@fortable1grx
+table:coltabcostcentre,Not Applicable:@@fortable1ccstx
+option : keycsct : @@fortable1ccstx
+table:coltabcostcat,Not Applicable:@@fortable1cocatx
+option : keycocat : @@fortable1cocatx
+table:coltabstgrp,Not Applicable:@@fortable1stgrpx
+option : keystgrpt : @@fortable1stgrpx
+table:coltabstcat,Not Applicable:@@fortable1stcatx
+option : keystcat : @@fortable1stcatx
+inactive: (not @@cwhascustomudf) or $$issysname:$cwsortnoStr:COMPANY:##SVCURRENTCOMPANY
+
+border: thick box
+
+[field:stksnf2]
+use:snf
+Style: Normal Bold
+storage:cwsize
+set always : yes
+Show table: Always
+inactive: (not @@cwhascustomudf) or $$issysname:$cwsizeStr:COMPANY:##SVCURRENTCOMPANY
+border : thin box
+table:coltabledger2,Not Applicable:@@fortable2ledx
+option : keyled : @@fortable2ledx
+table:coltabgroup1,Not Applicable:@@fortable2grx
+option : keygrp : @@fortable2grx
+table:coltabcostcentre2,Not Applicable:@@fortable2ccstx
+option : keycsct : @@fortable2ccstx
+table:coltabcostcat2,Not Applicable:@@fortable2cocatx
+option : keycocat : @@fortable2cocatx
+table:coltabstgrp2,Not Applicable:@@fortable2stgrpx
+option : keystgrpt : @@fortable2stgrpx
+table:coltabstcat2,Not Applicable:@@fortable2stcatx
+option : keystcat : @@fortable2stcatx
+
+[field:stksnf3]
+use:snf
+Style: Normal Bold
+storage:cwproduct
+set always : yes
+Show table: Always
+inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr:COMPANY:##SVCURRENTCOMPANY
+
+table:coltabledger3,Not Applicable:@@fortable3ledx
+option : keyled : @@fortable3ledx
+table:coltabgroup3,Not Applicable:@@fortable3grx
+option : keygrp : @@fortable3grx
+table:coltabcostcentre3,Not Applicable:@@fortable3ccstx
+option : keycsct : @@fortable3ccstx
+table:coltabcostcat3,Not Applicable:@@fortable3cocatx
+option : keycocat : @@fortable3cocatx
+table:coltabstgrp3,Not Applicable:@@fortable3stgrpx
+option : keystgrpt : @@fortable3stgrpx
+table:coltabstcat3,Not Applicable:@@fortable3stcatx
+option : keystcat : @@fortable3stcatx
+
+
+[field:stksnf4]
+use:snf
+Style: Normal Bold
+storage:cwproduct2
+set always : yes
+Show table: Always
+inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr2:COMPANY:##SVCURRENTCOMPANY
+
+table:coltabledger4,Not Applicable:@@fortable4ledx
+option : keyled : @@fortable4ledx
+table:coltabgroup4,Not Applicable:@@fortable4grx
+option : keygrp : @@fortable4grx
+table:coltabcostcentre4,Not Applicable:@@fortable4ccstx
+option : keycsct : @@fortable4ccstx
+table:coltabcostcat4,Not Applicable:@@fortable4cocatx
+option : keycocat : @@fortable4cocatx
+table:coltabstgrp4,Not Applicable:@@fortable4stgrpx
+option : keystgrpt : @@fortable4stgrpx
+table:coltabstcat4,Not Applicable:@@fortable4stcatx
+option : keystcat : @@fortable4stcatx
+
+
+[field:stksnf5]
+use:snf
+Style: Normal Bold
+storage:cwproduct3
+set always : yes
+Show table: Always
+inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr3:COMPANY:##SVCURRENTCOMPANY
+
+table:coltabledger5,Not Applicable:@@fortable5ledx
+option : keyled : @@fortable5ledx
+table:coltabgroup5,Not Applicable:@@fortable5grx
+option : keygrp : @@fortable5grx
+table:coltabcostcentre5,Not Applicable:@@fortable5ccstx
+option : keycsct : @@fortable5ccstx
+table:coltabcostcat5,Not Applicable:@@fortable5cocatx
+option : keycocat : @@fortable5cocatx
+table:coltabstgrp5,Not Applicable:@@fortable5stgrpx
+option : keystgrpt : @@fortable5stgrpx
+table:coltabstcat5,Not Applicable:@@fortable5stcatx
+option : keystcat : @@fortable5stcatx
+
+[field:stksnf6]
+use:snf
+Style: Normal Bold
+storage:cwproduct4
+set always : yes
+Show table: Always
+inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr4:COMPANY:##SVCURRENTCOMPANY
+
+table:coltabledger6,Not Applicable:@@fortable6ledx
+option : keyled : @@fortable6ledx
+table:coltabgroup6,Not Applicable:@@fortable6grx
+option : keygrp : @@fortable6grx
+table:coltabcostcentre6,Not Applicable:@@fortable6ccstx
+option : keycsct : @@fortable6ccstx
+table:coltabcostcat6,Not Applicable:@@fortable6cocatx
+option : keycocat : @@fortable6cocatx
+table:coltabstgrp6,Not Applicable:@@fortable6stgrpx
+option : keystgrpt : @@fortable6stgrpx
+table:coltabstcat6,Not Applicable:@@fortable6stcatx
+option : keystcat : @@fortable6stcatx
+
+
+
+[field:stksnf7]
+use:snf
+Style: Normal Bold
+storage:cwproduct5
+set always : yes
+Show table: Always
+inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr5:COMPANY:##SVCURRENTCOMPANY
+
+table:coltabledger7,Not Applicable:@@fortable7ledx
+option : keyled : @@fortable7ledx
+table:coltabgroup7,Not Applicable:@@fortable7grx
+option : keygrp : @@fortable7grx
+table:coltabcostcentre7,Not Applicable:@@fortable7ccstx
+option : keycsct : @@fortable7ccstx
+table:coltabcostcat7,Not Applicable:@@fortable7cocatx
+option : keycocat : @@fortable7cocatx
+table:coltabstgrp7,Not Applicable:@@fortable7stgrpx
+option : keystgrpt : @@fortable7stgrpx
+table:coltabstcat7,Not Applicable:@@fortable7stcatx
+option : keystcat : @@fortable7stcatx
+
+
+
+;;===========
+
+ [line:lnItemsortno3]
+  field:sp4,stksnf9,sp5,stksnf10,sp6,stksnf11 ;;,sp7 ;;,stksnf7
+  Local: Field: sp4: info: $cwproductStr9:COMPANY:##SVCURRENTCOMPANY
+  Local: Field: sp5: info: $cwproductStr10:COMPANY:##SVCURRENTCOMPANY
+  Local: Field: sp6: info: $cwproductStr11:COMPANY:##SVCURRENTCOMPANY
+
+ Local: Field: default: Color : blue
+ local: field: sp4: inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr9:COMPANY:##SVCURRENTCOMPANY
+ local: field: sp5: inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr10:COMPANY:##SVCURRENTCOMPANY
+ local: field: sp6: inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr11:COMPANY:##SVCURRENTCOMPANY
+
+
+ [field:stksnf9]
+use:snf
+Style: Normal Bold
+storage:cwproduct5
+set always : yes
+Show table: Always
+inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr9:COMPANY:##SVCURRENTCOMPANY
+
+table:coltabledger9,Not Applicable:@@fortable9ledx
+option : keyled : @@fortable9ledx
+table:coltabgroup9,Not Applicable:@@fortable9grx
+option : keygrp : @@fortable9grx
+table:coltabcostcentre9,Not Applicable:@@fortable9ccstx
+option : keycsct : @@fortable9ccstx
+table:coltabcostcat9,Not Applicable:@@fortable9cocatx
+option : keycocat : @@fortable9cocatx
+table:coltabstgrp9,Not Applicable:@@fortable9stgrpx
+option : keystgrpt : @@fortable9stgrpx
+table:coltabstcat9,Not Applicable:@@fortable9stcatx
+option : keystcat : @@fortable9stcatx
+
+
+ [field:stksnf10]
+use:snf
+Style: Normal Bold
+storage:cwproduct10
+set always : yes
+Show table: Always
+inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr10:COMPANY:##SVCURRENTCOMPANY
+
+table:coltabledger10,Not Applicable:@@fortable10ledx
+option : keyled : @@fortable10ledx
+table:coltabgroup10,Not Applicable:@@fortable10grx
+option : keygrp : @@fortable10grx
+table:coltabcostcentre10,Not Applicable:@@fortable10ccstx
+option : keycsct : @@fortable10ccstx
+table:coltabcostcat10,Not Applicable:@@fortable10cocatx
+option : keycocat : @@fortable10cocatx
+table:coltabstgrp10,Not Applicable:@@fortable10stgrpx
+option : keystgrpt : @@fortable10stgrpx
+table:coltabstcat10,Not Applicable:@@fortable10stcatx
+option : keystcat : @@fortable10stcatx
+
+
+ [field:stksnf11]
+use:snf
+Style: Normal Bold
+storage:cwproduct11
+set always : yes
+Show table: Always
+inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr11:COMPANY:##SVCURRENTCOMPANY
+
+table:coltabledger11,Not Applicable:@@fortable11ledx
+option : keyled : @@fortable11ledx
+table:coltabgroup11,Not Applicable:@@fortable11grx
+option : keygrp : @@fortable11grx
+table:coltabcostcentre11,Not Applicable:@@fortable11ccstx
+option : keycsct : @@fortable11ccstx
+table:coltabcostcat11,Not Applicable:@@fortable11cocatx
+option : keycocat : @@fortable11cocatx
+table:coltabstgrp11,Not Applicable:@@fortable11stgrpx
+option : keystgrpt : @@fortable11stgrpx
+table:coltabstcat11,Not Applicable:@@fortable11stcatx
+option : keystcat : @@fortable11stcatx
+
+
+ [field:stksnf12]
+use:snf
+Style: Normal Bold
+storage:cwproduct12
+set always : yes
+Show table: Always
+inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr12:COMPANY:##SVCURRENTCOMPANY
+
+table:coltabledger12,Not Applicable:@@fortable12ledx
+option : keyled : @@fortable12ledx
+table:coltabgroup12,Not Applicable:@@fortable12grx
+option : keygrp : @@fortable12grx
+table:coltabcostcentre12,Not Applicable:@@fortable12ccstx
+option : keycsct : @@fortable12ccstx
+table:coltabcostcat12,Not Applicable:@@fortable12cocatx
+option : keycocat : @@fortable12cocatx
+table:coltabstgrp12,Not Applicable:@@fortable12stgrpx
+option : keystgrpt : @@fortable12stgrpx
+table:coltabstcat12,Not Applicable:@@fortable12stcatx
+option : keystcat : @@fortable12stcatx
+
+
+ [field:stksnf13]
+use:snf
+Style: Normal Bold
+storage:cwproduct13
+set always : yes
+Show table: Always
+inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr13:COMPANY:##SVCURRENTCOMPANY
+
+table:coltabledger13,Not Applicable:@@fortable13ledx
+option : keyled : @@fortable13ledx
+table:coltabgroup13,Not Applicable:@@fortable13grx
+option : keygrp : @@fortable13grx
+table:coltabcostcentre13,Not Applicable:@@fortable13ccstx
+option : keycsct : @@fortable13ccstx
+table:coltabcostcat13,Not Applicable:@@fortable13cocatx
+option : keycocat : @@fortable13cocatx
+table:coltabstgrp13,Not Applicable:@@fortable13stgrpx
+option : keystgrpt : @@fortable13stgrpx
+table:coltabstcat13,Not Applicable:@@fortable13stcatx
+option : keystcat : @@fortable13stcatx
+
+
+ [field:stksnf14]
+use:snf
+Style: Normal Bold
+storage:cwproduct14
+set always : yes
+Show table: Always
+inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr14:COMPANY:##SVCURRENTCOMPANY
+
+table:coltabledger14,Not Applicable:@@fortable14ledx
+option : keyled : @@fortable14ledx
+table:coltabgroup14,Not Applicable:@@fortable14grx
+option : keygrp : @@fortable14grx
+table:coltabcostcentre14,Not Applicable:@@fortable14ccstx
+option : keycsct : @@fortable14ccstx
+table:coltabcostcat14,Not Applicable:@@fortable14cocatx
+option : keycocat : @@fortable14cocatx
+table:coltabstgrp14,Not Applicable:@@fortable14stgrpx
+option : keystgrpt : @@fortable14stgrpx
+table:coltabstcat14,Not Applicable:@@fortable14stcatx
+option : keystcat : @@fortable14stcatx
+
+
+
+
+
+ [line:lnItemsortno4]
+ field:sp4,stksnf12,sp5,stksnf13,sp6,stksnf14 ;;,sp7 ;;,stksnf7
+ Local: Field: sp4: info: $cwproductStr12:COMPANY:##SVCURRENTCOMPANY
+ Local: Field: sp5: info: $cwproductStr13:COMPANY:##SVCURRENTCOMPANY
+ Local: Field: sp6: info: $cwproductStr14:COMPANY:##SVCURRENTCOMPANY
+ Local: Field: default: Color : blue
+
+ local: field: sp4: inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr12:COMPANY:##SVCURRENTCOMPANY
+ local: field: sp5: inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr13:COMPANY:##SVCURRENTCOMPANY
+ local: field: sp6: inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr14:COMPANY:##SVCURRENTCOMPANY
+
+
+
+;;=====================
+
+
+
+
+
+
+[line : cwCostTracking]
+field : long prompt,cwlogical2,medium prompt,snf, sp4,snf2,snf3,  sp3,numf,sp5,snf5
+
+Local: Field: long prompt: info: "Enable Cost Coding ?"
+Local: field: sp: Width: 0
+Local: field: sp2: Width: 0
+Local: field: sp3: Width: 14
+Local: field: numf: Width: 5
+
+Local: Field: cwlogical2: storage: cwCostTracking
+
+Local: Field: medium prompt: info: "Cost String [0-9] :"
+Local: Field: medium prompt: width :0
+
+Local: Field: snf: storage: cwCostStr
+local: field: snf: Case: upper
+
+local: Field: SNF: max: 10
+local: Field: SNF: width: 12
+local: Field: SNF2: width: 10
+local: Field: SNf3: width: 10
+
+
+Local: Field: sp3: info: "Cost Multiplier:"
+Local: Field: numf: storage:cwCostMultiplier
+Local: Field: numf: Set As: if $$isempty:$$value then 1 else $$value
+
+local: field: snf: inactive: not #cwlogical2 = yes
+local: field: medium prompt: inactive: not #cwlogical2 = yes
+;; {16.Apr.18 14:45} local: field: sp3: inactive: not #cwlogical2 = yes
+local: field: numf: inactive: not #cwlogical2 = yes
+local: field: snf2: inactive: not #cwlogical2 = yes
+Local: field: numf: Align: left
+
+Local: Field: sp4: info: "Cost From:"
+Local: Field: snf2: storage: cwCostFrom
+Local: Field: snf2: table: costfrom ;;,Not Applicable
+Local: Field: snf3: inactive: $cwCostFrom <>  @@cwCFPriceList
+Local: Field: snf3: storage: cwCostPL
+Local: Field: snf3: table: pricelevels,Not Applicable
+
+;;Local: Field: SNF2: info: "   Cost will be multiplied by this value and code will be shown in barcode"
+;;Local: Field: SNF2: style :tiny
+;;Local: field: snf2: Width:10
+
+
+Local: Field: sp5: info: "Cost Code2:"
+Local: Field: snf5: table: pricelevels,Not Applicable
+Local: Field: snf5: storage: cwrtlpricelist
+
+[System: Formula]
+cwcmpCostFrom : $cwCostFrom:COMPANY:##SVCURRENTCOMPANY
+cwCostPL : $cwCostPL:COMPANY:##SVCURRENTCOMPANY
+
+[collection : costfrom]
+title:"Cost from"
+listname : @@cwCFVoucherRate
+listname : @@cwCFPriceList
+listname : @@cwCFStandardCost
+listname : @@cwCFStandardSale
+
+[System: Formula]
+cwCFVoucherRate : "Voucher Rate"
+cwCFPriceList   : "Price List"
+cwCFStandardCost: "Standard Cost"
+cwCFStandardSale: "Standard Sale"
+
+
+
+
+
+
