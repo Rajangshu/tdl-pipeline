@@ -76,8 +76,8 @@ def batch_compare(source_folder, dest_folder):
             print("\n" + "="*60 + "\n")
 
 # ---- USAGE ----
-SOURCE_FOLDER = r"C:\Users\rajan\Desktop\coding by raja\machine learning\tdl code\src"
-DEST_FOLDER   = r"C:\Users\rajan\Desktop\coding by raja\machine learning\tdl code\annotated"
+SOURCE_FOLDER = r"src"
+DEST_FOLDER   = r"annotated"
 
 if __name__ == "__main__":
     batch_compare(SOURCE_FOLDER, DEST_FOLDER)

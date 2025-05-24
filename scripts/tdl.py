@@ -2,8 +2,8 @@ import os
 import re
 
 # ----------- USER CONFIGURATION -----------
-SOURCE_FOLDER = r"C:\Users\rajan\Desktop\coding by raja\machine learning\tdl code\src"
-DEST_FOLDER   = r"C:\Users\rajan\Desktop\coding by raja\machine learning\tdl code\annotated"
+SOURCE_FOLDER = r"src"
+DEST_FOLDER   = r"annotated"
 # ------------------------------------------
 
 # Section patterns and their documentation headers
