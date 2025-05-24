@@ -1,12 +1,7 @@
 import os
 import re
+import sys
 
-# ----------- USER CONFIGURATION -----------
-SOURCE_FOLDER = r"src"
-DEST_FOLDER   = r"annotated"
-# ------------------------------------------
-
-# Section patterns and their documentation headers
 SECTION_HEADERS = [
     (r'^\[Report:',      '\n;;--------------------\n;; REPORT DEFINITION\n;;--------------------\n'),
     (r'^\[Form:',        '\n;;--------------------\n;; FORM DEFINITION\n;;--------------------\n'),
@@ -20,11 +15,8 @@ SECTION_HEADERS = [
 ]
 
 def annotate_tdl_file(src_path, dest_path):
-    """Reads a TDL file, adds documentation comments, and writes to destination."""
     with open(src_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
-
-    # Prepare file header (does not touch code)
     filename = os.path.basename(src_path)
     header = [
         ';===============================================================================\n',
@@ -33,22 +25,17 @@ def annotate_tdl_file(src_path, dest_path):
         '; Original code is preserved. No logic or code is changed.\n',
         ';===============================================================================\n\n'
     ]
-
     annotated = header.copy()
     for line in lines:
-        # Insert section headers before matching lines, but do NOT change the line itself
-        inserted = False
         for pattern, doc in SECTION_HEADERS:
             if re.match(pattern, line.strip(), re.IGNORECASE):
                 annotated.append(doc)
-                inserted = True
                 break
         annotated.append(line)
     with open(dest_path, 'w', encoding='utf-8') as f:
         f.writelines(annotated)
 
 def batch_annotate_tdl(source_folder, dest_folder):
-    """Batch processes all .txt/.tdl files for annotation."""
     if not os.path.exists(dest_folder):
         os.makedirs(dest_folder)
     for fname in os.listdir(source_folder):
@@ -59,6 +46,11 @@ def batch_annotate_tdl(source_folder, dest_folder):
             print(f"Annotated: {fname}")
 
 if __name__ == "__main__":
+    if len(sys.argv) == 3:
+        SOURCE_FOLDER = sys.argv[1]
+        DEST_FOLDER = sys.argv[2]
+    else:
+        print("Usage: python tdl.py <source_folder> <destination_folder>")
+        sys.exit(1)
     batch_annotate_tdl(SOURCE_FOLDER, DEST_FOLDER)
     print("\nBatch annotation complete. Annotated files are in:", DEST_FOLDER)
-    

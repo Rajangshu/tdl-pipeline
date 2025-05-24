@@ -1,0 +1,183 @@
+; Created By: Taniya on 2023-08-29 17:59, ID: 
+
+[#line: ei consignee]
+ add:option:cwvcheiconsigneeoptsl:@@RoseHomeoEnabled and (@@issales or @@ispurchase or @@iscreditnote or @@isdebitnote)
+
+
+  [!line:cwvcheiconsigneeoptsl]
+  add:RIGHT field:SP5,SNF5
+
+  Local: Field:sp5 : Set As:"Doctor :"
+  Local: Field:SNF5 :storage:cwdoctorname
+  Local: Field: SNF5: Show table: Always
+  Local: Field:SNF5: table:doctorcoll ,Not Applicable
+  local : field :SNF5 : key :Create Ledger, Alter Ledger
+  local : field :SNF5 : Variable    : SV Ledger
+  Local: Field: snf5: Style: Normal Bold
+
+
+
+
+[#Line: VCHBATCH Columnone]
+add:option:cwrmvchbatchcolonepurcopt:@@RoseHomeoEnabled and (@@issales or @@ispurchase or @@iscreditnote or @@isdebitnote)
+
+[!line:cwrmvchbatchcolonepurcopt]
+add:right fields:At Beginning:numf ;;,numf1
+
+Local: Field: numf: info: "PCS"
+;; {05.Sep.23 10:54} Local: Field: numf1: info: "PCS"
+Local: field: numf: Width:10
+;; {05.Sep.23 10:54} Local: field: numf1: Width:10
+Local: Field: numf: Style: Normal Bold
+;; {05.Sep.23 10:54} Local: Field: numf1: Style: Normal Bold
+local: field: numf: type: String
+;; {05.Sep.23 10:54} local: field: numf1: type: String
+local: field: numf: align:centre
+;; {05.Sep.23 10:54} local: field: numf1: align:centre
+
+
+[#Line: VCHBATCH ColumnTwo]
+add:option:cwhsvchbatchcolumntwopurcopt:@@RoseHomeoEnabled and (@@issales or @@ispurchase or @@iscreditnote or @@isdebitnote)
+
+[!line:cwhsvchbatchcolumntwopurcopt]
+add:right fields:At Beginning:numf ;;,numf1
+
+Local: Field: numf: info: " "
+;; {05.Sep.23 10:55} Local: Field: numf1: info: " "
+Local: field: numf: Width:10
+;; {05.Sep.23 10:55} Local: field: numf1: Width:10
+Local: Field: numf: Style: Normal Bold
+;; {05.Sep.23 10:55} Local: Field: numf1: Style: Normal Bold
+local: field: numf: type: String
+;; {05.Sep.23 10:56} local: field: numf1: type: String
+local: field: numf: align:centre
+;; {05.Sep.23 10:56} local: field: numf1: align:centre
+
+[#Line: STKVCH Batch2]
+add:option:cwhsstkvchbatch2purcopt:@@RoseHomeoEnabled and (@@issales or @@ispurchase or @@iscreditnote or @@isdebitnote)
+
+[!line:cwhsstkvchbatch2purcopt]
+add:right fields:At Beginning:numf2
+add:right fields:amtf24,amtf25,amtf26
+add:right fields:after:VCHBATCH RateUnit:snfx
+
+Local: Field: snfx: Set As:if $$isempty:#numf2 then $baseunits:stockitem:$stockitemname else "PCS"
+Local: field: snfx: Align: centre
+Local: field: snfx: style:normal bold
+Local: field: snfx: width:3.2
+Local: field: snfx: skip:yes
+local: field: VCHBATCH RateUnit: Invisible: yes
+
+Local: Field: numf2:storage:cwrmvchpcsnew;; "PCS"
+
+Local: Field: VCHbatch rate: delete:set as
+Local: Field: VCHbatch rate: delete:set by condition					
+Local: Field: VCHbatch rate: add:SetBy Condition:yes:if NOT $$IsEmpty:$InclusiveTaxValue then $$InclusiveTaxValue:@@ExItemRate:@@STItemRate:@@VATItemRate:@@TCSItemRate:@@GSTItemRate:@@GSTItemQtyRate:@@ExItemMRPDutyValue:@@VATItemMRPDutyValue:@@ExItemQuantum else @@cwrkvchrate							
+
+Local: field: numf2: Width:10
+local: field: numf2: align:centre
+Local: field: numf2: Format: "decimals:2,no zero"
+Local: Field	: numf2: Inactive  : @@NoBaseUnits OR @@BatchAllocBreak
+
+Local: Field: amtf24: Set As:(($BilledQty * $rate)- ( ($BilledQty * $rate)*$Discount/100))
+Local: Field: amtf25: Set As:(($$number:#numf2*$$number:$rate)- (($$number:#numf2 *$$number:$rate)*$Discount/100))
+local: field: amtf25: type: number
+Local: Field: amtf26: Set As:if $$isempty:#amtf25 then #amtf24 else #amtf25
+
+local: field: amtf24: Invisible: yes
+local: field: amtf25: Invisible: yes
+local: field: amtf26: Invisible: yes
+
+Local: Field: VCHbatch Value: delete:set as
+Local: Field: VCHbatch Value: delete:set by condition					
+Local: Field: VCHbatch Value: add:SetBy Condition:yes:#amtf26
+
+
+
+;;=================================================
+
+[#Line: EI ColumnOne]
+add:option:cwhseicolumnonepurcopt:@@RoseHomeoEnabled and (@@issales or @@ispurchase or @@iscreditnote or @@isdebitnote)
+
+[!line:cwhseicolumnonepurcopt]
+add:right fields:At Beginning:numf ;;,numf1
+
+Local: Field: numf: info: "PCS"
+Local: field: numf: Width:10
+Local: Field: numf: Style: Normal Bold
+local: field: numf: type: String
+local: field: numf: align:centre
+
+[#Line: EI Columntwo]
+add:option:cwhseicomtwopurcopt:@@RoseHomeoEnabled and (@@issales or @@ispurchase or @@iscreditnote or @@isdebitnote)
+
+[!line:cwhseicomtwopurcopt]
+add:right fields:At Beginning:numf  ;;,numf1
+
+Local: Field: numf: info: " "
+Local: field: numf: Width:10
+Local: Field: numf: Style: Normal Bold
+local: field: numf: type: String
+local: field: numf: align:centre
+
+[#line:eiinvinfo]
+add:option:cwhseiinvinfopurcopt:@@RoseHomeoEnabled and (@@issales or @@ispurchase or @@iscreditnote or @@isdebitnote)
+
+[!line:cwhseiinvinfopurcopt]
+add:right fields:At Beginning:numf2,numf10,numf11
+add:right fields:amtf24,amtf25,amtf26
+add:right fields:after:VCH RateUnit:snfx
+
+Local: Field: snfx: Set As:if $$isempty:#numf2 then $baseunits:stockitem:$stockitemname else "PCS"
+Local: field: snfx: Align: centre
+Local: field: snfx: style:normal bold
+Local: field: snfx: width:3.2
+Local: field: snfx: skip:yes
+local: field: VCH RateUnit: Invisible: yes
+
+Local: Field: numf11: Set As:$$number:@@StdVchRate
+;; {14.Sep.23 11:29} Local: Field: numf11: Set As:$$number:@@StdSellRate ;;@@StdVchRate
+local: field: numf11: Invisible: yes
+
+Local: Field: numf2:storage:cwrmvchpcsnew;; "PCS"
+;; {02.Sep.23 11:11} Local: Field: numf2:storage:cwrmvchpcsnewx;; "PCS"
+Local: Field: numf2: Set As:$$CollectionField:$cwrmvchpcsnew:First:Batchallocations
+Local: field: numf2: Width:10
+local: field: numf2: align:centre
+Local: field: numf2: Format: "decimals:2,no zero"
+Local: Field	: numf2: Inactive  :$$IsEnd:$StockItemName
+
+ Local: Field: vch rate: delete:set as
+ Local: Field: vch rate: delete:set by condition					
+;; {06.Sep.23 13:18} Local: Field: vch rate: add:SetBy Condition:yes:if NOT $$IsEmpty:$InclusiveTaxValue then $$InclusiveTaxValue:@@ExItemRate:@@STItemRate:@@VATItemRate:@@TCSItemRate:@@GSTItemRate:@@GSTItemQtyRate:@@ExItemMRPDutyValue:@@VATItemMRPDutyValue:@@ExItemQuantum else @@cwrkvchrate							
+Local: Field: vch rate: add:SetBy Condition:yes:#numf11 ;;if NOT $$IsEmpty:$InclusiveTaxValue then $$InclusiveTaxValue:@@ExItemRate:@@STItemRate:@@VATItemRate:@@TCSItemRate:@@GSTItemRate:@@GSTItemQtyRate:@@ExItemMRPDutyValue:@@VATItemMRPDutyValue:@@ExItemQuantum else @@cwrkvchrate							
+
+Local: Field: amtf24: Set As:(($BilledQty * $rate)- ( ($BilledQty * $rate)*$Discount/100))
+Local: Field: amtf25: Set As:(($$number:#numf2*$$number:$rate)- (($$number:#numf2 *$$number:$rate)*$Discount/100))
+local: field: amtf25: type: number
+Local: Field: amtf26: Set As:if $$isempty:$$asamount:#amtf25 then #amtf24 else $$asamount:#amtf25
+
+local: field: amtf24: Invisible: yes
+local: field: amtf25: Invisible: yes
+local: field: amtf26: Invisible: yes
+
+Local: Field: VCH Value: delete:set as
+Local: Field: VCH Value: delete:set by condition					
+Local: Field: VCH Value: add:SetBy Condition:yes:#amtf26
+
+Local: Field: numf10: Set As:$$number:#VCHBilledQty/$$number:#numf2
+Local: Field: numf10: storage:cwrmvchpcsnew5
+
+Local: Field: numf10: Skip: Yes
+Local: field: numf10: Align: centre
+Local: Field: numf10: Style: Normal Bold
+
+
+
+[System: Formula]
+cwrkvchrate:If NOT $$IsRemoteCompany Then If $$Isstartupvalue Then $$Value Else ($$CurrentValue:$StandardPrice:StockItem:$StockItemName) Else If $$Isstartupvalue Then $$Value Else ($CurrentStdPriceMethod:StockItem:$StockItemName)
+
+[#line:ciinvinfo]
+add:option:cwhseiinvinfopurcopt:@@RoseHomeoEnabled and (@@issales or @@ispurchase or @@iscreditnote or @@isdebitnote)
+
+

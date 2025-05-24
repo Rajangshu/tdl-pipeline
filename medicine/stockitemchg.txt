@@ -1,0 +1,232 @@
+; Created By: Khokan on 2014-05-17 12:38, ID: 
+
+[#Form: Stock Item]
+add:option:newStockItem:@@RoseHomeoEnabled
+
+[!form:newStockItem]
+
+add:part:at beginning:cwcompanypart
+
+;; {17.May.14 13:49} Local: Field: MST Alias: set as:#snfx  ;;$$ReptField:Name:2:CostCentre:$cwCompanyName
+;; {17.May.14 13:45} Local: Field: MST Alias: set Always :yes  ;;$$ReptField:Name:2:CostCentre:$cwCompanyName
+
+
+[part:cwcompanypart]
+line:cwcompanyline,cwtypeline,cwGenericNameline
+;; {08.Aug.23 16:05} line:cwcompanyline,cwGenericNameline
+
+[line:cwcompanyline]
+field:sp,snf,snfx
+Local: Field: sp: Set As:"Company Name"
+Local: Field: snf: storage:cwCompanyName
+;; {17.May.14 13:26} Local: Field: snfx: Set As:$aliasname:ledger:#ledgername
+Local: Field: snfx: Set As:$$ReptField:Name:2:CostCentre:$cwCompanyName
+
+Local: Field: snfx: storage:cwCompanyalias
+Local: Field: snf: table:colcwCompanyName,Not Applicable
+Local: Field: snf: Show table: Always
+local:field:snf:variable:svcost centre
+local:field:SNF:key:Create Cost Centre, Alter CstCtr
+Local: field: sp: Width:14
+Local: Field: snf: Style: Normal Bold
+Local: Field: snfx: Skip: Yes
+
+
+
+
+
+[#line:lnItemsortno]
+
+delete: field :  stksnf,stksnf2,stksnf3
+
+[#line:lnItemsortno2]
+delete: field : stksnf4,stksnf5
+;;===============================
+ [line:cwtypeline]
+ field:sp2,snf2
+Local: Field: sp2: Set As:"Type"
+Local: Field: snf2: storage:cwsortno ;;cwType ;;cwsortno
+;; {09.Aug.23 17:26} Local: Field: snf2: storage:cwTypexx
+/*Local: Field: snf2: Set As:if $$isempty:$$value then $cwType else $$value
+Local: Field: snf2: Set always:yes ;;:if $$isempty:$$value then $cwType else $$value
+Local: Field: snf2: dynamic:"" ;;:if $$isempty:$$value then $cwType else $$value
+Local: Field: snf2: Border: thin box ;;left right  */
+
+Local: Field: snf2: table:colcwType,Not Applicable
+Local: Field: snf2: Show table: Always
+local:field:snf2:variable:svcost centre
+local:field:SNF2:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: snf2: Style: Normal Bold
+Local: field: sp2: Width:14
+
+;; {09.Aug.23 13:26} local: field: snf2: inactive:$$issysname:$cwCompanyName
+
+
+;;=============================================
+
+[line:cwGenericNameline]
+field:sp,snf3,sp2,snf4,sp3,snf5,sp4,snf6
+
+
+Local: Field: sp: Set As:"Generic Name"
+Local: Field: snf3: storage:cwsize ;;cwGenericName
+
+Local: Field: snf3: table:colGeneric,Not Applicable
+Local: Field: snf3: Show table: Always
+Local: Field :snf3 : Key : Create Stock Category, Alter StkCat
+Local: Field : snf3 : Variable  : SV Stock Category
+
+Local: Field: snf3: Style: Normal Bold
+Local: field: sp: Width:14
+local: field: snf3: inactive:$$issysname:$cwCompanyName
+
+ ;;==========================
+Local: Field: sp2: Set As:"Potency"
+Local: Field: snf4: storage:cwproduct ;;cwPotencyx
+
+Local: Field: snf4: table:colcwPotency,Not Applicable
+
+Local: Field: snf4: Show table: Always
+local:field:snf4:variable:svcost centre
+local:field:SNF4:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: snf4: Style: Normal Bold
+Local: field: snf4: Width:8
+
+local: field: snf4: inactive:$$issysname:$cwCompanyName
+
+;;==================================
+
+Local: Field: sp3: Set As:"Pack Size"
+Local: Field: snf5: storage:cwproduct2 ;;cwPackSize
+
+Local: Field: snf5: table:colcwPackSize,Not Applicable
+
+Local: Field: snf5: Show table: Always
+local:field:snf5:variable:svcost centre
+local:field:SNF5:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: snf5: Style: Normal Bold
+;; {17.May.14 15:25} Local: field: snf5: Width:8
+
+local: field: snf5: inactive:$$issysname:$cwCompanyName
+
+;;========================
+
+Local: Field: sp4: Set As:"MRP"
+Local: Field: snf6: storage:cwproduct3 ;;cwMrp
+Local: Field: snf6: Style: Normal Bold
+Local: field: sp4: Width:6
+Local: field: snf6: Width:6
+
+local: field: snf6: inactive:$$issysname:$cwCompanyName
+
+
+/*
+Local: Field: snf6: table:colcwMrp,Not Applicable
+
+Local: Field: snf6: Show table: Always
+local:field:snf6:variable:svcost centre
+local:field:SNF6:key:Create Cost Centre, Alter CstCtr
+                                                      */
+
+
+
+
+
+ ;;=====================================
+[Collection:colcwCompanyName]
+
+  title:"List of Company Name "
+type: Cost Centre
+child of: "Company"
+
+[Collection:colcwType]
+
+  title:"List of Type"
+type: Cost Centre
+child of: "Type"
+
+
+[Collection:colGeneric]
+
+  title:"List of Generic"
+ Type: StockCategory
+;; {17.May.14 12:56} child of: "Generic"
+
+[Collection:colcwPotency]
+
+  title:"List of Potency"
+ Type: Cost Centre
+child of: "Potency"
+
+
+
+[Collection:colcwPackSize]
+
+  title:"List of Pack Size"
+ Type: Cost Centre
+child of: "Pack Size"
+
+
+
+[Collection:colcwMrp]
+
+  title:"List of MRP"
+ Type: Cost Centre
+child of: "MRP"
+
+;;==============================================================================
+
+   [#form:stock item]
+   add:option:newStockItemx:@@RoseHomeoEnabled
+
+[!form:newStockItemx]
+    local:field:mst name:set as:@@cwstockitemnamex
+    local:field:mst name:set always:yes
+
+
+     [System: Formula]
+
+     cwstockitemnamex:if @@cwstockitemnamexx = " " then $$value else @@cwstockitemnamexx
+;; {08.Aug.23 12:34}      cwstockitemnamexx:@@xs1+" "+@@xs2+" "+@@xs3+" "+@@xs4+@@xs5x+" "+@@xs8
+     cwstockitemnamexx:@@xs1+" "+" "+@@xs3+" "+@@xs4+@@xs5x+" "+@@xs8
+
+;; {08.Aug.23 12:27}      cwstockitemnamexx:@@xs1+" "+@@xs3+" "+@@xs4+@@xs5x+" "+@@xs8
+
+      xs1:if not $$issysname:#snf then #snf else ""
+      xs2:if not $$issysname:#snf2 then #snf2 else ""
+      xs3:if not $$issysname:#snf3 then #snf3 else ""
+      xs4:if not $$issysname:#snf4 then #snf4 else ""
+      xs5:if not $$issysname:#snf5 then #snf5 else ""
+      xs5x:if not $$issysname:#snf5 then " - "+@@xs5 else ""
+      
+      xs6:if not $$issysname:#snf6 then #snf6 else ""
+      xs7:"("+@@xs6+")"
+      xs8:if not $$issysname:#snf6 then "("+@@xs6+")" else ""
+      
+ ;;=============================================================================
+ 
+  [#Line: STKI Desc]
+  add:option:newDesc:@@RoseHomeoEnabled
+
+[!line:newDesc]
+  
+  Local: Field: STKI Desc: Set As:@@cwdesc
+   local:field: STKI Desc:set always:yes
+  
+  [System: Formula]
+
+ cwdesc:if @@cwdesc2 = " " then $$value else @@cwdesc2
+ cwdesc2:@@xs3+" "+@@xs4
+
+ 
+ 
+ 
+
+ 
+
+
+
+

@@ -1,0 +1,134 @@
+; Created By: Taniya on 2023-08-30 10:32, ID: 
+
+[#Line: EXPINV Column1]
+add:option:cwEXPINVColumn1opt:@@RoseHomeoEnabled and (@@issales or @@ispurchase or @@isdebitnote or @@iscreditnote)
+[!line:cwEXPINVColumn1opt]
+add:right fields:At Beginning:numf
+
+Local: Field: numf: info: "PCS"
+Local: field: numf: Width:10
+;; {30.Aug.23 11:39} Local: Field: numf: Style: Normal Bold
+local: field: numf: type: String
+local: field: numf: align:centre
+local: field: numf: border:thin left
+
+ [#Line: EXPINV Column2]
+ add:option:cwEXPINVColumn2opt:@@RoseHomeoEnabled and (@@issales or @@ispurchase or @@isdebitnote or @@iscreditnote)
+[!line:cwEXPINVColumn2opt]
+add:right fields:At Beginning:numf
+
+Local: Field: numf: info: " "
+Local: field: numf: Width:10
+Local: Field: numf: Style: Normal Bold
+local: field: numf: type: String
+local: field: numf: align:centre
+local: field: numf: border:thin left
+
+[#Line: EXPINV AltQty]
+  add:option:cwEXPINVAltQtyopt:@@RoseHomeoEnabled and (@@issales or @@ispurchase or @@isdebitnote or @@iscreditnote)
+ [!line:cwEXPINVAltQtyopt]
+add:right fields:At Beginning:numf
+
+Local: Field: numf: info: " "
+Local: field: numf: Width:10
+Local: Field: numf: Style: Normal Bold
+local: field: numf: type: String
+local: field: numf: align:centre
+local: field: numf: border:thin left
+
+[#Line: EXPINV AccDetails]
+add:option:cwEXPINVInvAccDetailsopt:@@RoseHomeoEnabled and (@@issales or @@ispurchase or @@isdebitnote or @@iscreditnote)
+ [!line:cwEXPINVInvAccDetailsopt]
+add:right fields:At Beginning:numf
+
+Local: Field: numf: info: " "
+Local: field: numf: Width:10
+Local: Field: numf: Style: Normal Bold
+local: field: numf: type: String
+local: field: numf: align:centre
+local: field: numf: border:thin left
+
+[#Line: EXPINV InvDetails]
+add:option:cwEXPINVInvDetailszzopt:@@RoseHomeoEnabled and (@@issales or @@ispurchase or @@isdebitnote or @@iscreditnote)
+[!line:cwEXPINVInvDetailszzopt]
+add:right fields:At Beginning:numf
+add:right fields:after:EXPINV RatePer:snfx
+
+ local: Field: numf: set as:$cwrmvchpcsnew1 ;;$cwrmvchpcsnew
+Local: field: numf: Width:10
+;; {30.Aug.23 11:39} Local: Field: numf: Style: Normal Bold
+local: field: numf: align:centre
+local: field: numf: border:thin left
+Local: field: numf: Format: "decimals:2,no zero"
+
+Local: Field: EXPINV RatePer:invisible:yes
+Local: Field: snfx:set as:if $$isempty:#numf then $baseunits:stockitem:$stockitemname else "PCS"
+Local: Field: snfx:width: If $$InDraftMode then 5 else @@UnitsWidth
+Local: Field: snfx:border:thin left
+
+ Local: Field: EXPINV Desc: Set As:$parent:stockitem:$stockitemname
+ Local: Field: EXPINV Desc: lines:1
+
+[#Line: EXPINV Totals]
+add:option:cwEXPINVTotalsopt:@@RoseHomeoEnabled and (@@issales or @@ispurchase or @@isdebitnote or @@iscreditnote)
+[!line:cwEXPINVTotalsopt]
+add:right fields:At Beginning:numf
+
+Local: Field: numf: set as:$$total:numf
+Local: field: numf: Width:10
+Local: Field: numf: Style: Normal Bold
+local: field: numf: align:centre
+local: field: numf: border:thin left
+Local: field: numf: Format: "decimals:2,no zero"
+
+[#Part: EXPINV Details]
+TOTALS:numf
+
+[#Part: EXPSMP InvDetails]
+TOTALS:numf
+;;===================================
+
+[#Line: EXPSMP Column1]
+;; {06.Sep.23 13:54} [#Line: EXPSMP GST Column1]
+add:right fields:before:EXPINV QtyTitle:numf ;;At Beginning:numf
+
+Local: Field: numf: info: "PCS"
+Local: field: numf: Width:10
+;; {30.Aug.23 11:39} Local: Field: numf: Style: Normal Bold
+local: field: numf: type: String
+local: field: numf: align:centre
+local: field: numf: border:thin left
+
+[#Line: EXPSMP Column2]
+;; {06.Sep.23 13:55} [#Line: EXPSMP GST Column2]
+add:right fields:before:EXPINV BilledQtyTitle:numf ;;At Beginning:numf
+
+Local: Field: numf: info: " "
+Local: field: numf: Width:10
+Local: Field: numf: Style: Normal Bold
+local: field: numf: type: String
+local: field: numf: align:centre
+local: field: numf: border:thin left
+
+[#Line:EXPSMP InvDetails]
+;; {06.Sep.23 14:01} [#Line: EXPSMP GST InvDetails]
+add:right fields:before:EXPINV Qty:numf ;;At Beginning:numf
+
+ local: Field: numf: set as:$cwrmvchpcsnew1 ;;$cwrmvchpcsnew
+Local: field: numf: Width:10
+;; {30.Aug.23 11:39} Local: Field: numf: Style: Normal Bold
+local: field: numf: align:centre
+local: field: numf: border:thin left
+Local: field: numf: Format: "decimals:2,no zero"
+
+[#Line: EXPSMP AccDetails]
+;; {06.Sep.23 14:08} [#Line: EXPSMP GST AccDetails]
+add:right fields:before:EXPINV AccQty:numf ;;At Beginning:numf
+
+Local: Field: numf: info: " "
+Local: field: numf: Width:10
+Local: Field: numf: Style: Normal Bold
+local: field: numf: type: String
+local: field: numf: align:centre
+local: field: numf: border:thin left
+

@@ -1,0 +1,25 @@
+; Created By: Anil on 2023-08-08 17:13, ID: 
+
+[#line:GodBatchAllocations]
+
+Local: Field: numf2: Set As:$..cwrmvchpcsnew ;; if $$isempty:$cwrmvchpcsnew then $actualqty else $cwrmvchpcsnew
+
+Local: Field: snf16: Set As:$cwrmvchpcsnew5
+;; {13.Oct.23 11:54} Local: Field: numf3: Set As:$cwrateinprice
+;; {13.Oct.23 11:54} Local: Field: numf4: Set As:$cwrateinprice
+;; {13.Oct.23 11:54} Local: Field: numf5: Set As:$cwrateinprice
+;; {13.Oct.23 11:54} Local: Field: numf6: Set As:$cwrateinprice
+;; {13.Oct.23 11:54} Local: Field: numf7: Set As:$cwrateinprice
+
+
+[#line :MyBarCodeInvEntries]
+
+Local: Field: numf2: Set As:$..cwrmvchpcsnew ;;3;; $cwrmvchpcsnew ;;if $$isempty:$cwrmvchpcsnew then $actualqty else $cwrmvchpcsnew
+
+Local: Field: snf16: Set As:$cwrmvchpcsnew5
+Local: Field: numf3: Set As:$cwrateinprice
+;; {13.Oct.23 11:55} Local: Field: numf4: Set As:$cwrateinprice
+;; {13.Oct.23 11:53} Local: Field: numf5: Set As:$cwrateinprice
+;; {13.Oct.23 11:53} Local: Field: numf6: Set As:$cwrateinprice
+;; {13.Oct.23 11:53} Local: Field: numf7: Set As:$cwrateinprice
+

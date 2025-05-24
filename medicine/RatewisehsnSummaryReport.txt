@@ -1,0 +1,222 @@
+; Created By: Khokan on 2019-06-18 11:51, ID: 
+
+
+     [#menu: Gateway of Tally]
+;; {18.Jun.19 13:23}         add: Option: RatewisehsnSummaryLock ;; : @@RatewisehsnSummaryDemoLock
+       
+     [!menu: RatewisehsnSummaryLock]
+        add: Item: before: @@locQuit: @@RatewisehsnSummaryReport: Display: RepRatewisehsnSummary
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   RatewisehsnSummaryReport: "Rate Wise HSN Summary"
+;; RatewisehsnSummaryDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepRatewisehsnSummary]
+        use: Dsp Template
+      Title: @@RatewisehsnSummaryReport
+   Printset: Report Title: @@RatewisehsnSummaryReport
+       Form: FrmRatewisehsnSummary
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmRatewisehsnSummary]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0RatewisehsnSummary,PrtRatewisehsnSummary
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: RatewisehsnSummarybotbrk,RatewisehsnSummarybotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: RatewisehsnSummarybotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: RatewisehsnSummarybotopbrk]
+        use: dspacctitles
+  add: part: RatewisehsnSummaryTitlePart
+
+      [part: RatewisehsnSummaryTitlePart]
+       line: LnRatewisehsnSummaryTitle
+       
+      [line: LnRatewisehsnSummaryCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0RatewisehsnSummary]
+      line : LnRatewisehsnSummaryCurrPeriod
+      
+      [Part: PrtRatewisehsnSummary]
+       Line: LnRatewisehsnSummaryTitle,LnRatewisehsnSummary
+bottom Line: LnRatewisehsnSummaryTotals
+     repeat: LnRatewisehsnSummary: ColRatewisehsnSummary
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,amtf1,amtf2,amtf3,amtf4,amtf5,numf
+
+[Collection: ColRatewisehsnSummary]
+source Collection:sourColRatewisehsnSummary
+walk :inventoryentries
+;; {18.Jun.19 13:14} by:vouchernumber:$vouchernumber
+by:stockitemname:$stockitemname
+by:STATENAME1:$STATENAME
+aggr compute:billedqty:sum:$billedqty
+aggr compute:amount:sum:$amount
+compute:cwInvGSTItemAssValue1:@@cwInvGSTItemAssValue
+compute:gstrate1:$$cwGetGSTRateForInclusivex:$stockitemname
+compute:cwitemHSNCode1:@@cwitemHSNCode
+sort:@@default:$cwitemHSNCode1
+
+[Collection:sourColRatewisehsnSummary]
+Use: Vouchers of Company
+delete: filter : daybookfilter
+Filter: ColRatewisehsnSummaryFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColRatewisehsnSummaryFilter:$$issales:$vouchertypename
+
+[Line: LnRatewisehsnSummaryTitle]
+use: LnRatewisehsnSummary
+option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: Snf: set as: "HSN"
+local:field: fwf: set as: "Description"
+local:field: SNFX: set as: "UQC"
+local:field: numf: set as: "Total Quantity"
+local:field: numf2: set as: "gst rate"
+local:field: amtf: set as: "Total Value"
+local:field: amtf2: set as: "Taxable Value"
+local:field: amtf3: set as: "Integrated Tax Amount"
+local:field: amtf4: set as: "Central Tax Amount"
+local:field: amtf5: set as: "State/UT Tax Amount"
+local: field: default : style: normal bold
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+Local : field : default: Lines : 0
+
+
+[Line: LnRatewisehsnSummary]
+Fields:snf,fwf,nf
+right field:snfx,numf,numf2,amtf,amtf2,amtf3,amtf4,amtf5,NUMF10,amtf6,amtf7,amtf8,amtf9,amtf10
+Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local: field: nf: Invisible: yes
+
+local:field: Snf: set as:if $$line=1 then $cwitemHSNCode1 else if $cwitemHSNCode1 <> $$prevobj:$cwitemHSNCode1 then $cwitemHSNCode1 else ""  ;; "HSN"
+local:field: fwf: set as:@@cwitemHSNdesc   ;; "Description"
+local:field: SNFX: set as:$baseunits:stockitem:$stockitemname  ;; "UQC"
+local:field: nf: set as:$stockitemname  ;; "UQC"
+local:field: NUMF: set as:$billedqty  ;; "Total Quantity"
+local:field: NUMF2: set as:$gstrate1  ;$$cwGetGSTRateForInclusive:$stockitemname   ;; "Total Quantity"
+local:field: amtf: set as:$amount  ;; "Total Value"
+local:field: amtf2: set as:$cwInvGSTItemAssValue1  ;;@@cwVCHCGSTVALUE  ;if not $$isempty:@@cwVCHCGSTVALUE  then @@cwInvGSTItemAssValue else "" ;; "Taxable Value"
+;; {18.Jun.19 13:17} local:field: amtf3: set as:if $LedStateName:ledger:$partyledgername = $statename:COMPANY:##SVCURRENTCOMPANY then "" else (#amtf2*#numf2)/100 ;; "Integrated Tax Amount"
+local:field: amtf3: set as:if $STATENAME1 = $statename:COMPANY:##SVCURRENTCOMPANY then "" else (#amtf2*#numf2)/100 ;; "Integrated Tax Amount"
+local:field: amtf4: set as:if $STATENAME1 = $statename:COMPANY:##SVCURRENTCOMPANY then (#amtf2*#numf2)/100 else "";; "Central Tax Amount"
+local:field: amtf5: set as:if $STATENAME1= $statename:COMPANY:##SVCURRENTCOMPANY then (#amtf2*#numf2)/100 else "";; "State/UT Tax Amount"
+
+Local: Field:numf10: Set As:if $$line=1 then #numf else if $cwitemHSNCode1 <> $$prevobj:$cwitemHSNCode1 then #numf else $$prevlinefield+#numf
+
+Local: Field:amtf6: Set As:if $$line=1 then #amtf else if $cwitemHSNCode1 <> $$prevobj:$cwitemHSNCode1 then #amtf else $$prevlinefield+#amtf
+Local: Field:amtf7: Set As:if $$line=1 then #amtf2 else if $cwitemHSNCode1 <> $$prevobj:$cwitemHSNCode1 then #amtf2 else $$prevlinefield+#amtf2
+Local: Field:amtf8: Set As:if $$line=1 then #amtf3 else if $cwitemHSNCode1 <> $$prevobj:$cwitemHSNCode1 then #amtf3 else $$prevlinefield+#amtf3
+Local: Field:amtf9: Set As:if $$line=1 then #amtf4 else if $cwitemHSNCode1 <> $$prevobj:$cwitemHSNCode1 then #amtf4 else $$prevlinefield+#amtf4
+Local: Field:amtf10: Set As:if $$line=1 then #amtf5 else if $cwitemHSNCode1 <> $$prevobj:$cwitemHSNCode1 then #amtf5 else $$prevlinefield+#amtf5
+
+local: field: amtf6: Invisible: yes
+local: field: amtf7: Invisible: yes
+local: field: amtf8: Invisible: yes
+local: field: amtf9: Invisible: yes
+local: field: amtf10: Invisible: yes
+local: field: numf10: Invisible: yes
+Local: Field: default: Border: thin right
+local: field:numf2: Invisible: yes
+Local: field: snf: Width:10
+Local: field: snfx: Width:10
+explode:subtotalexp:$$line=$$numitems or $cwitemHSNCode1 <> $$nextobj:$cwitemHSNCode1
+
+
+[part:subtotalexp]
+line:subtotalexp
+
+[line:subtotalexp]
+use:LnRatewisehsnSummary
+border:totals
+local: field: fwf: set as: "Sub - Total"
+local:field: sdf: set as:"";; "Date"
+local:field: Snf: set as:"";; "HSN"
+
+local:field: SNFX: set as:"";; "UQC"
+
+local:field: NUMF: set as:#numf10
+local:field: amtf: set as:#amtf6
+local:field: amtf2: set as:#amtf7
+local:field: amtf3: set as:#amtf8
+local:field: amtf4: set as:#amtf9
+local:field: amtf5: set as:#amtf10
+local:field: numf10: set as:$$prevlinefield
+local:field: amtf6: set as:$$prevlinefield
+local:field: amtf7: set as:$$prevlinefield
+local:field: amtf8: set as:$$prevlinefield
+local:field: amtf9: set as:$$prevlinefield
+local:field: amtf10: set as:$$prevlinefield
+Local: Field: default: Style: Normal Bold
+Local: field: fwf: Align: Right ;;centre
+
+delete:explode
+
+
+[Function: cwGetGSTRateForInclusivex]
+parameter : myitemname : string
+returns : number
+20 : return: $$collectionfield:@@cwGSTDETAILS:(-1):cwte1x
+
+[System: Formula]
+cwGSTDETAILS : $$CollectionField:@@cwSTATEWISEDETAILS:(-1):STATEWISEDETAILS
+cwSTATEWISEDETAILS: $$FilterValue:$gstrate:RATEDETAILS:last:cwdutyheaditax
+cwdutyheaditax : $GSTRATEDUTYHEAD = "Integrated Tax"
+
+[Collection: cwte1x]
+type : GSTDETAILS : stockitem
+child of : ##myitemname
+fetch : *.*
+
+
+[line: LnRatewisehsnSummaryTotals]
+use: LnRatewisehsnSummary
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total"
+local:field: sdf: set as:"";; "Date"
+local:field: Snf: set as:"";; "HSN"
+
+local:field: SNFX: set as:"";; "UQC"
+
+local:field: NUMF: set as:$$total:numf;; "Total Quantity"
+local:field: amtf: set as:$$total:amtf;; "Total Value"
+local:field: amtf2: set as:$$total:amtf2 ;; "Taxable Value"
+local:field: amtf3: set as:$$total:amtf3 ;; "Integrated Tax Amount"
+local:field: amtf4: set as:$$total:amtf4 ;; "Central Tax Amount"
+local:field: amtf5: set as:$$total:amtf5 ;; "State/UT Tax Amount"
+
+

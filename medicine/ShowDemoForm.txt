@@ -1,0 +1,61 @@
+; Created By: pg on 2011-08-13 19:23
+
+;; cwShowDemoForm : condition to show form
+;; cwShowDemoDate :
+
+[system : event]
+cwindemo2 : System Start  : @@cwShowDemoForm : Call : cwShowDemoForm
+
+[system : formula]
+xdebg : yes ;;not (@@cwdebug)
+
+[#menu : Gateway of tally]
+add : option : cwShowTrialTill : @@cwShowDemoForm
+
+[!MENU : cwShowTrialTill]
+add : indent : at beginning : @@trialtill
+
+
+[System : Formula]
+TrialTill : if @@cwShowDemoForm then "Evaluation Till: " +  @@cwShowDemoDatex else ""
+cwShowDemoDatex : if $$serialnumber < 100  then $$string:@@cwShowDemoDate2 else $$string:@@cwShowDemoDate
+
+
+
+[function : cwShowDemoForm]
+variable : mydate : string
+variable : mystr : string
+variable : mysystemname : string
+
+;0x : log : $$serialnumber
+00a : log : "Evaluation Mode Activated..."
+00b : log : @@TrialTill ;;"Evaluation till: " + $$string:@@cwShowDemoDate ;;##mysystemname
+
+01 : set : mysystemname : $$SysInfo:SystemName
+02 : if : @@cwdebug or (##mysystemname in ("e1","e2","e3","e4","e5","e6","node2","node3"))
+;(##mysystemname = "e1") or (##mysystemname = "e2") or (##mysystemname = "e3") or (##mysystemname = "e4") or (##mysystemname = "e5") or (##mysystemname = "e6") or (##mysystemname = "node2")
+
+
+;;        05	: LOG	: "Application Path	: " + $$SysInfo:ApplicationPath	;; Returns Application Path i.e., Tally EXE Path
+;;	10	: LOG	: "Current Data Path: " + $$SysInfo:CurrentPath ;; Returns Data Path as set in the Tally.INI
+;;	20	: LOG	: $$SysInfo:SystemDate ;; Returns Machine Date
+;;	25	: LOG	: "System Time		: " + $$SysInfo:SystemTime ;; Returns Machine Time
+;;	26	: LOG	: "System Time (HMS): " + $$SysInfo:SystemTimeHMS ;; Returns Machine Time in Hours, Minutes, Seconds Format
+;;	30	: LOG	: "System Name		: " + $$SysInfo:SystemName ;; Returns Machine Name
+;;	50	: LOG	: "Windows Version	: " + $$SysInfo:WindowsVersion ;; Returns current Windows Version with Build info
+;;	60	: LOG	: "Windows User		: " + $$SysInfo:WindowsUser ;; Returns user name logged in Windows Session
+;;	70	: LOG	: "IP Address		: " + $$SysInfo:IPAddress ;; Returns Network IPAddress
+;;	80	: LOG	: "Mac Address		: " + $$SysInfo:MacAddress ;; Returns Network Adapter's Media Access Control Address
+
+
+90 : continue
+95 : end if
+
+
+100 : set : mydate : @@cwShowDemoDatex ;;$$string:@@cwShowDemoDate
+200 : set : mystr : "Evaluation!!!\n"+"This Customization is in Evaluation Mode\n Till :" + ##mydate +".\n During this period, it can be used for Evaluation or Non-Commercial Use Only. \n After "+ ##mydate +", this customization will not work."
+300 : MsgBox : "Evaluation!!!" : ##mystr : no
+
+
+
+

@@ -1,0 +1,250 @@
+; Created By: Anil on 2023-09-28 12:49, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+;; {29.Sep.23 18:03}         add: Option: DoctorWiseSalesReportLock ;; : @@DoctorWiseSalesReportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@DoctorWiseSalesReportReport: Display: RepDoctorWiseSalesReport
+
+
+
+     [!menu: DoctorWiseSalesReportLock]
+        add: Item: before: @@locQuit: @@DoctorWiseSalesReportReport: Display collection:ListofExtractLedgersDoctorx ;;: RepDoctorWiseSalesReport
+        add: Item: before: @@locQuit: Blank
+        
+ [Collection: ListofExtractLedgersDoctorx]
+    Use         : Extract Alias Collection
+	Source Collection	: List of Ledgers
+    Title      	: $$LocaleString:"List of Doctor"
+    Report      : RepDoctorWiseSalesReport
+    Variable    : SLedger
+    Trigger     : SDoctor
+	Fetch		: Name
+
+ /* [Report: SDoctor]
+   Use     : Collection Variable
+			Title   : $$LocaleString:"Select Doctor"
+            Local   : Line : Collection Variable : Field : SDoctor
+            Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Doctor"
+
+            [Field: SDoctor]
+
+                Use         : Name Field
+                Table       : doctorcoll
+                Show Table  : Always
+                Key         : Create Ledger
+                Modifies    : SLedger
+
+         [collection:doctorcoll]
+      title :"Doctor List"
+      type  : Ledger
+      child of :"Doctor"  */
+        
+    [System: formula]
+   DoctorWiseSalesReportReport: "Doctor Wise Sales Report"
+;; DoctorWiseSalesReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepDoctorWiseSalesReport]
+        use: Dsp Template
+;; Use				: Range Value Template
+        Use				: Range  Template
+        
+      Title: @@DoctorWiseSalesReportReport
+   Printset: Report Title: @@DoctorWiseSalesReportReport
+       Form: FrmDoctorWiseSalesReport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmDoctorWiseSalesReport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0DoctorWiseSalesReport,PrtDoctorWiseSalesReport
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: DoctorWiseSalesReportbotbrk,DoctorWiseSalesReportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+  add:button:Save View,change view
+ ;;    local : button : report config : action :modify variable: DoctorWiseSalesReportConfigure
+        option : enable Range filters
+        
+      [part: DoctorWiseSalesReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: DoctorWiseSalesReportbotopbrk]
+        use: dspacctitles
+  add: part: DoctorWiseSalesReportTitlePart
+
+      [part: DoctorWiseSalesReportTitlePart]
+       line: LnDoctorWiseSalesReportTitle
+       
+      [line: LnDoctorWiseSalesReportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0DoctorWiseSalesReport]
+      line : LnDoctorWiseSalesReportCurrPeriod
+      
+      [Part: PrtDoctorWiseSalesReport]
+       Line: LnDoctorWiseSalesReportTitle,LnDoctorWiseSalesReport
+bottom Line: LnDoctorWiseSalesReportTotals
+     repeat: LnDoctorWiseSalesReport: ColDoctorWiseSalesReport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,amtf3,amtf4
+
+[Collection: ColDoctorWiseSalesReport]
+source collection:ColDoctorsalesreportsrcx
+   walk :inventoryentries;;,ledgerentries
+   by :date :$date
+   by :vouchernumber :$vouchernumber
+   by :partyledgername :$partyledgername
+   ;;by :stockitemname :$stockitemname
+   by :doctorx:$..cwdoctorname
+   by :masterid:$masterid
+   compute :cwVCHCGSTVALUE2xx:$cwVCHCGSTVALUE2x
+   compute :cwVCHSGSTVALUE2xx:$cwVCHSGSTVALUE2x
+   compute :Invtotal:$$CollAmtTotal:inventoryentries:$amount
+   by :parent:$cwTopMostGroup:stockgroup:$parent:stockitem:$stockitemname ;;$parent:stockitem:$stockitemname
+;; {28.Sep.23 14:00}    aggr compute : billedqty : sum :$$number:$billedqty
+   aggr compute : billedqty : sum :$billedqty
+   aggr compute : amount : sum :$amount
+  filter :ColDoctorsalesreportfilterx
+
+
+[Collection: ColDoctorsalesreportsrcx]
+        Use: Vouchers of Company
+        compute :cwVCHCGSTVALUE2x:@@cwVCHCGSTVALUE2
+        compute :cwVCHSGSTVALUE2x:@@cwVCHSGSTVALUE2
+     delete: filter : daybookfilter
+     Filter: ColDoctorsalesreportsrcFilterx,IsNonOptionalCancelledVchs
+
+
+    [system: Formula]
+ColDoctorsalesreportsrcFilterx: if $$issales:$vouchertypename then $cwdoctorname=##sledger else no
+ ColDoctorsalesreportfilterx :$doctorx=##sledger
+
+
+/*[Collection: ColDoctorsalesreportsrcx]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColDoctorWiseSalesReportFilter,IsNonOptionalCancelledVchs   */
+
+    [system: Formula]
+ColDoctorWiseSalesReportFilter: Yes
+
+      [Line: LnDoctorWiseSalesReportTitle]
+        use: LnDoctorWiseSalesReport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: snf: set as: "Vch No"
+local:field: sdf: set as: "Vch Date"
+local:field: nf: set as: "Party Name"
+local:field: fwf: set as: "Party Name"
+local:field: qtyf: set as: "Product Qty."
+local:field: amtf: set as: "Taxable Value"
+local:field: amtf1: set as: "CGst"
+local:field: amtf2: set as: "SGST"
+local:field: amtf3: set as: "GST"
+local:field: amtf4: set as: "Total Vch Amount"
+local:field: amtf5: set as: "Total Vch Amount"
+local:field: ratepf : set as : "Rate"
+local: field: default : style: normal bold
+
+Local: field: snf: Align: centre ;;centre
+Local: field: sdf: Align: centre ;;centre
+Local: field: nf: Align: centre ;;centre
+Local: field: qtyf: Align: centre ;;centre
+Local: field: amtf: Align: centre ;;centre
+Local: field: amtf1: Align: centre ;;centre
+Local: field: amtf2: Align: centre ;;centre
+Local: field: amtf3: Align: centre ;;centre
+Local: field: amtf4: Align: centre ;;centre
+Local: field: ratepf: Align: centre ;;centre
+local:field:fwf:indent:15
+
+      [Line: LnDoctorWiseSalesReport]
+     Fields: snf,sdf,fwf
+right field: Qtyf,ratepf,Amtf,amtf1,amtf2,amtf3,amtf4,amtf5
+;; {29.Sep.23 16:29}      Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+;; {29.Sep.23 15:59}      local: field: fwf: alter : voucher : $$isvoucher
+
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: snf: set as:$vouchernumber ;;"Vch No"
+local:field: sdf: set as:$date ;;"Vch Date"
+local:field: nf: set as: $partyledgername ;;"Party Name"
+local:field: fwf: set as: $partyledgername ;;$stockitemname ;;"Product Name"
+local:field: qtyf: set as: $billedqty ;;"Product Qty."
+local:field: amtf: set as:$amount ;;"Taxable Value"
+local:field: amtf1: set as:$cwVCHCGSTVALUE2xx ;;"Gst"
+local:field: nf3: set as:$cwVCHCGSTVALUE2xx ;;"Gst"
+local:field: amtf2: set as:$cwVCHSGSTVALUE2xx ;;"Total Vch Amount"
+;; {29.Sep.23 15:37} local:field: amtf3: set as:#amtf1+#amtf2 ;;"Total Vch Amount"
+local:field: amtf3: set as:if $$line=1 then #amtf1+#amtf2 else if $vouchernumber <> $$prevobj:$vouchernumber then #amtf1+#amtf2 else "";;"Total Vch Amount"
+Local: Field: amtf4: Set As:$Invtotal
+;; {29.Sep.23 15:39} Local: Field: amtf5: Set As:#amtf3+#amtf4
+Local: Field: amtf5: Set As:if $$line=1 then #amtf3+#amtf4 else if $vouchernumber <> $$prevobj:$vouchernumber then #amtf3+#amtf4 else ""
+
+;; {28.Sep.23 14:02} local:field: ratepf : set as : "" ;;"Rate"
+Local: Field: default: Border: thin right ;;left right
+
+local: field: amtf1: Invisible: yes
+local: field: amtf2: Invisible: yes
+local: field: amtf4: Invisible: yes
+;; {05.Oct.23 12:28} border:thin top: $vouchernumber <> $$prevobj:$vouchernumber
+border:thin top ;;: $vouchernumber <> $$prevobj:$vouchernumber
+
+add: option : cwalterVch
+
+ [!line : cwalterVch]
+  Key: CW Alter On Enter, CW Alter on LDC
+			
+ [Key: CW Alter On Enter]
+			
+ Key	: Enter
+ Action	: Call	: CW Alter On Enter
+			
+ [Key: CW Alter on LDC]
+			
+ Key	: Left Double Click
+ Action	: Call		: CW Alter On Enter
+			
+ [Function: CW Alter On Enter]
+   VARIABLE : VCHID : STRING
+  00 : SET : VCHID : $$SPrintf:"ID:%s":$masterid ;;##VCHID2
+;; {29.Sep.23 16:28}   00 : SET : VCHID : $$SPrintf:"ID:%s":$vouchernumber ;;##VCHID2
+  000	: SET OBJECT 	: (Voucher, ##VchId).
+  0002 : alter : myvoucher
+
+ [report : myvoucher]
+  use : voucher
+  form : voucher	
+ OBJECT : VOUCHER : ##VCHID
+
+      [line: LnDoctorWiseSalesReportTotals]
+        use: LnDoctorWiseSalesReport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: ratepf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      local: field: amtf3 : set as :  $$total:amtf3
+      local: field: amtf4 : set as :  $$total:amtf4
+
+

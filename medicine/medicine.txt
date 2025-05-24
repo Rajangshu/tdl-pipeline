@@ -1,0 +1,156 @@
+
+;;Client:
+;;Serial:776419623
+; Created By: Khokan on 2014-05-17 12:38, ID: 
+            
+[include : RefreshTDL.txt]
+[include : cwSite.txt]
+[include : CommonFields2.txt]
+[include : CommonFormulae.txt]
+[include : ShowDemoForm.txt] ;; Demo Form    
+;;[include : Changelog.txt] ;; Not Related to Tally, But For Changes we do in Project
+
+[System : formula]
+RoseHomeoDEmoMode : no  ;; yes to enable demo no to allow full access
+rosehomeodemodate : '17-06-2014'
+rosehomeoedudate : '01-07-2014'
+
+RoseHomeoDemoDt : if @@RoseHomeoDEmoMode then if @@CWEdu then $date <= @@RoseHomeoedudate else $date <= @@RoseHomeodemodate else yes
+RoseHomeoMachDemoDate : if @@RoseHomeoDEmoMode then if @@CWEdu then $$machinedate <= @@RoseHomeoedudate else $$machinedate <= @@RoseHomeodemodate else yes
+RoseHomeoSales : ($$issales:##svvouchertype or $$ispurchase:##svvouchertype);; and @@RoseHomeoDemoDt ;;$vouchertypename
+
+
+[System : Formula] ;; Demo Formula
+cwShowDemoForm: @@RoseHomeoDEmoMode
+cwShowDemoDate: @@RoseHomeodemodate
+cwShowDemoDate2: @@RoseHomeoedudate
+
+[system : udf]
+RoseHomeoEnabled : logical : 111 ;; change this value.
+
+;--------------------------------------------- Company Config
+
+[#Form: Company Operations]
+                Switch   : RoseHomeoLowerRel  : RoseHomeoNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : RoseHomeoCurrenRel : RoseHomeoFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : RoseHomeoNOTFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End : RoseHomeoConfig
+                                
+[!Form : RoseHomeoFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : RoseHomeoConfig
+local : line : cwTestConfig : local : field : short name field : tool tip: "Double-Click for browsing to CircuitWorld.in"
+
+
+[#Part  : CMP TallyShopFeatures Left]
+;; {10.Oct.23 16:30} Add :  Line : At End  : RoseHomeoConfig,cwincltaxrateLn
+Add :  Line : At End  : RoseHomeoConfig,cwincltaxrateLn,cwvoucherincrateline
+
+[line:cwincltaxrateLn]
+field:sp,cwlogical
+
+Local: Field: sp: info :"Price List Rate in Incl Rate"
+Local: Field: cwlogical: Storage:cwpricelistinclrate
+Local: field: sp: Width:24
+
+[Line:cwvoucherincrateline]
+field:sp,cwlogical
+
+Local: Field: sp: info :"Rate in Incl Rate"
+Local: Field: cwlogical: Storage:cwlistinclrate
+Local: field: sp: Width:24
+
+[Line : RoseHomeoConfig]
+Field : RoseHomeoConfigTitle,RoseHomeoConfig
+right field : Short name field
+Local: Field: short name field : info: "sales@circuitworld.in"
+Local: Field: short name field: case : normal
+Local: Field: short name field: Color : blue
+;;Local: Field: short name field: border : thin bottom
+Local: Field: short name field: width : 0
+
+
+key  : cwRoseHomeoBrowse
+
+[key : cwRoseHomeoBrowse]
+key : left double click
+action : browse : "www.circuitworld.in"
+
+
+
+[Field: RoseHomeoConfigTitle]
+Use : medium prompt
+info: "Enable RoseHomeo?"
+width : 0
+
+[Field: RoseHomeoConfig]
+Use: logical field
+Set As: $RoseHomeoEnabled
+storage: RoseHomeoEnabled
+
+
+[System: Formula]
+RoseHomeoEnabled :  $RoseHomeoEnabled:COMPANY:##SVCURRENTCOMPANY
+cwpriselistEnabled :  $cwpricelistinclrate:COMPANY:##SVCURRENTCOMPANY
+
+
+
+;---------------------------------------------
+
+
+; UDF
+[include : RoseHomeoUDF.txt]
+
+; Master Changes 
+[include : stockitemchg.txt]
+[include : stockgroupchg.txt]
+
+[include:stockmusterchanges.txt]  ;;ledger
+;;[include:salesvoucherchanges.txt]
+
+;; {02.Jun.14 13:15} [include:featcherchanges.txt]
+
+[include : stockgroupmodify.txt]
+
+; Transaction Changes
+[include:newsalesvoucherchanges.txt]
+
+[include :style.txt]
+[include : invoicechg.txt]
+
+;; {14.Sep.23 13:17} [include : vouchermodify.txt]
+[include : vouchermodify2.txt]
+;; {15.Sep.23 13:30} [include : test.txt]
+[include : invoicemodify.txt]
+
+;;[include : BarcodeChanges.txt]
+;; {11.Oct.23 11:56} [include : BarcodeChangesnew.txt]
+; Report Changes
+
+[include : mis.txt]
+[include:CollernerReport.txt]
+[include:RatewisehsnSummaryReport.txt]
+[include : doctorsalesreport.txt]
+[include : DoctorWiseSalesReport.txt]
+;; {18.Jun.19 13:51} [include:RatewisehsnSummaryReport2.txt]
+
+
+
+;;[include : E:\d7comps\tprime\CommonVars.txt]
+;;[include : E:\d7comps\tprime\tallyserial.txt]
+;;[include : E:\d7comps\tprime\servervouchers.txt]
+;;[include : E:\d7comps\tprime\commonudf.txt]
+;;[include : E:\d7comps\tprime\commonborders.txt]
+;;[include : E:\d7comps\tprime\Cwwbst.txt]
+;;[include : E:\d7comps\tprime\addwbstno.txt]
+;;[include : E:\d7comps\tprime\CMPWBSTNO.txt]
+;;[include : E:\d7comps\tprime\cwwaybills.txt]
+;;[include : E:\d7comps\tprime\cmpIECNo.txt]
+;;[include : E:\d7comps\tprime\addtableinconsignee.txt]
+;;[include : E:\d7comps\tprime\LedTANNo.txt]
+;;[include : E:\d7comps\tprime\LedCSTNo.txt]
+;;[include : E:\d7comps\tprime\batchchange.txt]
+;;[include : E:\d7comps\tprime\broker.txt] ;; for enabling broker
+
+

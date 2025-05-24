@@ -1,4 +1,5 @@
 import os
+import sys
 
 def is_code_line(line):
     stripped = line.strip()
@@ -20,7 +21,7 @@ def compare_files(orig_path, anno_path):
             diffs.append((i+1, o, a))
     return diffs
 
-def batch_compare(source_folder, dest_folder):
+def batch_compare(source_folder, dest_folder, report_file):
     ok_files = []
     diff_files = []
     missing_files = []
@@ -40,44 +41,50 @@ def batch_compare(source_folder, dest_folder):
             diff_files.append(fname)
             details[fname] = diffs
 
-    # Structured summary report
-    print("\n" + "="*60)
-    print(" TDL CODE COMPARISON SUMMARY REPORT ".center(60, "="))
-    print("="*60)
-    print("\nFILES WITH CODE DIFFERENCES (REVIEW REQUIRED):\n")
-    if diff_files:
-        for fname in diff_files:
-            print(f"*** {fname} ***")
-        print("\n" + "-"*60)
-    else:
-        print("None\n" + "-"*60)
+    with open(report_file, 'w', encoding='utf-8') as f:
+        f.write("\n" + "="*60 + "\n")
+        f.write(" TDL CODE COMPARISON SUMMARY REPORT ".center(60, "=") + "\n")
+        f.write("="*60 + "\n\n")
+        f.write("FILES WITH CODE DIFFERENCES (REVIEW REQUIRED):\n\n")
+        if diff_files:
+            for fname in diff_files:
+                f.write(f"*** {fname} ***\n")
+            f.write("\n" + "-"*60 + "\n")
+        else:
+            f.write("None\n" + "-"*60 + "\n")
 
-    if ok_files:
-        print("FILES WITH NO CODE DIFFERENCES (OK):\n")
-        for fname in ok_files:
-            print(f"    {fname}")
-        print("\n" + "-"*60)
+        if ok_files:
+            f.write("FILES WITH NO CODE DIFFERENCES (OK):\n\n")
+            for fname in ok_files:
+                f.write(f"    {fname}\n")
+            f.write("\n" + "-"*60 + "\n")
 
-    if missing_files:
-        print("FILES MISSING IN DESTINATION FOLDER:\n")
-        for fname in missing_files:
-            print(f"    {fname}")
-        print("\n" + "-"*60)
+        if missing_files:
+            f.write("FILES MISSING IN DESTINATION FOLDER:\n\n")
+            for fname in missing_files:
+                f.write(f"    {fname}\n")
+            f.write("\n" + "-"*60 + "\n")
 
-    if diff_files:
-        print("\nDETAILED ERRORS:\n")
-        for fname in diff_files:
-            print(f"{'*'*10} FILE: {fname} {'*'*10}")
-            for diff in details[fname]:
-                print(f"\n  LINE {diff[0]}:")
-                print(f"    Original : {diff[1]}")
-                print(f"    Annotated: {diff[2]}")
-                print("    " + "-"*40)
-            print("\n" + "="*60 + "\n")
-
-# ---- USAGE ----
-SOURCE_FOLDER = r"src"
-DEST_FOLDER   = r"annotated"
+        if diff_files:
+            f.write("\nDETAILED ERRORS:\n\n")
+            for fname in diff_files:
+                f.write(f"{'*'*10} FILE: {fname} {'*'*10}\n")
+                for diff in details[fname]:
+                    f.write(f"\n  LINE {diff[0]}:\n")
+                    f.write(f"    Original : {diff[1]}\n")
+                    f.write(f"    Annotated: {diff[2]}\n")
+                    f.write("    " + "-"*40 + "\n")
+                f.write("\n" + "="*60 + "\n")
 
 if __name__ == "__main__":
-    batch_compare(SOURCE_FOLDER, DEST_FOLDER)
+    if len(sys.argv) == 3:
+        SOURCE_FOLDER = sys.argv[1]
+        DEST_FOLDER = sys.argv[2]
+    else:
+        print("Usage: python tdlcompare.py <source_folder> <destination_folder>")
+        sys.exit(1)
+    report_folder = "reports"
+    if not os.path.exists(report_folder):
+        os.makedirs(report_folder)
+    report_file = os.path.join(report_folder, f"compare_report_{os.path.basename(SOURCE_FOLDER)}.txt")
+    batch_compare(SOURCE_FOLDER, DEST_FOLDER, report_file)

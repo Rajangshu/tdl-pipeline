@@ -1,0 +1,11 @@
+; Created By: pg on 2012-06-25 14:46
+
+[#menu : Gateway of tally]
+add : button : cwSiteBtn
+
+
+[key : cwSiteBtn]
+title : "Circuit World"
+key : f5
+action : browse : www.circuitworld.in
+

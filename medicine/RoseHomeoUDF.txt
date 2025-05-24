@@ -1,0 +1,84 @@
+; Created By: CW on 2014-05-17 12:38, ID:
+;;cwsortno
+[System: UDF]
+cwCompanyName:string:1000
+;; {09.Aug.23 13:29} cwType:string:1001
+;; {09.Aug.23 17:32} cwGenericName:string:1002
+;; {09.Aug.23 17:35} cwPotencyx:string:1003
+;; {09.Aug.23 17:35} cwPackSize:string:1004
+;; {09.Aug.23 17:35} cwMrp:string:1005
+cwCompanyalias:string:1006
+
+ [System: UDF]
+ cwaggrsetdiscount:aggregate:2000
+ cwSetStockGroup:string:2001
+ cwSetdiscount1:number:2002
+ cwSetdiscount2:number:2003
+ cwSetdiscount3:number:2004
+ cwSetdiscount4:number:2005
+ cwSetdiscount5:number:2006
+ cwSetdiscount6:number:2007
+ cwDiscount:number:2008
+ cwCreditDays:number:2009
+
+    [System: UDF]
+ cwsetdiscount:logical:501
+ cwgoeldisc1:string:502
+ cwgoeldisc2:string:503
+ cwgoeldisc3:string:504
+ cwgoeldisc4:string:505
+ cwgoeldisc5:string:506
+ cwvchdisc1:number:507
+ cwvchdisc2:number:508
+ cwvchdisc3:number:509
+ cwvchdisc4:number:510
+ cwvchdisc5:number:511
+ cwdiscamt:amount:512
+ cwgoelvoucherno:string:513
+ cwaccountout1:string:514
+ cwaccountin:string:515
+ cwautopostvoucher:string:516
+ cwnewemail:string:517
+ cwSalesRate:NUMBER:518
+ cwPurchaseRate:NUMBER:519
+ cwrmvchpcs:number:520
+ cwdoctorname:string:521
+ cwTopMostGroup:string:522
+ cwMPLPricestrg:string:523
+ cwfromqty:number:524
+ cwgrpratestrg:number:525
+ cwratefieldstrg:number:526
+ cwratefieldstrg2:number:527
+ cwpricelistinclrate:logical:528
+ cwrateinprice:number:529
+ 
+ [System: UDF]
+ cwrmvchpcsnew:number:785
+ cwrmvchpcsnew5:number:786
+ cwPriseLevels:logical:787
+;; {02.Sep.23 11:11}  cwrmvchpcsnewx:number:786
+
+ [System: UDF]
+collpriselevel:aggregate:7000
+cwDate:date:7001
+cwFrom:number:7002
+cwLessThen:number:7003
+cwRate:number:7004
+cwDisc:number:7005
+cwpricelavelx:string:7006
+cwfromdatestrg:date:7007
+
+
+ [System: UDF]
+ colldatepriselevel:aggregate:9000
+ cwpriceleveldate:date:9001
+ cwpricelevelfromdate:date:9002
+
+
+
+/*[System: UDF]
+cwTypexx:string:5001
+cwGenericNamexx:string:5002
+cwPotencyxx:string:5003
+cwPackSizexx:string:5004
+cwMrpxx:string:5005  */

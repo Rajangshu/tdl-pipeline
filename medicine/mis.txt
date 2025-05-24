@@ -1,0 +1,19 @@
+; Created By: Khokan on 2014-05-26 10:29, ID: 
+
+[#MENU: GATEWAY OF TALLY]
+add:option:newGATEWAYOFTALLY:@@RoseHomeoEnabled
+[!MENU: newGATEWAYOFTALLY]
+ADD : ITEM : AT END : "0.MIS" : MENU : MIS
+
+[MENU : MIS]
+TITLE : "MIS"
+;; {30.Aug.23 11:38}        add: Item: @@cwPartyGroupReport: Display: RepcwPartyGroup
+;; {30.Aug.23 11:38}        add: Item: @@RatewisehsnSummaryReport: Display: RepRatewisehsnSummary
+       add: Item: @@DoctorsalesreportReport: Display collection:ListofExtractLedgersDoctor
+;;       ADD : ITEM : BLANK
+  add: Item: before: @@locQuit: Blank
+  
+       add: Item: @@DoctorWiseSalesReportReport: Display collection:ListofExtractLedgersDoctorx
+;;       ADD : ITEM : BLANK
+  add: Item: before: @@locQuit: Blank
+

@@ -1,0 +1,107 @@
+; Created By: Khokan on 2014-05-26 10:47, ID: 
+
+
+; Created By: pg on 2012-04-18 11:20
+
+
+[collection : cwaggrsetdiscountVch]
+type : cwaggrsetdiscount : ledger
+child of : #eiconsignee
+format : $cwSetStockGroup,10
+format : $cwSetdiscount1,5
+
+ [#Part: MST LED Explode Sundry]
+;; {11.Jun.14 13:03}   add:option:cwMSTLEDExplodeSundry:@@ParentGroupReservedName = @@GroupSundryDebtors
+
+;; {11.Jun.14 13:03}  [!PART:cwMSTLEDExplodeSundry]
+   add:line:setdiscountline;;,discountline,cwcreditdaysline
+
+    [line:setdiscountline]
+      field:sp,cwlogical
+      Local: Field: sp: Set As:"Set Discount?"
+      Local: Field: cwlogical: storage:cwsetdiscount
+      Local: Field: cwlogical: Subform:setdiscountreport:$$value
+      local:field:default:color:blue
+      Local: field: sp: Width:6.5 cm
+
+      [LINE:discountline]
+      FIELD:SP,NUMF
+        Local: Field: sp: Set As:"Discount:"
+        Local: Field: NUMF: storage:cwDiscount
+        Local: field: sp: Width:6.5 cm
+        Local: Field: numf: Style: Normal Bold
+
+        [line:cwcreditdaysline]
+
+        FIELD:SP,NUMF
+        Local: Field: sp: Set As:"Credit Days ?"
+        Local: Field: NUMF: storage:cwCreditDays
+        Local: field: sp: Width:6.5 cm
+        Local: Field: numf: Style: Normal Bold
+
+
+
+      [report:setdiscountreport]
+        form:setdiscountreport
+
+
+      [form:setdiscountreport]
+        part:setdiscountreport
+
+      [part:setdiscountreport]
+        line:setdistitleline,setdistitleline2
+        repeat:setdistitleline2:cwaggrsetdiscount
+        scroll:vertical
+        break on  : $$issysname:$cwSetStockGroup
+        height: 30 % page
+        width:30 % page
+
+
+     [line:setdistitleline]
+       field:sp,nf
+       right fields:numf ;;,numf1,numf2,numf3,numf4,numf5
+       Local: Field: sp: Set As:"Name"
+       Local: Field: nf: Set As:$name
+       Local: Field: numf: Set As:"Discount %"
+       Local: Field: numf1: Set As:"Disc.2"
+       Local: Field: numf2: Set As:"Disc.3"
+       Local: Field: numf3: Set As:"Disc.4"
+       Local: Field: numf4: Set As:"Disc.5"
+       Local: Field: numf5: Set As:"Disc.6"
+       Local: Field: nf: Skip: Yes
+       Local: field: sp: Width:4 cm
+       Local: field: numf: Width:5 cm
+       Local: Field: default:type:string
+       Local: Field: default: Style: Normal Bold
+       border:thin bottom
+       space bottom: 2 mm
+
+
+
+     [line:setdistitleline2]
+       field:nf
+       right fields:numf ;;,numf1,numf2,numf3,numf4,numf5
+
+       Local: Field: nf:Show table: Always
+       Local: Field: nf:table:setdiscountcollection ,End of list
+       local: field: nf:Key: Create Stock Group, Alter StkGrp
+       local: field: nf:Variable : SV Stock Group
+       Local: Field: nf:storage:cwSetStockGroup
+       Local: Field: numf:storage:cwSetdiscount1
+       local:field:numf:align:centre
+
+
+;;       LOCAL : FIELD : nf : INACTIVE :$$SysName:Endoflist
+       LOCAL : FIELD :numf: INACTIVE :$$isSysName:$cwSetStockGroup
+       LOCAL : FIELD :numf1 : INACTIVE :$$isSysName:$cwSetStockGroup
+       LOCAL : FIELD :numf2 : INACTIVE :$$isSysName:$cwSetStockGroup
+       LOCAL : FIELD :numf3 : INACTIVE :$$isSysName:$cwSetStockGroup
+       LOCAL : FIELD :numf4 : INACTIVE :$$isSysName:$cwSetStockGroup
+       LOCAL : FIELD :numf5 : INACTIVE :$$isSysName:$cwSetStockGroup
+
+
+       [collection:setdiscountcollection]
+         use:stockgroup
+
+
+

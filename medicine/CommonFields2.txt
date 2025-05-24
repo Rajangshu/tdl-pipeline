@@ -1,0 +1,837 @@
+; [#system:formula] cwdebugfld : @@cwdebug ; "nfdebug"
+
+[#menu : Gateway of Tally]
+add : option :cw_debug_items : @@cwdebug
+
+[!menu : cw_Debug_items]
+add : item : before : @@locquit : @@cw_debug_menu: menu : cw_debug_menu
+
+[System: Formula]
+cw_debug_menu : "9. Debug Menu"
+
+[menu : cw_Debug_menu]
+title : "Debug Menu"
+
+
+
+[!line: cwExport]
+Local: field: nf: Width: 100
+Local: field: nf1: Width: 100
+Local: field: nf2: Width: 100
+Local: field: nf3: Width: 100
+Local: field: nf4: Width: 100
+Local: field: nf5: Width: 100
+Local: field: nf6: Width: 100
+Local: field: nf7: Width: 100
+Local: field: nf8: Width: 100
+Local: field: nf9: Width: 100
+Local: field: nf10: Width: 100
+
+Local: field: snf: Width: 100
+Local: field: snf1: Width: 100
+Local: field: snf2: Width: 100
+Local: field: snf3: Width: 100
+Local: field: snf4: Width: 100
+Local: field: snf5: Width: 100
+Local: field: snf6: Width: 100
+Local: field: snf7: Width: 100
+Local: field: snf8: Width: 100
+Local: field: snf9: Width: 100
+Local: field: snf10: Width: 100
+
+
+[!field : cw]
+  color : Blue
+
+[!field : cw1]
+style : normal bold
+
+ [part : sampleReport]
+  line : SampleReportLine
+
+ [line : SampleReportLine]
+ field : fwfC
+ Local : Field : fwfC : Set As: "This is a Sample Copy"
+ LOCAL : FIELD : FWFC : STYLE : NORMAL BOLD
+
+[line : cwindent]
+field : nf
+Local: Field : nf: Style: normal bold
+Local: Field: nf : Skip: Yes
+
+[line : cwindent2]
+  use : cwindent
+
+[line : cwDefcmpaddrFull]
+field : fwfc
+Local: Field: fwfc : Set As: @@cwCMPFullAddress
+local : field : fwfc : lines: 0
+
+[line : cwclline]
+right field : nf
+Local: Field: nf : Set As: "Continued to Page No. "+ $$string:@@cwnextpage
+border : thin top
+
+[line : cwFromPrevPage]
+use :cwclline
+Local: Field: nf : Set As:"Continued from Page No. "+ $$string:@@cwPrevPage
+delete : border
+
+[part : cwDummyPart]
+line: cwblankline
+
+   [line : cwfor]
+   field : fwf
+   right field : fwf2
+   Local: Field: fwf2 : Set As: @@FORCMPMAIL
+   local : field : fwf2 : align : right
+
+   [line : cwAuthorised]
+   use : cwfor
+   Local: Field: fwf2 : Set As: "Authorised Signatory"
+   
+;;[#Form: LocalTDL Config]
+;;option : cwreftdl
+
+[line : cwSubject]
+field : fwfc
+Local: Field: fwfc : Set As: $$SPrintf:@@SubjectToJurisdictionFormat:@@Jurisdiction
+
+[line : cwComputer]
+field : fwfc
+Local : Field: fwfc : Set As: "Computer Generated Invoice, requires no signature."
+[border: cwdouble top bottom]
+top: double
+bottom : double
+    [!line : totalOpt]
+     local : field : default : delete : storage
+     local : field : default : delete : inactive
+     local : field : default : skip   : yes
+    delete : explode
+    delete : empty
+    delete : invisible
+    delete : remove if
+    border : Totals
+
+    [!line : TitleOpt]
+     local : field : default : type   : string
+     local : field : default : delete : storage
+     local : field : default : delete : inactive
+     local : field : default : set as : ""
+     local : field : default : skip   : yes
+    delete : explode
+    delete : empty
+    delete : invisible
+    delete : remove if
+    border : Column Titles
+    local: field : default : style : normal bold
+    local : field : numf : type : string
+    
+    [!line : TitleOpt2]
+      use : titleOpt
+      delete : border
+    delete : remove if
+    
+    [!line : TitleOpt3]
+       use : titleOpt
+    border : thin bottom
+
+    [!line : TitleOpt3thick]
+       use : titleOpt
+    border : thick bottom
+
+    [!line : TitleOpt4]
+       use : titleOpt
+    border : thin top
+      
+    [!line : TitleOpt4thick]
+       use : titleOpt
+    border : thick top
+
+    [!line : TitleOpt5]
+       use : titleOpt
+    border : thin top bottom
+
+    [!line : defborder]
+     local : field : default : border : thin box
+     
+   [!field : titleopt]
+    delete : inactive
+    delete : storage
+      type : string
+      skip : yes
+;;border : thin box
+    [!line : defbox]
+     local : field : default : border : thin box
+    
+    [!part : defbox]
+     local : field : default : border : thin box
+    
+
+    [field : nf]
+       use : name field
+     style : normal
+set always : yes
+
+[system : formula]
+cwdebugfld : no
+
+    [field : nfdebug]
+    use : nf
+    invisible : not @@cwdebugfld
+    border : thin box
+
+    [field : nf1]
+       use : nf
+
+    [field : nf2]
+       use : nf
+
+    [field : nf3]
+       use : nf
+
+    [field : nf4]
+       use : nf
+
+    [field : nf5]
+       use : nf
+
+    [field : nf6]
+       use : nf
+
+    [field : nf7]
+       use : nf
+       
+    [field : nf8]
+       use : nf
+       
+    [field : nf9]
+       use : nf
+       
+    [field : nf10]
+       use : nf
+
+    [field : nf11]
+       use : nf
+
+    [field : nf12]
+       use : nf
+
+    [field : nf13]
+       use : nf
+
+    [field : nf14]
+       use : nf
+
+    [field : nf15]
+       use : nf
+
+    [field : fwf]
+      use  : nf
+full width : yes
+;;set always : yes
+
+    [field : fwf1]
+       use : fwf
+
+    [field : fwf2]
+       use : fwf
+
+    [field : fwf3]
+       use : fwf
+        
+    [field : fwf4]
+       use : fwf
+
+    [field : fwf5]
+       use : fwf
+       
+    [field : fwf6]
+       use : fwf
+
+    [field : fwf7]
+       use : fwf
+
+    [field : fwf8]
+       use : fwf
+
+    [field : fwf9]
+       use : fwf
+
+    [field : fwf10]
+       use : fwf
+
+    [field : fwfc]
+      use  : fwf
+     align : centre
+
+    [field : fwfc1]
+      use  : fwfc
+
+    [field : fwfc2]
+      use  : fwfc
+
+    [field : fwfc3]
+      use  : fwfc
+
+    [field : fwfc4]
+      use  : fwfc
+
+    [field : snf]
+       use : short name field
+     style : normal
+set always : yes
+
+    [field : snf1]
+       use : snf
+
+    [field : snf2]
+       use : snf
+
+    [field : snf3]
+       use : snf
+
+    [field : snf4]
+       use : snf
+
+    [field : snf5]
+       use : snf
+
+    [field : snf6]
+       use : snf
+
+    [field : snf7]
+       use : snf
+
+    [field : snf8]
+       use : snf
+
+    [field : snf9]
+       use : snf
+
+    [field : snf10]
+       use : snf
+
+    [field : snf11]
+       use : snf
+
+    [field : snf12]
+       use : snf
+
+    [field : snf13]
+       use : snf
+
+    [field : snf14]
+       use : snf
+
+    [field : snf15]
+       use : snf
+
+    [field : snf16]
+       use : snf
+    [field : snf17]
+       use : snf
+    [field : snf18]
+       use : snf
+
+    [field : qtyf]
+       use : qty Primary field
+     style : normal
+set always : yes
+
+    [field: qtyf1]
+      use : qtyf
+      
+    [field : qtyf2]
+      use : qtyf
+      
+    [field : qtyf3]
+      use : qtyf
+
+    [field : qtyf4]
+      use : qtyf
+
+    [field : qtyf5]
+      use : qtyf
+
+    [field : qtyf6]
+      use : qtyf
+
+    [field : qtyf7]
+      use : qtyf
+
+   [field : qtyf8]
+      use : qtyf
+      
+    [field : qtyf9]
+      use : qtyf
+
+    [field : qtyf10]
+      use : qtyf
+
+    [field : qtyf11]
+      use : qtyf
+
+
+    [field : qtyf12]
+      use : qtyf
+
+    [field : qtynsf]
+       use : qty Primary field
+     style : normal
+    format : "NoSymbol"
+set always : yes
+
+    [field : qtynsf1]
+       use : qtynsf
+
+    [field : qtynsf2]
+       use : qtynsf
+
+    [field : qtysf]
+       use : qty Secondary field
+     style : normal
+set always : yes
+
+    [field : rateNUF]
+       use : Number field
+    format : "NoZero,Decimals:2,NoSymbol," ;;+ ##ShowForex
+     style : normal
+    set as : $$number:$rate
+    align : right
+    
+    [field : ratenuf2]
+      use : ratenuf
+
+
+    [field : ratef]
+       use : rate field
+     style : normal
+    set as : $rate
+     width : if NOT $$InPixelMode then 11 else 9
+set always : yes
+
+    [field : ratef2]
+      use : ratef
+
+    [field : ratef3]
+      use : ratef
+
+    [field : ratef4]
+      use : ratef
+
+    [field : rateuf]
+       use : rate units field
+     style : normal
+    set as : $rate
+set always : yes
+
+    [field : ratepf]
+       use : rate price field
+     style : normal
+    set as : $rate
+set always : yes
+
+    [field : ratepf2]
+    use : ratepf
+    
+    [field : ratepf3]
+    use : ratepf
+
+[field : ratepf4]
+    use : ratepf
+    
+    [field : amtf]
+       use : amount field
+     style : normal
+    set as : $amount
+    format : "NoZero,Decimals:2"
+set always : yes
+
+    [field : amtf1]
+       use : amtf
+
+    [field : amtf2]
+       use : amtf
+
+    [field : amtf3]
+       use : amtf
+       
+    [field : amtf4]
+       use : amtf
+
+    [field : amtf5]
+       use : amtf
+
+    [field : amtf6]
+       use : amtf
+
+    [field : amtf7]
+       use : amtf
+
+    [field : amtf8]
+       use : amtf
+
+    [field : amtf9]
+       use : amtf
+
+    [field : amtf10]
+       use : amtf
+
+    [field : amtf11]
+       use : amtf
+
+    [field : amtf12]
+       use : amtf
+
+    [field : amtf13]
+       use : amtf
+       
+    [field : amtf14]
+       use : amtf
+
+    [field : amtf15]
+       use : amtf
+
+    [field : amtf16]
+       use : amtf
+
+    [field : amtf17]
+       use : amtf
+
+    [field : amtf18]
+       use : amtf
+
+    [field : amtf19]
+       use : amtf
+
+    [field : amtf20]
+       use : amtf
+
+    [field : numf]
+       use : number field
+     align : right
+     style : normal
+    format : "NoZero"
+    set always : yes
+
+    [field : numf1]
+       use : numf
+
+    [field : numf2]
+       use : numf
+
+    [field : numf3]
+       use : numf
+
+    [field : numf4]
+       use : numf
+
+    [field : numf5]
+       use : numf
+
+    [field : numf6]
+       use : numf
+
+    [field : numf7]
+       use : numf
+       
+    [field : numf8]
+       use : numf
+       
+    [field : numf9]
+       use : numf
+       
+    [field : numf10]
+       use : numf
+       
+    [field : numf11]
+       use : numf
+
+    [field : numf12]
+       use : numf
+
+     [field : numf13]
+       use : numf
+
+    [field : numf14]
+       use : numf
+
+    [field : numf15]
+       use : numf
+
+    [field : numf16]
+       use : numf
+       
+    [field : numf17]
+       use : numf
+
+    [field : numf18]
+       use : numf
+
+    [field : numf19]
+       use : numf
+
+    [field : numf20]
+       use : numf
+       
+    [field : numf21]
+       use : numf
+
+    [field : numf22]
+       use : numf
+
+    [field : numf23]
+       use : numf
+
+    [field : numf24]
+       use : numf
+
+    [field : cwslno]
+       use : number field
+     align : left
+     style : normal
+    set as : $$line
+    format : "NoZero"
+set always : yes
+
+    [field : dtf]
+       use : unidate field
+     style : normal
+set always : yes
+
+    [field : dtf1]
+       use : dtf
+
+    [field : dtf2]
+       use : dtf
+       
+ [field : discf]
+    use : number field
+ style : normal
+ align : right
+ format :"NoZero,NoComma,Percentage"
+ width : 0.7 inch
+ set as: $discount
+set always : yes
+
+[field : sdf]
+   use : short date field
+ style : normal
+set always : yes
+width : @@shortwidth - 1
+
+[field : sdf2]
+   use : sdf
+
+[field : sdf3]
+   use : sdf
+
+[field : sdf4]
+   use : sdf
+
+[field : sdf5]
+   use : sdf
+
+[field : sdf6]
+   use : sdf
+
+[field:sdf7]
+  use:sdf
+
+[field:sdf8]
+  use:sdf
+
+    [line: cwl1]
+    
+    [line: cwl2]
+    
+    
+    [line : cwl3]
+    
+    [line : cwl4]
+    
+  [line: cwl5]
+
+  [line: cwl6]
+
+  [line: cwl7]
+
+  [line: cwl8]
+
+  [line: cwl9]
+
+  [line : cwl10]
+  
+  [line : CwBlankLine]
+  field : name field
+  local : field : name field : skip : yes
+
+  [line : CwBlankLine1]
+    use : CwBlankLine
+
+  [line : CwBlankLine2]
+    use : CwBlankLine
+
+  [line : CwBlankLine3]
+    use : CwBlankLine
+
+  [line : CwBlankLine4]
+    use : CwBlankLine
+
+  [line : CwBlankLine5]
+    use : CwBlankLine
+
+  [line : CwBlankLine6]
+    use : CwBlankLine
+
+  [line : CwBlankLine7]
+    use : CwBlankLine
+    
+  [line : CwBlankLine8]
+    use : CwBlankLine
+    
+  [line : CwBlankLine9]
+    use : CwBlankLine
+    
+  [line : CwBlankLine10]
+    use : CwBlankLine
+
+  [line : CwBlankLine11]
+    use : CwBlankLine
+  [line : CwBlankLine12]
+    use : CwBlankLine
+  [line : CwBlankLine13]
+    use : CwBlankLine
+  [line : CwBlankLine14]
+    use : CwBlankLine
+  [line : CwBlankLine15]
+    use : CwBlankLine
+    
+  [line : CwBlankLine16]
+    use : CwBlankLine
+  [line : CwBlankLine17]
+    use : CwBlankLine
+  [line : CwBlankLine18]
+    use : CwBlankLine
+  [line : CwBlankLine19]
+    use : CwBlankLine
+  [line : CwBlankLine20]
+    use : CwBlankLine
+
+
+[field : snfd]
+use : short date field
+style : normal
+set always : yes
+
+[field : sp]
+use : short prompt
+
+[field : sp2]
+use : sp
+
+[field : sp3]
+use : sp
+
+[field : sp4]
+use : sp
+
+[field : sp5]
+use : sp
+
+[field : sp6]
+use : sp
+
+[field : sp7]
+use : sp
+
+[field : sp8]
+use : sp
+
+[field : sp9]
+use : sp
+
+[field : sp10]
+use : sp
+
+
+[field : mp]
+use : medium prompt
+
+[field : mp2]
+use : mp
+
+[field : mp3]
+use : mp
+
+[field : lp]
+use : long prompt
+
+[field : lp2]
+use : lp
+
+[field : snfx]
+  use  : snf
+ width : @@shortwidth - 5
+ 
+[field : snfx1]
+   use : snfx
+
+[field : snfx2]
+   use : snfx
+
+[field : snfx3]
+   use : snfx
+
+[field : snfx4]
+   use : snfx
+
+[field : snfx5]
+   use : snfx
+
+[field : snfx6]
+   use : snfx
+
+[field : snfx7]
+   use : snfx
+
+[field : snfx8]
+   use : snfx
+
+[field : snfx9]
+   use : snfx
+
+[field : snfx10]
+   use : snfx
+
+
+ [Field : cwLogical]
+ use : logical Field
+ set always : yes
+ set as : if $$value then yes else No
+
+ [Field : cwLogical1]
+    use : logical Field
+ set always : yes
+
+ [Field : cwLogical2]
+    use : logical Field
+ set always : yes
+
+  [Field : cwLogical3]
+    use : logical Field
+ set always : yes
+
+  [Field : cwLogical4]
+    use : logical Field
+ set always : yes
+
+
+[FIELD : UNIdf]
+USE : UNI DATE FIELD
+
+[FIELD : UNIdf2]
+USE : UNIdf
+
+

@@ -1,0 +1,63 @@
+; Created By: Suman on 2019-06-27 10:39, ID: 
+
+
+
+
+[style:newstyle]
+   font:normal
+    height:8
+    bold:no
+
+    [style:newstyle0]
+   font:normal
+    height:10
+    bold:no
+
+   [style:newstyle1]
+   font:normal
+    height:11
+    bold:no
+
+
+  [style:newstyle2]
+    font:normal
+    height:11
+    bold:YES
+
+      [style:newstyle6]
+    font:normal
+    height:9
+    bold:YES
+
+    [style:newstyle3]
+     font:normal
+     height:12
+     bold:YES
+
+     [style:newstyle4]
+     font:normal
+     height:18
+     bold:YES
+
+
+     [style:newstyle5]
+   font:normal
+    height:13
+    bold:no
+
+    [style:newstyle7]
+      font:normal
+      height:15
+      bold:no
+
+   [style:newstyle8]
+     font:normal
+     height:18
+     bold:yes
+
+;; {19.Feb.18 17:43}    [include:testcom.txt]
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+

@@ -1,7 +1,0 @@
-;===============================================================================
-; Annotated File: ALLSALESMANWISESALESRETURNREGITERREPORT.TXT
-; This file is auto-annotated for documentation and section clarity.
-; Original code is preserved. No logic or code is changed.
-;===============================================================================
-
-; Created By: khokan on 2022-04-28 13:33, ID:

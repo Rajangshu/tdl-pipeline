@@ -1,0 +1,50 @@
+;Modified by: Pg on 2012-12-07 18:52, ID: 
+;Modified by: pg on 2012-09-24 11:24, ID: 983
+
+;;[#Line: LED MultiAddressOn]
+;;local : field : default : delete : inactive
+;;local : field : default : inactive : If @@IsMultiAddressOn Then NOT @@DebtorOrCreditor Else Yes
+
+[#Menu: default]
+  add : option : cwDEbutRefreshTDL : @@CWdebug2x
+
+[#Menu: gateway of tally]
+  add : option : cwDEbutRefreshTDL : @@CWdebug2x
+
+[!menu : cwDEbutRefreshTDL]
+   add : bottom button : cwRefreshTDL
+
+[!form : cwreftdl]
+add : bottom button : cwRefreshTDL
+
+
+[#form : dsptemplate]
+add : option : cwreftdl : @@cwdebug2x
+
+[#form : default]
+;;add : bottom button : at end : cwRefreshTDL
+   add : option : cwreftdl : @@cwdebug2x
+
+
+[button : cwRefreshTDL]
+    key : alt + f9 ;;if $IsRejectionOn:COMPANY:##SVCURRENTCOMPANY then "alt + F12" else "alt +f9"
+;; {24.Sep.12 11:25 - pg, ID: 983} key : alt +r
+  title : "Refresh TDL"
+ action : refresh TDL
+inactive: NOT @@cwDebug2x
+;; {07.Dec.12 18:54 - Pg, ID: } option :
+
+[button: cwlogobject]
+    key : alt +f10
+  title : "Log Object"
+;; action : LogCurrObject
+inactive: NOT @@cwDebug2x
+
+[system : formula]
+cwDebugy: $$serialnumber = 742231584 or $$serialnumber = 735003873 or $$serialnumber = 785208321
+cwDebug2x : @@cwDebugy or ##SVEducationalMode
+
+[function : cwLogCurrObject]
+05 : walk
+10 : log object
+

@@ -1,10 +1,12 @@
-name: TDL Annotation & Validation Pipeline
+name: TDL Annotation & Validation Pipeline (Generalized)
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      folder:
+        description: 'Name of the folder containing original TDL files'
+        required: true
+        default: 'src'
 
 jobs:
   annotate-and-validate:
@@ -23,16 +25,22 @@ jobs:
         run: pip install --upgrade pip
 
       - name: Run annotation script
-        run: python scripts/tdl.py
+        run: python scripts/tdl.py ${{ github.event.inputs.folder }} annotated_${{ github.event.inputs.folder }}
 
       - name: Create reports folder
         run: mkdir -p reports
 
       - name: Run comparison script
-        run: python scripts/tdlcompare.py > reports/compare_report.txt
+        run: python scripts/tdlcompare.py ${{ github.event.inputs.folder }} annotated_${{ github.event.inputs.folder }}
+
+      - name: Upload annotated files
+        uses: actions/upload-artifact@v4
+        with:
+          name: annotated-${{ github.event.inputs.folder }}
+          path: annotated_${{ github.event.inputs.folder }}/
 
       - name: Upload comparison report
         uses: actions/upload-artifact@v4
         with:
-          name: compare-report
-          path: reports/compare_report.txt
+          name: compare-report-${{ github.event.inputs.folder }}
+          path: reports/compare_report_${{ github.event.inputs.folder }}.txt

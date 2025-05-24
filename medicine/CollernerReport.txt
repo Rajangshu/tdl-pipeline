@@ -1,0 +1,206 @@
+; Created By: Khokan on 2014-05-26 10:26, ID: 
+
+
+; Auto Column Repeat
+/*
+Criteria :
+1 Collection which will be repeated eg : stock item (for stock item name)
+1 Variable which will be repeated (which will store the value of repeated collection)
+1 left field to be repeated (at line level)
+if you want to have multiple repeated fields, then repeat one field and in that field add all the required fields
+eg : repeat : snfNew
+[field : snfnew]
+field : snf,amtf,qtyf etc whatever is required
+
+*/
+
+; Created By: suman on 2011-11-22 15:26
+
+
+
+
+     [#menu: Gateway of Tally]
+;        add: Option: cwPartyGroupLock: @@cwPartyGroupDemoLock
+
+     [!menu: cwPartyGroupLock]
+        add: Item: before: @@locQuit: @@cwPartyGroupReport: Display: RepcwPartyGroup
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   cwPartyGroupReport: "Party Discount Details"
+ cwPartyGroupDemoLock: yes ;; $$MachineDate < $$Date:"02/12/2011"
+
+
+
+    [Report: RepcwPartyGroup]
+        use: Dsp Template
+      Title: @@cwPartyGroupReport
+   Printset: Report Title: @@cwPartyGroupReport
+       Form: FrmcwPartyGroup
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+      Repeat : MycwPartyGroup
+          Variable: DoSetAutoColumn ;; this is must
+         Set : DoSetAutoColumn : Yes ;; this is must
+          Set : DspRepeatCollection : "MycwPartyGroup" ;;
+          Variable : SVFromDate, SVToDate
+          Variable: MycwPartyGroup
+
+      [Form: FrmcwPartyGroup]
+        use: DSP Template
+       Part: DspAccTitles,PrtcwPartyGroup ;;,PrtcwPartyGroup2
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: cwPartyGroupbotbrk,cwPartyGroupbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+  option: setautovchoption : ##Dosetautocolumn AND $$SetAutoColumns:MycwPartyGroup ;; this is must
+
+
+ [System : Variable]
+MycwPartyGroup : ""
+
+
+[Variable : MycwPartyGroup]
+repeat : ##DspRepeatCollection
+Default : ""
+Set always : yes
+
+
+
+[Collection: MycwPartyGroup]    ;; this collection is for Repeated Columns
+
+Type : stockgroup ;; set required object here.
+fetch : *
+;;Filter : cwPartyGroupFormula
+
+[System : Formula]
+cwPartyGroupFormula : yes
+
+  ;; Now, set the object to actual repeat object (in this case it is stock item so we are
+  ;; modifying Stock ITem
+
+[#Object : stockgroup]
+    MycwPartyGroup : $nAME
+
+
+      [part: cwPartyGroupbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: cwPartyGroupbotopbrk]
+        use: dspacctitles
+  add: part: cwPartyGroupTitlePart
+
+      [part: cwPartyGroupTitlePart]
+       line: LncwPartyGroupTitle
+
+      [line: LncwPartyGroupCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+
+      [Part: PrtcwPartyGroup]
+       Line: LncwPartyGroupTitle,LncwPartyGroup
+;;       bottom Line: LncwPartyGroupTotals
+     repeat: LncwPartyGroup: ColcwPartyGroupVertical
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,numf
+      float:no
+;;      vertical:yes
+
+
+[Collection: ColcwPartyGroupVertical]  ;; this collection is normal (going down)
+        Use: ledger ;;Vouchers of Company
+        child of : $$groupsundrydebtors
+        belongs to : yes
+;;     delete: filter : daybookfilter
+;;     Filter: ColcwPartyGroupVFilter ;; ,IsNonOptionalCancelledVchs
+;;     sort : @@default : $vouchertypename
+
+    [system: Formula]
+ColcwPartyGroupVFilter: $name starting with "Abc" ;;$$issales:$vouchertypename
+
+/*
+
+   [line:closingstockline]
+     use: LncwPartyGroup
+local:field: sdf: set as:""
+local:field: snf: set as:""
+local:field: nf: set as: "Opening Stock"
+local:field: numf : set as:$openingbalance:stockitem:##mycwPartyGroup
+
+*/
+
+
+      [Line: LncwPartyGroupTitle]
+        use: LncwPartyGroup
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as:"Date"
+local:field: snf: set as: "Bill No."
+local:field: nf: set as: "Name of Party"
+local:field: numf : set as :##mycwPartyGroup
+      local: field: default : style: normal bold
+      local: field: numf: type: String
+ local:field:default:align:centre
+ local:field:numf:line:0
+ Local: Field: nf2: info: "Parent"
+
+      [Line: LncwPartyGroup] ;; main line
+     Fields:nf,nf2,numf
+;;right field: snf2
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field :nf : alter : ledger : $$isledger
+Local: Field: sdf: Set As:$date
+Local: Field: snf: Set As:$vouchernumber
+Local: Field: nf: Set As:$name  ;;$partyledgername
+Local: Field: numf: Set As: $$getDiscvalue:$name:##mycwPartyGroup  ;; ledger:##mycwPartyGroup  ;;$partyledgername   MycwPartyGroup
+Local: Field: nf2: Set As: $parent
+repeat:numf ;; The Field to Repeat ;; Only Left Field is repeated     $$CollectionField:$<Object>:First:<Collection>
+local:field:default:border:thin left
+;; ##mycwPartyGroup will hold the current column value.
+
+[function : getDiscvalue]
+parameter : ledgername : string
+parameter : stockgroupname : string
+returns : number
+01 : log : ##ledgername
+02 : log : ##stockgroupname
+20 : return: $(ledger,##ledgername).cwaggrsetdiscount[1,@@sameGrp].cwSetdiscount1
+
+;;10 : return : $(ledger,##ledgername).cwaggrsetdiscount(1,@@sameGrp).cwSetdiscount1
+
+
+
+[System: Formula]
+;;myitemsame : $stockitemname = ##mycwPartyGroup
+samegrp : $cwSetStockGroup = ##stockgroupname
+
+[line:lncwPartyGrouptotals]
+  use:LncwPartyGroup
+  Local: Field: nf: Set As:  " Total"
+  local: field: numf : set as : $$total:numf
+      delete : repeat
+      replace : field : numf : numf5
+      add : repeat : numf5
+      local: field:numf5: set as:$$total:numf
+      Local: Field: default: Style: Normal Bold
+
+
+
+
+
+

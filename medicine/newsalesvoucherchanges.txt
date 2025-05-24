@@ -1,0 +1,80 @@
+; Created By: Khokan on 2014-06-02 14:10, ID: 
+
+ [#line:STKVCH Batch2]
+
+ add:option:cwSTKVCH Batch2:@@RoseHomeoSales and @@RoseHomeoEnabled
+              	
+ [!line:cwSTKVCH Batch2]
+ add:right field:before:VCHBATCH Value:numf  ;;,amtf7,amtf,numf1,amtf1,numf2,amtf2,numf3,amtf3,numf4,amtf4,numf5,amtf5,amtf9
+  Local: Field: snf: table: cwaggrsetdiscountVch,Not Applicable
+
+  Local: Field:numf:set as:if not $$isempty:$$value then $$value else $$filtervalue:$cwSetdiscount1:cwaggrsetdiscountVch:first:GrpHasDiscount
+              	
+ Local: Field: VCHBATCH Discount: Set As:#numf
+ local: field: numf: Invisible: yes
+              	
+ Local: Field:numf: storage : cwSetdiscount1
+              	 
+              	 
+              	  [System: Formula]
+              	     GrpHasDiscount : $parent:stockitem:$stockitemname = $cwSetStockGroup
+
+     [#Line: EI InvInfo]
+     add:option:cwInvInfo:@@RoseHomeoSales and @@RoseHomeoEnabled
+              	
+ [!line:cwInvInfo]
+
+     add:Right Fields:after:VCH Rate:numf
+      Local: Field: snf: table: cwaggrsetdiscountVch,Not Applicable
+       Local: Field:numf: storage : cwSetdiscount1
+
+       
+     Local: Field:numf:set as:if not $$isempty:$$value then $$value else $$filtervalue:$cwSetdiscount1:cwaggrsetdiscountVch:first:GrpHasDiscount
+     Local: Field:VCH Discount:delete:option
+     Local: Field:VCH Discount:delete:SetByCondition
+     Local: Field:VCH Discount:set as:#numf
+     local: field: numf: Invisible: yes
+     
+     
+     
+;;============================================
+
+[#Line: EI ColumnOne]
+add:option:cwEIColumnOneopt:@@RoseHomeoSales and @@RoseHomeoEnabled
+[!Line:cwEIColumnOneopt]
+add:right field:before:VCH QtyTitle:numf1
+
+Local: Field: numf1: info: "RM PCS"
+Local: field: numf1: Width:10
+Local: Field: numf1: Style: Normal Bold
+local: field: numf1: type: String
+local: field: numf1: align:centre
+
+[#Line: EI Columntwo]
+add:option:cwEIColumntwoopt:@@RoseHomeoSales and @@RoseHomeoEnabled
+[!Line:cwEIColumntwoopt]
+add:right field:before:VCH QtyTitle:numf1
+
+Local: Field: numf1: info: " "
+Local: field: numf1: Width:10
+Local: Field: numf1: Style: Normal Bold
+local: field: numf1: type: String
+local: field: numf1: align:centre
+
+/*[#line:eiinvinfo]
+add:option:cweiinvinfoopt:@@RoseHomeoSales and @@RoseHomeoEnabled
+[!Line:cweiinvinfoopt]
+add:right field:before:VCH BilledQty:numf10
+
+Local: Field: numf10: Set As:$$number:#VCHBilledQty ;;/$$number:#numf2
+Local: Field: numf10: storage:cwrmvchpcsnew5
+
+Local: Field: numf10: Skip: Yes
+Local: field: numf10: Align: centre
+Local: Field: numf10: Style: Normal Bold  */
+
+;;===========================================
+
+
+
+

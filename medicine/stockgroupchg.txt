@@ -1,0 +1,244 @@
+; Created By: CW on 2014-07-30 11:30, ID: 
+
+[#Form: Stock Group]
+add:option:newStockGroup:@@RoseHomeoEnabled
+
+[!form:newStockGroup]
+
+local:Part: MSTParent:ADD:LINE:AFTER:MSTParent:SALESRATELINE,purchaserateline,cwPricelabelsLine
+
+[LINE:SALESRATELINE]
+FIELD:SP,NUMF
+Local: Field: SP: Set As:"Sales Rate"
+Local: Field: numf: storage:cwSalesRate
+Local: field: SP: Width:14
+Local: Field: NUMF: Style: Normal Bold
+Local: field: NUMF: Align:LEFT
+
+[line:purchaserateline]
+
+FIELD:SP,NUMF
+Local: Field: SP: Set As:"Purchase Rate"
+Local: Field: numf: storage:cwPurchaseRate
+Local: field: SP: Width:14
+Local: Field: NUMF: Style: Normal Bold
+Local: field: NUMF: Align:LEFT
+
+[line:cwPricelabelsLine]
+field:sp,cwlogical
+
+Local: Field: sp: Set As:"Prise Levels"
+Local: Field:cwlogical : storage:cwPriseLevels
+
+Local: Field : cwlogical : SubForm :repdatePriseLevels:$$value
+
+[report:repdatePriseLevels]
+form:frmdatePriseLevels
+
+[form:frmdatePriseLevels]
+part:datePriseLevelspart ;;,PriseLevelspart2
+
+[part:datePriseLevelspart]
+
+;; {15.Sep.23 12:19} line:PriseLevelstitleLn,PriseLevelstitleLn2 ;;,PriseLevelsmainLn
+line:cwMPLPriceLivel,datePriseLevelstitleLn2 ;;,PriseLevelsmainLn
+repeat:datePriseLevelstitleLn2:colldatepriselevel
+break on:$$isempty:$cwpriceleveldate
+height : 20% page
+width:35% page
+common border:yes
+
+[collection:colldatepriselevel]
+type :collpriselevel:stock group ;;ledger
+;; {09.Feb.23 15:41} aggr compute : collthanqty2 : count : 1
+child of:$name
+
+[line:datePriseLevelstitleLn2]
+Fields: MPL Price Livel
+right field:sdf,sdf2
+
+Local: Field: sdf: Storage:cwpriceleveldate
+Local: Field: sdf2: Storage:cwpricelevelfromdate
+Local: Field : sdf2 : SubForm :repPriseLevels :not $$issysname:$cwpriceleveldate ;;$$value
+Local: Field: MPL Price Livel : storage:cwMPLPricestrg
+;; {19.Sep.23 12:49} Local: Field: snf: table:Price Levels, Create Master;; ,Not Applicable
+;; {19.Sep.23 12:49} Local: Field: snf: Show table: Always
+Space Bottom: 0.5
+
+;; {19.Sep.23 12:29} local: field: MPL Price Livel :inactive:$$issysname:#MPLPriceLivel ;;#numf ;;#sdf
+
+
+[line:cwMPLPriceLivel]
+use:datePriseLevelstitleLn2
+;; {19.Sep.23 12:25} Fields: Medium Prompt
+;; {19.Sep.23 12:25} right field:sdf
+	
+Local       : Field : MPL Price Livel : Info : $$LocaleString:"Price Level"
+Local: Field: sdf: info: "To Date"
+local: field: sdf: type: String
+Local: field: sdf: Align: centre
+Local: Field: sdf: Style: Normal Bold
+
+Local: Field: sdf2: info: "From Date"
+local: field: sdf2: type: String
+Local: field: sdf2: Align: centre
+Local: Field: sdf2: Style: Normal Bold
+border:thin box
+
+local: field: MPL Price Livel: delete : storage
+local: field: sdf : delete : storage
+local: field: sdf2 : delete : storage
+
+local: field: MPL Price Livel:delete: inactive
+local: field: sdf:delete: inactive
+local: field: sdf2:delete: inactive
+
+
+[report:repPriseLevels]
+form:frmPriseLevels
+
+[form:frmPriseLevels]
+part:PriseLevelspart ;;,PriseLevelspart2
+
+[part:PriseLevelspart]
+
+line:PriseLevelstitleLn,PriseLevelstitleLn2,PriseLevelsmainLn
+;; {15.Sep.23 12:34} line:MPL Price Livel,PriseLevelstitleLn2,PriseLevelsmainLn
+repeat:PriseLevelsmainLn:collpriselevel
+break on:$$isempty:$cwRate ;;$cwLessThen ;;$cwDate
+height : 30% page
+width:35% page
+common border:yes
+
+[collection:collpriselevel]
+type :collpriselevel:stock group ;;ledger
+;; {09.Feb.23 15:41} aggr compute : collthanqty2 : count : 1
+child of:$name
+
+[line:PriseLevelstitleLn]
+field:fwfc
+
+Local: Field: fwfc: info: "Details"
+Local: Field: fwfc: Border: thin box ;;left right
+
+[line:PriseLevelstitleLn2]
+use:PriseLevelsmainLn
+border:thin bottom
+Local: Field: snf: info:"Date"
+Local: Field: sdf: info:"Date"
+Local: Field: sdf2: info:"From Date"
+Local: Field: numf: info:"From"
+Local: Field: numf1: info:"Less Then"
+Local: Field: numf2: info:"Rate"
+Local: Field: numf3: info:"Disc"
+Local: Field: MPL Price Livel: info:"Price Level"
+
+local: field: snf : delete : storage
+local: field: sdf : delete : storage
+local: field: numf : delete : storage
+local: field: numf1 : delete : storage
+local: field: numf2 : delete : storage
+local: field: numf3 : delete : storage
+
+local: field: snf:delete: inactive
+local: field: sdf:delete: inactive
+local: field: numf:delete: inactive
+local: field: numf1:delete: inactive
+local: field: numf2:delete: inactive
+local: field: numf3:delete: inactive
+
+Local: field: snf: Align: centre
+Local: field: sdf: Align: centre
+Local: field: numf: Align: centre
+Local: field: numf1: Align: centre
+Local: field: numf2: Align: centre
+Local: field: numf3: Align: centre
+
+local: field: snf: type: String
+local: field: sdf: type: String
+local: field: numf: type: String
+local: field: numf1: type: String
+local: field: numf2: type: String
+local: field: numf3: type: String
+
+local: field: snf: Invisible: yes
+
+
+[line:PriseLevelsmainLn]
+field:snf,sdf,sdf2,numf,numf1,numf2,numf3,sdf4 ;;,snf
+
+Local: Field: sdf4: Set As:$$owner:$cwpricelevelfromdate
+
+Local: Field: snf: Storage:cwpricelavelx
+Local: Field: sdf: Storage:cwDate
+Local: Field: sdf2: Storage:cwfromdatestrg
+Local: Field: numf: Storage:cwFrom
+Local: Field: numf1: Storage:cwLessThen
+Local: Field: numf2: Storage:cwRate
+Local: Field: numf3: Storage:cwDisc
+
+
+;; {19.Sep.23 15:45} Local: Field:snf : table: Stock Group,Not Applicable
+Local: Field: sdf: Set As:$$owner:$cwpriceleveldate
+Local: Field: sdf2: Set As:#sdf4 ;;$$owner:$cwpricelevelfromdate
+Local: Field: snf: Set As:$$owner:$cwMPLPricestrg
+Local: Field: numf: Set As:if $$Line = 1 then $$value else $$PrevObj:$cwLessThen ;;$cwLessThen
+;; {13.Sep.23 18:50} Local: Field: numf: Set As:$$prevlinefield
+;; {21.Sep.23 17:27} Local: Field: sdf2: Set always:yes
+;; {21.Sep.23 17:27} local: field: sdf2: type: date
+
+;; {13.Sep.23 17:44}    local: field: sdf:inactive:$$issysname:#sdf
+;; {13.Sep.23 17:38}    local: field: sdf2:inactive:$$issysname:#sdf
+;; {15.Sep.23 12:49} local: field: numf :inactive:$$issysname:#sdf
+local: field: numf1 :inactive:$$issysname:#numf1 ;;#numf ;;#sdf
+local: field: numf2 :inactive:$$issysname:#numf1 ;;#numf ;;#sdf
+local: field: numf3 :inactive:$$issysname:#numf1 ;;#numf ;;#sdf
+
+Local: field: sdf: Align: centre
+Local: field: sdf2: Align: centre
+Local: field: numf: Align: centre
+Local: field: numf1: Align: centre
+Local: field: numf2: Align: centre
+Local: field: numf3: Align: centre
+
+Local: Field: sdf: Border: thin left ;;left right
+Local: Field: sdf2: Border: thin left ;;left right
+Local: Field: numf: Border: thin left ;;left right
+Local: Field: numf1: Border: thin left ;;left right
+Local: Field: numf2: Border: thin left ;;left right
+Local: Field: numf3: Border: thin left ;;left right
+
+Local: Field: sdf: Skip: Yes
+Local: Field: sdf2: Skip: Yes
+Local: Field: numf: Skip: Yes
+local: field: sdf4: Invisible: yes
+
+Local: field: numf: Format:"zero"
+local: field: snf: Invisible: yes
+
+;; {18.Sep.23 12:59} local:field:numf1 :Valid       : $$IsEmpty:$$Value OR $$IsEmpty:$cwFrom OR ($$Value >= $cwFrom)
+
+
+
+ [System: Formula]
+ getsratefromgroup:$$asrate:$cwSalesRate:stockgroup:$parent:stockitem:$stockitemname
+ getpratefromgroup:$$asrate:$cwPurchaseRate:stockgroup:$parent:stockitem:$stockitemname
+
+[#System: Formula]
+StdVchRate  :if $$issales:$vouchertypename then @@StdSellRate else if $$ispurchase:$vouchertypename then @@StdVchRate1 else $$value
+StdVchRate1 :if @@RoseHomeoEnabled and not $$isempty:@@getpratefromgroup then @@getpratefromgroup else if NOT @@IsOutwardType then if NOT $$IsRemoteCompany Then ($$CurrentValue:$StandardCost:StockItem:$StockItemName) Else ($CurrentStdCostMethod:StockItem:$StockItemName) else 0   ;;@@StdSellRate
+StdSellRate : if @@RoseHomeoEnabled and not $$isempty:@@getsratefromgroup then @@getsratefromgroup else if NOT $$IsValidPriceLevel:$PriceLevel then if NOT $$IsRemoteCompany Then ($$CurrentValue:StockItem:$StockItemName) Else ($CurrentStdPriceMethod:StockItem:$StockItemName) else +
+              $$GetPriceFromLevel:$StockItemName:$PriceLevel:$Date:$BilledQty
+
+   /*
+
+[#System: Formula]
+ StdVchRate:if @@RoseHomeoEnabled and not $$isempty:@@getpratefromgroup then @@getpratefromgroup else if NOT @@IsOutwardType then if NOT $$IsRemoteCompany Then ($$CurrentValue:$StandardCost:StockItem:$StockItemName) Else ($CurrentStdCostMethod:StockItem:$StockItemName) else @@StdSellRate
+StdSellRate : if @@RoseHomeoEnabled and not $$isempty:@@getsratefromgroup then @@getsratefromgroup else if NOT $$IsValidPriceLevel:$PriceLevel then if NOT $$IsRemoteCompany Then ($$CurrentValue:StockItem:$StockItemName) Else ($CurrentStdPriceMethod:StockItem:$StockItemName) else +
+              $$GetPriceFromLevel:$StockItemName:$PriceLevel:$Date:$BilledQty
+                                                                              */
+ /*
+StdSellRate : if NOT $$IsValidPriceLevel:$PriceLevel then if NOT $$IsRemoteCompany Then ($$CurrentValue:$StandardPrice:StockItem:$StockItemName) Else ($CurrentStdPriceMethod:StockItem:$StockItemName) else +
+               $$GetPriceFromLevel:$StockItemName:$PriceLevel:$Date:$BilledQty
+                                                                               */
+
