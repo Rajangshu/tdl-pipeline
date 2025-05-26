@@ -15,8 +15,14 @@ SECTION_HEADERS = [
 ]
 
 def annotate_tdl_file(src_path, dest_path):
-    with open(src_path, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
+    # Try utf-8 first, fall back to latin1 if needed
+    try:
+        with open(src_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except UnicodeDecodeError:
+        with open(src_path, 'r', encoding='latin1') as f:
+            lines = f.readlines()
+
     filename = os.path.basename(src_path)
     header = [
         ';===============================================================================\n',
