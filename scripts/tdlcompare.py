@@ -6,8 +6,17 @@ def is_code_line(line):
     return bool(stripped) and not stripped.startswith(';')
 
 def read_code_lines(filepath):
-    with open(filepath, 'r', encoding='utf-8') as f:
-        return [line.rstrip('\n') for line in f if is_code_line(line)]
+    # Try utf-8, then latin1, then cp1252 with replacement
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            return [line.rstrip('\n') for line in f if is_code_line(line)]
+    except UnicodeDecodeError:
+        try:
+            with open(filepath, 'r', encoding='latin1') as f:
+                return [line.rstrip('\n') for line in f if is_code_line(line)]
+        except UnicodeDecodeError:
+            with open(filepath, 'r', encoding='cp1252', errors='replace') as f:
+                return [line.rstrip('\n') for line in f if is_code_line(line)]
 
 def compare_files(orig_path, anno_path):
     orig_lines = read_code_lines(orig_path)
