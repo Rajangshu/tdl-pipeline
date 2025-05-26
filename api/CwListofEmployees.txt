@@ -1,0 +1,103 @@
+; Created By: pg on 2011-08-02 11:10
+
+
+     [#menu: Gateway of Tally]
+;;        add: Option: cwListofEmployeesLock: @@cwListofEmployeesDemoLock
+       
+     [!menu: cwListofEmployeesLock]
+        add: Item: before: @@locQuit: @@cwListofEmployeesReport: Display: cwListofEmployees
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   cwListofEmployeesReport: "cwListofEmployees"
+ cwListofEmployeesDemoLock: $$MachineDate < $$Date:"02-09-2011"
+     
+    [Report: cwListofEmployees]
+        use: Dsp Template
+      Title: @@cwListofEmployeesReport
+   Printset: Report Title: @@cwListofEmployeesReport
+       Form: FrmcwListofEmployees
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+     
+      [Form: FrmcwListofEmployees]
+        use: DSP Template
+       Part: DspAccTitles,PrtcwListofEmployees
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: cwListofEmployeesbotbrk,cwListofEmployeesbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+      [part: cwListofEmployeesbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: cwListofEmployeesbotopbrk]
+        use: dspacctitles
+  add: part: cwListofEmployeesTitlePart
+
+      [part: cwListofEmployeesTitlePart]
+       line: LncwListofEmployeesTitle
+       
+      [line: LncwListofEmployeesCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+  
+      [Part: PrtcwListofEmployees]
+       Line: LncwListofEmployeesCurrPeriod,LncwListofEmployeesTitle,LncwListofEmployees
+bottom Line: LncwListofEmployeesTotals
+     repeat: LncwListofEmployees: ColcwListofEmployees
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColcwListofEmployees]
+	Type		: Cost Centre
+	Filter     	: EmployeesFilter
+	Filter	   	: NotEmployeeGroupFilter
+;	Filter      : EmpManualMidVchDeactivationFilter
+	Fetch		: Name, Parent, ForPayroll, CstCatName, DateofJoin
+	sort : @@default : $parent,$name
+
+    [system: Formula]
+ColcwListofEmployeesFilter: Yes
+
+      [Line: LncwListofEmployeesTitle]
+        use: LncwListofEmployees
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LncwListofEmployees]
+     Fields: fwf,d1,fwf2 ;;,fwf3
+    Local: Field: fwf: Set As: $Name
+    Local: Field: fwf2: Set As: $Parent
+    ;;Local: Field: fwf3 : Set As:$CstCatName
+    Local: field: fwf: Width: 100
+    local: field: fwf: max: 100
+
+    Local: field: fwf2: Width: 100
+    local: field: fwf2: max: 100
+
+      [line: LncwListofEmployeesTotals]
+        use: LncwListofEmployees
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: amtf : set as :  $$total:amtf
+
+

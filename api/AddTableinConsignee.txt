@@ -1,0 +1,23 @@
+;;cwConsigneeListCondition
+
+    [#Field : EI Buyer]
+add: option : cwbuyer  : @@cwConsigneeListCondition
+
+[Collection : cwLedgers]
+       type : Ledger
+   child of : $$GroupSundryDebtors
+      Title : "Consignee List"
+      belongs to : yes
+
+    [!field : cwbuyer]
+        Use : Name Field
+      table : cwLedgers,Not Applicable
+;;     Set As : $BuyerName
+ Show table : Always
+;;   Storage     : BuyerName
+ Set Always : yes
+;;   local : table : ledgerentries : title : "List of ledger"
+
+    [#Field : EI BuyerAddress]
+     set by condition : @@cwConsigneeListCondition : $$ReptField:Address:$$Line:Ledger:#EIBuyer
+

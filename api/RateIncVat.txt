@@ -1,0 +1,214 @@
+
+;; enable the following formula
+;;cwItemVatRateShowCondition : @@issales
+;; cwVatrateIncShowCondition : @@issales
+;; cwExchangeEnabled : no
+
+;; usecwPriceLevel : yes
+;; cwPriceLevelName : $pricelevel
+
+;; useCustomValue :
+;; getcustomRate
+
+
+[system : formula]
+cwVAtShowAny : @@cwItemVatRateShowCondition or @@cwVatrateIncShowCondition
+cwItemVatRateShowCondition2 :  if @@cwVatrateIncShowCondition then yes else @@cwItemVatRateShowCondition
+cwVatrateIncShowConditionx  : @@cwItemVatRateShowCondition and not $$isempty:$cwInvVAtIncRate
+cwItemVatRateShowConditionx : @@cwVatrateIncShowCondition
+
+  [system : formula]
+rateless2 : "Rate Less then Allowed Rate of:\n"+$$string:@@alRate2
+ rateless : "Rate Less then Allowed Rate of:\n"+$$string:@@alRate3
+  alRate3 : $MinRate:StockITem:$Stockitemname
+  alRate2 : $Rativ:StockITem:$Stockitemname
+
+
+
+
+    [#Line: EI ColumnOne]
+      add : option : cwVatDetShowTitle : @@cwVATShowAny
+
+   [#Line : VCHBATCH ColumnOne]
+      add : option : cwVatDetShowTitle : @@cwVATShowAny
+  
+[!line: cwVatDetShowTitle]
+  add : right field : before : VCH RateTitle : cwInvVatRateTitle,cwInvVatIncRateTitle,cwSplDisctitle,cwSplDiscItemtitle,cwSplDiscCouponTitle
+
+[#Line: EI InvInfo]
+  add : option : cwVatDetShow : @@cwVATShowAny
+  
+[#Line: CI InvInfo]
+  add : option : cwVatDetShow : @@cwVATShowAny
+
+[#Line: STKVCH Batch2]
+  add : option : cwVatBatchDetShow : @@cwVATShowAny
+  
+[!line : cwVatDetShow]
+   add : right field : before : Vch Rate : cwInvVatRate,cwInvVatIncRate,cwSplDisc,cwSplDiscItem,cwSplDiscCoupon
+ local : field : cwInvVatIncRate : set by condition :not @@Cwpos and @@HasInvSubAlloc : $$Collectionfield:$cwInvVatIncRate:first:batchallocations
+ local : field : cwInvVatIncRate : skip : not @@Cwpos and @@HasInvSubAlloc
+ local : field : cwSplDiscItem : skip : not @@Cwpos and @@HasInvSubAlloc
+ local : field : cwSplDiscItem : set by condition :not @@Cwpos and @@HasInvSubAlloc : $$Collectionfield:$exchangeitem:first:batchallocations
+
+
+ local : field : cwSplDiscCoupon  : skip : not @@Cwpos and @@HasInvSubAlloc
+ local : field : cwSplDisc  : skip : not @@Cwpos and @@HasInvSubAlloc
+
+ local : field : cwSplDiscCoupon  : set by condition :not @@Cwpos and @@HasInvSubAlloc : $$Collectionfield:$Amttrdx:first:batchallocations
+ local : field : cwSplDisc  : set by condition :not @@Cwpos and @@HasInvSubAlloc : $$Collectionfield:$exchvatst:first:batchallocations
+
+[!line : cwVatBatchDetShow]
+   add : right field : before : Vchbatch Rate : cwInvVatRate,cwInvVatIncRate,cwSplDisc,cwSplDiscItem,cwSplDiscCoupon
+ local : field : cwInvVatIncRate : set as : if $$line = 1 then $$value else $$prevlinefield
+ local : field : cwInvVatIncRate : skip : $$line > 1
+ local : field : cwInvVatIncRate : inactive : @@BatchAllocBreak
+ local : field : cwInvVatRate : inactive : @@BatchAllocBreak
+ local : field : cwSplDiscItem  : inactive : @@BatchAllocBreak or $exchvatst = 0
+ local : field : cwSplDiscCoupon  : inactive : @@BatchAllocBreak
+ local : field : cwSplDisc  : inactive : @@BatchAllocBreak
+
+
+
+[#Field: VCH NrmlRate]
+set by condition : @@cwVatrateIncShowConditionx : @@cwVatIncRAte
+
+
+
+
+[#Field: VCH BatchRate]
+;;	   Set as          : if $$line=1 and @@cwItemVatRateShowConditionx then  @@cwVatrateIncShowCondition2 else +
+;;                          if (($$Line = 1) AND NOT $$IsEmpty:@TableRate) AND ($$IsEmpty:$$Value OR $$IsFieldEdited:VCHBATCHTrack OR $$IsFieldEdited:VCHBATCHOrder) then @TableRate else +
+;;                          if $BilledQty = 0 then 0 else +
+;;                          if $$Line > 1 then $Rate else +
+;;                          if $$IsValidPriceLevel:$PriceLevel then @NrmlStdRate else +
+;;                          if $$IsStockJrnl:##SVVoucherType AND @@IsOutwardType AND NOT $$IsFieldEdited then $$BaseValue:@ByResidualRate else +
+;;                          if ($Amount != 0) AND ($Amount != @@CalcedAmt) then @@NrmlAmount / $BilledQty else +
+;;                          if $$InAlterMode OR $$IsFieldEdited then $$Value else +
+;;                          if $$IsEmpty:$Rate then @@cwVatIncRAte else $Rate
+
+;set by condition :  @@cwVatrateIncShowConditionx :@@cwVatIncRAte ;; $cwInvVatIncRate ;;- $exchvatst ;; @@cwVatrateIncShowCondition2
+;;border : thin box : @@cwVatrateIncShowConditionx
+;;control : cwVatIncRAte : @@cwVatrateIncShowConditionx
+;;tablerate  : if  @@cwVatrateIncShowConditionx then @@cwVatIncRAte else if $$IsStockJrnl:##SVVoucherType then $$BaseValue:$$AltTable:VCHBATCHTrack:VCHBATCHOrder:$Rate else +
+;;				  $$ForexValue:$$AltTable:VCHBATCHTrack:VCHBATCHOrder:$Rate
+;;delete : storage				
+;;StdRate     : if  @@cwVatrateIncShowConditionx then @@cwVatIncRAte else @@StdVchRate
+                                  
+;;set by condition : yes : $amount / $billedqty
+
+;;	Set by Condition	: ($$IsEmpty:$Rate AND $$IsEmpty:$$AltTable:VCHBATCHTrack:VCHBATCHOrder:$TrackingNumber) and @@cwItemVatRateShowConditionx : @@cwVatrateIncShowCondition2
+;;set as : $amount / $billedqty
+
+[#Field: VCH BatchRate]
+;;add : option : myoptx1x1 : @@cwVatrateIncShowConditionx
+;;[!field : myoptx1x1]
+;;delete : set by condition
+;; set by condition : @@cwVatrateIncShowConditionx  :@@cwVatIncRAte
+
+ [#Field : VCH POSRate]
+        Set as          : if @@cwItemVatRateShowConditionx then  @@cwVatrateIncShowCondition2 else +
+        If NOT $$IsEmpty:$BilledQty Then If $$IsEmpty:@@StdVchRate Then $$Value Else $$ForexValue:@@StdVchRate Else ""
+;;border : thin box
+set always : yes
+
+[system: formula]
+cwVatIncRAte : $cwInvVatIncRate - ( $cwInvVatIncRate * ( $cwInvVAtRate / (100 + $cwInvVAtRate)))- @@exchX1 - @@amttrdxXxx
+cwVatrateIncShowCondition2 :@@cwInvVatIncRate  - ( @@cwInvVatIncRate * ( #cwInvVAtRate / (100 + #cwInvVAtRate))) ;; $$asrate:@@cwVatIncRAte ;;if $$isempty:@@cwVatIncRAte then $$asrate:1 else
+cwInvVatIncRate : #cwInvVatIncRate - #cwSplDisc - #cwSplDiscCoupon
+exchX1 :  $exchvatst - ($exchvatst * ( #cwInvVAtRate / (100 + #cwInvVAtRate)))
+amttrdxXxx : $Amttrdx - ($Amttrdx * ( #cwInvVAtRate / (100 + #cwInvVAtRate)))
+
+  [field : cwInvVatRateTitle]
+     use : cwInvVatRate
+     type : string
+  option : TitleOpt
+  set as : "Vat%"
+  delete : storage
+
+  [field : cwInvVatIncRateTitle]
+    use  : cwInvVatIncRate
+  option : TitleOpt
+  type : string
+  info : "Rate (Inc. VAT)"
+  delete : setbycondition: @@usecwPriceLevel
+  delete : storage
+
+[field: cwSplDisctitle]
+     use : cwSplDisc
+  option : TitleOpt
+  set as : "Exchange Rate"
+  delete : storage
+  
+[field : cwSplDiscItemtitle]
+     use : cwSplDiscItem
+  option : TitleOpt
+  set as : "Exchange Item"
+    delete : storage
+[field: cwSplDiscCouponTitle]
+     use : cwSplDiscCoupon
+  option : TitleOpt
+  set as : "Spl. Disc."
+  delete : storage
+ [field : cwSplDisc]
+    use : numf
+storage : exchvatst
+ Inactive    : $$IsEnd:$StockItemName
+ invisible: Not @@cwExchangeEnabled
+;; border : thin box
+ 
+ [field : cwSplDiscItem]
+    use : nf
+storage : exchangeitem
+inactive : $exchvatst = 0 or $$isend:$stockitemname
+ Control : ExItem : $$isEmpty:$$value
+ invisible: Not @@cwExchangeEnabled
+ 
+[System : Formula]
+ StSkip :  If $$IsEnd:$Stockitemname  Then Yes Else No
+  ExItem: "Enter Item \nReceived under Exchange"
+
+
+[field : cwSplDiscCoupon]
+   use : numf
+storage : Amttrdx
+ Inactive    : $$IsEnd:$StockItemName
+ invisible: Not @@cwExchangeEnabled
+;;   notify :  exchX1 : yes
+
+   
+  [field : cwInvVatRate]
+     use : numf
+  storage: cwInvVAtRate
+  invisible : not @@cwItemVatRateShowCondition2
+    Inactive    : $$IsEnd:$StockItemName OR @@NoBaseUnits
+    set always : yes
+    set as : $rateofvat:stockitem:$stockitemname
+    skip : yes
+    width : 5
+    format:"Decimals:2,NoZero"
+
+
+
+  [field : cwInvVatIncRate]
+    Use         : Rate Price Field
+    Width       : @@VCHRateWidth
+    Align       : Right
+    Storage     : cwInvVAtIncRate
+    Inactive    : $$IsEnd:$StockItemName OR @@NoBaseUnits
+    Set always  : Yes
+    Format      : "Symbol,Forex"
+      invisible : not @@cwVatrateIncShowCondition
+        Control : RateLess2 : $$value < @@alRAte2
+ setbycondition : @@usecwPriceLevel : $$number:@@cwPLValue
+ setbycondition : @@useCustomValue : @@getcustomRate
+;; {14.Nov.16 14:51}  border : thick box
+;;   $$isbatch
+;;set as : @@cwPLValue
+
+   [System : Formula]
+   cwPLValue : $$getpricefromlevel:$stockitemname:@@cwPriceLevelName:@@cwXDate:$startingfrom ;;$billedqty
+   cwXdate : $$reportobject:$date
+   
+; -------------- batch allocations
+

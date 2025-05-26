@@ -1,0 +1,198 @@
+    [System: formula]
+   NREpReport: "Way Bill"
+ NREpDemoLock: yes ;;$$MachineDate <= $$Date:"02/07/2009"
+
+
+     [#menu: Gateway of Tally]
+;; {21.May.14 10:52}         add: Option: NREpLock: @@NREpDemoLock
+       
+     [!menu: NREpLock]
+        add: Item: before: @@locQuit: @@NREpReport: Display: RepNREp
+    
+
+    [Report: RepNREp]
+        use: Dsp Template
+      Title: @@NREpReport
+   Printset: Report Title: @@NREpReport
+       Form: FrmNREp
+     Export: Yes
+     set: svfromdate : ##svcurrentdate
+     set: svtodate : ##svcurrentdate
+       
+      [Form: FrmNREp]
+        use: DSP Template
+       Part: PartTitle,PrtNREp
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+ Delete : Page Break
+ add Page Break : cwContiWB,cwTopWBPart
+ 
+ [part: cwTopWBPart]
+part :  DSP ReportTime, DSP CompanyName
+vertical : yes
+ 
+ [part: cwContiWB]
+ line : EXPINV PageBreak
+ 
+     [part : PartTitle]
+      line : pt1,pt2,pt3,pt4,CwBlankLine,pt5,CwBlankLine2,pt6,pt7
+       
+     [line : pt1]
+     field : fwfc
+     local : field : fwfc : set as: $$upper:"the west bengal sales tax rules, 2005"
+     local : field : fwfc : style : normal bold
+   
+     [line : pt2]
+       use : pt1
+     local : field : fwfc : set as : "FORM 54"
+     
+
+     [line : pt3]
+       USE : PT1
+     LOCAL : FIELD : FWFC : SET AS: "Statement of issue of Way Bill in Form 50 received on " + $$string:@@dsptodate:"Shortdate" + " (date of receipt on the previous occassion)"
+
+     [line : pt4]
+       use : pt1
+     local : field : fwfc : set as: "[see *sub-rule(3) of rule 110/sub-rule(3) of rule 111/sub-rule(3) of rule 112]"
+  
+  [line : pt5]
+  field : nf,nf2,snf,snf2,nf3
+  local : field : nf : set as : "Name of the Issuing dealer:"
+  local : field : nf2 : set as: @@cmpmailname
+  local : field : snf2 : set as: "VAT No. "
+  local : field : nf3 : set as : @@cwCMPSalesTax
+  local : field : default : style : normal bold
+  local : field : nf : width : 1.70 inch
+  local : field : nf2 : width : 3.0 inch
+;;  local : field : default : border : thin box
+  [line : pt6]
+;;  field : nf,fwf
+use : pt5
+  local : field : nf : set AS: "Address:"
+  local : field : nf2 : set as : $$fulllist:companyaddress:$address
+  local : field : default : style : normal bold
+;;  local : field : default : border : thin box
+local : field : snf : set as : ""
+local : field : snf2 : set as : ""
+local : field : nf3 : set as : ""
+local : field : snf : invisible : yes
+local : field : snf2 : invisible :yes
+local : field : nf2 : width : (@@shortwidth * 6 )
+
+  
+  [line : pt7]
+  field : name field
+  local : field : name field : set as :"A."
+ 
+      [Part : PrtNREp]
+       Line : LnNREpTitle0,LnNREpTitle,LnNREp
+     repeat : LnNREp: ColNREp
+     scroll : Vertical
+CommonBorder : YEs
+local : field : default : style : small
+;;     Total :
+
+[Collection: ColNREp]
+        type : vouchers
+     Filter: ColNREpFilter
+;;     fetch : cwWayBillNo
+
+      [system : Formula]
+ColNREpFilter : $$ispurchase:$vouchertypename and @@IsCSTVoucher
+;;$$issales:$vouchertypename and not $$isempty:$CSTFormIssueType
+
+     [line :  LnNREpTitle0]
+       use : LnNREp
+     local : field :default : type : string
+ local : Field : snf : set as :  ""
+ local : Field : snf2 : set as : "Way Bill"
+ local : Field : sdf : set as :  ""
+ local : field : snf2 : align : right
+ local : field : snf2 : border : thin bottom
+ local : field : sdf : border : thin bottom
+ local : Field : snf2 : align : right
+ local : Field : fwf : set as :  ""
+ local : Field : nf : set as :   ""
+ local : Field : nf2 : set as :  "Description"
+  local : Field : nf2 : border : thin bottom
+ local : Field : nf2 : align : right
+ local : Field : qtyf : set as : "of goods"
+  local : Field : qtyf : border : thin bottom
+ local : Field : qtyf : align : left
+ local : Field : snf4 : set as : "Consignor"
+  local : Field : snf4 : border : thin bottom
+ local : Field : sdf2 : set as : "Invoice"
+ local : Field : sdf2 : border : thin bottom
+ local : Field : amtf : set as : ""
+ local : Field : nf3 : set as  :  "Name of the Entry"
+ local : Field : nf3 : border :thin bottom
+ local : Field : sdf3 : set as : "Date of Entry"
+ local : Field : sdf3 : border :thin bottom
+  local : Field : amtf : border :thin bottom
+ local : Field : default : lines :  0
+local : field : snf4 : border : thin bottom
+local : field : fwf  : border : thin bottom
+local : field : snf : border : thin bottom
+local : field : nf : border : thin bottom
+      [Line: LnNREpTitle]        ;;""
+       use : LnNREp
+    border : thin bottom
+     local : field :default : type : string
+ local : Field : snf : set as :  "SL. No."
+ local : Field : snf2 : set as : "No."
+ local : Field : sdf : set as :  "Date"
+ local : Field : fwf : set as :  "Consignor Name & Address"
+ local : Field : nf : set as :   "Consignment Note/Railway receipt/ Bill of lading/ Air Note No."
+ local : Field : nf : style : small
+ local : Field : nf2 : set as :  "Name"
+ local : Field : qtyf : set as : "Quantity (MT)"
+ local : Field : snf4 : set as : "No."
+ local : Field : sdf2 : set as : "Date"
+ local : Field : amtf : set as : "Amount"
+ local : Field : nf3 : set as  :  "Checkpost or notified Place"
+ local : Field : sdf3 : set as : "in West Bengal"
+ local : Field : default : lines :  0
+ local : Field : snf2 : align : centre
+  local : Field : sdf : align : centre
+ local : Field : qtyf : align : centre
+
+[collection : partyaddress2]
+type : address: ledger
+child of : $partyledgername
+
+      [Line: LnNREp]
+    Option : Alter on Enter
+     field : snf,snf2,sdf,fwf
+right field: nf,nf2,qtyf,snf4,sdf2,amtf,nf3,sdf3
+ local : Field : snf : set as :  $$LineNumber -2
+ local : Field : snf2 : set as : $cwWayBillNo
+ local : Field : sdf : set as :  $cwWayBillDate
+ local : Field : fwf : set as :  $partyledgername + " " + $$fulllist:partyaddress2:$address
+ local : Field : nf : set as :   $BasicPlaceOfReceipt ;;$BasicShipDocumentNo
+ local : Field : nf2 : set as :  $$collectionfield:$stockitemname:1:inventoryentries
+ local : field : nf2 : style : small
+ local : Field : nf2 :  lines  : 0
+  local : Field : fwf : lines : 0
+ local : Field : qtyf : format : "NoSymbol"
+ local : Field : qtyf : set as : $$collectionfield:$billedqty:1:inventoryentries
+ local : field : snf4 : width : 0.75 inch
+ local : Field : snf4 : set as : $REFERENCE ;;$VoucherNumber
+ local : Field : sdf2 : set as : $ReferenceDate ;;$date
+ local : Field : amtf : set as : $amount
+ local : Field : nf3 : set as  :  $cwEndorsementNo
+ local : Field : sdf3 : set as : $CwEndorsementDate
+ local : field : sdf2 : alter : voucher : $$isvoucher
+;; local : field : default : border : thin right
+local : field : amtf : width : 0.7 inch
+ local : field : snf : width : 0.5 inch
+ local : field : snf2 : width : 0.60 inch
+;;local : field : nf : border : thin box
+local : field : nf : width : 0.85 inch
+ local : field : nf2 : width : 1 inch
+ local : field : qtyf : width : 0.7 inch
+ local : field : sdf : width : @@shortdatewidth + 2
+ local : field : snf : align : centre
+ local : field : nf3: width : @@shortwidth + 3
+ local : field : snf4  : align : right
+;;local: field : snf4 : border : thin box

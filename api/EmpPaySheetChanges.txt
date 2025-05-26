@@ -1,0 +1,60 @@
+
+[System : Formula]
+cwDOJLCond : (##IsPaySheet and @@cwEmpDemoDt)
+cwDOJCond : @@cwDOJLCond and ##cwPaySheetShowDOJ
+cwDOLCond : @@cwDOJLCond and ##cwPaySheetShowDOL
+[#Part: Pay Sheet Config]
+add : line : after : PSheet Show Attendance : cwShowPSheetDOJ,cwShowPSheetDOL
+
+[line : cwShowPSheetDOJ]
+        Field : Long Prompt, Logical Field
+        Local : Field : Long Prompt		: Set As	: $$LocaleString:"Show Date of Joining?"				
+        Local : Field : Logical Field	: Set as	: ##cwPaySheetShowDOJ
+        Local : Field : Logical Field	: Modifies	: cwPaySheetShowDOJ:Yes
+		Invisible	  : NOT @@cwDOJLCond
+
+[line : cwShowPSheetDOL]
+        Field : Long Prompt, Logical Field
+        Local : Field : Long Prompt		: Set As	: $$LocaleString:"Show Date of Leaving?"				
+        Local : Field : Logical Field	: Set as	: ##cwPaySheetShowDOL
+        Local : Field : Logical Field	: Modifies	: cwPaySheetShowDOL:Yes
+		Invisible	  : NOT @@cwDOJLCond
+/*		
+[#Report: Paysheet Employees]      ;;Auto Report		
+  local : line : DSP Attd Emp Name : add : field : after : DSP Emp Number : sdf,sdf2
+  Local: Field: sdf : Set As: $dateofjoin
+  Local: Field: sdf2 : Set As: $DeactivationDate
+  local : line : DSP Attd Emp Name : border : thin box
+*/
+
+[#Part: DSP PaySheet EmpDetails Explode]
+;;	[#Line: DSP PaySheet EmpDetails Explode]
+;;local : field : default : border : thin box
+
+[#Part: DSP PaySheetEmployeeWise]
+;;local : field : default : set as : $$descname
+;;local : line : default : border : thin box
+[#report : paysheet]
+;;local : Line: DSP PaySheet EmpDetails : local : field : DSP Emp Number : border : thin box
+local : Line: DSP PaySheet EmpDetails Explode : add : field  : after  : DSP Emp Number : sdf,sdf2
+;;local : field : DSP Emp Number : set as :"a"
+  Local: Field : sdf  : Set As : $dateofjoin
+  Local: Field : sdf2 : Set As : $DeactivationDate
+;; local : field : sdf  : border : thin box
+local : field : sdf : invisible : not @@cwDOJCond
+local : field : sdf2 : invisible : not @@cwDOLCond
+
+
+[#Line: DSP PaySheetColTitles]
+add : field : after : DSP Emp Designation : sdf,sdf2
+local : field : sdf : type :string
+local : field : sdf2 : type :string
+Local: Field: sdf : Set As:"DOJ"
+Local: Field: sdf2 : Set As: "DOL"
+local : field : sdf : invisible : not @@cwDOJCond
+local : field : sdf2 : invisible : not @@cwDOLCond
+
+[#Collection: PaySheet Cost Category Object]
+fetch : dateofjoin,DeactivationDate
+
+

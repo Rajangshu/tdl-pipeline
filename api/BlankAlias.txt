@@ -1,0 +1,98 @@
+
+     [#menu: Gateway of Tally]
+        add: Option: AMRIFillLock: @@AMRIFillDemoLock
+       
+     [!menu: AMRIFillLock]
+        add: Item: before: @@locQuit: @@AMRIFillReport: Display: RepAMRIFill
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   AMRIFillReport: "Code is Blank"
+ AMRIFillDemoLock: $$MachineDate < $$Date:"01/09/2011"
+     
+    [Report: RepAMRIFill]
+        use: Dsp Template
+      Title: @@AMRIFillReport
+   Printset: Report Title: @@AMRIFillReport
+       Form: FrmAMRIFill
+     Export: Yes
+     variable : accounttype
+set : ACCOUNTTYPE : $$sysname:ledgers
+
+      [Form: FrmAMRIFill]
+        use: DSP Template
+       Part: DspAccTitles,PrtAMRIFill
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: AMRIFillbotbrk,AMRIFillbotOpbrk
+  Button : AL Ledger, +
+           AL Stock Items, +
+
+      [part: AMRIFillbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: AMRIFillbotopbrk]
+        use: dspacctitles
+  add: part: AMRIFillTitlePart
+
+      [part: AMRIFillTitlePart]
+       line: LnAMRIFillTitle
+  
+      [Part: PrtAMRIFill]
+       Line: LnAMRIFillTitle,LnAMRIFill
+bottom Line: LnAMRIFillTotals
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+      option : crepeatLedger : ##accounttype = $$sysname:ledgers
+      option : crepeatItem : ##accounttype = $$sysname:stockitems
+
+     [!part : crepeatLedger]
+     repeat: LnAMRIFill: ColAMRIFillLedger
+     
+     [!part: crepeatItem]
+     repeat: LnAMRIFill: ColAMRIFillItems
+
+[collection : ColAMRIFillItems]
+        Use: stockitem
+     Filter: ColAMRIFillFilter
+
+[Collection: ColAMRIFillLedger]
+        Use: ledger
+;;     Filter: ColAMRIFillFilter
+
+    [system: Formula]
+ColAMRIFillFilter: $$isempty:$mailingname
+
+      [Line: LnAMRIFillTitle]
+        use: LnAMRIFill
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LnAMRIFill]
+     Fields: fwf
+right field: nf
+     Option: Alter on Enter
+     local: field: fwf: alter : ledger : $$isledger
+     local: field: fwf: alter : stockitem : $$isstockitem
+     Local: Field: fwf : Set As: $name
+     Local: Field: nf : Set As: if $$isstockitem then $mailingname else @@cwpartycodex
+     empty:  if $$isstockitem then no else  @@cwpartycodex <> $name
+      [line: LnAMRIFillTotals]
+        use: LnAMRIFill
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: amtf : set as :  $$total:amtf
+
+

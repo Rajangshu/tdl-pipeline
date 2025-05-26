@@ -1,0 +1,84 @@
+; Created By: pg on 2011-09-28 18:48
+; cwWarnonNegStock
+
+
+ [#Line: EI ColumnOne]
+ add : option : myLockTitle : @@cwWarnonNegStock and @@issales
+
+
+ [!line : myLockTitle]
+  add:field:after:VCH ItemTitle:nf
+  Local: Field: nf: info:"Closing Stock"
+  local:field:nf:align:right
+  local:field:nf:invisible:yes
+  local:field:nf:skip:yes
+
+  [#Line: EI InvInfo]
+;;  border:thick box
+ add : option : myLock: @@cwWarnonNegStock and @@issales
+   local : field : VCH BilledQty : control :exceedsstock :@@cwWarnonNegStock and @@xqty < 0 ;; (#qtyf - $$value < 0)
+
+  [#Line: CI InvInfo]
+;;  border:thick box
+
+ add : option : myLock: @@cwWarnonNegStock and @@issales
+   local : field : VCH BilledQty : control :exceedsstock :@@cwWarnonNegStock and @@xqty < 0 ;; (#qtyf - $$value < 0)
+;;   local : field : VCH BilledQty :SETAS:""
+   
+ [!line : myLock]
+    add : field:after:VCH StockItem: qtyf
+   Local: Field: qtyf: Set As: if $$issysname:#vchstockitem then "" else $myqty:godown:#vchposgodown
+;;   local : field : qtyf : skip : yes
+   local : field : qtyf : invisible : yes
+   
+
+
+
+
+[System: Formula]
+
+exceedsstock :"Negative Stock of " + $$string:@@xqtyx + " in \n" + #vchposgodown
+xqty : if $$isempty:#qtyf then $$asqty:(-1000)  else (-1*$$value) + #qtyf
+xqtyx : if $$isempty:#qtyf then $$string:$$Value else $$string:@@xqty
+
+    [#object : godown]
+    myqty : $$AsSignedQty:$$GodownItemValue:$Name:#VCHStockItem:$ClosingBalance
+
+    [#collection : godown]
+    fetch : myqty
+
+;;    [collection:godclostock]
+;;     type:Godown
+;;     child of :$Parent            ;;StockBalNettStock:godown
+;;     fetch:closingbalance
+
+    [collection:godownclosingstock]
+;;      type:stockitem
+;;      use:batchchildofowner
+;;      child of:$godownname  ;;$name   ;;$closingbalance
+;;      fetch:ClosingBalance
+
+;;      delete:filter
+      use : stockitem
+      filter : mynamesame
+      fetch : batchallocations.godownname,batchallocations.closingbalance
+
+
+      [System: Formula]
+      mynamesame : $name = #VCHStockItem
+      mygodsame: yes ;;$godownname = #VCHPOSGodown
+      myqty : $$filtervalue:$closingbalance:batchallocations:1:mygodsame
+
+
+;;[Collection: Stockable DealerGodownx]
+
+;;	Use			: Stockable Godown
+;;	Filter		: IsExciseTraderGodown, IsSameTraderExciseGodown
+
+
+
+
+;;      [System: Formula]
+
+
+;;   border:thick box

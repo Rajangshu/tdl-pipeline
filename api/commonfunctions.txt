@@ -1,0 +1,408 @@
+/*
+$$RemoveExcelNoiseCharacter
+$$IgnoreTallyNoiseCharsUCase
+$$RemoveNonAlphaNumeric
+$$RemoveNonAlphaNumericWithoutSpace
+$$RemoveNonAlphaNumWithSplChar
+*/
+
+[function : cwNum2p]
+parameter : num : number
+;parameter : toDeci : number : 2
+
+;; {14.Mar.23 09:46} returns : number
+
+variable: temp : string
+
+10 : set : temp : $$string:##num:"Decimals:2"
+
+;; {14.Mar.23 16:25} 11 : log : ##num
+;; {14.Mar.23 16:25} 12 : log : $$number:##temp
+20 : return : $$number:##temp
+
+;$$cwlogDetails:'Party':$Partyledgername
+
+[function: cwLogDetails]
+parameter: str1 : string
+parameter: str2 : string : ""
+
+10 : log : ##str1 + "      "  + ##str2
+20 : return : ##str1
+
+[function: cwnormalize2]
+parameter : str : string
+parameter :ftoken : string
+
+variable : str2 : string: ""
+
+1000: For Token : abcd : ##str : ##ftoken
+1001 : set : str2 : ##str2 + ##abcd
+1002: end for
+
+1003 : return : ##str2
+
+[function : cwNormalize]
+parameter : str : string
+
+0010 : set : str : $$cwnormalize2:##str:","
+0020 : set : str : $$cwnormalize2:##str:"/"
+0030 : set : str : $$cwnormalize2:##str:"-"
+0040 : set : str : $$cwnormalize2:##str:"."
+0050 : set : str : $$cwnormalize2:##str:"\"
+0060 : set : str : $$cwnormalize2:##str:"_"
+0070 : set : str : $$cwnormalize2:##str:":"
+
+;; {03.Oct.20 13:47} 1000 : log : ##str
+
+
+1070 : return: ##Str
+
+
+[function : cwYYMMDD] ; Accepts Date and seperator, returns YYYY<Seperator>MM<Seperator>DD
+parameter : mydate : date
+parameter: YearSeperator : string :""
+returns : string
+variable : y : string : $$yearofdate:##mydate
+variable : m : string : $$zerofill:($$monthofdate:##mydate):2
+variable : d : string : $$zerofill:($$dayofdate:##mydate):2
+
+00a : if : ##mydate = ""
+00b: continue
+00c: end if
+;; {08.Dec.23 14:01} 0x : log : "xxxx"
+;; {08.Dec.23 14:01} 01 : log: ##mydate
+;; {08.Dec.23 14:01} 05 : log : ##y+##YearSeperator+##m+##YearSeperator+##d
+
+;; {08.Dec.23 14:01} 06:log:##mydate
+10 : return : ##y+##YearSeperator+##m+##YearSeperator+##d
+
+[function : cwYY2MMDD] ; Accepts Date and seperator, returns YY<Seperator>MM<Seperator>DD
+parameter : mydate : date
+parameter: YearSeperator : string :""
+returns : string
+variable : y : string : $$yearofdate:##mydate - 2000
+variable : m : string : $$zerofill:($$monthofdate:##mydate):2
+variable : d : string : $$zerofill:($$dayofdate:##mydate):2
+;; {22.Jul.22 11:36} 05 : log : ##y+##YearSeperator+##m+##YearSeperator+##d
+10 : return : ##y+##YearSeperator+##m+##YearSeperator+##d
+
+
+
+[function : cwRound2num]
+parameter : numb : number
+returns : number
+10 : return : $$round:##numb:(.01)
+
+[function : cwRound2Amt]
+parameter : numb : Amount
+returns : Amount
+10 : return : $$round:##numb:(.01)
+
+
+[function : cwrepla]
+parameter : str : string      ;; string to replicate
+parameter : numtimes : number ;; no. of times to replicate
+variable : str1 : string
+variable : i : NUMBER
+01 : set : str1 : ""
+05 : set : i : 0
+10 : while : ##i < ##numtimes
+20 : set : str1 : ##str1 + ##str
+30 :set : i : ##i + 1
+;; {22.Jul.22 11:36} 35 : LOG : "STR: " + ##STR1
+40 : end while
+50 : return : ##str1
+
+
+[function : cwCreateCC]
+parameter : cname : string
+;;05 : log : "Creating " +##cname
+10 : new object : Cost Centre
+20 : set value : name : ##cname
+30 : create target
+
+
+[function : cwCreateLedger]
+parameter : cname : string
+parameter : parentname :string
+;;05 : log : "Creating " +##cname
+10 : new object : Ledger
+20 : set value : name : ##cname
+30 : set value : Parent : ##parentname
+40 : create target
+
+[Function: getDateFmt]
+parameter: mydt : date
+parameter: YearSeperator : string :""
+parameter: Yr2Digits : logical : yes
+parameter: ShortMonthName : logical : Yes
+; May-2012
+returns : string
+variable : yofdate : number
+variable :  mofdate : number
+variable : monthname : string
+;;01 : log :"mydt"
+;;05 : log : ##mydt
+10 : do if : ##mydt = "" : Continue
+11 : set : yofdate :  $$YearOfdate:##mydt
+12 : set : mofdate : $$monthofdate:##mydt
+
+;;13 : log : ##yofdate
+;;14 : log : ##mofdate
+15 : do if : ##yofdate - 2000 < 0 : continue
+
+30 : do if : ##yr2Digits : set : yofdate : ##yofdate - 2000
+35 : if : ##ShortMonthName
+36 : set : MonthName : $$shortmonthname:##mydt
+37 : else
+38 : set : MonthName : $$fullmonthname:##mydt
+39 : end if
+
+
+
+;;31 : log : ##yr2Digits
+;;32 : log : ##yearSeperator
+;;33 : log : ##yofdate
+;;34 : log : ##mofdate
+100 : return : ##monthname + ##YearSeperator + $$string:##yofdate
+
+
+[Function: getDateFmt2]
+parameter: mydt : date
+parameter: YearSeperator : string :"-"
+parameter: Yr2Digits : logical : yes
+
+returns : string
+variable : yofdate : number
+variable :  mofdate : number
+variable : monthname : string
+variable : mydayofdate : number
+;;01 : log :"mydt"
+;;05 : log : ##mydt
+10 : do if : ##mydt = "" : Continue
+11 : set : yofdate :  $$YearOfdate:##mydt
+12 : set : mofdate : $$monthofdate:##mydt
+13 : set : mydayofdate : $$dayofdate:##mydt
+
+;;13a : log : ##yofdate
+;;14 : log : ##mofdate
+15 : do if : ##yofdate - 2000 < 0 : continue
+
+30 : do if : ##yr2Digits : set : yofdate : ##yofdate - 2000
+36 : set : MonthName : $$zerofill:##mofdate:2
+
+
+
+;;31 : log : ##yr2Digits
+;;32 : log : ##yearSeperator
+;;33 : log : ##yofdate
+;;34 : log : ##mofdate
+100 : return : $$zerofill:##mydayofdate:2 + ##YearSeperator + ##monthname + ##YearSeperator + $$string:##yofdate
+
+  ; $$cwStringReplace:<MainSTring>:<Search>:<Replace>
+  ; $$cwStringReplace:$narration:"(":""
+ [Function: cwStringReplace]
+ parameter : str : string
+ parameter : searchstring : string
+ parameter : replacewith : string
+ returns : string
+
+ variable  : tempstr : string : ""
+
+ 10 : for token : tokenVar : ##str : ##searchstring
+ 15 : if : ##tempstr <> ""
+ 20 : set : tempstr : ##tempstr + ##replacewith + ##tokenvar
+ 25 : else
+ 27 : set : tempstr : ##tokenvar
+ 28 : end if
+ 30 : end for
+ 40 : return : ##tempstr
+
+ [Function: getcwQuarter]
+parameter : mydate : date
+returns : number
+variable : mymonthofdate : number : $$monthofdate:##mydate
+10 : do if : ##mymonthofdate >= 4 and ##mymonthofdate <= 6 : return : 1
+20 : do if : ##mymonthofdate >= 7 and ##mymonthofdate <= 9 : return : 2
+30 : do if : ##mymonthofdate >= 10 and ##mymonthofdate <= 12 : return : 3
+40 : do if : ##mymonthofdate >= 1 and ##mymonthofdate <= 3 : return : 4
+
+[function : getcwFyYr]
+parameter : mydate : date
+parameter : seperator : string : ""
+parameter : isShort : logical : no
+
+returns : string
+variable : startyr : number
+variable : endyr : number
+variable : monthint : number
+variable : yearint : number
+
+;; {16.Apr.18 16:22} 00 : log :"---------" + $$string:##mydate
+
+10 : set : monthint : $$monthofdate:##mydate
+20 : set : yearint : $$yearofdate:##mydate
+
+30 : if : ##monthint >= 4
+40 : set : startyr : ##yearint
+50 : set : endyr : ##yearint + 1
+60 : else
+70 : set : startyr : ##yearint -1
+80 : set : endyr : ##yearint
+90 : end if
+
+91: if : ##isShort
+;; {19.Nov.24 17:39} 91a: log : ##startyr
+;; {19.Nov.24 17:39} 91b: log : ##endyr
+92: set : startyr : ##startyr - 2000
+93: set : endyr : ##endyr - 2000
+94: end if
+
+01 : log : $$string:##startyr + ##seperator + $$string:##endyr
+100 : return : $$string:##startyr + ##seperator + $$string:##endyr
+
+
+
+ [Function: cwGetGSTRateForLedger]
+parameter : myLedgerNAme : string
+returns : number
+variable : cwmyclassificationname : string
+;; {08.Apr.19 18:29} 10 : log : ##myLedgerName
+;; {10.Apr.19 18:42} 00 : log :"X"
+;; {10.Apr.19 18:42} 05 : log : $$collectionfield:$HSNMASTERNAME:1:cwte2
+
+10 : if :  $$issysname:$$collectionfield:$HSNMASTERNAME:1:cwte2
+20 : return: $$collectionfield:@@cwGSTDETAILS:(-1):cwte2
+30 : else
+35 : set : cwmyclassificationname : $$collectionfield:$HSNMASTERNAME:1:cwte2
+
+
+
+;; {10.Apr.19 18:30} 40 : return: $$FilterValue:($$CollectionField:($$CollectionField:($$FilterValue:$GSTRATE:ratedetails:last:cwrateisigst):last:GSTStatewiseDetails):1:GSTDETAILS):cwgstclassification:1:cwsametaxrate10
+40 : return: $$COLLECTIONFIELD:($$CollectionField:($$CollectionField:($$FilterValue:$GSTRATE:ratedetails:last:cwrateisigst):last:StatewiseDetails):1:GSTDETAILS):1:cwgstclassification
+
+/*100 : WALK COLLECTION :  cwgstclassification
+;; {10.Apr.19 18:39} 100X: LOG OBJECT
+100A: WALK : GSTDETAILS
+100A1: WALK : STATEWISEDETAILS
+100B1 :LOG : $$FilterValue:$GSTRATE:ratedetails:last:cwrateisigst
+100Y : END WALK
+102Z: END WALK
+102 : END WALK
+*/
+
+50 : end if
+
+[collection : cwgstclassification]
+type : gstclassification
+fetch : *.*
+keep source :yes
+filter :  cwsametaxrate10
+
+[System: Formula]
+cwrateisigst : $GSTRATEDUTYHEAD = "Integrated Tax"
+cwsametaxrate10:($name = ##cwmyclassificationname) or $hsn = ##cwmyclassificationname
+
+
+[Collection: cwte2]
+type : GSTDETAILS : ledger
+child of : ##myLedgerName
+fetch : *.*
+
+
+ [Function: cwGetGSTRateForInclusive]
+parameter : myitemname : string
+returns : number
+20 : return: $$collectionfield:@@cwGSTDETAILS:(-1):cwte1
+
+[System: Formula]
+cwGSTDETAILS : $$CollectionField:@@cwSTATEWISEDETAILS:(-1):STATEWISEDETAILS
+cwSTATEWISEDETAILS: $$FilterValue:$gstrate:RATEDETAILS:last:cwdutyheaditax
+cwdutyheaditax : $GSTRATEDUTYHEAD = "Integrated Tax"
+
+[Collection: cwte1]
+type : GSTDETAILS : stockitem
+child of : ##myitemname
+fetch : *.*
+
+[function: cwyymm]
+parameter: mydate : date
+returns  : number
+variable : monthint : number
+variable : yearint : number
+
+;; {16.Apr.18 16:22} 00 : log :"---------" + $$string:##mydate
+
+10 : set : monthint : $$monthofdate:##mydate
+20 : set : yearint : $$yearofdate:##mydate * 100
+
+;; {03.Jul.19 12:19} 100 : log: ##mydate
+;; {03.Jul.19 12:19} 101 : log :"ym"
+;; {03.Jul.19 12:37} 105 : log : ##yearint + ##monthint
+100 : return : ##yearint + ##monthint
+
+[function : cwDDMMYYYY]
+parameter : mydate : date
+parameter: Seperator : string :"-"
+returns : string
+variable : y : string : $$yearofdate:##mydate
+variable : m : string : $$zerofill:($$monthofdate:##mydate):2
+variable : d : string : $$zerofill:($$dayofdate:##mydate):2
+;; {21.Jul.22 18:58} 00 : log : ##mydate
+01 : do if : ##d = "00" : return : ""
+;; {21.Jul.22 18:58} 05 : log : ##d+##Seperator+##m+##Seperator+##y
+10 : return : ##d+##Seperator+##m+##Seperator+##y
+
+
+[function : cwYYYYMMDD]
+parameter : mydate : date
+parameter: Seperator : string :"-"
+returns : string
+variable : y : string : $$yearofdate:##mydate
+variable : m : string : $$zerofill:($$monthofdate:##mydate):2
+variable : d : string : $$zerofill:($$dayofdate:##mydate):2
+;; {21.Jul.22 18:58} 00 : log : ##mydate
+01 : do if : ##d = "00" : return : ""
+;; {21.Jul.22 18:58} 05 : log : ##d+##Seperator+##m+##Seperator+##y
+10 : return : ##y+##Seperator+##m+##Seperator+##d
+
+
+ ; for replacing 1 char
+[Function: cwReplaceCharacters]
+	
+;; Parameter for the value to be process for replace
+	Parameter	: pValue			: String
+;; Parameter for the character for replace
+	Parameter	: pReplaceCharacter	: String
+;; Parameter for the character to replace
+	Parameter	: pReplaceBy		: String
+	
+	Variable	: returnValue		: String
+	
+	Variable	: stringCounter		: Number	: 1
+
+	000	: For Token		: splittedValue : ##pValue	: ##pReplaceCharacter
+
+	005	: 	If				: ##stringCounter = 1
+	010	:		Set			: returnValue	: ##returnValue + $$String:##splittedValue
+	015	:		Increment	: stringCounter
+	020	:	Else
+	025	:		Set			: returnValue	: ##returnValue + ##pReplaceBy + $$String:##splittedValue
+	030	:	End If
+	035	: End For
+	040	: Return			: ##returnValue
+
+        ;; $$PayInsRemoveMultipleChars:$name:($$number:$name)
+
+    [function: cwlogInfo]
+    parameter : valuetype :string
+    parameter: value : string
+
+    10: log : ##valueType + " - " + ##value
+    20: return : ##value
+[Field: cwBajajFinanceConfig]
+Use     : Logical Field
+Set As  : $cwBajajFinanceEnabled
+Storage : cwBajajFinanceEnabled
+
+

@@ -1,0 +1,97 @@
+; Created By: Pg on 2013-03-20 12:45, ID: 
+ ;[include: c:\D7Comps\tCommon\RefreshTdl.txt] ;; Make Sure to Remove it Before Final Compilation
+
+
+ [Collection: ExciseRG23DNoCollcwx1]
+;; {20.Jun.13 18:58} use : Excise RG23DNoColl
+	Type		: Vouchers  ;;	: Voucher Type
+;; {29.Jul.13 15:15}         child of        :$$VchTypeRcptNote      ;;Child Of	:$$VchTypePurchase
+;; {29.Jul.13 15:15} 	Belongs To	: Yes
+;; {29.Jul.13 15:23} 	Filter		: IsTraderSVInvoice, IsSameExciseDealerUnit
+	Fetch		: ExciseUnitName, InventoryEntries.ExciseAllocations.TraderPLARGSlNo
+
+sort : @@default : -$TraderVchLastPLARG23SlNo
+filter:RG23DNoCollcwx1flt
+
+[System: Formula]
+cwTraderVchPurcPLARG23SlNox1 : $$CollectionField:$TraderVchLastPLARG23SlNo:first:ExciseRG23DNoCollcwx1
+RG23DNoCollcwx1flt:($$Isrcptnote:$vouchertypename or $$IsPurchase:$vouchertypename) and  $UseForExcise:Vouchertype:$vouchertypename
+
+
+
+/*[Collection: Excise RG23DNoCollcw]
+;; {05.Aug.13 10:43} use : Excise RG23DNoColl
+	Type		: Vouchers ;;	: Voucher Type
+;	Child Of	: $$VchTypePurchase
+;	Belongs To	: Yes
+	Filter		: IsTraderSVInvoice, IsSameExciseDealerUnit
+	Fetch		: cwPurRcptNote,ExciseUnitName, InventoryEntries.ExciseAllocations.TraderPLARGSlNo
+
+
+sort : @@default : -$$number:$TraderVchLastPLARG23SlNo
+ */
+ 
+[System: Formula]
+cwTraderVchPurcPLARG23SlNo : $$CollectionField:$TraderVchLastPLARG23SlNo:first:ExciseRG23DNoCollcwx1
+cwPurRcptNote : $$ispurchase:$vouchertypename or $$isRcptNote:$vouchertypename
+
+[#Field: Trader PurcPLARG23SlNo]
+;; {20.Mar.13 14:01} set always : yes
+Set as		: If $$Owner:$IsCustomsClearance Then "" Else if not $$isempty:$$Value then $$value else IF @@cwEnableAutoSerialEnabled THEN $$number:@@cwTraderVchPurcPLARG23SlNo + 1 ELSE $$VALUE
+;; {20.Mar.13 12:57} border : thin box : $$Owner:$IsCustomsClearance
+skip : @@cwEnableAutoSerialEnabled
+;---------------- Enable Auto Serial No.
+
+
+;;Sri Ganeshji
+
+[#Form: Company Operations]
+                Switch   : cwEnableAutoSerialLowerRel  : cwEnableAutoSerialNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : cwEnableAutoSerialCurrenRel : cwEnableAutoSerialFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : cwEnableAutoSerialNOTFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End : cwEnableAutoSerialConfig
+                                
+[!Form : cwEnableAutoSerialFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : cwEnableAutoSerialConfig
+local : line : cwTestConfig : local : field : short name field : tool tip: "Double-Click for browsing to CircuitWorld.in"
+
+
+
+[Line : cwEnableAutoSerialConfig]
+Field : cwEnableAutoSerialConfigTitle,cwEnableAutoSerialConfig
+;; {20.Mar.13 13:19} right field : Short name field
+;; {20.Mar.13 13:19} Local: Field: short name field : set as: "$ExciseRegistrationType:COMPANY:##SVCURRENTCOMPANY" ;;"sales@circuitworld.in"
+Local: Field: short name field: case : normal
+Local: Field: short name field: Color : blue
+;;Local: Field: short name field: border : thin bottom
+Local: Field: short name field: width : 0
+
+local : field : default : inactive : not $IsExciseMfgrTraderOn
+
+
+;; {20.Mar.13 13:03} key  : cwcwEnableAutoSerialBrowse
+
+[key : cwcwEnableAutoSerialBrowse]
+key : left double click
+action : browse : "www.circuitworld.in"
+
+
+
+[Field: cwEnableAutoSerialConfigTitle]
+Use : medium prompt
+info: "Enable Auto Serial No. in RG23D?"
+width : 0
+
+[Field: cwEnableAutoSerialConfig]
+Use: logical field
+Set As: $cwEnableAutoSerialEnabled
+storage: cwEnableAutoSerialEnabled
+
+[system : udf]
+cwEnableAutoSerialEnabled : logical : 511 ;; change this value.
+
+[System: Formula]
+cwEnableAutoSerialEnabled :  $cwEnableAutoSerialEnabled:COMPANY:##SVCURRENTCOMPANY
+

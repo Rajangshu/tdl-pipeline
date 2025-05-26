@@ -1,0 +1,206 @@
+;; Flat Discount Amount (also in Batch)
+
+;; define formula : disamtcondition
+;; define formula : discamtBoth : 0 for anyone, 1 for amt before , 2 for %, -1 for discamt
+
+;;[#menu : gateway of tally]
+;;add : item : at end : @@discamtboth
+
+[system : formula]
+discamtboth : 0
+disamtcondition2 : @@disamtcondition and (@@discamtboth > 0 or @@discamtboth = -1)
+
+; -------------- Discount Entry of Amount in Batch
+
+[#Line : VCHBATCH ColumnOne]
+    Option : BsInvInfoBatchT1 : @@disamtcondition
+
+[!line : BsInvInfoBatchT1]
+   add : right field : after : VCH RateUnitsTitle : GM VchUOMTitle
+
+[#line :  VCHBATCH ColumnTwo]
+   add : Option : BsInvInfoBatchT2 : @@disamtcondition
+
+[!line : BsInvInfoBatchT2]
+   add : right field : after : VCH RateUnitsTitle : GM VchUOMTitle
+ local : field : GM VchUOMTitle : info : ""
+
+[#Line : STKVCH Batch2]
+   add : Option : BsInvInfoBatch : @@disamtcondition
+
+[!Line : BsInvInfoBatch]
+   Add : Right Field : After : VCHBATCH RateUnits: GM VCHUom2
+ local : field : GM VCHUom : delete : inactive
+ local : field : GM VCHUom : add :  inactive : @@NoBaseUnits OR @@BatchAllocBreak
+;; local : field : GM VCHUom : Skip On : $$line > 1
+;; local : field : GM VCHUom : set as :$$value ;;: $$value ;;if $$Line = 1 then $$value else if $$PrevObj:$gmpuom
+local : Field: VCHBATCH Value : set AS : if $$isempty:$GMpUOm then $billedqty * $BatchRate else @@cwCalcBatchAmt
+local : field : VCHBATCH Rate : Set as          : $$value
+;;local : field : GM VCHUOM : border : thick box
+
+
+[field : GM VCHUom2]
+use : amount field
+storage : GMpUOm
+Width : 6
+skip on : @@NoBaseUnits OR @@BatchAllocBreak
+[System : Formula]
+noGmpUOM : not $$isempty:$GMpUOm
+cwgmpuomrate  : $$value
+
+
+ 
+
+;; [#field : VCHBATCH Value]
+;;     Set As :   @@cwCalcDiscAmtPerBatch ;;$Rate * $BilledQty
+;;    Set as      : if @@NoBaseUnits then $$Value else @@CalcedAmt
+;;  ResetVal  : if (@@NoBaseUnits OR $$IsEmpty:$BilledQty) then $$Value else +
+;;              if @@disamtcondition AND NOT $$IsEmpty:$gmpuom then @@cwCalcDiscAmtPerBatch else +
+;;              ($Rate * $BilledQty * ((100 - $batchDiscount) / 100))
+
+;;[#Field: VCHBATCH Rate]
+;;	   Set as          : if (($$Line = 1) AND NOT $$IsEmpty:@TableRate) AND ($$IsEmpty:$$Value OR $$IsFieldEdited:VCHBATCHTrack OR $$IsFieldEdited:VCHBATCHOrder) then @TableRate else +
+;;                          if $BilledQty = 0 then 0 else +
+;;                          if $$Line > 1 then $Rate else +
+;;                          if $$IsValidPriceLevel:$PriceLevel then @NrmlStdRate else +
+;;                          if $$IsStockJrnl:##SVVoucherType AND @@IsOutwardType AND NOT $$IsFieldEdited then $$BaseValue:@ByResidualRate else +
+;;                          if ($Amount != 0) then $amount / $BilledQty else +
+;;                          if $$InAlterMode OR $$IsFieldEdited then $$Value else +
+;;                          if $$IsEmpty:$Rate then @NrmlStdRate else $Rate
+
+
+;;   Set as      : if @@HasInvSubAlloc then $BatchRate else +
+;;                 if $BilledQty = 0 then 0 else +
+;;                 if $$IsValidPriceLevel:$PriceLevel then @@StdVchRate else +
+;;                 if $StockItemName != #VCHPrevItem then @@StdVchRate else +
+;;                 if $Amount != 0 then @@NrmlAmt / $BilledQty else +
+;;                 if $$IsFieldEdited OR $$InAlterMode then $$Value else +
+;;                 if $$IsEmpty:$$Value then @@StdVchRate else $$Value
+;;  Set always   : No
+
+; -------------- Discount Entry of Amount in Stock Level
+
+
+[#system : formula]
+;;    NrmlAmount          : (100 * @@cw1amt) / (100 - $Discount)
+
+;;        CalcedAmt               : ($Rate * $BilledQty * ((100 - $Discount) / 100))
+
+;;((($Rate * $BilledQty) - $gmpuom) * ((100 - $Discount) / 100))
+
+[system : formula]
+    cw1amt : ($batchRate * $BilledQty) - $gmpuom
+    ceguom : if $discount = 0 then 0 else ($gmpuom * $$number:$BilledQty)
+cwCalcBatchAmt  : (@@cw1amt * ((100 - $Discount) / 100)) ;;+ @@ceguom ;;* $discount / 100
+
+[#Line: EI InvInfo]
+add : Option : BsInvInfo : @@disamtcondition
+
+[#Line: cI InvInfo]
+add : Option : BsInvInfo : @@disamtcondition
+
+[!Line : BsInvInfo]
+Add : Right Field : After : VCH Rateunit: GM VCHUom
+local : field : GM VCHUom: set as :     $$CollAmtTotal:BatchAllocations:$GMPUom
+local : field : VCH NrmlRate : set as : ($$collamttotal:BatchAllocations:$amount / $$collamttotal:BatchAllocations:$billedqty) - #GMVCHUom
+[Field : GM VchUOMTitle]
+Use : Name Field
+Width : 6
+Align : Centre
+Info  : "Dis Amt."
+align : right
+
+[Field : GM VCHUOM]
+Use : Amount field
+Width : 6
+align : RIGHT
+storage : GMpUOm
+Skip On  : @@HasInvSubAlloc
+set always : yes
+inactive : $$IsEnd:$StockITemName
+;;border :thin box
+
+
+[System : UDF]
+ GMPUom : Amount : 4
+
+
+[#Field: VCH Value]
+    ResetVal    : if (@@NoBaseUnits OR $$IsEmpty:$BilledQty) then $$Value else (($Rate - $gmpuom ) * $BilledQty * ((100 - $Discount) / 100))
+
+
+[#Line: EI ColumnOne]
+add : option : cweicol1 : @@disamtcondition
+
+[!line : cweicol1]
+add: right field : before : VCHDiscTitle : GM VchUOMTitle
+
+[#Line: EI ColumnTwo]
+add : option : cweicol2 : @@disamtcondition
+
+[!line : cweicol2]
+add : right field : before : VCHDiscTitle : GM VchUOMTitle
+local : field : GM VchUOMTitle : info : ""
+
+;------------- Discount Printing.
+
+
+[#Field: EXPINV DiscTitle]
+add : option : einvdisctitle : @@disamtcondition
+
+[!field : einvdisctitle]
+   info : "Disc."
+   
+[#field : EXPINV Discount]
+ set as : if @@discamtboth = 0 and Not $$isempty:$gmpuom then $$Number:$gmpuom else $discount
+ ;;if Not $$isempty:$gmpuom then $$Number:$gmpuom else $discount
+ option : cwdiscamt : @@disamtcondition and Not $$isempty:$gmpuom and @@discamtboth = 0
+ 
+[!field : cwdiscamt]
+ delete : format
+    add : format : "NoZero,Decimals:2"
+  
+[#Line: EXPINV Column1]
+add : option : vc1 : @@disamtcondition2
+
+[!line : vc1]
+   add : right field  : before : EXPINV DiscTitle : GM VchUOMTitle
+   local : field : GM VCHUOMtitle : border : thin left right
+
+  [#Line: EXPINV Column2]
+  add : option : vc2 : @@disamtcondition2
+
+[!line : vc2]
+   add : right field  : before : EXPINV DiscTitle : GM VchUOMTitle
+   local : field : GM VchUOMTitle : info : ""
+   local : field : GM VCHUOMtitle : border : thin left right
+
+[#Line: EXPINV InvDetails]
+  add : option : inv1 : @@disamtcondition2
+
+[!line : inv1]
+add : right field : before : EXPINV Discount : GM VCHUOM
+local : field : GM VCHUOM : delete : inactive
+local : field : GM VCHUOM : delete : set as
+local : field : GM VCHUOM : border : thin left right
+
+;;[#Line: EXPINV AltQty]
+
+;;[#Line: EXPINV BatchDetails]
+
+        [#Line : EXPINV AccDetails]
+  add : option : acc1 : @@disamtcondition2
+  
+       [!line : acc1]
+       add : right field : before : EXPINV AccDiscount : GM VchUOMTitle
+   local : field : GM VchUOMTitle : info : ""
+         
+        [#Line: EXPINV Totals]
+        add : option : ftot : @@disamtcondition2
+        
+        [!line : ftot]
+        add : right field : before : EXPINV DiscTotal:  GM VchUOM
+        local : field :  GM VchUOM : set as : $$collamttotal:inventoryentries:$gmpuom
+        local : field :  GM VchUOM : delete : inactive
+        local : field :  GM VchUOM : delete : storage
+        local : field :  GM VCHUOM : border : thin left right

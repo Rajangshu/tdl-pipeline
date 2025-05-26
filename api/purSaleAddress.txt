@@ -1,0 +1,40 @@
+[#collection : Columnar Filtered Vouchers of Company]
+fetch : basicbuyeraddress.*
+fetch : address.*
+
+    [system : formula]
+partyaddinv : if not $$isempty:##VoucherTypeName then $$IsSales:##VoucherTypeName or $$ispurchase:##vouchertypename else if @@cwpurled then yes else no
+   cwpuradd : $$fulllist:address:$address
+  cwsaleadd : $$fulllist:basicbuyeraddress:$basicbuyeraddress
+  cwpurled : $$ispurchase:$vouchertypename ;;$$IsChildOf:$$grouppurchase
+
+    [#Form: Columnar Day Book]
+   Option : ColumnarDayBookA ;;: @@myoptx
+
+   [#form : Columnar Ledger]
+   Option : ColumnarDayBookA ;;: @@myoptx
+
+
+   [!Form : Columnar Day BookA]
+    Local : Field : DBC VchType : border : thin left right
+
+    Local : Line : DSP ColVchTitle :Add :  Field :AFTER : DBC Fixed :  DBC PartyAddressTitle1
+    Local : Line : DSP ColVchDetail : Add : Field : AFTER : DBC Fixed : DBC PartyAddress
+    Local : Line : DSP ColVchTotal : Add : FIELD : AFTER : DBC Fixed :DBC PartyAddressTitle2
+
+
+    [field : DBC PartyAddressTitle2]
+       use : DBC PartyAddressTitle1
+      info : ""
+    [field : DBC PartyAddressTitle1]
+       use : DBC PartyAddress
+      info : "Address"
+
+    [#field : DBC PartyAddress]
+       use : name field
+     lines : 0
+     style : normal
+    invisible : not @@partyaddinv
+    set as : if $$IsSales:##VoucherTypeName then @@cwsaleadd else @@cwpuradd
+
+

@@ -1,0 +1,21 @@
+; Created By: pg on 2012-01-03 17:58
+
+[#form : godown]
+add : part : cwBranchAddress
+
+
+[part : cwBranchAddress]
+ line : cwUseasBranchAddress,cwBranchName
+
+
+  [line: cwUseasBranchAddress]
+  field : sp,cwlogical
+  Local: Field: sp: info: "Show as Branch:"
+  Local: Field: cwlogical: storage: cwisBranch
+
+  [line: cwBranchName]
+   field : sp,nf
+   Local: Field: sp: info: "Branch Name:"
+   Local: Field: nf: storage: cwBranchName
+   Local: Field: nf: Set As: if $$isempty:$$value then $name else $$value
+

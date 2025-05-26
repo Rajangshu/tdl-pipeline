@@ -1,0 +1,11 @@
+;    Family      : $$Translate:"Sales Register"
+[System: Formula]
+;inPOLockDemoPeriod :
+    
+	[#Menu: POS Menu]
+;	delete : item : @@locposregister
+;		Add		: Key Item	: After : @@locSalesRegister	: @@locPOSRegister		: O : Display	: POS Register		:  $$Allow:Display:SalesRegister
+    Control 	: @@locPOSRegister        : if @@inPOLockDemoPeriod then @@cwOwnerLevel else yes ;;$$Allow:Display:SalesRegister
+    
+
+

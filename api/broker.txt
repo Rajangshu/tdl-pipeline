@@ -1,0 +1,710 @@
+;; define for specific clients     cwBrokerDetailsMain2019
+;;[system : formula]
+;; cwBrokerYesNo : ;;condition to enable broker
+;; cwCommissionApplicable : no ;;condition to enable Commission
+;; cwAgentAmtSkip : yes ;;condition to skip Amount for Agent
+;; cwLedgerBroker: yes ;;if broker table from ledger then yes else no
+;; cwGroupBroker : no ;;if broker table from group then yes else no
+;; cwCostBroker : no ;; if broker table from Cost Centre
+
+;;   cwUseDefBroker : no ;; for accessing Default Broker from Ledger Master
+;; brokerinCreditor : no ;; if you want default broker in creditor also
+;; also Include CommonUdf
+
+ [System: Formula]
+  cwEnableDeactivation : no
+
+     [#collection : ledger]
+            fetch : cwbroker
+
+          [system : formula]
+   cwCmpHasBroker : ($cwEnableBroker:Company:##SVCurrentCompany)
+iscwBrokerEnabled : @@cwCmpHasBroker
+   cwBrokerName   : "Broker"
+ brokerincreditor : no
+         CWBROKER : $BrokerStr:COMPANY:##SVCURRENTCOMPANY
+;; cwBroker : @@cwBrokerName
+   cwBrokerYesNo2 : no
+iscwBrokerApplicable : @@cwCmpHasBroker and @@cwBrokerYesNo ;;and @@cwCommissionApplicable  ;; and @@cwAgentAmtSkip
+cwBrokerLedAddress: $$fulllist:cwBrokerLedAddress:$address
+
+      [collection : cwBrokerLedAddress]
+   type : address : ledger
+         child of : $cwBroker
+
+; ---------------------------------------------------------------------------
+;   Code to Enable Broker.
+; ---------------------------------------------------------------------------
+
+[#Form: Company Operations]
+                Switch   : cwBrokerLowerRel  : cwBrokerNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : cwBrokerCurrenRel : cwbrokerFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+                [!form: cwBrokerNotFor3.2]
+                Local: Part : CMP AccFeat Left : Add : Line : At End : CMP cwEnableSalesmanTable
+
+                [!Form : cwbrokerFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : CMP cwEnableSalesmanTable
+local: line : CMP cwEnableSalesmanTable : local : field : medium prompt : width : 0
+     ;    [#Part : CMP AccFeat Left]
+    ;  Add: Line : CMP cwEnableSalesmanTable
+    
+    [#Part: CMP TallyShopFeatures Left]
+    Add : Line  : CMP cwEnableSalesmanTable
+
+   [Line : CMP cwEnableSalesmanTable]
+  Field : long Prompt, CMP cwEnableSalesmanTable,snfx,snf
+  Local : Field : long Prompt: Info: "Enable Agent/SalesPerson/Broker? "
+  local : field : snfx : info:"Caption"
+  Local: Field: snf : storage : BrokerStr
+  local : field : snf : inactive : not #CMPcwEnableSalesmanTable
+  local : field : snfx :  inactive : not #CMPcwEnableSalesmanTable
+;;  local : field : snfx : width : @@shortwidth - 3
+  local : field : nf : width : @@shortwidth
+  Local: field: snfx: Width: 0.5 inch
+   Space Top : 1
+
+         [Field : CMP cwEnableSalesmanTable]
+            Use : Logical Field
+        Storage : cwEnableBroker
+     set always : yes
+;;     width : @@shortwidth
+
+
+
+; ---------------------------------------------------------------------------
+;   Adding Broker In Invoices.
+; ---------------------------------------------------------------------------
+
+[#Line: VCH POS PartyContact]
+add : option : cwbroker : @@iscwBrokerApplicable
+;;border : thin box
+
+         [#Line : EI Consignee]
+;; {22.Sep.21 13:08}    add : Option : cwBroker : @@iscwBrokerApplicable
+/*[#Part: EI Price Level]
+add : Option : cwBrokerPM : @@iscwBrokerApplicable
+[!part:cwBrokerPM]
+add:line:before:EI Price Level:cwBrokerPM
+                     */
+;;============
+[#Form: VCHBasic InvoiceMode]
+  add : Option : CwVCHBasicInvoiceModeBrokerOpt : @@iscwBrokerApplicable
+  [!Form : CwVCHBasicInvoiceModeBrokerOpt]
+     add : part : after : EI PartyInfo : CwEIBrokerInfo
+
+    [Part : CwEIBrokerInfo]
+      add : Line : cwBrokerPM
+
+     [line : cwBrokerPM]
+       field  : snfx
+       Local  : Field: snfx: Skip: Yes
+       option : cwbroker
+
+;;================
+   	
+	        [#Line: VCH POS PartyContact]
+   add : Option : cwBroker : @@iscwBrokerApplicable
+;;   add : option : cwCommAmt ;;: @@cwCommissionApplicable
+
+[#Part: SJ MainTitle]
+add : option : addBrokerLine : @@iscwBrokerApplicable
+
+[#Part: SJ MfgTitle]
+add : option : addBrokerLine : @@iscwBrokerApplicable
+
+[#Part: GTRNTitle]
+add : option : addBrokerLine : @@iscwBrokerApplicable
+
+[!Part : addBrokerLine]
+line : StBrokerLine
+
+[line : stBrokerline]
+field : snf9
+Local: Field: snf9: Skip: Yes
+option: cwbroker
+local : field : sp : color: blue
+
+         [!Line : cwBroker]
+;; {23.Jun.22 20:21} add: rightfields: at end : sp, eiPartyBroker, numf, snfx, amtf  ;;, cwLogical
+add: rightfields: at end : Short Prompt, eiPartyBroker, numf, snfx, amtf  ;;, cwLogical
+  Local : Field : Short Prompt : Info  :$$LocaleString:@@cwBroker ;;+@@colon
+  Local       : Field	    : Short Prompt	: Width	: @@VchLeftPromptWidth % Page
+  Local       : Field	    : eiPartyBroker	: Width	: @@VchRightDataFldWidth % Page
+;; {23.Jun.22 20:25}   Local : Field : sp : width : @@ShortWidth
+  Local: Field: numf : storage :AgentCommVchPercentage
+  Local: Field: numf : set as :$AgentCommPercentage:ledger:$Ledgername
+  Local: Field: numf : format : "No Zero,Percentage"
+  Local: Field: snfx : info:"Amount :"
+
+  Local: Field: amtf : Set As:if $IsCommOnNet1 then @@GrandTotal else if $IsCommOnQty1 then @@CommQty else @@InvTotal1
+  Local: Field: amtf : storage : cwAgentAmount
+    Local: Field: amtf : skip : @@cwAgentAmtSkip
+
+local : field : numf : invisible : not @@cwCommissionApplicable
+local : field : snfx : invisible : not @@cwCommissionApplicable
+local : field : amtf : invisible :  not @@cwCommissionApplicable
+
+
+/*
+            [#Part: VCHTitle2Left]
+            add : option : cwBrokerVoucher : @@cwBrokerYesNo2
+
+            
+            [!Part : cwBrokerVoucher]
+            add : line : cwBrokerX
+;;            border : thin box
+local :line : VCH VATSubClassTitle : border : thin box
+*/
+
+            [#Line: VCH Ref]
+            add : option : in2 : @@cwBrokerYesNo2
+;;            border : thick box : $$IsPayment:##SVVouchertype OR $$IsReceipt:##SVVoucherType OR $$IsJournal:##SVVoucherType ;;not @@cwBrokerYesNo2
+            
+            [!line : in2]
+option : cwbroker
+
+;;add : field : nf,eiPartyBroker, numf, snfx, amtf
+;;            Local: Field: nf: border : thin box
+            
+
+
+
+
+[System : Formula]
+GrandTotal : ($amount*$$asamount:$AgentCommVchPercentage)/100
+InvTotalQty : $$collqtytotal:Inventoryentries:$actualqty
+CommQty : $$asamount:@@InvTotalQty*$$asamount:$AgentCommVchPercentage
+InvTotal : $$collamttotal:Inventoryentries:$amount
+InvTotal1 : (@@InvTotal*$$asamount:$AgentCommVchPercentage)/100
+
+
+    [#report:ledger]
+    Fetch Object : Ledger :##LedgerName : cwBroker
+ 	Local	: Collection	: Ledger	: Fetch	:cwBroker
+ 	
+       [FIELD : EI PARTYBroker]
+            Use : Name Field
+        Storage : cwBroker
+        dynamic: ""
+          Table : cwBrokerTableLedger,NotApplicable : @@cwLedgerBroker
+	  Table : cwBrokerTableGroup,NotApplicable  : @@cwGroupBroker
+	  Table : CwBrokerTableCC,NotApplicable     : IF $$ISEMPTY:@@cwCostBroker THEN NO ELSE @@cwCostBroker
+set by condition: @@cwBrokerYesNo and @@cwUseDefBroker and @@cwCommissionApplicable  : $cwbroker:ledger:#Eiconsignee
+           skip : @@pgskipbroker
+     set always : yes
+;;     border : thin box : @@cwUseDefBroker
+     Show Table : Always
+         option : keyCL : @@cwLedgerBroker
+         option : keyCG : @@cwGroupBroker
+         option : keyCC : IF $$ISEMPTY:@@CwCostBroker THEN NO ELSE @@cwCostBroker
+
+;;border : thin box : @@cwBrokerYesNo and @@cwUseDefBroker and @@cwCommissionApplicable and @@cwAgentAmtSkip
+         option: pbfrommaster : $$isempty:$$value and @@cwUseDefBroker
+         
+         [!field: pbfrommaster]
+         set as : if not $$isempty:$$Value then $$value else $cwbroker:ledger:#eiconsignee
+
+[System : Formula]
+pgSkipBroker : if @@cwUseDefBroker then yes else no
+
+;;=====================khokan=========================================================
+
+[!field: keyCL]
+ Key : Create Ledger,altercwPartyBroker
+
+[key : altercwPartyBroker]
+
+    Key     : Ctrl+Enter
+	Action  : Alter : SVLedgerRepCWPartyBroker
+    Inactive: $$IsEmpty:$$Value OR $$IsSysName:$$Value
+
+[Report: SVLedgerRepCWPartyBroker]
+use : SVLedgerRep
+add : object : ledger : #EIPARTYBroker
+
+ 
+/*
+ [Report: Ledgerrep]
+ Use		: Ledger
+ form:ledger
+	Delete	: Object
+	Add		: Object	: Ledger
+	
+      
+[Key :CreateLed]
+ Key     : Alt+C
+ Action  : Create :CreateLedrep
+
+[report:CreateLedrep]
+form:CreateLedform
+
+[form:CreateLedform]
+part:CreateLedpart
+On	: Form Accept	: Yes	: CALL	: Smp New Object Create Alter Ledger	: #name1: #grname1: 0 : 0
+Width	: 30% Page
+
+
+[part:CreateLedpart]
+line:cnameline,underline
+
+[line:nametitleline]
+field:name field
+
+Local: Field: name field:set as:@@CWBROKER
+Local: Field:name field: Skip: Yes
+Local: field: name field: Align:centre
+Local: field: name field:full Width:yes
+Local: Field:name field: Border: thin bottom
+
+[line:cnameline]
+field:simple prompt,name1
+Local: Field: simple prompt: Set As:"Name:"
+Local: field: simple prompt: Width:8
+
+[field:name1]
+use:namefield
+set always:yes
+
+
+[line:aliasline]
+field:simple prompt,name field
+Local: Field: simple prompt: Set As:"Alias:"
+
+
+[field:grname1]
+use:namefield
+set always:yes
+table:group
+show table: Always
+Key       : Create Group, Alter Group
+Variable  : SV Group
+
+setas:@@CWBROKER  ;;@@mycwBrokername
+
+[line:underline]
+field:simple prompt,grname1
+Local: Field: simple prompt: Set As:"Under:"
+Local: field: simple prompt: Width:8
+
+
+
+
+[Function: Smp New Object Create Alter Ledger]
+
+;; Definition Block
+
+	Parameter: Ledger Name		: String
+	Parameter: Existing Group	: String
+	Parameter: Opening Bal		: Amount
+	
+	Parameter: Op DrCr		: String
+
+;; Procedural Block
+
+	10	: IF	: NOT $$IsEmpty:##LedgerName
+	20	: 	NEW OBJECT	: Ledger			: ##LedgerName	: Yes	;; if Ledger does not exist, Ledgername and Logical parameter are ignored
+	30	: 	SET VALUE 	: Name 				: ##LedgerName			;; if Ledger does not exist, this line is mandatory else this line is not required
+	40	: 	SET VALUE	: Parent 			: ##ExistingGroup
+
+	50	: 	IF	: ##OpDrCr = "Cr"	
+	60	: 		SET VALUE	: Opening Balance 	: ##OpeningBal
+
+	70	:	ELSE:
+	80	: 		SET VALUE	: Opening Balance 	: -1 * ##OpeningBal
+	90	: 	ENDIF
+	100	: 	SAVE TARGET
+	110	: ENDIF
+
+	120	: MSGBOX		: "Success !!"	: "Ledger created/ altered successfully"
+
+;; End-of-File
+
+
+      
+      
+            
+   ;;===========================================================================
+            
+
+         [!field: keyCLrem]
+            Key : cwCreateLedgerRemote,cwalterledgerremote
+            
+            
+         [Key : cwCreateLedgerRemote]
+             Key     : Alt+C
+             action : alter : ledger
+             
+         [key:cwalterledgerremote]
+             	Key     : Ctrl+Enter
+
+            Action  : Create : Ledger
+*/
+
+
+         [!field: keyCG]
+            Key : Create Group
+            
+         [!field: keyCC]
+            key : Create Cost Centre
+            
+            
+[#Part: VCHTitle2Left]
+;; {22.Mar.21 12:53} add : line : cwCommAmt, cwCommQty
+
+
+
+            
+[Line : cwCommAmt]
+add: fields: mediumPrompt, cwLogical
+Local: Field: mediumPrompt : Set As:"Commission On Net Sales:"
+Local: field : mediumPrompt : style : small
+Local: Field: cwLogical : storage : IsCommOnNet1
+Local: Field: cwLogical : Set As: $IsCommOnNet:ledger:$ledgername
+Local: Field : mediumPrompt : inactive : $IsCommOnQty1
+Local: Field : cwlogical : inactive : $IsCommOnQty1
+Invisible   : NOT @@cwCommissionApplicable
+
+[Line : cwCommQty]
+  add: fields: mediumPrompt, cwLogical
+Local: Field: mediumPrompt : Set As:"Commission On Quantity:"
+Local: field: mediumPrompt : style : small
+Local: Field: cwLogical : storage : IsCommOnQty1
+Local: Field: cwLogical : Set As: $IsCommOnQty:ledger:$ledgername
+Local: Field: mediumPrompt : inactive : $IsCommOnNet1
+Local: Field: cwlogical : inactive : $IsCommOnNet1
+Invisible   : NOT @@cwCommissionApplicable
+;----------------------------------------------------------------------------
+; Collection for Broker Table
+;----------------------------------------------------------------------------
+
+    [Collection : cwBrokerTableLedger]
+;           type : Ledger
+use:ledger
+       Child of : @@cwbroker
+          delete:format
+         add: format : $name,30
+
+          Title : @@cwBroker
+belongs to : yes
+fetch : name,parent
+filter : cwBrokerEnableDeactivation
+
+[System: Formula]
+cwBrokerEnableDeactivation :if @@cwEnableDeactivation then not $cwBrokerInactive else yes
+
+    [Collection : cwBrokerTableGroup]
+           type : Group
+       Child of : @@cwbroker
+         format : $name,30
+          Title : @@cwBroker
+belongs to : yes
+
+    [Collection : CwBrokerTableCC]
+           type : Cost Centre
+       Child of : @@cwbroker
+         format : $name,30
+          Title : @@cwBroker
+belongs to : yes
+filter : cwforEmployeeOnly
+
+
+[System: Formula]
+cwforEmployeeOnly: if @@cwUseEmployeeCC then @@EmployeesFilter else yes
+; ------------------------------------------------------------------------
+; Default Transport in Leger
+; ------------------------------------------------------------------------
+
+[#Part: MST LED Explode Sundry]
+;;Local : Line : MST GrandParent : Explode : CWLedgerBroker : ($$IsBelongsTo:$$GroupSundryDebtors or @@brokerinCreditor) and @@cwCmpHasBroker and @@cwUseDefBroker and $Parent <> @@cwbroker
+;;add : part : after: MST LED Details : CWCommissionMaster
+
+;; {24.Jan.19 11:05} [Part: CWLedgerBroker]
+;; {24.Jan.19 11:05} ADD : OPTION : CWMSTbROKER : @@cwCmpHasBroker and @@cwUseDefBroker and $Parent <> @@cwbroker
+
+;; {24.Jan.19 11:05} [!PART : CWMSTbROKER]
+;; {24.Jan.19 11:05} line : CWLedgerBroker, CWCommissionMaster, CWCommission, CWCommissionOnNet, CWCommissionOnQty
+
+[#Part: MST LED Details]
+add: option : cwBrokerDetailsMain2018  : @@IsIndian and ($$IsBelongsTo:$$GroupSundryDebtors OR $$IsBelongsTo:$$GroupSundryCreditors)
+
+[!part : cwBrokerDetailsMain2018]
+Local	: Line	: MST Parent	: Explode	: cwBrokerDetailsMain2019
+
+[part : cwBrokerDetailsMain2019]
+line : CWLedgerBrokerTitleLed,CWLedgerBroker, CWCommissionMaster, CWCommission, CWCommissionOnNet, CWCommissionOnQty
+
+[line : CWLedgerBrokerTitleLed]
+use : Form SubTitle
+ Local: Field: Form SubTitle: info: "Other Details"
+
+[line : CWLedgerBroker]
+Fields		: Long Prompt, EI PARTYBroker
+Local       : Field : Long Prompt : Set as :@@cwBroker + " :"
+Invisible   : NOT @@IsIndian
+local : field : eipartybroker : delete : skip
+
+[line : cwEnableDeactivation]
+invisible: not @@cwEnableDeactivation
+field : short Prompt,logical field,medium prompt, shortdate field
+Local: Field: logicalfield: storage: cwBrokerInactive
+Local: Field: short date field: storage: cwBrokerInactiveFrom
+Local: Field: short Prompt: info: "Inactive:"
+Local: Field: medium Prompt: info: "From:"
+Local: field: medium prompt: Width: @@shortwidth
+Local: Field: shortdate field: Skip: not #logicalfield
+
+
+[part : CWCommissionMaster]
+line : CWCommissionMaster, CWCommission
+
+[Line : CWCommissionMaster]
+Fields		: Long Prompt, cwLogical
+Local       : Field : Long Prompt : Set as : "Is Commission in Master ?"
+Invisible   : NOT @@cwCommissionApplicable
+Local: Field: cwLogical : storage:IsCommAgent
+;;invisible : not @@cwCommissionApplicable
+
+[line : CWCommission]
+Fields		: Long Prompt, numf
+Local       : Field : Long Prompt : Set as : "Commission :"
+local : field : Long Prompt :Inactive   : NOT #cwlogical
+local : field : numf :Inactive   : NOT #cwlogical
+
+Local: Field: numf : storage: AgentCommPercentage
+Local: Field: numf : format : "No Zero,Percentage"
+Invisible   : NOT @@cwCommissionApplicable
+
+[Line : CWCommissionOnNet]
+Fields		: Long Prompt, cwLogical
+Local       : Field : Long Prompt : Set as : "Commission on Net Sales :"
+Invisible   : NOT @@cwCommissionApplicable
+Local: Field: cwLogical : storage:IsCommOnNet
+
+[Line : CWCommissionOnQty]
+      Fields		: Long Prompt, cwLogical
+      Local       : Field : Long Prompt : Set as : "Commission on Quantity :"
+Invisible   : NOT @@cwCommissionApplicable
+      Local : Field : Long Prompt : Inactive : $IsCommOnNet
+      Local : Field : cwLogical : Inactive : $IsCommOnNet
+      Local: Field: cwLogical : storage:IsCommOnQty
+;;border : thin box
+
+; ------------------------------------------------------------------------
+; Broker in Bill Allocation
+; ------------------------------------------------------------------------
+
+[#line : VCHBILL CTLineOne]
+add : fields : after : VCH ShortTitle : snfx
+Local: Field: snfx : info:@@cwBroker
+local : field : snfx : invisible : not @@cwBrokerYesNo
+Local: field:snfx: Width:14
+
+[#line : VCHBILL CTLineTwo]
+add : fields : after : VCH ShortTitle : snfx
+Local: Field: snfx : info:""
+local : field : snfx : invisible : not @@cwBrokerYesNo
+Local: field:snfx: Width:14
+
+[#line : VCHBILL CTLineThree]
+add : fields : after : VCH ShortTitle : snfx
+Local: Field: snfx : info:""
+local : field : snfx : invisible : not @@cwBrokerYesNo
+Local: field:snfx: Width:14
+
+[#Line: VCHBILL MainLine]
+add : fields : after : VCHBILLName : snfx
+Local: Field: SNFX : storage: cwBroker
+Local: Field: SNFX : dynamic: ""
+Local: Field: snfx : Set As:#EIPARTYBroker  ;;$cwBroker:VOUCHER:$VOUCHERTYPENAME
+;; {13.May.21 19:07} Local: Field: snfx : skip : yes
+local : field : snfx : invisible : not @@cwBrokerYesNo
+Local: field:snfx: Width:14
+local: field: snfx: type: String:forced
+
+
+
+;; ------
+
+    [button : setBroker]
+      title : @@cwbroker
+        key : f4
+     action : modify variable : cwbroker
+     
+/*
+   [collection : <>]
+   title : ""
+   variable : cwbroker
+   trigger : cwbroker
+   report :
+
+*/
+     
+     [variable : cwbroker]
+     
+     [report : cwbroker]
+            Use     : Collection Variable
+            Local   : Line : Collection Variable : Field : cwBroker
+            Local   : Field: MV Title            : Info  : $$LocaleString:"Name of " + @@cwbroker
+
+;;            [Line: cwBroker]
+
+;;                Fields      : Medium Prompt, cwBroker
+;;                Local       : Field : Medium Prompt : Info : $$LocaleString:"Name of " + @@cwbroker
+
+            [Field: cwBroker]
+
+				Use         : Name Field
+				Key         : Create Ledger
+				Modifies    : cwBroker
+				Show Table  : Always
+				CommonTable : No
+          Table : cwBrokerTableLedger       : @@cwLedgerBroker
+	  Table : cwBrokerTableGroup,any    : @@cwGroupBroker
+	  Table : CwBrokerTableCC,any       : IF $$ISEMPTY:@@cwCostBroker THEN NO ELSE @@cwCostBroker
+
+;
+         [System : Formula]
+cwBrokerSelected : if $$issysname:##cwbroker then "" else ##cwBroker
+
+
+
+; Created By: khokan on 2022-06-02 09:52, ID:
+
+
+;;====================Ledger Opening============================================
+ [#Line: LEDALLOC CTLineOne]
+
+ add:RightField:atbeginning:snfx
+
+ Local: Field: snfx : info:@@cwBroker
+ local : field : snfx : invisible : not @@cwBrokerYesNo
+ Local: field:snfx: Width:14
+
+ [#Line: LEDALLOC CTLineTwo]
+
+ add:RightField:atbeginning:snfx
+ Local: Field: snfx : info:""
+ local : field : snfx : invisible : not @@cwBrokerYesNo
+ Local: field:snfx: Width:14
+
+
+ [#Line: LEDALLOC MainLine]
+
+ add:RightField:atbeginning:snfx
+ Local: Field: SNFX : storage: cwBroker
+ Local: Field: SNFX : dynamic: ""
+
+ local : field : snfx : invisible : not @@cwBrokerYesNo
+ Local: field:snfx: Width:14
+ local: field: snfx: type: String:forced
+
+;;========================Ledger================================================
+
+
+ [#REPORT: Ledger Outstandings]
+ variable:str1
+ set:str1:""
+
+ [#Report: Bills Receivable]
+ variable:str1
+ set:str1:""
+
+ [#Report: Bills Payable]
+ variable:str1
+ set:str1:""
+
+ [#Form: Ledger Outstandings]
+ add:button:Brokerbotton
+
+ [#Form: Bills Outstanding]
+  add:button:Brokerbotton
+
+ [#Line:BILLCol1]
+ add:field:after:BILLFixed:snf
+
+ Local: Field: snf: Set As:@@cwBroker
+
+ local : field : snf : invisible : not @@cwBrokerYesNo
+ 
+
+ [#Line:BILLCol2]
+ add:field:after:BILLFixed:snf
+
+ Local: Field: snf: Set As:""
+
+ local : field : snf : invisible : not @@cwBrokerYesNo
+
+ [#Line: BILL Detail]
+ add:field:after:BILLFixed:snf
+ Local: Field: snf: Set As:$cwBroker
+
+ local : field : snf : invisible : not @@cwBrokerYesNo
+
+ [#Collection: Ledger Bills]
+ FETCH:cwBroker
+
+ filter:cwBrokerfilter
+
+ [#Collection:CompanyPayables]
+
+ filter:cwBrokerfilter
+ FETCH:cwBroker
+
+ [#Collection: CompanyReceivables]
+
+ filter:cwBrokerfilter
+
+ FETCH:cwBroker
+ 
+ 
+ [#Line: GRPLedBILL Total]
+
+     add:field:after:BILLFixed:snf
+     Local: Field: snf: Set As:""
+   local : field : snf : invisible : not @@cwBrokerYesNo
+
+ [button:Brokerbotton]
+ key:alt+f7
+ title:"Filter"
+ Action : Modify Variables:Brokerrep
+
+ [report:Brokerrep]
+ form:Brokerform
+
+ [form:Brokerform]
+ part:Brokerpart
+
+ HEIGHT:20% PAGE
+ WIDTH:30% PAGE
+
+ [part:Brokerpart]
+ line:cwtitlebrokerline,brokeragentline
+
+ [line:cwtitlebrokerline]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: Normal Bold
+ space bottom:0.5
+
+ [line:brokeragentline]
+ field:sp,nf
+ Local: Field: sp: Set As:@@cwBroker
+ Local: Field: nf:modifies:str1
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+
+ Local: Field: nf: Show table: Always
+
+ Local: Field: nf:Table : cwBrokerTableLedger     : @@cwLedgerBroker
+ Local: Field: nf:Table : cwBrokerTableGroup,any  : @@cwGroupBroker
+ Local: Field: nf:Table : CwBrokerTableCC,any     : IF $$ISEMPTY:@@cwCostBroker THEN NO ELSE @@cwCostBroker
+
+
+ [System: Formula]
+ cwBrokerfilter:if $$issysname:##str1 then yes else $cwBroker =##str1
+
+
+

@@ -1,0 +1,298 @@
+;; PRODUCT: Negative Stock Lock 1.1 11-12-10
+;; PRODUCT-ID: 3096ef2c-e75f-4052-9da2-078d74c22339
+;; AUTHOR: Tally Developer, Kolkata
+
+;;[include : e:\d7comps\tcommon\refreshtdl.txt]
+
+[System: Formula]
+cwIsOutwardType :$$issales:##SVVouchertype or $$isdelnote:##SVVouchertype
+
+demodatenegnew:$$MachineDate < $$Date:"06/12/2016"
+
+
+[#Line: EI InvInfo]
+
+	Option	: TSPLFFENeg Stk EI InvInfo:@@TSPLFFEIsNSC AND @@cwIsOutwardType
+
+	[!Line: TSPLFFENeg Stk EI InvInfo]
+
+Add	: Right Fields	: TSPLFFEFinal Qty
+Local	: Field	: VCHActualQty	: Control	: TSPLFFENegativeStock : $$increatemode and $$IsNegative:@@TSPLFFEClosQty AND $ActualQty != $BilledQty
+Local	: Field	: VCHBilledQty	: Control	: TSPLFFENegativeStock : $$increatemode and $$IsNegative:@@TSPLFFEClosQty AND $ActualQty = $BilledQty
+On	: Focus	: Yes	: CALL	: TSPLFFESet List Variables : $$Line : "Item"
+
+;; Altering Batch Line
+
+[#Line: STKVCH Batch2]
+
+	Option	: TSPLFFENeg Stk STKVCH Batch2 : @@TSPLFFEIsNSC AND @@cwIsOutwardType
+
+	[!Line: TSPLFFENeg Stk STKVCH Batch2]
+
+Add : Right Fields	: TSPLFFEFinal Qty, TSPLFFEOrig Qty ;;,cwx,cwy
+Local : Field	: VCHBATCH ActualQty	: Control	: TSPLFFENegativeStock	: $$increatemode and $$IsNegative:@@TSPLFFEClosQty AND $ActualQty != $BilledQty
+Local : Field	: VCHBATCH BilledQty	: Control	: TSPLFFENegativeStock	: $$increatemode and $$IsNegative:@@TSPLFFEClosQty AND $ActualQty = $BilledQty
+On : Focus	: Yes	: CALL			: TSPLFFESet List Variables 			: $$Line : "Batch"
+
+
+[field: cwx]
+use : cwy
+skip : yes
+set as : @@TSPLFFELVQtyBatchItem
+color : red
+
+[field: cwy]
+use : quantity primary field
+skip : yes
+set as : @@FinalStockTotal
+color: blue
+
+
+		[Field: TSPLFFEFinal Qty]
+
+			Use : Qty Primary Field
+			Set As 	 : @@TSPLFFEClosQty
+			Invisible : Yes
+			Set Always : Yes
+			Skip	 : Yes
+			border : thick box
+
+		[Field: TSPLFFEOrigQty]
+
+			Use	: Qty Primary Field
+			Storage	: TSPLFFEOrigQty
+			Set As	: if $$IsEmpty:$$Value then $ActualQty else $$Value
+			Invisible : Yes
+                        skip: yes
+                        border : thin box
+[System: UDF]
+
+	TSPLFFEOrig Qty : Quantity : 1000
+
+;; Function to add list variable
+
+[Function: TSPLFFESet List Variables]
+
+	Parameter	: pLine		: Number
+	Parameter	: pItemBatch: String
+
+	Variable	: LineKey	: String
+	Variable	: LineIndex	: Number
+
+	00	: IF	: ##pItemBatch = "Batch"
+	10	: 	SET		: LineKey : $StockItemName + #VCHBATCHName + #VCHBATCHGodown
+	20	: 	IF		: NOT $$ListFind:TSPLFFEBatchVar:##LineKey
+	30	: 		LIST ADD: TSPLFFEBatchVar	: ##LineKey
+	40	: 	ENDIF
+	50	:	SET		: LineIndex	: $$ListIndex:TSPLFFEBatchVar:##LineKey
+	55	: 	SET		: TSPLFFEBatchVar[##LineIndex].TSPLFFEOrigItem1		: $StockItemName
+	60	: 	SET		: TSPLFFEBatchVar[##LineIndex].TSPLFFEOrigBatch		: #VCHBATCHName
+	70	: 	SET		: TSPLFFEBatchVar[##LineIndex].TSPLFFEOrigGodown	: #VCHBATCHGodown
+	80	: 	SET		: TSPLFFEBatchVar[##LineIndex].TSPLFFEOrigQty		: @@fx1
+	90	: ELSE	: 
+
+	100	: 	SET		: LineKey				: #VCHStockItem
+	110	: 	IF		: NOT $$ListFind:TSPLFFEItemVar:##LineKey
+	120	: 		LIST ADD: TSPLFFEItemVar	: ##LineKey
+	130	: 	ENDIF
+	140	:	SET		: LineIndex				: $$ListIndex:TSPLFFEItemVar:##LineKey
+	150	: 	SET		: TSPLFFEItemVar[##LineIndex].TSPLFFEOrigItem		: #VCHStockItem
+	160	: 	SET		: TSPLFFEItemVar[##LineIndex].TSPLFFEOrigQty		: @@fx2
+	170	: ENDIF
+
+;; System Formula Definition
+
+[System: Formula]
+fx1 : if $$IsEmpty:##TSPLFFEBatchVar[##LineIndex].TSPLFFEOrigQty then #TSPLFFEOrigQty else if ##pLine = ##LineIndex then + 
+ ##TSPLFFEBatchVar[##LineIndex].TSPLFFEOrigQty else ##TSPLFFEBatchVar[##LineIndex].TSPLFFEOrigQty + #TSPLFFEOrigQty
+fx2 : if $$IsEmpty:##TSPLFFEItemVar[##LineIndex].TSPLFFEOrigQty then #VCHActualQty else if ##pLine = ##LineIndex then + 
+ ##TSPLFFEItemVar[##LineIndex].TSPLFFEOrigQty else ##TSPLFFEItemVar[##LineIndex].TSPLFFEOrigQty + #VCHActualQty
+
+	TSPLFFEIsNSC				: yes ;;$TSPLFFEControlNegStk:Company:##SVCurrentCompany
+
+	TSPLFFEClosQty			: if $$InAlterMode then @@FinalStockTotal + @@TSPLFFELVQtyBatchItem else @@FinalStockTotal
+    TSPLFFELVQtyBatchItem	: If @@HasBatchWise OR $$IsMultiGodownOn then ##TSPLFFEBatchVar[$$ListIndex:TSPLFFEBatchVar:@@TSPLFFEBatGdn].TSPLFFEOrigQty else +
+									##TSPLFFEItemVar[$$ListIndex:TSPLFFEItemVar:$StockItemName].TSPLFFEOrigQty
+
+	TSPLFFEBatGdn				: $StockItemName + #VCHBATCHName + #VCHBATCHGodown
+
+    TSPLFFENegativeStock  	: $$SPrintf:@@NegativeStockFormat:@@TSPLFFENegativeStkFormula
+	TSPLFFENegativeStkFormula	: $$String:@@TSPLFFESignedStockTot:Signed
+    TSPLFFESignedStockTot     : @@TSPLFFEClosQty
+
+;; ---------------- General changes
+;; Altering the Configuration Part
+
+
+[function : cwqtyx]
+variable : qty : quantity : @@TSPLFFELVQtyBatchItem
+10 : do if : $$isempty:##qty : return : $$InitValue:"Quantity"
+20 : return : ##qty
+
+[#Part: VCFG Inventory]
+
+	Local 	: Line 	: VCFG NegativeStock 	: Invisible : Yes
+
+;; {07.Dec.17 13:35} [#Part: ICFG Invoicing]
+
+;; {07.Dec.17 13:35} 	Local 	: Line 	: VCFG NegativeStock 	: Invisible : Yes
+
+;; Variable Definition and List Variable Association at the System Level
+
+[Variable: TSPLFFEItemVar]
+
+	Variable	: TSPLFFEOrigItem 		: String
+	Variable	: TSPLFFEOrigQty			: Quantity
+
+[Variable: TSPLFFEBatchVar]
+ 	Variable	: TSPLFFEOrigItem1 		: String
+	Variable	: TSPLFFEOrigBatch 		: String
+	Variable	: TSPLFFEOrigGodown		: String
+	Variable	: TSPLFFEOrigQty			: Quantity
+
+[Variable: TSPLFFEBatchVar2]
+	Variable	: TSPLFFEOrigItem2 		: String
+	Variable	: TSPLFFEOrigBatch2 		: String
+	Variable	: TSPLFFEOrigGodown2		: String
+	Variable	: TSPLFFEOrigQty2			: Quantity
+
+
+[System: Variable]
+
+	List Variable	: TSPLFFEBatchVar, TSPLFFEItemVar ,TSPLFFEBatchVar2
+        cwVarMsg : ""
+        
+;; Emptying List Variable at the Report Level
+
+[variable : cwVarMsg]
+type : string
+
+[#Report: Voucher]
+
+	Variable	: VarDummy	: Logical
+	variable : cwVarMsg : string
+	
+	[#form : voucher]
+	
+	Set			: VarDummy	: @@cwIsOutwardType and $$TSPLFFEDeleteLV
+	control : cwItemQtyMismatch : @@cwIsOutwardType and ($$inaltermode or $$induplicatemode) and not $$cwCheckNegativeStockAlterMode
+	
+
+[Function: TSPLFFEDeleteLV]		;; Function deleting System List Variable values
+
+	00	: LIST DELETE	: TSPLFFEBatchVar
+	05	: LIST DELETE	: TSPLFFEItemVar
+	06 : do if : $$inaltermode or $$induplicatemode : call : TSPLFFESet List VariablesX
+	10	: RETURN		: True
+	
+	
+	[collection : myOpBatchdetails]
+	source collection : default
+	walk : InventoryEntries,BatchAllocations
+	by : stockitemname : $stockitemname
+	by : batchname : $batchname
+	by : godownname : $godownname
+	aggr compute : actualqty : sum : $actualqty
+	keep source : no
+	
+	
+	[collection : myOpBatchdetails2]
+	source collection : default
+	walk : InventoryEntries,BatchAllocations
+	by : stockitemname : $stockitemname
+	by : batchname : $batchname
+	by : godownname : $godownname
+	aggr compute : actualqty : sum : $actualqty
+	keep source : no	
+	[collection : cwFromVar]
+	data source : variable : TSPLFFEBatchVar2
+	
+	[function : TSPLFFESet List VariablesX]
+	Variable	: LineKey	: String
+	Variable	: LineIndex	: Number
+	
+        0x : walk collection : myOpBatchdetails ;;Inventory Entries
+	
+        /*
+	100	: 	SET		: LineKey				: $stockitemname
+	110	: 	IF		: NOT $$ListFind:TSPLFFEItemVar:##LineKey
+	120	: 		LIST ADD: TSPLFFEItemVar	: ##LineKey
+	130	: 	ENDIF
+	140	:	SET		: LineIndex				: $$ListIndex:TSPLFFEItemVar:##LineKey
+	150	: 	SET		: TSPLFFEItemVar[##LineIndex].TSPLFFEOrigItem		: $stockitemname
+	160	: 	SET		: TSPLFFEItemVar[##LineIndex].TSPLFFEOrigQty		: $actualqty
+	170	:
+        */
+;; {18.Apr.19 13:46} 	00	: walk collection : batch allocations
+	10	: 	SET		: LineKey : $StockItemName + $batchname + $godownname
+	20	: 	IF		: NOT $$ListFind:TSPLFFEBatchVar2:##LineKey
+	30	: 		LIST ADD: TSPLFFEBatchVar2	: ##LineKey
+	40	: 	ENDIF
+	50	:	SET		: LineIndex	: $$ListIndex:TSPLFFEBatchVar2:##LineKey
+	55	: 	SET		: TSPLFFEBatchVar2[##LineIndex].TSPLFFEOrigItem2		: $stockitemname
+	60	: 	SET		: TSPLFFEBatchVar2[##LineIndex].TSPLFFEOrigBatch2		: $batchname
+	70	: 	SET		: TSPLFFEBatchVar2[##LineIndex].TSPLFFEOrigGodown2	: $godownname
+	80	: 	SET		: TSPLFFEBatchVar2[##LineIndex].TSPLFFEOrigQty2		: $actualqty
+;; {18.Apr.19 13:46} 	90	: end walk
+	9911 : end walk
+;; {18.Apr.19 16:56}         3434 : log : $$machinetime:yes + " Op"
+;; {18.Apr.19 16:56}         9888 : walk collection : cwFromVar
+;; {18.Apr.19 16:56}         93371 : log : $TSPLFFEOrigItem2 + " "  + $TSPLFFEOrigBatch2 + " " + $TSPLFFEOrigGodown2 + " " + $$string:$TSPLFFEOrigQty2
+
+;; {18.Apr.19 16:56}         9890 : end walk
+
+
+
+[function : cwCheckNegativeStockAlterMode ]
+	Variable	: LineKey	: String
+	Variable	: LineIndex	: Number
+	variable   : myqty : quantity
+	variable : TallyClStock : quantity
+	
+	variable : myitemname : string
+	variable : mybatchname : string
+	variable : mygodownname : string
+
+        variable : vchQty : quantity
+        variable : allok : logical
+       000sddaf : set : cwVarMsg : ""
+       
+      0x : walk collection : myOpBatchdetails2 ;;Inventory Entries
+        05 : set : myitemname : $stockitemname
+        06 : set : mybatchname : $batchname
+        07 : set : mygodownname : $godownname
+        08 : set : vchQty : $actualqty
+	10	: 	SET		: LineKey : $StockItemName + $batchname + $godownname
+	20	: 	IF		: NOT $$ListFind:TSPLFFEBatchVar2:##LineKey
+        30      :       set : myqty : $$InitValue:"Quantity"
+        40      :       else
+	45	:	SET		: LineIndex	: $$ListIndex:TSPLFFEBatchVar2:##LineKey
+        50      :       set : myqty : ##TSPLFFEBatchVar2[##LineIndex].TSPLFFEOrigQty2
+        60      :       end if
+        
+        70  :      set : TallyClStock : $$collqtytotal:cwTestBach:$closingbalance
+        70a : set : allok : (##TallyClStock + ##myqty) >= ##vchqty
+;; {18.Apr.19 16:56}         70a1: log :  ##TallyClStock
+;; {18.Apr.19 16:56}         70a2 : log: ##myqty
+;; {18.Apr.19 16:56}         70a3 : log : ##vchqty
+;; {18.Apr.19 16:56}         70b : log : ##allok
+;; {18.Apr.19 16:56}         71 : log : ##myitemname + " "  + ##mybatchname + " " + ##mygodownname + " " + $$string:##myqty + " " + $$string:##TallyClStock  + " " + $$string:##vchQty + " " +$$string:##allok
+        
+        80 : if : not ##allok
+        81 : set : cwVarMsg :"Negative Stock !!!\n\n"+ ##myitemname + " \n"  + ##mybatchname + " \n" + ##mygodownname + " \n Available Stock:" + $$string:(##TallyClStock + ##myqty) + "\n Required: "+  $$string:##vchqty
+        82 : return : no
+        83 : end if
+        85 : end walk
+
+   999 : return : true
+   
+   [System: Formula]
+   cwItemQtyMismatch : ##cwVarMsg
+   
+   [collection : cwTestBach]
+   type : batch
+   child of : ##myitemname
+   filter : cwbatchgodownnamesame
+   
+   [System: Formula]
+   cwbatchgodownnamesame : $godownname = ##mygodownname and $batchname = ##mybatchname and not $$isempty:$closingbalance

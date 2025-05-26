@@ -1,0 +1,224 @@
+; Created By: pg on 2012-01-18 12:04
+;; PRODUCT: Tally connectivity
+;; PRODUCT-ID: d022ba98-b2c3-4fc2-a0f9-e7a590ff5697
+;; AUTHOR: TallyDeveloper
+
+;; has Report : prgpath, variable : company name
+;; has Report : prgvers, variable : prgver
+;; has Report : pserial
+;; has Report : prgtemplate
+;; has Field : PrgExplodeLevel
+
+[system : formula]
+cwTallySEriallock : Yes
+cwTallySerialLockDate : $$Date:"18/11/2010"
+
+[report : CwCurrentCompany]
+use : list of companies
+local : line : List of Companies : invisible : $name <> ##svcurrentcompany
+local : line : List of Companies : add : field : dlr,cwguid
+
+[field : cwguid]
+set as : $GUID
+
+[Field : PrgExplodeLevel]
+   use : numberfield
+format : "Nocomma"
+set as : $$ExplodeLevel
+ Style : Normal
+
+[Report : prgPath]
+    use : PRGtemplate
+  local : field : disguisenamefield : set as : $Destination:COMPANY:##SVCURRENTCOMPANY
+
+[report : prgvers]
+    use : PRGtemplate
+  local : field : disguisenamefield : set as :  @@prgver
+
+[Report : pSerial]
+    use : PRGtemplate
+;;  local : field: disguisenamefield: set as:  if @@cwTallySEriallock then (if $$machinedate < @@cwTallySerialLockDate  then $$serialnumber else -1) else $$serialnumber
+  local : field: disguisenamefield: set as: 742231584 ;;if $$serialnumber > 0 then $$serialnumber else 424
+[Field : pgName]
+use : Name field
+style : normal
+width : 100
+set as : $name
+
+[field : pgAmount]
+use : Amount Field
+format : "No Comma"
+
+[field: pgQty]
+  use : QtyPrimary Field
+format : "NoComma"
+
+
+[field : xd1]
+use : name field
+width : 1
+set as : ","
+
+[field : xd2]
+use : xd1
+
+[field : xd3]
+use : xd1
+
+[field : xd4]
+use : xd1
+
+[field : xd5]
+use : xd1
+
+[field : xd6]
+use : xd1
+
+[field : xd7]
+use : xd1
+
+[field : xd8]
+use : xd1
+
+[field : xd9]
+use : xd1
+
+[field : xd10]
+use : xd1
+
+[FIELD : DLR]
+USE : XD1
+SET AS : "$"
+
+[FIELD : DLR1]
+USE : dLR
+[FIELD : DLR2]
+USE : dLR
+[FIELD : DLR3]
+USE : dLR
+[FIELD : DLR4]
+USE : dLR
+[FIELD : DLR5]
+USE : dLR
+[FIELD : DLR6]
+USE : dLR
+[FIELD : DLR7]
+USE : dLR
+[FIELD : DLR8]
+USE : dLR
+[FIELD : DLR9]
+USE : dLR
+[FIELD : DLR10]
+USE : dLR
+[FIELD : DLR11]
+USE : dLR
+[FIELD : DLR12]
+USE : dLR
+[FIELD : DLR13]
+USE : dLR
+[FIELD : DLR14]
+USE : dLR
+[FIELD : DLR15]
+USE : dLR
+
+
+[FIELD : D1]
+USE : SHORT NAME FIELD
+INVISIBLE : NOT $$InExportMode
+WIDTH : 1
+SET AS : "$"
+
+[FIELD : D2]
+USE : D1
+
+[FIELD : D3]
+   USE : D1
+
+[FIELD : D4]
+   USE : D1
+
+[FIELD : D5]
+   USE : D1
+
+[FIELD : D6]
+   USE : D1
+
+[FIELD : D7]
+   USE : D1
+
+[FIELD : D8]
+   USE : D1
+
+[FIELD : D9]
+   USE : D1
+
+[FIELD : D10]
+   USE : D1
+
+[FIELD : D11]
+   USE : D1
+
+[FIELD : D12]
+   USE : D1
+
+[FIELD : D13]
+   USE : D1
+
+[FIELD : D14]
+   USE : D1
+
+[FIELD : D15]
+   USE : D1
+
+[FIELD : D16]
+   USE : D1
+
+[FIELD : D17]
+   USE : D1
+
+[FIELD : D18]
+   USE : D1
+
+[FIELD : D19]
+   USE : D1
+
+[FIELD : D20]
+   USE : D1
+
+[FIELD : D21]
+   USE : D1
+
+[FIELD : D22]
+   USE : D1
+
+[FIELD : D23]
+   USE : D1
+
+[FIELD : D24]
+  USE : D1
+
+[FIELD : D25]
+   USE : D1
+
+[report : prgTemplate]
+    use : dsptemplate
+   Form : PrgTemplate
+
+  [Form : PrgTemplate]
+    use : dsptemplate
+   Part : PrgTemplate
+  width : 100% Page
+ height : 100% Page
+
+  [Part : PrgTemplate]
+   line : PrgTemplate
+ scroll : vertical
+
+  [Line : PrgTemplate]
+  Field : disguiseNameField
+  local : field : disguisenamefield : width  : 100
+  local : field : disguisenamefield : set always : yes
+
+ [field : disguiseNameField]
+    use : name field
+

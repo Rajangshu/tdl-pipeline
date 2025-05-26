@@ -1,0 +1,22 @@
+; Created By: Prakash on 2023-06-19 12:05, ID: 
+
+;; call : cwGetHSNCodeForItem:$stockItemName
+;; set as :  $cwGetHSNCodeForItem:$stockItemName
+
+[Function:cwGetHSNCodeForItem]
+parameter : myitemname : string
+returns : string
+;; {10.Sep.20 22:11} object:stockitem:##myitemname
+
+10 : return: $$GetNonEmptyValFromHierarchy:"GST":@@dsptodate:"":"sales":##myitemname:"Main location":"":"HSNCode"
+
+
+ ;; call : cwGetIGSTRateForItem:$stockItemName
+ ;; set as  : $$cwGetIGSTRateForItem:$stockItemName
+ 
+[function : cwGetIGSTRateForItem]
+parameter : stockItemName : string
+   object : stockitem : ##stockItemName
+20 : return : @@cwItemgstrate
+
+

@@ -1,0 +1,5 @@
+; Created By: pg on 2012-02-01 13:52
+
+[#menu : display menu]
+;;control : @@locStatementsofInventory : if @@inPOLockDemoPeriod then @@cwOwnerLevel else yes
+control : @@locAccountBooks : if @@inPOLockDemoPeriod then @@cwOwnerLevel else yes

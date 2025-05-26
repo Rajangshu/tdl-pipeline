@@ -1,0 +1,151 @@
+; Created By: Suman on 2019-09-25 15:01, ID: 
+
+     ; " include broker is mandatory"
+
+
+     [#menu: Gateway of Tally]
+;; {25.Sep.19 15:58}       add: Item: before: @@locQuit: @@ledmultiaddressimportReport: Display: Repledmultiaddressimportx
+     
+      [#menu: cw_debug_menu]
+
+        add: Item: after: @@locQuit: @@BrokerWisePartyReport: Display collection: RepBrokerWisePartycoll
+        add: Item: after: @@locQuit: Blank
+        
+        
+        [collection:RepBrokerWisePartycoll]
+         Use         : Extract Alias Collection
+	Source Collection	: List of Ledgers  ;;, PRIMARY
+	
+    Title      	: $$LocaleString:"List of Ledgers"
+;; {04.Jul.14 15:49}     Report      : RepSalesAgent
+    Variable    : SLedger
+    Trigger     : brokerledger  ;;SLedger
+
+	Fetch		: Name
+   report:RepBrokerWiseParty
+
+
+    [Report : brokerledger]
+
+            Use     : Collection Variable
+			Title   : $$LocaleString:"Select Ledger"
+            Local   : Line : Collection Variable : Field : brokerledger
+            Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Ledger"
+
+
+
+          [Field: brokerledger]
+
+                Use         : Name Field
+                Table       : cwBrokerTableLedger
+                Show Table  : Always
+                Key         : Create Ledger
+                Modifies    : SLedger
+        
+    [System: formula]
+   BrokerWisePartyReport: "Broker Wise Party"
+;; BrokerWisePartyDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepBrokerWiseParty]
+        use: Dsp Template
+      Title: @@BrokerWisePartyReport
+   Printset: Report Title: @@BrokerWisePartyReport
+       Form: FrmBrokerWiseParty
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmBrokerWiseParty]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0BrokerWiseParty,PrtBrokerWiseParty
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: BrokerWisePartybotbrk,BrokerWisePartybotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: BrokerWisePartybotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: BrokerWisePartybotopbrk]
+        use: dspacctitles
+  add: part: BrokerWisePartyTitlePart
+
+      [part: BrokerWisePartyTitlePart]
+       line: LnBrokerWisePartyTitle
+       
+      [line: LnBrokerWisePartyCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As:"";; @@dspDateStr
+      Local: Field: fwf: Set As:"Broker : "+##sledger
+  invisible: $$inprintmode
+
+      [part: PrtTitle0BrokerWiseParty]
+      line : LnBrokerWisePartyCurrPeriod
+      
+      [Part: PrtBrokerWiseParty]
+       Line: LnBrokerWisePartyTitle,LnBrokerWiseParty
+bottom Line: LnBrokerWisePartyTotals
+     repeat: LnBrokerWiseParty: ColBrokerWiseParty
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColBrokerWiseParty]
+   type:ledger
+   filter:ColBrokerWisePartyFilter,cwbrokerwisepartyfilter
+;; {25.Sep.19 15:05}         Use: Vouchers of Company
+;; {25.Sep.19 15:05}      delete: filter : daybookfilter
+;; {25.Sep.19 15:05}      Filter: ColBrokerWisePartyFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColBrokerWisePartyFilter:$$IsBelongsTo:$$GroupSundryDebtors OR $$IsBelongsTo:$$GroupSundryCreditors OR $$IsBelongsTo:$$GroupBranches
+cwbrokerwisepartyfilter:##SLedger=$cwBroker
+
+      [Line: LnBrokerWisePartyTitle]
+        use: LnBrokerWiseParty
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Ledger Name"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LnBrokerWiseParty]
+     Fields:fwf
+;; {25.Sep.19 15:05} right field: ratepf,Qtyf,Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+;; {25.Sep.19 15:23}      local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+;; {25.Sep.19 15:23} local : field : fwf : alter : voucher : $$isvoucher
+ local : field : fwf : alter : ledger : $$isledger
+;; {25.Sep.19 15:23}  local : field : sdf : set as : $date
+ Local: Field: fwf: Set As:$name
+
+
+      [line: LnBrokerWisePartyTotals]
+        use: LnBrokerWiseParty
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

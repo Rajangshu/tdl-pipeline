@@ -1,0 +1,33 @@
+
+     [system : udf]
+  cwLEDTANNo : string : 900 ;; used in : ledger TAN
+  cwLEDCSTNo : string : 901 ;; used in : ledgercst
+     cwiecno : string : 902
+    cwiecno2 : string : 903
+ cwWayBillNo : string : 904
+cwWaybillDate: date   : 905
+cwEndorsementNo   : string : 906
+CwEndorsementDate : date   : 907
+    cwExtra1 : string : 908
+    cwextra2 : string : 909
+     cwlrnNo : string : 910
+    cwlRDate : date   : 911
+    cwBroker : string : 912
+ cwEnableBroker : Logical : 913
+ 
+ ; cmpaddladdr
+ odet1 : string : 914
+ odet2 : string : 915
+ odet3 : string : 916
+ odet4 : string : 917
+ odet5 : string : 918
+
+  cwSig : string : 919
+   cwv1 : string : 920
+   cwv2 : string : 921
+   cwv3 : string : 922
+   cwv4 : string : 923
+   cwv5 : string : 924
+
+ cwInvVAtIncRate : rate : 925 ;; RateIncVAT.txt
+ cwInvVAtRate : number : 926 ;; RateIncVAT.txt

@@ -1,0 +1,105 @@
+; Created By: pg on 2021-07-29 12:28, ID: 
+
+[System: UDF]
+cwbfInvoiceAmount : amount : 5001
+cwbfGrossLoanAmount : amount : 5002
+cwbfCustomerDownPayment : amount : 5003
+cwbfNetLoanAmount : amount : 5004
+cwbfOtherCharges : amount : 5005
+cwbfSFDCLTV : amount : 5006
+cwbfCoBrandCardCharges : amount : 5007
+cwbfSubvention : amount : 5008
+cwbfMarginMoney : amount : 5009
+cwbfMFRSubvention : amount : 5010
+cwbfBFLShare : amount : 5011
+cwbfProcessingFees : amount : 5012
+cwbfSpecialCharges : amount : 5013
+cwbfEMICardFee : amount : 5014
+cwbfTotalDeductions : amount : 5015
+cwbfNetDisbursement : amount : 5016
+cwbfTotalGSTOnDBD : amount : 5017
+cwbfAdvanceEMI : amount : 5018
+cwbfProductEMI : amount : 5019
+cwbfTotalEMI : amount : 5020
+
+cwbfAddOnCardRequested : amount : 5050
+cwbfAddOnCardCharges : amount : 5051
+cwbfInstaCardActivationFees : amount : 5052
+cwbfImpsCharges : amount : 5053
+cwbfNetTenure : amount : 5054
+cwbfSubventionPercentage : amount : 5055
+cwbfRiskPoolAmount : amount : 5056
+cwbfPromoPayableByBFLPrcent : amount : 5057
+cwbfPromoPayableByRetailerPrcent : amount : 5058
+cwbfPromoPayableByManufacturerPrcent : amount : 5059
+cwbfPromoPayableByBFLValue : amount : 5060
+cwbfPromoPayableByRetailerValue : amount : 5061
+cwbfPromoPayableByManufacturerValue : amount : 5062
+cwbfTotalPromoValue : amount : 5063
+cwbfUpfrontInterest : amount : 5064
+cwbfServiceCharge : amount : 5065
+cwbfTotalPromoPrcent : amount : 5066
+cwbfDUEDAY : number : 5067
+cwbfTenure : number : 5068
+
+cwbfParentID : string : 5070
+cwbfField1 : string : 5071
+cwbfField2 : string : 5072
+cwbfField3 : string : 5073
+cwbfField4 : string : 5074
+cwbfField5 : string : 5075
+cwbfField6 : string : 5076
+cwbfField7 : string : 5077
+cwbfField8 : string : 5078
+cwbfField9 : string : 5079
+cwbfField10 : string : 5080
+cwbfField11 : string : 5081
+cwbfField12 : string : 5082
+cwbfField13 : string : 5083
+cwbfField14 : string : 5084
+cwbfField15 : string : 5085
+cwbfVAN : string : 5086
+cwbfDMEID : string : 5087
+cwbfSerialNo : string : 5088
+
+cwbfDealerName : string : 5100
+cwbfDONumber : string : 5101
+cwbfStatus : string : 5102
+cwbfCustomerName : string : 5103
+cwbfCustomerPhoneNo : string : 5104
+cwbfAddressLine1 : string : 5105
+cwbfAddressLine2 : string : 5106
+cwbfAddressLine3 : string : 5107
+cwbfCITY : string : 5108
+cwbfCustomerPAN : string : 5109
+cwbfCustomerFirstName : string : 5110
+cwbfModelNo : string : 5111
+cwbfMAKE : string : 5112
+cwbfassetCategory : string : 5113
+cwbfCdLine : string : 5114
+
+cwbfDealerCode : string : 5115
+cwbfCreatedOn : string : 5116
+cwbfInvoiceExpiryDate : string : 5117
+cwbfCustomerMiddleName : string : 5118
+cwbfAppliancesLine : string : 5119
+
+cwbfDealID : string : 5120
+cwbfSchemeId : string : 5121
+cwbfEMICardLimit : string : 5122
+cwbfCustomerEmailID : string : 5123
+cwbfArea : string : 5124
+cwbfLandmark : string : 5125
+cwbfPinCode : string : 5126
+cwbfSTATE : string : 5127
+cwbfcustomerGSTIN : string : 5128
+cwbfCustomerLastName : string : 5129
+cwbfCobrandCardLimit : string : 5130
+cwbfManufacturerName : string : 5131
+cwbfDigitalLine : string : 5132
+cwisexported : logical : 5133
+cwApplicability : logical : 5134
+cwPartydetails : logical : 5135
+cwPartyDetails2 : logical : 5136
+
+

@@ -1,0 +1,133 @@
+
+     [#menu: Gateway of Tally]
+;;        add: Option: OSReportLock: @@CWVMachDemoDate
+       
+     [!menu: OSReportLock]
+        add: Item: before: @@locQuit: @@OSReportReport: Display: RepOSReport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   OSReportReport: "OSReport"
+
+     
+    [Report: RepOSReport]
+        use: Dsp Template
+      Title: @@OSReportReport
+   Printset: Report Title: @@OSReportReport
+       Form: FrmOSReport
+     Export: Yes
+;;      set  : svfromdate : ##svcurrentdate
+;;      set  : svTodate : ##svcurrentdate
+;;  variable : IsVchTypeReport,IsStockReport,IsCCReport,IsLedgerReport,IsGrpReport
+  VARIABLE : logi1
+  variable : ledgername
+;;  set : logi1 : yes
+;;  set  : ledgername :  "NARAYAN AGARWAL1"
+;;  title : @@hascwled
+    variable : groupname
+      [Form: FrmOSReport]
+        use: DSP Template
+       Part: DspAccTitles,PrtOSReport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: OSReportbotbrk,OSReportbotOpbrk
+    button : change item
+    button : cwlogi1
+
+      [part: OSReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: OSReportbotopbrk]
+        use: dspacctitles
+  add: part: OSReportTitlePart
+
+      [part: OSReportTitlePart]
+       line: LnOSReportTitle
+  
+      [Part: PrtOSReport]
+       Line: LnOSReportTitle,LnOSReport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+    OPTION : ISrCPT : not @@hascwled
+;;    OPTION : ISpAY :  ##LOGI1 and not @@hascwled
+
+    OPTION : isCwLedger :   @@hascwled
+
+
+    [!PART: ISRCPT]
+     repeat: LnOSReport: ColOSReport
+     
+    [!PART: ISpAY]
+     repeat: LnOSReport: ColOSReport2
+     
+    [!part: isCWLedger]
+    repeat  : lnosreport : ColOSReportLedger
+
+     [System : Formula]
+  hascwled   : not $$isempty:##ledgername
+     
+
+[Collection: ColOSReport]
+        Use: Group Bills
+;;     delete: filter : daybookfilter
+;;     Filter: ColOSReportFilter
+DELETE :     Filter  : AgeFilter
+;;DELETE : FILTER : BillsOfGroupName
+
+  [collection :ColOSReportLedger]
+           Use: Company Receivables
+     child of : ##ledgername
+       delete : filter : IsReceivable
+DELETE :     Filter  : AgeFilter
+DELETE : FILTER : BillsOfGroupName
+
+[Collection: ColOSReport2]
+        Use: Company Payables
+;;     delete: filter : daybookfilter
+;;     Filter: ColOSReportFilter
+DELETE :     Filter  : AgeFilter
+DELETE : FILTER : BillsOfGroupName
+
+    [system: Formula]
+ColOSReportFilter: Yes
+
+      [Line: LnOSReportTitle]
+        use: LnOSReport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: fwf: set as: ""
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratef : set as : "Rate"
+
+      [Line: LnOSReport]
+     Fields: numf,d1,SDF,D2,fwf,D3,NF,D4
+right field: Amtf,D7,AMTF2
+      Local: Field: FWF : Set As: $PartyName
+      Local: Field: NF : Set As: $NAME
+      Local: Field: AMTF : Set As: $OPENINGBALANCE
+      Local: Field: AMTF2 : Set As: $CLOSINGBALANCE
+      Local: Field: SDF : Set As: $BILLDATE
+      local: field : fwf : max   : 100
+      local: field : fwf : width : 100
+      local : field : numf : set as  : $$explodelevel
+     
+   explode : cwBillLedgerEntries
+     
+     [part : cwBillLedgerEntries]
+      line : cwBillLedgerEntries
+    repeat : cwBillLedgerEntries  : ledgerentries
+    
+     [line : cwBillLedgerEntries]
+     field : numf,d1,sdf,d2,nf,d3,nf2,d4,amtf,d5,fwf
+     Local: Field: sdf : Set As: $date
+     Local: Field: nf : Set As: $vouchernumber
+     Local: Field: nf2 : Set As: $vouchertypename
+     Local: Field: amtf : Set As: @@AllocBillsTotal
+     Local: Field: fwf : Set As: $narration
+
+

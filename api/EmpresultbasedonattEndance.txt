@@ -1,0 +1,53 @@
+;; Set formula cwAttFor
+;;[System : Formula]
+;;cwAttFor : "1. Present"
+
+[#part: PayHead OnProduction]
+   add: line: cwBasedonAttendance
+
+ [#part: PayHead OnAttendance]
+    add: line: cwBasedonAttendance
+
+ [#part: PayHead OnAttendance Deduction]
+    add: line: cwBasedonAttendance
+
+[#part: PayHead OnFlatRate]
+
+[#part: PayHead AsComputedValue]
+   add: line: cwBasedonAttendance
+
+ [line: cwBasedonAttendance]
+ field: mp,cwlogical,sp,amtf
+ Local: Field: mp: Set As: "Result Based on Attendance?"
+ local: field: cwlogical: storage: cwResultBasedonAttendance
+ local : field : sp : set as : "Max. limit:"
+ local : field : amtf : skip : $$isempty:#cwlogical
+ local : field : amtf : storage : AttendanceLimitAmount
+ 
+[System: UDF]
+cwResultBasedonAttendance: logical: 555
+AttendanceLimitAmount : amount : 556
+
+[#collection: ledger]
+fetch: cwResultBasedonAttendance
+fetch: AttendanceLimitAmount
+			
+[#Field: PayrollFunctionAutoPayheadForexAmt]
+ Set as: If ##ReCalcSetValueDone Then $Amount Else If NOT ##ReCalcSetValueDone Then @@cwSetCondOnAttendance else $$value
+;;set by condition : (NOT ##ReCalcSetValueDone) and (@@cwcondOnAttendance) : @@cwSetCondOnAttendance
+;;border : thin box : @@cwSkiponHRA ;;
+
+
+;;[#MENU : GATEWAY OF TALLY]
+;;ADD : ITEM : A1
+
+               [System: Formula]
+    cwcondOnAttendance: $cwResultBasedonAttendance:ledger:$PayHeadName
+ cwSetCondOnAttendance: if @@cwSkiponHRA then 0 else if @@cwcondOnAttendance then $$asamount:@@calcCWonAttendance else $amount
+    calcCWonAttendance: if $amount >= $AttendanceLimitAmount:ledger:$Payheadname then @@calcCWonAttendance2 else $amount
+   calcCWonAttendance2: $$number:@@cwattendance * $amount / @@cwnumdays
+             cwnumdays: ##PyrlSVToDate - ##PyrlSVFromDate + 1
+          cwattendance: $$AttdFor:@@cwPayrollFunctionOwnerName:##PyrlSVFromDate:##PyrlSVToDate:@@cwAttFor
+cwPayrollFunctionOwnerName: $$explodeowner:#PayrollFunctionAutoEmpName
+
+

@@ -1,0 +1,33 @@
+
+[#report : daybook]
+local : field : DSP VchAccount : set by condition : @@mylock : if $$isempty:$partyname then if $$isempty:$BASICBUYERNAME then $firstledger else $BASICBUYERNAME else $partyname ;;ledgername ;; @@cwSRO1 ;; "(as per details)"
+;;local : field : DSP VchAccount : border : thin box : $$isempty:$partyname ;;@@mylock
+local : collection : default : fetch : partyname,BASICBUYERNAME
+
+[#Report: Voucher Register]
+;;local : field : default : set by condition : @@mylock : $$descname
+local : field : DSP VchAccount : set by condition : @@mylock : @@cwPOSNormalPartyNameVch ;;cwPOSNormalPartyNAme ;; @@cwSRO ;; "(as per details)"
+local : line: DSP VchDetail:add : right field : before : DSP VchType : snf
+local : field : snf : set as : $PARTYname ;;$cwPhone
+local : field : snf : invisible: not @@mylock
+;;local : field : DSP VchAccount : border : thin box
+
+[#collection : vouchers of ledger]
+fetch : cwphone
+fetch : basicbuyername
+
+
+
+[System : Formula]
+mylock : $$issales:$VoucherTypeName
+mylock2 : ##ledgername = "due amount" or ##ledgername contains "Cheque"
+cwSRO : if $$isempty:$BASICBUYERNAME then $partyledgername else $BASICBUYERNAME ;;+ @@cwxxphone
+cwSRO1 : if $$isempty:$BASICBUYERNAME then $partyledgername else $BASICBUYERNAME ;;+ @@cwxxphone
+cwxxphone : if $$isempty:$cwPhone then "" else " ("+$cwPhone+")"
+
+[#report : ledgervouchers]
+local : line : DSP VchDetail : add : right field : before : DSP VchType : snf
+local : field : snf : set as : $cwPhone
+local : field : snf : invisible: not @@mylock2
+local : field : DSP VchledAccount : set by condition : @@mylock2 : @@cwSRO ;; "(as per details)"
+

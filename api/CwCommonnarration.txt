@@ -1,0 +1,2 @@
+    [#Line: VCHACC Info]
+    border : thin box : $$owner:$$owner:@@UseLedgerNarration

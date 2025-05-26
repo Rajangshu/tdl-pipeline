@@ -1,0 +1,100 @@
+; Created By: Akshay on 2017-08-16 14:54, ID: 
+
+[Field:PrntVCHRateIncl]
+Use :Rate Price Field
+
+[#Line:EXPINV Column1]
+add:right fields:before:EXPINV RateTitle:PrntVCHRateIncl
+Local: Field: PrntVCHRateIncl: Info:$$LocaleString:"Rate"
+Local: field:PrntVCHRateIncl : Align: centre
+Local: Field:PrntVCHRateIncl : Style: Normal
+Local: Field:PrntVCHRateIncl : Border: thin left
+local: field: PrntVCHRateIncl: Invisible:not ##SAWithRateincltax
+
+[#Line: EXPINV Column2]
+add:right fields:before:EXPINV RateTitle:PrntVCHRateIncl
+Local: Field: PrntVCHRateIncl: Info:$$LocaleString:"Incl.of Tax"
+Local: field:PrntVCHRateIncl : Align: centre
+Local: Field:PrntVCHRateIncl : Style: Normal
+Local: Field:PrntVCHRateIncl : Border: thin left
+local: field: PrntVCHRateIncl: Invisible:not ##SAWithRateincltax
+
+[#Line: EXPINV InvDetails]
+add:right fields:before:EXPINV Rate:PrntVCHRateIncl
+Local: Field:PrntVCHRateIncl : Border: thin left
+Local: Field:PrntVCHRateIncl : Set As:$InclusiveTaxValue
+local: field: PrntVCHRateIncl: Invisible:not ##SAWithRateincltax
+
+[#Line: EXPINV BatchName]
+add:right fields:before:EXPINV RateTitle:PrntVCHRateIncl
+Local: Field:PrntVCHRateIncl : Border: thin left
+Local: Field:PrntVCHRateIncl : Set As:""
+local: field: PrntVCHRateIncl: Invisible:not ##SAWithRateincltax
+
+
+
+[#Line: EXPINV AccDetails]
+add:right fields:before:EXPINV AccRate:PrntVCHRateIncl
+Local: Field:PrntVCHRateIncl : Border: thin left
+Local: Field:PrntVCHRateIncl : Set As:""
+local: field: PrntVCHRateIncl: Invisible:not ##SAWithRateincltax
+
+[#Line: EXPINV Totals]
+add:right fields:before:EXPINV RateTotal:PrntVCHRateIncl
+Local: Field:PrntVCHRateIncl : Border: thin left
+Local: Field:PrntVCHRateIncl : Set As:""
+local: field: PrntVCHRateIncl: Invisible:not ##SAWithRateincltax
+
+;;-----------  pos sales
+
+[#line:POS InvColTitleOne]
+add:right field:before:POS RateTitle:PrntVCHRateIncl
+Local: Field: PrntVCHRateIncl: Info:$$LocaleString:"Rate Incl.of Tax"
+Local: Field:PrntVCHRateIncl : Style: Normal
+Local: field:PrntVCHRateIncl : Width:11
+Local : field :PrntVCHRateIncl : Lines : 0
+local: field: PrntVCHRateIncl: Invisible:not ##SAWithRateincltax
+
+
+
+[#line:POS InvDetails]
+add:right field:before:POS InvRate:PrntVCHRateIncl
+Local: Field:PrntVCHRateIncl : Set As:$InclusiveTaxValue
+Local: field:PrntVCHRateIncl : Width:11
+local: field: PrntVCHRateIncl: Invisible:not ##SAWithRateincltax
+
+[#Line: POS AccInfo]
+add:right field:before:POS AccRate:PrntVCHRateIncl
+Local: Field:PrntVCHRateIncl : Set As:""
+Local: field:PrntVCHRateIncl : Width:11
+local: field: PrntVCHRateIncl: Invisible:not ##SAWithRateincltax
+
+
+	[#Part: PPCFG Other]
+	add:line:after:SA POSWithRate: lnprintrateincktax
+
+[#Part: VchF12PrnSTDConfig SalesInvoiceLeft]
+add:line:after:SAWithRate: lnprintrateincktax
+
+[Line: lnprintrateincktax]
+Field: Medium Prompt, Logical Field
+Local: Field : Medium Prompt : Info     : $$LocaleString:"Print rate Incl.of Tax ?"
+Local: Field : Logical Field : Modifies : SAWithRateincltax
+Space Bottom: 0.5
+
+[Variable: SAWithRateincltax]
+Persistent  : yes
+Type        : Logical
+    
+[System: Variables]
+SAWithRateincltax  : no
+	
+            
+            
+
+
+
+
+	
+
+

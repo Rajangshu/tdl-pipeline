@@ -1,0 +1,59 @@
+; Created By: pg on 2011-10-19 15:01
+; BuyerAddressCondition : @@issales
+; ConsigneeAddressCondition : @@issales
+; BuyerTableFilterCondition : yes
+;  ConsigneeTableFilterCondition : @@BuyerTableFilterCondition
+
+    [#Field: EI Buyer]
+        add: Option : Opeibuyer : @@BuyerAddressCondition
+
+    [#field : EI PartyLedger]
+    add: Option : Opeibuyer : @@ConsigneeAddressCondition
+
+   [!Field : Opeibuyer]
+       Add : Table : cwLedgerList
+Show table : Always
+Set Always : yes
+key : Createledger,Alter Ledger
+    Variable    : SV Ledger
+modifies : svledger
+
+[collection : cwLedgerList]
+use : ledger
+filter : BuyerTableFilterCondition
+
+   [#Field : EI BuyerAddress]
+    Option : OpeiAddress :  @@BuyerAddressCondition
+
+    [#field : EI PartyAddress]
+    add : option : opeipartyaddress : @@ConsigneeAddressCondition
+
+   [!Field : OpeiAddress]
+     SetAs :  If $Partyledgername=$BasicBuyerName then  $$ReptField:Address:$$Line:Ledger:$PartyLedgerName else +
+            $$ReptField:Address:$$Line:Ledger:$BasicBuyerName
+ SetAlways : yes
+
+   [!field : opeipartyaddress]
+    SetAs :  If $Partyledgername=$partyName then  $$ReptField:Address:$$Line:Ledger:$PartyLedgerName else +
+            $$ReptField:Address:$$Line:Ledger:$partyName
+ SetAlways : yes
+
+
+   [#field : EI BuyerTaxNumber]
+    option : eibtn : @@BuyerAddressCondition
+
+;;   [!field : eibtn]
+;;    set as : $VATTINNumber:Ledger:#eibuyer
+
+;;    [#line : EI ConsigneeTaxNumber] ;;, EI Buyer CSTNumber, EI ConsigneeTaxNumber, EI ConsigneeCSTNumber
+;;    border : thin box
+
+;;            [#Line: EI BuyerTaxNumber]
+;;            border : thin box
+
+;; [#Part: EI BuyerTaxNumber]
+;; border : thick box
+
+;;   [#Part: EI PartyDetails]
+;; border : thick box
+

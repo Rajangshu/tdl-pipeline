@@ -1,0 +1,343 @@
+
+[system :udf]
+    Amttrdx : Number : 1130
+       VTRD : Amount : 1131
+rvatstorage : number : 1132
+  exchvatst : number : 109
+exchangeitem: String : 110
+
+
+;; enable cwItemExchangeCondition for accessing exchange
+;; Set Exchange Heading in CwExchangeHeader
+;; Set Spl Discount Col CwSplDiscount
+
+[System : Formula]
+ExchangeTitle : "Disc. Coupon"
+cwSplDisc : "Spl. Disc. Item"
+
+CwSplDiscount : ""
+CwExchangeHeader  : ""
+
+        [#Line: VCHBATCH ColumnOne]
+      add : option : cwExchangeTitle : @@cwItemExchangeCondition
+
+      [#Line: EI ColumnOne]
+      add : option : cwExchangeTitle : @@cwItemExchangeCondition
+
+   [!line : cwExchangeTitle]
+    Add :right field : Before :VCH RateTitle: exchvat2,exName,Amttrdx
+
+   Local : Field : Amttrdx  : type : String
+   Local : Field : Amttrdx  : Skip : yes
+   local : field : Amttrdx : delete : storage
+   
+   local : field : exname : delete : inactive
+   Local : Field : exchvat2 : delete : inactive
+   local : field : Amttrdx : delete : inactive
+   
+   Local : Field : exName  : type : String
+   Local : Field : exName  : Skip : yes
+   local : field : exName : delete : storage
+   
+   Local : Field : exchvat2  : type : String
+   Local : Field : exchvat2  : Skip : yes
+   local : field : exchvat2 : delete : storage
+
+   Local : Field : Amttrdx  : Set As : "Spl Disc" ;;if @@CwExchangeHeader = "" then @@Exchangetitle else @@CwExchangeHeader
+   Local : Field : exchvat2  : Set As : "Exch. Vat"
+   Local : Field : exName  : Set As : "cwSPlDisc"
+
+  [#Line: EI InvInfo]
+  add : option : invchange : @@issales
+
+  [!line : invchange]
+    Add : right field : Before :VCH Rate: exchvat2,exitem,Amttrdx
+
+  local : field : exchvat2 : skip : not @@isposinvoice
+  local : field : exitem : skip : not @@isposinvoice
+  local : field : Amttrdx : skip : not @@isposinvoice
+
+
+  local : field : exchvat2 : set as : $$collnumtotal:batchallocations:$exchvatst
+  local : field : exitem : set as : $$fulllist:batchallocations:$exchangeitem
+  local : field : Amttrdx : set as : $$collnumtotal:batchallocations:$Amttrdx
+
+  [#line : STKVCH Batch2]
+  add : option : invchange2 : @@issales
+
+  [!line : invchange2]
+    Add : right field : Before :VCHbatch Rate: exchvat2,exitem,Amttrdx
+  local : field : exchvat2 : inactive : @@BatchAllocBreak
+  local : field : exitem : inactive : @@BatchAllocBreakx
+  local : field : Amttrdx : inactive : @@BatchAllocBreak
+  local : field : rvat : inactive : @@BatchAllocBreak
+
+
+ [field:exchvat2]
+ use:number field
+ storage:exchvatst
+ Set always  : Yes
+ width:.6 inch
+ style:normal
+ align:right
+
+  [Field : exitem]
+     use : short name field
+ storage : exchangeitem
+inactive : $exchvatst = 0
+   style : normal
+ Control : ExItem : $$isEmpty:$$value
+
+
+[System : Formula]
+ StSkip :  If $$IsEnd:$Stockitemname  Then Yes Else No
+  ExItem: "Enter Item \nReceived under Spl. Disc."
+
+[system : formula]
+     tot:(@@myamt*#cwInvVat)/100
+   myamt: $Amttrdx
+
+ [Field : Amttrdx]
+    Use : Number Field
+ Set As : $Amttrdx
+  Width : .7 inch
+  Style : Normal
+Set Always : yes
+; Format : "NoSymbol"
+Storage : Amttrdx
+  Align : right
+;;invisible : yes
+ Inactive    : $$IsEnd:$StockItemName
+
+[#Field:  VCHbatch Rate]
+Add : Option : Myopt : @@isSales
+
+[#Field: VCH NrmlRate]
+set by condition : @@cwVatrateIncShowCondition : @@cwVatIncRAte
+Add : Option : Myopt : @@isSales
+
+
+[!Field:MyOpt]
+ Set as : @@MyTotRate - (@@MyTotRate * $rateofvat:StockItem:$StockItemName) /   (100 + $RateOfVAT:StockItem:$StockItemName)
+        Skip On     : @@isSales or @@HasInvSubAlloc OR $$IsEmpty:$BilledQty OR (NOT @@DoEditAll AND $$IsValidPriceLevel:$PriceLevel AND NOT $$IsEmpty:@@StdVchRate)
+
+[system : formula]
+myTotRate : $rativ - $exchvatst -$Amttrdx
+
+
+
+   [#Line: EI InvDetails]
+ Delete :Option: EI MRPDetails
+
+ [field : amttrdy]
+ use : amttrdx
+ delete : storage
+ skip : yes
+ set as : $$collnumtotal:inventoryentries:$amttrdx
+
+   [Field : exName]
+   use : short name field
+   setas :"Spl. Disc. Item"
+   style : normal
+
+ [field : exname2]
+ use : exname
+  set as : ""
+
+  [field : rvat2]
+  use : rvat
+  delete : storage
+  set as : ""
+  skip : yes
+
+
+[#Form: Export Invoice]
+ Local :Line :VCH NarrPrompt: Add : Right Field : before : EI QtyTotal : rvat2
+ Local :Line :VCH NarrPrompt: Add : Right Field : after : EI QtyTotal : exchvat2,AAmttrd,exname2,Amttrdy
+ Local :Field : AAmttrd : Set As : $$collnumtotal:inventoryentries:$exchvatst
+ Local :Field : AAmttrd : Skip : yes
+ Local : Field : default : Format : "No zero"
+;; local : field : default : border : thinbox
+ local : field : rvat2 : delete : inactive
+ local : field : exchvat2 : delete : inactive
+ local : field : aamttrd : delete : inactive
+ local : field : exname2 : delete : inactive
+ local : field : Amttrdy : delete : inactive
+;;amt2x,exchvat2,exitem,Amttrdx
+
+    [#Line : VCH NarrPrompt]
+     Local : Field : Default : Set Always : yes
+ local : field : rvat2 : skip : yes
+ local : field : exchvat2 :skip : yes
+ local : field : aamttrd : skip : yes
+ local : field : exname2 : skip : yes
+ local : field : Amttrdy : skip : yes
+
+
+    [Field : AAmttrd]
+       Use : amttrdx
+    Set As : ""
+    delete : storage
+      skip : yes
+
+
+[#Line: VCH NarrPrompt]
+   Local :Field :EIValueTotal : Width : 1 inch
+
+
+;;[#Part: EI InvInvoice]
+;;   total:Amttrdx  ;;,vtrd1,
+
+
+[Field : vblank]
+   USe : number Field
+   Set As : ""
+   Width : 1 inch
+   Format : "No Zero"
+   Skip : yes
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ [#Line: EXPINV Column1]
+     add:right field:after:EXPINV RatePerTitle:vdisc1
+     LOCAL:FIELD:EXPINV MarksTitle1:INVISIBLE :YES
+     LOCAL :FIELD:EXPINV PackagesTitle1:INVISIBLE:YES
+     Local :Field :Default : Type : String
+     Local :Field :vdisc1 :Border : thin left
+     Local :Field :vdisc1 :SET AS :"SPL. Disc."
+     LOCAL:FIELD:EXPINV RatePerTitle:INVISIBLE:YES
+     LOCAL : FIELD:EXPINV QtyTitle:SET AS:"QUANTITY"
+     lOCAL:fIELD : EXPINV AmountTitle : Set As : "Amount"
+
+
+
+[#Line:EXPINV Column2 ]
+   add :right field :after :EXPINV RatePerTitle:vdisc1
+   Local : Field : Default : Type  :String
+   LOCAL : FIELD:EXPINV MarksTitle2 :INVISIBLE:YES
+   LOCAL :FIELD:EXPINV PackagesTitle2:INVISIBLE:YES
+   LOCAL :FIELD:EXPINV RatePerTitle:INVISIBLE:YES
+   Local :Field :vdisc1 :Border : thin left
+   Local :Field :vdisc1 : Set As : ""
+
+
+[#Line: EXPINV InvDetails]
+    add : right field :after :EXPINV RatePer:vdisc1
+    LOCAL:FIELD:EXPINV Marks:INVISIBLE:YES
+    LOCAL:FIELD:EXPINV Packages:INVISIBLE:YES
+    LOCAL:FIELD:EXPINV RatePer:INVISIBLE:YES
+    Local :Field : Vdisc1 : Border : Thin left
+
+
+
+[field : vdisc1]
+       use : number field
+      Set As : $Amttrdx
+      width: .7 inch
+     style : normal
+    FORMAT : "NO ZERO"
+      Align : right
+
+
+
+
+[#Line: EXPINV AccDetails]
+   Add : Right Field : After : EXPINV AccRatePer:vdisc1
+   Local : Field : vdisc1 : Border : Thin left
+   LOCAL : FIELD : EXPINV AccMarks:INVISIBLE:YES
+   LOCAL : FIELD : EXPINV AccPackages:INVISIBLE:YES
+   LOCAL : FIELD : EXPINV AccRatePer:INVISIBLE:YES
+
+[#Field: EXPINV AccName]
+   Align : left
+
+[#Line: EXPINV Totals]
+ add :right field :after :EXPINV RatePerTotal : vdisc1
+ LOCAL : FIELD:EXPINV MarksTitle1:INVISIBLE:YES
+ LOCAL : FIELD:EXPINV PackagesTitle1:INVISIBLE:YES
+ LOCAL : FIELD:EXPINV RatePerTotal:INVISIBLE:YES
+ Local :Field : vdisc1 : Set As : ""
+
+[#Line: EXPINV AltQty]
+   invisible : yes
+
+[Field : Amttrd]
+    Use : tdisc1
+
+[field : tpacksize]
+     use : number field
+  set as : ""
+   width :.5 inch
+  Format : "No zero"
+
+  [field : tMRP]
+     use : number field
+  set as : ""
+   width :.5 inch
+  Format : "No zero"
+
+
+  [field : tdisc1]
+      use : number field
+   set as : ""
+    width :.5 inch
+   format : "no zero"
+
+
+[#Line: EXPINV BatchName]
+  Add : Right Field : After :EXPINV RatePerTitle:tdisc1
+
+[#Field: EXPINV RatePerTitle]
+   Delete : Border: Thin left
+
+[#Line: EXPINV InvDetails]
+   Local:Field:EXPINV RateTitle:Delete : Border: Thin left
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[system : formula]
+   trdtotal : -1* $$owner:$$Collnumtotal:inventoryentries:$Amttrdx
+
+[#Field: EI Value]
+    Set as              : if $ledgername contains "Exchange" and @@xxdemo then @@trdtotal else +
+           if (@@AsRounding) then (@RoundedPrevTotal - @OnPrevTotalVal) else +
+If ((@@IsIndian OR @@IsMalaysia) AND @@TaxLedgerHasService) OR (@@IsIndian AND @@TaxLedgerHasTCS AND @@TCSInvoices) Then @TaxBillAmt else @RoundedVal
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[#Line: VCH NarrPrompt]
+     option : AbcA :@@issales
+
+
+    [!Line : AbcA]
+      Local :Field : Default : Set Always : yes
+      Border : Totals
+      local:Field: EI ValueTotal:width:2.8 inch
+
+;;[#Line: EI InvSubTotal]
+;;add:right field:before:EI ValueSubTotal:unexsubtotal,exvatsubtotal,blanksubtotal
+
+[field:blanksubtotal]
+use:name field
+set as:""
+width:.6 inch
+Skip : Yes
+set always:yes
+
+[field:unexsubtotal]
+use:number field
+set as:$$Collnumtotal:inventoryentries:$Amttrdx
+Border      : Thin Top: $$NumItems:InventoryEntries > 1
+Set always  : Yes
+Skip        : Yes
+align:right
+
+[field:exvatsubtotal]
+use:number field
+set as:$$Collnumtotal:inventoryentries:$exchvatst;;@@tot
+Border: Thin Top: $$NumItems:InventoryEntries > 1
+width:.6 inch
+align:right
+Set always  : Yes
+Skip : Yes

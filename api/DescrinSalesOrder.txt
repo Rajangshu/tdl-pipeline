@@ -1,0 +1,42 @@
+; Created By: pg on 2012-07-05 16:21
+
+[#menu : Gateway of tally]
+add : item : before : @@locquit : @@locOrderOutstanding	 : Display  : Sales Orders  	: NOT $$IsEmpty:$$SelectedCmps
+
+[#Report: Sales Orders]
+set : DSPDueOrders : no
+set : ShowSaleNeg : no
+
+    [#Line: ORDERCol1]
+add : right field : before : DOR OrigQtyTitle: nf
+Local: Field: nf: Style: Normal Bold
+Local: Field: nf: info: "Description"
+local : field : nf : width : @@namewidth * 2
+
+;;        Fields      : UniDateTitleField, ShortNameTitleField, DOR PartyTitle, NameTitleField, DOR BatchTitle, DOR GdwnTitle
+;;        Right Fields: DOR OrigQtyTitle, DOR OrigAltQtyTitle, DORClosureQtyTitle, DORClosedOnTitleForExcelExport, PreCloseReasonTitleForExcelExport, QtyTitleField, AltQtyTitleField, RateTitleField, OrderDicount, AmountTitleField, ShortDateTitleField, OrderDueDays
+
+
+;;    [Line: ORDERCol2]
+;;        Fields      : UniDateTitleField, ShortNameTitleField, DOR PartyTitle, NameTitleField, DOR BatchTitle, DOR GdwnTitle
+;;        Right Fields: DOR OrigQtyTitle, DOR OrigAltQtyTitle, DORClosureQtyTitle, DORClosedOnTitleForExcelExport, PreCloseReasonTitleForExcelExport, QtyTitleField, AltQtyTitleField, RateTitleField, OrderDicount, AmountTitleField, ShortDateTitleField, OrderDueDays
+
+
+
+[#Line: ORSCRDetail]
+add : field : after : DOR Item : nf
+Local: Field: nf: set as : $$filtervalue:@@GetMyItemDesc:ledgerentries:first:MySaleOrderVch
+Local: field: nf: full width : yes
+Local: field: nf: Align: left
+
+
+[System: Formula]
+MySaleOrderVch : $$issalesorder:$vouchertypename
+GetMyItemDesc : $$filtervalue:$basicuserdescription:allinventoryentries:first:myItemisDROITEm
+myItemisDROITEm : $stockitemname = #dorItem and $$collectionfield:$ORDERDUEDATE:first:batchallocations  = #DORDueOn
+
+[#collection : SalePosOrderofCompany]
+fetch : ledgerentries.inventoryentries.basicuserdescription.* ,ledgerentries.inventoryentries.stockitemname,ledgerentries.inventoryentries.batchallocations.ORDERDUEDATE
+
+[#Collection: SaleCldOrderofCompany]
+fetch : ledgerentries.inventoryentries.basicuserdescription.* ,ledgerentries.inventoryentries.stockitemname

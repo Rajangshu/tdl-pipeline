@@ -1,0 +1,112 @@
+; formula to use
+; ShowCWSignatory : for showing signatory
+; isVchTypeDeclFormula for condition of showing : eg : $$issales:$Parent
+; cwdecllines : for deciding the no of lines decl will have
+; hidecwv1
+; hidecwv2
+; hidecwv3
+; hidecwv4
+; hidecwv5
+
+[system : formula]
+cwdecllines : 1
+cwV1 : $cwv1:vouchertype:$vouchertypename
+cwV2 : $cwv2:vouchertype:$vouchertypename
+cwV3 : $cwv3:vouchertype:$vouchertypename
+cwV4 : $cwv4:vouchertype:$vouchertypename
+cwV5 : $cwv5:vouchertype:$vouchertypename
+
+emptycwv1: $$isempty:@@cwv1
+emptycwv2: $$isempty:@@cwv2
+emptycwv3: $$isempty:@@cwv3
+emptycwv4: $$isempty:@@cwv4
+emptycwv5: $$isempty:@@cwv5
+
+hidecwv1 : no
+hidecwv2 : no
+hidecwv3 : no
+hidecwv4 : no
+hidecwv5 : no
+
+
+[#Part: VTYP BehaviourMain]
+add : option : isa : @@isVchTypeDeclFormula
+
+[#Line: VTYP Dec]
+delete : space top
+delete : space bottom
+
+[#Field: VTYP Dec]
+ lines : 1
+
+
+[!part : isa]
+add : line : cwV1,cwV2,cwV3,cwV4,cwV5,cwV6
+local : field : short prompt : width : @@shortwidth  - 5
+
+  [line: cwV1]
+field : short prompt,namefield
+local : field : name field : storage : cwV1
+local : field : short prompt : info :"Decl1:"
+local : field : name field : max : 500
+local : field : name field : lines : @@cwdecllines
+local : field : name field : style : small
+local : field : name field : case : normal
+local : field : name field : full width : yes
+empty : @@hidecwv1
+
+  [line: cwV2]
+field : short prompt,namefield
+local : field : name field : storage : cwV2
+local : field : short prompt : info :"Decl2:"
+local : field : name field : max : 500
+local : field : name field : lines : @@cwdecllines
+local : field : name field : style : small
+local : field : name field : case : normal
+local : field : name field : full width : yes
+empty : @@hidecwv2
+
+  [line: cwV3]
+field : short prompt,namefield
+local : field : name field : storage : cwV3
+local : field : short prompt : info :"Decl3:"
+local : field : name field : max : 500
+local : field : name field : lines : @@cwdecllines
+local : field : name field : style : small
+local : field : name field : case : normal
+local : field : name field : full width : yes
+empty : @@hidecwv3
+
+  [line: cwV4]
+field : short prompt,namefield
+local : field : name field : storage : cwV4
+local : field : short prompt : info :"Decl4:"
+local : field : name field : max : 500
+local : field : name field : lines : @@cwdecllines
+local : field : name field : style : small
+local : field : name field : case : normal
+local : field : name field : full width : yes
+empty : @@hidecwv4
+
+
+  [line: cwV5]
+field : short prompt,namefield
+local : field : name field : storage : cwV5
+local : field : short prompt : info :"Decl5:"
+local : field : name field : max : 500
+local : field : name field : lines : @@cwdecllines
+local : field : name field : style : small
+local : field : name field : case : normal
+local : field : name field : full width : yes
+empty : @@hidecwv5
+
+
+  [line: cwV6]
+field : short prompt,namefield
+local : field : name field : storage : cwVSig
+local : field : short prompt : info :"Signatory:"
+local : field : name field : style : small
+local : field : name field : case : normal
+local : field : name field : full width : yes
+empty : not @@ShowCWSignatory
+

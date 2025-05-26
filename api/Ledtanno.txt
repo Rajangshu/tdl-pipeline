@@ -1,0 +1,19 @@
+
+
+[#Part: LED Other Details]
+add : line : before : LED VAT TIN No : CWLedTANNo
+
+    [Line: CWLedTanNo]
+Fields  : Medium Prompt, CWLedTanNo
+Local   : Field : Medium Prompt  : Set as        : "TAN No. :"
+Local   : Field : Medium Prompt  : Inactive      : Not @@cwPartyGrp
+
+[field : CWLedTANNo]
+        Use             : Name Field
+        Storage         : cwLEDTANNo
+        Inactive        : Not @@cwpartyGrp
+        Case            : Normal
+        Ascii Only	: Yes
+
+[system : formula]
+cwLedTANNo : $cwLEDTANNo:ledger:$partyledgername

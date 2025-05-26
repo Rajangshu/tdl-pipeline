@@ -1,0 +1,349 @@
+[#Part: Employee ParentInfo]
+add : line : AFTER : Employee  ReasonsForLeaving : cwSkiponHRA
+
+[line : cwSkiponHRA]
+ field: mp,cwlogical
+ Local: Field: mp: Set As: "HRA Not Calculated?"
+ local: field: cwlogical: storage: cwHRANotCalculated
+ 
+     [System : Formula]
+ cwSkiponHRA : ($cwHRANotCalculated:costcentres:$EMPLOYEENAME ) and (#PayrollFunctionAutoPayheadName contains "hra")  ;; $cwHRANotCalculated:PayFunctionEmployeeCollection:$EMPLOYEENAME
+   cwhraname : "HRA @"
+     cwcond2 : $cwHRANotCalculated:costcentres:##vEmployeeName ;;and $PayHeadName contains "Hra"
+     
+[#COLLECTION : PayFunctionEmployeeCollection]
+       FETCH : cwHRANotCalculated
+
+ [#field :Payroll FunctionAutoEmpCalcType]
+;; delete : invisible
+
+[#Field: PayrollFunctionAutoPayheadForexAmt]
+set as : 0 ;;If ##ReCalcSetValueDone Then 0 Else If NOT ##ReCalcSetValueDone Then 0 Else 0
+
+
+ [*Function: FuncPayType]
+
+    PARAMETER   : pEmployeeName     : String
+    PARAMETER   : pPayHeadLedName   : String
+    PARAMETER   : pSVFromDate       : Date
+    PARAMETER   : pSVToDate         : Date
+
+    VARIABLE    : vPayHeadCalcType  : String
+    VARIABLE    : vSVFromDate       : Date
+    VARIABLE    : vSVToDate         : Date
+    VARIABLE    : vPayType       	: String
+    variable : ishraskip : logical
+    RETURNS     : String
+
+ 	Fetch Object	: CostCentre	: ##pEmployeeName	: Name, EmployeePeriod.*, EmployeePeriod.EmployeeRate.*
+	00K9	: SET OBJECT	: (CostCentre, ##pEmployeeName).	
+0000 : set : ishraskip : $cwHRANotCalculated:costcentres:##pEmployeeName	
+;;x011: log : ##ishraskip
+;;    0000    : 	: LOG : "Pay Type Execution"
+    001	    :       WALK COLLECTION   : Employee Period
+
+    002	    :           IF  : ##pSVFromDate < $PeriodFrom
+    003	    :               SET : vSVFromDate   : $PeriodFrom
+    004	    :           ELSE
+    005	    :               SET : vSVFromDate   : ##pSVFromDate
+    006	    :           END IF
+
+    007	    :           IF  : NOT $$IsEmpty:$PeriodTo AND ##pSVToDate > $PeriodTo
+    008	    :               SET : vSVToDate   : $PeriodTo
+    009	    :           ELSE
+    010	    :               SET : vSVToDate   : ##pSVToDate
+    011	    :           END IF
+
+    012	    :           IF : ##vSVFromDate <= ##vSVToDate
+    013	    :               WALK COLLECTION : Employee Rate
+    014	    :                   IF  : $Name = ##pPayHeadLedName
+    015	    :                       SET : vPayHeadCalcType   : $$FetchPayHeadCalcType:##pPayHeadLedName
+    016	    :                       IF : $$IsSysNameEqual:AsComputedValue:##vPayHeadCalcType
+    016a    :                       if : (not ##ishraskip) or (##ishraskip and not ##pPayHeadLedName contains "HRA")
+    017	    :                           SET : vPayHeadCalcType   : ##vPayHeadCalcType + "(" + $$FetchPayHeadComputeType:##pPayHeadLedName + ")"
+    017a    :                       else
+    017b    :                       SET : vPayHeadCalcType   : $$sysname:AsUserDefined
+;    17x     :                       log : ##ppayheadledname
+    017c    :                       end if
+    018	    :                       END IF
+    019	    :                   END IF
+    020	    :               END WALK
+    021	    :           END IF
+    022	    :       END WALK
+
+    023	    : SET   : vPayType   : ##vPayHeadCalcType
+    024     : RETURN: ##vPayType
+; --------------------------
+
+[*Function: PayrollAutoFillFunction]
+
+	;;***** Variables
+	VARIABLE	: EmployeeCounter 					: Number
+	VARIABLE	: PayHeadCounter 					: Number
+	VARIABLE	: EmpEligibleGross					: Amount
+	VARIABLE	: NumberOfMonths					: Number
+	VARIABLE	: CalanderDays						: Number
+	VARIABLE	: ESISTDDays						: Amount
+	VARIABLE	: EmpDaiywage						: Amount
+	VARIABLE	: YearOfDateInNum					: Number
+	VARIABLE	: NextYearOfCurDate					: String
+	VARIABLE	: NextYearOfDate					: Number
+	VARIABLE	: HalfYearEnd						: String
+	VARIABLE	: SencondHalfYearEnd				: String
+	VARIABLE	: ValidFromBlockPeriod				: String
+	VARIABLE	: StartBlockPeriod					: Date
+	VARIABLE	: EndBlockPeriod					: Date
+	VARIABLE	: BlockPaidAmount					: Amount
+	VARIABLE	: CMPESISTDAmount					: Amount
+	VARIABLE	: PFPTSlabOnPercentage				: String
+	VARIABLE	: PFPTSlabValueBasis				: Number
+	VARIABLE	: PayHeadName						: String
+	VARIABLE	: PFPTSlabPercentVal				: Number
+	VARIABLE	: PFPTPayHeadRoundMethod			: String
+	VARIABLE	: PFPTPayHeadRoundLimit				: Number
+	VARIABLE	: PFPTPayHeadPayFor					: Number
+	VARIABLE	: PTMonthStartDate					: Date
+	VARIABLE	: PTMonthEndDate					: Date
+	VARIABLE	: PTPayHeadName						: String
+	VARIABLE	: PTMonthlyTotalValue				: Number
+	VARIABLE	: PF12MonthlyTotalValue				: Number
+	VARIABLE	: PF833MonthlyTotalValue			: Number
+	VARIABLE	: IsPayHeadEnabledForESI			: Logical
+	VARIABLE	: vEmployeeName						: String
+	VARIABLE	: CMPESISTDAmtForNextMonth			: Amount
+	
+	;;*** For 100% Scenario
+	VARIABLE	: FirstEPF12PayHead					: String
+	VARIABLE	: FirstEPF833PayHead				: String
+	VARIABLE	: FirstEPF12PayHeadRoundMethod		: String
+	VARIABLE	: FirstEPF12PayHeadRoundLimit		: Number
+	VARIABLE	: FirstEPF833PayHeadRoundMethod		: String
+	VARIABLE	: FirstEPF833PayHeadRoundLimit		: Number
+	VARIABLE	: FirstEPF12PayHeadGross			: Amount
+	VARIABLE	: FirstEPF833PayHeadGross			: Amount
+	
+	VARIABLE	: FirstEPF12PayHeadValPercentage	: String
+	VARIABLE	: FirstEPF833PayHeadValPercentage	: String
+	VARIABLE	: FirstEPF12PayHeadValueBasis		: Number
+	VARIABLE	: FirstEPF833PayHeadValueBasis		: Number
+	VARIABLE	: FirstEPF12PayHeadAbsValue			: Number
+	VARIABLE	: FirstEPF833PayHeadAbsValue		: Number
+	VARIABLE	: PF367PayHeadPayFor				: Amount
+	VARIABLE	: PayForAmount						: Amount
+	VARIABLE	: FirstPF12PayHeadName				: String
+	VARIABLE	: FirstPF833PayHeadName				: String
+	VARIABLE	: FetchLedProperties				: String
+
+	;; Income Tax Variables	
+	VARIABLE	: vOverrideTaxStatus				: Logical	: No
+	VARIABLE	: vOverrideTaxAmount				: Amount
+	VARIABLE	: vPerqAvgAmtPaidByEmplyr			: Amount
+	VARIABLE	: vPerqAvgDrAmtPaidByEmplyr			: Amount
+	VARIABLE	: vEmplyrPerqFinalMthlyTax			: Amount
+
+	Fetch Object: Ledger	: @@VCHPayHeadSeparator	: Name, ForPayroll, Parent, PayType, PayStatType, Calculation Type, Computation Type, RoundingMethod, RoundingLimit, IsDeemedPositive, CalculationPeriod, PFStatutoryFirstValueBasis, StatutoryFirstPayRate
+	Fetch Object: CostCentre	: @@EmpFetchList	: Name, DateOfBirth, Gender, PANNumber, DateOfJoin, DeactivationDate
+
+	000	: DEBUG EXEC	: LOG	: "Payroll Main Func Execution"
+	010	: SET	: vPerqAvgAmtPaidByEmplyr	: $$AsAmount:0
+	020	: SET	: vPerqAvgDrAmtPaidByEmplyr	: $$AsAmount:0
+	030	: SET	: vEmplyrPerqFinalMthlyTax	: $$AsAmount:0
+
+	;;***** Intialization
+	040	: SET	: PayrollSetAutoFill		: Yes		
+	050	: SET	: EmployeeCounter 			: 1
+	060	: SET	: PayHeadCounter 			: 1
+	070	: SET	: NumberOfMonths			: $$NumofMonths:##PyrlSVFromDate:##PyrlSVToDate
+	080	: SET	: CalanderDays				: (##PyrlSVToDate-##PyrlSVFromDate+1)/##NumberOfMonths
+	
+	090	: IF	: $$IsEmpty:$CMPESIWorkingDays:Company:##SVCurrentCompany
+	100	:	SET	: ESISTDDays				: $$AsAmount:##CalanderDays
+	110	: ELSE	
+	120	: 	SET	: ESISTDDays				: $$AsAmount:$$Number:$CMPESIWorkingDays:Company:##SVCurrentCompany
+	130	: ENDIF
+	140	: SET	: YearOfDateInNum			: $$Number:$$YearOfDate:$$SystemPeriodFrom
+	150	: SET	: NextYearOfCurDate			: $$YearOfDate:$$NextYear:$$SystemPeriodFrom
+	160	: SET	: NextYearOfDate			: $$Number:##NextYearOfCurDate
+	170	: SET	: HalfYearEnd				: "30-09-" + $$String:##YearOfDateInNum
+	180	: SET	: SencondHalfYearEnd		: "31-03-" + $$String:##NextYearOfDate
+	190	: SET	: CMPESISTDAmount			: $$ESISlabAmount
+	200	: SET	: CMPESISTDAmtForNextMonth	: $$ESISlabAmountForNextMonth
+	
+	210	: IF	: (##PyrlSVToDate <= $$Date:##HalfYearEnd)
+	220	: 	SET		: ValidFromBlockPeriod	: "01-04-" + $$String:##YearOfDateInNum
+	230	: ELSE
+	240	:	SET		: ValidFromBlockPeriod	: "01-10-" + $$String:##YearOfDateInNum
+	250	: ENDIF	
+	260	: SET	: IsPayHeadEnabledForESI : $$FilterCount:ListofPayHeads:IsExcludeForESI > 0
+	
+	;; User Defined Voucher Posting
+	270	: IF	: $$IsSysNameEqual:UserDefined:##PayrollProcessType
+	
+	280	: 	WALK COLLECTION	: PayFunctionCaterotyCollection
+	290	:		SET TARGET	: Category Entries[1]
+	300	: 		SET VALUE	: Category	: $Name
+	
+	310	: 		WALK COLLECTION	: PayFunctionEmployeeCollection
+	320	: 			INSERT COLLECTION OBJECT	: Employee Entries
+	330	: 			SET VALUE		: EmployeeSortOrder	: ##EmployeeCounter
+	340	: 			SET VALUE		: Employee Name		: $Name
+	
+	350	: 			WALK COLLECTION	: PayFunctionUserDefPayheadsForEmployee
+	360	: 				INSERT COLLECTION OBJECT	: Payhead Allocations
+	370	: 				SET VALUE	: PayHeadSortOrder	: ##PayHeadCounter
+	380	: 				SET VALUE	: PayHeadName		: $Name
+	390	:				SET VALUE	: Amount
+	400	: 				IF				: $ForPayroll:Ledger:$Name AND ($$IsSysNameEqual:Earning:$PayType:Ledger:$Name OR $$IsSysNameEqual:StatContribution:$PayType:Ledger:$Name OR $$IsSysNameEqual:Reimbursement:$PayType:Ledger:$Name)
+	410	: 					SET VALUE	: IsDeemedPositive	: Yes
+	420	:				ELSE
+	430	: 					IF				: $ForPayroll:Ledger:$Name AND ($$IsSysNameEqual:Deduction:$PayType:Ledger:$Name +
+												  OR $$IsSysNameEqual:StatDeduction:$PayType:Ledger:$Name +
+											      OR $$IsSysNameEqual:LoansandAdvances:$PayType:Ledger:$Name +
+											      OR $$IsSysNameEqual:Gratuity:$PayType:Ledger:$Name)
+	440	: 						SET VALUE	: IsDeemedPositive	: No
+	450	:					ELSE
+	460	:   					IF	: $IsDeemedPositive:Ledger:$Name
+	470	: 							SET VALUE		: IsDeemedPositive	: Yes
+	480	:						ELSE
+	490	:							SET VALUE		: IsDeemedPositive	: No
+	500	:						ENDIF
+	510	:					ENDIF
+	520	: 				ENDIF			
+	530	: 				SET 			: PayHeadCounter 	: ##PayHeadCounter + 1
+	540	: 			SET TARGET	: ..
+	550	: 			END WALK
+	555 : log : $name
+	560	: 			SET VALUE		: Amount : if $name contains "hra" then 0 else $amount
+	570	: 			SET TARGET		: ..
+	580	: 			SET 			: EmployeeCounter 		: ##EmployeeCounter + 1
+	590	:			SET 			: PayHeadCounter 		: 1
+	600	: 		END WALK
+	610	: 	SET TARGET		: ..
+	620	: END WALK		
+	
+	630	: END IF
+
+
+	;; If Not User Defined Voucher
+	640	: IF	: NOT $$IsSysNameEqual:UserDefined:##PayrollProcessType
+	
+	;; Insertion of Category Entries
+	650	: WALK COLLECTION	: PayFunctionCaterotyCollection
+	660	: 	SET TARGET 	: Category Entries[1]
+	670	: 	SET VALUE		: Category	: $Name
+
+	;; Insertion of Employee Entries
+	680	: 	WALK COLLECTION	: PayFunctionEmployeeCollection
+	690	: 		INSERT COLLECTION OBJECT	: Employee Entries
+	700	:		SET				: vEmployeeName		: $Name
+	710	: 		SET VALUE		: EmployeeSortOrder	: ##EmployeeCounter
+	720	: 		SET VALUE		: Employee Name		: $Name
+
+	;; Finding Valid Start Block Peirod And Valid End Block Period
+	730	: 		IF	: ($DateOfJoin <= $$Date:##ValidFromBlockPeriod)
+	740	: 			SET		: StartBlockPeriod	: $$Date:##ValidFromBlockPeriod
+	750	: 		ELSE
+	760	: 			SET		: StartBlockPeriod	: $DateOfJoin
+	770	: 		ENDIF
+	780	: 		IF	: ($$Date:##StartBlockPeriod <= $$Date:##HalfYearEnd)
+	790	: 			SET		: EndBlockPeriod	: $$MonthEnd:($$Date:##HalfYearEnd)
+	800	: 		ELSE	
+	810	: 			SET		: EndBlockPeriod	: $$MonthEnd:($$Date:##SencondHalfYearEnd)
+	820	: 		ENDIF
+
+	825	: 		SET	: FirstPF12PayHeadName	: $$ReportObject:$$CollectionFieldByKey:$PayHeadName:@@FirstPF12PayHeadKey:FirstPFPayHeadExtractCollection
+	830	:		SET	: FirstPF833PayHeadName	: $$ReportObject:$$CollectionFieldByKey:$PayHeadName:@@FirstPF833PayHeadKey:FirstPFPayHeadExtractCollection
+	
+	;; Insertion of Payhead Allocations
+	835	: 		WALK COLLECTION	: PayFunctionPayheadsForEmployee
+	835x    : if  : not ($name contains "hra") or ($name contains "hra" and not @@cwcond2)
+	840	: 				INSERT COLLECTION OBJECT	: Payhead Allocations
+	845	: 					SET VALUE	: PayHeadSortOrder	: ##PayHeadCounter
+	850	: 					SET VALUE	: PayHeadName		: $Name
+	
+	;; Checking the Payhead is of ESI and Statdeduction
+	855	: 			IF			: ($$IsSysNameEqual:ESI:$PayStatType:Ledger:$Name AND $$IsSysNameEqual:StatDeduction:$PayType:Ledger:$Name)
+	860	:				CALL		: ESIDeductionPayFunction
+	865	: 			ELSE
+	;; Checking for Payhead is of ESI and Stat Contribution
+	870	:				IF			: ($$IsSysNameEqual:ESI:$PayStatType:Ledger:$Name AND $$IsSysNameEqual:StatContribution:$PayType:Ledger:$Name)
+	875	:					CALL	: ESIContributionPayFunction
+	880	:				ELSE
+	;; PF Stat Calculation - 100% Scenario
+	885	:					IF			: $ForPayroll:Ledger:$Name AND ($$IsSysNameEqual:StatContribution:$PayType:Ledger:$Name AND $$IsSysNameEqual:PFAccount:$PayStatType:Ledger:$Name) AND ($$IsEmpty:$PFStatutoryFirstValueBasis:Ledger:$Name) AND ($$Number:$StatutoryFirstPayRate:Ledger:$Name=$$Number:"100")
+	;; To Calculate 12% PF Value
+	890	:						CALL	: FirstEPF12PayHeadAbsVal Function
+	;; To Calculate 8.33% PF Value
+	895	: 						CALL	: FirstEPF833PayHeadAbsVal Function
+
+	900	:						SET				: PF367PayHeadPayFor	: ($$AsAmount:##PF12MonthlyTotalValue - (If $$IsEmpty:##FirstPF833PayHeadName Then $$AsAmount:0 Else $$AsAmount:##PF833MonthlyTotalValue))
+	905	: 						SET VALUE		: Amount	: ##PF367PayHeadPayFor-($PaidForAmount)
+	910	: 					ELSE	
+	;; PF Stat Calculation - For Normal Scenario
+	915	: 						IF 		: (($ForPayroll:Ledger:$Name AND $$IsSysNameEqual:StatDeduction:$PayType:Ledger:$Name AND $$IsSysNameEqual:PFAccount:$PayStatType:Ledger:$Name) +
+											  OR ($ForPayroll:Ledger:$Name AND $$IsSysNameEqual:StatContribution:$PayType:Ledger:$Name AND ($$IsSysNameEqual:PFAccount:$PayStatType:Ledger:$Name OR $$IsSysNameEqual:FPFAccount:$PayStatType:Ledger:$Name)))
+	920	:							CALL	: PFNormalPayFunction
+	925	: 						ELSE
+	
+	;; Income Tax Calculation
+	926 :						IF		: ($ForPayroll:Ledger:$Name AND $$IsSysNameEqual:StatDeduction:$PayType:Ledger:$Name AND $PayStatType:Ledger:$Name = $$LocaleString:"Income Tax")
+	928	:							CALL	: GetIncomeTaxCalculation
+	930	:						ELSE
+	932	:						IF	: ($ForPayroll:Ledger:$Name AND $$IsSysNameEqual:TaxPaidPerquisites:$PayType:Ledger:$Name)
+	934	:							CALL	: GetITEmplyrPerqCalculation
+	936	:						ELSE
+
+	;; Chennai PT Scenario
+	938	:							IF		: ($ForPayroll:Ledger:$Name AND $$IsSysNameEqual:ProfessionalTax:$PayStatType:Ledger:$Name AND $$IsSysNameEqual:Period:$CalculationPeriod:Ledger:$Name)
+	940	:								CALL	: PTNormalPayFunction
+	942	:							ELSE
+	944	:								IF	: ($ForPayroll:Ledger:$Name AND $$IsSysNameEqual:ProfessionalTax:$PayStatType:Ledger:$Name AND ($$IsSysNameEqual:Month:$CalculationPeriod:Ledger:$Name OR $$IsEmpty:$CalculationPeriod:Ledger:$Name))
+	946	:									SET VALUE		: Amount			: ($$AsAmount:$$PTMonthlyPayFunction)-($PaidForAmount)
+	948	:								ELSE
+	950	: 									SET				: PayForAmount		: If $$IsEmpty:($$PayFor:##vEmployeeName:$Name:##PyrlSVFromDate:##PyrlSVToDate) Then $$AsAmount:0 Else ($$PayFor:##vEmployeeName:$Name:##PyrlSVFromDate:##PyrlSVToDate)
+	952	: 									SET VALUE		: Amount			: (##PayForAmount)-($PaidForAmount)
+	954	:								ENDIF
+	956	:							ENDIF
+	958	: 						ENDIF
+	960	: 					ENDIF
+	962	: 				ENDIF
+	964	: 			ENDIF
+	966	:		END IF
+	968	:      END IF
+
+	970	: 			IF				: $ForPayroll:Ledger:$Name AND ($$IsSysNameEqual:Earning:$PayType:Ledger:$Name +
+								  		  OR $$IsSysNameEqual:StatContribution:$PayType:Ledger:$Name +
+								  		  OR $$IsSysNameEqual:Reimbursement:$PayType:Ledger:$Name)
+	972	: 				SET VALUE	: IsDeemedPositive	: Yes
+	974	:			ELSE
+	976	: 				IF			: $ForPayroll:Ledger:$Name AND ($$IsSysNameEqual:Deduction:$PayType:Ledger:$Name +
+										  OR $$IsSysNameEqual:StatDeduction:$PayType:Ledger:$Name +
+							 			  OR $$IsSysNameEqual:LoansandAdvances:$PayType:Ledger:$Name +
+				 						  OR $$IsSysNameEqual:Gratuity:$PayType:Ledger:$Name)
+	978	: 				SET VALUE	: IsDeemedPositive	: No
+
+	980	:				ELSE
+	982	:   				IF	: $IsDeemedPositive:Ledger:$Name
+	984	: 						SET VALUE		: IsDeemedPositive	: Yes
+	986	:					ELSE
+	988	:						SET VALUE		: IsDeemedPositive	: No
+	990	:					ENDIF
+	992	:				ENDIF
+	994	: 			ENDIF			
+	996	: 			SET 			: PayHeadCounter 	: ##PayHeadCounter + 1
+	998	: 			SET TARGET	: ..
+	999 : end if ;; pg
+	1000: 		END WALK
+	1002: 		SET VALUE		: Amount	: @@EmployeeAmount
+	1004: 		SET TARGET		: ..
+	1006: 		SET 			: EmployeeCounter 		: ##EmployeeCounter + 1
+	1008:		SET 			: PayHeadCounter 		: 1
+	1010: 	END WALK
+	1012: 	SET TARGET		: ..
+	1014: END WALK		
+    1016: SET  : AutoFillDone : Yes
+	1018: END IF
+	
+	
+	1900: RETURN
+

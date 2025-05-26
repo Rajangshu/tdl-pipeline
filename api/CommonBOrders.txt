@@ -1,0 +1,21 @@
+
+
+[border : Thin Left Bottom]
+   left : thin
+ bottom : thin
+
+[border : cw Thin right Bottom]
+  right : thin
+ bottom : thin
+
+
+[border : cwThin top bottom right]
+    top : thin
+ bottom : thin
+  right : thin
+  
+[border : cw thin bottom left right]
+  right : thin
+   left : thin
+ bottom : thin
+

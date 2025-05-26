@@ -1,0 +1,91 @@
+
+; add a formula : cwbatchname
+
+	[#Line:  BatchCard BatchName]
+		Local       : Field : Medium Prompt 	: Info 		: @@cwbatchname
+		
+	[#Line  : STKVCH Batch Title]
+		Local       : Field : Simple Prompt 	: Info      : $$LocaleString:@@cwbatchname
+		
+
+[#Collection: ActiveBatchesInThirdPartyGdn]
+	Title       : $$LocaleString:"List of " + @@cwbatchname
+
+[#Collection: CompActiveBatchesInThirdPartyGdnThisBatch]
+	Title       : $$LocaleString:"List of " + @@cwbatchname
+
+/* not in r6
+	
+[#Collection: CompActiveBatchesInThirdPartyGdn]
+
+	Title       : $$LocaleString:"List of " + @@cwbatchname
+	
+*/	
+
+[#Collection: Batches VchCompnentBatches]
+
+    Title       		: $$LocaleString:"List of " + @@cwbatchname
+	
+[#Collection: Active Batches]
+
+    Title       : $$LocaleString:"List of " + @@cwbatchname
+    
+[#Collection: Active Batches VchExtract]
+    Title       		: $$LocaleString:"List of " + @@cwbatchname
+
+
+[#Collection: Active Batches OrderExtract]
+
+    Title       		: $$LocaleString:"List of " + @@cwbatchname
+
+	
+
+[#Field: VCH IndentBatchNameTitle]
+Setas : @@cwbatchname
+    
+[#Line: ORDERCol1]
+Local : Field : DOR BatchTitle        : Info : $$StringWord:1:$$LocaleString:@@cwbatchname
+
+[#Line: ORDERCol2]
+ Local: Field : DOR BatchTitle        : Info : $$StringRemWord:1:$$LocaleString:@@cwbatchname
+       
+[#Field: STQ BatchNameTitle]
+    Info        : $$LocaleString:@@cwbatchname
+
+[#Line: TRACKCol1]
+Local : Field : DTR BatchTitle : Info : $$StringWord:1:$$LocaleString:@@cwbatchname
+
+[#Line: TRACKCol2]
+        Local       : Field : DTR BatchTitle        : Info : $$StringRemWord:1:$$LocaleString:@@cwbatchname
+        
+[#Field: STKALLOC NameTitle]
+    Info        : $$LocaleString:@@cwbatchname
+    
+[#Field: EXPINV BatchNamePrompt]
+    Set as      : $$LocaleString:@@cwbatchname
+
+    
+[#Field : POS BatchTitle]
+	Set As		: $$LocaleString:cwBatchName
+	
+[#Line: SJNPC2]
+Local   : Field : SJN Batch : Set as : $$LocaleString:@@cwBatchName
+
+[#Field: VCH IndentBatchNameTitle]
+    Setas       : $$LocaleString:@@cwBatchName
+
+[#Line: STKVCH POS BatchAllocTitle]
+Local : Field	: Form SubTitle	: Set as	: $$LocaleString:@@cwBatchName + " Details"
+
+[#Line: STKVCH POS BatchAllocations]
+Local	: Field	: Medium Prompt		: Set as	: $$LocaleString:@@cwbatchname + " :"
+
+[#Line: SJ MfdBatch]
+        Local   : Field : Info Field    : Info   : $$LocaleString:@@cwbatchname + " :"
+        
+[#Field: VCH BatchNameTitle]
+Setas       : $$LocaleString:@@cwBatchName
+
+
+
+

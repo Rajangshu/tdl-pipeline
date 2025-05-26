@@ -1,0 +1,38 @@
+;; set formula : cwAWCond to Condition for width
+;; set width in cwAWWidth
+
+;;[system : formula]
+;;cwAWCond  :
+;;cwAWWidth :
+
+
+[#field : EXPINV AmountTitle]
+   width: if @@cwAWCond then @@cwAWWidth else @@AmountWidth
+   
+[#field : EXPINV Amount]
+   width: if @@cwAWCond then @@cwAWWidth else @@AmountWidth
+   
+[#field : Amount Base Field]
+   width: if @@cwAWCond then @@cwAWWidth else @@AmountWidth
+   
+[#field : EXPINV ValueSubTotal]
+   width: if @@cwAWCond then @@cwAWWidth else @@AmountWidth
+   
+[#field : EXPINV AccAmount]
+   width: if @@cwAWCond then @@cwAWWidth else @@AmountWidth
+   
+[#field : EXPINV AccSubTot]
+   width: if @@cwAWCond then @@cwAWWidth else @@AmountWidth
+   
+[#field : EXPINV SubTot]
+   width: if @@cwAWCond then @@cwAWWidth else @@AmountWidth
+   
+[#field : EXPINV Total]
+   width: if @@cwAWCond then @@cwAWWidth else @@AmountWidth
+   
+[#field : EXPINV AmtInWords]
+   width: if @@cwAWCond then @@cwAWWidth else @@AmountWidth
+   
+[#field : Amount Forex Field]
+   width: if @@cwAWCond then @@cwAWWidth else @@AmountWidth
+   

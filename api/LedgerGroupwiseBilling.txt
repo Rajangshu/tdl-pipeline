@@ -1,0 +1,121 @@
+;; enable condition
+;; LedGrpWisebilling
+;; LedGrpbillDate ; set as valid date
+;; SLedGrpOnCondition : $$issales:$parent
+
+[System : UDF]
+ CpLedMainGrpName : String : 303
+ CpLedGrpName:String : 304
+
+
+;;[#collection : VchStockItem];; adding group selection in sales voucher
+;;add : filter : CpSalesFilter
+;;    fetch : chk1
+;;    format : $chk1,1
+
+  [system : formula]
+CpSalesFilter: if @@Leddemoexpx  then @@Ledgrpsalef else yes
+Leddemoexpx : yes ;;$$owner:$date < @@LedGrpbillDate
+    Ledgrpsalef : if $$IsSysname:$$Owner:$CpLedGrpName then yes else $CHK1 ;;$$owner:$chk1 ;;$parent =  $$owner:$CpLedGrpName
+
+
+;;[#Collection : Party Ledgers Extract]
+
+[#field : eiconsignee]
+add : option : eic : @@LedGrpWisebilling
+
+[!field : eic]
+delete : table
+add : table : Party Cash Ledgers Extract2 : NOT @@UseClassFmt
+add : Table       : Invoice Ledgers Extract          : @@UseClassFmt
+
+[collection : Party Cash Ledgers Extract2]
+    Option  : Party Cash Ledgers Extract Server2ad    : NOT $$IsRemoteCompany
+    Option  : Party Cash Ledgers Extract Remote    : $$IsRemoteCompany
+
+[!collection : Party Cash Ledgers Extract Server2ad]
+;;use : ServerPartyCashLedgers
+        Use       : VLedTable
+        Collection  : Party Ledgers1 , Cash Ledgers
+        
+        [collection : Party Ledgers1]
+        use : Party Ledgers
+        filter : Ledgrpsalef
+
+
+
+[System : Formula]
+ccx : no
+
+[#collection : Party Cash Ledgers Extract]
+       add : filter : chkk1
+       
+       [System : Formula]
+          chk1 : "$$ISBELONGSTO:#CpLedGrp"
+          chkk1 : no
+       
+       
+
+    [#object : ledger]
+        chk1 : $$ISBELONGSTO:#CpLedGrp ;; $$ISCHILDOF:#CpLedGrp
+
+      [Field : CpLedGrpMainTitle]
+         use : short Name field
+        info : "Led Group:"
+       width : 6
+
+
+      [Field : CpLedMainGrp]
+      use : Name Field
+    table : Group ,NotApplicable
+ShowTable : Always
+  storage : CpLedMainGrpName
+SET ALWAYS: YES
+      Key : Create Group, Alter Group
+ Variable : SV Group
+
+
+ [Field : CpLedGrpTitle]
+      use : short Name field
+     info : "Group:"
+    width : 6
+
+   [Field : CpLedGrp]
+      use : Name Field
+;;    table : StockGroupCMain,NotApplicable
+ShowTable : Always
+  storage : CpLedGrpName
+SET ALWAYS: YES
+      Key : Create Group, Alter Group
+ Variable : SV Group
+   set as : @@vchLedgrpname
+  set always : yes
+
+
+    [system : Formula]
+  [#Part : ei baseinfo] ;; adding group selection in sales voucher
+add : Option : CLedGrp2 : @@LedGrpWisebilling ;;@@CentVchs
+
+   [!Part : CLedGrp2]
+add : line:at end: cLedGrp2 ;;,cinvgrp1
+
+    [Line : CLedGrp2]
+    field : CPLedGrpTitle,CPLedGrp ;;CpLedGrpMainTitle,CpLedMainGrp,CP InvGrpTitle,
+    local : field : default : style : normal
+    local:field:CP InvGrp:set as: if $$IsSysName:@@vchLedgrpname then $$sysname:notapplicable else @@vchLedgrpname
+    local:field:CP InvGrp: skip : yes
+
+[system : formula]
+vchLedgrpname : $CpLedMainGrpName:vouchertype:$vouchertypename
+ 	
+       [#Part : VTYP Behaviour]
+ add : option : beha2 : @@SLedGrpOnCondition
+
+       [!part : beha2]
+          add : line : at end : cpgrpx2
+
+        [line : cpgrpx2]
+  add : field : longprompt,CpLedMainGrp
+local : field : longprompt : set as : "Ledger Group for Invoicing :"
+local : field : CpLedgrp : showtable : always
+

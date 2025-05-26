@@ -1,0 +1,226 @@
+;Modified by: pg on 2012-11-07 17:15, ID: 
+; Created By: pg on 2012-07-23 11:31
+
+
+     [#menu: Gateway of Tally]
+;; {28.Aug.14 14:57}         add: Option: envpdtreportLock  ;;: @@ShreeAutoMachDemoDate
+
+     [!menu: envpdtreportLock]
+        add: Item: before: @@locQuit: @@envpdtreportReport: Display: Repenvpdtreport
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   envpdtreportReport: "Item Details Export"
+;; envpdtreportDemoLock: $$MachineDate < $$Date:"02/09/2011"
+
+    [Report: Repenvpdtreport]
+        use: Dsp Template
+      Title: @@envpdtreportReport
+   Printset: Report Title: "Sheet1" ;; @@envpdtreportReport
+       Form: Frmenvpdtreport
+     Export: Yes
+;; {07.Nov.12 17:51 - pg, ID: }      set  : svfromdate : ##svcurrentdate
+;; {07.Nov.12 17:51 - pg, ID: }      set  : svTodate : ##svcurrentdate
+
+      [Form: Frmenvpdtreport]
+        use: DSP Template
+       Part: DspAccTitles,Prtenvpdtreport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: envpdtreportbotbrk,envpdtreportbotOpbrk
+        local : part: DspAccTitles : invisible : $$inexportmode or $$indisplaymode
+
+      [part: envpdtreportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: envpdtreportbotopbrk]
+        use: dspacctitles
+  add: part: envpdtreportTitlePart
+
+      [part: envpdtreportTitlePart]
+       line: LnenvpdtreportTitle
+
+      [Part: Prtenvpdtreport]
+       Line: LnenvpdtreportTitle,Lnenvpdtreport
+;;bottom Line: LnenvpdtreportTotals
+     repeat: Lnenvpdtreport: Colenvpdtreport
+     scroll: both         ;;Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: Colenvpdtreport]
+        Use: stock item
+     delete: filter : daybookfilter
+     Filter: ColenvpdtreportFilter
+     FETCH : FULLPRICELIST.*
+    [system: Formula]
+ColenvpdtreportFilter: Yes
+
+      [Line: LnenvpdtreportTitle]
+        use: Lnenvpdtreport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+;;local:field: fwf: set as: ""
+;;local:field: qtyf: set as: "Qty."
+;;local:field: amtf: set as: "Value"
+;;local:field: ratef : set as : "Rate"
+local:field:snf:set as:"Part No"
+Local: Field:nf2  : Set As:"Product Description"
+Local: Field: nf3 : Set As:"Tally Parent"
+Local: Field: nf4 : Set As:"Category"
+Local: Field: numf2 : Set As:"DP"
+Local: Field: numf1 : Set As:"Vat Rate"
+Local: Field: snf4: Set As: "Costing Method"
+Local: Field: sdf: Set As:"Update Date"
+Local: Field: ratepf: Set As:"Cost Price "
+Local: Field: ratepf2: Set As:"STD Price "
+Local: Field: numf3: info: "Discount"
+Local: Field: nf5: Set As:"Sales Ledger Name"
+Local: Field: snf2: Set As:"Sales Vat Class"
+Local: Field: nf6: Set As:"Purchase Ledger Name"
+Local: Field: snf3: Set As:"Purchase Vat Class"
+Local: Field: snfx: Set As: "UOM"
+Local: Field: snfx2: Set As: "Alt.UOM"
+Local: Field: numf4: Set As: "Conv."
+Local: Field: numf5: Set As: "Denom."
+
+
+Local: Field: snf7: info: "Godown Name"
+Local: Field: qtyf: info: "Qty"
+Local: Field: qtyf2: info: "AltQty"
+Local: Field: ratepf3: info: "Rate"
+local: field: amtf: info: "Amount"
+local : field : default: background : @@SV_STOCKSUMMARY ;; white
+
+
+;Qtyf3,ratepf4,Amtf5,qtyf4
+Local: Field: qtyf3: info: "ClQty"
+Local: Field: ratepf4: info: "ClRate"
+Local: Field: amtf5: info: "ClAmt"
+Local: Field: qtyf4: info: "ClAltQty"
+
+[System : Formula]
+immparent : $parent:stockgroup:##myparent
+
+
+      [Line: Lnenvpdtreport]
+     Fields:snf, nf2,nf3,nf4,numf5,snfx,numf4,snfx2,numf1, numf2,snf4, sdf,ratepf,ratepf2,numf3,nf5,snf2,nf6,snf3
+right field: snf7,Qtyf,ratepf3,Amtf,qtyf2, Qtyf3,ratepf4,Amtf5,qtyf4
+     Option: Alter on Enter
+Local: Field: snf: Set As: $mailingname
+Local: Field: nf2 : Set As:if $$isempty:$description then $name else $description
+Local: Field: nf3 : Set As: if not $$issysname:$parent then $parent else ""
+local:field:nf4:set as: if not $$issysname:$category then $category else ""
+Local: Field: snfx: Set As: $baseunits
+Local: Field: snfx2: Set As: if not $$issysname:$additionalunits then $additionalunits else ""
+Local: Field: numf5: Set As: if not $$issysname:$additionalunits then $Denominator else ""
+Local: Field: numf4: Set As: if not $$issysname:$additionalunits then $conversion else ""
+Local: Field: numf1 : Set As:$rateofvat
+Local: Field: snf4: Set As: $costingmethod
+;;LOCAL : FIELD : NUMF2 : TYPE : DATE
+Local: Field: sdf: Set As: $$collectionfield:$date:(-1):STANDARDPRICELIST
+Local: Field: ratepf : Set As: $$collectionfield:$rate:(-1):STANDARDCOSTLIST
+local:field: ratepf2 : setas  : $$collectionfield:$rate:(-1):STANDARDPRICELIST
+local : field : nf1: modifies : stockitemname
+Local: Field: numf3 : Set As: $$collectionfield:$cwdiscount:(-1):STANDARDPRICELIST
+
+
+local:field: qtyf : Format      : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf2 : Format      : "NoSymbol, Short Form, No Compact,NoZero,Secondary"
+Local: Field: qtyf2 : Set As: if not $$issysname:$additionalunits then #qtyf else 0
+Local: Field: qtyf2 : type : quantity : secondary
+
+local:field: numf2 : format : "NoSymbol,decimals:2"
+     local: field: nf1: alter : stock item : $$isstockitem
+;; EXPLODE : PLEVEL1 : @@CWDEBUG
+
+local : field : snf : alter : stock item : $$isstockitem
+Local: field: numf2 : Format: "NoZero,Decimals:2"
+local: field: numf2: Invisible: yes
+
+
+Local: field: sdf: Width:15
+Local: field: ratepf: Width:9
+
+Local: Field: nf5: Set As: $$collectionfield:$name:first:SALESLIST ;; "Sales Ledger Name"
+Local: Field: snf2: Set As:$$collectionfield:$TAXCLASSIFICATIONNAME:first:SALESLIST ;;"Sales Vat Class"
+Local: Field: nf6: Set As:$$collectionfield:$name:first:PURCHASELIST ;;"Purchase Ledger Name"
+Local: Field: snf3: Set As:$$collectionfield:$TAXCLASSIFICATIONNAME:first:PURCHASELIST ;;"Purchase Vat Class"
+
+Local: Field: snf7: Set As: if $$explodelevel = 0 then $$collectionfield:$godownname:1:batchallocations else $$collectionfield:$godownname:@@linep1ex:batchallocations
+Local: Field: qtyf: Set As: if $$explodelevel = 0 then $$collectionfield:$openingbalance:1:batchallocations else $$collectionfield:$openingbalance:@@linep1ex:batchallocations
+Local: Field: ratepf3: Set As: #amtf / #qtyf
+Local: Field: amtf: Set As: if $$explodelevel = 0 then $$collectionfield:$openingvalue:1:batchallocations else $$collectionfield:$openingvalue:@@linep1ex:batchallocations
+explode : GodownbDetails
+local : field : default: border : thin right
+local: field : default : background : if $$isodd:$$linenumber then @@SV_STOCKSUMMARY else "Released Pale Yellow"
+
+
+;Qtyf3,ratepf4,Amtf5,qtyf4
+Local: Field: qtyf3: Set As: if $$explodelevel = 0 then $$collectionfield:$closingbalance:1:batchallocations else $$collectionfield:$closingbalance:@@linep1ex:batchallocations
+Local: Field: ratepf4: Set As: #amtf / #qtyf
+Local: Field: amtf5: Set As: if $$explodelevel = 0 then $$collectionfield:$closingvalue:1:batchallocations else $$collectionfield:$closingvalue:@@linep1ex:batchallocations
+
+local:field: qtyf4 : Format      : "NoSymbol, Short Form, No Compact,NoZero,Secondary"
+Local: Field: qtyf4 : Set As: if not $$issysname:$additionalunits then #qtyf3 else 0
+Local: Field: qtyf4 : type : quantity : secondary
+
+
+[part : GodownbDetails]
+line : GodownbDetails
+repeat : GodownbDetails : batchallocations
+
+
+[line : GodownbDetails]
+use :Lnenvpdtreport
+delete : explode
+;;delete : field
+empty :$$line = $$numitems
+
+
+Local: Field : snf: SET as: ""
+Local: Field : nf2: SET as: ""
+Local: Field : nf3: SET as: ""
+Local: Field : nf4: SET as: ""
+Local: Field : snfx: SET as: ""
+Local: Field : numf1: SET as: ""
+Local: Field : numf2: SET as: ""
+Local: Field : snf4: SET as: ""
+Local: Field : sdf: SET as: ""
+Local: Field : ratepf: SET as: ""
+Local: Field : ratepf2: SET as: ""
+Local: Field : numf3: SET as: ""
+Local: Field : numf2: SET as: ""
+Local: Field : nf5: SET as: ""
+Local: Field : snf2: SET as: ""
+Local: Field : nf6: SET as: ""
+Local: Field : snf3: SET as: ""
+
+
+
+ [PART : PLEVEL1]
+ LINE : PLEVEL1
+ REPEAT : PLEVEL1 : FULLPRICELIST
+
+ [LINE : PLEVEL1]
+ FIELD : NF,SNF,SDF
+ Local: Field: NF : Set As: $PRICELEVEL
+ Local: Field: SNF : Set As: $$COLLECTIONFIELD:$RATE:LAST:PRICELEVELLIST
+ Local: Field: SDF : Set As: $DATE
+
+[System : Formula]
+cwlastpricelistrate : $$collectionfield:$rate:last:PRICELEVELLIST
+
+      [line: LnenvpdtreportTotals]
+        use: Lnenvpdtreport
+     option: totalOpt
+
+    local: field: fwf: align: right
+      local: field: fwf: style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: $$total:amtf
+
+

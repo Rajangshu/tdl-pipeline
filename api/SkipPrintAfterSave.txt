@@ -1,0 +1,63 @@
+; Created By: pg on 2011-12-21 21:56
+
+[System: Formula] ;; new form
+;iscwPASEnabled: $$machineDate <= $$date:"02/01/2012"
+
+[#form :POS Invoice]
+add :option : PosNoPrint2 : @@iscwPASEnabled ;;@@issales and $UseForPOSInvoice:vouchertype:##svvouchertype
+
+[!form : PosNoPrint2]
+delete : button : Purchase Button
+delete: button : RevJrnl Button
+add : button :myPurcbtn
+add : bottom button : at beginning: cwSaveNNew,cwSavenPrint
+
+[key : myPurcbtn]
+title : "Purchase"
+key : ctrl + E
+    Inactive    : (@@NumPurcType = 1) AND ($$IsPurchase:$VoucherTypeName)
+    ActionList  : VCHAccounts, SetChgPurchase, SetPurchase, SetPurcInvType
+
+
+[key: cwSaveNNew]
+key : f9
+title : "Save W/O Print"
+action list : noPrintVch, form accept
+
+
+[key: noPrintVch]
+key : f9
+action: set : cwPrintAfterSave : no
+
+[key : cwSavenPrint]
+key : f10
+title :"Save & Print"
+;;action list : cwPrintVch1,cwPrintVch2,form accept
+action : form accept
+
+
+[key : cwPrintVch1]
+key : f10
+action : set : cwPrintAfterSave : no
+
+[key : cwPrintVch2]
+key : f10
+action : call : myPrint ;;
+;;action : print : pos invoice : no
+
+[function : myprint]
+return : logical
+10 : print report : . : yes
+20 : return : yes
+
+
+[#System: Formula]
+    PrintAfterSave      : if not @@cwpos then @@cwPrintAfterSave else @@cwPrintAfterSave and ##cwPrintAfterSave
+
+    [Variable: cwPrintAfterSave]
+    type : logical
+    default : yes
+    
+    [system : variable]
+    cwPrintAfterSave : yes
+

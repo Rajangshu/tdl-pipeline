@@ -1,0 +1,21 @@
+; Created By: Pg on 2013-06-06 13:20, ID: 
+
+[#line : MLED Titles]
+add : right field : cwAliastitle
+
+[field : cwAliastitle]
+use : name field
+info: "Alias"
+
+
+
+[#line:MLED Body]
+add : right field : cwAlias
+
+
+[field: cwAlias]
+use : Multi Master Name Field
+    Storage     : Name:Name:2
+border : thin left
+delete : validate
+

@@ -1,0 +1,64 @@
+;; [#menu : gateway of tally]
+;;    add : item : at end : tvch : display : tvch
+
+[report : tvch]
+    use : dsptemplate
+variable: FamilyVoucherFlag
+    set : FamilyVoucherFlag : NO
+   form : tvch
+    use : day book
+variable: ledgername
+    set : ledgername : "discount allowed"
+   
+  [Form : tvch]
+    use : dsp template
+  width : 100 % Page
+ height : 100 % Page
+   part : tvch
+ 
+  [part : tvch]
+   line : tvch
+ scroll : vertical
+ Option : tvchSpecific : (NOT ##FamilyVoucherFlag OR NOT $IsReserved:VoucherType:##VoucherTypeName)
+ Option : TvchFilter   : ##FamilyVoucherFlag AND $IsReserved:VoucherType:##VoucherTypeName
+
+ [!Part : tvchSpecific]
+ Repeat : tvch : Specific Vouchers of Company
+
+ [!Part : TvchFilter]
+ Repeat : tvch : Filtered Vouchers of Company
+
+  [line : tvch]
+  field : mydate,dlr,myvchno,dlr1,myvchtype,dlr2,myledamt,dlr3,myamt,dlr4,mynarr
+
+[collection : tvch]
+    use : Voucher Register
+  
+ [field : mydate]
+    use : unidate field
+ set as : $date
+
+ [field : myvchno]
+    use : Name field
+  width : 30
+ set as : $VoucherNumber
+
+ [field : myvchtype]
+    use : name field
+  width : 30
+ set as : $VoucherTypeName
+
+ [field : myamt]
+    use : amount field
+ set as : $Amount
+ format : "No Comma"
+
+ [field : mynarr]
+    use : name field
+ set as : $Narration
+  width : 150
+
+ [field : myLedAmt]
+    use : Amount Field
+ format : "No Comma,DRCR"
+ set as : $$NettAmount:@@TotalLedDrVchAmt:@@TotalLedCrVchAmt

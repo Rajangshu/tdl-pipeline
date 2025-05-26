@@ -1,0 +1,142 @@
+;; set demo date formula : cwEmpDemoDt
+
+[Variable: cwPaySheetShowDOJ]
+
+    Type        : Logical
+    Persistent  : Yes
+
+
+[Variable: cwPaySheetShowDOL]
+
+    Type        : Logical
+    Persistent  : Yes
+
+[system : variable]
+cwPaySheetShowDOL : no
+cwPaySheetShowDOJ : no
+
+[include : EmpCommonEntry.txt]
+[include : EmpCommonUDF.txt]
+[include : EmpPaySheetChanges.txt]
+
+[#Part: CMP AccFeat Right]
+add  : line : enableEmpTables
+
+[Line : enableempTables]
+        Fields          : Medium Prompt, cwEnableEmpTables
+        Local       : Field : Medium Prompt : Info    : $$LocaleString:"Tables for Emp. Details. ?"
+        Space Top   : 0.4
+        local : field : medium prompt : inactive : not $$ispayrollon
+
+
+
+[field : cwEnableEmpTables]
+inactive : not $$IsPayrollOn
+use : cwlogical
+storage : cwEnabletables
+subform : cwEnableTables : $$value = "yes"
+
+[report : cwenabletables]
+form :  cwenabletables
+title  : "Table Details"
+
+[form : cwenabletables]
+part : cwenabletables
+
+[part : cwenabletables]
+line  : cwenabletablesTitle,cwetdesignation,cwetfunction,cwetlocation,cwETGrade,cwEmpNamePrinted,cwEmpRetirement
+
+
+  [line : cwenabletablesTitle]
+  use: cwetdesignation
+  local : field : cwlogical :delete : storage
+  local : field : cwlogical : delete : table
+  local : field : cwlogical : skip : yes
+  local : field : cwlogical : set as  : "Table"
+  local : field :cwlogical : type :string
+  Local: Field: cwunder : info : "Under"
+  Local: Field: cwempUnderName : info: "Name"
+  local : field : cwlogical : style : normal
+  local : field : default :delete : storage
+  local : field : mp : info :""
+  border : column titles
+  local : field : cwunder: delete : storage
+  local : field : cwempUnderName :delete : storage
+  
+
+
+  [line : cwetdesignation]
+  field : mp,cwlogical,cwunder,cwEmpUnderName
+  local : field : cwlogical : storage : cwetdesignationTable
+  local : field : cwunder : storage : cwEtdesignationUnder
+  local : field : cwEmpUnderName : storage : cwEtdesignationUnderName
+  local : field : cwunder : inactive : #cwlogical = "no"
+  local : field : cwEmpUnderName : inactive : #cwlogical = "no"
+  Local: Field : mp : info: "Designation:"
+  
+
+;;local : field : cwEmpUnderName : key : Create CostCentre, Alter CstCtr
+;;local : field : cwEmpUnderName : Variable      : SV CostCentre : #cwunder = "costCentres"
+
+
+  [line : cwetfunction]
+  use :   cwetdesignation
+  Local: Field : mp : info: "Function:"
+  local : field : cwlogical : storage : cwetfunctionTable
+  local : field : cwunder : storage : cwetfunctionUnder
+  local : field : cwEmpUnderName : storage : cwetfunctionUnderName
+
+  [line : cwetlocation]
+  use :   cwetdesignation
+  Local: Field : mp : info: "Location:"
+  local : field : cwlogical : storage : cwetlocationTable
+  local : field : cwunder : storage : cwetlocationUnder
+  local : field : cwEmpUnderName : storage : cwetlocationUndername
+
+  [line : cwetGrade]
+  use :   cwetdesignation
+  Local: Field : mp : info: "Grade:"
+  local : field : cwlogical : storage : cwetgradeTable
+  local : field : cwunder : storage : cwetgradeUnder
+  local : field : cwEmpUnderName : storage : cwetgradeUnderName
+
+  [line : cwEmpNamePrinted]
+  use :   cwetdesignation
+  local : field : mp : info : "Sperate Emp Name for Printing:"
+  delete : field : cwunder
+  delete : field : cwEmpUnderName
+  local : field : cwlogical : storage : cwetSepEmpName
+
+  [line : cwEmpRetirement]
+  use  : cwEmpNamePrinted
+  local : field : cwlogical : storage : cwetSepRetireDate
+  local : field : mp : info : "Sperate Retirement Date:"
+  [field: cwunder]
+  use : snf
+  table : cwundertable
+
+  [field: cwEmpUnderName]
+  use : nf
+;;  add : option : cc : #cwunder = "costCentres"
+;;  add : option : sc : #cwunder = "StockCategories"
+  
+  [!field: cc]
+  add : key : Create CostCentre, Alter CstCtr
+  Variable      : SV CostCentre
+;;  border : thick box
+
+  [!field : sc]
+  add : key : Create Stock Category, Alter StkCat
+  Variable   : SV Stock Category
+;;  border: thin box
+
+
+  [collection : cwundertable]
+  title : "Under"
+  listname : @@cwcctable
+  listname : @@cwsctable
+  collection: not applicable
+  
+  [System : Formula]
+  cwcctable  : "Cost Centres"
+  cwsctable : "Stock Categories"

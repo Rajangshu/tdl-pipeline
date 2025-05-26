@@ -1,0 +1,98 @@
+; Created By: prakash on 2022-06-04 14:02, ID: 
+
+
+[#form : daybook]
+add : Button : cwExportSelectedVouchers
+
+
+[key: cwExportSelectedVouchers]
+title :"PDF"
+action: call : cwExportSelectedVouchers
+scope : selected lines
+key : alt + h
+
+
+ /*
+[Collection: Payment Advice Status Update]
+	
+	Data Source		: Report		: Selected
+	Fetch			: *.*
+	Client Only		: Yes
+*/
+
+[function: cwExportSelectedVouchers]
+01 : if : $$numitems:PaymentAdviceStatusUpdate = 0
+02 : Querybox : "Select Vouchers for Exporting" :No:No
+03 : end if
+
+10 : walk collection: PaymentAdviceStatusUpdate
+
+
+20 : set : SVExportFormat : $$sysname:PDF
+
+30 : set : SVPrintFileName            :  $$MakeExportName:$vouchernumber:##SVExportFormat
+
+35 : set : svPrintFileName : $$cwStringReplace:##SvPrintFileName:"/":""
+37 : set : svPrintFileName : $$cwStringReplace:##SvPrintFileName:"\":""
+
+40 : set : SVExportLocation : "e:\"
+
+50 : log : ##svExportLocation + ##SvPrintFilename
+
+60 : call : cwExportVch:$masterid
+
+70 : end walk
+
+
+[function : cwExportVch]
+	Parameter: VchId2 : String
+	VARIABLE : VCHID  : STRING
+	01 : SET : VCHID  : $$SPrintf:"ID:%s":##VCHID2
+	05	 : SET OBJECT 	: (Voucher, ##VchId).
+;; {22.Jun.17 10:44} 	10 : log :$vouchertypename
+	
+	15 : if : $$IsJournal:$vouchertypename
+        18  : Export  : cwJournalVoucher :true
+        19 : return: yes
+        20 :end if
+
+        25 : if : $$Ispayment:$vouchertypename or $$Isreceipt:$vouchertypename or $$Iscontra:$vouchertypename
+        28  : Export  : cwPymtRcptVoucher :true
+        29 : return: yes
+        30 :end if
+
+        70  : Export  : cwInvVoucher :true
+
+[report: cwInvVoucher]
+use:Printed Invoice
+;; {04.Jun.22 16:10} TITLE :"Invoice"
+OBJECT : VOUCHER :##VCHID
+fetch object : voucher : ##VCHID : *.*
+;; {04.Jun.22 16:10} print set : report title :"Invoice"
+;; {04.Jun.22 16:10} Print Set: PrintFileName  :"Invoice"
+Variable: SVPrintOrientation
+Set : SVPrintOrientation :$$SysName:portrait
+
+[report: cwJournalVoucher]
+use:Jrnl Print
+PrintSet: Report Title : @@VoucherTitle
+PrintSet: Report Sub Title : @@InvSubTitle
+OBJECT : VOUCHER :##VCHID
+fetch object : voucher : ##VCHID : *.*
+Variable: SVPrintOrientation
+Set : SVPrintOrientation :$$SysName:portrait
+Form: Jrnl Print
+
+
+
+[report: cwPymtRcptVoucher]
+use:PymtRcpt Print
+PrintSet: Report Title      : @@VoucherTitle
+PrintSet: Report Sub Title 	: @@InvSubTitle
+OBJECT : VOUCHER :##VCHID
+fetch object : voucher : ##VCHID : *.*
+Variable: SVPrintOrientation
+Set : SVPrintOrientation :$$SysName:portrait
+Form: PymtRcpt Print
+
+

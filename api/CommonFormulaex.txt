@@ -1,0 +1,279 @@
+
+;; 1.52 comapny details
+;;vat tin @@CMPLTaxNumber
+
+    [#object : ledger]
+ cwpartycode : if @@cwpartycodex = $name then "" else @@cwpartycodex
+
+      [system : formula] ;; for previous balance
+;; use cwprvbal
+     cwprvbal : if $$isdr:@@cwpartyclbal then @@cwpartyclbal - $amount else -1*@@cwpartyclbal - $amount
+ cwpartyclbal : $$ToValue:$Date:$ClosingBalance:Ledger:$partyledgername ;;; as on date
+    mycurrbal : @@cwprvbal + $amount ;; total due till date
+
+
+
+[system : formula]
+cwVAtAnalysisSTR : $$fulllist:VATExtract:@@cwVATExDetails
+  cwVATExDetails : "VAT @"+@@cwVatEXRate + "% on Rs." +$$string:$Amount  + " = " + $$string:$vatAmount
+cwVatEXRate : $$string:$Rate:"decimals:2"
+
+cwpartycodex : $$LocaleString:$$Alias:1:Yes
+colon : ":"
+ linep1 : $$Line  + 1
+cwSerial: @@cwDebug
+cwDebug : $$serialnumber = 701041572 or $$serialnumber = 742231584
+cwDebug2 : @@cwDebug or ##SVEducationalMode
+CWEdu   : ##SVEducationalMode ;;($$serialNumber = -1) or ($$serialNumber = 0)
+cwOwner : (##svusername = $ownername:company:##svcurrentcompany)
+cwNormal: Not @@cwowner
+
+    MYDISP : if $$IsGroup then #groupname else if $$IsLedger then #ledgername else +
+   if $$IsStockItem then #stockitemname else if $$IsStockGroup then #stockgroupname else if $$IsStockCategory  then #stockcategoryname else $$name
+
+cwchk : if $$issales:$vouchertypename then 1 else IF $$IsPurchase:$vouchertypename then 2 else +
+        if $$isreceipt:$vouchertypename then 3 else if $$IsPayment:$vouchertypename then 4 else +
+        if $$IsCreditNote:$vouchertypename then 5 else if $$isdebitnote:$vouchertypename then 6 else +
+        if $$IsContra:$vouchertypename then 7 else  if $$isjournal:$vouchertypename then 8 else +
+        if $$IsStockJrnl:$vouchertypename then 9 else 10
+
+ [style : cwVerylargebold]
+    use : large bold
+;;font : "Microsoft Sans Serif"
+Height  : @@LargeSize + 2
+
+
+
+; company specific
+[system : formula]
+cwStartPeriod : $$String:$$SystemPeriodFrom
+cwEndPeriod : $$String:$$SystemPeriodTo
+
+
+   cwPi : 3.1415497
+;; Company Phone
+cwCmpPhone : $phonenumber:company:##svcurrentcompany
+cwCmpEmail : $EMail:company:##svcurrentcompany
+cwCMPLastVoucher : $LastVoucherDate:Company:##SVCurrentCompany
+cwCMPFullAddress : $$fulllist:companyaddress:$address
+cwCMPPAn : $IncomeTaxNumber:Company:##SVCurrentCompany
+
+cwCMPVAt : $SalesTaxNumber:Company:##SVCurrentCompany
+cwCMPSalesTax : $VATTINNumber:Company:##SVCurrentCompany
+cwCMPCSTNo : $InterstateSTNumber:Company:##SVCurrentCompany
+cwCMpSTax : $STRegNumber:Company:##SVCurrentCompany
+FORCMPMAIL : "for "+ @@cmpmailname
+FORCMPMAIL2 : "For "+ @@cmpmailname
+
+; Comp Excise details
+cwcmpExciseDivision : $ExciseDivision:Company:##SVCurrentCompany
+cwcmpExciseDivisionAddress : $ExciseDivisionAddress:Company:##SVCurrentCompany
+cwcmpExciseRange : $ExciseRange:Company:##SVCurrentCompany
+cwcmpExciseRangeAddress : $ExciseRangeAddress:Company:##SVCurrentCompany
+cwcmpECCNo : $ExciseRegn:Company:##SVCurrentCompany
+
+;; commissionerate
+cwcmpExciseCommFull : @@cwcmpExciseComm + @ComsCode + @ComsAddress
+cwcmpExciseComm : $ExciseCommissionerate:Godown:$ExciseUnitName
+    ComsCode    : If $$IsEmpty:$ExciseComsnrateCode:Godown:$ExciseUnitName Then "" +
+                  Else If $$IsEmpty:$ExciseCommissionerate:Godown:$ExciseUnitName Then $ExciseComsnrateCode:Godown:$ExciseUnitName +
+                  Else " / " + $ExciseComsnrateCode:Godown:$ExciseUnitName
+    ComsAddress : If $$IsEmpty:$ExciseComsnrateAddress:Godown:$ExciseUnitName Then "" +
+                  Else If $$IsEmpty:$ExciseCommissionerate:Godown:$ExciseUnitName AND $$IsEmpty:$ExciseComsnrateCode:Godown:$ExciseUnitName Then $ExciseComsnrateAddress:Godown:$ExciseUnitName +
+                  Else " / " + $ExciseComsnrateAddress:Godown:$ExciseUnitName
+
+
+
+;;;
+
+
+
+
+
+
+; Voucher - Party Ledger
+[system : formula]
+ cwPartyGrp : ($$IsBelongsTo:$$Groupsundrydebtors OR $$IsBelongsTo:$$GroupSundryCreditors)
+; VOUCHER TYPE
+cwVchDeclaration : $VCHPrintDecl:vouchertype:$vouchertypename
+cwVchdecl : $VCHPRINTDECL:vouchertype:$vouchertypename
+CWVchPrintTitle : $VCHPrintTitle:vouchertype:$vouchertypename
+
+cwLedPhone : $LedgerPhone:ledger:$partyledgername
+  cwpartyVatNo : if $$isempty:$BASICBUYERSSALESTAXNO then $VATTINNumber:ledger:$partyledgername else $BASICBUYERSSALESTAXNO
+  cwPartyCSTNo : $INTERSTATESTNUMBER:ledger:$partyledgername
+  cwPartyPANNo : $IncomeTaxNumber:ledger:$partyledgername
+  cwPartySTaxNo : $REGISTRATIONNUMBER:ledger:$partyledgername
+cwLEDFullAddress : $$fulllist:ledgeraddress:$address
+cwPartyEccNo : $EXCISEREGNO:ledger:$partyledgername
+cwPartyRange: $ExciseRange:ledger:$partyledgername
+cwPartyDivision : $ExciseDivision:ledger:$partyledgername
+cwPartyComm : $excisecomm:ledger:$partyledgername
+cwPartyTANNo : ""
+cwPartyNatureCST : $VATDealerNature:ledger:$partyledgername= "Inter State Dealer"
+
+; Voucher Specific
+cwPartyFullAddress : $$fulllist:cwparty:$address
+
+  [collection: cwParty]
+  type : address : ledger
+  child of : $partyledgername
+  
+  [collection : cwPartyBills]
+         type : bills
+     child of : $partyledgerame
+      cleared : no
+
+
+      [system : formula]
+  amtwordonly : $$inwords:$amount + " only."
+  amtwordonly2 : $$reportobject:$$inwords:$amount + " only."
+  amtwordonly3 : $$inwords:@@cwposamt + " only."
+ cwposamt: $$reportobject:$$CollAmtTotal:InventoryEntries:$Amount + $$Total:POSAccAmount
+amtwordonlyno : $$inwords:$amount:"NoSymbol" + " only."
+cwvchBillDueDate : $$collectionfield:@@cwbp:first:ledgerentries + $date
+cwvchBillDueDateShort : $$string:@@cwvchBillDueDate:"shortdate"
+cwbp : $$number:$$collectionfield:$billcreditperiod:first:BILLALLOCATIONS
+ ;; single delivery note no
+  cwdelnoteno : $BASICSHIPDELIVERYNOTE ;;$BasicShipDocumentNo ;; $$DELIVERYNOTEno
+cwdelnoteDate : $$collectionfield:$BasicShippingDate:first:InvoiceDelNotes
+CWDDLLNNOO : IF @@ISERP THEN $$FullList:InvoiceDelNotes:@@BasicShippingDateUniversal ELSE $$FullList:InvoiceDelNotes:$$String:$BasicShippingDate:UniversalDate
+ cedelnotedt : if Not $$isempty:@@cwdelnoteno then " "+@@cwdtd +" " else ""
+ cwdtd : "Dtd"
+cwdelnoteShortDate : $$string:@@cwdelnoteDate:"ShortDate"
+numaQty : $$number:$actualqty
+;; despatched through
+cwdespatchedthrough : $BASICSHIPPEDBY
+ ;; full delivery note no
+cwdelnotenos : $$FullList:InvoiceDelNotes:$BasicShipDeliveryNote
+ ;; full Delivery Note Date
+cwdelnoteDates : $$FullList:InvoiceDelNotes:$$String:$BasicShippingDate:UniversalDate
+
+ ;; Ledger Alias Name : 1st
+cwledgeralias : $aliasname:ledger:#ledgername
+CWITEMALIAS : $$Alias:STOCKITEM:$STOCKITEMNAME
+cwPartyAlias : $$ReptField:Name:2:ledger:$PartyLedgerName ;;$aliasname:ledger:$partyledgername ;; $aliasname:ledger:$partyledgername ;;if $aliasname:ledger:$partyledgername = $partyledgername then "" else $aliasname:ledger:$partyledgername
+ ;; Has Bank Account in Voucher
+  iscwbankacc : not $$IsLedOfGrp:@@BankName:$$GroupCash
+  
+ ;; Destination
+cwBasicDestination :  $BasicFinalDestination
+
+cwOrderNos : if NOT $$IsSysName:$BasicPurchaseOrderNo then $$FullList:InvoiceOrderList:$BasicPurchaseOrderNo else ""
+cwOrderDates : if $$IsSysName:$BasicPurchaseOrderNo then "" else $$FullList:InvoiceOrderList:$$String:$BasicOrderDate:UniversalDate
+cwOrderDateShort : if $$IsSysName:$BasicPurchaseOrderNo then "" else $$FullList:InvoiceOrderList:$$String:$BasicOrderDate:"ShortDate"
+cwOrderNo : $BasicPurchaseOrderNo
+cwOrderDate : if $$IsSysName:$BasicPurchaseOrderNo then "" else $$string:@@cwOrderDateNormal:UniversalDate
+cwOrdersHORTDate : $$STRING:@@cwOrderDateNormal:"SHORTDATE"
+cwOrderDateNormal : $$collectionfield:$BasicOrderDate:first:InvoiceOrderList
+cwOrderDateSh : $$string:@@cwOrderDateNormal:"shortdate"
+
+
+cwLedClBal : if ##UseCurrentBalance then $$ToValue:$Date:$ClosingBalance:Ledger:$partyledgername else $ClosingBalance:Ledger:$partyledgername
+
+cwiteminactive : $$isEnd:$stockitemname
+cwLedgerInactive : $$isend:$Ledgername
+
+cwCmpAddr1 : $$collectionfield:$address:1:companyaddress
+cwCmpAddr2 : $$collectionfield:$address:2:companyaddress
+cwCmpAddr3 : $$collectionfield:$address:3:companyaddress
+cwCmpAddr4 : $$collectionfield:$address:4:companyaddress
+cwCmpAddr5 : $$collectionfield:$address:5:companyaddress
+cwCmpAddrFull : $$fulllist:companyaddress:$address
+
+;;;;;;;;;;;;;;;;;;;;
+; Buyer Name
+    cwBuyerName : $PARTYNAME
+cwBuyerAddress1 : $$collectionfield:$address:1:Address
+cwBuyerAddress2 : $$collectionfield:$address:2:Address
+cwBuyerAddress3 : $$collectionfield:$address:3:Address
+cwBuyerAddress4 : $$collectionfield:$address:4:Address
+cwBuyerAddress5 : $$collectionfield:$address:5:Address
+cwConsigneeName : $BASICBUYERNAME
+cwConsigneeAddress1 : $$collectionfield:$BasicBuyeraddress:1:BasicBuyerAddress
+cwConsigneeAddress2 : $$collectionfield:$BasicBuyeraddress:2:BasicBuyerAddress
+cwConsigneeAddress3 : $$collectionfield:$BasicBuyeraddress:3:BasicBuyerAddress
+cwConsigneeAddress4 : $$collectionfield:$BasicBuyeraddress:4:BasicBuyerAddress
+cwConsigneeAddress5 : $$collectionfield:$BasicBuyeraddress:5:BasicBuyerAddress
+CWFULLconsigneeADDRESS : $$FULLLIST:BasicBuyerAddress:$BasicBuyeraddress
+
+;;CWFULLBUYERADDRESS : $$FULLLIST:BasicBuyerAddress:$BasicBuyeraddress
+cwLedAddress1 : $$CollectionField:$address:1:PartyAddress
+cwLedAddress2 : $$CollectionField:$address:2:PartyAddress
+cwLedAddress3 : $$CollectionField:$address:3:PartyAddress
+cwLedAddress4 : $$CollectionField:$address:4:PartyAddress
+cwLedAddress5 : $$CollectionField:$address:5:PartyAddress
+
+
+cwBuyerdiff : @@cwbuyername <> @@cwconsigneename
+
+ CWTAXCOPY : if $$SetNo = 1 then @@CWOriginal else +
+                              if $$SetNo = 2 then $$LocaleString:"Duplicate - Seller's Copy" else +
+                              if $$SetNo = 3 then $$LocaleString:"Triplicate - Transporter's Copy" else +
+                              if $$SetNo = 4 then $$LocaleString:"Quadruplicate - Extra Copy" else +
+                              $$LocaleString:"Extra Copy"
+
+CWNTAXCOPY : if $$SetNo = 1 then @@CWOriginal else +
+                              if $$SetNo = 2 then $$LocaleString:"(Duplicate)" else +
+                              if $$SetNo = 3 then $$LocaleString:"(Triplicate)" else +
+                              if $$SetNo = 4 then $$LocaleString:"(Quadruplicate)" else +
+                              $$LocaleString:"(Extra Copy)"
+
+CWOriginal    : if ##SVPrintCopies > 1 then If @@IsIndianVATVch AND $IsTaxInvoice:VoucherType:$VoucherTypeName then $$LocaleString:"Original - Buyer's Copy" else $$LocaleString:"(Original)" else ""
+
+CWiNVSHORTDATE : $$STRING:$date:"SHORTDATE"
+cwitemtaxrate : $$collectionfield:@@cwrateofled:first:ACCOUNTINGALLOCATIONS
+cwRateofLed : $RATEOFTAXCALCULATION:ledger:$LEDGERNAME ;;
+
+cwinvamt : $$collamttotal:inventoryentries:$amount
+cwinvAQty : $$collqTYtotal:inventoryentries:$aCTUALqTY
+cwinvbQty : $$collqTYtotal:inventoryentries:$BILLEDqTY
+; ---------------- CESS
+cwCessRate : $$FilterValue:@@cwcesr:ledgerentries:First:TaxLedgerHasService
+cwCessAmt : $$FilterValue:@@cwcesa:ledgerentries:First:TaxLedgerHasService
+cwcesr : $$collectionfield:$TDSSURCHARGE:first:taxbillallocations
+cwcesa : $$collectionfield:$ADDLSURCHARGEAMOUNT:first:taxbillallocations                                       ;;SurchargeAmount
+
+cwSecCessRate : $$FilterValue:@@cwscesr:ledgerentries:First:TaxLedgerHasService
+cwSecCessAmt : $$FilterValue:@@cwscesa:ledgerentries:First:TaxLedgerHasService
+cwscesr : $$collectionfield:$STSecondaryCessRate:first:taxbillallocations
+cwscesa : $$collectionfield:$STSecondaryCessAmount:first:taxbillallocations                                       ;;SurchargeAmount
+
+cwServiceTaxAmt : $$FilterValue:@@cwstAmt:ledgerentries:First:TaxLedgerHasService
+cwServiceTaxRAte : $$FilterValue:$basicrateofinvoicetax:ledgerentries:First:TaxLedgerHasService
+cwstAmt : $$collectionfield:$SURCHARGEAMOUNT:first:taxbillallocations
+
+cwServiceTaxLedger : $$FilterValue:$ledgername:ledgerentries:First:TaxLedgerHasService
+
+; --------- Voucher Item
+
+cwItmPartNo : $PartNo:stockitem:$Stockitemname
+cwAltQty :  $$String:$BilledQty:Symbol,ShortForm,Secondary
+cwItemInvAmt : $amount * $RateOfVAT:stockitem:$stockitemname / 100
+
+;; Items
+cwFirstItem : $stockitemname
+
+cwExciseDecl : @@cwExciseDecla + @@cwExciseDeclb + @@cwExciseDeclc
+
+cwExciseDecla : "Certified that particulars given above are true and correct and the amount"
+cwExciseDeclb : " indicated represents the price actually charged and that there is no flow"
+cwExciseDeclc : " of additional consideration directly or indirectly from the buyer."
+
+cwExciseDeclYEs : " OR " + @@cwExciseDecld + @@cwExciseDecle + @@cwExciseDeclf + @@cwExciseDeclg
+cwExciseDecld : @@cwExciseDecla
+cwExciseDecle : " indicated is provisional as additional consideration will be received from"
+cwExciseDeclf : " the buyer on account "
+cwExciseDeclg : " of ..............."
+FirstTarriffHeading : $hsn:TARIFFCLASSIFICATION:@@cwTarriffHEading
+cwTarriffHEading : $BASICTARIFFTYPE:stockitem:$stockitemname
+
+CWeXCISEdUTYINWORDS : $$SPrintf:@@ExciseVatInWordsFormat:@@CWForexFormula:@@CWBaseSymFormula
+CWForexFormula	: If @@ShowAmtInDigits Then $$InDigits:@@ExcisableAmount:"Forex" Else $$InWords:@@ExcisableAmount:"Forex"
+CWBaseSymFormula : $$String:@@ExcisableAmount:"Forex,ShowBaseSymbol"
+
+
+[system : formula]
+cwIsExciseLed : $TAXTYPE:ledger:$ledgername = "excise"
+
+

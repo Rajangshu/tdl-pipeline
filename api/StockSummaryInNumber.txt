@@ -1,0 +1,171 @@
+; Created By: Pg on 2013-06-02 23:00, ID: 
+
+[#report: stock summary]
+variable : ShowcwQtyOfNum
+set : ShowcwQtyOfNum : no
+
+[#field: DSP StkInfo]
+;add : field : at beginning : cwNumqty
+
+[#field : DSP StkOp]
+add : field : at beginning : cwNumqtyOp
+
+[#Field    : DSP StkIn]
+add : field : at beginning : cwNumqtyIn
+
+[#Field    : DSP StkOut]
+add : field : at beginning : cwNumqtyOut
+
+[#field : DSP StkCl]
+add : field : at beginning : cwNumqtyCl
+
+[field : cwNumqtyCl]
+use : number field
+style : normal
+Set As: if @@cwQtyInNumberEnabled and ##ShowcwQtyOfNum then (if not $$isstockitem then $$CollNumTotal:StockItemBelongsToGroupName:@@cwfmyNumqtyCl else @@cwfmyNumqtyCl) else $$value
+;border : thin box
+align : right
+format: "NoZero,Decimals:" + @@cwNumQtyDecimals
+invisible : if @@cwQtyInNumberEnabled then if ##DSPShowMonthly then yes else not ##ShowcwQtyOfNum else yes
+    Border      : Full Thin Bottom : $$IsExploded
+;; {07.Mar.14 15:50}     border : thin box : @@cwQtyInNumberEnabled and ##ShowcwQtyOfNum
+
+[field : cwNumqtyOp]
+use : cwNumqtyCl
+Set As: if @@cwQtyInNumberEnabled and ##ShowcwQtyOfNum then if not $$isstockitem then $$CollNumTotal:StockItemBelongsToGroupName:@@cwfmyNumqtyOP else @@cwfmyNumqtyOp else $$value
+
+[field : cwNumqtyIn]
+use : cwNumqtyCl
+Set As: if @@cwQtyInNumberEnabled and ##ShowcwQtyOfNum then if not $$isstockitem then $$CollNumTotal:StockItemBelongsToGroupName:@@cwfmyNumqtyIn else @@cwfmyNumqtyIn else $$value
+
+[field : cwNumqtyOut]
+use : cwNumqtyCl
+Set As: if @@cwQtyInNumberEnabled and ##ShowcwQtyOfNum then if not $$isstockitem then $$CollNumTotal:StockItemBelongsToGroupName:@@cwfmyNumqtyOut else @@cwfmyNumqtyOut else $$value
+
+
+[System: Formula]
+cwfmyNumqtyCL : if ##IsGodownReport then $$number:$StkClBalance else $$number:$closingbalance
+cwfmyNumqtyOp : if ##IsGodownReport then $$number:$StkOPBalance else $$number:$openingbalance
+
+cwfmyNumqtyIn : $$number:$stkinqty
+cwfmyNumqtyOut : $$number:$stkoutqty
+
+[#line : DSP Totals]
+local : field : cwNumqtyOp : set as  :if @@cwQtyInNumberEnabled then  $$total:cwNumqtyOp else $$value
+local : field : cwNumqtyIn : set as  : if @@cwQtyInNumberEnabled then $$total:cwNumqtyIn else $$value
+local : field : cwNumqtyOut : set as  : if @@cwQtyInNumberEnabled then $$total:cwNumqtyOut else $$value
+local : field : cwNumqtyCl : set as  : if @@cwQtyInNumberEnabled then $$total:cwNumqtyCl else $$value
+
+[#Part: DSP AccBody]
+total : cwNumqtyOp,cwNumqtyIn,cwNumqtyOut,cwNumqtyCl
+
+[#field: DSPQ OpTitle]
+add : field : at beginning : cwNumQtyOp
+local : field : cwNumQtyOp : type : string
+local : field : cwNumQtyOp : Info : "Qty (Num)"
+
+[#field: DSPQ InTitle]
+add : field : at beginning : cwNumQtyIn
+local : field : cwNumQtyIn : type : string
+local : field : cwNumQtyIn : Info : "Qty (Num)"
+
+[#field: DSPQ OutTitle]
+add : field : at beginning : cwNumQtyOut
+local : field : cwNumQtyOut : type : string
+local : field : cwNumQtyOut : Info : "Qty (Num)"
+
+[#field: DSPQ ClTitle]
+add : field : at beginning : cwNumQtyCl
+local : field : cwNumQtyCL : type : string
+local : field : cwNumQtyCl : Info : "Qty (Num)"
+
+;-------------- Configure F11 F6
+
+
+;;Sri Ganeshji
+
+[#Form: Company Operations]
+                Switch   : cwQtyInNumberLowerRel  : cwQtyInNumberNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : cwQtyInNumberCurrenRel : cwQtyInNumberFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : cwQtyInNumberNOTFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End : cwQtyInNumberConfig
+                                
+[!Form : cwQtyInNumberFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : cwQtyInNumberConfig
+;local : line : cwTestConfig : local : field : short name field : tool tip: "Double-Click for browsing to CircuitWorld.in"
+
+[#part:CMP TallyShopFeatures Left]
+  line:cwQtyInNumberConfig
+  
+  
+[Line : cwQtyInNumberConfig]
+Field : cwQtyInNumberConfigTitle,cwQtyInNumberConfig,short prompt,number field
+;right field : Short name field
+Local: Field: short name field : info: "sales@circuitworld.in"
+Local: Field: short name field: case : normal
+Local: Field: short name field: Color : blue
+;;Local: Field: short name field: border : thin bottom
+Local: Field: short name field: width : 0
+Local: Field: short prompt: info: "No. of Decimals to Display [0-4]:"
+Local: Field: number field: storage: cwNumQtyDecimals
+local: field: number field : inactive: not #cwQtyInNumberConfig
+Local: field: short prompt: Width: 0
+local : field : number field : validate : $$value >= 0 and $$value < 5
+
+
+;key  : cwcwQtyInNumberBrowse
+
+[key : cwcwQtyInNumberBrowse]
+key : left double click
+action : browse : "www.circuitworld.in"
+
+
+
+[Field: cwQtyInNumberConfigTitle]
+Use : medium prompt
+info: "Show Qty Independent of Units (in Stock Summary) ?"
+width : 0
+
+[Field: cwQtyInNumberConfig]
+Use: logical field
+Set As: $cwQtyInNumberEnabled
+storage: cwQtyInNumberEnabled
+
+[system : udf]
+cwQtyInNumberEnabled : logical : 411 ;; change this value.
+cwNumQtyDecimals: number : 412
+
+
+[System: Formula]
+cwQtyInNumberEnabled :  $cwQtyInNumberEnabled:COMPANY:##SVCURRENTCOMPANY
+cwNumQtyDecimals: if $$isempty:@@cwNumQtyDecimalsNum then "0" else $$string:@@cwNumQtyDecimalsNum
+cwNumQtyDecimalsNum:$cwNumQtyDecimals:COMPANY:##SVCURRENTCOMPANY
+[variable : ShowcwQtyOfNum]
+type : logical
+
+[system : variable]
+ShowcwQtyOfNum : no
+
+;---------------------- In F12 Configure of Stock Summary.
+
+[#Part: SSCFG Common]
+add : option : cwSetMyQtyInNum : @@cwQtyInNumberEnabled
+
+[!part : cwSetMyQtyInNum]
+add: line : after :  SSShowQty:  cwSetMyQtyInNum
+
+[line : cwSetMyQtyInNum]
+        Field: Medium Prompt, cwssShownumQty
+        Local: Field: Medium Prompt : Info : $$LocaleString:"Show Qty Independent of Units ?"
+;        border : thin top
+
+
+[field : cwssShownumQty]
+use : logical field
+modifies : ShowcwQtyOfNum
+
+        [#Field: SSShowValue]
+;            Validate: if not @@cwQtyInNumberEnabled then #SSShowQty OR #SSShowRate OR $$Value else #SSShowQty OR #SSShowRate OR #cwssShownumQty or  $$Value
+

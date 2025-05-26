@@ -1,0 +1,15 @@
+
+[System : Formula]
+cwSignatory : $cwSignatory:company:##svcurrentcompany
+
+;;[#line :
+[#Part: Company MailingDetails]
+add : bottom line : after :  CMP Country : cwsignatory
+
+[line : cwsignatory]
+field : medium prompt,nf
+Local: Field: medium prompt : info: "Signatory:"
+
+Local: Field: nf : storage: cwSignatory
+	    Option      : Small Size Line
+local : field :  nf : case :  normal

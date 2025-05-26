@@ -1,0 +1,19 @@
+; Created By: Khokan on 2021-08-07 10:22, ID: 
+[#Collection: SalesVoucherDetails]
+add: Object: <>
+
+[Object: <>]
+use : VchOutputConfiguration
+Name : @@<>
+Value: ##<>
+Action: ConfigAction: Set: <> : NOT ##<>
+
+[Variable: <>]
+Persistent: Yes
+Type: Logical
+
+[System: Variable]
+<> : No
+
+[System: Formula]
+<> :""

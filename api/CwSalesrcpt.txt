@@ -1,0 +1,209 @@
+;; Enable the Formula with Machine Date
+;; SalesReceiptXdemo : $$machinedate <= $$Date:"01/06/2010"
+;; cwFullProofRcpt : boolean
+
+ [#Form: Columnar Day Book]
+     Option : ColumnarDayBookA : @@SalesReceiptXdemo
+
+   [!Form : Columnar Day BookA]
+    Local : Line : DSP ColVchTitle :Add : Right Field : Titleerecptamt,DateTitle ;; Border : Thick box
+    Local : Line : DSP ColVchDetail : Add : Right Field : cwbillno,valuerecptamt,datevalue
+    Local : Field : Short name FieldA : Set As : ""
+    Local : Line : DSP ColVchTotal : Add : Right Field : SnameRldc,dateblank
+    Local : Field : Short name FieldB : Set As : @@BilA
+    
+[#collection : Columnar Filtered Vouchers of Company]
+    fetch : ALLLedgerEntries.*
+    fetch : amount
+    fetch : date
+    fetch : ALLLedgerEntries.billallocations.name
+    fetch : ALLLedgerEntries.billallocations.name
+;;    fetch : ledgerentries:billallocations.name
+
+    
+[System : Formula]
+;;     Xdemo : $$machinedate <= $$Date:"01/06/2010"
+      bal : $$FilterValue:$LedgerName:LedgerEntries:First:IsPartyLedger
+
+[Field : datevalue]
+    use : uni date Field
+    Width :.7 inch
+    Set As :If $$ExplodeLevel=0 then @@rdt else 0  ;; If $$Isempty:@@Bila2 then "" else $date
+    Border : Thin left
+    Style : normal
+
+[field : cwbillno]
+use : snfx
+set as : $$collectionfield:@@cx:1:allledgerentries ;;$ALLLedgerEntries[1].billallocations[1].name
+invisible  : yes
+
+[System : Formula]
+cx : $$collectionfield:$name:last:billallocations
+
+
+[Field : valuerecptamt]
+   use : Amount Field
+   Width :.7 inch
+   Set As : if $$explodelevel = 0 then @@bila else "" ;;If $$ExplodeLevel=0 then @@Bila else 0 ;;@@Bila2
+   option : greenf : @@CWGREENCONDITION
+   option : rf : $$ExplodeLevel=0  and NOT @@CWGREENCONDITION ;;$$collamttotal:mybills:$closingbalance <> 0
+   Format : "No zero"
+;;   use : name field
+;;set as : @@CWBILLXXX
+;;set as : $myname ;;$$collectionfield:@@bn:first:allledgerentries
+;; $ALLLedgerEntries[1].billallocations[1].name
+;;set as : $$collectionfield:@@bnx:first:allledgerentries
+
+
+[System : Formula]
+bnx      : $$collectionfield:$name:first:billallocations
+
+
+[!field : greenf]
+   color : green
+   
+[!field : rf]
+   color : red
+   
+[Field : SnameRldC]
+   use : Short name Field
+   Width :.7 inch
+   Set As : ""
+;*************************************************************
+
+[System: Formula]
+cwdeds : $$collamttotal:mybills:@@cwOtherDeductions
+cwOtherDeductions : $$filteramttotal:ledgerentries:jfilter:@@namt
+jfilter : $$isjournal:$vouchertypename or $$isdebitnote:$vouchertypename or $$iscreditnote:$vouchertypename
+
+ [System : Formula]
+CWGREENCONDITION : if $$explodelevel = 0 then ( if (@@bila = #DBCAmount) then yes else ($$NUMITEMS:MYBILLS2 <> 0)) else no ;; @@BILA = $AMOUNT ;; $$VALUE = #DBCGrossAmt ;; NOT $$ISEMPTY:$MYBILLS[1].CLEAREDON ;; $$NUMITEMS:MYBILLS = 1 ;; $$collamttotal:mybills:$closingbalance = 0
+   Bila   : $$collamttotal:mybills:@@ramt
+   ;;$$CollectionField:@@Bila2:First:inventoryentries
+;;   Bila2  :$$collamttotal:mybills:@@ramt
+   rdt    : $$collectionfield:@@r1dt:first:mybills ;;$openingbalance ;;
+   r1dt   : $$filtervalue:$date:ledgerentries:last:rfilter
+   ramt   :$$filteramttotal:ledgerentries:rfilter:@@namt
+
+   rVoucherNo : $$collectionfield:@@r1Vno:first:mybills
+   r1Vno : $$filtervalue:$vouchernumber:ledgerentries:last:rfilter
+
+   rChqNo : $$collectionfield:@@chq1no:first:mybills
+   chq1no : $$filtervalue:@@chq2no:ledgerentries:last:rfilter
+   chq2no : "!" ;;$allledgerentries[2].BANKALLOCATIONS[1].INSTRUMENTNUMBER
+
+   rfilter:$$isreceipt:$vouchertypename
+   
+   
+   sfilter: $$name= #cwbillno ;;$$owner:@@CWBILLXXX ;; $vouchernumber ;; $$name = $vouchernumber ;;
+   namt : $$filteramttotal:ledgerentries:mfilter:@@myamt1
+   mfilter : $$filtercount:billallocations:bfilter > 0
+   bfilter : if @@cwFullProofRcpt then $name = #cwbillno  else $name = $$ReqObject:$vouchernumber
+   myamt1 : $$filteramttotal:billallocations:bfilter:$amount
+;;  BilA : $$Filtervalue:@@Bila2:inventoryentries:First:rfilter
+CWBILLXXX :  $$COLLECTIONFIELD:@@CWBILLXX:FIRST:LEDGERENTRIES ;;$ALLLedgerEntries[1].BILLALLOCATIONS[1].NAME ;;
+CWBILLXX  :$$COLLECTIONFIELD:$NAME:FIRST:BILLALLOCATIONS
+
+[collection : mybills]
+         collection : mybills1
+         collection : mybills2
+;;         fetch : allledgerentries.*
+;;         fetch : allledgerentries.billallocations.*
+;;         fetch : ledgerentries.*
+;;         fetch : ledgerentries.billallocations.*
+
+   [collection : mybills2]
+          type : bills
+      child of : $partyledgername
+        filter : sfilter
+       cleared : yes
+         fetch : allledgerentries.*
+         fetch : allledgerentries.billallocations.*
+         
+         fetch : ledgerentries.*
+         fetch : ledgerentries.billallocations.*
+
+   [collection : mybills1]
+          type : bills
+      child of : $partyledgername
+        filter : sfilter
+       cleared : no
+         fetch : allledgerentries.*
+         fetch : allledgerentries.billallocations.*
+         fetch : ledgerentries.*
+         fetch : ledgerentries.billallocations.*
+
+;;                                 ;;;;;;;;;;;;;;;;;;;;;;;;
+;;[#Field: DBC VchNo]
+;;    Border : Thick Box
+
+[System : Formula]
+   B1 : $$Owner:$$filteramttotal:Allledgerentries:rfilter:@@B2
+   B2 : $$Owner:$$filteramttotal:BillAllocationsA:rfilterA1:$Amount
+   rfilterA1 :   $VoucherNumber = #VCHBILLName
+
+[Collection : BillAllocationsA]
+    Type : vouchers:BillAllocations
+    Child of : #VCHBILLName
+   
+[System : Formula]
+    S1 : $$CollectionField:@@S2:First:mybills;;Pendingbills
+;;    S1 : $$FilterValue:@@S2:Pendingbills:First:S3
+    S2 : $$FilterValue:$Amount:Ledgerentries:First:S3
+    S3 : $$IsReceipt:$Vouchertypename
+;;    S4 : $name = $$ReqObject:$vouchernumber
+
+;;[#Field : VCHBILLName]
+;;    Border : Thin box
+   
+;; Ledger Bills
+
+[System : Formula]
+      Sp1 : $$collamttotal:LedgerBillsA:@@Sp3
+      Sp2 :  $name = $$ReqObject:$vouchernumber ;;yes ;; $$IsReceipt:$Vouchertypename ;;$$name=$vouchernumber  ;;
+      Sp3 : $$FilterAmtTotal:Ledgerentries:Sp4:$Amount
+      Sp4 : $$IsReceipt:$Vouchertypename ;;
+
+[Collection : LedgerBillsA]
+     type  : Bills
+     Child of : #Ledgername
+     Sort : @@Default	: $Partyledgername
+     Delete : Filter
+     Add :Filter :Sp4
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;[#Line : DSP VchDetail]
+;;    Border : Thin box
+
+;; [#Part: SPC DBBody]
+;;    Local : Line  : DSP VchDetail : Border : Thin box
+
+[System : Formula]
+   X1 : $$CollAmtTotal:SpecificVouchersofCompanyA:@@X2
+   X2 : $$FilterAmtTotal:BillAllocations:Sp4:$Amount
+
+[Collection: Specific Vouchers of CompanyA]
+     use :Specific Vouchers of Company
+     Delete : Filter
+     
+     
+[Field : dateTitle]
+     use : Short name Field
+     Width :.7 inch
+     Set as : "Rcpt Dt"
+     Style : normal
+
+
+[Field : dateblank]
+    use : Short name Field
+    Width :.7 inch
+    Set As : ""
+
+[Field : Titleerecptamt]
+   use : short name Field
+   Width :.7 inch
+   Set As : "Receipt"
+   Align  : Right
+   Border : Thin box
+

@@ -1,0 +1,133 @@
+; add formula for enable str
+; cwCustomizationStr
+
+          [system : formula]
+   cwCustomizationEnabled : ($cwEnableCustomization:Company:##SVCurrentCompany)
+   cwCustomizationStrx  : if $$isempty:@@cwCustomizationStr then "Custmization" else @@cwCustomizationStr
+   
+
+         [#Part : CMP AccFeat Left]
+      Add: Line : CMP cwEnableCustomization
+
+          [Line : CMP cwEnableCustomization]
+          Field : Medium Prompt, CMP cwEnableCustomization
+  Local : Field : Medium Prompt: Info: "Enable "+ @@cwCustomizationStrX + " ?"
+      Space Top : 1
+
+         [Field : CMP cwEnableCustomization]
+            Use : Logical Field
+        Storage : cwEnableCustomization
+     set always : yes
+;;     width : @@shortwidth
+
+
+/*
+; ---------------------------------------------------------------------------
+;   Adding Broker In Voucher.
+; ---------------------------------------------------------------------------
+
+[#Line: VCH POS PartyContact]
+add : option : cwbroker : @@iscwBrokerApplicable
+
+         [#Line : EI Consignee]
+   add : Option : cwBroker : @@iscwBrokerApplicable
+   	
+	        [#Line: VCH POS PartyContact]
+   add : Option : cwBroker : @@iscwBrokerApplicable
+
+         [!Line : cwBroker]
+add: rightfields: mediumPrompt, eiPartyBroker
+  Local : Field : mediumPrompt : Info  : $$LocaleString:@@cwBroker+@@colon
+  Local : Field : mediumPrompt : width : @@ShortWidth
+
+         [FIELD : EI PARTYBroker]
+            Use : Name Field
+        Storage : cwBroker
+          Table : cwBrokerTableLedger,NotApplicable : @@cwLedgerBroker
+	  Table : cwBrokerTableGroup,NotApplicable  : @@cwGroupBroker
+	  Table : CwBrokerTableCC,NotApplicable     : @@cwCostBroker
+set by condition: @@cwBrokerYesNo and @@cwUseDefBroker : $cwbroker:ledger:#Eiconsignee
+;;           skip : @@pgskipbroker
+     set always : yes
+;;     border : thin box : @@cwUseDefBroker
+     Show Table : Always
+         option : keyCL : @@cwLedgerBroker
+         option : keyCG : @@cwGroupBroker
+         option : keyCC : @@CwCostBroker
+;;border : thin box : @@cwBrokerYesNo and @@cwUseDefBroker
+
+[System : Formula]
+pgSkipBroker : if @@cwUseDefBroker then yes else no
+         [!field: keyCL]
+            Key : Create Ledger
+
+         [!field: keyCG]
+            Key : Create Group
+
+         [!field: keyCC]
+            key : Create Cost Centre
+;----------------------------------------------------------------------------
+; Collection for Broker Table
+;----------------------------------------------------------------------------
+
+    [Collection : cwBrokerTableLedger]
+           type : Ledger
+       Child of : @@cwbroker
+         format : $name,30
+          Title : @@cwBroker
+
+    [Collection : cwBrokerTableGroup]
+           type : Group
+       Child of : @@cwbroker
+         format : $name,30
+          Title : @@cwBroker
+
+    [Collection : CwBrokerTableCC]
+           type : Cost Centre
+       Child of : @@cwbroker
+         format : $name,30
+          Title : @@cwBroker
+
+; ------------------------------------------------------------------------
+; Default Transport in Leger
+; ------------------------------------------------------------------------
+
+[#Part: MST LED Parent]
+Local : Line : MST Parent : Explode : CWLedgerBroker : ($$IsBelongsTo:$$GroupSundryDebtors or @@brokerinCreditor) and @@cwCmpHasBroker and @@cwUseDefBroker and $Parent <> @@cwbroker
+
+[Part: CWLedgerBroker]
+line : CWLedgerBroker
+
+border : thick box
+[line : CWLedgerBroker]
+Fields		: Long Prompt, EI PARTYBroker
+Local       : Field : Long Prompt : Set as : @@cwBroker + " :"
+Invisible   : NOT @@IsIndian
+local : field : eipartybroker : delete : skip
+
+; ------------------------------------------------------------------------
+; Broker in Bill Allocation
+; ------------------------------------------------------------------------
+
+[#line : VCHBILL CTLineOne]
+add : fields : after : VCH ShortTitle : snfx
+Local: Field: snfx : info:@@cwBroker
+local : field : snfx : invisible : not @@cwBrokerYesNo
+
+[#line : VCHBILL CTLineTwo]
+add : fields : after : VCH ShortTitle : snfx
+Local: Field: snfx : info:""
+local : field : snfx : invisible : not @@cwBrokerYesNo
+
+[#line : VCHBILL CTLineThree]
+add : fields : after : VCH ShortTitle : snfx
+Local: Field: snfx : info:""
+local : field : snfx : invisible : not @@cwBrokerYesNo
+
+[#Line: VCHBILL MainLine]
+add : fields : after : VCHBILLName : snfx
+Local: Field: SNFX : storage: CustomBroker
+Local: Field: snfx : Set As:#EIPARTYBroker  ;;$cwBroker:VOUCHER:$VOUCHERTYPENAME
+Local: Field: snfx : skip : yes
+local : field : snfx : invisible : not @@cwBrokerYesNo
+*/

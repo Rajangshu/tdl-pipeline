@@ -1,0 +1,23 @@
+; Created By: pg on 2012-04-05 19:42
+
+[#Report: day book]
+
+;;local : part : DSP VchTitle : local : line :
+local : line : DBTitle1 : add : right field : at beginning : nf
+local : line : DBTitle1 : local : field : nf : info :@@cwBroker
+;;local : field : nf : border: thin box
+
+;;local : Line: DSP VchAccTitles : local : field : default : border : thinbox
+local : line : DSP VchDetail  : add : right field : at beginning : nf
+local: field: nf : cells : 1
+Local: Field: nf : Set As: $cwbroker
+local : field : nf : width : @@shortwidth
+local : collection : Daybook Vouchers of Company : fetch: cwbroker
+local : collection : Filtered Vouchers of Company : fetch  :cwbroker
+local : collection : Specific Vouchers of Company : fetch  :cwbroker
+;;local : field : nf : inactive : if not $$IsEmpty:##IsDayBook then not $$issalesorder:##svVouchertype else  not $$issalesorder:##Vouchertypename
+;;local : field : nf : border : thin box
+
+
+
+

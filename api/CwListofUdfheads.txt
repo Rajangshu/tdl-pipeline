@@ -1,0 +1,30 @@
+; Created By: pg on 2011-08-02 11:24
+
+     [#menu: Gateway of Tally]
+;       add : item : before : @@locquit : "UDFHeads": display : cwlistofUDFHeads
+     
+     
+     [report: cwlistofUDFHeads]
+         use: cwListofEmployees
+       local: part: PrtcwListofEmployees: repeat: LncwListofEmployees: cwUDFHeads
+       local : field : fwf2 : invisible :yes
+       Local: Field: fwf : Set As: $name
+;;       LOCAL : LINE : LncwListofEmployees : ADD : FIELD : FWF3
+;;       Local: Field: FWF3 : Set As: $CalculationType
+;;       Local: field : FWF3: Width : 100
+;;       local: Field: FWF3: max: 100
+     
+     [collection : cwUDFHeads]
+           use : PayHeadNameList
+           delete : filter
+           add  : filter : cwudffilter
+fetch : CalculationType
+	ADD:Filter		: PaySheetPayheadFilter
+    ADD:Filter      : ShowInPaysheetFilter
+
+           
+           [System : Formula]
+           cwudffilter  : $CalculationType = $$SysName:AsUserDefined
+
+
+     

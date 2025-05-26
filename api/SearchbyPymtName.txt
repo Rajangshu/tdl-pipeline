@@ -1,0 +1,166 @@
+
+;;[#Report: Voucher Register]
+;;local : DB Body : local: field : default : border : thin box : $$isPayment:##vouchertypename
+;;[#part : dbbody]
+;;local : field : default : border : thin box :
+
+[#line : DSP VchDetail]
+add : option: pymtchq : @@cwPymtOption
+
+[!line : pymtchq]
+add : field: cwPymtName
+
+[system : formula]
+cwPymtOption : $$ispayment:##vouchertypename
+mydefsort : $BasicVoucherChequeName ;;if @@cwpymtOption then $BasicVoucherChequeName else $date
+
+[field : cwpymtname]
+use : name field
+style : normal
+set as : $BasicVoucherChequeName
+;;border : thin box
+
+;;[#form : Normal Day Book]
+;;bottom button: btnChqNameFilter
+
+[key : sortbyPymtname]
+title : "ChqName Sort"
+key : alt + f6
+action : set : localsort : not ##localSort
+inactive : not @@cwpymtoption
+
+[system : variable]
+localsort : no
+
+[variable : localsort]
+type: logical
+default :no
+persistent : no
+
+;;[#Part: SPC DBBody]
+
+
+[#Menu: Account Books]
+add : key Item    : before : @@locquit :  Payment Register      : P : Display            	: Payment Register
+add : Item    : before : @@locquit : blank
+
+[Report: Payment Register]
+
+    Use         : Voucher Monthly Summary
+;;variable : FilterChqname1
+    Family      : $$Translate:"Voucher Registers"
+    Set         : VoucherTypeName       : $$VchTypePayment
+    Set         : VchTotalTrans         : Yes
+    Set         : DSPShowGraph          : No
+    Set         : DSPNotScaleable       : Yes
+    Set         : FamilyVoucherFlag 	: Yes
+    Title		: $$LocaleString:"Payment Register"
+    title : #filterchqname1
+    Local       : Button  : RelReports : Inactive : yes
+;;local : collection : default : sort : @@default :$BasicVoucherChequeName
+;;local : collection : Specific Vouchers of Company : sort : @@default : @@mydefsort
+;;local : collection : filtered Vouchers of Company : sort : @@default : @@mydefsort
+;;local: form : monthlysummary : local : collection : default : add: filter : myfa
+;;local : form : default : bottom button: btnChqNameFilter
+
+;;[#form : monthlysummary]
+;;local : collection : default : add: filter : myfa
+
+[system : formula]
+myfa :if not @@cwpymtoption then yes else if ##FilterChqname1 = "" then yes else $BasicVoucherChequeName contains ##FilterChqname1
+
+[#Collection: Specific Vouchers of Company]
+sort : @@ByChq : $BasicVoucherChequeName
+filter : namef
+
+[System : Formula]
+namef : if not @@cwpymtoption then yes else if ##filterchqname1 = "" then yes else $BasicVoucherChequeName contains ##FilterChqname1
+
+[#Collection: filtered Vouchers of Company]
+sort : @@ByChq : $BasicVoucherChequeName
+filter : namef
+[#Field: DSPSorting]
+        Table       : Sorting Methods,cwBasicSort : @@cwPymtOption
+        Table       : Sorting Methods :  not @@cwPymtOption
+        
+        [collection: cwBasicSort]
+        listname : @@byChq
+        
+        [system : formula]
+        bychq : "Name on Cheque"
+
+;-------------
+[Button : btnChqNameFilter]
+Key : alt+F7
+Action  : Modify Variables : FilterChqname1
+inactive : not @@cwpymtoption
+title : "Chq Name"
+
+[Report : FilterChqname1]
+Auto : yes
+
+[Form: FilterChqname1]
+Parts       : FilterChqnameTitle,FilterChqname
+Full Width  : No
+Space Right : 2
+Space Left  : 4
+No confirm  : Yes
+Option      : Small Size Form
+;;Background  : Very Light Grey, Very Light Grey
+
+[Part : FilterChqnameTitle]
+Line : Form Sub Title
+Space Bottom : 0.5
+Local : Field : Form Sub Title : Info : "Filter By Name"
+
+[Part : FilterChqname]
+Line  : FilterChqname
+
+[Line  : FilterChqname]
+Field : Short Prompt, FilterChqname
+Local : Field : Short Prompt : Info : "Enter Name :"
+
+[Field : FilterChqname]
+Use : Name Field
+Style : Normal
+Modifies : FilterChqname1
+
+
+[Variable : FilterChqname1]
+Type : String
+persistent : no
+default : ""
+
+
+[System : Variable]
+FilterChqname1 : ""
+
+;;[#form : voucher register]
+[#Report: Voucher Register]
+local : form : daybook : add : button : btnChqNameFilter
+
+[#part : dbbody]
+add : option : opt : Not $$inexportmode
+
+[!part : opt]
+add : bottom line : cwtotline
+total : DSP DBDrAmt, DSP DBCrAmt
+
+ [line : cwtotline]
+right field : shortnamefield,amtfx,amtf2x
+ local : field : dspdramt : set as : $$total:#DSPDBDrAmt
+invisible : $$InExportMode or (not @@cwPymtOption)
+;; local : field : default : border : thin box
+ local : field : shortname field : set as : "Total"
+ local :field : default : skip : yes
+;;border : thin box
+;;DSP DBDrAmt, DSP DBCrAmt
+
+[field : amtfx]
+   use : amount field
+;;border : thin box
+set as : $$total:DSPDBDrAmt
+
+[field : amtf2x]
+   use : amtfx
+set as : $$total:DSPDBCrAmt

@@ -1,0 +1,108 @@
+; Created By: Pg on 2018-03-27 17:38, ID: 
+
+;;Sri Ganeshji
+
+[#Form: Company Operations]
+          ;      Switch   : cwTransLowerRelTrans  : cwTransNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : cwTransCurrenRelTrans : cwTransFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+/*
+[!Form : cwTransNOTFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End : cwTransConfig
+*/
+
+[!Form : cwTransFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : cwTransConfig
+local : line : cwTestConfig : local : field : short name field : tool tip: "Double-Click for browsing to CircuitWorld.in"
+;; {27.Mar.18 19:15} local: field  : default : border : thin box
+
+[Line : cwTransConfig]
+Field : cwTransConfigTitle,cwTransConfig,cwtransgrptitle,cwTransGroup
+;; {27.Mar.18 17:46} right field : Short name field
+Local: Field: short name field : info: "sales@circuitworld.in"
+Local: Field: short name field: case : normal
+Local: Field: short name field: Color : blue
+;;Local: Field: short name field: border : thin bottom
+Local: Field: short name field: width : 0
+
+
+;; {27.Mar.18 18:16} key  : cwcwTransBrowse
+
+[key : cwcwTransBrowse]
+key : left double click
+action : browse : "www.circuitworld.in"
+
+
+
+[Field: cwTransConfigTitle]
+Use : medium prompt
+info: "Set Transporter from Debtor?"
+width : 0
+
+[Field: cwTransConfig]
+Use: logical field
+Set As: $cwTransEnabled
+storage: cwTransEnabled
+
+[Field: cwTransGroup]
+use : short name field
+set as : $cwTransGroupName
+storage : cwTransGroupName
+ inactive: not #cwTransConfig
+ 
+ [field : cwtransgrptitle]
+ use : short name field
+ info : "Transport Group:"
+ inactive: not #cwTransConfig
+
+
+[System: Formula]
+cwTransEnabled :  $cwTransEnabled:COMPANY:##SVCURRENTCOMPANY
+cwTransGroupName : $cwTransGroupName:COMPANY:##SVCURRENTCOMPANY
+
+[#Part: MST LED Explode Sundry]
+add : option : cwTransrpotInMaster :@@cwTransEnabled
+
+[!part : cwTransrpotInMaster]
+
+line : CWTranporterLedger
+
+[line : CWTranporterLedger]
+Fields	    : Long Prompt, CWTranporterLedger
+Local       : Field : Long Prompt : Set as :@@cwTransGroupName + " :"
+Invisible   : NOT @@IsIndian
+local : field : CWTranporterBroker : delete : skip
+
+ [field : CWTranporterLedger]
+
+  Use : Name Field
+        Storage : cwTransporter
+          Table : cwTransporterLedger,NotApplicable ;: @@cwTransEnabled
+	
+set by condition: @@cwTransEnabled and not $$issysname:$cwTransporter:ledger:#Eiconsignee
+     set always : yes
+     Show Table : Always
+Key : Create Ledger,alter ledger
+            variable : svledger
+            invisible : not  @@cwTransEnabled
+            
+            [collection : cwTransporterLedger]
+            title : @@cwTransGroupName
+            use : ledger
+            child of : @@cwTransGroupName
+             belongs to : yes
+             
+; --------- Voucher Entry
+; Case: when Supplimentary is on, set in EI Pre Carriage
+
+[#Field : ei PreCarriage]
+ add : option : setcwPreCarriage : @@cwTransEnabled and not $$issysname:$cwTransporter:ledger:#Eiconsignee
+ 
+ [!field : setcwPreCarriage]
+ set always : yes
+ set as : if $$isfieldedited then $$value else $cwTransporter:ledger:#Eiconsignee
+  Table : cwTransporterLedger,NotApplicable
+            
+
+            
+

@@ -1,0 +1,68 @@
+
+ [#Part : LED Contact]
+    add : line : cwledMultiEmails
+    
+  [line : cwledMultiEmails]
+    add : field : mp,cwlogical
+  local : field : cwlogical : subform : cwledMultiEmail : $$value
+  local : field : mp : info : "Multi Emails:"
+  local : field : cwlogical : Inactive    : $$IsEmpty:#LEDMailingName
+
+[report : cwledMultiEmail]
+  title : "Ledger Multi E-mails"
+   form : cwLedMultiEmail
+   
+  [form : cwLedMultiEmail]
+   part : cwLedMultiEmail
+    Full width  : No
+    Full height : No
+
+   
+  [part : cwLedMultiEmail]
+   line : cwLedMultiEmailtitle,cwLedMultiEmail
+ repeat : cwLedMultiEmail : cwLedMultiEmail
+break on: $$issysname:$cwemailid
+ scroll : vertical
+ height : 1 inch
+ 
+  [line : cwLedMultiEmailtitle]
+    use : cwLedMultiEmail
+ option : titleopt
+  local : field : snf : set as : "Type"
+  local : field : nf  : set as  : "E-Mail ID"
+ 
+  [line : cwLedMultiEmail]
+  field : snf,nf
+  local : field : snf : table : cwemailtype,NotApplicable
+  local : field : snf : storage : cwemailtype
+  local : field : nf  : storage : cwemailid
+  local : field : nf : inactive : $$issysname:$cwEmailType
+  local : field : nf  : max   : 300
+  
+  [System : UDF]
+  cwledMultiEmail : aggregate : 5011
+  cwEmailType : string : 5012
+  cwEmailId : string : 5013
+  
+  [collection : cwLEdMultiEmail]
+  type : cwLedMultiEmail : ledger
+  child of : $name
+
+  [collection : cwPartyMultiEmail]
+  type : cwLedMultiEmail : ledger
+  child of : $Partyledgername
+
+  [collection : cwEmailType]
+        Title : "Type"
+     listname : @@cwTo
+     listname : @@cwCC
+     listname : @@cwBcc
+     
+      [System : Formula]
+         cwTo : "To"
+         cwcc : "CC"
+        cwBcc : "BCC"
+   
+
+ 
+ 

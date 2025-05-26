@@ -1,0 +1,288 @@
+; Created By: Pg on 2013-11-30 13:55, ID: 
+
+ [#Line: DSP UserName]
+ Add : Fields : EntBy
+ Add : Fields : AltBy
+
+
+ [Field : EntBy]
+ Use : Name Field
+ SetAs : $VCHCreatUser
+
+
+ [Field : AltBy]
+ Use : Name Field
+ SetAs : $VCHAlterUser
+
+ [Line : DSPCreatBy]
+ Field : DSPCreatBy
+
+ [Field : DSPCreatBy]
+    Use : Name Field
+  SetAs : $VCHCREATUSER
+
+
+ Width : 8% Page
+ Border : Thin Left
+;; {01.Dec.13 23:22}  border : thick box
+ Style : Small
+ Invisible : NOT ##ShowcreatBy
+
+
+ [Line : DSPAltrBy]
+ Field : DSPAltrBy
+
+
+ [Field : DSPAltrBy]
+ Use : Name Field
+ SetAs : $$collectionfield:$VchAlterUser:(-1):VCHALTERUSER ;;$$numitems:GRVchAlterHistory ;;$$CollectionField:$VchAlterUser:last:GRVchAlterHistory ;;$$numitems:GRVchAlterHistory ;; $$collectionfield:$VCHAlterUser:last:GRVchAlterHistory ;;VCHAlterUser
+ Width : 8% Page
+ Border : Thin Left
+ Style : Small
+ Invisible : NOT ##ShowAltrBy
+
+ ;;[#Part: DYBKCFG Common]
+ ;; Delete : Line : ShowCreatedBy
+ ;; Add : Line : ShowcreatBy
+ ;; Add : Line : ShowAltrBy
+
+
+
+ [#Part: CMP COLBasics]
+
+ Add : Line:AtEnd: ShowAltrBy
+ Add : Line:Before: ShowAltrBy : ShowCreatBy
+
+
+ [Line: ShowCreatBy]
+
+ Fields : Medium Prompt,ShowcreatBy
+ Local : Field : Medium Prompt : Info : $$LocaleString:"Show Entered By ?"
+
+
+ [Field : ShowcreatBy]
+
+ Use : Logical Field
+ Modifies : ShowcreatBy
+
+
+
+ [Line: ShowAltrBy]
+
+ Fields : Medium Prompt, ShowAltrBy
+ Local : Field : Medium Prompt : Info : $$LocaleString:"Show Altered By ?"
+
+
+
+ [Field : ShowAltrBy]
+
+ Use : Logical Field
+ Modifies : ShowAltrBy
+
+
+
+
+ [Variable: ShowcreatBy]
+
+ Type : Logical
+ Persistent : Yes
+
+ [System : Variable]
+ ShowcreatBy:""
+
+
+ [Variable: ShowAltrBy]
+
+ Type : Logical
+ Persistent : Yes
+
+ [System : Variable]
+ ShowAltrBy:""
+
+
+
+ [System : UDF]
+
+ GRVchAlterHistory : Aggregate : 6002 ;; i am not using it.
+
+;; [System: UDF]
+ VCHAlterUser : String : 6003 : yes
+ VCHCreatUser : string : 6004
+ VchCreateDateTime : string : 6006
+ VchAlteredDateTime : string : 6007 : yes
+ CurUser : String : 6005
+
+
+
+ [#Line : DSP ColVchTitle]
+
+ Add : Fields : After : DBC VchNo : DSPCreatBy
+
+ Local : Field : Default : Style : Small Italic
+
+ Local : Field : DSPCreatBy : Set As : "Entered By."
+
+ Add : Fields : After : CreatBy : DSPAltrBy
+
+ Local : Field : Default : Style : Small Italic
+
+ Local : Field : DSPAltrBy : Set As : "Altered By."
+
+
+ [#Line : DSP ColVchDetail]
+
+ Add : Fields : After : DBC VchNo : DSPCreatBy
+ Add : Fields : After : DSPCreatBy : DSPAltrBy
+
+
+ [#Line : DSP ColVchTotal]
+
+ Add : Fields : After : DBC VchNo : DSPCreatBy
+ Local : Field : DSPCreatBy : Set As : ""
+ Add : Fields : After : DSPCreatBy : DSPAltrBy
+ Local : Field : DSPAltrBy : Set As : ""
+
+
+
+ [#Part : VCHNarration]
+ ;;Option : SalesUser : @@Issales
+ 
+ [#form : voucher]
+ add : part : cwAuditLog
+ 
+ [part : cwAuditLog]
+ line : CreatBy,cwAuditLog2
+
+[line : cwAuditLog2]
+field: short prompt,nf,nf2,name field
+local: field: nf: Invisible: yes
+local: field: nf2: Invisible: yes
+Local: Field: nf: storage: VCHAlterUser: VCHAlterUser : last : no
+Local: Field: nf: Set As: @@OnlyUserName
+Local: Field: nf: Set always : yes
+Local: Field: nf: type : string : forced
+Local: Field: nf: skip : yes
+Local: Field: short prompt: info: "Last Altered by:"
+Local: Field: nf2: storage: VchAlteredDateTime : VchAlteredDateTime : last : no
+Local: Field: nf2: Set As: $$string:$$machinedate +  " " + $$string:$$machinetime
+Local: Field: nf2: Skip: Yes
+local : field : name field : set as : $$collectionfield:$VchAlterUser:(-2):VCHALTERUSER + " on "+ $$collectionfield:$VchAlteredDateTime:(-2):VchAlteredDateTime
+Local: Field: name field: Skip: Yes
+
+
+[!Part : SalesUser]
+ Add : Line : CreatBy, AltrBy
+
+
+[field : nf]
+use : name field
+
+[field : nf2]
+use : nf
+
+ [Line : CreatBy]
+
+ Field : short prompt,CreatBy
+ Local: Field: short prompt: info: "Created By:"
+
+
+ [Field : CreatBy]
+
+ Use : Name Field
+ Type : String : Forced
+ Storage : VCHCreatUser
+ Set as : if $$InCreateMode then ##SVuserName else $$value
+ Set always : yes
+ ;; invisible : yes
+ skip : yes
+
+;; {01.Dec.13 23:26}  Background : red
+
+
+
+ [Line : AltrBy]
+
+ Field : CndAltrBy
+
+ [Field : CndAltrBy]
+
+ Option : AltrBy : $$InAlterMode
+
+
+ [!Field : AltrBy]
+ Type : String : Forced
+ set as : @@OnlyUserName
+ Storage : VCHAlterUser : VCHAlterUser : end : 1
+ Validate : not $$isempty:$$Value
+ Set Always : Yes
+ inactive : $$InCreateMode
+ Background : yellow
+ 
+ [System : Formula]
+ OnlyUserName : if $$InAlterMode then ##SVuserName else "Not Altered"
+
+
+ [#Collection : Columnar Filtered Vouchers of Company]
+ Fetch : GRVchAlterHistory.VCHCreatUser
+ Fetch : GRVchAlterHistory.VCHAlterUser
+ Fetch : VCHCreatUser
+ Fetch : VCHAlterUser.VCHAlterUser
+ fetch : CurUser
+
+
+ [#Collection: Columnar Vouchers of Ledgers]
+ Fetch : GRVchAlterHistory.VCHCreatUser
+ Fetch : GRVchAlterHistory.VCHAlterUser
+ Fetch : VCHCreatUser
+ Fetch : VCHAlterUser
+ fetch : CurUser
+
+
+ [#Collection: Columnar Daybook Vouchers of Company]
+ Fetch : GRVchAlterHistory.VCHCreatUser
+ Fetch : GRVchAlterHistory.VCHAlterUser
+ Fetch : VCHCreatUser
+ Fetch : VCHAlterUser
+ fetch : CurUser
+ 
+
+ [#Collection: Ledger Vouchers Coll]
+ Fetch : GRVchAlterHistory.VCHCreatUser
+ Fetch : GRVchAlterHistory.VCHAlterUser
+ Fetch : VCHCreatUser
+ Fetch : VCHAlterUser
+ fetch: CurUser
+
+ [#Collection: Daybook Vouchers of Company]
+ Fetch : GRVchAlterHistory.VCHCreatUser
+ Fetch : GRVchAlterHistory.VCHAlterUser
+ Fetch : VCHCreatUser
+ Fetch : VCHAlterUser
+ fetch : CurUser
+ 
+
+ [#Collection: DBVoucher SRC]
+ Fetch : GRVchAlterHistory.VCHCreatUser
+ Fetch : GRVchAlterHistory.VCHAlterUser
+ Fetch : VCHCreatUser
+ Fetch : VCHAlterUser
+ fetch : CurUser
+
+[#collection : Columnar Filtered Vouchers of Company]
+ Fetch : VCHCreatUser
+ Fetch : VCHAlterUser.VCHAlterUser
+fetch :CurUser
+
+[#COLLECTION: Columnar Vouchers of Ledgers]
+ Fetch : VCHCreatUser
+ Fetch : VCHAlterUser.VCHAlterUser
+fetch :CurUser
+
+
+[#collection : Columnar Specific Vouchers of Company]
+fetch :CurUser
+ Fetch : VCHAlterUser.VCHAlterUser
+ 
+[#collection : Columnar Filtered Vouchers of Company]
+fetch :CurUser
+

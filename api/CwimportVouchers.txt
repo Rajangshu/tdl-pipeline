@@ -1,0 +1,162 @@
+;; include common vars
+     [#menu: Gateway of Tally]
+;; {13.Jun.14 14:36}         add: Option: cwImportVouchersLock: @@CWDEBUG
+       
+     [!menu: cwImportVouchersLock]
+        add: Item: before: @@locQuit: @@cwImportVouchersReport: Display: RepcwImportVouchersX
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   cwImportVouchersReport: "Import Vouchers"
+ cwImportVouchersDemoLock: $$MachineDate < $$Date:"02/11/2010"
+ 
+ [REPORT : RepcwImportVouchersX]
+     USE : RepcwImportVouchers
+set : str1 : "sales"
+set : str2 : "creditnote"
+
+     
+    [Report: RepcwImportVouchers]
+        use: Dsp Template
+      Title: @@cwImportVouchersReport
+   Printset: Report Title: @@cwImportVouchersReport
+       Form: FrmcwImportVouchers
+     Export: Yes
+;;     set  : svfromdate : ##svcurrentdate
+;;     set  : svTodate : ##svcurrentdate
+variable : str1,str2
+;;set : str1 : "sales"
+;;set : str2 : "creditnote"
+     
+      [Form: FrmcwImportVouchers]
+        use: DSP Template
+       Part: DspAccTitles,PrtcwImportVouchers
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: cwImportVouchersbotbrk,cwImportVouchersbotOpbrk
+
+      [part: cwImportVouchersbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: cwImportVouchersbotopbrk]
+        use: dspacctitles
+  add: part: cwImportVouchersTitlePart
+
+      [part: cwImportVouchersTitlePart]
+       line: LncwImportVouchersTitle
+  
+      [Part: PrtcwImportVouchers]
+       Line: LncwImportVouchersTitle,LncwImportVouchers
+bottom Line: LncwImportVouchersTotals
+     repeat: LncwImportVouchers: ColcwImportVouchers
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColcwImportVouchers]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColcwImportVouchersFilter
+
+    [system: Formula]
+ColcwImportVouchersFilter: if ##str1 = "" then yes else $$ColcwImportVouchersFilter
+
+ [function : ColcwImportVouchersFilter]
+   returns : logical
+   01 : if : $$isempty:##str2
+   02 : return : $$cwVchTypefromStr:##str1
+   03 : else
+   04 : return : $$cwVchTypefromStr:##str1 or $$cwVchTypefromStr:##str2
+   05 : end if
+   
+ [function : cwVchTypefromStr]
+ PARAMETER : cwType : string
+   returns : logical
+;   02X : LOG : ##CWTYPE
+   01  : if : ##cwtype  = "sales"
+   02  : return : $$issales:$vouchertypename or (($$isdebitnote:$vouchertypename or $$iscreditnote:$vouchertypename) and $STATADJUSTMENTTYPE = "Return Of Taxable Goods")
+   02a : else
+   03  : if : ##cwtype  = "purchase"
+   04  : return : ($$ispurchase:$vouchertypename or $$isdebitnote:$vouchertypename or $$iscreditnote:$vouchertypename)
+   04a : else
+   05  : if : ##cwtype  = "debitnote"
+   06  : return : $$isdebitnote:$vouchertypename
+   06a : else
+   07  : if : ##cwtype  = "creditnote"
+   08  : return : $$iscreditnote:$vouchertypename
+   09  : else
+   10  : return : no
+   100  : end if
+   101 : end if
+   102  : end if
+   103 : end if
+;;   104  : end if
+;;   105 : end if
+
+   
+
+      [Line: LncwImportVouchersTitle]
+        use: LncwImportVouchers
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: fwf: set as: ""
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratef : set as : "Rate"
+
+      [Line: LncwImportVouchers]
+     Fields: numf,d1,sdf,d2,snf,d3,snf2,d4,fwf,d5,numf2,d6,numf3,d7,numf4,d8,numf5,d9,numf6,d10,numf7
+right field: d10,Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format      : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf2 : Format      : "NoSymbol, Short Form, No Compact,NoZero"
+     local : field: fwf: alter : voucher : $$isvoucher
+Local: Field: sdf  : Set As: $date
+Local: Field: snf  : Set As: $vouchernumber
+Local: Field: snf2 : Set As: $vouchertypename
+Local: Field: fwf  : Set As: $partyledgername
+Local: Field: numf2 : Set As: @@cwIM1 ;; voucher type
+Local: Field: numf3 : Set As: $masterid:vouchertypes:$vouchertypename ;; vouchertypeid
+explode: ExpcwImportVouchersItems : $$numitems:inventoryentries > 0
+
+Local: Field: numf : Set As: $$explodelevel
+Local: Field: numf : format  : "zero"
+
+Local: Field: numf4 : Set As: $masterid:ledger:$partyledgername ;; ledger id
+Local: Field: numf5 : Set As: $masterid:group:$parent:ledger:$partyledgername ;; parent
+Local: Field: numf6 : Set As: $masterid:group:$parent:group:$parent:ledger:$partyledgername ;; grand parent
+Local: Field: numf7 : Set As: $masterid:group:$parent:group:$parent:group:$parent:ledger:$partyledgername ;; great grand parent
+
+[part : ExpcwImportVouchersItems]
+line : ExpcwImportVouchersItems
+repeat : ExpcwImportVouchersItems : inventoryentries
+
+[line : ExpcwImportVouchersItems]
+field : numf,d1,fwf,d2
+right field : qtyf,d4,qtyf2,d5,rateuf,d6,amtf,d7,amtf2,d8,numf2,d9,numf3,d10,numf4,d11,numf5,d12,numf6
+Local: Field: fwf   : Set As: $stockitemname
+
+Local: Field: qtyf  : Set As: $ActualQty
+Local: Field: qtyf2 : Set As: $billedqty
+Local: Field: amtf2 : Set As: $discount
+Local: Field: numf2 : Set As: $masterid:unit:$baseunits:stockitem:#fwf
+
+
+Local: Field: numf3 : Set As: $masterid:stockitem:#fwf ;;  id
+;;local : field : numf3 : border : thin box
+Local: Field: numf4 : Set As: $masterid:stockgroup:$parent:stockitem:#fwf ;; parent
+Local: Field: numf5 : Set As: $masterid:stockgroup:$parent:stockgroup:$parent:stockitem:#fwf ;; grand parent
+Local: Field: numf6 : Set As: $masterid:stockgroup:$parent:stockgroup:$parent:stockgroup:$parent:stockitem:#fwf ;; great grand parent
+local : field : amtf : set as : if $$issales:$vouchertypename or $$ispurchase:$vouchertypename then $$abs:$amount else -1 * $$abs:$amount
+
+      [line: LncwImportVouchersTotals]
+        use: LncwImportVouchers
+     option: totalOpt
+      local: field: fwf: style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: nf: set as: "Total"
+      Local: Field: amtf : Set As: $$total:amtf
+

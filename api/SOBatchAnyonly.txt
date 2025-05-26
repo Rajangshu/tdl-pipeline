@@ -1,0 +1,9 @@
+; Created By: pg on 2011-08-16 20:31
+
+;; Purpose it to make batch any only.
+
+    [#Field: VCHBATCH OrdrName]
+        delete : table
+        add : Table       : Any	 ;;	: $$IsSysName:#SVGodown         ;; Used for while selecting Any in the Godown Name
+;;	add : Table       : Any		: NOT $$IsSysName:#SVGodown		
+

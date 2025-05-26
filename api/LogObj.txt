@@ -1,0 +1,512 @@
+; Created By: Pg on 2013-06-22 11:37, ID: 
+
+[#form: Statistics]
+add : button : cwMasterList
+;local : field : default : border : thin box
+
+[#Form: List of Accounts]
+add : button : cwMasterList
+
+[key : cwMasterList]
+title: "CwMasterList"
+key : alt + f7
+action : display :RepfTemp
+
+     [#menu: Gateway of Tally]
+;     add : item : cwRr : display : cwRR
+
+;------------------------- REPORT FOR EXPORT TO DELPHI
+[REPORT : RepfTemp2]
+USE : RepfTemp
+DELETE : FORM
+ADD : FORM :  FrmfTemp2
+
+      [Form: FrmfTemp2]
+        use: DSP Template
+       Part: PrtfTemp2
+       
+       [PART: PrtfTemp2]
+       Line: LnfTempTitle,LnfTemp
+
+     repeat: LnfTemp: ColfTemp
+     scroll: Vertical
+
+
+     
+     
+     [report : cwrr]
+     use : RepfTemp
+     set : sdf1temp : $$date:"20-07-2013"
+     set : accounttype : $$sysname:StockItems
+     
+;; {04.Aug.13 11:57}         add: Option: fTempLock  ;;: @@cwdebug
+
+
+ [#menu : Account Statements]
+        add: Option: fTempLock  : $$machinedate < $$date:"01/09/2013"
+       
+     [!menu: fTempLock]
+        add: Item: before: @@locQuit: "Alter Mod Date" : menu : cwModDetails ;;alter : RepfTemp
+        add: Item: before: @@locQuit: Blank
+        
+        [menu : cwModDetails]
+        title :"Modify"
+        indent : Stock
+        item : Stock Item : Alter :RepfTempItems
+        item : Stock Group : alter : repfTempSGroups
+        item : Stock Category : alter : RepFTempSCategory
+        item : Unit : alter : repFtempUnit
+        item : Godown : alter : repFGodown
+        
+        indent : Ledgers
+        item : Ledger : Alter :RepfTempLedgers
+        item : Cost Category :alter : repFCostCategory
+        item : Cost Centre : alter : repFCostCentre
+        item : blank
+        item : Voucher Type : alter : repFVoucherType
+        item : blank
+        item : @@locquit
+
+
+;                  AL Budget, +
+;                  AL Currency
+
+;                  AL Tariff Classification, +
+
+;                  AL Serial Number, +
+
+
+[report : repFVoucherType]
+        use : RepfTempx
+        set : account type : VoucherTypes
+
+
+        [report: repFCostCentre]
+        use : RepfTempx
+        set : account type : CostCentres
+
+        
+        [report : RepfTempItems]
+        use : RepfTempx
+        set : account type : Stockitems
+        
+        [report : repfTempSGroups]
+        use : RepfTempx
+        set : account type : StockGroups
+        
+        [report : RepfTempLedgers]
+        use : RepfTempx
+        set : account type : Ledgers
+        
+        [report : RepFTempSCategory]
+        use : repfTempx
+        set : account type : Stockcategories
+        
+        [report: repFtempUnit]
+        use : repfTempx
+        set : account type : units
+        
+        [report : repFGodown]
+        use : repfTempx
+        set : account type : Godowns
+        
+        [report : repFCostCategory]
+        use : repfTempx
+        set : account type : CostCategories
+
+
+
+
+
+[report : RepfTempx]
+    use : RepfTemp
+local : form : FrmfTemp :delete : button
+local : form : FrmfTemp : add : button : cwFillDAte
+variable : logi1temp
+set : logi1temp : no
+
+[button : cwFillDAte]
+key : f3
+title : "Fill"
+action : set : logi1temp : not ##logi1temp
+
+
+[variable : logi1temp]
+type :logical
+
+
+[system : variable]
+logi1temp : no
+
+
+
+        
+    [System: formula]
+   fTempReport: "CwMasterList"
+;; fTempDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepfTemp]
+        use: Dsp Template
+      Title: @@fTempReport
+   Printset: Report Title: @@fTempReport
+       Form: FrmfTemp
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable : accounttype
+    Set         : AccountType       : if $$IsEmpty:##AccountType then $$SysName:Ledgers else ##AccountType
+    variable: sdf1temp
+     multi objects : ColfTemp
+;; {26.Sep.13 12:57} variable : IMPClAsOP
+    Set         : IMPClAsOp         : No
+    
+    Variable: logi1
+          set :logi1:"yes"
+
+
+print : Acct List Print Config
+    
+    [variable : sdf1temp]
+    type : date
+    
+    [system : variable]
+    sdf1temp : 0
+     
+      [Form: FrmfTemp]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0fTemp,PrtfTemp
+      Width: 100% Page
+     Height: 100% Page
+;; {22.Jun.13 14:08}  Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: fTempbotbrk,fTempbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+local : button :  BottomToolBarBtn3  : delete : inactive
+local : button :  BottomToolBarBtn8  : delete : inactive
+local : button :  BottomToolBarBtn9  : delete : inactive
+local : button :  BottomToolBarBtn10  : delete : inactive
+local : button :  BottomToolBarBtn11  : delete : inactive
+local : button :  BottomToolBarBtn12 : delete : inactive
+
+add:button:BottomToolBarBtn3,BottomToolBarBtn11,BottomToolBarBtn12
+add:button:cwNoTransactionBtn
+
+    Button      : ChangeCompany, BlankButton, +
+                  AL Groups, +
+                  AL Ledger, +
+                  AL CstCat, +
+                  AL CstCtr, +
+                  AL Budget, +
+                  AL Currency, Second Blank Button, +
+                  AL Stock Groups, +
+                  AL Stock Categories, +
+                  AL Stock Items, +
+                  AL Unit, +
+                  AL Godown, +
+                  AL Voucher Type
+
+;                  AL Tariff Classification, +
+;                  AL Serial Number, +
+
+
+      [part: fTempbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+     
+
+      [part: fTempbotopbrk]
+        use: dspacctitles
+  add: part: fTempTitlePart
+
+      [part: fTempTitlePart]
+       line: LnfTempTitle
+       
+      [line: LnfTempCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf: Set As: "List of "+##AccountType
+      border : thick bottom
+  invisible: $$inprintmode
+  Local: Field: default: Skip: Yes
+
+      [part: PrtTitle0fTemp]
+      line : LnfTempCurrPeriod
+      
+      [Part: PrtfTemp]
+     scroll: Vertical
+    Option          : EXPSoapEnvelopeOpt: ##SVExport AND (($$IsSysNameEqual:XML:##SVExportFormat) OR ($$IsSysNameEqual:AnsiXML:##SVExportFormat))
+    option : myotheropt123 : not ##svExport or not (##SVExport AND (($$IsSysNameEqual:XML:##SVExportFormat) OR ($$IsSysNameEqual:AnsiXML:##SVExportFormat)))
+
+    [!part : myotheropt123]
+       Line: LnfTempTitle,LnfTemp
+
+     repeat: LnfTemp: ColfTemp
+
+[Collection: ColfTemp]
+fetch : *
+
+option : cwx : $$SysName:##AccountType
+
+  Option : cwGroups2 : $$IsSysNameEqual:Groups:##AccountType
+  Option : cwLedgers2        : $$IsSysNameEqual:Ledgers:##AccountType
+  Option : cw PayHeads2	      : $$IsSysNameEqual:PayHeads:##AccountType
+  Option : cw CostCentres2    : $$IsSysNameEqual:CostCentres:##AccountType ;;AND $$ExplodeLevel > 0
+  Option : cw CostCategories2 : ($$IsSysNameEqual:CostCategories:##AccountType) OR +
+                         			   		  ($$IsSysNameEqual:Employees:##AccountType AND $$ExplodeLevel = 0) OR ($$IsSysNameEqual:EmployeeGroups:##AccountType AND $$ExplodeLevel = 0)
+  Option : cw Employees2      : $$IsSysNameEqual:Employees:##AccountType ;;AND $$ExplodeLevel > 0
+  Option : cw EmployeeGroups2 : $$IsSysNameEqual:EmployeeGroups:##AccountType ;;AND $$ExplodeLevel > 0
+  Option : cw Budgets Scenario2: $$IsSysNameEqual:BudgetScenarios:##AccountType
+  Option : cw Godowns2        : $$IsSysNameEqual:Godowns:##AccountType OR $$IsSysNameEqual:Locations:##AccountType
+  Option : cw StockGroups2    : $$IsSysNameEqual:StockGroups:##AccountType
+  Option : cw StockCategories2: $$IsSysNameEqual:StockCategories:##AccountType
+  Option : cw StockItems2     : $$IsSysNameEqual:StockItems:##AccountType
+  Option : cw Currencies2     : $$IsSysNameEqual:Currencies:##AccountType
+  Option : cw Units2          : $$IsSysNameEqual:Units:##AccountType
+  Option : cw VoucherTypes2   : $$IsSysNameEqual:VoucherTypes:##AccountType
+  Option : cw Attd Types2     : $$IsSysNameEqual:AttendanceTypes:##AccountType
+  Option : cw Deductee Type2  : $$IsSysNameEqual:DeducteeTypes:##AccountType
+  option : cwclzerovalue : ##logi1
+  filter : InTEmpDate
+  filter : cwClzerovaluefltr
+  filter : cwopzerovaluefltr
+fetch : cwmodifieldondate
+  
+  [!collection:cwclzerovalue]
+delete:filter:cwClzerovaluefltr
+delete:filter:cwopzerovaluefltr
+
+  [System: Formula]
+InTEmpDate :if $$isempty:##sdf1temp then yes else if $$isempty:$cwModifiedOnDate then no else $$date:$cwModifiedOnDate >= ##sdf1temp
+cwClzerovaluefltr:not $$isempty:$closingBalance
+cwopzerovaluefltr:not $$isempty:$openingBalance
+
+[!collection : cwx]
+type : units
+
+[!collection :   cwGroups2]
+type : group
+
+[!collection :   cwLedgers2]
+type :ledger
+;; {11.Aug.14 17:39} 	Use : ExtractAlias Collection
+;; {11.Aug.14 17:38} 	Source Collection: List of Ledgers
+;; {11.Aug.14 17:38} 	Fetch				: Name
+;; {11.Aug.14 17:38} sort :@@default:$name
+
+[!collection :   cw PayHeads2]
+use : RemotePAYGroupChildOfGroupName
+
+[!collection :   cw CostCentres2]
+type : cost centre
+
+[!collection :   cw CostCategories2]
+type : cost category
+
+[!collection :   cw Employees2]
+use : ListEmployeeChildOfEmpName
+
+[!collection :   cw EmployeeGroups2]
+use  : ListEmployeeGroups
+
+[!collection :   cw Budgets Scenario2]
+type : budget
+
+[!collection :  cw Godowns2]
+type : godown
+
+[!collection :   cw StockGroups2]
+type : stock group
+
+[!collection :   cw StockCategories2]
+type : stock category
+
+[!collection :   cw StockItems2]
+type : stock item
+
+[!collection :   cw Currencies2]
+type : currency
+
+[!collection :   cw Units2]
+type : unit
+
+[!collection :   cw VoucherTypes2]
+type: voucher type
+
+[!collection :   cw Attd Types2]
+use : ListAttdTypeChildofATName
+
+[!collection :   cw Deductee Type2]
+type : Deductee Type
+
+
+      [Line: LnfTempTitle]
+FIELD : NF
+
+      [Line: LnfTemp]
+/*     Fields: sdf,nf,fwf
+right field: ratepf,Qtyf,Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local : field : sdf : set as : $date
+*/
+LINE : FME
+
+ [field: snf5masterid]
+ use : simple field
+ set as : $masterid
+ 
+  [field: snf6guid]
+ use : simple field
+ set as : $guid
+ 
+ 
+[field : snf3temp]
+use : simple field
+storage: cwmodifiedondate
+set as : if not ##logi1temp then $$value else if $$line =1 then $$value else $$prevlinefield
+width : 1 inch
+max : 20
+set always: yes
+
+[field : snf4guid]
+use : simple field
+max : 200
+width : 1 inch
+storage : cwmasterid
+set always : yes
+Set As: if (not ##logi1temp) or not $$isempty:$$Value then $$value else $$MakeUniqueID
+
+[field: cwsimplefield]
+use : simple field
+set as :  $$reptfield:name:2 ;;$alias ;;if $$isstockitem then $mailingname else
+Skip: Yes
+     border : thin left right
+     width : 20
+[LINE : FME]
+
+	Full Object : Yes
+    On  : Export Object : ##IMPClAsOp   : Call  : ChangeClBalToOpBal	
+;; {26.Sep.13 13:08}     border : thin box : $$isledger
+	field : simple field,cwsimplefield
+	right field : snf3temp,snf4guid ,snf5masterid,snf6guid
+	add : option : cwitemfields : $$isstockitem  or $$isledger or $$isgroup
+
+	Local: field: snf3temp: Align: Right ;;centre
+;; {18.Jul.13 16:32} 	Local: Field: snf3: Border: thin box ;;left right
+	Local: Field: simple field: Set As: $name
+	local : field : simple field : width : 3 inch
+	option : alter on enter
+local : field : simple 	 field : alter :ledger : $$isledger
+local : field : simple 	 field : alter :group : $$isgroup
+;; {22.Jun.13 14:12} local : field : simple 	 field : alter : group : $$ispayhead
+local : field : simple 	 field : alter : costcentre: $$iscostcentre
+local : field : simple 	 field : alter : costcategory: $$iscostcategory
+
+local : field : simple 	 field : alter : godown: $$isgodown
+local : field : simple 	 field : alter : stockgroup: $$isstockgroup
+local : field : simple 	 field : alter :stockitem : $$isstockitem
+local : field : simple 	 field : alter : stockcategory: $$isstockcategory
+local : field : simple 	 field : alter : currency: $$iscurrency
+local : field : simple 	 field : alter : unit: $$isunit
+local : field : simple 	 field : alter : vouchertype: $$isvouchertype
+
+/*
+  Option : cw PayHeads2	      : $$IsSysNameEqual:PayHeads:##AccountType
+                         			   		  ($$IsSysNameEqual:Employees:##AccountType AND $$ExplodeLevel = 0) OR ($$IsSysNameEqual:EmployeeGroups:##AccountType AND $$ExplodeLevel = 0)
+  Option : cw Employees2      : $$IsSysNameEqual:Employees:##AccountType ;;AND $$ExplodeLevel > 0
+  Option : cw EmployeeGroups2 : $$IsSysNameEqual:EmployeeGroups:##AccountType ;;AND $$ExplodeLevel > 0
+  Option : cw Attd Types2     : $$IsSysNameEqual:AttendanceTypes:##AccountType
+  Option : cw Deductee Type2  : $$IsSysNameEqual:DeducteeTypes:##AccountType
+
+*/	
+
+[!line : cwitemfields]
+add :right  field : at beginning :cwsimplefield5, cwsimplefield2,cwsimplefield3,cwsimplefield4,cwSimpleFieldHSN,cwSimpleFieldGSTPer,cwSimpleFieldQty
+
+[Field: cwsimplefield5]
+use : cwsimplefield
+set as : if $$isstockitem then $partno else ""
+
+
+  [field: cwsimplefield2]
+     use : cwsimple field
+     set as : if $$issysname:$parent then "" else $parent
+
+     
+  [field: cwsimplefield3]
+     use : cwsimple field
+     set as : if $$isstockitem then  $baseunits else ""
+     
+  [field: cwsimplefield4]
+     use : cwsimple field
+     set as : if $$isstockitem then $category  else ""
+     
+  [field: cwSimpleFieldHSN]
+     use : cwsimple field
+     set as : if $$isstockitem then $$collectionfield:$hsncode:last:GSTDETAILS else "" ;;[Last].HSNCODE  else ""
+
+  [field: cwSimpleFieldGSTPer]
+     use : cwsimple field
+     set as : if $$isstockitem then $$collectionfield:($$collectionfield:($$filtervalue:$GSTRATE:RateDetails:1:cwIGSTMapped):first:STATEWISEDETAILS):last:GSTDETAILS  else ""
+
+  [field: cwSimpleFieldQty]
+  use : number field
+  set as : if $$isstockitem then $closingBalance else ""
+
+
+     [System: Formula]
+     cwIGSTMapped : $GSTRATEDUTYHEAD="Integrated Tax"
+
+
+      [line: LnfTempTotals]
+        use: LnfTemp
+;; {22.Jun.13 12:22}      option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+
+[button:cwNoTransactionBtn]
+ key:alt+f8
+ title:"Not Transaction"
+;; {29.Aug.23 16:38}  Action : Modify Variables:cwNoTransactionrep
+ action : set : logi1 : not ##logi1
+
+ [report:cwNoTransactionrep]
+ form:cwNoTransactionfrm
+
+ [form:cwNoTransactionfrm]
+ part:cwNoTransactionpart
+
+ HEIGHT:20% PAGE
+ WIDTH:30% PAGE
+ 
+ [part:cwNoTransactionpart]
+ line:cwNoTransactionLn
+ 
+ [line:cwNoTransactionLn]
+field:sp,cwlogical
+
+Local: Field: sp: info:"Show Transaction"
+Local: Field: cwlogical: Modifies :logi1
+Local: Field: cwLogical: setas :##logi1
+
+;; {29.Aug.23 16:31} Local: field: sp: Width:40
+
+

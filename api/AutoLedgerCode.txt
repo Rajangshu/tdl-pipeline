@@ -1,0 +1,95 @@
+; Created By: pg on 2012-10-05 13:46, ID: 1184
+
+;;Sri Ganeshji
+;//Section: CompanyConfiguration
+
+[#Form: Company Operations]
+                Switch   : cwAutoLedCodeLowerRel  : cwAutoLedCodeNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : cwAutoLedCodeCurrenRel : cwAutoLedCodeFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : cwAutoLedCodeNOTFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End : cwAutoLedCodeConfig
+                                
+[!Form : cwAutoLedCodeFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : cwAutoLedCodeConfig
+local : line : cwTestConfig : local : field : short name field : tool tip: "Double-Click for browsing to CircuitWorld.in"
+
+[Line : cwAutoLedCodeConfig]
+Field : cwAutoLedCodeConfigTitle,cwAutoLedCodeConfig,cwAutoLedConfigPrefixTitle,cwAutoLedConfigPrefix,medium prompt,number field
+local: field: medium prompt: info : "No. of Zeros to Prefill:"
+
+Local: Field: number field: storage: cwLedNumZeros
+Local: Field: number field: inactive : not #cwAutoLedCodeConfig
+Local: Field: number field: set as : if $$value = 0 then 5 else $$value
+Local: Field: number field: set always : yes
+
+right field : Short name field
+Local: Field: short name field : info: "sales@circuitworld.in"
+Local: Field: short name field: case : normal
+Local: Field: short name field: Color : blue
+;;Local: Field: short name field: border : thin bottom
+Local: Field: short name field: width : 0
+
+
+key  : cwcwAutoLedCodeBrowse
+
+[key : cwcwAutoLedCodeBrowse]
+key : left double click
+action : browse : "www.circuitworld.in"
+
+
+
+[Field: cwAutoLedCodeConfigTitle]
+Use : medium prompt
+info: "Allow Auto Ledger Code Generation?"
+width : 0
+
+[Field: cwAutoLedCodeConfig]
+Use: logical field
+Set As: $cwAutoLedCodeEnabled
+storage: cwAutoLedCodeEnabled
+
+[field:cwAutoLedConfigPrefixTitle]
+use : short prompt
+info:"Prefix:"
+
+[field:cwAutoLedConfigPrefix]
+use : short name field
+storage : cwAutoLedPrefix
+Skip: not $cwAutoLedCodeEnabled
+
+[system : udf]
+cwAutoLedCodeEnabled : logical : 1211 ;; change this value.
+cwAutoLedPrefix: string : 1212
+ cwLedNumZeros : number : 1213
+ 
+[System: Formula]
+cwAutoLedCodeEnabled :  $cwAutoLedCodeEnabled:COMPANY:##SVCURRENTCOMPANY
+
+;//Section:Changes in Ledger : Alias
+
+[#form :Ledger]
+option : AddAutoCodeInLedger : @@cwAutoLedCodeEnabled
+
+[!form : AddAutoCodeInLedger]
+local : field :MST Alias : set as : if $$line = 1 and $$isempty:$$value then @@GetLedAliasCode else $$value
+local : field :MST Alias : set always : yes
+
+[System: Formula]
+ledAutoAliasNumZeros: $cwLedNumZeros:COMPANY:##SVCURRENTCOMPANY
+cwAutoLedCodePrefix: $cwAutoLedPrefix:COMPANY:##SVCURRENTCOMPANY
+GetLedAliasCode : @@cwAutoLedCodePrefix  + $$zeroFill:@@GetLedAliasCodeCount:@@ledAutoAliasNumZeros
+GetLedAliasCodeCount : $$numitems:cwAutoLEdCodeColl + 1
+
+[collection : cwAutoLEdCodeColl]
+type : ledger
+compute : myAlias : @@AutoCodemyAlias
+format : $myalias,10
+sort : @@default : -$myalias
+filter : ledofMyAlias
+
+[System: Formula]
+ledofMyAlias : if $$isempty:@@cwAutoLedCodePrefix then yes else @@AutoCodemyAlias Starting with @@cwAutoLedCodePrefix
+AutoCodemyAlias : $$LocaleString:$$Alias:1:Yes
+

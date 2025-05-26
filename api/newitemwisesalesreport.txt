@@ -1,0 +1,100 @@
+; Created By: khokan on 2014-02-14 15:32, ID:
+
+
+
+[#Form: FrmItemWiseSales]
+
+Add: BottomButton: At Beginning	: showprofit
+
+  [KEY : showprofit]
+   KEY : F7
+
+ TITLE :if ##logi1 then "Hide Profit"  else "Show Profit"
+
+ action :set : logi1:not ##logi1
+
+
+ ;;====================================================================
+ 
+[#line:LnItemWiseSalesTitle]
+;;add:right fields:after:amtf:numf2,numf3,numf4
+Local: Field: amtf2: Set As:"Consumption"
+Local: Field: amtf3: Set As:"Gross Profit"
+Local: Field: amtf4: Set As:"Perc %"
+
+;; {15.Feb.14 10:40} Local: field: numf2: Width:14
+;; {15.Feb.14 10:39} Local: field: numf3: Width:14
+
+
+
+[#line:LnItemWiseSales]
+
+add:right fields:after:amtf:amtf2,amtf3,amtf4
+Local: Field: amtf2: Set As:""
+Local: Field: amtf3: Set As:""
+Local: Field: amtf4: Set As:""
+
+Local: field: amtf2: Width:14
+Local: field: amtf3: Width:14
+ ;;[#Field: DSPQ GPTitle]
+;; {14.Feb.14 16:35}  border:thin box
+local: field: amtf2: Invisible:not ##logi1
+local: field: amtf3: Invisible:not ##logi1
+local: field: amtf4: Invisible:not ##logi1
+add : field : amtf10
+Local: Field: amtf10: Set As: $$asamount:($tbaldebits:stockitem:$name + $openingvalue:stockitem:$name) /( $$number:$stkinqty:stockitem:$name + $$number:$openingbalance:stockitem:$name)
+;; {15.Feb.14 12:12} Local: Field: amtf10: Border: thin box ;;left right
+ local: field: amtf10: Invisible: yes
+
+
+[System: Formula]
+myitemname : $$owner:$name
+ [#line : cwItemWiseBillDetails]
+
+
+   Local: Field: nf10: Border: thin box ;;left right
+add:right fields:after:amtf:amtf2,amtf3,amtf4
+Local: Field: amtf2: Set As: $$explodeowner:#amtf10 * $$number:#qtyf ;; $openingrate:stockitem:$stockitemname ;; + $ $$nettamount:($tbalopening:stockitem:@@myitemname / $openingbalance:stockitem:@@myitemname):$$nettamount:($TBalDebits:stockitem:@@myitemname / $stkinqty:stockitem:@@myitemname):$$Negative:($TBalClosing:stockitem:@@myitemname/$closingbalance:stockitem:@@myitemname) ;; / #qtyf  ;;"" ;; $amount
+Local: Field: amtf3: Set As: #amtf  - #amtf2 ;; $$AsCrAmt:$$NettAmount:($closingbalance:stockitem:@@myitemname/#qtyf):#amtf2
+Local: Field: amtf4: Set As: (#amtf3 / #amtf ) * 100
+
+;; {15.Feb.14 10:40} Local: field: amtf2: Width:14
+;; {15.Feb.14 10:40} Local: field: amtf3: Width:14
+local: field: amtf2: Invisible:not ##logi1
+local: field: amtf3: Invisible:not ##logi1
+local: field: amtf4: Invisible:not ##logi1
+
+local: field: amtf4: type:number
+Local: field: amtf4: Format: "noZero,Percentage,Decimals:2"
+
+
+[#line : cwItemWisebillTotal]
+add:right fields:after:amtf:amtf2,amtf3,amtf4
+Local: Field: amtf2: Set As:$$total:amtf2
+Local: Field: amtf3: Set As:$$total:amtf3
+Local: Field: amtf4: Set As:$$total:amtf4
+
+Local: Field: amtf2: Border: thin top
+Local: Field: amtf3: Border: thin top
+Local: Field: amtf4: Border: thin top
+
+local: field: amtf4: type:number
+Local: field: amtf4: Format: "noZero,Percentage,Decimals:2"
+
+;; {15.Feb.14 10:40} Local: field: amtf2: Width:14
+;; {15.Feb.14 10:40} Local: field: amtf3: Width:14
+local: field: amtf2: Invisible:not ##logi1
+local: field: amtf3: Invisible:not ##logi1
+local: field: amtf4: Invisible:not ##logi1
+
+[#Part: PrtItemWiseSales]
+totals:amtf2,amtf3,amtf4
+[#part:cwItemWiseBillDetails]
+totals:amtf2,amtf3,amtf4
+
+[#collection : cwCollItemWiseBillDetails]
+;;use : Filtered Vouchers of Company
+
+fetch :StkOutQty
+
+

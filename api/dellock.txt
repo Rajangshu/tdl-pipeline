@@ -1,0 +1,10 @@
+
+
+[include : deletelock.txt]
+
+
+  [System : Formula]
+ cwDataEntry : $$cmpuserlevel= "Data Entry"
+ cwDelLockVch :not ##SVUserName=@@cwCmpAdmin   ;;@@cwNormal ;;@@cwDataEntry ;; and $$machinedate <= $$date:"10-09-12"
+
+

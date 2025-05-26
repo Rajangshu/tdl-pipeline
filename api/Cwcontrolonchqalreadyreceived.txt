@@ -1,0 +1,91 @@
+; Created By: pg on 2012-06-25 14:04
+
+;;Sri Ganeshji
+
+[#Form: Company Operations]
+                Switch   : cwControlRcptChqEntryLowerRel  : cwControlRcptChqEntryNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : cwControlRcptChqEntryCurrenRel : cwControlRcptChqEntryFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : cwControlRcptChqEntryNOTFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End : cwControlRcptChqEntryConfig
+                                
+[!Form : cwControlRcptChqEntryFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : cwControlRcptChqEntryConfig
+
+[Line : cwControlRcptChqEntryConfig]
+Field : cwControlRcptChqEntryConfigTitle,cwControlRcptChqEntryConfig
+right field : Short name field
+Local: Field: short name field : info: "sales@circuitworld.in"
+Local: Field: short name field: case : normal
+Local: Field: short name field: Color : blue
+;;Local: Field: short name field: border : thin bottom
+Local: Field: short name field: width : 0
+
+
+[Field: cwControlRcptChqEntryConfigTitle]
+Use : medium prompt
+info: "Warn on Duplicate Chq. No. Rcpt.?"
+width : 0
+
+[Field: cwControlRcptChqEntryConfig]
+Use: logical field
+Set As: $cwControlRcptChqEntryEnabled
+storage: cwControlRcptChqEntryEnabled
+
+[system : udf]
+cwControlRcptChqEntryEnabled : logical : 8500 ;; change this value.
+
+[System: Formula]
+cwControlRcptChqEntryEnabled :  $cwControlRcptChqEntryEnabled:COMPANY:##SVCURRENTCOMPANY
+;---------------------------------
+;;   		[#Line: Vch Bank Allocations Cheque Exp]
+	[#Line: Vch Bank Allocations]
+   		add : option : myPName : @@isReceipt and @@cwControlRcptChqEntryEnabled
+;;   		local: field: default: border: thin box
+   		
+   		[!line : mypname]
+   		add : field : at beginning : snf
+   		Local: Field: snf: Set As: $$Owner:$$FilterValue:$LedgerName:AllLedgerEntries:1:NOTIsBankLedger
+   		local: field: snf: Invisible: yes
+
+[#field : Vch Bank AllocChequeNo]
+;;table: MyChqReceivedofParty : @@isREceipt
+add : option : cwDupChqNo : @@isReceipt and @@cwControlRcptChqEntryEnabled
+
+[!field : cwDupChqNo]
+ notify : cwRcptAlreadyReceived : @@isInstrumentNoAlreadyExists
+
+[collection : MyChqReceivedofPartySrc]
+type : Voucher ;; : ledger
+;;child of : #snf
+filter : cwRcpt
+fetch : allledgerentries.bankallocations.INSTRUMENTNUMBER
+
+[System: Formula] ;;not $$isempty:$(MyChqReceivedofParty,@@FilterforInstrumentNo).myInstrumentno ;;
+cwRcpt : $$isReceipt:$vouchertypename
+isInstrumentNoAlreadyExists :  $$filtercount:MyChqReceivedofParty:FilterforInstrumentNo  > 0
+FilterforInstrumentNo : $myInstrumentno = #VchBankAllocChequeNo and $myid  <> $$REportObject:$$reportObject:$masterid
+cwRcptAlreadyReceived : "Instrument No Already Entered in Voucher No: " +$$Filtervalue:$VoucherNumber:MyChqReceivedofParty:first:FilterforInstrumentNo
+
+
+[collection : MyChqReceivedofParty]
+source collection : MyChqReceivedofPartySrc
+walk : allLedgerEntries,BankAllocations
+by : myInstrumentno : $INSTRUMENTNUMBER
+compute : myid : $masterid
+compute : VoucherNumber : $vouchernumber
+;;compute : myDate : $$string:$date
+
+;;format : $myInstrumentno,10
+;;format : $myId,5
+;;format : $vouchernumber,5
+;;format : $mydate,5
+
+
+
+
+
+
+
+

@@ -1,0 +1,114 @@
+
+;;[#Collection: Trader ListOfPurcCleared]
+;;add : format : @@cwtiq,7
+
+;;[#Collection: Trader ListOfPurcNonCleared]
+;;add : format : @@cwtiq,7
+
+;;[#Collection: Trader ListOfMultiPurcCleared]
+;;add : format : @@cwtiq,7
+
+;;[#Collection: Trader ListOfMultiPurcNonCleared]
+;;add : format : @@cwtiq,7
+
+[system :formula]
+cwtiq : $TraderExcisePurcQty ;;$traderexciseqty
+CWTIAMT : $TraderExciseAssbleValue
+; Purchase Voucher Details
+
+cwFirstSuppRGNO : $$reportobject:$$collectionfield:@@cw1SuppRgNo:1:inventoryentries
+cwFirstSuppPLANo : $$reportobject:$$collectionfield:@@cw1suppPlaNo:1:inventoryentries
+
+cwFirstSuppInvNo : $$reportobject:$$collectionfield:@@cw1suppinvno:1:inventoryentries
+cwFirstSuppInvDt : $$reportobject:$$collectionfield:@@cw1SuppInvDt:1:inventoryentries
+cwFirstSuppName : $$reportobject:$$collectionfield:@@cw1SuppName:1:inventoryentries
+cwFirstSuppExQty : $$reportobject:$$collectionfield:@@cw1SuppExQty:1:inventoryentries
+cwFirstSuppTotQty : $$reportobject:$$collectionfield:@@cw1SuppTotQty:1:inventoryentries
+cwFirstItemTarriff: @@ExciseItemTariffType
+cwFirstExAssvalue : $$reportobject:$$collectionfield:@@cw1SuppExAssValue:1:InventoryEntries
+;;$$FilterValue:$TraderExciseAssbleValue:TraderExcise:First:TraderIsSamePurcNumberx
+
+cwFirstExAssvalueWord : $$inwords:@@cwFirstExAssvalue + " only."
+cwfirstRateofDuty : $$FilterValue:$TraderExciseRateOfBED:TraderExcise:First:TraderIsSamePurcNumberx
+cwfirstCess : $$FilterValue:$TraderExciseRateOfEdCess:TraderExcise:First:TraderIsSamePurcNumberx
+cwfirstHsCess : $$FilterValue:$TraderExciseRateOfSecEdCess:TraderExcise:First:TraderIsSamePurcNumberx
+cwFirstDutyAmtPerUnit : $$FilterValue:@@TraderExciseDutyAmtPerUnitx:TraderExcise:First:TraderIsSamePurcNumberx
+cwFirstDuty : $$FilterValue:$TraderExTotalExciseDutyAmt:TraderExcise:First:TraderIsSamePurcNumberx
+
+TraderExciseDutyAmtPerUnitx : $$Sprintf:@@TraderNoDtFormat:@@TraderExciseDutyPerUnit:@@TraderStkItemBaseUnit
+cwInvExDutyRate : $$filtervalue:$RateOfInvoiceTax:ledgerentries:1:IsExciseTaxType
+cwInvExCessRate : $$filtervalue:$RateOfInvoiceTax:ledgerentries:1:IsCessOnDutyAddlType
+cwInvExHsCessRate : $$filtervalue:$RateOfInvoiceTax:ledgerentries:1:IsCessOnDutyType
+
+cwInvDutyAmt : $$Filteramttotal:ledgerentries:IsExciseTaxType:$amount
+cwInvCessAmt : $$Filteramttotal:ledgerentries:IsCessOnDutyAddlType:$amount
+cwInvECessAmt : $$Filteramttotal:ledgerentries:IsCessOnDutyType:$amount
+cwinvFirstQty : $$collectionfield:$billedqty:1:inventoryentries
+cwinvFirstAmt : $$collectionfield:$amount:1:inventoryentries
+
+; ------------
+cwFirstCVDamt : $$FilterValue:$TraderExciseBEDAmt:TraderExcise:First:TraderIsSamePurcNumberx
+cwfirstCessamt : $$FilterValue:$TraderExciseEdCessAmt:TraderExcise:First:TraderIsSamePurcNumberx
+cwfirstHsCessamt : $$FilterValue:$TraderExciseSHEdCessAmt:TraderExcise:First:TraderIsSamePurcNumberx
+
+
+
+
+
+
+cwInvIssue : $BASICDATETIMEOFINVOICE
+cwInvRemo : $BASICDATETIMEOFREMOVAL
+
+
+cwExBuyRegNo : $TraderSuppExciseRegnNo	
+cwexBuyRange : $TraderSuppRange
+cwExBuyDiv : $TraderSuppDivision	
+cwExBuyComm : $TraderSuppCommissionerate
+
+
+
+
+cwExConRegNo : $TraderConsExciseRegnNo
+cwexconRange : $TraderConsRange
+  cwExConDiv : $TraderConsDivision	
+ cwExConComm : $TraderConsCommissionerate
+cwExConVatNo : $TraderConsVATTINNo
+
+; *** Basic Excise Duty ***
+  cwExBEDAmt : ($$collAMTtotal:inventoryentries:$TraderTotalSaleBEDAmt / $$NUMBER:$$COLLQTYTOTAL:INVENTORYENTRIES:$ACTUALQTY ) * $$NUMBER:@@cwFirstSuppTotQty ;;$$reportobject:$$collectionfield:@@CWEXBED1:1:inventoryentries
+ cwExBedWord : $$inwords:@@cwExBEDAmt  + " only."
+
+  cwExCEssAmt : $$collamttotal:inventoryentries:$TraderTotalSaleEdCessAmt ;;$TraderTotalSaleSEDAmt
+  cwExCessWord : $$inWords:@@cwExCEssAmt + " only."
+
+ cwExSCEssAmt : $$collamttotal:inventoryentries:$TraderTotalSaleSHEdCessAmt ;;$TraderTotalSaleEdCessAmt ;;$TraderTotalSaleSEDAmt
+  cwExSCessWord : $$inWords:@@cwExSCEssAmt + " only."
+
+cwExCessAndSCessWord : $$inWords:@@cwExCessAndSCessTot + " only."
+cwExCessAndSCessTot : @@cwfirstHsCessamt + @@cwfirstCessamt
+;;@@cwExBEDAmt * (@@cwfirstCess + @@cwfirstHsCess) /100
+;;$$collamttotal:inventoryentries:@@cwSHS
+cwSHS : $TraderTotalSaleEdCessAmt  + $TraderTotalSaleSHEdCessAmt
+
+;;cwExCessAndSCessWord : $$inWords:@@cwExCessAndSCessTot + " only."
+;;cwExCessAndSCessTot : @@cwExBEDAmt * (@@cwfirstCess + @@cwfirstHsCess) /100
+;;$$collamttotal:inventoryentries:@@cwSHS
+;;cwSHS : $TraderTotalSaleEdCessAmt  + $TraderTotalSaleSHEdCessAmt
+
+; ------ intermediate start
+cw1SuppRgNo : $$collectionfield:$TRADERSUPPLIERRGNO:1:EXCISEALLOCATIONS
+cw1SuppPlaNo : $$collectionfield:$TRADERPLARGSLNO:1:EXCISEALLOCATIONS
+cw1suppinvno : $$collectionfield:$EXCISEPURCHASENUMBER:1:EXCISEALLOCATIONS
+cw1SuppInvDt: $$collectionfield:$TRADERSUPPLIERINVOICEDATE:1:EXCISEALLOCATIONS
+cw1SuppExQty : $$collectionfield:$TRADEREXCISEQTY:1:EXCISEALLOCATIONS
+cw1supptotqty : $$collectionfield:$TraderEAPurchaseQty:1:EXCISEALLOCATIONS ;; $TraderExcisePurcQty
+
+cw1SuppExAssValue : $$collectionfield:$TraderTotalAllocAssbleValue:1:EXCISEALLOCATIONS ;;$EXCISEASSESSABLEVALUE
+cw1SuppName : $$collectionfield:$TRADERSUPPLIERNAME:1:EXCISEALLOCATIONS
+
+TraderIsSamePurcNumberx		: ($ExcisePurchaseNumber = @@cwFirstSuppInvNo) AND +
+                                  ($ExciseLedgerName = @@cwFirstSuppName) AND +
+                                  ($ExciseDate = @@cwFirstSuppInvDt)
+
+; ------ end
+

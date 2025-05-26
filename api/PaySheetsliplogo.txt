@@ -1,0 +1,122 @@
+
+; Printing Logo in PaySlip
+[#Form: Payslip]
+add : option : cwPayslipLogo :  $$inprintmode and @@cwPaySlipLogEnabled ;;
+
+[!form : cwPayslipLogo]
+delete : part : Payroll Report Title
+add : part : at beginning : cwPayroll Report Title
+
+[part : cwPayroll Report Title]
+part : cwPaysliplogoL,Payroll Report Title,cwPaysliplogoR
+vertical : no
+
+
+[part : cwpaysliplogoL]
+ line : cwblankline
+ local :field  : name field : set as : @@cwPayslipLogoChar
+ local : field : name field : style : cwlogoPayslipStyle
+ local : field : name field : align : centre
+;; border : thin box
+
+[part : cwpaysliplogoR]
+use : cwpaysliplogoL
+local : field : name field : set as : ""
+
+ [style : cwlogoPayslipStyle]
+   font : "BCPL"
+ height : 72
+
+ [style : cwlogoPaysheetStyle]
+   font : "BCPL"
+ height : 60 ;;@@cwPayslipLogoHeight
+;;font : arial
+
+;  Printing Logo in Paysheet
+
+[#Form: DSP PaySheet]
+;;add : option : cwPaysheetLogo :  $$inprintmode and @@cwPaySheetLogEnabled ;;
+
+[!form : cwPaysheetLogo]
+;;delete : part : DSP PSheetTitles
+;;add : part : after : DSP EmpPeriodFilters : cwDSPPSheetTitles
+delete : part
+add : part : cwpaysliplogoL
+
+[part : cwDSPPSheetTitles]
+part : cwpaysliplogoL,DSPPSheetTitles,cwpaysliplogoR
+vertical : no
+;;local : part : cwpaysliplogoL : add : line : at beginning : cwxl
+;;local : part : cwpaysliplogoL : local : field : name field : style  : cwlogoPaysheetStyle
+;;local : part : cwpaysliplogoL : local : field : name field : lines : 3
+;;local : part : cwpaysliplogor : local : field : name field : style  : normal ;;cwlogoPaysheetStyle
+;;local : part : cwpaysliplogoL : local : field : name field : set as : @@cwPaysheetLogoChar
+;;local : part : cwpaysliplogor : local : field : name field : set as : ""
+;;local : field : name field : border :Thin box
+;;local : field : name field : full width : yes
+;;height : 1 inch
+;;local : field : name field : height : 1 inch
+scroll : vertical
+[line : cwxl]
+field : short name field
+
+; -- Configuring Logo Printing Details
+[#Part: CMP AccFeat Right]
+add  : line : enableEmpLogo
+
+[line : enableEmpLogo]
+        Fields          : Medium Prompt, cwlogical
+        Local       : Field : Medium Prompt : Info    : $$LocaleString:"Enable Logo Printing ?"
+        Space Top   : 0.4
+        local : field : medium prompt : inactive : not $$ispayrollon
+        Local: Field: cwlogical : storage : cwEnableLogoPrinting
+        local : field : cwlogical : subform : cwLogoDetails : $$value = "yes"
+        
+        [report : cwLogoDetails]
+          title : "Logo Details"
+           form : cwLogoDetails
+           
+          [form : cwLogoDetails]
+           part : cwlogodetails
+           
+          [part : cwlogodetails]
+           line : cwlogodetailsPayslip ;;,cwlogodetailsPaysheet
+
+           [line: cwlogodetailsPayslip]
+           field : mp,cwlogical,sp3,snfx ;; sp,snf,,sp2,numf
+           Local: Field: mp : Set As: "Logo in Payslip?"
+           Local: Field: cwlogical  : storage: cwLogoinPayslip
+           Local: Field: sp : Set As: "Logo Name:"
+           Local: Field: snf : storage: cwPayslipLogoName
+           Local: Field: sp2 : Set As: "Height:"
+           Local: Field: numf : storage: cwPayslipLogoHeight
+           Local: Field: sp3 : Set As: "Char:"
+           Local: Field: snfx : Storage: cwPayslipLogoChar
+           local : field : snfx : max : 3
+           
+           
+           
+           
+
+           [line: cwlogodetailsPaysheet]
+            use : cwlogodetailsPayslip
+           Local: Field: mp : Set As: "Logo in Paysheet?"
+           Local: Field: cwlogical  : storage: cwLogoinPaysheet
+           Local: Field: snf : storage: cwPaysheetLogoName
+           Local: Field: numf : storage: cwPaysheetLogoHeight
+           Local: Field: snfx : Storage: cwPaysheetLogoChar
+
+
+[System : Formula]
+cwLogoEnabled : $cwEnableLogoPrinting:company:##svcurrentcompany
+cwPaySlipLogEnabled : @@cwLogoEnabled and $cwLogoinPayslip:company:##svcurrentcompany
+cwPayslipLogoName : $cwPayslipLogoName:company:##svcurrentcompany
+cwPayslipLogoHeight : $cwPayslipLogoHeight:company:##svcurrentcompany
+cwPayslipLogoChar: $cwPayslipLogoChar:company:##svcurrentcompany
+
+cwPaySheetLogEnabled : @@cwLogoEnabled and $cwLogoinPaysheet:company:##svcurrentcompany
+cwPaysheetLogoName : $cwPaysheetLogoName:company:##svcurrentcompany
+cwPaysheetLogoHeight : $cwPaysheetLogoHeight:company:##svcurrentcompany
+cwPaysheetLogoChar: $cwPaysheetLogoChar:company:##svcurrentcompany
+
+

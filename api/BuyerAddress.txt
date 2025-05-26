@@ -1,0 +1,18 @@
+;; formula cwBuyerAddress
+
+[#Field: EI Buyer]
+add:   Option : Opeibuyer : @@cwBuyerAddress
+   
+[!Field : Opeibuyer]
+   Add : Table : Ledger
+   Show table : Always
+   Set Always : yes
+
+[#Field: EI BuyerAddress]
+   Option : OpeiAddress :  @@cwBuyerAddress
+   
+[!Field : OpeiAddress]
+   SetAs :  If $Partyledgername=$BasicBuyerName then  $$ReptField:Address:$$Line:Ledger:$PartyLedgerName else +
+               $$ReptField:Address:$$Line:Ledger:$BasicBuyerName
+   Set Always : yes
+

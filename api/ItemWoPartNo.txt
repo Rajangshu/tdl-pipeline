@@ -1,0 +1,117 @@
+; Created By: pg on 2014-05-14 16:04, ID: 
+
+
+;; {23.Feb.21 10:50}      [#menu: stock items]
+     [#Menu: Gateway of Tally]
+        add: Option: cwItemWOPartnoLock ;; : @@cwItemWOPartnoDemoLock
+       
+     [!menu: cwItemWOPartnoLock]
+        add: Item: before: @@locQuit: @@cwItemWOPartnoReport: Display collection : cwItemWoPartnoc
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   cwItemWOPartnoReport: "Item W/O Part No"
+;; cwItemWOPartnoDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+
+[collection : cwItemWoPartnoc]
+use : stock group
+report : RepcwItemWOPartno
+     
+    [Report: RepcwItemWOPartno]
+        use: Dsp Template
+      Title: @@cwItemWOPartnoReport
+   Printset: Report Title: @@cwItemWOPartnoReport
+       Form: FrmcwItemWOPartno
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmcwItemWOPartno]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0cwItemWOPartno,PrtcwItemWOPartno
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: cwItemWOPartnobotbrk,cwItemWOPartnobotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: cwItemWOPartnobotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: cwItemWOPartnobotopbrk]
+        use: dspacctitles
+  add: part: cwItemWOPartnoTitlePart
+
+      [part: cwItemWOPartnoTitlePart]
+       line: LncwItemWOPartnoTitle
+       
+      [line: LncwItemWOPartnoCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0cwItemWOPartno]
+      line : LncwItemWOPartnoCurrPeriod
+      
+      [Part: PrtcwItemWOPartno]
+       Line: LncwItemWOPartnoTitle,LncwItemWOPartno
+bottom Line: LncwItemWOPartnoTotals
+     repeat: LncwItemWOPartno: ColcwItemWOPartno
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColcwItemWOPartno]
+use : stock item
+child of : ##sstockgroup
+belongs to : yes
+filter : ColcwItemWOPartnoFilter
+
+    [system: Formula]
+ColcwItemWOPartnoFilter: $$isempty:$mailingname
+
+      [Line: LncwItemWOPartnoTitle]
+        use: LncwItemWOPartno
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LncwItemWOPartno]
+field : nf,nf2,nf3
+right field : qtyf,amtf
+Local: Field: nf: Set As: $name
+Local: Field: nf2: Set As: $parent
+Local: Field: nf3: Set As: $mailingname
+Local: Field: qtyf: Set As: $closingbalance
+Local: Field: amtf: Set As: $closingvalue
+option : alter on enter
+local : field : nf : alter : stock item : $$isstockitem
+
+
+      [line: LncwItemWOPartnoTotals]
+        use: LncwItemWOPartno
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

@@ -1,0 +1,17 @@
+[collection:repsalespersonselectcoll]
+  use:ledger
+;; {04.Apr.14 11:54}   use:cwBrokerTableLedger
+;; {04.Apr.14 11:21}    type:ledger
+
+;; {04.Apr.14 11:57}     type : Ledger
+       Child of : @@cwbroker
+;; {04.Apr.14 11:57}          format : $name,30
+;; {04.Apr.14 11:57}           Title : @@cwBroker
+;; {04.Apr.14 11:57} belongs to : yes
+
+  report:RepBrokerOutstanding
+;; {04.Apr.14 11:57}    trigger : cwBrokerTableLedger
+
+
+
+

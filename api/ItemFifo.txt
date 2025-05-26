@@ -1,0 +1,44 @@
+; Created By: pg on 2012-02-24 12:36
+; GetCost : "FIFO"
+
+[#menu : inventory Info.]
+add  : button : cwFIFO
+
+
+[button : cwFIFO]
+key : Alt + F
+action : call : DOFifo
+title : @@getCost
+
+
+[collection : mystockItems]
+use : stockitem
+
+[function : doFifo]
+variable : ctr : number : 1
+variable : mycostingmethod : string :  @@GetCost
+variable : totu : number : 0
+
+
+  01xx : QueryBox:"Update Costing Method to "+@@getcost+" ?":Yes:No
+  02xx : do if : not $$lastresult : continue
+
+;;00 : if : $$isempty:##mycostingmethod
+;;00a: set : mycostingmethod :"FIFO"
+
+01 : start progress: ($$numitems:mystockitems) : "Updating Stock Items" : ##mycostingmethod
+
+10 : walk collection : mystockItems
+19 : if : $costingmethod <> @@mycostingmethod
+;19a : log : $name
+20a : new object : stock item : $name ;;$(stockitem,$name).costingmethod : ##myCostingMethod
+20b : set value : costingmethod : ##mycostingmethod
+20c: accept alter
+
+21 : inc : totu
+25 : end if
+27 : inc : ctr
+28 : show progress : ##ctr
+40 : end walk
+50 : msgbox : "Updated" : "Updated" ;;$$string:##totu
+

@@ -1,0 +1,14 @@
+
+
+[#Report:PosInvoicePrint]
+PrintSet :SVPOSMODE:No
+
+[#Form:POSQUICKMODE]
+SET ALWAYS :SVPOSMODE : NO
+
+[#Form:POSINPIXEL]
+SET ALWAYS :SVPOSMODE : NO
+
+
+[collection: cwPosPartyAddr]
+use : partyaddress

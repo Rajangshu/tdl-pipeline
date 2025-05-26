@@ -1,0 +1,19 @@
+; use prgvers to display current version
+
+; create a system formula
+
+; REPORT Name : prgvers
+
+[system :formula]
+prgver : xx
+
+;; you can then call the report from delphi and get tcp version.
+
+; user prgpath to get data path of current company
+
+; REPORT Name : prgpath, parameter : Company Name
+; REPORT Name : Pserial : gives serial number of tally
+; REPORT Name : 
+; FIELD : xd1 to xd10 set as : ','
+
+

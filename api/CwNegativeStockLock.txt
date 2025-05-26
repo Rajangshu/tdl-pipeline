@@ -1,0 +1,144 @@
+;; PRODUCT: Negative Stock Lock 1.1 11-12-10
+;; PRODUCT-ID: 3096ef2c-e75f-4052-9da2-078d74c22339
+;; AUTHOR: Tally Developer, Kolkata
+
+[#Line: EI InvInfo]
+
+	Option	: TSPL FFE Neg Stk EI InvInfo	: @@TSPLFFEIsNSC AND (@@IsOutwardType) ;; or @@isinwardtype)
+	
+	[!Line: TSPL FFE Neg Stk EI InvInfo]
+;;border : thin box
+Add	: Right Fields	: TSPL FFE Final Qty
+Local	: Field	: VCHActualQty	: Control	: TSPL FFE NegativeStock : $$IsNegative:@@TSPLFFEClosQty AND $ActualQty != $BilledQty
+Local	: Field	: VCHBilledQty	: Control	: TSPL FFE NegativeStock : $$IsNegative:@@TSPLFFEClosQty AND $ActualQty = $BilledQty
+On	: Focus	: Yes	: CALL	: TSPL FFE Set List Variables : $$Line : "Item"
+
+Local: Field: snf : Set As:  @@FltrGodownName
+;; Altering Batch Line
+
+[#Line: STKVCH Batch2]
+
+	Option	: TSPL FFE Neg Stk STKVCH Batch2 : @@TSPLFFEIsNSC AND (@@IsOutwardType) ;;  or @@isinwardtype)
+
+	[!Line: TSPL FFE Neg Stk STKVCH Batch2]
+
+Add : Right Fields	: TSPL FFE Final Qty, TSPL FFE Orig Qty
+Local : Field	: VCHBATCH ActualQty	: Control	: TSPL FFE NegativeStock	: $$IsNegative:@@TSPLFFEClosQty AND $ActualQty != $BilledQty
+Local : Field	: VCHBATCH BilledQty	: Control	: TSPL FFE NegativeStock	: $$IsNegative:@@TSPLFFEClosQty AND $ActualQty = $BilledQty
+On : Focus	: Yes	: CALL			: TSPL FFE Set List Variables 			: $$Line : "Batch"
+
+		[Field: TSPL FFE Final Qty]
+
+			Use : Qty Primary Field
+			Set As 	 : @@TSPLFFEClosQty
+			Invisible : Yes
+			Set Always : Yes
+			Skip	 : Yes
+;;			border : thick box : $$IsMultiGodownOn AND NOT $$IsSysNameEqual:Any:$Godownname
+
+		[Field: TSPL FFE Orig Qty]
+
+			Use	: Qty Primary Field
+			Storage	: TSPL FFE Orig Qty
+			Set As	: if $$IsEmpty:$$Value then $ActualQty else $$Value
+			Invisible : Yes
+
+[System: UDF]
+
+	TSPL FFE Orig Qty : Quantity : 1000
+
+;; Function to add list variable
+
+[Function: TSPL FFE Set List Variables]
+
+	Parameter	: pLine		: Number
+	Parameter	: pItemBatch: String
+
+	Variable	: LineKey	: String
+	Variable	: LineIndex	: Number
+
+	00	: IF	: ##pItemBatch = "Batch"
+	10	: 	SET		: LineKey : $StockItemName + #VCHBATCHName + #VCHBATCHGodown
+	20	: 	IF		: NOT $$ListFind:TSPLFFEBatchVar:##LineKey
+	30	: 		LIST ADD: TSPL FFE BatchVar	: ##LineKey
+	40	: 	ENDIF
+	50	:	SET		: LineIndex	: $$ListIndex:TSPLFFEBatchVar:##LineKey
+	60	: 	SET		: TSPL FFE BatchVar[##LineIndex].TSPL FFE OrigBatch		: #VCHBATCHName
+	70	: 	SET		: TSPL FFE BatchVar[##LineIndex].TSPL FFE OrigGodown	: #VCHBATCHGodown
+	80	: 	SET		: TSPL FFE BatchVar[##LineIndex].TSPL FFE OrigQty		: @@fx1
+	90	: ELSE	: 
+
+	100	: 	SET		: LineKey				: #VCHStockItem
+	110	: 	IF		: NOT $$ListFind:TSPLFFEItemVar:##LineKey
+	120	: 		LIST ADD: TSPL FFE ItemVar	: ##LineKey
+	130	: 	ENDIF
+	140	:	SET		: LineIndex				: $$ListIndex:TSPLFFEItemVar:##LineKey
+	150	: 	SET		: TSPL FFE ItemVar[##LineIndex].TSPL FFE OrigItem		: #VCHStockItem
+	160	: 	SET		: TSPL FFE ItemVar[##LineIndex].TSPL FFE OrigQty		: @@fx2
+	170	: ENDIF
+
+;; System Formula Definition
+
+[System: Formula]
+fx1 : if $$IsEmpty:##TSPLFFEBatchVar[##LineIndex].TSPLFFEOrigQty then #TSPLFFEOrigQty else if ##pLine = ##LineIndex then + 
+ ##TSPLFFEBatchVar[##LineIndex].TSPLFFEOrigQty else ##TSPLFFEBatchVar[##LineIndex].TSPLFFEOrigQty + #TSPLFFEOrigQty
+fx2 : if $$IsEmpty:##TSPLFFEItemVar[##LineIndex].TSPLFFEOrigQty then #VCHActualQty else if ##pLine = ##LineIndex then + 
+ ##TSPLFFEItemVar[##LineIndex].TSPLFFEOrigQty else ##TSPLFFEItemVar[##LineIndex].TSPLFFEOrigQty + #VCHActualQty
+
+	TSPL FFE IsNSC				: yes ;;$TSPLFFEControlNegStk:Company:##SVCurrentCompany
+
+	TSPLFFEClosQty			: if $$InAlterMode then @@FinalStockTotal + @@TSPLFFELVQtyBatchItem else @@FinalStockTotal
+    TSPL FFE LV Qty BatchItem	: If @@HasBatchWise OR $$IsMultiGodownOn then ##TSPLFFEBatchVar[$$ListIndex:TSPLFFEBatchVar:@@TSPLFFEBatGdn].TSPLFFEOrigQty else +
+									##TSPLFFEItemVar[$$ListIndex:TSPLFFEItemVar:$StockItemName].TSPLFFEOrigQty
+
+	TSPL FFE BatGdn				: $StockItemName + #VCHBATCHName + #VCHBATCHGodown
+
+    TSPL FFE NegativeStock  	: $$SPrintf:@@NegativeStockFormat:@@TSPLFFENegativeStkFormula
+	TSPL FFE NegativeStkFormula	: $$String:@@TSPLFFESignedStockTot:Signed
+    TSPL FFE SignedStockTot     : @@TSPLFFEClosQty
+
+
+
+
+;; ---------------- General changes
+;; Altering the Configuration Part
+
+[#Part: VCFG Inventory]
+
+	Local 	: Line 	: VCFG NegativeStock 	: Invisible : Yes
+
+[#Part: ICFG Invoicing]
+
+	Local 	: Line 	: VCFG NegativeStock 	: Invisible : Yes
+
+;; Variable Definition and List Variable Association at the System Level
+
+[Variable: TSPL FFE ItemVar]
+
+	Variable	: TSPL FFE OrigItem 		: String
+	Variable	: TSPL FFE OrigQty			: Quantity
+
+[Variable: TSPL FFE BatchVar]
+
+	Variable	: TSPL FFE OrigBatch 		: String
+	Variable	: TSPL FFE OrigGodown		: String
+	Variable	: TSPL FFE OrigQty			: Quantity
+
+[System: Variable]
+
+	List Variable	: TSPL FFE BatchVar, TSPL FFE ItemVar
+
+;; Emptying List Variable at the Report Level
+
+[#Report: Voucher]
+;;local: field : default : border : thin box
+	Variable	: VarDummy	: Logical
+	Set			: VarDummy	: $$TSPLFFEDeleteLV
+
+[Function: TSPLFFEDeleteLV]		;; Function deleting System List Variable values
+
+	00	: LIST DELETE	: TSPL FFE BatchVar
+	05	: LIST DELETE	: TSPL FFE ItemVar
+	10	: RETURN		: True
+
+

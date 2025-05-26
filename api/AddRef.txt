@@ -1,0 +1,13 @@
+
+[#Field: VCH Ref Combo]
+
+;;    Fields      : Simple Prompt, VCH Ref
+   DELETE:  Inactive  ;;  : NOT @@VchHasRef
+;;   BORDER : THIN BOX
+;;   DELETE : INVISIBLE
+   LOCAL : FIELD : DEFAULT : DELETE : INACTIVE
+       Local       : Field : Simple Prompt : DELETE : Inactive
+    Local       : Field : Simple Prompt : DELETE : Invisible
+
+
+

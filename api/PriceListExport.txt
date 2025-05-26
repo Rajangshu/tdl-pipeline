@@ -1,0 +1,33 @@
+;Modified by: pg on 2012-10-07 20:43, ID: 
+; Created By: pg on 2012-07-04 10:50
+
+[#menu : gateway of tally]
+;;add : item : mv : display : PgMasterValuesX
+
+
+[report: cwPriceListofGrp]
+   use : PgMasterValuesX
+variable: stockgroupname
+local : collection : stockitem : childof : ##stockgroupname
+local : collection : stockitem : belongs to : yes
+
+[report:PgMasterValuesX]
+use : PgMasterValues
+;;set : svfromdate : ##svcurrentdate
+local : collection : stock item : fetch : fullpricelist.*
+
+;;;set : ledgername : "a"
+;;local : collection : stock item : sort : @@default : $grandparent,$parent,$name
+local : line  : pgMasterList2 : add : field : d15,numf,d16,sdf,d17,ratepf,d18,numf2
+;;local : line  : pgMasterList2 : delete : fields
+Local: Field: numf: Set As: $rateofvat
+;;local: field:sdf: type: String
+Local: Field: sdf: Set As: $$filtervalue:$date:fullpricelist:last:myPriceListC
+Local: Field: ratepf: Set As: $$filtervalue:@@XRATE:fullpricelist:last:myPriceListC
+Local: Field: numf2: Set As: $$filtervalue:@@xdisc:fullpricelist:last:myPriceListC
+;;Local: Field: sdf: Border: thin  box
+
+[System: Formula]
+MYPRICELISTC :  $pricelevel = ##ledgername ;;AND $DATE <= @@DSPFROMDATE
+XRATE : $$COLLECTIONFIELD:$RATE:FIRST:PRICELEVELLIST
+xdisc:$$COLLECTIONFIELD:$discount:FIRST:PRICELEVELLIST

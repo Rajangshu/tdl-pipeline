@@ -1,0 +1,50 @@
+; Created By: pg on 2012-06-01 16:32
+
+        [#Part: VTYP BehaviourMain]
+        add : line : at beginning : CustomBillTerms
+        
+  [line: CustomBillTerms]
+    field : sp,cwlogical
+    Local: Field: sp: info: "Default Terms & Conditions:"
+    Local: Field : cwlogical : SubForm : cwBillTerms: $$value
+    Local: field: sp: Width:@@namewidth
+    
+    
+    
+    
+
+[Report: cwBillTerms]
+   form: FrmcwBillTerms
+
+  [form: FrmcwBillTerms]
+ option: small size form
+   part: prtcwBillTerms
+   option: small size form
+   
+  [part: prtcwBillTerms]
+   line: lncwBillTermsTitle,lncwBillTerms
+   repeat : lncwBillTerms : mybillterms
+   break on  : $$isempty:$billterms
+   scroll: vertical
+   option: small size part
+   height : 50% page
+   
+  [line : lncwBillTermsTitle]
+    use : lncwBillTerms
+  option: column titles
+   Local: Field: snf: info: "SL No"
+   local: field: nf: info : "Terms:"
+   local: field: snf: delete : storage
+   local: field: nf : delete : storage
+   
+
+  [line: lncwBillTerms]
+  field: snf,nf
+  Local: Field: snf : storage:billsl
+  Local: Field: nf: storage: billterms
+  Local: field: snf: Width: 4
+  local: field: nf: Case: normal
+  Local: field: nf: Width: @@namewidth * 3
+
+  
+

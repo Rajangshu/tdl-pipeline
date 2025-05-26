@@ -1,0 +1,16 @@
+; Created By: pg on 2012-06-14 13:11
+
+[#Report: Movement Analysis]
+set : STAWithInwards : no
+;;local : part : default : border : thin box
+local: Part: STAITEM Explosion : local : line: STK AnalLine : removeif : (not ##STAWithInwards and $$isempty:$stkoutqty) or (not ##STAWithOutwards and $$isempty:$stkinqty)
+
+[#Report: Group Analysis]
+set : STAWithInwards : no
+
+[#Report: ledger Analysis]
+set : STAWithInwards : no
+
+
+[#Part: STAITEM Explosion]
+;;border : thin box

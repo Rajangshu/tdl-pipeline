@@ -1,0 +1,65 @@
+; Created By: pg on 2012-03-10 18:47
+
+[#menu : gatewayoftally]
+;;add : item : cwGetNextVchNo : display : cwGetNextVchNo
+
+[report : cwGetNextVchNo]
+        use: Dsp Template
+      Title: @@cwGetNextVchNoReport
+       Form: FrmcwGetNextVchNo
+     Export: Yes
+     variable: svvouchertype
+     set : svvouchertype : "delivery note"
+
+      [Form: FrmcwGetNextVchNo]
+       Part: PrtcwGetNextVchNo
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+
+      [Part: PrtcwGetNextVchNo]
+       Line: LncwGetNextVchNo
+     repeat: LncwGetNextVchNo: list of companies
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColcwGetNextVchNo]
+type : vouchers: vouchertype
+child of : ##svvouchertype
+
+      [Line: LncwGetNextVchNo]
+     Fields: fwf
+Local: Field: fwf: Set As: if $$numitems:ColcwGetNextVchNo > 0 then $$collectionfield:@@getmyno:(-1):ColcwGetNextVchNo else @@getmyno2
+
+[System: Formula]
+getmyno : $$getmyprefix +  $$zerofill:@@cwvarNo:$$geteZeroFill + $$getmysuffix
+getmyno2 : $$getmyprefix +  $$zerofill:1:$$geteZeroFill + $$getmysuffix
+
+getlastno : $$number:$vouchernumber
+cwvarNo : $$number:@@getlastno + 1
+
+[function : getmyprefix]
+returns : string
+;;01 : log : $vouchernumber
+05 : if : not $$isempty:$(Vouchertype,##svvouchertype).PrefixList[1].name
+10 : return : $(Vouchertype,##svvouchertype).PrefixList[1].name
+20 : else
+30 : return : ""
+50 : end if
+
+[function : geteZeroFill]
+returns : number
+10 : return : $(Vouchertype,##svvouchertype).WidthofNumber
+
+
+[function : getmysuffix]
+returns : string
+05 : if : not $$isempty:$(Vouchertype,##svvouchertype).SuffixList[1].name
+10 : return : $(Vouchertype,##svvouchertype).SuffixList[1].name
+20 : else
+30 : return : ""
+50 : end if
+
+

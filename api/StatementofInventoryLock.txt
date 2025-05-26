@@ -1,0 +1,4 @@
+; Created By: pg on 2012-01-31 10:33
+
+[#menu : display menu]
+control : @@locStatementsofInventory : if @@inPOLockDemoPeriod then @@cwOwnerLevel else yes

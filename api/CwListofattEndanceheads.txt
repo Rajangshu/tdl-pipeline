@@ -1,0 +1,35 @@
+; Created By: pg on 2011-08-02 11:24
+
+     [#menu: Gateway of Tally]
+;        add: Option: cwlistofAttendanceLock: @@cwDebug
+       
+     [!menu: cwlistofAttendanceLock]
+        add: Item: before: @@locQuit: @@cwlistofAttendanceReport: Display: cwlistofAttendance
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   cwlistofAttendanceReport: "cwlistofAttendance"
+ cwlistofAttendanceDemoLock: $$MachineDate < $$Date:"02-09-2011"
+     
+    [Report: cwlistofAttendance]
+         use: cwListofEmployees
+       local: part: PrtcwListofEmployees: repeat: LncwListofEmployees: cwAttendanceHeads
+       local : field : fwf2 : invisible :yes
+       Local: Field: fwf : Set As: $name
+;;       LOCAL : LINE : LncwListofEmployees : ADD : FIELD : FWF3
+;;       Local: Field: FWF3 : Set As: $ATTENDANCEPERIOD
+;;       Local: field : FWF3: Width : 100
+;;       local: Field: FWF3: max: 100
+
+     [collection : cwAttendanceHeads]
+             use : Attd Type
+          delete : filter
+            add  : filter : cwAttF
+           fetch : ATTENDANCEPERIOD
+           
+         [System : Formula]
+          cwAttF : $ATTENDANCEPERIOD = "Days"
+
+
+
+

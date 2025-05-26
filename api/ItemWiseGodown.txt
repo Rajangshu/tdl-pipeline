@@ -1,0 +1,373 @@
+
+
+
+;;                      CREATION OF GODOWN
+
+
+
+[#Part: STKI Basic Features]
+add : part : at end : stkigod
+
+[part : stkigod]
+ line : NSTKIGod
+ 
+[Line : Nstkigod]
+   Field : short prompt,Nstkigod
+    Local       : Field : Short Prompt : Info : "Godown"
+
+
+   [FIELD: NSTKIGOD]
+    use : name field
+    table : godown,Not Applicable
+     Storage : Gdvch
+     Key :Create  Godown
+     set always: yes
+     skip : no
+
+
+    [System : UDF]
+      Gdvch : String : 5
+;;==========================================================================
+;;==========================================================================
+;;                      SALES &PURCHASE
+
+
+
+
+
+
+    [#Line :Ei ColumnOne]
+      Add : option : PartNo EI columnone : @@MyPursale
+
+
+[!line : PartNo EIcolumnOne]
+     Add : Right Field : Before :VCH Qtytitle : PartNo vch title
+
+
+
+
+     [FIELD: PARTNO VCH TITLE]
+         set as	: $$localestring:"Part No."
+       Style 	: Small Bold
+       Align	: Right
+       Skip	: YES
+       Fixed	: yes
+
+
+
+[#line: Ei Invinfo]
+;        Add : Option : PartNo ei invinfo : @@myPurSale
+        
+        [system : formula]
+          myPurSale : @@IsPurchase or @@Issales or $$IsDelNote:$VoucherTypename or $$IsRcptNote:$vouchertypename
+        
+
+[!line :PartNo EI invInfo]
+        Add : Right Field : Before :VCH billedQty : InvPartNo
+        
+
+
+
+        [FIELD: INVPARTNO]
+      Use    : Name Field
+      style  : Small Bold
+      Set As : $PartNo:Stockitem:$StockItemName
+      Set Always : Yes
+      skip : yes
+     Align : Right
+
+;;============================================================================
+;;============================================================================
+
+
+[#Line: SJ TitleTwoA]
+      Add :Option : PartNo SJ TitleTwoa
+
+[!Line:PartNo SJ TitleTwoa]
+    Add : Field : at end : sjPartNo
+
+ [#Line : SjdetailsA]
+ local : field : vchgodown : set as : $Gdvch:stockitem:$Stockitemname
+ local : field : vchgodown : set always : yes
+ 
+        [#Line: GTRNDetails]
+ local : field : vchgodown : set as : $Gdvch:stockitem:$Stockitemname
+ local : field : vchgodown : set always : yes
+
+    [FIELD : SJPARTNO]
+      use : name field
+       set as	:"Part No."
+       Style 	: Small Bold
+       skip : yes
+
+
+
+         [#Line: SJDetailsA]
+;              Add :Option : PartNo SJDetailsA
+                  
+
+         [!Line:PartNo SJDetailsA]
+              Add : Field : at end : SjbodyPartNo
+              
+              
+
+         [FIELD : SJBODYPARTNO]
+                  Use    : Name Field
+                  style  : Small Bold
+                  Set As : $PartNo:Stockitem:$StockItemName
+                  Set Always : Yes
+                  Align : Left
+                  Skip : yes
+                  ;;bORDER : tHIN BOX
+
+
+                  
+  ;;==========================================================================
+  ;;==========================================================================
+
+    [#Line: MPS BodyTitle1]
+      Add : Option :Pcost MPS BodyTitle1
+
+
+
+   [!Line: Pcost MPS BodyTitle1]
+
+      Add : Field :After : MPSQtyRange  :PCost,PMargin
+
+      [FIELD : PCOST]
+          use : name field
+       set as	:"Cost"
+       Style 	: Small Bold
+       skip : yes
+       Border : thin Left Right
+         Width : 8
+      Format : "noSymbol"
+
+
+       [FIELD : PMARGIN]
+          use : name field
+       set as	:"Margin"
+       Style 	: Small Bold
+       skip : yes
+       Border : Thin Right
+       Width : 8
+        
+    [#Line: MPS BodyTitle2]
+      Add : Option :Pcost MPS BodyTitle2
+
+
+
+   [!Line: Pcost MPS BodyTitle2]
+      Add : Field :After : MPSQtyToTitle: PCost,PMargin
+      local : field : pcost : set AS: ""
+      local : field : Pmargin : set AS: ""
+
+
+      [#Line: MPS BodyTitle1]
+          Add : Option :PPartNo MPS BodyTitle1
+
+
+
+   [!Line: PPartNo MPS BodyTitle1]
+      Add : Field :before : MPSQtyRange  : PPartNo
+      Local : field: PPartNo : Set As : "Part No"
+        Local : field: PPartNo : Set As : ""
+
+
+      
+      [FIELD : PPARTNO]
+         Use : Short Name Field
+         Set As : $partno
+         Skip : yes
+         border : thin Left
+         Width : 8
+
+
+          [#Line: MPS BodyTitle2]
+               Add : Option :PPartNob MPS BodyTitle1
+
+
+
+   [!Line: PPartNob MPS BodyTitle1]
+      Add : Field :after :MultiMasterNameTitle  :  PPartNob
+
+      
+
+      [FIELD : PPARTNOB]
+         Use : Short Name Field
+         Set As : "PartNo"
+         Skip : yes
+         Width : 8
+
+
+             
+          [#Line: MPS Explode]
+              Add : Option : Bcost MPS Explode
+              
+           [!Line : Bcost MPS Explode]
+                   Add : field : before :  MPSExplRate:Bcost,BMargin
+                   ADD : FIELD : AFTER : NameTitleField : PPARTNOB
+                   LOCAL : FIELD : PPARTNOB : SET As: $pARTNO
+                   
+               [FIELD : BCOST]
+                      Use :Amount field
+                      storage : SBcost
+                      Formate : "No Symbol"
+                       Align : left
+                       Width : 8
+
+               [FIELD : BMARGIN]
+                      Use : Amount field
+                      storage : SBMargin
+                      Align : left
+                       Width : 8
+
+                [System : UDF]
+                  Sbcost : Amount  : 5
+                  SBMargin : Amount : 10
+
+
+                          [#Field:  MPSExplRate]
+                              Set As : $SBcost+ ($SBMargin * $SBCost /100)
+
+                              set always : yes
+
+
+
+                          [#Form: Multi Price Set]
+                            Add :Button : After : new parent : Price List
+                            
+                            
+                            [Button : Price List]
+                                 Key         : Ctrl+F3
+                                 Action      : Form Query Reject
+                                 Title       : $$LocaleString:"Price List"
+                                 Inactive    : $$InCreateMode
+
+
+
+                                [#Form: Multi Price set]
+                            Add :Button : After : Price List : RateMargin
+
+                             [Button: RateMargin]
+
+    Key         : Alt+M
+    Action      : Multi Field Set : bmargin : if $$LineNumber > 1 then $$PrevLineField else $$Value
+    Title       : $$LocaleString:"Set Margin"
+
+
+
+
+             [FIELD : PNO]
+                  Use :  Name Title Field
+                  Set As : "Part No"
+                  
+                  
+
+
+                 [#Line: DSP VchDybkDetail]
+                Add : Option : a1 DSP VchDybkDetail
+
+             [!Line :  a1 DSP VchDybkDetail]
+                Add :Right Field : Before : DSP VchType:Blank,A1
+                Local : Field : Blank : Set As : ""
+
+              [FIELD : A1]
+                  Use :Name field
+                  Set As : $PartNo:Stockitem:$StockItemName
+                  Set always: yes
+
+             [#LINE : DBTitle1]
+                Add : Option : PNo CCV FCTwo
+
+
+              [#Line : DSP VchExplosion]
+                   add : field : after : DSP VchExplValue :blank,InvPartNo
+
+
+              [!Line :PNo CCV FCTwo]
+                  Add:Left field : After:DSP VchAcctTitle: PNo
+
+
+              [FIELD : BLANK]
+                  Use :  short Name  Field
+                  Set As : ""
+                  width :     @@ShortNameWidth - 4
+
+
+;;===================STOCK JOURNAL FOR DEFAULT GODOWN===========================
+
+
+
+
+[FIELD : SJGDOWN]
+        Use :gODOWN name Field
+        INVISIBLe : YES
+        set always : yes
+border : thin box
+
+[#Line: STKVCH Batch2]
+         Add : Option : SJGdown
+
+
+[!Line : SJGdown]
+        Add : Field : After : VCH StockItem :VCHBATCH Godown
+        Local : Field :VCHBATCH Godown : Set As :$Gdvch:stockItem:$stockItemName
+;;        Local : Field :VCHBATCH Godown : set always : yes
+
+
+
+
+[#Line: SJDetailsc]
+        Add : Option : SJPnO
+
+[!Line : SJpno]
+        Add : Field :At end: SjbodyPartNo
+        
+        
+        
+        
+  ;;============================================================================
+  ;;============================================================================
+  
+
+
+[#Field : VCHACC Godown]
+     set as : $Gdvch:stockItem:$stockItemName
+      set always : yes
+
+
+
+
+[#Line : STKVCH Batch2]
+         Add : Option : PGdown
+         
+
+[!Line : PGdown]
+           Add : Right Field : Before :VCHBATCH BilledQty: SJGdown
+
+
+
+
+
+
+
+;;==============================================================================
+;;==============================================================================
+
+
+[#Line: GTRNDetailTitle]
+      Add :Option:A1
+             
+[!Line :A1]
+     Add :Field :After:VCHShortTitle:Pno
+               
+               
+               
+[#Line: GTRNDetails]
+      Add : Option : A2
+
+
+[!Line : A2]
+      Add : Field : After : VCH StockItem :SJGdown
+               

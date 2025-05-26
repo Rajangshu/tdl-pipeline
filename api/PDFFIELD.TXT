@@ -1,0 +1,35 @@
+; Created By: suman on 2021-07-29 14:08, ID:
+
+
+; Created By: Pg on 2018-09-11 18:23, ID:
+
+[field : fsnf]
+ use : short name field
+
+
+ [field : fsnf2]
+ use : fsnf
+
+ [field : fsnf3]
+ use : fsnf
+
+ [field : fsp]
+ use : short prompt
+
+ [field : fsp2]
+ use : fsp
+
+ [field : fnumf]
+ use : number field
+ align : right
+
+ [field : fnumf2]
+ use: fnumf
+
+
+ [field : flogical]
+ use : logical field
+
+ [field : flogical2]
+ use : flogical
+

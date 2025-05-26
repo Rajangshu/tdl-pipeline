@@ -1,0 +1,180 @@
+/*
+[#menu : Gateway of Tally]
+add : option : cw_debug_items : @@cwdebug
+
+[!menu : cw_Debug_items]
+add : item : before : @@locquit : cw_debug_menu: menu : cw_debug_menu
+
+[System: Formula]
+cw_debug_menu : "9Debug"
+
+[menu : cw_Debug_menu]
+title : "debug"
+ */
+
+[Collection : CwVouchers]
+       type : Vouchers
+     filter : cwvouchersFilter
+     
+[system :formula]
+cwVouchersfilter : if $$isempty:##VoucherTypeName then yes else if ##familyvoucherflag then @@BelongsToVoucherType else @@IsOfVoucherTypes
+
+ [field : pgVchNumber]
+   type : string
+  width : 25
+ set as : $voucherNumber
+  alter : voucher  : $$isvoucher
+ 
+ [field : pgVchDate]
+    use : unidatefield
+ set as : $Date
+  width : 12
+  style : Normal
+  alter : Voucher : $$isvoucher
+ 
+ [Field : pgVchType]
+   type : String
+  width : 30
+ set as : $VoucherTypeName
+ 
+ [fIELD : PGgUID]
+ USE : NAME FIELD
+ WIDTH : 50
+ SET AS : $GUID
+
+ [field : PgQtyUOM]
+    use : Rate Units Field
+ set as : $Rate
+ 
+
+ [Field : pgVchParty]
+   type : String
+  width : 100
+ set as : $PartyLedgerName
+
+ [Field : pgVch2ndLedger]
+   type : String
+  width : 100
+ set as : $$filterValue:$ledgername:ledgerentries:First:CwNotPartyLedger
+ 
+ [system : formula]
+CwNotPartyLedger : $ledgername <> $partyledgername
+
+ [Field : pgVchAmt]
+     use: Amount Field
+  set as: $Amount
+   Style: Normal
+   width: 12
+   
+ [Field : pgItemqty]
+    use : QtyPrimaryField
+ set as : $$filterqtytotal:inventoryEntries:isSameItem:$actualQty
+  width : 12
+  style : Normal
+
+ [Field : pgItemamt]
+    use : Amount Field
+ set as : $$filterAMTTOTAL:inventoryEntries:isSameItem:$Amount
+  width : 12
+  style : Normal
+
+ [Field : pgItemRate]
+    use : Rate Field
+ set as : #PGITEMAMT / #PGITEMQTY ;;$$filterValue:$Rate:inventoryEntries:first:isSameItem
+  width : 12
+  style : Normal
+
+
+     [Field: pgCreditPeriod]
+        use: Number Field
+     set as: $$number:$BillCreditPeriod
+ 
+     [field: pgNameAlias]
+        use: Name Field
+      setas: $$LocaleString:$$Alias:1:Yes
+
+     [Field: PgNameAlter]
+        use: Name field
+     set as: $Name
+    Option          : DSPGroupAcc   : $$IsGroup
+    Option          : DSPLedgerAcc  : $$IsLedger
+    Option          : DSPCstCatAcc  : $$IsCostCategory
+    Option          : DSPCstCtrAcc  : $$IsCostCentre
+    Option          : DSPStkGrpAcc  : $$IsStockGroup
+    Option          : DSPStkItemAcc : $$IsStockItem
+    Option          : DSPStkCatAcc  : $$IsStockCategory
+    Option          : DSPGodownAcc  : $$IsGodown
+    Option          : DSPCurrencyAcc: $$IsCurrency
+    Option          : DSPUnitAcc    : $$IsUnit
+    Option          : DSPVchTypeAcc : $$IsVoucherType
+    Option          : DSPBudgetAcc  : $$IsBudget AND NOT $IsScenario
+    Option          : DSPScenarioAcc: $$IsBudget AND $IsScenario
+    Option          : DSPAttdTypeAcc: $$IsAttendanceType
+    Option          : DSPDeducteeTypeAcc : $$IsDeducteeType
+
+
+ 
+;;    use : COMP Party Ledger Pending Bills1
+
+     [Field: pgDelNote]
+        use: Name Field
+      style: "Normal"
+      setas: $$CollectionField:$BasicShipDeliveryNote:1:InvoiceDelNotes
+      
+     [Field: pgDelnoteDate]
+        use: UniDateField
+      setas: $$CollectionField:$BasicShippingDate:1:InvoiceDelNotes
+      
+     [Field: pgExplodeLevel]
+        use: Number Field
+     set as: $$ExplodeLevel
+     format: "Nocomma,zero"
+     
+     [Field: pgVchItemLedger]
+        use: name field
+     set as: $ledgername
+     
+     [Field: pgvchItemVatClass]
+        use: Name field
+     set as: $TAXCLASSIFICATIONNAME:ledger:$ledgername
+    
+     [Field: pgVchItemOrderNo]
+        use: Name Field
+     set as: $ORDERNO
+     
+     [field: pgVchItemOrderDueDate]
+        use: UniDateField
+     set as: $ORDERDUEDATE
+     
+     [field : pgbatchname]
+        use : short name field
+      set as: $batchname
+
+    [field: pgitemdisc]
+      use : number field
+    set as: $Discount
+    
+    [field : pgaddress]
+    use: name field
+    
+    [field : PgitemName]
+     use : name field
+     style : normal
+     set as : $stockitemname
+     
+    [field : pgclbal]
+      use : qty primary field
+      style : normal
+      set as :$closingbalance
+      
+      
+     [field : pgvalue]
+        use : amount field
+     set as : $amount
+
+     [field : pgbillrctpamt]
+        use : amount field
+
+     [field : pgosamt]
+        use : amount field
+   

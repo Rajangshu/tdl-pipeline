@@ -1,0 +1,112 @@
+; Created By: pg on 2011-10-11 14:15
+
+[System: Formula]
+supinv : $purch
+
+[#object : ledger]
+purch : not ($$isbelongsto:$$grouppurchase or $$isbelongsto:$$groupsundrycreditors)
+
+[#collection : ledger]
+fetch : purch
+
+[#Part: LV VchTitle]
+local : line :  default : add : right field : at beginning : snf  ,sdf
+;;local : line :  default : local : field :default : border : thin box
+Local: Field: snf: Set As: "Sup. Inv No"
+Local: Field: sdf: Set As: "Sup Inv Date"
+Local: Field: sdf: type : string
+local : field : sdf: invisible : @@supinv
+local : field : snf: invisible : @@supinv
+Local: field: sdf: Width:10
+Local: field: snf: Width:8
+local: field : sdf : invisible : yes
+;local : line : default : Local: field: snf: Align: centre ;;centre
+
+[#part : lvbody]
+local : line : DSP VchDetail :add : right field : at beginning : snf  ,sdf
+Local: Field: sdf: Set As:$ReferenceDate ;;$$nextobj:$ReferenceDate
+Local: Field: snf: Set As:$Reference  ;;$$nextobj:$Reference
+;; {31.Mar.15 15:24} Local: Field: snf: Border: thin box ;;left right
+local : field : sdf: invisible : @@supinv
+local : field : snf: invisible : @@supinv
+;Local: field: sdf: Width:15
+Local: field: snf: Width:15
+local : line : DSP VchDetail :Local: field: snf: Align: left ;;centre
+local: field : sdf : invisible : yes
+
+/*
+ [#line:DSP VchTitle]
+ [#Line: DBTitle1]
+  border:thick box
+  add : right field : at beginning : snf2,sdf2
+  Local: Field: snf: Set As: "Sup. Inv No"
+  Local: Field: sdf: Set As: "Sup Inv Date"
+
+[#Line: DSP VchAccTitles]
+     add : right field : at beginning : snf2,sdf2
+  Local: Field: snf2: Set As: "Ref. No"  ;;if @@issales then "sa" else "Sup. Inv No"
+  Local: Field: sdf2: Set As: "Ref. Date"  ;;if $$issales:$vouchertypename then "sa" else "Sup Inv Date"
+  local: field: sdf2: type: String
+  Local: field: sdf2: Width:7
+  Local: field: snf2: Width:7
+
+
+
+ [#line: DSP VchDetail]
+  add:right field : at beginning :snf2,sdf2
+  Local: Field: snf2:set as:$Reference
+;; {25.Dec.14 17:07}   Local: Field: DSP VchNumber: Border: thin box ;;left right
+  Local: Field: sdf2: Set As:$ReferenceDate
+;; {25.Dec.14 17:05}   border:thick box
+
+ Local: field: sdf2: Width:7
+Local: field: snf2: Width:7
+
+
+ [#Report: Voucher Register]
+;; {25.Dec.14 17:44}     local:line: DBTitle1:border:thick box
+    Local       : Line  : DSP VchDetail :add:right field:at beginning :snf3,sdf5
+    Local       : Line  : DBTitle1 :add:right field:at beginning :snf3,sdf3
+;; {25.Dec.14 17:36}     Local       : Line  : DB Body :border:thick box
+    
+;; {25.Dec.14 17:45}   [#line:DBTitle1]
+;; {25.Dec.14 17:45}      add:right field : at beginning :snf3 ;;sdf3
+     Local       : Line  : DBTitle1:Local: Field: snf3: Set As:"Ref. No"
+     Local       : Line  : DBTitle1:Local: Field: sdf3: Set As:"Ref. Date"
+     Local       : Line  : DSP VchDetail:Local: Field: snf3: Set As:$Reference
+     Local       : Line  : DSP VchDetail:Local: Field: sdf5: Set As:$ReferenceDate
+     Local       : Line  : DSP VchDetail:border:thick box
+;; {25.Dec.14 17:54}      Local: Field: sdf3: Set As:$ReferenceDate
+;; {25.Dec.14 17:55}      local: field: sdf3: type: String
+;; {25.Dec.14 17:29}      border:thick box
+    Local: field: snf3: Width:14
+    Local: field: sdf3: Width:7
+    
+    
+     [#Line: DSP VchDybkDetail]
+      add:right field : at beginning :snf3,sdf3
+      Local: Field: snf3: Set As:$Reference
+      Local: Field: sdf3: Set As:$ReferenceDate
+       Local: field: snf3: Width:7
+       Local: field: sdf3: Width:7
+;; {25.Dec.14 17:32}        Local: Field: default: Border: thin box ;;left right
+
+ /* add:right field : at beginning : snf,sdf
+ 
+  
+ Local: Field: sdf: Set As:$ReferenceDate ;;$$nextobj:$ReferenceDate
+Local: Field: snf: Set As:$Reference  ;;$$nextobj:$Reference
+local : field : sdf: invisible : @@supinv
+local : field : snf: invisible : @@supinv
+Local: field: sdf: Width:10
+Local: field: snf: Width:8
+Local: field: snf: Align: Right  
+*/
+
+[#collection : Vouchers of Ledger]
+fetch : Reference ;;ReferenceDate,
+
+
+;;===========================================
+
+

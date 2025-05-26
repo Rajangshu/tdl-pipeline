@@ -1,0 +1,87 @@
+; Created By: suman on 2021-08-02 17:45, ID: 
+
+[#Line: EXPINV InvDetails]
+add:option:cwexpinvdetsaleopt:@@issales and @@cwBajajFinanceEnabled
+
+[!line:cwexpinvdetsaleopt]
+  add:explode:cwdodetailsxx
+  
+  [part:cwdodetailsxx]
+    line:cwdolinexx ,cwserialline
+
+  [line:cwdolinexx]
+    field:snf,nf
+    Local: Field: snf: Set As:""
+    Local: Field: nf: Set As:"Do Number: " +$cwdealid
+    Local: field: snf: Width:3
+    Invisible: if $$isempty:$cwdealid then yes else if $$InExportMode then @@expcwdonoprintopt="no"  else not @@cwdonoprintopt ;;(@@cwdonoprintopt="no" or (@@expcwdonoprintopt and @@cwItemhasBatchEnabled and @@cwPrintWithBatch="no") ) else    ;; or (@@expcwdonoprintopt="no" and $$InExportMode)
+
+  [line:cwserialline]
+    field:snf,nf
+    Local: Field: snf: Set As:""
+    Local: Field: nf: Set As: "Serial No:  "+$cwSerialNo
+    Local: field: snf: Width:3
+    Invisible: if $$isempty:$cwSerialNo then yes else if $$inexportmode then +
+    if @@expcwserialprintopt="no" then yes else if @@cwItemhasBatchEnabled then not @@cwExportWithBatch else no else +
+    if @@cwserialprintopt="no" then yes else if @@cwItemhasBatchEnabled then not @@cwPrintWithBatch else no
+
+;; {03.Aug.21 17:50}      (@@expcwserialprintopt="no" and $$InExportMode) or  or ( and not $$InExportMode) ;; or (@@expcwserialprintopt="no" and $$InExportMode)
+ /*
+   [function : logxx]
+   10 : log : "$$inexportmode " +$$string:$$inexportmode
+   20 : log : "@@expcwserialprintopt "  + $$string:@@expcwserialprintopt
+   30 : log : "@@cwItemhasBatchEnabled " + $$string:@@cwItemhasBatchEnabled
+   40 : log : "@@cwExportWithBatch " + $$string:@@cwExportWithBatch
+   50 : log : "cwserialprintopt "  + $$string:@@cwserialprintopt
+   60 : log : "@@cwItemhasBatchEnabled " + $$string:@@cwItemhasBatchEnabled
+   70 : log : "@@cwPrintWithBatch " + $$string:@@cwPrintWithBatch
+   */
+   
+[#Line: EXPSMP InvDetails]
+add:option:cwexpsmpinvdetailssimple:@@issales and @@cwBajajFinanceEnabled
+   
+[!line:cwexpsmpinvdetailssimple]
+add:explode:cwdodetailsxx
+
+
+[#Line: POS InvDetails]
+add:option:cwposinvdetailopt:@@issales and @@cwBajajFinanceEnabled
+     
+[!line:cwposinvdetailopt]
+add:explode:cwdodetailsxx
+local:line:cwdoline:add:field:atbeginning:snfx
+local:line:cwserialline:add:field:atbeginning:snfx
+
+;;===================================================
+[System: Formula]
+cwpartyx:if @@RejInvoice then @@RejinOutPartyName else @@BuyerName
+
+
+[#Line: EXPINV Buyer]
+add:option:cwEXPINVBuyeropt:@@issales and @@cwBajajFinanceEnabled
+
+[!Line: cwEXPINVBuyeropt]
+Local: Field:Name Field : Set As:if $cwPartyDetails2="yes" then $cwbfCustomerName else @@cwpartyx
+
+[#Line: EXPINV Address]
+add:option:cwEXPINVAddressopt:@@issales and @@cwBajajFinanceEnabled
+
+[!Line: cwEXPINVAddressopt]
+Local: Field:EXPINV Address : Set As:if $cwPartyDetails2="yes" then $cwbfAddressLine1 else $address
+
+[#Part: EXPINV Buyer]
+add:option:cwEXPINVBuyeropt:@@issales and @@cwBajajFinanceEnabled
+
+[!Part:cwEXPINVBuyeropt]
+add:line:after:EXPINV Address:cwcustomerPhNoLine
+
+[line:cwcustomerPhNoLine]
+field:sp,snf
+Local: Field: sp: Set As:"Customer Phone No"
+Local: Field: snf: Set As:$cwbfCustomerPhoneNo
+Local: field: sp: Width:16
+Local: Field: sp: Style: Normal Bold
+Invisible:if $cwPartyDetails2="yes" then no else yes
+;; {07.Aug.23 12:52} local:field:default:print bg :yellow
+;; {07.Aug.23 12:52} local:field:default:print fg :red
+

@@ -1,0 +1,30 @@
+[System: Formula]
+ ;; BankerEnableCondition : @@issales
+
+
+     [#Line: EI Consignee]
+     add  : option : bankena : @@BankerEnableCondition
+     
+     [!line : bankena]
+     add:field:after:EI Consignee:sp,snf
+     
+     local:field:sp:setas:"Banker:"
+     local:field:snf:storage:cwbank
+     local:field:snf:show table:always
+     Local: field:snf: Width:20
+     local : field : snf : table : cwbank,Not Applicable
+
+   [collection : cwbank]
+   title :"Bank"
+   type : ledger
+   child of : $$groupbank
+   belongs to : yes
+   fetch : name
+   
+   
+   [collection : cwBankAddress]
+   type : address : ledger
+   child of : $cwbank
+
+
+

@@ -1,0 +1,21 @@
+
+
+[#Part: EI DelNoteInfo]
+  ADD : LINE : CWLRNO
+HEIGHT: 5
+
+[LINE : CWLRNO]
+FIELD : medium PROMPT,CWLRNO,SP,CWLRDT
+EMPTY : NOT @@ISSALES
+LOCAL : FIELD: medium PROMPT : INFO :"L.R. No:"
+local : field : sp : info : "Date:"
+local : field : sp : width : 3
+
+  [FIELD: CWLRNO]
+     use: snf
+ storage: cwlrnNo
+
+  [FIELD: CWLRDT]
+    use : sdf
+ storage: cwlrdate
+

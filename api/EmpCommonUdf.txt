@@ -1,0 +1,65 @@
+
+[System : UDF]
+; Config
+cwetSepRetireDate : logical: 948
+cwetSepEmpName : logical : 949
+cwEnabletables : logical : 950
+
+cwetdesignationTable : Logical : 951
+cwEtdesignationUnder : string : 952
+cwEtdesignationUnderName : string : 953
+
+cwetFunctionTable : Logical : 954
+cwetFunctionUnder : string : 955
+cwetFunctionUnderName : string : 956
+
+cwetlocationTable : Logical : 957
+cwetlocationUnder : string : 958
+cwetlocationUndername : string : 959
+
+cwetgradeTable : logical : 960
+cwetgradeUnder : string : 961
+cwetgradeUnderName : string : 962
+
+; Entry
+
+cwEmpGrade: string  : 980
+cwRetiredate : date : 981
+cwEmpPrintName : string  : 982
+
+; logo
+cwEnableLogoPrinting : logical : 983
+cwLogoinPayslip : logical : 984
+cwPayslipLogoName : string : 985
+cwPayslipLogoHeight : number : 986
+cwPayslipLogoChar : string : 987
+
+cwLogoinPaySheet : logical : 988
+cwPaySheetLogoName : string : 989
+cwPaySheetLogoHeight : number : 990
+cwPaySheetLogoChar : string : 991
+
+cwHRANotCalculated : logical : 992
+
+[System : Formula]
+cwetSepRetireDate : @@cwEnabletables and $cwetSepRetireDate:company:##svcurrentcompany
+cwhasSepEmpName : @@cwEnabletables and $cwetSepEmpName:company:##svcurrentcompany
+cwEnabletables  : $$IsPayrollOn and $cwEnabletables:company:##svcurrentcompany and @@cwEmpDemoDt
+
+cwetdesignationTable : @@cwEnabletables and $cwetdesignationTable:company:##svcurrentcompany
+cwEtdesignationUnder : $cwEtdesignationUnder:company:##svcurrentcompany
+cwEtdesignationUnderName : $cwEtdesignationUnderName:company:##svcurrentcompany
+
+cwetFunctionTable : @@cwEnabletables and $cwetFunctionTable:company:##svcurrentcompany
+cwetFunctionUnder : $cwetFunctionUnder:company:##svcurrentcompany
+cwetFunctionUnderName : $cwetFunctionUnderName:company:##svcurrentcompany
+
+cwetlocationTable : @@cwEnabletables and $cwetlocationTable:company:##svcurrentcompany
+cwetlocationUnder : $cwetlocationUnder:company:##svcurrentcompany
+cwetlocationUndername : $cwetlocationUndername:company:##svcurrentcompany
+
+cwetgradeTable : @@cwEnabletables and $cwetgradeTable:company:##svcurrentcompany
+cwetgradeUnder : $cwetgradeUnder:company:##svcurrentcompany
+cwetgradeUnderName : $cwetgradeUnderName:company:##svcurrentcompany
+
+

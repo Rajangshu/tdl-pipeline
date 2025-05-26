@@ -1,0 +1,98 @@
+; Created By: Akshay on 2013-04-26 15:49, ID: 
+
+[#Report:MultiVoucherPrint]
+variable:mprtgrp,mprtLed
+set:mprtgrp:$$sysname:NotApplicable
+set : mprtLed : $$sysname:NotApplicable
+;; {15.May.13 16:29} PrintSet  : Report Title :##mprtgrp
+
+[#Part: MVP Print Common]
+add:line:after:VoucherTypeName:cwselectledgrp,cwselectledLed
+		  
+[Line: cwselectledgrp]
+field:sp,nf
+Local: Field: sp: info:"Select Group :"
+Local: Field: nf: table: tabgroup,Not Applicable
+Local: Field: nf: Show table: Always
+Local: field: sp: Width:20
+Local: Field: nf:Modifies:mprtgrp
+Local: Field: nf: Style: Normal Bold
+Local: Field: nf: Set As: if $$isempty:$$value then $$sysname:NotApplicable else $$value
+;; {16.May.13 18:39} remove if : not ($$issales:##SVVoucherOfType or $$isCreditNote:##SVVoucherOfType or $$isDebitNote:##SVVoucherOfType)
+
+
+[line : cwselectledLed]
+use : cwselectledgrp
+Local: Field: sp: info:"Select Ledger: :"
+Local: Field: nf:  delete : table
+Local: Field: nf: add : table: ledger,Not Applicable
+Local: Field: nf: Show table: Always
+Local: field: sp: Width:20
+Local: Field: nf:Modifies:mprtLed
+
+
+[#Part: PPR Title]	
+;; {16.May.13 18:40} border:thick box	
+		  
+[Collection: tabgroup]	
+title:"Group List"
+use:group
+	
+[variable : mprtgrp]
+type : string
+default : ""
+persistent: no
+
+[system : variable]
+mprtgrp: ""
+mprtLed: ""
+
+[variable : mprtLed]
+type : string
+default : ""
+persistent: no
+
+
+
+;--------------------------
+
+
+    [#Form: MInvoice]
+    empty if : if $$issysname:##mprtgrp then @@cwchkLed else $$filtercount:AllLedgerEntries:cwPrnBelong =0
+/* not in r6
+ [#Form: MNormal DCNote]
+   empty if : if $$issysname:##mprtgrp then @@cwchkLed else $$filtercount:AllLedgerEntries:cwPrnBelong =0
+
+ [#Form: MPymtRcpt]
+  empty if : if $$issysname:##mprtgrp then @@cwchkLed else $$filtercount:AllLedgerEntries:cwPrnBelong =0
+*/
+ [#Form: MNormalPRPrint]
+  empty if : if $$issysname:##mprtgrp then @@cwchkLed else $$filtercount:AllLedgerEntries:cwPrnBelong =0
+
+ [#Form: MDCNote]
+  empty : if $$issysname:##mprtgrp then @@cwchkLed else $$filtercount:AllLedgerEntries:cwPrnBelong =0
+
+
+    [#Form: Normal DCNote]
+  empty : if $$issysname:##mprtgrp then @@cwchkLed else $$filtercount:AllLedgerEntries:cwPrnBelong =0
+
+  [#Form: MJournal]
+  empty if : if $$issysname:##mprtgrp then @@cwchkLed else $$filtercount:AllLedgerEntries:cwPrnBelong =0
+
+  [#Form: MPOSPrint]
+  empty if : if $$issysname:##mprtgrp then @@cwchkLed else $$filtercount:AllLedgerEntries:cwPrnBelong =0
+
+
+[System: Formula]
+cwPrnBelong : $myPrnBelongs:ledger:$ledgername
+cwchkLed : if $$issysname:##mprtLed then no else $$filtercount:AllLedgerEntries:cwPrnBelongLed =0
+cwPrnBelongLed : $ledgername = ##mprtLed
+
+    
+     [#object : ledger]
+     myPrnBelongs : $$isbelongsto:##mprtgrp
+     
+
+	
+		  
+	

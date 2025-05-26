@@ -1,0 +1,20 @@
+
+;; define formula : cwBrokerEnabled
+
+   [#line : eiconsignee]
+      add : option : cwBroker : @@cwBrokerEnabled
+    
+   [!line : cwBroker]
+      add : right field : sp,snf
+    local : field : sp  : info    : "Broker:"
+    local : field : snf : storage : cwbroker
+    local : field : snf : table   : cwBrokerTable
+    local : field : snf : showtable : $$isempty:$$value
+    local : field : snf : key : create ledger
+    [collection : cwBrokerTable]
+           type : ledger
+       child of : "Broker"
+    
+
+
+

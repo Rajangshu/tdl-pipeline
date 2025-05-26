@@ -1,0 +1,95 @@
+/*
+[System : Formula] ;; DiscInMaster
+DiscSTR : ;; ex "Loading"
+DiscInMasterCondition: $name contains @@DiscSTR ;; condition for ledger.
+DiscInVoucherCondition : $ledgername contains @@DiscSTR ;; condition for voucher.
+cwDiscinMasterFormat : "NoZero,Decimals:2" ;; ,Percentage"
+cwDiscInMasterPrompt : "Loading Charges?" ;; prompt in ledger master
+
+DiscInVchCondition : ;; condition to enable in voucher ;;@@ReformSales or @@ReformPO or @@ReformSO
+cwDiscInMasterBasedonValue : yes ;; else it will take on qty
+DiscinVoucherOnBilledQty : yes ;; else it will be on actualqty
+DiscinVoucherOnPrimaryQty : yes ;; else it will take on secondary qty
+DiscItemFilter : yes ;; filter condition eg : $parent:stockitem:$stockitemname contains "Cotton"
+
+*/
+
+; Master
+[#Part : MST LED Details]
+Local  : Line	: MST Parent	: Explode: cwDiscinMaster : @@DiscInMasterCondition
+
+[Part : cwDiscinMaster]
+ line : cwDiscinMaster
+border: thick box
+
+
+  [line: cwDiscinMaster]
+  field: long prompt,numf
+  Local: Field: numf : storage:cwDiscinMaster
+  Local: Field: numf : format : @@cwDiscinMasterFormat
+  Local: Field: long prompt : info: @@cwDiscInMasterPrompt
+
+[#collection : ledger]
+fetch : cwDiscinMaster
+
+; Voucher
+
+[#field : CI AccRate]
+;;SetVal : if not @@DiscInVoucherCondition then $$SETEIAccRate:@CurrValue:@VATRate:@LedRate else $cwDiscinMaster:ledger:$ledgername
+	SetVal      	: If @@TaxLedgerHasService Then $$String:@STRate + "%" Else +
+ If @@TaxLedgerHasTCS Then $$String:@TCSRate + "%" Else +
+ If (NOT $$IsLedOfGrp:$LedgerName:$$GroupDuties AND +
+ $$IsEmpty:$$CollectionField:$ClassRate:$$Line:ClassLedgerEntries AND +
+ $$IsEmpty:$RateOfTaxCalculation:Ledger:$LedgerName) then $$Value +
+ else if @@DiscInVoucherCondition then $cwDiscinMaster:ledger:$ledgername +
+ Else $$CollectionField:$ClassRate:$$Line:ClassLedgerEntries
+
+
+[#field : EI AccRate]
+SetVal : if not @@DiscInVoucherCondition then $$SETEIAccRate:@CurrValue:@VATRate:@LedRate else $cwDiscinMaster:ledger:$ledgername
+
+[#field:EI AccRatePer]
+add : option: VchDiscNoPer : @@DiscInVchCondition
+
+[#field:CI AccRatePer]
+add : option: VchDiscNoPer : @@DiscInVchCondition
+
+[!field : VchDiscNoPer]
+set as : if #EIAccRate = 0 then "" else if @@DiscInVoucherCondition then "" else "%"
+
+[#field : EI VAlue]
+CalcVal       		: If @@IsExciseTraderOn AND @@IsTraderInvoice AND (@@IsExciseTaxType OR @@IsCenvatTaxType OR @@IsCVDTaxType OR @@IsOthersDuty) Then $$CalcVal:@TraderOnItemRateVal:@ForExciseTaxType:@EIForNonExciseTaxType:@@ExciseMfgrVal:@PrevEITotal:@EISubTotal +
+						  Else If @@IsExciseMfgrDealerOn AND $$Owner:$IsExciseMfgrItemInvoice AND (@@IsExciseTaxType OR @@IsCenvatTaxType OR @@IsCVDTaxType) Then @@ExciseMfgrVal Else +
+				  	  	  If @@IsExciseTaxType Then If @OldIsExciseDuty Then ((#EIAccRate * @OnItemRateVal) / 100) +
+                   		  Else @ForExciseTaxType Else if @@DiscInVoucherCondition then @@EIDiscInVoucherAmt else @ForNonExciseTaxType
+                   		  
+[#Field: CIValue]                   		
+    CalcVal         : If @@IsExciseMfgrDealerOn AND NOT @@IsTraderSVInvoice AND (@@IsExciseTaxType OR @@IsCenvatTaxType OR @@IsCVDTaxType) Then +
+					  If (NOT $$IsSysNameEqual:Domestic:#EIExciseNatureofTrans OR $$IsSysNameEqual:CENVAT:$TaxType:Ledger:#SVLedger) AND @@IsSales Then $$AsAmount:0 Else +
+					  If $$IsEmpty:#CIAccRate Then $$Value Else @UOMConvertedVal Else +
+					  If @@IsExciseTaxType Then If @OldIsExciseDuty Then ((#CIAccPerc * @OnItemRateVal) / 100) +
+                      Else @ForExciseTaxType Else If @@TaxLedgerHasService OR @@TaxLedgerHasTCS Then @TotTaxBill Else If @@TDSInVoucher Then @TDSDedAmt Else +
+                      if @@DiscInVoucherCondition then @@CIDiscInVoucherAmt else @ForNonExciseTaxType
+
+                   		  
+[System : Formula]
+CIDiscInVoucherAmt  : if not @@cwDiscInMasterBasedonValue then  @@DiscInVoucherVchQty * #Ciaccrate else @@DiscInVoucherVchAmt * #Ciaccrate /100
+EIDiscInVoucherAmt  : if not @@cwDiscInMasterBasedonValue then  @@DiscInVoucherVchQty * #eiaccrate else @@DiscInVoucherVchAmt * #eiaccrate /100
+
+DiscInVoucherVchAmt : $$owner:$$filteramttotal:inventoryentries:DiscItemFilter:$amount
+DiscInVoucherVchQty : $$owner:$$filternumtotal:inventoryentries:DiscItemFilter:@@DiscInVoucherQty
+DiscInVoucherQty    : if @@DiscinVoucherOnBilledQty then $$cwDiscQty:$billedqty else $$cwDiscQty:$actualqty
+
+
+[function : cwDiscQty]
+parameter : qty : quantity
+returns : number
+variable : num : string
+05 : if : @@DiscinVoucherOnPrimaryQty
+;;06 : log : "a "+$$string:##qty
+10 : return : $$number:##qty
+20 : end if
+30 : set : num : $$string:##qty:NoSymbol,ShortForm,Secondary
+;;40 : log : "b"+$$string:##qty:NoZero,noSymbol,ShortForm,secondary ;;Symbol,ShortForm,Secondary
+50 : return : $$number:##num
+

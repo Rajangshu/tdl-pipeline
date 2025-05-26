@@ -1,0 +1,119 @@
+
+[#menu : gateway of tally]
+;;add : item : StkGrp : display : cwMParentStkGrp
+;;add : item : StkItem : display : cwMParentStkItm
+;;add : item : StkCat : display : cwMParentStkCat
+
+     [report : cwMParentStkGrp]
+     use : cwmasterparent
+     local : part : prtmasterparent : repeat : lnmasterparent : colcwStkGrp
+
+     [report : cwMParentStkItm]
+     use : cwmasterparent
+     local : part : prtmasterparent : repeat : lnmasterparent : colcwStkItem
+     
+     [report : cwMParentStkCat]
+     use : cwmasterparent
+     local : part : prtmasterparent : repeat : lnmasterparent : colcwStkCat
+
+    [Report: cwMasterParent]
+        use: Dsp Template
+      Title: @@MasterParentReport
+       Form: FrmMasterParent
+     Export: Yes
+  Variable : MyFilterPassing,MyFilterPassing2
+
+      [Form: FrmMasterParent]
+        use: DSP Template
+       Part: DspAccTitles,PrtMasterParent
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+
+
+      [Part: PrtMasterParent]
+       Line: LnMasterParent
+     repeat: LnMasterParent: ColMasterParentStkGrp
+     scroll: Vertical
+     
+     [collection : colcwStkItem]
+            type :stock item
+   compute : P1 : $parent
+   compute : p2 : $parent:stockgroup:$p1
+   compute : p3 : $parent:stockgroup:$p2
+   compute : p4 : $parent:stockgroup:$p3
+   compute : p5 : $parent:stockgroup:$p4
+   compute : m1 : $masterid:stockgroup:$p1
+   compute : m2 : $masterid:stockgroup:$p2
+   compute : m3 : $masterid:stockgroup:$p3
+   compute : m4 : $masterid:stockgroup:$p4
+   compute : m5 : $masterid:stockgroup:$p5
+   
+   compute : c1 : $category
+   compute : c2 : $parent:StockCategory:$c1
+   compute : c3 : $parent:StockCategory:$c2
+   compute : c4 : $Parent:StockCategory:$c3
+   compute : c5 : $parent:StockCategory:$c4
+   
+compute : mc1 : $masterid:stockcategory:$c1
+compute : mc2 : $masterid:stockcategory:$c2
+compute : mc3 : $masterid:stockcategory:$c3
+compute : mc4 : $masterid:stockcategory:$c4
+compute : mc5 : $masterid:stockcategory:$c5
+
+filter : myRepfilter
+     
+     [collection : colcwStkGrp]
+     type :stock group
+   compute : P1 : $parent
+   compute : p2 : $parent:stockgroup:$p1
+   compute : p3 : $parent:stockgroup:$p2
+   compute : p4 : $parent:stockgroup:$p3
+   compute : p5 : $parent:stockgroup:$p4
+   compute : m1 : $masterid:stockgroup:$p1
+   compute : m2 : $masterid:stockgroup:$p2
+   compute : m3 : $masterid:stockgroup:$p3
+   compute : m4 : $masterid:stockgroup:$p4
+   compute : m5 : $masterid:stockgroup:$p5
+   
+   
+filter : myRepfilter
+
+     [collection : colcwStkCat]
+     type :stock Category
+   compute : P1 : $parent
+   compute : p2 : $parent:stockCategory:$p1
+   compute : p3 : $parent:stockCategory:$p2
+   compute : p4 : $parent:stockCategory:$p3
+   compute : p5 : $parent:stockCategory:$p4
+   compute : m1 : $masterid:stockCategory:$p1
+   compute : m2 : $masterid:stockCategory:$p2
+   compute : m3 : $masterid:stockCategory:$p3
+   compute : m4 : $masterid:stockCategory:$p4
+   compute : m5 : $masterid:stockCategory:$p5
+filter : myRepfilter
+
+
+
+
+      [Line: LnMasterParent]
+     Fields: nf,d1,nf2,d3,nf3,d4,nf4,d5,nf5,d6,nf6,d7,nf7,d8,nf8,d9,nf9,d10,nf10,d11,nf11,d12,nf12
+     local : field : nf : set as  : $name
+     local : field : nf2 : set as : $masterid
+     local : field : nf3 : set as : $M1
+     local : field : nf4 : set as : $m2
+     local : field : nf5 : set as : $m3
+     local : field : nf6 : set as : $m4
+     local :field  : nf7 : set as : $m5
+     local : field : nf : width : 100
+     local : field : nf : max : 100
+
+     local : field : nf8 : set as : if $$IsStockItem then $mc1 else 0
+     local : field : nf9 : set as : if $$IsStockItem then $mc2 else 0
+     local : field : nf10 : set as : if $$IsStockItem then $mc3 else 0
+     local : field : nf11 : set as : if $$IsStockItem then $mc4 else 0
+     local :field  : nf12 : set as : if $$IsStockItem then $mc5 else 0
+;;     local : field : nf8 : border : thin box
+
+
+

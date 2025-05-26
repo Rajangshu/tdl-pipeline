@@ -1,0 +1,99 @@
+[Collection:  cwOnAccount VouchersX]
+
+	Type				: On Account Vouchers
+	Child of			: #snf
+	
+	
+[Collection:  cwOnAccount Vouchers]	
+source collection: cwOnAccount VouchersX
+	Compute				: OnAccountTotalx			: $$OnAccountTotal:#snf
+
+[SYSTEM : FORMULA]
+     XX : $parent
+  cwLedOnAcctotal : @@cwLedOnAcctotala  + @@cwLedOnAcctotalB
+cwLedOnAcctotalA  :  $$collamttotal:cwOnAccountVouchers:$OnAccountTotalx
+cwLedOnAcctotalB  : $mytotal:ledger:#snf
+  
+  [#collection : ledger]
+  fetch : mytotal
+  
+  [#object : ledger]
+  mytotal : if $$isempty:$openingbalance then $$asamount:0 else  $openingbalance - $$collamttotal:billallocations:$openingbalance
+  
+  [System : Formula]
+;ceLedBilOpBal :  $openingbalance - $$collamttotal:billallocations:$openingbalance
+  
+  [fIELD : X2S]
+   USE : AMOUNT FIELD
+   SET AS : if $$line = 1 or @@xx <> $$prevline:@@xx then $openingbalance else $openingbalance +$$prevlinefield
+
+   Format : "drcr"
+   INVISIBLE : YES
+border : thin box
+
+  [fIELD : X2y]
+   USE : AMOUNT FIELD
+   SET AS : if $$line = 1 or @@xx <> $$prevline:@@xx then $Closingbalance else $Closingbalance +$$prevlinefield
+
+   Format : "drcr"
+   INVISIBLE : YES
+border : thin box
+
+[#collection : Group Bills]
+sort : @@default : $parent,$billdate
+
+
+[#Collection: Company Receivables]
+ Sort : @@Default  : $Parent,$BillDate
+
+
+[#line:BILL Detail]
+ADD : RIGHT FIELD  : X2S ,x2y
+eXPLODE : PP1  : $$IsLastObj or ($$NextObj:@@xx != @@XX) and $$isempty:##ledgername
+
+
+
+ [pART : PP1]
+   Line : BILL SubTotalx,   BILL SubTotalOnacc,BILL SubTotaly
+
+  [line : billSubtotalx]
+    use : billSubtotal
+local : field : billop : set as : $$explodeowner:#x2s
+local : field : billcl : set as : $$explodeowner:#x2y
+add : right field : before : billcl : billop
+add : right field : amtf
+local : field : billop : border : thin top
+local : field : billcl : border : thin top
+ add : field : snf
+ Local: Field: snf : Set As: $$explodeowner:$parent
+ Local: Field: amtf : Set As: @@cwLedOnAcctotal
+
+local : field : amtf: invisible : yes
+;;local : field : snf: invisible : yes
+local : field : snf :border : thin box
+local : field : snf : delete : inactive
+local : field : snf : delete : invisible
+
+
+   
+[line : BILL SubTotalOnacc]
+ use  : billSubtotalx
+ field : numf5
+local : field : numf5 : border : thin box
+Local: Field: numf5 : Set As: $$numitems:LedgerOnAccountVouchers
+Local : Field: billop : set as : #billcl
+Local : Field: billcl : Set As: @@cwLedOnAcctotal ;;$closingbalance
+Local       	: Field	: BILLRef       : Set as	: "On Account" ;;$$explodeowner:$parent
+
+
+
+[System : Formula]
+mypart1 : $$explodeowner:$parent
+
+[line : BILL SubTotaly]
+  use : billSubtotalOnAcc
+delete : explode
+local : field : billop : set as : $$explodeowner:#x2s - @@cwLedOnAcctotal
+local : field : billcl : set as : $$explodeowner:#x2y - @@cwLedOnAcctotal
+Local : Field	: BILLRef       : Set as : "Total"
+

@@ -1,0 +1,118 @@
+; Created By: suman on 2021-07-29 14:17, ID:
+; Created By: Pg on 2018-08-17 12:00, ID:
+
+[#Form: Company Operations]
+;; {29.Jul.21 15:08}                 Switch   : cwDSLowerRel  : cwDSNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+;; {29.Jul.21 15:08}                 Switch   : cwDSCurrenRel : cwDSFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : cwDSNOTFor3.2]
+Local: Part : CMP AccFeat Left : Add : Line : At End : cwDSConfig;;,cwdocformatline /*,cwconfitwpline */
+
+[!Form : cwDSFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left : Add :  Line : At End  : cwDSConfig;;,cwdocformatline /*,cwconfitwpline  */
+local  : Line  : cwTestConfig : local : field : short name field : tool tip: "Double-Click for browsing to CircuitWorld.in"
+
+[Line : cwDSConfig]
+Field : cwdsConfigPathTitle,cwdsConfigPath
+;; {29.Jul.21 15:04} right field : Short name field
+Local: Field: short name field : info: "sales@circuitworld.in"
+Local: Field: short name field: case : normal
+Local: Field: short name field: Color : blue
+;;Local: Field: short name field: border : thin bottom
+Local: Field: short name field: width : 0
+key  : cwcwDSBrowse
+Local: field: cwdsConfigPathTitle: Width:35
+Local: field: cwdsConfigPath: full Width:yes
+space top:.5
+;; {04.Aug.21 17:35} local: field: default: inactive:$cwBajajFinanceEnabled="no"
+
+ local: field: default: inactive:$cwSepratepatnerid ;;cwBajajFinanceEnabled="no"
+ 
+[field : cwdsConfigPathTitle]
+use : short prompt
+info: "Path for Saving PDF [for Upload to BFL]:"
+width : 0
+
+[field : cwdsConfigPath]
+use : name field
+;; {29.Jul.21 16:13} inactive: not $cwDSEnabled
+storage : cwDSConfigPath
+ Style: Normal
+
+
+[key : cwcwDSBrowse]
+ key : left double click
+action: browse : "www.circuitworld.in"
+
+[Field: cwDSConfigTitle]
+  Use : medium prompt
+  info: "Enable Document e-Signing?"
+width : 0
+
+[Field: cwDSConfig]
+   Use: logical field
+Set As: $cwDSEnabled
+storage: cwDSEnabled
+
+[System: Formula]
+cwDSEnabled :  $cwDSEnabled:COMPANY:##SVCURRENTCOMPANY
+cwDSConfigPath: $cwDSConfigPath:COMPANY:##SVCURRENTCOMPANY
+
+
+[line:cwdocformatline]
+field:cwdocformatstrfd,cwdocformatstrfd2
+
+
+[Field: cwdocformatstrfd]
+  Use : medium prompt
+  info: "Format Document e-Signing?"
+width : 0
+inactive:not $cwDSEnabled
+
+[Field: cwdocformatstrfd2]
+   Use: logical field
+inactive:not $cwDSEnabled
+storage: cwdocformatstr
+SubForm :cwdocformatlrep : $$value
+
+[report:cwdocformatlrep]
+form:cwdocformatlfrom
+
+[form:cwdocformatlfrom]
+part:cwdocformatlpart
+
+width:25% page
+
+[part:cwdocformatlpart]
+line:cwdocformatlheightline,cwdocformatlwidthline
+
+[line:cwdocformatlwidthline]
+field:cwdocformatlwidthfld,cwdocformatlwidthfld2
+
+
+[Field: cwdocformatlwidthfld]
+  Use : short prompt
+  info: "Width"
+width : 0
+
+[Field: cwdocformatlwidthfld2]
+   Use: number field
+storage: cwdocformatlwidthnumf
+
+[line:cwdocformatlheightline]
+field:cwdocformatlheightfld,cwdocformatlheightfld2
+space bottom:0.5
+
+[Field: cwdocformatlheightfld]
+  Use : short prompt
+  info: "Height"
+width : 0
+
+[Field: cwdocformatlheightfld2]
+   Use: number field
+storage: cwdocformatlheightnum
+
+[System: Formula]
+cwdocformatlwidthnumfform:$cwdocformatlwidthnumf:vouchertype:##svVouchertype
+cwdocformatlheightnumform:$cwdocformatlheightnum:vouchertype:##svVouchertype
+

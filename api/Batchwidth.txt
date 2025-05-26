@@ -1,0 +1,8 @@
+; Created By: pg on 2012-03-30 18:15
+; cwBatchWidth
+
+;;[#field : VCHBATCH Name]
+;;width : @@cwBatchWidth
+
+[#system: formula]
+VCHBatchNameWidth : @@cwBatchWidth

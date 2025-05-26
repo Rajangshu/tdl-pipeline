@@ -1,0 +1,80 @@
+[#menu : gateway of tally]
+;;add : item : at end : RepGetVchNo :display : RepGetVchNox
+
+
+[report: RepGetVchNox]
+use : RepGetVchNo
+;; {27.Aug.18 12:06}        set : vouchertypename : "fgPurchase Order"
+
+    [Report: RepGetVchNo]
+        use: Dsp Template
+      Title: @@GetVchNoReport
+   Printset: Report Title: @@GetVchNoReport
+       Form: FrmGetVchNo
+     Export: Yes
+  variable : vouchertypename,familyvoucherflag
+       set : familyvoucherflag : no
+
+;;       set : vouchertypename : "credit notes"
+       
+      [Form: FrmGetVchNo]
+        use: DSP Template
+       Part: PrtGetVchNo
+ Background: @@SV_STOCKSUMMARY
+
+      [Part: PrtGetVchNo]
+       Line: LnGetVchNo
+     scroll: Vertical
+
+;;[Collection: ColGetVchNo]
+;;    Type : vouchers:
+;;     Filter: ColGetVchNoFilter
+
+    [system: Formula]
+ColGetVchNoFilter: Yes
+NFX : $$NUMITEMS:CWexspecificVouchersofCompany
+
+      [Line: LnGetVchNo]
+     Fields: fwf,d1,nf,d2,nf2,d3,snf,d4,snf2,d5,nf3,d6
+     Option : Alter on Enter
+     local : field : fwf : set as : $$CollectionField:$vouchernumber:(-1):cwexspecificVouchersofCompany
+     local : field : nf3 : set as :$$CollectionField:$REFERENCE:(-1):cwexspecificVouchersofCompany
+     local : field : nf : set as :$$CollectionField:$name:(-1):collPrefixList1
+     local : field : nf2 : set as :$$CollectionField:$name:(-1):collSuffixList1
+     Local: Field: snf: Set As: $WidthofNumber:vouchertype:##VoucherTypeName
+     Local: Field: snf2: Set As:$BeginningNumber:vouchertype:##VoucherTypeName
+     
+     [Collection: CWexspecificVouchersofCompany] ;;SRC Specific Vouchers of Company]
+
+	Type        : Vouchers : VoucherType
+	Child of    : ##VoucherTypeName
+;	Fetch       : Name, IsReserved, AuditedVch, TotalVouchers, Parent
+;	Fetch       : ActualVoucherType, ManualSamplingVch
+;	Fetch		: TotalVch,UnauditedVch, SASamplingMethod, ManualSampleVch
+;	Fetch		: SASampleCount, SASamplingStrOne, SASamplingNumOne, SASamplingNumTwo
+;	Fetch		: SASamplingAmtOne, SASamplingAmtTwo, SASamplingDateOne, SASamplingDateTwo
+;	Fetch		: SamplingMethod, SamplingStrOneFactor, SamplingNumOneFactor, SamplingNumTwoFactor
+;	Fetch		: SamplingAmtOneFactor, SamplingAmtTwoFactor, SamplingDateOneFactor, SamplingDateTwoFactor
+
+	;; Parm var added for Remote to get Column name from remote list variable for processing in server.	
+	ParmVar: LedName : String : $lvLedColName
+        fetch:REFERENCE
+        delete:filter
+        
+
+
+[Collection:collPrefixList1]
+type:PrefixList:vouchertype
+child of :##VoucherTypeName
+fetch:name
+
+[Collection:collSuffixList1]
+type:SuffixList:vouchertype
+child of :##VoucherTypeName
+fetch:name
+     
+     
+     
+
+
+

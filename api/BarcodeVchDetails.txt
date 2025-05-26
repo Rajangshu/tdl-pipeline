@@ -1,0 +1,140 @@
+; Created By: pg on 2011-09-16 17:06
+; Created By: pg on 2011-09-10 16:54
+
+     [#menu: Gateway of Tally]
+        add: Option: VchDetailsLock: @@cwdebug
+
+     [!menu: VchDetailsLock]
+        add: Item: before: @@locQuit: @@VchDetailsReport: Display: RepVchDetails
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   VchDetailsReport: "VchDetails"
+ VchDetailsDemoLock: $$MachineDate < $$Date:"02-10-2011"
+
+    [Report: RepVchDetails]
+        use: Dsp Template
+      Title: @@VchDetailsReport
+   Printset: Report Title: @@VchDetailsReport
+       Form: FrmVchDetails
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+
+      [Form: FrmVchDetails]
+        use: DSP Template
+       Part: DspAccTitles,PrtVchDetails
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: VchDetailsbotbrk,VchDetailsbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+      [part: VchDetailsbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: VchDetailsbotopbrk]
+        use: dspacctitles
+  add: part: VchDetailsTitlePart
+
+      [part: VchDetailsTitlePart]
+       line: LnVchDetailsTitle
+
+      [line: LnVchDetailsCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+
+      [Part: PrtVchDetails]
+       Line: LnVchDetailsCurrPeriod,LnVchDetailsTitle,LnVchDetails
+     repeat: LnVchDetails: ColVchDetails
+     scroll: Vertical
+ Common Border: YEs
+
+
+[Collection: ColVchDetails]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColVchDetailsFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColVchDetailsFilter: Yes
+
+      [Line: LnVchDetailsTitle]
+        use: LnVchDetails
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LnVchDetails]
+     Fields: numf,d9,sdf,d1,fwf,d2,fwf2,d10,snf,d3,snf2,d4,snf3,d5,snf4,d6,snf5,d7
+right field: Amtf
+     Option: Alter on Enter
+local:field: fwf: alter : voucher : $$isvoucher
+
+Local: Field: sdf: Set As: $date
+Local: Field: fwf: Set As: $partyledgername
+Local: Field: snf: Set As: $vouchertypename
+Local: Field: snf2: Set As: $parent:Vouchertype:#snf
+;;Local: Field: snf3 : Set As: $vou
+;;Local: Field: snf4: Set As: $myclass1
+;;Local: Field: snf5: Set As: $myclass2
+Local: Field: amtf: Set As: $amount
+Local: Field: fwf2: Set As: $vouchernumber
+Local: Field: numf: Set As: $$explodelevel
+local: field: numf: Invisible: not $$inexportmode
+option: myexpmode : $$inexportmode
+add : explode : cwInventoryEntriesIn : $$isstockjrnl:$vouchertypename
+add : explode : cwInventoryEntries : not $$isstockjrnl:$vouchertypename
+
+[!line : myexpmode]
+local: Field: default: max: 100
+local: Field: default: width: 100
+
+[part : cwInventoryEntriesIn]
+   use: cwInventoryEntries
+repeat: cwInventoryEntries : inventoryentriesIn
+
+[part : cwInventoryEntries]
+ line : cwInventoryEntries
+ repeat : cwInventoryEntries : inventory entries
+
+[line : cwInventoryEntries]
+ field: numf,d1,fwf,d2,qtyf,d3,qtyf2,d4,ratepf,d5,ratepf2,d6,ratepf3,d7,amtf, +
+  d8,numf2,d9,snf,d10,snf2,d11,snf3,d12,snf4,d13,snf5
+ Local: Field: fwf: Set As: $stockitemname
+ Local: Field: qtyf: Set As: $actualQty
+ Local: Field: qtyf2: Set As: $billedqty
+ Local: Field: ratepf: Set As: $rate ;; voucher rate
+ Local: Field: ratepf2: Set As: @@StdSellRate ;; sale rate
+ Local: Field: ratepf3: Set As: if ##str1 = "" then $$asrate:0 else $$getpricefromlevel:#fwf:$date:($$asqty:1)
+ Local: Field: numf2: Set As: $rateofvat:stockitem:$stockitemname
+ Local: Field: snf: Set As: $partno:stockitem:$stockitemname
+;; Local: Field: snf: Border: thin box
+ Local: Field: snf2: Set As: $narration:stockitem:$stockitemname
+;; Local: Field: snf2 : Border: Thick Box
+ Local: Field: snf3: Set As: $cwpartycodex:STOCKITEM:$STOCKITEMNAME
+ Local: Field: snf4: Set As: $description:stockitem:$stockitemname
+;; Local: Field: snf4: Border: Thin Box
+ ADD: EXPLODE: cwBatchdetails
+
+[part : cwBatchdetails]
+ line : cwBatchdetails
+repeat: cwBatchdetails : batch allocations
+
+ [line: cwBatchdetails]
+ field: numf,d1,fwf,d2,fwf2,d3,qtyf,d3,qtyf2,d4,ratepf,d5,amtf
+ Local: Field: fwf: Set As: $godownname
+ Local: Field: fwf2: Set As: $Batchname
+
+

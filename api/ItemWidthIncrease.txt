@@ -1,0 +1,28 @@
+; Created By: Akshay on 2011-12-22 13:10
+
+            [#Field: SStockItem]
+;;            BORDER : THICK BOX
+            WIDTH : 70
+            
+[#Collection: List of Stock Items]
+delete: format
+add : FORMAT : $NAME,70
+;;FORMAT : $BASEUNITS,20
+            
+;--------------------
+
+;;            [#Field: SStockGroup]
+;;            width :50
+            
+;;[#Collection: List of ExtractStockGroups]
+;;delete: format
+;;add : format : $$name,50
+
+
+[#collection :stock group]
+delete : format
+add : format : $name,70
+
+[#Collection: Stock Group Extract]
+delete : format
+add : format : $name,50

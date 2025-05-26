@@ -1,0 +1,224 @@
+     ;; pls include server vouchers
+     
+     [#menu: Gateway of Tally]
+;; {30.Aug.16 17:44}         add: Option: cwImportMastersLock  ;;: @@cwImportMastersDemoLock
+       
+     [!menu: cwImportMastersLock]
+        add: Item: before: @@locQuit: @@cwImportMastersReport: Display:cwImportMasters  ;;RepcwImportMasters
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   cwImportMastersReport: "Import Masters"
+ cwImportMastersDemoLock: $$MachineDate < $$Date:"02/10/2010"
+     
+    [Report: cwImportMasters]
+       use : pgmasterlist
+     Title : @@cwImportMastersReport
+     local : line  : pgmasterlist : add : field : d1,numf,d2,numf1,d3,numf2,d4,numf3,d4,numf4,d5,snf2,d6,numf5,d7,snf ;;,numf6,snf  ;;,d6,numf6,d7,numf7
+     local : line  : pgmasterlist : option : cwIMGroupLed : ($$IsSysNameEqual:Groups:##AccountType) or ($$IsSysNameEqual:Ledgers:##AccountType)
+     local : line  : pgmasterlist : option : cwIMStkGroup : ($$IsSysNameEqual:StockGroups:##AccountType) or ($$IsSysNameEqual:StockItems:##AccountType)
+     local : line  : pgmasterlist : option : cwIMStkCategory : ($$IsSysNameEqual:StockCATEGORIES:##AccountType)
+     local : line  : pgmasterlist : option : cwIMVchType : ($$IsSysNameEqual:VoucherTypes:##AccountType)
+     local : field : numf  : set as : $masterid
+     local : field : numf4 : set as : 0
+     local : line  : pgmasterlist : empty : if ##str1 = "" then no else $masterid < $$number:##str1
+;     LOCAL : FIELD : NUMF  : FORMAT : "NoSymbol"
+;     LOCAL : FIELD : NUMF1 : FORMAT : "NoSymbol"
+;     LOCAL : FIELD : NUMF2 : FORMAT : "NoSymbol"
+;     LOCAL : FIELD : NUMF3 : FORMAT : "NoSymbol"
+;     LOCAL : FIELD : NUMF4 : FORMAT : "NoSymbol"
+;     LOCAL : FIELD : NUMF5 : FORMAT : "NoSymbol"
+;     LOCAL : FIELD : NUMF6 : FORMAT : "NoSymbol"
+;     LOCAL : FIELD : snf : FORMAT : "NoSymbol"
+      Local: Field: snf2: Set As:$partno
+     
+    [!line : cwIMGroupLed]
+     local : field : numf1 : set as : $masterid:group:$parent
+     local : field : numf2 : set as : $masterid:group:$grandparent
+     local : field : numf3 : set as : $masterid:group:$parent:group:$grandparent
+     Local: Field: numf5: Set As:"~"+$name+"~"+$$GetMyParent2
+     local: field: numf5: type: String
+     Local: Field: snf: Set As:"~"+$$string:$masterid +"~"+$$GetMyParentxx2
+
+      Local: field: snf: Width:250
+      Local: field: snf2: Width:100
+   Local: field: numf5: Width:250
+
+
+
+    [!line : cwIMStkGroup]
+     local : field : numf1 : set as : $masterid:STOCKgroup:$parent
+     local : field : numf2 : set as : $masterid:STOCKgroup:$grandparent
+     local : field : numf3 : set as : $masterid:STOCKgroup:$parent:STOCKgroup:$grandparent
+     local: field: numf5: type: String
+     local : field : numf5 : set as :"~"+$name+"~"+$$GetMyParent ;; $masterid:STOCKgroup:$parent:$parent:STOCKgroup:$grandparent
+
+   Local: Field:snf: Set As:"~"+$$string:$masterid +"~" +$$GetMyParentxx
+   
+   Local: field: snf: Width:250
+   Local: field: numf5: Width:250
+   Local: field: snf2: Width:100
+
+   
+     add : option : cwItm :  $$IsSysNameEqual:StockItems:##AccountType
+     
+     [!line : cwitm]
+     add : field : d5,nf10,d6,numf5,d7,snf
+     Local: Field: nf10 : Set As: $partno
+     Local: Field: numf5: Set As:"~"+$$GetMyParent
+     local: field: numf5: type: String
+     Local: Field:snf: Set As:"~"+$$GetMyParentxx
+     
+    [!line : cwIMStkCategory]
+     local : field : numf1 : set as : $masterid:StockCategory:$parent
+     local : field : numf2 : set as : $masterid:StockCategory:$grandparent
+     local : field : numf3 : set as : $masterid:StockCategory:$parent:StockCategory:$grandparent
+     Local: Field: numf5: Set As:"~"+$name+"~"+$$GetMyParent3
+     local: field: numf5: type: String
+     Local: Field: snf: Set As:"~"+$$string:$masterid+"~"+$$GetMyParentxx3
+      Local: field: snf: Width:250
+   Local: field: numf5: Width:250
+   Local: field: snf2: Width:100
+
+
+    [!line : cwIMVchType]
+     local : field : numf1 : set as : @@cwIm1
+     
+ [System : Formula]
+ immparent :$parent:stockgroup:##myparent
+
+ [function: GetMyParent]
+ returns : string
+ variable : myparent : string
+ variable : myparenttmp : string
+;; {29.Aug.16 15:20}  00 : log :"-------------"
+ 10 : set : myparent :"" ;;$parent  ;;$$FullList:stockgroup:$parent
+ 15 : set : myparenttmp :$parent  ;;$$FullList:stockgroup:$parent
+;; {29.Aug.16 15:20}  15.1: log : ##myparenttmp
+;; {29.Aug.16 15:20}  16 : log : not $$issysname:##myparenttmp
+ 25 : while : not $$issysname:##myparenttmp ;;<> $$sysname:Primary
+;; {29.Aug.16 15:20}   29:log:@@immparent
+ 30 : set : myparent :##myparent+##myparenttmp+"~";;@@immparent
+ 31 : set : myparenttmp :$parent:stockgroup:##myparenttmp
+;; {29.Aug.16 12:37}  31:log:";;;;" ;;##myparent
+ 
+ 35 : end while
+;; {29.Aug.16 15:20}  37 : log : "---->"+ ##myparent
+ 40 : return :##myparent ;;+$parent:stockgroup:##myparent
+ 
+ 
+ [function: GetMyParentxx]
+  returns : string
+  variable : myparent : string
+  variable : myparenttmp : string
+  variable : myid : string
+;; {29.Aug.16 18:12}  00 : log :"-------------"
+ 10 : set : myparent :"" ;;$masterid:stockgroup:$parent  ;;$$FullList:stockgroup:$parent
+ 15 : set : myparenttmp :$parent  ;;$$FullList:stockgroup:$parent
+ ;; {29.Aug.16 15:20}  15.1: log : ##myparenttmp
+ ;; {29.Aug.16 15:20}  16 : log : not $$issysname:##myparenttmp
+ 25 : while : not $$issysname:##myparenttmp ;;<> $$sysname:Primary
+ ;; {29.Aug.16 15:20}   29:log:@@immparent
+ 31a:set : myid: $masterid:stockgroup:##myparenttmp
+ 30 : set : myparent :##myparent+##myid+"~" ;;$masterid:$parent:stockgroup:##myparenttmp ;;##myparent+"~"+$$string:$masterid:$parent:stockgroup:##myparenttmp  ;; +"~"+##myparent   ;;##myparent +"~"  +$$string:$masterid:stockgroup:##myparenttmp   ;;"~"+##myparent+"~"+ ##myparenttmp+"~" ;;@@immparent
+
+ 31 : set : myparenttmp :$parent:stockgroup:##myparenttmp
+;; {29.Aug.16 18:12}  32 : log: ##myparenttmp
+
+ 35 : end while
+ ;; {29.Aug.16 15:20}  37 : log : "---->"+ ##myparent
+ 40 : return :##myparent  ;;+$parent:stockgroup:##myparent
+ 
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ 
+  [function: GetMyParent2]
+ returns : string
+ variable : myparent : string
+ variable : myparenttmp : string
+;; {29.Aug.16 15:20}  00 : log :"-------------"
+ 10 : set : myparent :"" ;;$parent  ;;$$FullList:stockgroup:$parent
+ 15 : set : myparenttmp :$parent  ;;$$FullList:stockgroup:$parent
+;; {29.Aug.16 15:20}  15.1: log : ##myparenttmp
+;; {29.Aug.16 15:20}  16 : log : not $$issysname:##myparenttmp
+ 25 : while : not $$issysname:##myparenttmp ;;<> $$sysname:Primary
+;; {29.Aug.16 15:20}   29:log:@@immparent
+ 30 : set : myparent :##myparent+##myparenttmp +"~";;@@immparent
+ 31 : set : myparenttmp :$parent:group:##myparenttmp
+;; {29.Aug.16 12:37}  31:log:";;;;" ;;##myparent
+
+ 35 : end while
+;; {29.Aug.16 15:20}  37 : log : "---->"+ ##myparent
+ 40 : return :##myparent ;;+$parent:stockgroup:##myparent
+ 
+ 
+ [function: GetMyParentxx2]
+  returns : string
+  variable : myparent : string
+  variable : myparenttmp : string
+  variable : myid : string
+;; {29.Aug.16 18:12}  00 : log :"-------------"
+ 10 : set : myparent :"" ;;$masterid:stockgroup:$parent  ;;$$FullList:stockgroup:$parent
+ 15 : set : myparenttmp :$parent  ;;$$FullList:stockgroup:$parent
+ ;; {29.Aug.16 15:20}  15.1: log : ##myparenttmp
+ ;; {29.Aug.16 15:20}  16 : log : not $$issysname:##myparenttmp
+ 25 : while : not $$issysname:##myparenttmp ;;<> $$sysname:Primary
+ ;; {29.Aug.16 15:20}   29:log:@@immparent
+ 31a:set : myid: $masterid:group:##myparenttmp
+ 30 : set : myparent :##myparent+##myid +"~" ;;$masterid:$parent:stockgroup:##myparenttmp ;;##myparent+"~"+$$string:$masterid:$parent:stockgroup:##myparenttmp  ;; +"~"+##myparent   ;;##myparent +"~"  +$$string:$masterid:stockgroup:##myparenttmp   ;;"~"+##myparent+"~"+ ##myparenttmp+"~" ;;@@immparent
+
+ 31 : set : myparenttmp :$parent:group:##myparenttmp
+;; {29.Aug.16 18:12}  32 : log: ##myparenttmp
+
+ 35 : end while
+ ;; {29.Aug.16 15:20}  37 : log : "---->"+ ##myparent
+ 40 : return :##myparent  ;;+$parent:stockgroup:##myparent
+
+
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ 
+  [function: GetMyParent3]
+ returns : string
+ variable : myparent : string
+ variable : myparenttmp : string
+;; {29.Aug.16 15:20}  00 : log :"-------------"
+ 10 : set : myparent :"" ;;$parent  ;;$$FullList:stockgroup:$parent
+ 15 : set : myparenttmp :$parent  ;;$$FullList:stockgroup:$parent
+;; {29.Aug.16 15:20}  15.1: log : ##myparenttmp
+;; {29.Aug.16 15:20}  16 : log : not $$issysname:##myparenttmp
+ 25 : while : not $$issysname:##myparenttmp ;;<> $$sysname:Primary
+;; {29.Aug.16 15:20}   29:log:@@immparent
+ 30 : set : myparent :##myparent+##myparenttmp+"~" ;;@@immparent
+ 31 : set : myparenttmp :$parent:StockCategory:##myparenttmp
+;; {29.Aug.16 12:37}  31:log:";;;;" ;;##myparent
+
+ 35 : end while
+;; {29.Aug.16 15:20}  37 : log : "---->"+ ##myparent
+ 40 : return :##myparent ;;+$parent:stockgroup:##myparent
+ 
+ 
+  [function: GetMyParentxx3]
+  returns : string
+  variable : myparent : string
+  variable : myparenttmp : string
+  variable : myid : string
+;; {29.Aug.16 18:12}  00 : log :"-------------"
+ 10 : set : myparent :"" ;;$masterid:stockgroup:$parent  ;;$$FullList:stockgroup:$parent
+ 15 : set : myparenttmp :$parent  ;;$$FullList:stockgroup:$parent
+ ;; {29.Aug.16 15:20}  15.1: log : ##myparenttmp
+ ;; {29.Aug.16 15:20}  16 : log : not $$issysname:##myparenttmp
+ 25 : while : not $$issysname:##myparenttmp ;;<> $$sysname:Primary
+ ;; {29.Aug.16 15:20}   29:log:@@immparent
+ 31a:set : myid: $masterid:StockCategory:##myparenttmp
+ 30 : set : myparent :##myparent+##myid+"~" ;;$masterid:$parent:stockgroup:##myparenttmp ;;##myparent+"~"+$$string:$masterid:$parent:stockgroup:##myparenttmp  ;; +"~"+##myparent   ;;##myparent +"~"  +$$string:$masterid:stockgroup:##myparenttmp   ;;"~"+##myparent+"~"+ ##myparenttmp+"~" ;;@@immparent
+
+ 31 : set : myparenttmp :$parent:StockCategory:##myparenttmp
+;; {29.Aug.16 18:12}  32 : log: ##myparenttmp
+
+ 35 : end while
+ ;; {29.Aug.16 15:20}  37 : log : "---->"+ ##myparent
+ 40 : return :##myparent  ;;+$parent:stockgroup:##myparent
+
+
+ 
+ 
+

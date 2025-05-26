@@ -1,0 +1,48 @@
+;Modified by: pg on 2012-11-12 13:01, ID: 
+[System : Formula]
+;; cwDefPriceListCondition : ;; to enable price list in voucher type : example : $$ispurchase:$parent
+;; cwVchPriceListCondition : in Voucher entry
+[#Part: VTYP Behaviour]
+add: line : cwDefPriceList
+
+[line : cwDefPriceList]
+Fields      : Long Prompt, nf
+Local       : Field : Long Prompt 	: info : "Default Price List:"
+local : field : nf : table : Price Levels, Not Applicable
+empty : NOT ( @@cwDefPriceListCondition  and $UsePriceLevels:company:##svcurrentcompany)
+local : field: nf : storage : cwDefPriceLevel
+
+[#System: Formula]
+    WithPriceLevels  : (@@IsOutwardType or @@cwVchPriceListCondition) AND $UsePriceLevels:Company:##SVCurrentCompany AND ($$NumPriceLevels > 0) and $UsePriceLevels:company:##svcurrentcompany
+
+    [#LINE : EI CONSIGNEE]
+;; {12.Mar.14 13:27}     LOCAL : FIELD :EI PRICELEVEL : DELETE : SKIP
+;; {13.May.13 19:49} ADD: FIELD : AT BEGINNING : CWTEMPPL
+
+[FIELD: CWTEMPPL]
+USE : NAME FIELD
+;; {13.May.13 19:48} set by condition : @@cwVchPriceListCondition and not $$isSYSNAME:$cwDefPriceLevel:vouchertypes:##svvOUCHERTYPE : $cwDefPriceLevel:vouchertypes:##svvOUCHERTYPE
+;; {13.May.13 19:45} set by condition : @@cwVchPriceListCondition and $$isSYSNAME:$cwDefPriceLevel:vouchertypes:##svvOUCHERTYPE : $PriceLevel:Ledger:$PartyLedgerName
+SET ALWAYS : YES
+;; {13.May.13 19:47} SET AS : $cwDefPriceLevel:vouchertypes:##svvOUCHERTYPE
+BORDER : THIN BOX : @@cwVchPriceListCondition and not $$isSYSNAME:$cwDefPriceLevel:vouchertypes:##svvOUCHERTYPE
+SET AS : $cwDefPriceLevel:vouchertypes:##svvOUCHERTYPE
+
+[#Field: EI PriceLevel]
+
+set by condition : @@cwVchPriceListCondition : $cwDefPriceLevel:vouchertypes:##svvOUCHERTYPE ;;@@cwVchPriceListCondition and not $$isempty:$cwDefPriceLevel:vouchertypes:##svvOUCHERTYPE : #CWTEMPPL ;;$cwDefPriceLevel:vouchertypes:##svvOUCHERTYPE
+;set by condition : @@cwVchPriceListCondition and $$isempty:$cwDefPriceLevel:vouchertypes:##svvOUCHERTYPE:$PriceLevel:Ledger:$PartyLedgerName
+    Skip        : (NOT @@DoEditAll AND NOT $$IsEmpty:$PriceLevel:Ledger:$PartyLedgerName) or (@@cwVchPriceListCondition and not $$isempty:$cwDefPriceLevel:vouchertypes:##svvOUCHERTYPE)
+    Invisible   : if not $UsePriceLevels:company:##svcurrentcompany then yes else NOT @@WithPriceLevels AND NOT @@cwVchPriceListCondition
+;; {12.Mar.14 13:28}     DELETE : INVISIBLE
+    DELETE : INACTIVE
+    SET ALWAYS : YES
+;; {13.May.13 19:36} BORDER : THIN BOX : @@cwVchPriceListCondition and not $$isempty:$cwDefPriceLevel:vouchertypes:##svvOUCHERTYPE
+
+[#field : VCHBATCH Rate]
+;set by condition : ($$IsValidPriceLevel:$PriceLevel) : $$asrate:20 ;;$$GetPriceFromLevel:$StockItemName:$PriceLevel:$Date:$ActualQty ;;and ($$IsValidPriceLevel:$PriceLevel) AND $$IsEmpty:$$Value AND ($Amount = 0) :
+;$$GetPriceFromLevel:$StockItemName:$PriceLevel:$Date:$ActualQty
+;NrmlStdRate	 : $$GetPriceFromLevel:$StockItemName:$PriceLevel:$Date:$ActualQty
+stdrate : if @@cwVchPriceListCondition and $$IsValidPriceLevel:$PriceLevel then $$GetPriceFromLevel:$StockItemName:$PriceLevel:$Date:$ActualQty else @@StdVchRate
+
+

@@ -1,0 +1,9 @@
+;; set formula : cwRWCond to Condition for width
+;; set width in cwRWWidth
+
+;;[system : formula]
+;;cwRWCond  :
+;;cwRWWidth :
+
+[system : formula]
+ratewidth : if  $$InPrintMode and @@cwRWCond then @@CwRWWidth else if NOT $$InPixelMode then 9 else 8

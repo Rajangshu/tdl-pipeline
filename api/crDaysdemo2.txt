@@ -1,0 +1,15 @@
+; Created By: pg on 2012-05-03 18:28
+
+[#system : variable]
+ICFGDefaultBill : yes
+
+[#Report: VCHBILL Allocation]    ;; Sub Form
+;;Local: Field: default: Border: Thin Box
+local : field : VCHBILLExpiry : validate : if @@issales then  not $$isempty:$$value else yes
+
+[#Field: CI ValueTotal]
+    border : thick box
+    
+[#Field: EI ValueTotal]
+    Sub Form    : VCHBILL Allocation 	: (@ThisHasBill AND @@issales) or (@ThisHasBill AND NOT ##ICFGDefaultBill) OR +
+($$IsServiceTaxOn AND $IsSTaxPartyLedger:Ledger:$LedgerName AND @ThisHasBill) OR ($$IsTDSOn AND $IsTDSPartyLedger:Ledger:$LedgerName AND @ThisHasBill) OR @@JobworkVouchers

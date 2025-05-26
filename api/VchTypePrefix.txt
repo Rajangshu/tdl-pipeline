@@ -1,0 +1,86 @@
+; Created By: pg on 2011-12-05 14:51
+
+[System: Formula]
+isPrefixSuffixCondition : no ;; $$issales:$parent
+
+;------------
+[#Part: VTYP Advance]
+add : option : cwManualPrefixSuffix :  if $$isempty:@@isPrefixSuffixCondition then no else  @@isPrefixSuffixCondition
+
+[!part : cwManualPrefixSuffix]
+add : line: cwManualPrefixSuffix
+
+  [line: cwManualPrefixSuffix]
+  field : sp,snf,sp2,snf2
+  Local: Field: sp : info :"Prefix:"
+  Local: Field: sp2: info: "Suffix:"
+  Local: Field: snf: storage: cwPrefix
+  Local: Field: snf2: storage: cwSuffix
+  local : field : snf : inactive : @@cwNM
+  local : field : snf2 : inactive : @@cwNM
+  Local: field: snf: Width: @@shortwidth
+  Local: field: snf2: Width: @@shortwidth
+  
+  
+  [System: Formula]
+cwNM :   $NUMBERINGMETHOD <> "Manual"
+
+
+
+;-------------
+
+[#menu : gateway of tally]
+;add : option : vprefix : @@cwdebug
+
+[!menu : vprefix]
+add : item : vprefix : display : pgvchprefix
+
+    [Report: pgVchPrefix]
+        use: Dsp Template
+      Title: @@pgVchPrefixReport
+   Printset: Report Title: @@pgVchPrefixReport
+       Form: FrmpgVchPrefix
+     Export: Yes
+;;     set  : svfromdate : ##svcurrentdate
+;;     set  : svTodate : ##svcurrentdate
+variable : vouchertypename
+variable : svfromdate
+     
+      [Form: FrmpgVchPrefix]
+        use: DSP Template
+       Part: PrtpgVchPrefix
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                      1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+button : myvchtype
+
+[key : myvchtype]
+key : f4
+option : ChangeVchType
+
+      [Part: PrtpgVchPrefix]
+       Line: LnpgVchPrefix
+;;       set : 1
+     repeat: LnpgVchPrefix : voucher type
+     scroll: Vertical
+ Common Border: YEs
+
+
+
+      [Line: LnpgVchPrefix]
+field :nf2,d2,nf3,d3,nf4
+Local: Field: nf: Set As: $name
+empty : if $$issysname:##vouchertypename then no else $name <> ##vouchertypename
+option : alter on enter
+local : field : nf2 : alter: voucher type : $$isvouchertype
+;;local :field : nf : quick search : yes
+Local: Field: nf2: Set As: if @@cwNM then $PREFIXLIST[-1,@@hasmydate].NAME else $cwPrefix
+Local: Field: nf3: Set As: if @@cwNM then $SUFFIXLIST[-1,@@hasmydate].name else $cwSuffix
+Local: Field: nf4: Set As: $WidthofNumber
+[System: Formula]
+hasmydate : if $$isempty:##svfromdate then yes else $date <= ##svfromdate
+

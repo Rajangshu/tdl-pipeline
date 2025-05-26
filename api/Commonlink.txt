@@ -1,0 +1,134 @@
+[System : Formula]
+cwshowlink : no
+
+[#Part: VCH Narration]
+  add : line : cwLink
+  
+  [line : cwLink]
+  field: shortprompt,cwlink
+  local : field : short prompt : info : "Link:"
+  local : field : short prompt : invisible : not @@cwshowlink
+  
+  [field : cwlink]
+  use : short name field
+  storage : VchLINK
+  skip : yes
+invisible : not @@cwshowlink
+  
+  [system : udf]
+  VchLINK: string  : 1095
+; ------------------------------------------------------
+
+;;[#menu : gatewayoftally]
+;;add : item : at end : a1 : display : VlinkRep
+
+        [Report : VlinkRep]
+            use : dsptemplate
+       variable : vouchertypename,familyvoucherflag ;;,vxlink
+          local : part : ledimp : repeat : ledimp : linkvoucher
+          local : field : xfld : set as : $voucherNumber
+           form : VLinkRep
+         export : yes
+;;         set : vouchertypename : "receipt"
+         set : familyvoucherflag : yes
+;;         set : svfromdate : ##svcurrentdate
+;;         set : svtodate : ##svcurrentdate
+;;         set : vxlink : "2"
+         title : ##vxlink
+
+           [form: VLinkRep]
+           use : dsp template
+           delete : page break
+           part : VLinkRep
+           width  : 15 % page
+           height : 15 % page
+           
+           
+           [part : vlinkrep]
+           line : vlinkrep
+           repeat: vlinkrep : linkvoucher
+           scroll : vertical
+           
+[collection : linkvoucher]
+;;       type : voucher
+;;       child of : ##SVCurrentDate
+use : Filtered Vouchers of Company
+;;delete : filter :
+     filter : flink
+     fetch : vchlink
+
+        [system : formula]
+          flink : ($vchlink = ##vxlink)
+
+           [line : vlinkrep]
+           field : namefield,d1,shortnamefield,d2,nfx
+           local : field : name field : set as : $vouchernumber
+           local : field: shortnamefield : set as: $date
+           local : field:  nfx : set as  : $vchlink
+           local : field: default :border: thin box
+;;           log : ##vouchertypename
+;;           log : ##vxlink
+           empty : $$line > 1
+           [field : nfx]
+           use : name field
+
+          
+[variable : vxlink]
+     type : string
+;;     DEFAULT : 1
+
+ [SYSTEM : VARIABLE]
+ VXLINK : ""
+;-------------------------------- Voucher Id by Voucher Number
+
+;; {17.May.18 11:55} [#menu : gateway of tally]
+;; {17.May.18 11:55} add : item : before : @@locquit : "Msaterid" : display : cwMasterIdlinkRep
+
+        [Report : cwMasterIdlinkRep]
+            use : dsptemplate
+       variable : vouchertypename,familyvoucherflag ;;,vxlink
+          local : part : ledimp : repeat : ledimp : linkvoucher
+          local : field : xfld : set as : $voucherNumber
+           form : cwMasterIdlinkRep
+         export : yes
+;;         set : vouchertypename : "receipt"
+         set : familyvoucherflag : no
+;;         set : svfromdate : ##svcurrentdate
+;;         set : svtodate : ##svcurrentdate
+;;         set : vxlink : "2"
+         title : ##vxlink
+
+           [form: cwMasterIdlinkRep]
+           use : dsp template
+           delete : page break
+           part : cwMasterIdlinkRep
+           width  : 15 % page
+           height : 15 % page
+
+
+           [part : cwMasterIdlinkrep]
+           line : cwMasterIdlinkrep
+           repeat: cwMasterIdlinkrep : cwMasterIdlinkvoucher
+           scroll : vertical
+
+[collection : cwMasterIdlinkvoucher]
+;;       type : voucher
+;;       child of : ##SVCurrentDate
+use : Filtered Vouchers of Company
+;;delete : filter :
+     filter : flink
+     fetch : vchlink
+     fetch : alterid,masterid
+
+        [system : formula]
+          flink : ($vouchernumber = ##vxlink)
+          
+          [line :cwMasterIdlinkrep]
+           field : namefield ,d1,shortnamefield,d2,nfx
+           local : field : name field : set as : $masterid
+           local : field: shortnamefield : set as: $alterid ;;date
+           local : field:  nfx : set as  : $vouchertypename
+;; {17.May.18 12:03}            local : field: default :border: thin box
+           empty : $$line > 1
+
+

@@ -1,0 +1,237 @@
+    [System : udf]
+   ScreatA  : Aggregate : 501
+   Screat   : String    : 57
+   userEdit : aggregate : 110
+   sEdit    : string    : 102
+   typeS    : String    : 200
+   numitem2 : String    : 203
+   userView : aggregate : 111
+   sView    : string    : 102
+
+     [#Form : Voucher Type]
+ Add : Part : After :VTYP Main : TitlePart,CrtAltVew
+
+  [Part : TitlePart]
+   Line : TitleLine
+ Border : Thin top
+  Width : 100 % Page
+
+  [Line : TitleLine]
+  Field : name Field
+  Local : Field : name Field : Set As : "Security"
+  Local : Field : name Field :Align : Centre
+  Local : Field : name Field : Fullwidth : yes
+  Local : Field : name Field : Skip : yes
+
+;************************************** CREATE *********************************
+  [Part : CrtAltVew]
+   Part : createPart,AlterPart ;;,vewPart
+  Width : 100% Page
+  Local : Part : default : Width : 30% Page
+ Border : Thin top
+ Height : 1.5 inch
+
+  [Part : createPart]
+   Line : Createtitle,CreateLine
+ repeat : CreateLine :ScreatA ;;ColCreate
+ Scroll : vertical
+  Float : no
+ Border : Thin right
+Break on: $$IsEnd:$Screat
+Common Border : yes
+
+  [Line : Createtitle]
+  Field : name Field
+  Local : Field : name Field : Set As : "Allow Creation of New Voucher"
+  Local : Field : name Field :Align : Centre
+  Local : Field : name Field : Fullwidth : yes
+  Local : Field : name Field : Skip : yes
+ Border : Thin bottom
+
+  [Line : CreateLine]
+  Field : FldCreate
+;;   Empty :  $$SysName:NotApplicable
+
+[Field : FldCreate]
+     use : name Field
+     Storage : Screat
+     Set Always : yes
+     unique : yes
+     width : 2 .2 inch
+     table :myuserlist,End of List
+;;     Set As : $Screat
+
+
+[collection : myuserlist]
+      Title : "Users"
+       Type : UserList:Company
+   Child of : ##Svcurrentcompany
+
+       [Key :  Create CompanyUsersA]
+    Key     : Alt+C
+            Action  : Create : CompanyUsers
+
+
+[System : Formula]
+   Abc1 : $$name!= #Abc
+   Abc2 : if not $$InCreateMode then @@Abc1 else #Abc=""
+
+
+[Collection : ColCreate]
+;;    Type : UserList:Company
+;;   Child of : ##Svcurrentcompany
+
+
+   Type  : ScreatA : vouchers
+;;   Child of : $name ;;##Svcurrentcompany
+
+
+
+;**************************************** ALTER ********
+[Part : AlterPart]
+   Line :AlterTitle,AlterLine
+   repeat : AlterLine :userEdit ;; ColAlter
+   Scroll : vertical
+   Float : no
+   Border : Thin right
+   Break on: $$IsEnd:$sEdit
+
+[Line : AlterTitle]
+  Field : name Field
+  Local : Field : name Field : Set As :"Allow Alteration of Voucher"
+  Local : Field : name Field :Align : Centre
+  Local : Field : name Field : Fullwidth : yes
+  Local : Field : name Field : Skip : yes
+ Border : Thin bottom
+
+[Line : AlterLine]
+   Field : FldAlter
+
+[Field : FldAlter]
+     use : name Field
+     Storage : sEdit
+     Set Always : yes
+     unique : yes
+     width : 2 .2 inch
+     table :ColAlter,End of List
+
+
+
+;**************************************** VEW **************
+ [Part : VewPart]
+   Line : vewTitle,VewLine
+   repeat : VewLine : UserView ;;ColVew
+   Scroll : vertical
+   Float : no
+   Border : Thin right
+
+[Line : vewTitle]
+  Field : name Field
+  Local : Field : name Field : Set As : "View"
+  Local : Field : name Field :Align : Centre
+  Local : Field : name Field : Fullwidth : yes
+  Local : Field : name Field : Skip : yes
+    Border : Thin bottom
+
+[Line : VewLine]
+   Field : FldVew
+
+[Field : FldVew]
+     use : name Field
+;;     Set As : $name
+     Set Always : yes
+     unique : yes
+     width : 2 .2 inch
+     table :ColVew,Not Applicable
+     storage : sView
+
+
+;***********************************************************
+
+
+[Collection : ColAlter]
+   Type : UserList:Company
+   Child of : ##Svcurrentcompany
+
+[Collection : ColVew]
+   Type : UserList:Company
+   Child of : ##Svcurrentcompany
+    variable : Abc
+
+[variable : Abc]
+   Type : String
+[System : variable]
+    Abc : ""
+
+;***********************************************************
+
+
+[Report : Voucher TypeA]
+   Form : FVoucher TypeA
+
+[Form : FVoucher TypeA]
+    Part : Part1 ;;, Part2
+    Height : 100% Page
+    Width : 100% Page
+
+[Part : Part1]
+  Line :vchtitle,vchtitle2,reptLine
+  repeat :reptLine :voucher type2
+  Scroll : vertical
+  Float : no
+
+[collection : vouchertype2]
+      type : vouchertype
+;;      filter : hasc1
+
+
+   [Line : vch title]
+   Field : name field
+   Local : Field : name Field : Set As : "Voucher type Name"
+   Local : Field : name Field : Style : normal
+
+      [line : vchtitle2]
+        use : vchtitle
+      Local : Field : name Field : Set As : ##SVUserName
+
+   [#OBJECT : vOUCHERTYPE]
+     MYCREA : $$NUMITEMS:CFLT
+
+    [SYSTEM : FORMULA]
+        MYC : $MYCREA:vOUCHERTYPE:$VOUCHERTYPENAME
+
+[collection : cflt]
+       type : screata : vouchertype
+   child of : $name
+     filter : hasc
+
+    [system : formula]
+       hasc : $Screat = ##SVUserName
+      hasc1 : $Types:vouchertype:$Vouchertypename
+
+
+[Line : reptLine]
+   Field : vchtypename,createok
+;;   Empty : $MYCREA = 0
+option : alter on enter
+
+[Field : vchtypename]
+   use : name Field
+Set As : $name
+ Style : normal
+ alter : vouchertype : $$isvouchertype
+
+[field : createok]
+use : number field
+set as : $$numitems:cflt
+
+
+
+[System : Formula]
+   Login : "Login: "+##SVUserName
+
+
+
+
+;*************************Create Buttons******************************************************
+

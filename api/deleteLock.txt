@@ -1,0 +1,36 @@
+  [System : Formula]
+;; cwDataEntry : $$cmpuserlevel= "Data Entry"
+;; cwDelLockVch : formula to lock deletion of voucher
+;; cwCancelLockVch : formula to lock cancellation of voucher
+;; eg cwDelLockVch : @@cwDataEntry
+
+[#Key : Form Delete]
+Inactive: NOT $$CanDelete or  @@cwDelLockVch
+
+[#Key   : Form Cancel]
+  Inactive: NOT $$CanCancel or @@cwCancelLockVch
+  
+[#key : BottomToolBarBtn3_Delete]
+Inactive: $$InDisplayMode OR NOT $$CanDelete or @@cwDelLockVch
+
+
+[#Key: BottomToolBarBtn4_Cancel]
+	Inactive: NOT $$InAlterMode or @@cwCancelLockVch
+
+
+
+[#Key: BottomToolBarBtn3]
+Inactive: NOT $$HasVouchers OR (NOT $$Allow:Alter:Vouchers) or not $$CanDelete or @@cwDelLockVch
+
+[#Key: BottomToolBarBtn4]
+Inactive:  @@cwCancelLockVch
+
+[#Line  : DSP VchDetail]
+add :   option : stopdeletevch : @@cwDelLockVch
+
+[!line : StopDeleteVch]
+delete : Keys  : Delete Line Object, Cancel Line Object
+delete : Key   : Delete Line ObjectEx ;;: Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:BackDatedVouchers
+delete : Key   : Cancel Line ObjectEx ;;: Inactive : NOT $$CanCancel OR NOT $$Allow:Alter:BackDatedVouchers
+
+

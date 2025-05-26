@@ -1,0 +1,34 @@
+; Created By: Taniya on 2024-03-28 09:48, ID: 
+
+[#Field: EI Consignee]
+add:option:cwhmcrlockeiconsigneeopt:  $$issales:$vouchertypename
+
+[!field:cwhmcrlockeiconsigneeopt]
+control 	: PartyCreditDateLimit    :@@lock
+			
+			
+[collection : zzpendingbills]
+    Type    : Bills
+    Child of: #eiconsignee
+    fetch : billdate,baseclosing
+	Fetch		: Name, BillDate, BillCreditPeriod
+	Fetch		: ClosingBalance
+
+
+  [System: Formula]
+    HasDr :  $$IsDr:$BaseClosing
+    lock:	($Date -  $$FilterValue:$BillDate:zzPendingBills:First:HasDr > $$Number:$BillCreditPeriod:Ledger:$PartyLedgerName)
+			
+
+    PartyCreditDateLimit         : $$SPrintf:@@PartyDateLimitMsgFormat:@@DueBillsOfParty:$$Value
+    PartyDateLimitMsgFormat      : $$LocaleString:"'%s' bill(s) of\n'%s'\n is outstanding.\n Due date exceeded!"
+    ExceedDueDate                : (##VARVchDate >= @@CreditPeriod)
+    DueBillsOfParty              : $$NumItems:BillsOfParty1
+
+
+   [Collection: BillsOfParty1]
+	
+    Type        : Bills
+	Child Of	: If @@IsSales AND (NOT ##InvoicingModeFlag) Then #VCHParticulars Else #EIConsignee
+    Fetch		: Name, BillDate, ClosingBalance, BillCreditPeriod
+    Filter      : ExceedDueDate

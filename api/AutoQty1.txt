@@ -1,0 +1,15 @@
+; Created By: pg on 2012-03-07 17:00
+
+[System: Formula]
+;;cwSetBqty : yes ;; or @@issales to set Billedqty to 1
+;; cwSetBqtyJrnl : yes ;;for setiing billedqty to 1
+
+[#field:VCHBATCH NrmlBQty]
+add : option : cwSetBQty : @@cwSetBqty
+
+[#Field: VCHBATCH JrnlBQty]
+add : option : cwSetBQty : @@cwSetBqtyJrnl
+
+[!field : cwSetBQty]
+set as: if $$isempty:$$value then $$asqty:1 else $$value
+

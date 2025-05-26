@@ -1,0 +1,131 @@
+/*
+number
+storage - value
+1       - Rate Of Excise
+2       -
+101     - 671088742
+1001    - 671088742
+10001   - EIDiscountRate
+
+20000   - 671108641
+
+
+
+@@cw1stLedgerCCentre
+
+Amount
+
+1     - 687865858
+101   - 687865958
+1001  - 687866858
+10001 - VATINPUTTAXCREDIT
+
+201     - 687866058
+2001    - 687867858
+20001   - 687885858
+
+*/
+     [system : udf]
+
+ cwVoucherId : number : 898
+   BrokerStr : string : 899
+  cwLEDTANNo : string : 900 ;; used in : ledger TAN
+  cwLEDCSTNo : string : 901 ;; used in : ledgercst
+     cwiecno : string : 902
+    cwiecno2 : string : 903
+ cwWayBillNo : string : 904
+cwWaybillDate: date   : 905
+cwEndorsementNo   : string : 906
+CwEndorsementDate : date   : 907
+    cwExtra1 : string : 908
+    cwextra2 : string : 909
+     cwlrnNo : string : 910
+    cwlRDate : date   : 911
+    cwBroker : string : 912
+;CustomBroker : string : 912 ;;pg- giving error in remote 2019.01.30 ;;123
+ cwEnableBroker : Logical : 913
+
+ ; cmpaddladdr
+ odet1 : string : 914
+ odet2 : string : 915
+ odet3 : string : 916
+ odet4 : string : 917
+ odet5 : string : 918
+
+  cwSig : string : 919
+   cwv1 : string : 920
+   cwv2 : string : 921
+   cwv3 : string : 922
+   cwv4 : string : 923
+   cwv5 : string : 924
+
+ cwInvVAtIncRate : rate : 925 ;; RateIncVAT.txt
+ cwInvVAtRate : number : 926 ;; RateIncVAT.txt
+ cwpack  : string : 927
+
+exchvatst : number : 928
+exchangeitem  : string : 929
+Amttrdx : number : 930
+
+cwsignatory : string : 935
+cwEnableCustomization : logical : 936
+IsCommAgent : logical : 937
+AgentCommPercentage : number : 938
+IsCommOnNet : logical : 939
+IsCommOnNet1 : logical : 940
+cwAgentAmount : amount : 941
+AgentCommVchPercentage : number : 942
+IsCommOnQty : logical :943
+IsCommOnQty1 : logical : 944
+cwDiscinMaster : number : 945
+cwDefPriceLevel : string : 946
+;;cwDefgodown  : string : 947
+cwCreateDate : date : 948
+cwCreateTime : string : 949
+
+; alt qty
+cwUNIT1 : STRING : 950
+cwUNIT2 : STRING : 951
+cwQTY1 : NUMBER : 952
+cwQTY2 : NUMBER : 953
+
+cwPrefix : string : 954
+cwSuffix : string : 955
+cwbank : string : 956
+
+cwisBranch : logical : 957
+cwBranchName : string : 958
+cwSupplierCode : string : 959
+cwAppLocation: string : 960
+cwCartonSerial : string : 1019
+
+cwMasterId : string : 9020
+cwModifiedOnDate: string : 9021
+cwModifiedOnTime : string : 9022
+cwModifieduser : string : 9023
+cwisvchtypewisealtqty : logical : 9024
+cwCreatedby : string :9025
+
+cwModifiedOn: date : 9021
+
+
+[System: UDF]
+cwUNIT3:string:4000
+cwUNIT4:string:4001
+cwQTY3:number:4002
+cwQTY4:number:4003
+
+[System: UDF]
+cwTransEnabled  : logical : 4004
+cwTransGroupName : string : 4005
+cwTransporter : string : 4006
+
+cwBrokerInactive : logical : 9312
+cwBrokerInactiveFrom: date : 9313
+
+
+
+
+
+
+

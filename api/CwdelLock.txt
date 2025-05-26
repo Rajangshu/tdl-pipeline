@@ -1,0 +1,28 @@
+[System : Formula]
+;;cwStopDeleteFrmla : @@cwOwnerLevel
+;;cwStopCancelfrmla : @@cwOwnerLevel
+;;cwStopPrintFrmla : @@cwOwnerLevel
+
+  [#Key : Form Delete]
+Inactive: NOT $$CanDelete or not @@cwStopDeleteFrmlax
+
+
+  [#key : BottomToolBarBtn3_Delete]
+Inactive: $$InDisplayMode OR NOT $$CanDelete or not @@cwStopDeleteFrmlax
+
+ [#key : BottomToolBarBtn4_Cancel]
+Inactive: $$InDisplayMode OR NOT $$CanCancel or not @@cwStopDeleteFrmlax
+
+  [#Key : Form Cancel]
+Inactive: NOT $$CanCancel or not @@cwStopCancelfrmlax
+
+  [#Form: Voucher]
+   local: button: PrintButton : inactive : @@cwStopPrintFrmlax
+   
+   
+[System : Formula]
+cwStopDeleteFrmlax :  if $$isempty:@@cwStopDeleteFrmla then yes else @@cwStopDeleteFrmla
+cwStopCancelfrmlax : if $$isempty:@@cwStopCancelfrmla then yes else @@cwStopCancelfrmla
+cwStopPrintFrmlax : if $$isempty:@@cwStopPrintFrmla then no else  not @@cwStopPrintFrmla
+
+

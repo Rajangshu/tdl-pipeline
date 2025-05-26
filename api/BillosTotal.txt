@@ -1,0 +1,185 @@
+
+; for ess
+
+
+[SYSTEM : FORMULA]
+XX : $DSPAccName:Ledger:$Parent
+
+ [VARIABLE : GSOS]
+ TYPE : aMOUNT
+ DEFAULT : 0
+ VOLATILE : NO
+ 
+
+   [system : formula]
+    iscwsales : $$isSales:$VoucherTypeName
+
+  [fIELD : X2S]
+   USE : AMOUNT FIELD
+   SET AS : IF ($$lINE != 1) AND ($$PrevObj:@@xx = @@XX)  THEN  @plF +@cB ELSE @cb
+;;   BORDER : THIN BOX
+   VARIABLE : gsoscw
+   Format : "drcr"
+   INVISIBLE : YES
+   PLF : IF $$iSdR:$$PrevLineField THEN -$$PrevLineField ELSE $$PrevLineField
+   CB  : IF $$ISdR:$cLOSINGbALANCE THEN -$cLOSINGbALANCE ELSE $cLOSINGbALANCE
+
+ [pART : PP1]
+  Line : BILL SubTotal
+ Local : Line : BILLSubTotal : Replace     : Field : Bill Op       : Bill SubOp
+ Local : Line : BILLSubTotal : Replace     : Field : Bill Cl       : Bill SubCl
+ Local : Line : BILLSubTotal : Replace     : Right Fields : Bill PDC      : Bill SubPDC
+ Local : Line : BILLSubTotal : Replace     : Right Fields : Bill Final    : Bill SubFinal
+ Local : Line : BILLSubTotal : Repeat      : BillSubCl
+ LOCAL : FIELD : BILLSUBCL: SET AS : -#gsoscw
+ LOCAL : FIELD : BILLSUBCL: delete : border
+;; lOCAL : FIELD : BILLSUBCL: BORDER : TOTALS
+ lOCAL : FIELD : BILLSUBCL: STYLE : NORMAL BOLD
+ LOCAL : FIELD : BILLSUBCL: FORMAT : ""
+;; lOCAL : FIELD : BILLSUBOP : DELETE : BORDER
+ local : line : billsubtotal : delete : empty
+ local : line : billsubtotal : add : right field : before: bill pdc : cwbillsub
+;; local : line : billsubtotal : default : delete : border
+;; local : line : billsubtotal : add : border : totals
+ Local : Line : BILLSubTotal : add : right field :AT END :  remn1
+
+ 
+ [FIELD : REMN1]
+ USE : REMN
+
+
+
+[#line: billsubtotal]
+local : field :Odno : set as : ""
+  ADD : RIGHT FIELD : AT END : REMN1
+local : field : billsubcl : border :Totals
+;;local : field : billsubcl : border :Totals
+;;border : totals
+
+;;local : field : remn1 : border : totals
+ 
+[field : d]
+   use : name field
+;;  border : thinbox
+  set as : "Sub Total"
+
+
+
+[#Report :Bills Receivable]
+local : Collection: Company Receivables : Sort : @@Default  : $Parent,$BillDate
+local :Line : BILL Detail : ADD : RIGHT FIELD  : X2S ,remn ;;,cwxy
+local :Line : BILL Detail : eXPLODE : PP1  : $$IsLastObj or ($$NextObj:@@xx != @@XX)
+;;local : field : billoverdue : invisible:yes
+;;local : field : billdue : invisible:yes
+ vARIABLE : gsoscw
+ SET : gsoscw : 0
+
+local : line : BILLCol1 : add : right field : remntX
+
+local : line : BILLCol2 : add : right field : remn
+
+local : Line: BILL ClPageTotal : add : right field : remn
+local : Line: BILL OpPageTotal : add : right field : remn
+local : line : bill total : replace : field : billfixed : billtotalpg
+local : line : bill total : add : right field : remn
+
+
+[FIELD : REMNTX]
+USE : REMNT
+;;INVISIBLE : $$InPrintMode
+
+[field : billtotalpg]
+use : billparty
+set aS: "Grand Total"
+
+[field : remnt]
+use : remn
+set as :"Remarks"
+;;align : centre
+
+[field : remn]
+use : name field
+;;border  : thin box
+width : 1.0 inch
+
+
+;;[# Part: BILL PrnTitle ]
+;; add :part : cwBrandTitlePart
+
+;;    [Part : CwBrandTitlePart]
+;;    line : CwBrandName
+
+;;    [Line : CwBrandName]
+;;    field : name field
+;;    local : field : name field : set as: @@CwBrandAllOne
+
+
+[#collection : stock category]
+add  : format : $cwBprefix,15
+
+[button : BtnCwPrefix]
+	Key   : F7
+	Action: Modify Variables : SearchPrefix
+	title : "Brand"
+	
+	
+
+[system : formula]
+cwOsAgentFilter : ##cWaGENTnAME = @@cwBillOsAgentName
+cwBillOsAgentName : $$FilterValue:$NEAGENT11:LEdgerEntries:First:IscwSales
+cwBillCategory :  $$FilterCount:LEdgerEntries:CwHasBrand > 0
+cwHasBrand : if ##StockCategoryName = "" then yes else $$Name contains @@CwPrefix ;;if $$IsSales:$VoucherTypeName then (if  $Vouchernumber contains "al" then yes else no) else no
+cwPrefix : $cwbPrefix:StockCategory:##StockCategoryName
+
+[#report : Stock Category]
+local : part : MST Parent : add : line : at end : cwPrefx
+
+[line : cwPrefx]
+field : shortprompt,cwBPrefix
+local : field : shortprompt : info : "Brand Prefix:"
+
+[Field : cwBPrefix]
+use : short name field
+storage: cwBPrefix
+set always : yes
+
+[#collection : stock category]
+fetch : cwBPrefix
+; ------------
+
+[Report : SearchPrefix]
+Auto : yes
+
+[Form: SearchPrefix]
+Parts       : CwPreTitle,CwPreBody
+Full Width  : No
+Space Right : 2
+Space Left  : 4
+No confirm  : Yes
+Option      : Small Size Form
+;;Background  : Very Light Grey, Very Light Grey
+
+[Part : CwPreTitle]
+Line : Form Sub Title
+Space Bottom : 0.5
+Local : Field : Form Sub Title : Info : "Search By Brand"
+
+[Part : CwPreBody]
+Line  : CwPreBody
+
+[Line  : CwPreBody]
+Field : Short Prompt, CwPreBody
+Local : Field : Short Prompt : Info : "Search By Brand :"
+
+[Field : CwPreBody]
+Use : Name Field
+Style : Normal
+Modifies : StockCategoryName
+table : stockcategory
+
+;;[#Object : InventoryEntries]
+;;mStkName : $StockCategoryName:StockItem:$StockItemName
+
+
+
+

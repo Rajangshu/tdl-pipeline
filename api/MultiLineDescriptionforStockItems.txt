@@ -1,0 +1,87 @@
+;; Sri Ganeshji : Sri Balaji : Sri Pitreshwarji : Sri Durgaji : Sri Venkateshwara
+
+/*
+Objective(s) :-
+-	Enables accepting Multiple Descriptions in Stock Item Master and the same is captured
+	during Invoice Entry
+
+Specific TDL Feature(s) used :-
+-	User Defined Field & Collection
+	
+Last Updation :-
+-	Altered on 11/06/2010
+*/
+
+;; System UDF Definition
+
+[System: UDF]
+
+	TSPL FFE Description : String 	: 20001
+;	TSPL FFE EnableDesc	 : Logical	:  2000
+
+;; Altering Company Features to add an Option
+
+;;[#Part: CMP InvFeat Left]
+
+;;	Add	: Lines : After	: CMP ActualQty	: TSPL FFE Enable MultiLineItemDesc
+
+	[Line: TSPL FFE Enable MultiLineItemDesc]
+
+        Fields	: Medium Prompt, TSPL FFE Enable MultiLineItemDesc
+        Local   : Field : Medium Prompt : Info 	: $$LocaleString:"Enable Multi Line Item Description ?"
+        SpaceTop: 0.4
+
+		[Field: TSPL FFE Enable MultiLineItemDesc]
+
+			Use		: CMP ActualQty
+			Storage	: TSPL FFE EnableDesc
+
+;; Changes in Stock Item Master
+
+[#Form: Stock Item]
+	
+	Option		: TSPL FFE Stock Item Enable MultiDesc	: @@TSPLFFEEnableDesc
+
+	[!Form: TSPL FFE Stock Item Enable MultiDesc]
+
+		Local: Part	: STKI Desc 	: Repeat		: STKI Desc		: TSPL FFE Description
+		Local: Part	: STKI Desc 	: Break On		: $$IsEmpty:$TSPLFFEDescription
+		Local: Part	: STKI Desc 	: Scroll		: Vertical
+		Local: Part	: STKI Desc 	: Height		: 20% Page
+		Local: Part	: STKI Desc 	: Space Bottom	: 0
+		Local: Part	: STKI Desc 	: Delete		: Option		: Small Size Part
+		Local: Line	: STKI Desc 	: Space Top		: if $$Line > 1 then 0 else 0.25
+		Local: Field: STKI Desc		: Storage		: TSPL FFE Description
+		Local: Field: STKI Desc		: FullWidth		: Yes
+		Local: Field: Short Prompt	: Inactive		: $$Line > 1
+
+;; Collection Definition to collect Item Description
+
+[Collection: TSPL FFE Item Decription]
+
+	Type		: TSPL FFE Description 	: Stock Item
+	Child of 	: #VCHStockItem
+
+[#Part: EI DescExplosion]	;; Setting the Number of Lines of Description at Part
+
+	Option		: TSPL FFE EI DescExplosion Enable MultiDesc : @@TSPLFFEEnableDesc
+
+	[!Part: TSPL FFE EI DescExplosion Enable MultiDesc]
+
+		Set 	: $$NumItems:TSPLFFEItemDecription
+       
+[#Field: EI Desc] 	;; Altering Description Field in Voucher to fetch Description from Item Master
+
+	Option		: TSPL FFE EI Desc Enable MultiDesc	: @@TSPLFFEEnableDesc
+
+	[!Field: TSPL FFE EI Desc Enable MultiDesc]
+
+		Set as		: $$CollectionField:$TSPLFFEDescription:$$Line:TSPLFFEItemDecription
+
+;; Formula Definition
+
+[System: Formula]
+
+	TSPL FFE EnableDesc	: yes ;;$TSPLFFEEnableDesc:Company:##SVCurrentCompany
+
+;; End-of-File

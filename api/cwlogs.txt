@@ -1,0 +1,7 @@
+; Created By: Pg on 2018-04-16 16:36, ID: 
+
+
+[function : cwlogs]
+parameter : mystr : string
+10 : log : ##mystr
+20 : return : ##mystr

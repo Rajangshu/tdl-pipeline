@@ -1,0 +1,115 @@
+; Created By: Pg on 2014-01-30 17:04, ID: 
+;pgVchClass
+
+
+
+     [#menu: Gateway of Tally]
+;; {30.Jan.14 18:40}         add: Option: pgVchClassLock : @@cwdebug
+       
+     [!menu: pgVchClassLock]
+        add: Item: before: @@locQuit: @@pgVchClassReport: Display: pgVchClass
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   pgVchClassReport: "pgVchClass"
+;; pgVchClassDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: pgVchClass]
+        use: Dsp Template
+      Title: @@pgVchClassReport
+   Printset: Report Title: @@pgVchClassReport
+       Form: FrmpgVchClass
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable : svvouchertype
+;    set : svvouchertype : "CG1 EX Purchase - Retail"
+     
+      [Form: FrmpgVchClass]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0pgVchClass,PrtpgVchClass
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: pgVchClassbotbrk,pgVchClassbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: pgVchClassbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: pgVchClassbotopbrk]
+        use: dspacctitles
+  add: part: pgVchClassTitlePart
+
+      [part: pgVchClassTitlePart]
+       line: LnpgVchClassTitle
+       
+      [line: LnpgVchClassCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0pgVchClass]
+      line : LnpgVchClassCurrPeriod
+      
+      [Part: PrtpgVchClass]
+       Line: LnpgVchClassTitle,LnpgVchClass
+bottom Line: LnpgVchClassTotals
+     repeat: LnpgVchClass: ColpgVchClass
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColpgVchClasssrc]
+type : voucher type
+;;fetch :
+     Filter: ColpgVchClassFilter
+     
+[Collection: ColpgVchClasS]
+SOURCE COLLECTION : ColpgVchClasssrc
+WALK: VOUCHERCLASSLIST
+BY : CLASSNAME : $CLASSNAME
+
+
+
+
+    [system: Formula]
+ColpgVchClassFilter: $name = ##svvouchertype
+
+      [Line: LnpgVchClassTitle]
+        use: LnpgVchClass
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LnpgVchClass]
+     Fields: fwf
+Local: Field: FWF: Set As: $CLASSNAME
+local: Field: FWF: max: 100
+
+      [line: LnpgVchClassTotals]
+        use: LnpgVchClass
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

@@ -1,0 +1,16 @@
+; Created By: pg on 2012-02-11 17:42
+
+         [#Part : CMP AccFeat Left]
+         add : line : cwBarCodeExePath
+
+         [line : cwBarCodeExePath]
+         field : sp,nf
+         Local: Field: sp: info: "App Location:"
+         Local: Field: nf: storage: cwAppLocation
+         local : field : nf : full width : yes
+         Local: field: nf: max:500
+         local: field: nf: Case: Normal
+         
+         [System: Formula]
+         cwAppLocation : $cwAppLocation:COMPANY:##SVCURRENTCOMPANY
+

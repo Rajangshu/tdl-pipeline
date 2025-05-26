@@ -1,0 +1,510 @@
+; Created By: pg on 2021-07-30 15:10, ID: 
+
+[report: cwFinanceDetails]
+title : "Details"
+form : cwFinanceDetails
+variable : logi1
+set : at beginning : logi1 : yes
+
+[form : cwFinanceDetails]
+option : small size form
+button : cwToggleLogi
+
+part : cwFinanceDetails
+option : cwShowFindetails : ##logi1
+option : cwShowProfiledetails : not ##logi1
+width:60% screen
+height:60% screen
+button : cwGetDODetails
+
+[key: cwGetDODetails]
+title:"Get Details"
+key : alt  + r
+action : call : cwGETDODetails
+
+
+[!form : cwshowFinDetails]
+part : cwFinanceOption
+
+[!form : cwShowProfiledetails]
+part : cwProfileOption
+
+[key : cwtogglelogi]
+key : alt + 2
+title : if ##logi1 then "Show Profile" else "Show Fin."
+action : SET : logi1 : not ##logi1
+
+[part : cwFinanceDetails]
+line : cwFinanceDetails0, cwFinanceDetails
+
+
+[line: cwFinanceDetails0]
+field: sp,nf
+Local: Field: sp: info: "DO Number"
+Local: Field: nf: storage: cwdealid
+Local: Field: nf: Skip forward: Yes
+Local: Field: nf: Style: Normal Bold
+
+[line : cwFinanceDetails]
+field : nf,fwf,nf2 ;; fwfc
+Local: Field: fwf : set as :if ##logi1 then "Finance and Other Details" else "Profile & Other Details"
+Local: Field: fwf: Skip: Yes
+Local: Field: fwf: Style: Normal Bold
+Local: Field: fwf: Border: thinbottom
+space bottom : 0.50
+
+Local: Field: nf: Skip: Yes
+Local: Field: nf2: Skip: Yes
+Local: Field: fwf: Skip: Yes
+
+[part : cwFinanceOption]
+
+line  : cwFinanceLine1, cwFinanceLine2, cwFinanceLine3, cwFinanceLine4, cwFinanceLine5
+line  : cwFinanceLine6, cwFinanceLine7, cwFinanceLine8, cwFinanceLine9, cwFinanceLine10
+line  : cwFinanceLine11, cwFinanceLine12, cwFinanceLine13, cwFinanceLine14, cwFinanceLine15
+line  :  cwFinanceLine16, cwFinanceLine17, cwFinanceLine18, cwFinanceLine19, cwFinanceLine20, cwFinanceLine21, cwFinanceLine22
+
+[line : cwFinanceOptionTitle]
+field : fwf ;; fwfc
+Local: Field: fwf :info : ""
+
+[field: amtfnew]
+type : amount
+width : @@amountwidth * 1.2
+align : right
+format :"NoZero,decimals:2,Comma"
+
+[line : cwFinanceLine0]
+field: sp,amtfnew   ,snfx,sp2,snf ,snfx2,sp3,snf2
+
+Local: Field: amtfnew: Style: Normal Bold
+Local: Field: snf: Style: Normal Bold
+Local: Field: snf2: Style: Normal Bold
+
+local:field: amtfnew : readonly : yes
+local:field: snf : readonly : yes
+local:field: snf2 : readonly : yes
+
+
+Local: Field: snfx: Skip: Yes
+Local: Field: snfx2: Skip: Yes
+
+
+local: field: snf: type: amount
+local: field: snf: width : @@amountwidth * 1.2
+local: field: snf: align : right
+local: field: snf: format :"NoZero,decimals:2,Comma"
+
+Local: field: sp: Width: 1.5 inch
+Local: field: sp2: Width: 2.0 inch
+
+Local: field: sp3: Width: 0.60  inch
+Local: field: snf: Width: 6
+Local: field: snf2: Width: 1.0 inch
+Local : field : snf2: Lines : 0
+Local: field: snfx: Width:1
+Local: field: snfx2: Width:1
+
+
+  [line: cwFinanceLine1]
+  use:cwFinanceLine0
+  local: field: sp : info: 'Invoice Amount' ;;
+  local: field: amtfnew : storage : cwbfInvoiceAmount ;;
+  local: field: sp2 : info: 'AddOn Card Requested' ;;
+  local: field: snf : storage : cwbfAddOnCardRequested ;;	
+  local: field: sp3 : info: 'Parent ID' ;;	
+  local: field: snf2 : storage : cwbfParentID ;;
+
+
+
+  [line: cwFinanceLine2]
+  use:cwFinanceLine0
+  local: field: sp : info: 'Gross Loan Amount' ;;	
+  local: field: amtfnew : storage : cwbfGrossLoanAmount ;;	
+  local: field: sp2 : info: 'AddOn Card Charges' ;;	
+  local: field: snf : storage : cwbfAddOnCardCharges ;;	
+  local: field: sp3 : info: 'Field1' ;;	
+  local: field: snf2 : storage : cwbfField1 ;;
+
+
+  [line: cwFinanceLine3]
+  use:cwFinanceLine0
+  local: field: sp : info: 'Customer Down Payment' ;;	
+  local: field: amtfnew : storage : cwbfCustomerDownPayment ;;	
+  local: field: sp2 : info: 'InstaCard Activation Fees' ;;	
+  local: field: snf : storage : cwbfInstaCardActivationFees ;;	
+  local: field: sp3 : info: 'Field2' ;;	
+  local: field: snf2 : storage : cwbfField2 ;;
+
+
+  [line: cwFinanceLine4]
+  use:cwFinanceLine0
+  local: field: sp : info: 'Net Loan Amount' ;;	
+  local: field: amtfnew : storage : cwbfNetLoanAmount ;;	
+  local: field: sp2 : info: 'IMPS Charges' ;;	
+  local: field: snf : storage : cwbfImpsCharges ;;	
+  local: field: sp3 : info: 'Field3' ;;	
+  local: field: snf2 : storage : cwbfField3 ;;
+
+
+  [line: cwFinanceLine5]
+  use:cwFinanceLine0
+  local: field: sp : info: 'Other Charges' ;;	
+  local: field: amtfnew : storage : cwbfOtherCharges ;;	
+  local: field: amtfnew : set as : $cwbfOtherCharges ;;	
+  local: field: sp2 : info: 'Net Tenure' ;;	
+  local: field: snf : storage : cwbfNetTenure ;;	
+  local: field: sp3 : info: 'Field4' ;;	
+  local: field: snf2 : storage : cwbfField4 ;;
+
+  [line: cwFinanceLine6]
+  use:cwFinanceLine0
+  local: field: sp : info: 'SFDCLTV' ;;	
+  local: field: amtfnew : storage : cwbfSFDCLTV ;;	
+  local: field: sp2 : info: 'Subvention%' ;;	
+  local: field: snf : storage : cwbfSubventionPercentage ;;	
+  local: field: sp3 : info: 'Field5' ;;	
+  local: field: snf2 : storage : cwbfField5 ;;
+
+  [line: cwFinanceLine7]
+  use:cwFinanceLine0
+  local: field: sp : info: 'CoBrand Card Charges' ;;	
+  local: field: amtfnew : storage : cwbfCoBrandCardCharges ;;	
+  local: field: sp2 : info: 'Risk Pool Amount' ;;	
+  local: field: snf : storage : cwbfRiskPoolAmount ;;	
+  local: field: sp3 : info: 'Field6' ;;	
+  local: field: snf2 : storage : cwbfField6 ;;
+
+  [line: cwFinanceLine8]
+  use:cwFinanceLine0
+  local: field: sp : info: 'Subvention' ;;	
+  local: field: amtfnew : storage : cwbfSubvention ;;	
+  local: field: sp2 : info: 'Promo Payable By BFL%' ;;	
+  local: field: snf : storage : cwbfPromoPayableByBFLPrcent ;;	
+  local: field: sp3 : info: 'Field7' ;;	
+  local: field: snf2 : storage : cwbfField7 ;;
+
+  [line: cwFinanceLine9]
+  use:cwFinanceLine0
+  local: field: sp : info: 'Margin Money' ;;	
+  local: field: amtfnew : storage : cwbfMarginMoney ;;	
+  local: field: sp2 : info: 'Promo Payable By Retailer%' ;;	
+  local: field: snf : storage : cwbfPromoPayableByRetailerPrcent ;;	
+  local: field: sp3 : info: 'Field8' ;;	
+  local: field: snf2 : storage : cwbfField8 ;;
+
+  [line: cwFinanceLine10]
+  use:cwFinanceLine0
+  local: field: sp : info: 'MFR Subvention' ;;	
+  local: field: amtfnew : storage : cwbfMFRSubvention ;;	
+  local: field: sp2 : info: 'Promo Payable By Manufacturer%' ;;	
+  local: field: snf : storage : cwbfPromoPayableByManufacturerPrcent ;;	
+  local: field: sp3 : info: 'Field9' ;;	
+  local: field: snf2 : storage : cwbfField9 ;;
+
+  [line: cwFinanceLine11]
+  use:cwFinanceLine0
+  local: field: sp : info: 'BFL Share' ;;	
+  local: field: amtfnew : storage : cwbfBFLShare ;;	
+  local: field: sp2 : info: 'Promo Payable By BFL Value' ;;	
+  local: field: snf : storage : cwbfPromoPayableByBFLValue ;;	
+  local: field: sp3 : info: 'Field10' ;;	
+  local: field: snf2 : storage : cwbfField10 ;;
+
+  [line: cwFinanceLine12]
+  use:cwFinanceLine0
+  local: field: sp : info: 'Processing Fees' ;;	
+  local: field: amtfnew : storage : cwbfProcessingFees ;;	
+  local: field: sp2 : info: 'Promo Payable By Retailer Value' ;;	
+  local: field: snf : storage : cwbfPromoPayableByRetailerValue ;;	
+  local: field: sp3 : info: 'Field11' ;;	
+  local: field: snf2 : storage : cwbfField11 ;;
+
+  [line: cwFinanceLine13]
+  use:cwFinanceLine0
+  local: field: sp : info: 'Special Charges' ;;	
+  local: field: amtfnew : storage : cwbfSpecialCharges ;;	
+  local: field: sp2 : info: 'Promo Payable By Manufacturer Value' ;;	
+  local: field: snf : storage : cwbfPromoPayableByManufacturerValue ;;	
+  local: field: sp3 : info: 'Field12' ;;	
+  local: field: snf2 : storage : cwbfField12 ;;
+
+  [line: cwFinanceLine14]
+  use:cwFinanceLine0
+  local: field: sp : info: 'EMI Card Fee' ;;	
+  local: field: amtfnew : storage : cwbfEMICardFee ;;	
+  local: field: sp2 : info: 'Total Promo Value' ;;	
+  local: field: snf : storage : cwbfTotalPromoValue ;;	
+  local: field: sp3 : info: 'Field13' ;;	
+  local: field: snf2 : storage : cwbfField13 ;;
+
+  [line: cwFinanceLine15]
+  use:cwFinanceLine0
+
+  local: field: sp : info: 'Upfront Interest' ;;	
+  local: field: amtfnew : storage : cwbfUpfrontInterest ;;	
+
+
+  local: field: sp2 : info: 'Total Promo%' ;;	
+  local: field: snf : storage : cwbfTotalPromoPrcent ;;	
+  local: field: snf: type: amount
+
+  local: field: sp3 : info: 'Field14' ;;	
+  local: field: snf2 : storage : cwbfField14 ;;
+
+  [line: cwFinanceLine16]
+  use:cwFinanceLine0
+
+  local: field: sp : info: 'Service Charge' ;;	
+  local: field: amtfnew : storage : cwbfServiceCharge ;;	
+
+  local: field: sp2 : info: 'VAN' ;;	
+  local: field: snf : storage : cwbfVAN ;;
+  local: field: snf: type: String
+  
+  local: field: sp3 : info: 'Field15' ;;	
+  local: field: snf2 : storage : cwbfField15 ;;
+
+
+
+  [line: cwFinanceLine17]
+  use:cwFinanceLine0
+  local: field: sp : info: 'Total GST On DBD' ;;	
+  local: field: amtfnew : storage : cwbfTotalGSTOnDBD ;;	
+   local: field: sp2 : info: 'DME ID' ;;	
+  local: field: snf : storage : cwbfDMEID ;;
+  local: field: snf: type: String
+  Local: Field: snf2: Skip: Yes
+  
+
+
+  [line: cwFinanceLine18]
+  use:cwFinanceLine0
+
+  local: field: sp : info: 'Total Deductions' ;;	
+  local: field: amtfnew : storage : cwbfTotalDeductions ;;
+  local: field: sp2 : info: 'Due Days' ;;	
+  local: field: snf : storage : cwbfDUEDAY ;;	
+  local: field: snf: type: number
+  Local: field: snf: Format: "nozero,decimals:0"
+   Local: Field: snf2: Skip: Yes
+
+  [line: cwFinanceLine19]
+  use:cwFinanceLine0
+    local: field: sp : info: 'Net Disbursement' ;;	
+  local: field: amtfnew : storage : cwbfNetDisbursement ;;	
+
+  local: field: sp2 : info: 'Tenure' ;;	
+  local: field: snf : storage : cwbfTenure ;;	
+  local: field: snf: type: number
+    Local: field: snf: Format: "nozero,decimals:0"
+;; {31.Jul.21 10:46}   local: field: sp3 : info: 'SerialNo' ;;	
+;; {31.Jul.21 10:46}   local: field: snf2 : storage : cwbfSerialNo ;;
+
+   Local: Field: snf2: Skip: Yes
+
+  [line: cwFinanceLine20]
+    use:cwFinanceLine0
+  local: field: sp : info: 'Advance EMI' ;;	
+  local: field: amtfnew : storage : cwbfAdvanceEMI ;;	
+    local: field: sp2 : info: '' ;;	
+    local: field: snf : skip : yes ;;storage : cwbf ;;	
+    local: field: sp3 : info: '' ;;	
+    local: field: snf2 : skip : yes ;;storage : cwbf ;;
+
+  [line: cwFinanceLine21]
+    use:cwFinanceLine0
+  local: field: sp : info: 'Product EMI' ;;	
+  local: field: amtfnew : storage : cwbfProductEMI ;;	
+    local: field: sp2 : info: '' ;;	
+    local: field: snf : skip : yes ;;storage : cwbf ;;	
+    local: field: sp3 : info: '' ;;	
+    local: field: snf2 : skip : yes ;;storage : cwbf ;;
+
+
+  [line: cwFinanceLine22]
+    use:cwFinanceLine0
+    local: field: sp : info: 'Total EMI' ;;	
+    local: field: amtfnew : storage : cwbfTotalEMI ;;	
+    local: field: sp2 : info: '' ;;	
+    local: field: snf : skip : yes ;;storage : cwbf ;;	
+    local: field: sp3 : info: '' ;;	
+    local: field: snf2 : skip : yes ;;storage : cwbf ;;
+
+
+
+
+
+
+[part : cwProfileOption]
+line  : cwProifileLine1, cwProifileLine1a,cwProifileLine2, cwProifileLine3, cwProifileLine4
+line  : cwProifileLine5, cwProifileLine6, cwProifileLine7, cwProifileLine8
+line  : cwProifileLine9, cwProifileLine10, cwProifileLine11, cwProifileLine11a
+line  : cwProifileLine15,cwProifileLine12, cwProifileLine13, cwProifileLine14, cwProifileLine16
+
+  [line: cwProifileLine0]
+  field : sp,snf3,sp3,snf2
+  
+Local: Field: snf2: Style: Normal Bold
+Local: Field: snf3: Style: Normal Bold
+  
+  Local: Field: snf3: readonly: Yes
+  Local: Field: snf: readonly: Yes
+  Local: Field: snf2: readonly: Yes
+
+  Local: Field: snfx: Skip: Yes
+  Local: Field: snfx2: Skip: Yes
+
+  Local: Field: snf: Skipforward: Yes
+  Local: Field: snf2: Skipforward: Yes
+
+Local: field: sp: Width: 1.25 inch
+  Local: field: snf3: Width: 3.0 inch
+  Local: field: sp3: Width: 1.50 inch
+  Local: field: snf2: Width: 2 inch
+;; {29.Jul.21 18:24}   Local: Field: default      : Border: thin box ;;left right
+
+  [line: cwProifileLine1]
+  use : cwProifileLine0
+  local: field: sp : info: 'Dealer Name' ;;	
+  local: field: snf3 : storage : cwbfDealerName ;;	
+  local: field: sp3 : info: 'Dealer Code' ;;	
+  local: field: snf2 : storage : cwbfDealerCode ;;	
+
+  [line: cwProifileLine1a]
+  use : cwProifileLine0
+  local: field: sp : info: 'Deal Id' ;;	
+  local: field: snf3 : storage : cwbfDealID ;;
+  local: field: sp3 : info: 'Scheme Id' ;;	
+  local: field: snf2 : storage : cwbfSchemeId ;;
+
+
+
+  [line: cwProifileLine2]
+  use : cwProifileLine0
+  local: field: sp : info: 'DO Number' ;;	
+  local: field: snf3 : storage : cwbfDONumber ;;	
+  local: field: sp3 : info: 'Created On' ;;	
+  local: field: snf2 : storage : cwbfCreatedOn ;;	
+
+
+  [line: cwProifileLine3]
+  use : cwProifileLine0
+  local: field: sp : info: 'Status' ;;	
+  local: field: snf3 : storage : cwbfStatus ;;	
+  local: field: sp3 : info: 'Invoice Expiry Date' ;;	
+  local: field: snf2 : storage : cwbfInvoiceExpiryDate ;;
+
+  [line: cwProifileLine4]
+  use : cwProifileLine0
+  local: field: sp : info: 'Customer Name' ;;	
+  local: field: snf3 : storage : cwbfCustomerName ;;			
+  local: field: sp3 : info: 'EMI Card Limit' ;;	
+  local: field: snf2 : storage : cwbfEMICardLimit ;;
+
+  [line: cwProifileLine5]
+  use : cwProifileLine0
+  local: field: sp : info: 'Customer Phone No' ;;	
+  local: field: snf3 : storage : cwbfCustomerPhoneNo ;;			
+  local: field: sp3 : info: 'Customer Email ID' ;;	
+  local: field: snf2 : storage : cwbfCustomerEmailID ;;
+
+
+  [line: cwProifileLine6]
+  use : cwProifileLine0
+  local: field: sp : info: 'Address1' ;;	
+  local: field: snf3 : storage : cwbfAddressLine1 ;;			
+  local: field: sp3 : info: 'Area' ;;	
+  local: field: snf2 : storage : cwbfArea ;;
+
+  [line: cwProifileLine7]
+  use : cwProifileLine0
+  local: field: sp : info: 'Address2' ;;	
+  local: field: snf3 : storage : cwbfAddressLine2 ;;			
+  local: field: sp3 : info: 'Landmark' ;;	
+  local: field: snf2 : storage : cwbfLandmark ;;
+
+
+  [line: cwProifileLine8]
+  use : cwProifileLine0
+  local: field: sp : info: 'Address3' ;;	
+  local: field: snf3 : storage : cwbfAddressLine3 ;;			
+  local: field: sp3 : info: 'PinCode' ;;	
+  local: field: snf2 : storage : cwbfPinCode ;;
+
+
+  [line: cwProifileLine9]
+  use : cwProifileLine0
+  local: field: sp : info: 'City' ;;	
+  local: field: snf3 : storage : cwbfCITY ;;			
+  local: field: sp3 : info: 'STATE' ;;	
+  local: field: snf2 : storage : cwbfSTATE ;;
+
+  [line: cwProifileLine10]
+  use : cwProifileLine0
+  local: field: sp : info: 'PAN' ;;	
+  local: field: snf3 : storage : cwbfCustomerPAN ;;			
+  local: field: sp3 : info: 'GSTIN' ;;	
+  local: field: snf2 : storage : cwbfcustomerGSTIN ;;
+
+  [line: cwProifileLine11]
+  use : cwProifileLine0
+  local: field: sp : info: 'First Name' ;;	
+  local: field: snf3 : storage : cwbfCustomerFirstName ;;	
+  local: field: sp3 : info: 'Middle Name' ;;	
+  local: field: snf2 : storage : cwbfCustomerMiddleName ;;	
+
+
+  [line: cwProifileLine11a]
+  use : cwProifileLine0
+  local: field: sp : info: 'Last Name' ;;	
+  local: field: snf3 : storage : cwbfCustomerLastName ;;
+  local: field: sp3 : info: 'Appliances Line' ;;	
+  local: field: snf2 : storage : cwbfAppliancesLine ;;
+
+  [line: cwProifileLine12]
+  use : cwProifileLine0
+  local: field: sp : info: 'Model No' ;;	
+  local: field: snf3 : storage : cwbfModelNo ;;
+  Local : field : snf3: Lines : 0
+  Local: Field: snf2: Skip: Yes
+  local: field: sp3: Invisible: yes
+  local: field: snf2: Invisible: yes
+  Local: field: snf3: Width: @@namewidth *3
+
+  space top : 1
+  space bottom : 0.5
+
+  [line: cwProifileLine13]
+  use : cwProifileLine0
+  local: field: sp : info: 'Make' ;;	
+  local: field: snf3 : storage : cwbfMAKE ;;			
+  local: field: sp3 : info: 'Cobrand Card Limit' ;;	
+  local: field: snf2 : storage : cwbfCobrandCardLimit ;;
+
+  [line: cwProifileLine14]
+  use : cwProifileLine0
+  local: field: sp : info: 'Asset Category' ;;	
+  local: field: snf3 : storage : cwbfassetCategory ;;			
+  local: field: sp3 : info: 'Manufacturer Name' ;;	
+  local: field: snf2 : storage : cwbfManufacturerName ;;
+
+
+  [line: cwProifileLine15]
+  use : cwProifileLine0
+  local: field: sp : info: 'Cd Line' ;;	
+  local: field: snf3 : storage : cwbfCdLine ;;	
+	
+  local: field: sp3 : info: 'Digital Line' ;;	
+  local: field: snf2 : storage : cwbfDigitalLine ;;
+
+  [line: cwProifileLine16]
+  use : cwProifileLine0
+
+    local: field: sp : info: 'Serial No' ;;	
+  local: field: snf3 : storage : cwbfSerialNo ;;
+  
+  Local: Field: snf2: Skip: Yes
+  space top : 0.25
+
+

@@ -1,0 +1,20 @@
+
+;; CWLHCondition : Logical
+
+[#Part: EXPINV Company]
+invisible : @@CWLHCondition
+
+[#Part: EXPINV Consignee]
+Option : DelConsigneeBorder :@@cwLHCondition
+
+[!part : DelConsigneeBorder]
+delete : border
+
+[#Part: EXPINV SaleTopLeft]
+add : option : SaleTopLeftWidthLess : @@cwLHCondition
+
+[!part: SaleTopLeftWidthLess]
+Height      : (10 + @WithBuyer + @WithCountry)% Page
+
+
+

@@ -1,0 +1,4 @@
+; Created By: Pg on 2013-05-23 18:11, ID: 
+
+[#Report : Voucher Register]
+local : line : dspvchdetail : local : field : DSP VchAccount : set as : $partyledgername

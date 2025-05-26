@@ -1,0 +1,34 @@
+; Created By: pg on 2011-12-01 15:25
+
+
+;;[System: Formula]
+;;NumqtyCond : @@issales
+
+    [#Field: EI ActualQtyTotal]
+    add : option : cwsetmyNumA : @@NumqtyCond
+    
+    [!field : cwSetmyNumA]
+    Type : number
+     set as : @@cwinvaqtyN
+
+    [#Field: EI BilledQtyTotal]
+    add : option : cwsetmyNumB : @@NumqtyCond
+
+    [!field : cwSetmyNumB]
+    Type : number
+     set as : @@cwinvBqtyN
+
+    [#Part: SJIn]
+add : option : cwsetmyNumBIn : @@NumqtyCond
+
+[!Part : cwsetmyNumBIn]
+local : field : VCH BilledQtyTotal : type : number
+local : field : VCH BilledQtyTotal : set as : $$collnumtotal:inventoryentriesin:@@CwActualQtYNum
+
+    [#Part: SJOut]
+add : option : cwsetmyNumBOut : @@NumqtyCond
+
+[!Part : cwsetmyNumBOut]
+local : field : VCH BilledQtyTotal : type : number
+local : field : VCH BilledQtyTotal : set as : $$collnumtotal:inventoryentriesOut:@@CwActualQtYNum
+

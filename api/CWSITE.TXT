@@ -1,0 +1,21 @@
+; Created By: pg on 2012-06-25 14:46
+
+[#menu : Gateway of tally]
+;; {09.Mar.22 12:02} add : button : cwSiteBtn,cwDocketRequest
+
+
+[key : cwSiteBtn]
+title : "Circuit World"
+key : f5
+action : browse : www.circuitworld.in
+
+
+[key   : cwDocketRequest]
+title  : "Support Request"
+key    : f6
+action :   browse : @@cwdocketstr
+
+[System: Formula]
+cwdocketstr: "https://circuitworld.in/docket/?serial=" +$$string:$$serialnumber
+
+

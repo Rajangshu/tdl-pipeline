@@ -1,0 +1,26 @@
+; Created By: pg on 2011-08-27 18:51
+;isXjournal
+
+[#field : VCH DeemedPos]
+    Setval      : If $$InAlterMode  Then +
+                  (If #VCHToBy = @@DrStr Then Yes Else No) Else +
+                  if ($$Line > 1) then @Use2ndLine else if @@isxjournal then no else  $IsDeemedPositive:VoucherType:$VoucherTypeName
+                  border : thin box
+;;                  delete : invisible
+    invisible : yes
+	Use2ndLine  : if $$Line > 2 OR (NOT @@SkipSecondToBy) then @UseAmtType else +
+ if @@isxjournal then yes else NOT $IsDeemedPositive:VoucherType:$VoucherTypeName
+	
+[#Field: VCH ToBy]
+
+;;    Type        : String : Forced
+;;    Max         : 2
+;;    Width       : 2
+;;	Set as		: If ##UseDrCrTable Then @SetVchToBy Else @SetVchToBy
+	SetVchToBy  : if $$increatemode and @@isXjournal then @@Crstr else if (($$IsEmpty:$IsDeemedPositive) Or ($$IsEmpty:$Amount)) then ($$SETVchToBy:$$Line:$IsDeemedPositive:@PrevDrAmtTot:@PrevCrAmtTot) else +
+					if $IsDeemedPositive then @@DrStr else @@CrStr
+;;delete : skip on
+ADD : OPTION : DSKIP : @@ISXJOURNAL
+
+[!FIELD: DSKIP]
+DELETE : SKIP ON

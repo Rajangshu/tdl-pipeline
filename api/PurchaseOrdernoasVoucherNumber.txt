@@ -1,0 +1,6 @@
+; Created By: pg on 2012-06-19 15:45
+
+
+[#Field: EI GetOrderNo]
+Set as      : if $$IsSalesOrder:##SVVoucherType OR $$IsJobOrderIn:##SVVoucherType then $VoucherNumber else +
+if $$ispurcorder:##SVVouchertype and $$isempty:$$value then $vouchernumber else $$Value

@@ -1,0 +1,28 @@
+;;[System: Formula]
+;;isPriceLevelMust:
+
+;;[#menu : gateway of tally]
+;;add : item  : at end : a1
+
+    [#Field: VCH NrmlRate]
+   Skip On : ($$IsValidPriceLevel:$PriceLevel and Not @@ownnam)
+
+    [system: formula]
+     ownnam: (##svusername = $ownername:company:##svcurrentcompany)
+ 
+;;    [#Field: VCH Rate]
+;;    Setval : if @@HasInvSubAlloc then $BatchRate else +
+;;             if $BilledQty = 0 then 0 else +
+;;             if $$IsFieldEdited OR $$InAlterMode then $$Value else +
+;;             if $$IsValidPriceLevel:$PriceLevel then $$ForexValue:@@StdVchRate else +
+;;             if $StockItemName != #VCHPrevItem AND NOT $$IsStartupValue then $$ForexValue:@@StdVchRate else +
+;;             if ($Amount != 0) AND ($Amount != @@CalcedAmt) then @@NrmlAmount / $BilledQty else +
+;;             if $$IsEmpty:$$Value then $$ForexValue:@@StdVchRate else $$Value
+
+
+[#Field: EI PriceLevel]
+    add: option : PriceLevelMust : @@isPriceLevelMust
+    
+[!field : PriceLevelMust]
+delete : table
+add : Table       : Price Levels

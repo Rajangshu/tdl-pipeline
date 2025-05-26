@@ -1,0 +1,103 @@
+; Created By: Aakshay on 2014-03-11 11:31, ID: 
+; Created By: Aakshay on 2014-03-10 15:24, ID:
+
+;;-------------------------------------------------------------------
+
+[#Part: STKVCH Body]
+ Total :numf3,numf4
+
+
+
+ [#Form: Stock Vouchers]
+ add:option:StockVouchersfreeqty:@@cwFreeQtyEnabled
+ [!Form: StockVouchersfreeqty]
+
+
+      local:line:STKVCH VchDetail :local:field:DSP InBlock:add:field:after:DSP VchInAltQty:numf3
+      local:line:STKVCH VchDetail :local:field:DSP OutBlock:add:field:after:DSP VchoutAltQty:numf4
+
+      local:line:STKVCH ClosingBalance :local:field:DSP inBlock:add:field:after:DSP VchinAltQty:numf3
+      local:line:STKVCH ClosingBalance :local:field:DSP OutBlock:add:field:after:DSP VchoutAltQty:numf4
+
+
+      local:line:DSP VchInv2Titles :local:field:DSP InDetTitle:add:field:after:DSP AltQtyDetTitle:numf3
+      local:line:DSP VchInv2Titles :local:field:DSP OutDetTitle:add:field:after:DSP AltQtyDetTitle:numf4
+
+      [#Line: DSP VchInv1Titles]
+      Local: field: DSP VchInTitle: Width: @@DSPCondQtyWidth + @@DSPCondAltQtyWidth +@@numberwidth+ @@DSPCondRateWidth + @@DSPCondAmtWidth
+      Local: field: DSP VchOutTitle: Width: @@DSPCondQtyWidth + @@DSPCondAltQtyWidth +@@numberwidth+ @@DSPCondRateWidth + @@DSPCondAmtWidth + @@DSPCondConsWidth
+      Local: field: DSP VchTypeTitle: Align: left
+      Local: field: DSP VchNumberTitle: Align: left
+
+
+
+ [#Line: DSP VchInv2Titles]
+ Local: Field: numf3: Set As:@@freeqtyinvtit
+ Local: Field: numf4: Set As:@@freeqtyinvtit
+ local: field: numf3: type: String
+ local: field: numf4: type: String
+
+  [#Line: STKVCH TransTotal]
+  Local: Field: numf3: Set As:$$total:numf3
+  Local: Field: numf4: Set As:$$total:numf4
+
+   [#Line: STKVCH ValueTotal]
+    Local: Field: numf3: Set As:$$total:numf3
+  Local: Field: numf4: Set As:$$total:numf4
+
+
+
+ [#Line: STKVCH NormalDetail]
+
+ Local: Field: numf3: Set As:#dspvchinqty -$cwIteminbQty
+ Local: Field: numf4: Set As:#dspvchoutqty-$cwItemoutbQty
+
+ Local: field: DSP VchNumber: Align: left
+ Local: field: DSP VchType: Align: left
+ Local: Field: DSP VchNumber: indent:2
+
+
+[System: Formula]
+stkbfilter:$stockitemname = ##pvsStockItemName
+freeqtyinvtit: $cwFreeQtytitle:COMPANY:##SVCURRENTCOMPANY
+
+cwItemInbilledQty		: If (##IsGodownReport) Then $$FilterQtyTotal:InventoryEntries:OwnItemInEntries:$GodownAutobilledQty +
+								  Else If ##IsItemBatchReport Then $$FilterQtyTotal:InventoryEntries:OwnItemInEntries:$BatchAutobilledQty +
+								  Else If ##IsItemBatchGdwnReport Then $$FilterQtyTotal:InventoryEntries:OwnItemInEntries:$GdwnBatchAutobilledQty +
+								  Else If (##IsMultiPage AND NOT ##InNewPages)Then $$FilterQtyTotal:InventoryEntries:AllOwnItemInEntries:$TPG_billedQty+
+								  Else $$FilterQtyTotal:InventoryEntries:OwnItemInEntries:$TPG_billedQty
+
+
+CWItemOutBILLEDQty		: If ##IsGodownReport Then $$FilterQtyTotal:InventoryEntries:OwnItemOutEntries:$GodownAutobilledQty +
+								  Else If ##IsItemBatchReport Then $$FilterQtyTotal:InventoryEntries:OwnItemOutEntries:$BatchAutobilledQty +
+								  Else If ##IsItemBatchGdwnReport Then $$FilterQtyTotal:InventoryEntries:OwnItemOutEntries:$GdwnBatchAutobilledQty +
+								  Else If (##IsMultiPage AND NOT ##InNewPages)Then $$FilterQtyTotal:InventoryEntries:AllOwnItemOutEntries:$TPG_billedQty +
+								  Else $$FilterQtyTotal:InventoryEntries:OwnItemOutEntriesExclMTO:$TPG_billedQty
+
+
+
+
+[#Collection: Vouchers of Stock Item]
+fetch: billedqty
+fetch: actualqty
+
+Compute	: cwIteminbQty	:@@cwItemInbilledQty
+Compute	: cwItemoutbQty	:@@CWItemOutBILLEDQty
+
+[#Collection: Stock Voucher Template]
+Compute	: cwIteminbQty	:@@cwItemInbilledQty
+Compute	: cwItemoutbQty	:@@CWItemOutBILLEDQty
+
+
+[#Object: Inventory Entry]
+GodownAutobilledQty :$$FilterQtyTotal:BatchAllocations:PendingInGodown:$billedQty
+BatchAutobilledQty:$$FilterQtyTotal:BatchAllocations:PendingInBatchOfGodownType:$billedQty
+GdwnBatchAutobilledQty:$$FilterQtyTotal:BatchAllocations:PendingInBatchGodown:$billedQty
+TPG_billedQty	: If @@IsMultiGodownOff Then $billedQty Else +
+					   $$FilterQtyTotal:BatchAllocations:IsGodownofBalType:$billedQty
+
+
+
+;;---------------------------------------------------------------------
+
+

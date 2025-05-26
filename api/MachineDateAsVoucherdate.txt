@@ -1,0 +1,23 @@
+; Created By: Pg on 2013-11-30 13:27, ID: 
+
+[#Field: Plain VCH Date]
+ ADd : Option : Plain VCH Date Control Field :$$increatemode
+
+
+ [!Field : Plain VCH Date Control Field]
+ Skip : Yes
+ Setas:$$MachineDate
+
+ [#Field: Plain VCH EffDate]
+ Add :OPtion : Plain VCH EffDate Control Field :$$increatemode
+
+ [!Field : Plain VCH EffDate Control Field]
+ Skip : Yes
+ Setas:$$MachineDate
+
+ [System : Formula]
+ ;PlainVCHDateControl:$$Allow:Alter:DateControl
+ 
+;; {15.May.14 16:53}  [include :  AuditLog.txt]
+;; {15.May.14 16:53}  [include : c:\d7comps\tcommon\refreshtdl.txt]
+

@@ -1,0 +1,372 @@
+     [system: formula]
+     rep1 : ##logi1
+     rep2 : ##logi2
+     rep3 : ##logi3
+
+[BUTTON : CWlOGI1]
+TITLE : IF ##LOGI1 THEN "UnSet 1" else "Set 1"
+action : set : logi1 : not ##logi1
+
+[variable : str1]
+     type : string
+  default : ""
+persistent: no
+
+[variable : str2]
+     type : string
+  default : ""
+persistent: no
+
+[variable : str3]
+     type : string
+  default : ""
+persistent: no
+
+[variable : str4]
+     type : string
+  default : ""
+persistent: no
+
+[variable : str5]
+     type : string
+  default : ""
+persistent: no
+
+[variable : str6]
+     type : string
+  default : ""
+persistent: no
+
+[variable : str7]
+     type : string
+  default : ""
+persistent: no
+
+[variable : str8]
+     type : string
+  default : ""
+persistent: no
+
+
+[variable : str9]
+     type : string
+  default : ""
+persistent: no
+
+
+[variable : str10]
+     type : string
+  default : ""
+persistent: no
+
+
+[variable : str11]
+     type : string
+  default : ""
+persistent: no
+
+
+[variable : str12]
+     type : string
+  default : ""
+persistent: no
+
+[variable : str13]
+     type : string
+  default : ""
+persistent: no
+
+
+
+[variable : logi]
+use : logi1
+
+[variable : logi1]
+     type : logical
+  default : no
+persistent: no
+   
+[variable : logi2]
+     type : logical
+  default : no
+persistent: no
+
+[variable : logi3]
+     type : logical
+  default : no
+persistent: no
+
+[variable : logi4]
+type : logical
+  default : no
+persistent: no
+
+[variable : logi5]
+type : logical
+  default : no
+persistent: no
+
+[variable : logi6]
+type : logical
+  default : no
+persistent: no
+
+[variable : logi7]
+type : logical
+  default : no
+persistent: no
+
+[variable : logi8]
+type : logical
+  default : no
+persistent: no
+
+[variable : logi9]
+type : logical
+  default : no
+persistent: no
+
+[variable : logi10]
+type : logical
+  default : no
+persistent: no
+
+
+[variable : logi11]
+type : logical
+  default : no
+persistent: no
+
+
+[variable : logi12]
+type : logical
+  default : no
+persistent: no
+
+[variable : logi13]
+type : logical
+  default : no
+persistent: no
+
+
+
+[variable : num1]
+    type: number
+default : 0
+persistent : no
+
+[variable : num2]
+    type: number
+default : 0
+persistent : no
+
+[variable : num3]
+    type: number
+default : 0
+persistent : no
+
+[variable : num4]
+type : number
+default : 0
+persistent : no
+
+[variable : num5]
+type : number
+default : 0
+persistent : no
+
+[variable : num6]
+type : number
+default : 0
+persistent : no
+
+[variable : num7]
+type : number
+default : 0
+persistent : no
+
+[variable : num8]
+type : number
+default : 0
+persistent : no
+
+[variable : num9]
+type : number
+default : 0
+persistent : no
+
+[variable : num10]
+type : number
+default : 0
+persistent : no
+
+[variable : num11]
+type : number
+default : 0
+persistent : no
+
+[variable : num12]
+type : number
+default : 0
+persistent : no
+
+[variable : num13]
+type : number
+default : 0
+persistent : no
+
+[variable : num14]
+type : number
+default : 0
+persistent : no
+
+[variable : num15]
+type : number
+default : 0
+persistent : no
+
+
+[variable : amt1]
+    type: amount
+default : 0
+persistent : no
+
+[variable : amt2]
+    type: amount
+default : 0
+persistent : no
+
+[variable : amt3]
+    type: amount
+default : 0
+persistent : no
+
+
+[variable : sdf1]
+type  : date
+default : ""
+persistent : no
+
+[variable : sdf2]
+type  : date
+default : ""
+persistent : no
+
+[variable : sdf3]
+type  : date
+default : ""
+persistent : no
+
+
+[variable : sdf4]
+type  : date
+default : ""
+persistent : no
+
+[variable : sdf5]
+type  : date
+default : ""
+persistent : no
+
+[variable : sdf6]
+type  : date
+default : ""
+persistent : no
+
+
+[variable : sdf7]
+type  : date
+default : ""
+persistent : no
+
+[variable : sdf8]
+type  : date
+default : ""
+persistent : no
+
+
+[variable : sdf9]
+type  : date
+default : ""
+persistent : no
+
+[variable : sdf10]
+type  : date
+default : ""
+persistent : no
+
+
+[variable : qty1]
+type : quantity
+default : ""
+persistent : no
+
+[variable : qty2]
+type : quantity
+default : ""
+persistent : no
+
+[system : variable]
+qty1: ""
+sdf1 : ""
+sdf2 : ""
+sdf3 : ""
+sdf4 : ""
+sdf5 : ""
+sdf6 : ""
+sdf7 : ""
+sdf8 : ""
+sdf9 : ""
+sdf10 : ""
+
+str1 : ""
+str2 : ""
+str3 : ""
+str4 : ""
+str5 : ""
+str6 : ""
+str7 : ""
+str8 : ""
+str9 : ""
+str10 : ""
+str11 : ""
+str12 : ""
+str13 : ""
+logi  : no
+logi1 : no
+logi2 : no
+logi3 : no
+logi4 : no
+logi5 : no
+logi6 : no
+logi7 : no
+logi8 : no
+logi9 : no
+logi10 : no
+logi11 : no
+logi12 : no
+logi13 : no
+
+   num1 : 0
+   num2 : 0
+   num3 : 0
+   
+   num4 : 0
+   num5 : 0
+   num6 : 0
+   
+   num7 : 0
+   num8 : 0
+   num9 : 0
+   num10: 0
+   num11: 0
+   num12: 0
+   num13: 0
+   num14: 0
+   num15: 0
+   
+   
+   amt1 : 0
+   amt2 : 0
+   amt3 : 0
+

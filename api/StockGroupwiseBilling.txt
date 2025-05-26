@@ -1,0 +1,123 @@
+;; enable condition
+;; StkGrpWisebilling : @@issales
+;; isStkGrpDemo : yes ;; to enable demo mode else no demo
+;; StkGrpbillDate ; set as valid date condition
+;; SGrpOnCondition : $$issales:$parent
+
+[System : UDF]
+ CpInvMainGrpName : String : 301
+ CpInvGrpName:String : 302
+
+
+[#collection : VchStockItem] ;; adding group selection in sales voucher
+add : filter : CpSalesFilter
+    fetch : chk1
+;;    format : $chk1,1
+
+  [system : formula]
+CpSalesFilter: if @@demoexpx  then @@grpsalef else yes
+demoexpx : if @@isStkGrpDemo then $date <= @@StkGrpbillDate else yes ;;yes ;;$$owner:$date <
+ ;;   grpsalef : if $$isempty:$$Owner:$CpInvGrpName then yes else if $$IsSysname:$$Owner:$CpInvGrpName then yes else $CHK1 ;;$$owner:$chk1 ;;$parent =  $$owner:$CpInvGrpName
+   grpsalef : if $$isempty:#CPInvGrp then yes else if $$IsSysname:#CPInvGrp then yes else $CHK1 ;;$$owner:$chk1 ;;$parent =  $$owner:$CpInvGrpName
+
+    
+    [#object : stock item]
+    chk1 : $$ISBELONGSTO:#CPInvGrp ;; $$ISCHILDOF:#CPInvGrp
+    
+;;    [#collection: stockitem]
+;;    fetch : chk1
+
+;; {23.Jul.22 11:21}     [Field : CpInvGrpMainTitle]
+    [Field : CpInvGrpMainTitle]
+      use : short Name field
+     info : "Category:"
+    width : 6
+
+
+      [Field : CpInvMainGrp]
+      use : Name Field
+    table : StockCategoryBrand ,NotApplicable ;;Group
+ShowTable : Always
+  storage : CpInvMainGrpName
+SET ALWAYS: YES
+      Key : Create Stock Category, Alter StkCat
+ Variable : SV Stock Category
+
+
+ [Field : Cp InvGrpTitle]
+      use : short Name field
+     info : "Group:"
+    width : 6
+
+   [Field : CpInvGrp]
+      use : Name Field
+    table : StockGroupCMain,NotApplicable
+ShowTable : Always
+  storage : CpInvGrpName
+SET ALWAYS: YES
+      Key : Create Stock Group, Alter StkGrp
+ Variable : SV Stock Group
+
+
+[Collection : StockCategoryBrand]
+    use :Stock Category
+    filter : OnlyBrandParent
+    title : "Category"
+
+    [system : Formula]
+CItmwithCategory :  @@hc ;; if Not $$IsSysname:#CpInvMainGrp then @@myc else;;$$FilterCount:StockItem:Hc > 0 ;;) ;; ($$NumChildren:StockGroup:$Name > 0 and
+   HasSameC : $$FilterCount:StockItemOfOwner:Hc > 0
+         Hc : $Parent = $$Sysname:Primary ;;if $$IsSysname:#CpInvMainGrp then yes else $Category = #CpInvMainGrp and $Parent = $$Sysname:Primary ;;;$$Owner:$Name ;;= "a1"
+  OnlyBrandParent : $Parent = "Brand"
+  myc : $category = #CpInvMainGrp
+  n1 : $category = $$owner:$CpInvMainGrpName
+
+ [Collection : StockGroupCMAin]
+       type : StockGroup
+      Title : "List of Groups"
+     Filter : CItmwithCategory
+
+  [#Part : ei baseinfo] ;; adding group selection in sales voucher
+add : Option : CInvGrp2 : @@StkGrpWisebilling ;;@@CentVchs
+
+[#Part: SJ MainTitle]
+add : Option : CInvGrp2 : @@StkGrpWisebilling ;;@@CentVchs
+
+
+   [!Part : CInvGrp2]
+add : line:at end: cinvGrp2 ;;,cinvgrp1
+
+
+;;[#Part: SJ MfgTitle]
+;;add : Option : CInvGrp2 : @@StkGrpWisebilling ;;@@CentVchs
+
+[#Part: SJ MfgTitle]
+add : Option : CInvGrp3 : @@StkGrpWisebilling ;;@@CentVchs
+
+[!part : CInvGrp3]
+  add:line:cwgroupline
+
+ [line:cwgroupline]
+  use:CinvGrp2
+
+
+    [Line : CinvGrp2]
+    field : CP InvGrpTitle,CP InvGrp ;;CpInvGrpMainTitle,CPInvMainGrp,CP InvGrpTitle,
+    local : field : default : style : normal
+    local:field:CP InvGrp:set as: if $$IsSysName:@@vchgrpname then $$sysname:notapplicable else @@vchgrpname
+    local:field:CP InvGrp: skip : yes
+
+[system : formula]
+vchgrpname : $CpInvGrpName:vouchertype:$vouchertypename
+ 	
+       [#Part : VTYP Behaviour]
+ add : option : beha : @@SGrpOnCondition
+
+       [!part : beha]
+          add : line : at end : cpgrpx
+
+        [line : cpgrpx]
+  add : field : longprompt,Cp InvGrp
+local : field : longprompt : set as : "Stock Group for Invoicing :"
+local : field : cpinvgrp : showtable : always
+

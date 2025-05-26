@@ -1,0 +1,278 @@
+; Created By: suman on 2021-07-29 14:15, ID:
+
+; Created By: Taniya on 2020-09-11 18:51, ID:
+
+; Created By: Pg on 2018-09-12 11:01, ID:
+
+
+
+[collection : cwSelectedColy]
+Data Source: Report: Selected
+
+
+
+[System: Formula]
+cwemailid2 : "" ; 2nd Email Id, e.g: Broker Email-Id
+cwemailStr2: "" ; Caption of 2nd Email Id, e.g:Broker Name
+
+; To be used in future, or with other tcp.
+cwOthers1 : ""
+cwOthers2 : ""
+cwOthers3 : ""
+cwOthers4 : ""
+cwOthers5 : ""
+
+; Export Location
+cwExportLocation :  if @@cwsperateparnewridenbopt then  $cwpathsavefile:Vouchertype:$vouchertypename +"\" else  @@cwDSConfigPath  +"\"
+cwExportLocation2 :  if @@cwsperateparnewridenbopt then  $cwpathsavefile:Vouchertype:$vouchertypename +"\" else  @@cwDSConfigPath  +"\"
+;; {30.Jul.21 13:16} cwExportLocation :@@cwlocationpath  +"\"
+;; {30.Jul.21 13:03} cwExportLocation :@@cwlocationpathvchtype  +"\"
+
+; Export File Name
+cwExportFileName :if $$isempty:$vouchernumber then #fsnf else $vouchernumber;;+ ".pdf"
+
+; Export Function Version
+
+cwESigningVersion : "1.0"
+
+
+; Siganture on page
+cwOnPage : if $$issysname:$cwPutSignatureOn:Vouchertype:$vouchertypename or $$isempty:$cwPutSignatureOn:Vouchertype:$vouchertypename then @@cwDSLastPage else $cwPutSignatureOn:Vouchertype:$vouchertypename
+
+ [System: Formula]
+ cwlocationpath:if not $$isempty:@@cwlocationpath then @@cwlocationpath else @@cwlocationpathvchtype
+ cwlocationpathvchtype:$cwpathsavefile:Vouchertype:$vouchertypename
+
+ [#Line: VCH Display Number]
+ add:field:fsnf
+
+ Local: Field: fsnf: Set As:$vouchernumber
+ Local: Field: fsnf:storage:cwdisvouchernumber
+ Local: Field: fsnf:invisible:yes
+
+ [System: UDF]
+ cwdisvouchernumber:string:908
+
+[system : variable]
+cwxx12 : ""
+
+[variable : cwxx12]
+type : string
+persistent : no
+
+
+[function: cwrepstry]
+returns : string
+variable : str : string : $vouchernumber
+ A10 : set : str : $$cwReplaceCharacters:##str:"\\":""
+ A11 : set : str : $$cwReplaceCharacters:##str:"/":""
+ A12 : set : str : $$cwReplaceCharacters:##str:"?":""
+ A13 : set : str : $$cwReplaceCharacters:##str:":":""
+ A14 : set : str : $$cwReplaceCharacters:##str:"*":""
+ A15 : set : str : $$cwReplaceCharacters:##str:'"':""
+ A16 : set : str : $$cwReplaceCharacters:##str:"<":""
+ A17 : set : str : $$cwReplaceCharacters:##str:">":""
+ A18 : set : str : $$cwReplaceCharacters:##str:"|":""
+ A19 : set : str : $$cwReplaceCharacters:##str:" ":""
+ A20 : set : str : $$cwReplaceCharacters:##str:"-":""
+ A21 : set : str : $$cwReplaceCharacters:##str:"_":""
+
+ A50 : return : ##str
+
+ [System: Formula]
+ cwUploaderExePath : if @@cwsperateparnewridenbopt then $cwInvoiceUploader:vouchertype:##svvouchertype else  $cwInvoiceUploader:COMPANY:##SVCURRENTCOMPANY
+
+
+
+[function : cwExportforSigningy]
+parameter : fromBulk : logical : false
+
+;; {28.Aug.21 14:45} VARIABLE:VID:STRING
+
+variable : cwExportLocation : string : @@cwExportLocation2
+variable : cwExportFileName : string : @@cwExportFileName
+variable : CwPDfFileNameWithPath : string : ##cwExportLocation + ##cwExportFileName
+
+variable : cwTxtFilename : string
+
+
+variable : cwpartyledger  : string : if not $$isempty:@@AllLedName then @@AllLedName else if not $$isempty:$partyledgername then $partyledgername else if not $$isempty:$FirstLedger then $FirstLedger else ""
+
+VARIABLE : isfexists : LOGICAL : NO
+
+VARIABLE : CWSENDeMAIL : LOGICAL : yes
+variable : istr : string
+variable : temp : string
+variable : strno : string
+variable : tempcopies : number
+variable : exefilepath : string : @@cwUploaderExePath
+variable : str : string : ""
+
+variable : invamount : amount : if not $$isempty:$amount then $amount else if not $$isempty:$daybookamount then $daybookamount else ""
+
+
+
+011a:walk collection:cwSelectedColy
+
+00pg1 : set : cwExportLocation : @@cwExportLocation2
+00pg2 : set : cwExportFileName : @@cwExportFileName
+
+ fA10 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"\\":""
+ fA11 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"/":""
+ fA12 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"?":""
+ fA13 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:":":""
+ fA14 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"*":""
+ fA15 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:'"':""
+ fA16 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"<":""
+ fA17 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:">":""
+ fA18 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"|":""
+ fA19 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:" ":""
+ fA20 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"_":""
+ fA21 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"-":""
+
+
+
+
+00pg1a: log : "Loc: " +##cwExportLocation + ", File: "+ ##cwExportFileName
+
+00pg3 : set : CwPDfFileNameWithPath : ##cwExportLocation + ##cwExportFileName
+
+00pg4 : set : cwpartyledger  : if not $$isempty:@@AllLedName then @@AllLedName else if not $$isempty:$partyledgername then $partyledgername else if not $$isempty:$FirstLedger then $FirstLedger else ""
+
+00pg5 : set : exefilepath : string : if @@cwsperateparnewridenbopt then $cwInvoiceUploader:vouchertype:$vouchertypename else  $cwInvoiceUploader:COMPANY:##SVCURRENTCOMPANY
+00pg6 : set : invamount : amount : if not $$isempty:$amount then $amount else if not $$isempty:$daybookamount then $daybookamount else ""
+
+
+
+0111: set : strno : $vouchertypename ;;$vouchertypename;; $cwPrintCopies:vouchertype:$vouchertypename
+/*
+ A10 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"\\":""
+ A11 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"/":""
+ A12 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"?":""
+ A13 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:":":""
+ A14 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"*":""
+ A15 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:'"':""
+ A16 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"<":""
+ A17 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:">":""
+ A18 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"|":""
+ A19 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:" ":""
+ A20 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"_":""
+ A21 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"-":""
+*/
+
+;; {28.Aug.21 17:55} 00pg2a: log : "File " +##cwExportFileName
+
+ ; Exporting Supporting File
+
+
+
+        B00 : set : cwTxtFilename : ##cwExportLocation+"\"+##cwExportFileName+##istr+".txt"
+        B01 : log : ##cwTxtFilename
+        B10 : OPEN FILE : ##cwTxtFilename  : TEXT : WRITE : ASCII
+        B12 : TRUNCATE FILE
+
+
+        B14: set : str : "{"
+        B14A:set :str  : ##str + '"exportedon":"' + $$string:$$machinedate + " " + $$string:$$machinetime + '",'
+
+        B14B: set : str : ##str + '"version":"'+@@cwESigningVersion + '",'
+
+        B15 : set : str : ##str +  '"dealerid":"'+ @@cwpartner  + '",'
+
+
+         ; VALUES From Voucher
+       ; B45 : WRITE FILE LINE : '"partyledgername":"' + ##cwpartyledger  + '",'
+       B50 : set : str : ##str +  '"dealid":"' + $$cwbfDealID  + '",'
+        B51 : set : str : ##str + '"vouchernumber":"' + $$cwrepstry  + '",'
+        B52 : set : str : ##str+ '"voucherdate":"' + $$STRING:$DATE  + '",'
+        B53 : set : str : ##str + '"counter":"' + $$STRING:##num1  + '",'
+
+        B74 : set : str : ##str + '"subscriptionkey":"'+ @@cwsubprimarykeyforUpload + '",'
+
+        B75 :set : str : ##str +  '"txt1":"' + @@cwOthers1 + '",'
+        B76 :set : str : ##str +  '"txt2":"' + @@cwOthers2  + '",'
+        B77 :set : str : ##str + '"txt3":"' + @@cwOthers3 + '",'
+        B78 :set : str : ##str +'"txt4":"' + @@cwOthers4  + '",'
+        B79 :set : str : ##str + '"txt5":"' + @@cwOthers5  + '"'
+        B80 :set : str : ##str +  "}"
+
+        B81 : write file line : ##str
+
+        C175 : CLOSE TARGET FILE
+
+
+; Exporting PDF
+	A100	: SET			: SVExportLocation	: ##cwExportLocation ;; "."
+	A110	: SET			: SVExportFormat	: $$SysName:PDF
+	A120	: SET			: SVPrintFileName	: ##cwExportLocation+##cwExportFileName+##istr
+
+	A140	: SET			: SVPrintFileName	: $$MakeExportName:##SVPrintFileName:##SVExportFormat
+	A130    : set : isfexists : $$isfileexists:##SVPrintFileName
+;        a2323 :  log : "Exporting to: " + ##SVPrintFileName  + " " + ##SVPrintCopy
+
+	A150 : do if : ##isfexists : TriggerKey:Enter
+        A155 : set : SVOpenFileAfterExport : no
+        safasd : set : cwxx12: ##SVPrintCopy
+
+ 11          :   Set : CWVoucherId           : $MasterID
+
+;; {02.Dec.21 16:48} 900	: EXPORT REPORT	:cwMyInvoice: true
+910:do if : @@cwBFLInvFormat : EXPORT REPORT	:RepBajajExportPdf : true
+920:do if : not @@cwBFLInvFormat :EXPORT REPORT:cwMyInvoice: true
+
+       c100a:end walk
+
+
+        C980 : return : yes
+        
+
+    [Report : cwMyInvoice]
+	Object 		: Voucher : @@VcHFormula
+	Use			: Voucher
+	Form		: Printed Invoice
+	Use:Printed Invoice
+	
+	[System: Formula]
+ VcHFormula : $$Sprintf:@@VchMasterID:##CWVoucherId
+
+[System:Variables]
+    CWVoucherId:0
+
+[Variable:CWVoucherId]
+    Type:Number
+
+
+         [report : cwxx12]
+
+         use :printed invoice ;;
+
+         set : svprintcopies : 1
+         PrintSet : SVPrintCopies : 1
+
+         printset : svprintcopy :  "Original"
+
+	local : form : default : Space Left 	    :  5% Page
+	local : form : default : Space Top 	    :  5% Page
+	local : form : default : Space Bottom    :  3% Page
+
+  local : form : default :   Space Top   : @@InvSpace  inch
+  local : form : default :   Space Right : 0.25 inch
+  local : form : default :   Space Left  : 0.25 inch
+  local : form : default :   Space Bottom: 0.25 inch
+;; {16.May.20 10:18}   local : form : default :  Set : SV Print Orientation : "Landscape"
+local: form: default : 	Set: VCHPrintJurisdiction : If $$IsEmpty:@@DSPJurisdictionValue Then ##SAJurisdiction Else @@DSPJurisdictionValue
+       option : cwcustomdimentsion :  @@cwdocformatlwidthnumfform <> 0
+
+
+     [report:RepcwBFReportx]
+      use:RepcwBFReport
+      local:collection:ColcwBFReport:add:filter:cwupdateopt
+
+      
+    [System: Formula]
+     cwupdateopt:$cwisexported="yes"
+
+
+
+
+

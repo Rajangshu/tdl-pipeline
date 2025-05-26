@@ -1,0 +1,8 @@
+; Report : LedgerExists
+; parameter : Ledger NAme
+; return : 1 if ledger exits else 0
+
+
+; Report : ledger bal
+; parameter : Ledger name
+; returns : closing

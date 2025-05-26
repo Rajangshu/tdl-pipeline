@@ -1,0 +1,62 @@
+; Created By: Pg on 2015-12-16 12:37, ID:
+
+
+
+[report : cwLedgerExists]
+use : dsptemplate
+form : cwLedgerExists
+export : yes
+variable : ledgername
+variable : logi1 ;; show details when logi1 is yes
+
+
+[form : cwLedgerExists]
+use : dsptemplate
+part : cwLedgerExists
+button : changeitem
+[part : cwLedgerExists]
+line : cwLedgerExists
+repeat : cwLedgerExists ;;: currency
+scroll : vertical
+SET : 1
+
+[line : cwLedgerExists]
+field : cwle
+
+
+[field : cwle]
+use : name field ;;,namefield
+set as : IF $$ISEMPTY:$name:LEDGER:##LEDGERNAME THEN 0 ELSE 1 ;; $$filtercount:ledger:hasled
+
+
+
+     [#menu: Gateway of Tally]
+          ;;add: Item: before: @@locQuit: "ITEM GROUP": Display: cwstockgroupExists
+       ;; add: Item: before: @@locQuit: Blank
+
+[report : cwstockgroupExists]
+use : dsptemplate
+form : cwstockgroupExists
+export : yes
+variable : stockgroupname
+;; {22.Jan.16 17:28} set :stockgroupname:"18 Range"
+;; {22.Jan.16 17:18} set :stockgroupname:"Dimond Ring"
+
+[form : cwstockgroupExists]
+use : dsptemplate
+part : cwstockgroupExists
+button : changeitem
+[part : cwstockgroupExists]
+line : cwstockgroupExists
+repeat : cwstockgroupExists ;;: currency
+scroll : vertical
+SET : 1
+
+[line : cwstockgroupExists]
+field : cwsge
+
+[field : cwsge]
+use : name field ;;,namefield
+set as : IF $$ISEMPTY:$name:stockgroup:##stockgroupNAME THEN 0 ELSE 1   ;; $$filtercount:stockgroup:hasled
+
+

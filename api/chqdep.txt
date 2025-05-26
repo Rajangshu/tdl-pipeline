@@ -1,0 +1,655 @@
+;;Chqdemo ;;: for receipt
+;;chqdemo2 ;;: for payment
+
+[system : formula]
+
+  mdemo : (($$IsReceipt:##SVVoucherType) and @@Chqdemo) or (($$IsPayment:##SVVoucherType) and @@Chqdemo2)
+
+
+[Variable : essJbChequeDeposit]
+    Type    : Logical
+    Default : No
+    Volatile: No
+     
+[variable : ShowPartyName]
+     type : logical
+  default : No
+ volatile : no
+
+;;---adding UDFs in Receipt voucher entry for Cheque no., Date, Drawee Bank,
+;;---and Branch
+
+
+[#Part: DBLLINE Narration]
+
+    Option : essJbChequeNoDate : @@mDemo
+
+
+   [!Part : essJbChequeNoDate]
+ 
+      Add : Lines : Before : VCH NarrPrompt : essJbChequeNoDate
+
+
+        [Line : essJbChequeNoDate]
+
+            Fields : essJbChequeNoPrompt, essJbChequeNo, essJbChequeDatePrompt, essJbChequeDate , +
+                     essJbDraweeBankPrompt, essJbDraweeBank ;;, essJbBranchPrompt, essJbBranch
+    
+            SpaceBottom : 0.50
+
+
+          [Field : essJbChequeNoPrompt]
+
+            Info   : "Cheque No : "
+            Style  : Normal Bold
+
+
+          [Field : essJbChequeNo]
+
+             Use     : NAME Field
+             Width   : 10
+             Style   : Normal
+             Storage : essJbChequeNo
+             Format  : "NoZero, NoCommas"
+
+
+          [Field : essJbChequeDatePrompt]
+
+            Info   : "Date : "
+            Style  : Normal Bold
+
+
+          [Field : essJbChequeDate]
+
+             Use     : Short Date Field
+             Width   : 10
+             Style   : Normal
+             Storage : essJbChequeDate
+
+
+          [Field : essJbDraweeBankPrompt]
+
+            Info   : "Bank : "
+            Style  : Normal Bold
+        
+
+          [Field : essJbDraweeBank]
+
+             Use     : Name Field
+             Width   : 25
+             Style   : Normal
+             Storage : essJbDraweeBank
+             set always : yes
+             set as : if ($$increatemode or $$isempty:$$value) then $essJbDraweeBank:ledger:@@pL1 else $$value
+
+     [system : formula]
+     pL1 : $$collectionfield:$ledgername:first:allledgerentries
+     isdeb : yes
+
+          [Field : essJbBranchPrompt]
+
+
+            Info   : "Branch : "
+            Style  : Normal Bold
+        
+
+          [Field : essJbBranch]
+
+             Use     : Name Field
+             Width   : 25
+             Style   : Normal
+             Storage : essJbBranch
+
+
+
+[System : UDF]
+
+  essJbChequeNo   : STRING : 32
+  essJbChequeDate : Date   : 4
+  essJbDraweeBank : String : 30
+  essJbBranch     : String : 31
+
+
+
+
+
+;;--------setting narration as concatenation of the four UDFs
+
+
+[#Field: VCH Narration]
+
+add :    Option     : essJbVchNarration : @@mdemo
+
+  [!Field : essJbVchNarration]
+
+    Set as     : "Ch no. :" + " " + @@essJbChequeNo + " " + "dated" + " " + @@essJbChequeDate ;; + " " + "of" + " " + @@essJbDraweeBank ;;+ "," + " " + @@essJbBranch
+    Set always : Yes
+
+                      
+                 
+
+[System : Formula]
+
+   essJbChequeNo     : if NOT $$IsEmpty:#essJbChequeNo then #essJbChequeNo else ""
+   essJbChequeDate   : if NOT $$IsEmpty:#essJbChequeDate then $$String:#essJbChequeDate:"ShortDAte" else ""
+;;   essJbDraweeBank   : if NOT $$IsEmpty:#essJbDraweeBank then $essJbDraweeBank else ""
+;;   essJbBranch       : if NOT $$IsEmpty:#essJbBranch then $essJbBranch else ""
+
+
+
+[Collection : essJbMonthly Ledger]
+
+;     Type        : Ledger
+;     Child Of    : $$GroupBank
+;     BelongsTo   : Yes
+;     Report      : Cheque Deposit Statement
+;     Variable    : LedgerName
+;     Trigger     : Ledger Name
+
+;;    Use         : Monthly Ledger
+;;    Report      : Cheque Deposit Statement
+;;    Filter      : essJbBelongstoBankGroups
+      Type        : Ledger
+      Report      : Cheque Deposit Statement
+      Variable    : LedgerName
+      Trigger     : Ledger Name1
+
+
+    set : xb : no
+    
+           [Report: Ledger Name1]   ;;Auto Report
+          Use     : Collection Variable
+          Local   : Line : Collection Variable : Field : Ledger Name1
+          Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Ledger"
+
+             [Line: LedgerName1]
+
+                Fields      : Medium Prompt, LedgerName1
+                Local       : Field : Medium Prompt : Info : $$LocaleString:"Name of Ledger"
+
+            [Field: Ledger Name1]
+
+                Use         : Name Field
+                Key         : Create Ledger
+                Modifies    : LedgerName
+                Table       : Ledger1
+                Show Table  : Always
+                CommonTable : No
+
+      [collection : ledger1]
+             type : ledger
+           Filter : cwBelongstoBankGroups
+            Title : "Bank Accounts"
+
+[System : Formula]
+ cwBelongstoBankGroups  : $$IsBelongsto:$$GroupBank or $$IsBelongsto:$$GroupBankOD
+
+[System : Formula]
+
+  essJbBelongstoBankGroups  : $$IsBelongsto:$$GroupBank  or  $$IsBelongsto:$$GroupBankOD
+
+  
+     [Report : Cheque Deposit Statement]
+
+          Form        : ChequeDepositStatement
+
+          Variable    : essJbChequeDeposit,ShowPartyName,ledgername
+          Set         : essJbChequeDeposit : Yes
+          set : ShowPartyName : yes
+
+          Variable    : SV From Date, SV To Date
+          Set         : SV From Date          : ##SVCurrentDate
+          Set         : SV To Date            : ##SVCurrentDate
+          set         : xb :yes
+
+
+               [Form : ChequeDepositStatement]
+                 use : ledger vouchers
+              delete : part
+              delete : bottom part
+              delete : page break
+         add : Parts : essJbTopPart, essJbTitles, essJbVchDetail
+         add : BottomParts : essJbTotal, essJbCashier
+           Button      : F2ChangePeriod, ChangeCompany,BottomToolBarBtn8 ;;,Party Toggle
+           Keys        : ChangePeriod
+           Background  : White, Surf Green
+	Bottom Toolbar Buttons 	: BottomToolBarBtn8
+        local : button : BottomToolBarBtn8 : delete : inactive
+           Space Top   : if $$InPrintMode then ##SVSpaceTop else 0.05 inches
+           Space Bottom: if $$InPrintMode then 0.5  else 0 inches
+           Space Left  : if $$InPrintMode then 0.5 else 0 inches
+           Space Right : if $$InPrintMode then 0.25 else 0 inches
+      add : Page Break : essJb ClPageBreak, essJb OpPageBreak
+                height : if $$inprintmode then 50 %  else 100 % page
+
+
+;;---------page breaks defined
+
+
+
+[Part: essJb ClPageBreak]
+
+    Parts     : essJbTotal, essJbCashier    
+    Vertical  : Yes
+
+    Local     : Part : essJbTotal : Delete : Lines  : essJbAmountInWords, essJbAmount
+    Local     : Part : essJbTotal : Add    : Lines  : essJbClAmountInWords, essJbClAmount
+
+
+    [Line : essJbClAmountInWords]
+
+       Field   : Name Field
+       Local   : Field : Name Field : Set as  : " "
+
+
+     [Line : essJbClAmount]
+
+        Right Field : Info Field
+        Local       : Field : Info Field : Info : "... continued"
+       
+
+
+
+[Part: essJb OpPageBreak]
+
+    Parts   : essJbTopPart, essJbTitles     
+    Vertical  : Yes
+
+
+;;-----------
+
+
+
+           [Part : essJbTopPart]
+
+               Line    : essPayinslip,essJbUCOBank, essJbAddress, essJbCurrentLine ;;, essJbCompanyName
+               Repeat  : essJbAddress : essJbAddress
+
+[line : essPayinslip]
+field : payinslip
+space bottom : 0.5
+
+[field : payinslip]
+full width : yes
+style : normal bold
+set as : "P A Y  -  I N  S L I P"
+ALIGN : CENTRE
+border : thin bottom
+
+               [Line : essJbUCOBank]
+
+                  Field        : Name Field
+                  RightFields  : Short Prompt, essJbDate
+ 
+                  Local    : Field : Name Field : Set as : ##LedgerName
+                  Local    : Field : Name Field : FullWidth : Yes  
+                  Local    : Field : Name Field : Align  : Centre
+
+                  Local    : Field : Short Prompt : Set as : "Date :"
+                  Local    : Field : Short Prompt : Width  : 6
+
+
+                  [Field : essJbDate]
+
+                    Set as : $$CollectionField:$Date:1:VouchersOfLedger
+                    Width  : 10
+                    Style  : Normal bold
+
+
+
+              [Line : essJbAddress]
+
+                 Field      : essJbAddress
+                 RightField : Short Prompt, essJbDate
+                 Local      : Field : essJbDate : Set as : " " 
+                 Local      : Field : Short Prompt    : Set as : " " 
+                 Local      : Field : Short Prompt    : Width  : 6
+
+
+                  [Field : essJbAddress]
+
+                      Set as     : @@essJbLedgerAddress
+                      FullWidth  : Yes
+                      Align      : Centre
+                      Style      : Normal
+;;                      Inactive   : $$Line > 1
+
+                          
+              [Line : essJbCurrentLine]
+                 space top : 0.5
+                 Field        : essJbCurrentLine,essJbCompanyName ;;, essJbAcno2 ;;essJbAcNo,
+                 Right Fields : essJbAcNo, essJbAcno2
+                 space bottom : 0.5
+;;                 Invisible    : NOT $$InPrintMode         
+
+
+	          [Field : essJbCurrentLine]
+
+        	     Info       : "For CREDIT OF "
+        	     width : 25% page
+;;	             FullWidth  : Yes
+        	     Align      : right
+
+
+
+	          [Field : essJbAcNo]
+
+        	      Info      : "A/c No.: "
+	              Width     : 17
+                      Align     : Right
+
+	          [Field : essJbAcNo2]
+        	      set as     : $BankDetails:Ledger:##LedgerName
+	              Width     : 25
+                      Align     : Left
+
+               [Line : essJbCompanyName]
+
+           	      SpaceTop   : 1
+                      Fields     : essJbCompanyName
+                      RightField : Short Prompt, essJbDate
+                      Local      : Field : essJbDate : Set as : " " 
+                      Local      : Field : Short Prompt    : Set as : " " 
+                      Local      : Field : Short Prompt    : Width  : 6
+                      Invisible    : NOT $$InPrintMode         
+                      space bottom : 1
+
+
+                  [Field : essJbCompanyName]
+
+                      Set as : "M/s.   " + $$String:@@CmpMailName
+                      Align  : left
+;;                      FullWidth : Yes
+                      style : normal bold
+                      width : 50% page
+
+
+
+           [Part : essJbTitles]
+
+              Line          : essJbTitles
+              CommonBorder  : Yes
+
+             [Line : essJbTitles]
+
+                Line    : essJbTitle1 ;;, essJbTitle2
+
+
+
+               [Line  : essJbTitle1]
+                
+                  Fields      : essJbSlNoTitle, essJbDSPChequeNoTitle, essJbDSPChequeDateTitle, essJbDSPDraweeBankTitle, essJbDSPBranchTitle
+                  option : essjbpnt : ##ShowPartyName
+                  RightFields : DSP VchDrTitle          
+                  Local       : Field   : DSP VchDrTitle  : INFO  : "Amount"
+;;                  Border      : Double Top
+                  Local       : Field   : DSP VchDrTitle  : Border  : Thin Left
+                       border : column titles
+                  local : field : default : style : normal Bold
+               [Line  : essJbTitle2]
+
+                  RightFields  : DSP VchDrTitle          
+                  Local        : Field :  DSP VchDrTitle : Set as : "Rs.       P."
+                  Border       : Thin Bottom
+                   Local       : Field   : DSP VchDrTitle  : Border  : Thin Left
+
+
+
+              [Field : essJbSlNoTitle]
+
+                 Info  : "Sl no."
+ 		 Width : 3
+                 Border: Thin Right
+                 Align : Centre
+
+
+              [Field : essJbDSPChequeNoTitle]
+
+                 Info  : "Cheque no."
+ 		 Width : 10
+                 Border: Thin Right
+                 Align : Centre
+
+
+              [Field : essJbDSPChequeDateTitle]
+
+                 Info  : "Cheque Date"
+ 		 Width : 10
+                 Border: Thin Right
+                 Align : Centre
+
+
+              [Field : essJbDSPDraweeBankTitle]
+
+                 Info  : "Drawee Bank"
+ 		 Width : 25
+                 Border: Thin Right
+                 Align : Centre
+
+
+              [Field : essJbDSPBranchTitle]
+
+                 Info  : "Branch"
+ 		 Width : 25
+                 Align : Centre
+
+
+[!Line : essjbpnt]
+field : essjbpntitle
+              [Field : essjbPntitle]
+
+                 Info  : "Party Name"
+ 		 Width : 25
+                 Align : Centre
+                 border :thin left
+;;		inactive : ##ShowPartyName
+          [Part : essJbVchDetail]
+
+              Line           : essJbVchDetail
+              Repeat         : essJbVchDetail  :BS PostDated Receipts ;; Vouchers of Ledger
+              Scroll         : Vertical
+              Common Border  : Yes
+              Space Top      : if $$InPrintMode then 0.5 else 0
+              Space Bottom   : if $$InPrintMode then 0.5 else 0
+              Total          : essJbDSPDBDrAmt
+
+[collection : BS PostDated Receipts]
+Type : Vouchers : Ledger
+Child of : ##LedgerName
+Filter : RcptFilter ;;InclPostDatedReceipts, BSDateFilter,
+
+[System : Formula]
+RcptFilter : @@mdemo ;;$Parent:VoucherType:$VoucherTypeName = $$VchTypeReceipt
+InclPostDatedReceipts : $IsPostdated or NOT $IsPostDated
+BSDateFilter: NOT $Date < @@DspFromDate and Not $Date > @@DSPToDate
+BSBankFilter: $$IsBelongsTo:$$GroupBank or $$IsBelongsTo:$$GroupBankOD
+;; {28.Apr.25 12:08} BankLed : $$IsledofGrp:$LedgerName:$$GroupBank or + 
+cwBankLed : $$IsledofGrp:$LedgerName:$$GroupBank or +
+$$IsLedofGrp:$LedgerName:$$GroupBankODAmt : $$Total:BSAmount
+
+             [Line : essJbVchDetail]
+
+                 Fields        : essJbSlNo, essJbDSPChequeNo, essJbDSPChequeDate, essJbDSPDraweeBank, essJbDSPBranch
+		option : essjbpna : ##ShowPartyName
+                 RightFields   : essJbDSPDBDrAmt
+                 Border        : Thin Bottom
+
+
+;;                 Keys          : Delete Line Object, Cancel Line Object, Line Object Display    ;;Enter Alter
+;;                 Local         : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:BackDatedVouchers
+;;                 Local         : Key   : Cancel Line Object : Inactive : NOT $$CanCancel OR NOT $$Allow:Alter:BackDatedVouchers
+                        option : alter on enter
+
+
+               [Field: essJbDSPDBDrAmt]
+
+	            Use         : Amount Field
+	            Set as      : $amount ;;$$AsDrAmt:@@TotalLedDrVchAmt
+	            Style       : Normal
+                    Border      : Thin Left
+
+
+
+	       [Field : essJbSlNo]
+
+                  Set as  : $$Line
+                  Width   : 3
+                  Border  : Thin Right
+                  alter : voucher : $$isvoucher
+                  
+
+
+               [Field : essJbDSPChequeNo]
+
+                  Set as  : if NOT $$IsEmpty:$essJbChequeNo then $essJbChequeNo else ""
+                  Width   : 10
+                  Style   : Normal
+                  Border  : Thin Right
+           
+
+
+               [Field : essJbDSPChequeDate]
+
+                  Set as  : $$String:$essJbChequeDate:ShortDate
+                  Width   : 10
+                  Style   : Normal
+                  Border  : Thin Right
+
+
+               [Field : essJbDSPDraweeBank]
+
+                  Set as  : $essJbDraweeBank
+                  Width   : 25
+                  Style   : Normal
+                  Border  : Thin Right
+
+
+               [Field : essJbDSPBranch]
+
+                  Set as  : $essJbBranch
+                  Width   : 25
+                  Style   : Normal
+
+    [!Line : essjbpna]
+      field : essjbpn
+
+               [Field :  essjbpn]
+                  Set as  : if $PartyLedgerName <> ##ledgername then $partyledgername else @@lname
+;;                  Set as  : $PartyLedgerName
+                  Width   : 25
+                  Style   : Normal
+                  Border  : Thin Left
+;;		inactive : ##ShowPartyName
+
+              [system : formula]
+       lname : $$FilterValue:$ledgername:ledgerEntries:First:nonpartyledger
+       nonpartyledger : $ledgername <> $partyledgername
+
+
+        [Part : essJbTotal]
+
+           Lines    :  essJbAmountInWords, essJbAmount
+;;
+                      SpaceTop : 0.5
+           Border   : Thin Top Bottom
+ 
+
+          [Line : essJbAmountInWords]
+
+              Fields    : essJbAmount, essJbAmountInWords
+              SpaceTop  : 0.5
+
+
+             [Field : essJbAmount]
+
+                 Use       : Amount Field
+                 Set as    : $$Total:essJbDSPDBDrAmt
+                 Invisible : Yes
+                 Border    : Thin Left
+                 style : normal bold
+
+             [Field : essJbAmountInWords]
+
+                 Set as    : $$InWords:#essJbAmount + " " + "only"
+                 FullWidth : Yes
+                 style : normal bold
+
+
+
+           [Line : essJbAmount]
+
+              RightFields : Info Field, DSP VchDrTotalAmt
+              Local       : Field : Info Field : Info  : "Total :"
+              Local       : Field : DSP VchDrTotalAmt  : Set as : #essJbAmount
+              Local       : Field : Info Field : style : normal bold
+
+   
+;;---bottom part Cashier
+
+
+   [Part : essJbCashier]
+
+     Line     : essJbCashier,jb2
+     SpaceTop : 0.5
+     space bottom : 0.5
+
+        [line : jb2]
+           SpaceTop      : 2.0
+
+           right Fields        : name field
+           local : field : name field : set as : "Bank Acknowledgment"
+               Invisible : NOT $$InPrintMode
+
+        [Line : essJbCashier]
+
+           SpaceTop      : 0.5
+ 
+           Fields        : essJbCashier, essJbFolio
+           RightFields   : essJbLedgerKeeper, essJbDepositedby
+
+
+           [Field : essJbCashier]
+
+               Info      : ".................Cashier"
+               Width     : 25% Page
+               Invisible : NOT $$InPrintMode  
+            
+           [Field : essJbFolio]
+
+               Info    : ".................Folio"
+               Width   : 25% Page
+               Invisible : NOT $$InPrintMode  
+
+           [Field : essJbLedgerKeeper]
+
+               Info    : ".................Ledger Keeper"
+               Width   : 25% Page
+               Invisible : NOT $$InPrintMode  
+
+           [Field : essJbDepositedby]
+
+               Info    : "Deposited by................"
+               Width   : 25% Page
+               Align   : Right
+               Invisible : NOT $$InPrintMode  
+
+
+
+
+;;--------------------
+
+
+  [Collection : essJbAddress]
+     Type     : Address  : Ledger
+     Child Of : ##LedgerName
+
+
+  [System : Formula]
+ essJbLedgerAddress  : $address ;;$$CollectionField:$Address:$$line:essJbAddress
+
+
+
+[Button : Party Toggle]
+    key : f1
+ action : set : ShowPartyName : not ##ShowPartyName
+

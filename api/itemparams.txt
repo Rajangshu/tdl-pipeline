@@ -1,0 +1,128 @@
+; Created By: Pg on 2015-12-02 17:58, ID: 
+
+; name,aliasname,partno,puom,suom,sgroup,scategory,ParentofSgroup, conversion,denominator
+
+     [#menu: Gateway of Tally]
+;        add: Option: ItemParamsLock ;; : @@ItemParamsDemoLock
+       
+
+ ;    [#menu : cw_Debug_menu]
+ ;       add: Item: before: @@locQuit: @@ItemParamsReport: Display: RepItemParams
+
+
+
+     [!menu: ItemParamsLock]
+        add: Item: before: @@locQuit: @@ItemParamsReport: Display: RepItemParams
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ItemParamsReport: "ItemParams"
+;; ItemParamsDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepItemParams]
+        use: Dsp Template
+      Title: @@ItemParamsReport
+   Printset: Report Title: @@ItemParamsReport
+       Form: FrmItemParams
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable : stockitemname
+    set : stockitemname : "Gino - Seasoning Powder - Ginger & Garlic 200 x 5 Gms (Sachet) - Nigeria"
+
+     
+      [Form: FrmItemParams]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0ItemParams,PrtItemParams
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: ItemParamsbotbrk,ItemParamsbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: ItemParamsbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ItemParamsbotopbrk]
+        use: dspacctitles
+  add: part: ItemParamsTitlePart
+
+      [part: ItemParamsTitlePart]
+       line: LnItemParamsTitle
+       
+      [line: LnItemParamsCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf: Set As: ##stockitemname
+  invisible: $$inprintmode
+
+      [part: PrtTitle0ItemParams]
+      line : LnItemParamsCurrPeriod
+      
+      [Part: PrtItemParams]
+       Line: LnItemParamsTitle,LnItemParams
+bottom Line: LnItemParamsTotals
+     repeat: LnItemParams : ColItemParams
+;; {02.Dec.15 18:54}      set : 1
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColItemParams]
+        Use: stockitem
+     Filter: ColItemParamsFilter
+
+    [system: Formula]
+ColItemParamsFilter: $name = ##stockitemname
+
+      [Line: LnItemParamsTitle]
+        use: LnItemParams
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LnItemParams]
+
+          ;explev,name,aliasname,partno,puom,suom,sgroup,scategory,ParentofSgroup, conversion,denominator
+  field : numf,d1,nf,d2,nf2,d3,nf3,d4,nf4,d5,nf6,d6,nf7,d7,nf8,d8,numf2,d9,numf3
+  
+  Local: Field: numf: Set As: $$explodelevel
+  Local: Field: nf: Set As: $name
+  Local: Field: nf2: Set As: $$collectionfield:$name:2:name
+  Local: Field: nf3: Set As: $mailingname
+  Local: Field: nf4: Set As: $baseunits
+  Local: Field: nf5: Set As: if not $$issysname:$additionalunits then $additionalunits else ""
+  Local: Field: nf6: Set As: $parent
+  Local: Field: nf7: Set As: $category
+  Local: Field: nf8: Set As: $grandparent
+  Local: Field: numf2: Set As: $denominator
+  Local: Field: numf3: Set As: $conversion
+  
+  
+
+      [line: LnItemParamsTotals]
+        use: LnItemParams
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

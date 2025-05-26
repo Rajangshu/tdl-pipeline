@@ -1,0 +1,111 @@
+; Created By: Akshay on 2014-12-19 12:08, ID: 
+
+[System: UDF]
+enablebatchmrp :logical:17002
+cwmrp :string:17003
+
+[System: Formula]
+enablebatchmrp: $enablebatchmrp:COMPANY:##SVCURRENTCOMPANY
+
+[#Form: Company Operations]
+                Switch   : BATCHMRPLowerRel  : BATCHMRPNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : BATCHMRPCurrenRel : BATCHMRPFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : BATCHMRPNotFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End :LNCMPENABLEBATCHMRP
+
+[!Form : BATCHMRPFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  :LNCMPENABLEBATCHMRP
+local : line : cwTestConfig : local : field : short name field : tool tip: "Double-Click for browsing to CircuitWorld.in"
+
+[Line: LNCMPENABLEBATCHMRP]
+field:long prompt,batchmrpConfig
+Local: Field:long prompt : info: "Enable Batch Wise MRP ?"
+
+
+[Field: batchmrpConfig]
+Use: logical field
+Set As: $enablebatchmrp
+storage: enablebatchmrp
+inactive:@@BatchAllocBreak
+
+
+
+
+[#Line:vchbatchColumnOne]
+add:option:batchColumnOnemrp1:@@enablebatchmrp
+[!Line:batchColumnOnemrp1 ]
+add:right fields :before:VCH RateTitle:short name field
+Local: Field: short name field: info: "MRP"
+Local: field: short name field: Width:8
+Local: field: short name field: Align: Right ;;centre
+
+[#Line:vchbatchColumntwo]
+add:option:batchColumnOnemrp2:@@enablebatchmrp
+[!Line:batchColumnOnemrp2 ]
+add:right fields :before:VCH RateTitle:short name field
+Local: Field: short name field: info: ""
+Local: field: short name field: Width:8
+
+
+[#Line: STKVCH Batch2]
+add:option:batchmrpBatch2:@@enablebatchmrp
+[!Line:batchmrpBatch2 ]
+add:right fields :before:VCHBATCH Rate:fldbatcmrp
+
+
+[field:fldbatcmrp]
+use:short name field
+storage :cwmrp
+Width:8
+Align: Right
+setas:if $$isempty:@@cwtabmrp then $$value else @@cwtabmrp
+ Inactive    : @@BatchAllocBreak
+
+[System: Formula]
+cwtabmrp:$$table:VCHBATCHName:$cwmrp
+
+
+[#Line: STKVCH BatchTotal]
+add:option:BatchmrpTotal:@@enablebatchmrp
+[!Line:BatchmrpTotal ]
+add:right fields :before:VCH RateTitle:short name field
+Local: Field: short name field: info: ""
+Local: field: short name field: Width:8
+Local: Field: short name field: Border:totals
+
+[#Collection: ActiveBatchesVchExtract]
+add:option:mrpActiveBatchesVchExtract:@@enablebatchmrp
+[!Collection:mrpActiveBatchesVchExtract ]
+    Title       		: $$LocaleString:"List of Active Batches"
+	SubTitle            : $$LocaleString:"Name", @@ExpirySubTitle, $$LocaleString:"Balance" ,$$LocaleString:"MRP"
+	
+	Parm Var			: pvStockItemName	: String : $StockItemName
+	Source Collection	: Batches VchSrc
+  	Fetch				: Name, Parent, ExpiryPeriod, ActualQty, ClosingBalance, GodownName, ClosingAsondate, MfdOn,cwmrp
+    Format      		: $Name, 10
+    Format      		: $ExpiryPeriod, 8 : Month Ending
+	Format				: $ClosingAsondate,8   : "Base"
+	Format				: $cwmrp,8
+	Filter      		: BelongsToSVGodown
+	Keep Source			: ....
+	Client Only			: Yes
+	
+	
+[#Form: NRM StkSum]
+add:option:NRMStkSummrp:@@enablebatchmrp
+[!Form:NRMStkSummrp ]
+local:part:SSITEM Explosion:local:line: DSP AccLine:local:field:SSBatchName:add:field:after:SSGodown:cwssmrp
+local:part:SSITEM Explosion:local:line: DSP AccLine:local:field:SSBatchName:local:field:cwssmrp:setas:$cwmrp
+
+[field:cwssmrp]
+use:snfx
+
+[#Collection: BatchChildOfOwner]
+;; {22.Dec.14 12:18} Compute	: cwmrp1: $cwmrp
+fetch:cwmrp
+	
+	
+
+

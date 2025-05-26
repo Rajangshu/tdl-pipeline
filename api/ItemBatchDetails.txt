@@ -1,0 +1,161 @@
+; Created By: Pg on 2014-11-22 12:05, ID: 
+
+     [#menu: Gateway of Tally]
+;; {22.Nov.14 13:09}         add: Option: ItemBatchDetailsLock ;; : @@ItemBatchDetailsDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ItemBatchDetailsReport: Display: RepItemBatchDetails
+
+
+
+     [!menu: ItemBatchDetailsLock]
+        add: Item: before: @@locQuit: @@ItemBatchDetailsReport: Display: RepItemBatchDetails
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ItemBatchDetailsReport: "Item Batch Details"
+;; ItemBatchDetailsDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepItemBatchDetails]
+        use: Dsp Template
+      Title: @@ItemBatchDetailsReport
+   Printset: Report Title: @@ItemBatchDetailsReport
+       Form: FrmItemBatchDetails
+     Export: Yes
+;; {22.Nov.14 12:05}      set  : svfromdate : ##svcurrentdate
+;; {22.Nov.14 12:05}      set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+   variable : stockitemname,IsStockReport,IsItemReport
+   set : IsStockReport : yes
+   set : IsItemReport : yes
+;; {22.Nov.14 12:27}    set : stockitemname : "ADANI PORTS AND SPECIAL ECONOMIC ZONE LTD."
+
+      [Form: FrmItemBatchDetails]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0ItemBatchDetails,PrtItemBatchDetails
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: ItemBatchDetailsbotbrk,ItemBatchDetailsbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+button : change item,cwSS
+
+[button : cwss]
+key : alt + s
+title : "Stk Summary"
+action : display : stock summary
+
+      [part: ItemBatchDetailsbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ItemBatchDetailsbotopbrk]
+        use: dspacctitles
+  add: part: ItemBatchDetailsTitlePart
+
+      [part: ItemBatchDetailsTitlePart]
+       line: LnItemBatchDetailsTitle
+       
+      [line: LnItemBatchDetailsCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0ItemBatchDetails]
+      line : LnItemBatchDetailsCurrPeriod
+      
+      [Part: PrtItemBatchDetails]
+       Line: LnItemBatchDetailsTitle,LnItemBatchDetails
+bottom Line: LnItemBatchDetailsTotals
+     repeat: LnItemBatchDetails: ColItemBatchDetails
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColItemBatchDetails]
+type : batch
+child of : ##stockitemname
+fetch : *.*
+fetch : closingbalance,closingvalue
+
+
+      [Line: LnItemBatchDetailsTitle]
+        use: LnItemBatchDetails
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+      Local: Field: nf2: Set As:""
+      Local: Field: nf3: Set As:""
+      Local: Field: nf4: Set As:""
+      Local: Field: nf5: Set As:""
+      Local: Field: nf6: Set As:""
+      Local: Field: nf7: Set As:""
+      Local: Field: numf: Set As:""
+      Local: Field: numf: Set As:""
+      Local: Field: numf3: Set As:""
+      Local: Field: numf4: Set As:""
+      
+
+      [Line: LnItemBatchDetails]
+     Fields: nf,d1,nf2,d7,nf3,d8,nf4,d9,
+right field: Qtyf,d2,ratepf,d3,Amtf,d4,snf,d5,sdf,d6,sdf2,d10,numf,d11,numf2,d12,nf5,d13,nf6,d14,nf7
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: ratepf : setas  : #amtf/#qtyf
+
+Local: Field: nf :  Set As: $name
+Local: Field: nf2: Set As:  $parent
+Local: Field: nf3: Set As: $baseunits ;;  :stockitem:$parent
+Local: Field: nf4: Set As: @@extraInProjectstr1 ;; to be set in project
+Local: Field: qtyf: Set As: $closingbalance
+Local: Field: amtf: Set As: $closingvalue
+Local: Field: sdf:  Set As: $mfdon
+Local: Field: sdf2: Set As: $expiryperiod
+Local: Field: numf: Set As: @@extraInProjectNum1 ;; to be set in project
+Local: Field: numf2: Set As: @@extraInProjectNum2 ;; to be set in project
+
+Local: Field: nf5: Set As: @@extraInProjectstr4
+Local: Field: nf6: Set As: @@extraInProjectstr3
+
+Local: Field: nf7: Set As: @@extraInProjectstr2 ;; to be set in project
+
+option : exee : $$inexportmode
+
+[Function: logobj1]
+10 : log object
+
+[!line : exee]
+local : field : nf : width : 100
+local : field : nf : max : 100
+local : field : nf2 : width : 100
+local : field : nf2 : max : 100
+
+local : field : nf4 : width : 100
+local : field : nf4 : max : 100
+
+      [line: LnItemBatchDetailsTotals]
+        use: LnItemBatchDetails
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

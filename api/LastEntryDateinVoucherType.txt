@@ -1,0 +1,38 @@
+; Created By: pg on 2012-07-05 11:22
+
+[#report : Statistics]
+local : collection: STATVchType : sort : @@default : $cwBranchName1
+
+[#Part: STATVchType]
+add : line: before : STATDetail : Branch1
+
+[line : Branch1]
+use :myNextBranch
+Local: Field: snf: Set As: $$collectionfield:$cwbranchName1:first:STATVchType
+
+[#line : StatDetail]
+local : field : STATValue : add : field : at beginning : sdf
+Local: Field: sdf: Set As: if $StatVal = 0 then "" else $$collectionfield:$date:1:cwVTypeColl
+explode: myNextBranch : Not ##StatSortFlag and $$nextobj:$cwBranchName1 <> $cwBranchName1
+
+[part : myNextBranch]
+line : myNextBranch
+
+[line : myNextBranch]
+field : snf
+Local : Field: snf: Set As: $$nextobj:$cwBranchName1
+Local: Field: snf: Style: Normal Bold
+Local: Field: snf: Color : blue
+space top : 1
+Local: field: snf: Width: 0
+Local: Field: snf: Border: thinbottom
+
+
+[collection: cwVTypeColl]
+type : vouchers : voucher type
+child of : $name
+sort : @@default : $date
+
+
+[#Line: StatVchTotal]
+local : field : STATVchTotal : add : field : at beginning : sdf

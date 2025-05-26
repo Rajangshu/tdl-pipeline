@@ -1,0 +1,4 @@
+
+;; report : server vouchers, will give vocuhers of specified voucher type
+;; report :  pgMasterList : will give master name list for a type
+

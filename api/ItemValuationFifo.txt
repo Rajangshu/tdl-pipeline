@@ -1,0 +1,5 @@
+
+[system :formula]
+     GetCost : "FIFO"
+
+[include : itemfifo.txt]

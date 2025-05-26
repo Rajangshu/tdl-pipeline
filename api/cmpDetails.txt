@@ -1,0 +1,259 @@
+     [#menu: Gateway of Tally]
+;; {28.Oct.15 10:29}         add: Option: CmpDetailsLock  :@@cwdebug ;;
+;;         @@CmpDetailsDemoLock
+       
+     [!menu: CmpDetailsLock]
+        add: Item: before: @@locQuit: @@CmpDetailsReport: Display: RepCmpDetails
+        add: Item: before: @@locQuit: Blank
+        add: Item: before: @@locQuit: @@StatisticsReport: Display: RepVCHStatistics
+        
+    [System: formula]
+   CmpDetailsReport: "CmpDetails"
+ CmpDetailsDemoLock: $$MachineDate < $$Date:"02/10/2010"
+     
+    [Report: RepCmpDetails]
+        use: Dsp Template
+      Title: @@CmpDetailsReport
+   Printset: Report Title: @@CmpDetailsReport
+       Form: FrmCmpDetails
+     Export: Yes
+;;     set  : svfromdate : ##svcurrentdate
+;;     set  : svTodate : ##svcurrentdate
+local : collection : EATAllMasters : sort : @@default : -$Masterid
+
+      [Form: FrmCmpDetails]
+        use: DSP Template
+       Part: DspAccTitles,PrtCmpDetails
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: CmpDetailsbotbrk,CmpDetailsbotOpbrk
+
+      [part: CmpDetailsbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: CmpDetailsbotopbrk]
+        use: dspacctitles
+  add: part: CmpDetailsTitlePart
+
+      [part: CmpDetailsTitlePart]
+       line: LnCmpDetailsTitle
+  
+      [Part: PrtCmpDetails]
+       Line: LnCmpDetails
+     repeat: LnCmpDetails: ColCmpDetails
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColCmpDetails]
+     use : list of companies
+;;     Filter: ColCmpDetailsFilter
+
+    [system: Formula]
+ColCmpDetailsFilter: $name = ##svcurrentcompany
+
+
+      [Line: LnCmpDetails]
+     Fields: fwf,d1,fwf2,d2,sdf,d3,nf,d4,nf2,d5,sdf2,d6,numf2,d7,numf3,d8,numf4
+Local: Field: fwf   : Set As: $name
+Local: Field: fwf2  : Set As: $guid
+Local: Field: sdf   : Set As: $BooksFrom
+Local: Field: nf    : Set As: $CmpVchID
+Local: Field: nf2   : Set As: $altvchid
+Local: Field: sdf2  : Set As: $LastVoucherDate
+Local: Field: numf2 : Set As: $$collectionfield:$masterid:first:EATAllMasters
+Local: Field: numf3 : Set As: $$collectionfield:$alterid:first:EATAllMasters
+Local: Field: numf4 : Set As: @@cwXMasterId ;; defined in locally
+;;local : field : numf3 : border : Thin box
+
+;;local : field : default : border : thin box
+
+empty : not @@ColCmpDetailsFilter
+local : field : fwf : width : 70
+local : field : fwf2 : width : 70
+local : field : fwf : max : 70
+local : field : fwf2 : max : 70
+
+;-------------------------- Company Statistics
+;getcompanyVchStatistics
+
+
+
+
+     [#menu: Gateway of Tally]
+;;        add: Option: StatisticsLock: @@cwdebug
+       
+     [!menu: StatisticsLock]
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   StatisticsReport: "Statistics"
+;; StatisticsDemoLock: $$MachineDate < $$Date:"02-10-2012"
+     
+    [Report: RepVchStatistics]
+    use : RepVchStatisticsAll
+    local : collection :  STATVchType : filter : cwvhasvalue
+    
+    [System: Formula]
+    cwvhasvalue : not $$isempty:$StatVal
+     
+    [Report: RepVchStatisticsAll]
+        use: Dsp Template
+      Title: @@StatisticsReport
+   Printset: Report Title: @@StatisticsReport
+       Form: FrmStatistics
+     Export: Yes
+;;     set  : svfromdate : ##svcurrentdate
+;;     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmStatistics]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0Statistics,PrtStatistics
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: Statisticsbotbrk,StatisticsbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: StatisticsbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: Statisticsbotopbrk]
+        use: dspacctitles
+  add: part: StatisticsTitlePart
+
+      [part: StatisticsTitlePart]
+       line: LnStatisticsTitle
+       
+      [line: LnStatisticsCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0Statistics]
+      line : LnStatisticsCurrPeriod
+      
+      [Part: PrtStatistics]
+       Line: LnStatisticsTitle,LnStatistics
+bottom Line: LnStatisticsTotals
+     repeat: LnStatistics: STATVchType
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+
+      [Line: LnStatisticsTitle]
+        use: LnStatistics
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LnStatistics]
+field : nf,d1,numf
+Local: Field: nf: Set As: $$name
+Local: Field: numf: Set As: $StatVal
+Local: field: nf: Width: 100
+local: Field: nf: max: 100
+
+      [line: LnStatisticsTotals]
+        use: LnStatistics
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: amtf : set as :  $$total:amtf
+
+;-------------------- Get Altered Masters
+
+
+
+
+     [#menu: Gateway of Tally]
+;;        add: Option: AlteredMastersLock: @@cwdebug ;;AlteredMastersDemoLock
+       
+     [!menu: AlteredMastersLock]
+        add: Item: before: @@locQuit: @@AlteredMastersReport: Display: RepAlteredMasters
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   AlteredMastersReport: "Altered Masters"
+;; AlteredMastersDemoLock: $$MachineDate < $$Date:"02-10-2012"
+     
+    [Report: RepAlteredMasters]
+        use: Dsp Template
+      Title: @@AlteredMastersReport
+   Printset: Report Title: @@AlteredMastersReport
+       Form: FrmAlteredMasters
+     Export: Yes
+;;     set  : svfromdate : ##svcurrentdate
+;;     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+variable : accounttype,sdf1
+;;set : accounttype :"Ledgers"
+;;set : accounttype :"groups"
+;;set : accounttype :"stockitems"
+;;set : accounttype :"units"
+;;set : accounttype :"stockgroups"
+;;set : accounttype :"stockcategories"
+
+  local : collection : default : filter : isinAlter
+;;  set : sdf1 : $$machinedate
+  
+      [Form: FrmAlteredMasters]
+        use: DSP Template
+       Part: PrtAlteredMasters
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: AlteredMastersbotbrk,AlteredMastersbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+
+      [Part: PrtAlteredMasters]
+local : line : AccType Detail : full object : yes
+        Lines           : AccType Detail
+;;        Bottom Lines    : AccType NumItems
+;;        Common Border   : Yes
+;;		Default Line	: $MasterID = ##DSPCursorPosition
+scroll : vertical
+	    Switch  : RepAccType    : AT Groups         : $$IsSysNameEqual:Groups:##AccountType
+		Switch  : RepAccType    : AT Ledgerscw      : $$IsSysNameEqual:Ledgers:##AccountType
+		Switch  : RepAccType    : AT StockItemscw     : $$IsSysNameEqual:StockItems:##AccountType
+;;		Switch  : RepAccType    : AT Currencies     : $$IsSysNameEqual:Currencies:##AccountType
+		Switch  : RepAccType    : AT Units          : $$IsSysNameEqual:Units:##AccountType
+		
+		Switch  : RepAccType    : AT StockGroups    : $$IsSysNameEqual:StockGroups:##AccountType
+		Switch  : RepAccType    : AT StockCategories: $$IsSysNameEqual:StockCategories:##AccountType
+		
+[System: Formula]
+isinAlter : if $$isempty:##sdf1 then yes else $alteredon >= ##sdf1
+		
+[!part: AT Ledgerscw]
+repeat :  AccType Detail : ledger
+		
+
+[!part: AT StockItemscw]
+repeat :  AccType Detail : stock item
+		
+

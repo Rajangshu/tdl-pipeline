@@ -1,0 +1,41 @@
+;;[#MENU : GATEWAY OF TALLY]
+;;ADD : ITEM : AT END : A1 : DISPLAY : REPCOMP
+    [Report: RepComp]
+        use: Dsp Template
+      Title: @@CompReport
+   Printset: Report Title: @@CompReport
+       Form: FrmComp
+     Export: Yes
+       
+      [Form: FrmComp]
+        use: DSP Template
+       Part: DspAccTitles,PrtComp
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+ 
+      [Part: PrtComp]
+       Line: LnComp
+     scroll: Vertical
+ Common Border : YEs
+
+      [Line: LnComp]
+     Fields:NF,DLR,NF2,DLR2,NF3,DLR3,NF4,DLR4,NF5,DLR5,NF6,DLR6,NF7,DLR7,NF8,DLR8,NF9,DLR9,NF10,DLR10,SNF,DLR11,SNF2
+ local : Field : NF : set as : @@CMPMAILNAME
+ local : Field : NF2 : set as : $$CollectionField:$ADDRESS:1:COMPANYADDRESS
+ local : Field : NF3 : set as : $$CollectionField:$ADDRESS:2:COMPANYADDRESS
+ local : Field : NF4 : set as : $$CollectionField:$ADDRESS:3:COMPANYADDRESS
+ local : Field : NF5 : set as : $$CollectionField:$ADDRESS:4:COMPANYADDRESS
+ local : Field : NF6 : set as : $$CollectionField:$ADDRESS:5:COMPANYADDRESS
+ local : Field : NF7 : set as : $$CollectionField:$ADDRESS:6:COMPANYADDRESS
+ local : Field : NF8 : set as : @@cwCmpPhone
+ local : Field : NF9 : set as : ""
+ local : Field : NF10 : set as : @@cwCmpEmail
+ local : Field : SNF : set as : @@cwStartPeriod
+ local : Field : SNF2 : set as : @@cwEndPeriod
+ local : field : default : width : 50
+
+     
+     
+
+

@@ -1,0 +1,6 @@
+;; BasicShippedBy
+;;[#Line: EI PreCarriage]
+;;local : field : medium prompt : set as : "Transport:"
+
+            [#Line: EI ShipDetails]
+                Local       : Field : Medium Prompt : Info : $$LocaleString:"LR No :"

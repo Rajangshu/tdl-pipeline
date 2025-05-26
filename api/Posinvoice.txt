@@ -1,0 +1,266 @@
+
+[#Form: POS Invoice PRint]
+   add : option : FairOpt : @@FairSales
+   
+[#form : Simple Printedinvoice]
+   add : option : FairOpt : @@FairSales
+
+[!form : FairOpt]
+Delete : Part
+Delete : Bottom Part
+Delete : Page Break
+   add : Top part : FairTopPart
+   add : Part : FairInvACCPart
+   Add : bottom Part :  FairBottomPart
+   add : page Break : FairCLBreak, FairOPBreak
+space top: 0.5 Inch ;;@@invsmpspace inch
+height : 5.30 inch ;; @@invsmpheight inch
+Width : 8 inch
+
+ [Part : FairCLBreak]
+   use : FairBottomPart
+
+ [Part : FairOpBreak]
+  part : FairTopPart
+
+ [part : FairTopPart]                                                                   ;;ContactPhone
+  line : fairTitle,fairbillname,fairbilldate,fairchallanno,fairchallandate,cwContactPer,cwblankline,cwblankline2,cwblankline3
+
+
+  [line: fairTitle]
+  field : snf,fwfc
+  right field : snf2
+;;  Local: Field: fwfc : Set As: if $$issysname:$POSGIFTLEDGER then @@SaleTitle else "Credit Memo"
+  Local: Field: fwfc : style : normal bold
+  Local: Field: fwfc : border : Thin Bottom
+  Local: Field: snf : Set As: "To,"
+local:field:fwfc:set as :@@saletitle
+
+  [line: fairbillname]
+  field : fwf
+  right field : snf,snf2
+  local : field : snf : align : prompt
+  local : field : snf : width : @@shortwidth + 2
+  Local : Field : fwf : Set As: @@cwPOSNormalPartyNAme
+  Local : Field : fwf : style : normal bold
+  Local: Field: snf : Set As: "Bill No.:"
+  Local: Field: snf2 : Set As: $VoucherNumber
+  Local: Field: snf : align : prompt
+  Local: Field: snf2 : style : normal bold
+  
+  [line: fairbilldate]
+  use : fairbillname
+  Local: Field: fwf : Set As: if $$isempty:@@cwBuyerAddress1 then @@cwConsigneeAddress1 else @@cwBuyerAddress1
+  Local: Field: snf : Set As: "Bill Date:"
+  Local: Field: snf2 : Set As: @@CWiNVSHORTDATE
+  Local : Field : fwf : style : normal
+  
+  [line: fairchallanno]
+  use : fairbillname
+  Local: Field: fwf : Set As: @@cwBuyerAddress2
+  Local: Field: snf : Set As: "Challan No:"
+  Local: Field: snf2 : Set As: @@cwdelnoteno
+  Local : Field : fwf : style : normal
+
+  [line: fairchallandate]
+  use : fairbillname
+  Local: Field: fwf : Set As: @@cwBuyerAddress3
+  Local: Field: snf : Set As: "Challan Dt:"
+  Local: Field: snf2 : Set As: @@cwdelnoteDate
+  Local : Field : fwf : style : normal
+
+[line: cwContactPer]
+use : fairbillname
+  Local: Field: fwf : Set As: if $cwcontact = "" then "" else "Contact Person: "+ $cwcontact
+  Local: Field: snf : Set As: "Phone:"
+  Local: Field: snf2 : Set As: $cwPhone
+  Local : Field : fwf : style : normal bold
+
+;;[line: ContactPhone]
+
+ [part : FairINVACCPart]
+Parts       : FairInvPart, FairAccPart,FairPymtDetails
+CommonBorder: Yes
+Vertical    : Yes
+Scroll      : Vertical
+Float       : No
+;;Total       :
+
+ [part : FairInvPart]
+  line : FairInvLine,FairInvLineTotal
+repeat : FairInvLine : Inventory Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+
+ [Line : FairInvLine]
+ field : fwf
+right field : snf,qtyf,ratef,amtf
+local : field : fwf : set as : @@invitemname
+;;local : field: snf :set as : $$linenumber
+local : field : qtyf : set as : $billedqty
+local : field : ratef : set as : $rate
+local : field : amtf : set as : $amount
+explode : FairBatchPart : $batchname <> "Primary batch" and $$numitems:batchallocations > 1
+explode : FairBUDPart : $basicuserdescription <> ''
+explode : FairExchangeline : $exchangeitem <> ""
+explode : FairBlankLine
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+
+local : field : amtf : width : 3.9 cm
+local : field : ratef : width : 2.5 cm
+local : field : qtyf : width : 2.3 cm
+local : field : snf : width : 2.5 cm
+local : field : snf : set as : if ($batchname = "Primary batch" or $$numitems:Batchallocations > 1) then "" else $batchname
+
+[part : FairExchangeline]
+line : FairExchangeline
+
+[line: FairExchangeline]
+ use : FairBUDLine
+local : field : fwf : set as : "Under Exchange: "+$exchangeitem
+
+
+[part : FairBlankLine]
+line : cwblankline
+
+[part : FairBatchPart]
+line: FairBUDLine
+;;repeat : FairBUDLine : batchallocations
+local : line: FairBUDLine : local : field : fwf : set as : $$fulllist:batchallocations:$batchname
+local : line: FairBUDLine : local : field : fwf : lines : 0
+
+
+[part : FairBUDPart]
+line: FairBUDLine
+repeat : Fairbudline : basicuserdescription
+
+[line : FairBudLine]
+ use  : FairINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : $basicuserdescription
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : ""
+local : field : snf : set as : ""
+local : field : fwf : indent : 0.25 cm
+
+
+[line : FairInvLineTotal]
+ use  : FairINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : ""
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : $$collamttotal:inventoryentries:$amount
+local : field : amtf : border :thin top
+space bottom : 0.05
+
+
+ [part : FairACCPart]
+  line : FairACCLine
+repeat : FairACCLine : Ledger Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+ [Line : FairACCLine]
+   use : FairINVLine
+;;empty : $ispartyledger ;;$ledgername = $partyledgername
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"NoZero,Percentage"
+local : field : ratef  : set as : $basicrateofinvoicetax
+local : field : snf : set as : ""
+local : field : fwf : set as : if (not $$issysname:$ledgername)  then $ledgername else "" ;;+ " on Rs." +$$string:$VATASSESSABLEVALUE
+local : field : qtyf : set as : ""
+local : field : fwf : indent : 2 cm
+;;local : field : fwf : align : right
+local : field : snf : invisible : yes
+delete : explode
+
+;;		Empty if	: (@@POSCardFilter OR @@POSChqFilter OR @@POSCashFilter OR @@POSGiftFilter) OR $$IsEmpty:$Amount
+empty : ($ispartyledger or @@f1cashO or @@f1bankO or @@f1cardO or @@F1GIFTO) or $$isempty:$amount or $amount = $$reportobject:$amount
+
+
+
+
+		
+  [part : FairBottomPart] ;;cwblankline,cwblankline3
+   line : FairTotLine,cwtotline,cwblankline2
+  
+  [line : FairTotLine]
+    use : FairACCLine
+ delete : empty
+  local : field : ratef  : type :string
+  local : field : ratef  : set as :"Total:"
+  local : field : fwf : set as : @@cwVAtAnalysisSTR
+  local : field : fwf : align : right
+  local : field : fwf : delete : indent
+  local : field : fwf : style : small
+  local : field : ratef  : style : normal bold
+  local : field : amtf  : style : normal bold
+  local : field : amtf : border : thin top
+  local : field : snf : invisible : yes
+  local : field : amtf : set as : @@posinvamt ;;$$reportobject:$amount
+  local : field : amtf : lines : 3
+
+[line :cwtotline]
+field : fwf,nf
+local : field : fwf : set as : $$inwords:@@posinvamt + " only."
+Local: Field: fwf : lines : 2
+
+[part: FairPymtDetails]
+line : PYMTDET,FPCash,fpBank,fpCard,fpGift
+width : 2 inch
+
+[LINE : PYMTDET]
+field : fwfc,snf,fwf2
+LOCAL : FIELD: fwfc : SET AS : "Payment Details"
+local : field : fwfc : border : thin bottom
+empty : not @@isposinvoice
+
+  [line: FPCash]
+  field : nf
+  right field : amtf,fwf2
+  Local: Field: nf : Set As: $POSCASHLEDGER
+  local : field : amtf : set as : $$filteramttotal:ledgerentries:f1cash:$amount
+  empty : $$issysname:$POSCASHLEDGER or ($$isempty:$$filteramttotal:ledgerentries:f1cash:$amount) or not @@isposinvoice
+
+  [System : Formula]
+  f1cash : $ledgername = $$owner:$POSCASHLEDGER
+  f1bank : $ledgername = $$owner:$POSCHEQUELEDGER
+  f1card : $ledgername = $$owner:$POSCARDLEDGER
+  F1GIFT : $ledgername = $$owner:$POSGIFTLEDGER
+
+  f1cashO : $ledgername = $$owner:$POSCASHLEDGER
+  f1bankO : $ledgername = $$owner:$POSCHEQUELEDGER
+  f1cardO : $ledgername = $$owner:$POSCARDLEDGER
+  F1GIFTO : $ledgername = $$owner:$POSGIFTLEDGER
+  notnormal : not ( @@f1cashO or @@f1bankO or @@f1cardO or @@F1GIFTO)
+posinvamt :  if @@isposinvoice then $$CollAmtTotal:InventoryEntries:$Amount + $$filteramttotal:ledgerentries:notnormal:$amount else $amount
+  [line: fpBank]
+  use : fpCash
+  Local: Field: nf : Set As: if $POSCHEQUENUMBER = "" then $POSCHEQUEBANKNAME else "Chq No: "+$POSCHEQUENUMBER  ;;$POSCHEQUELEDGER
+  local : field : amtf : set as : $$filteramttotal:ledgerentries:f1bank:$amount
+;;  add : field : snf
+;;  local : field : snf : set as  : if $POSCHEQUENUMBER = "" then "" else "Chq No: "+$POSCHEQUENUMBER
+  empty : $$issysname:$POSCHEQUELEDGER or $$isempty:$$filteramttotal:ledgerentries:f1bank:$amount  or not @@isposinvoice
+  
+  [line: fpCard]
+  use : fpCash
+  Local: Field: nf : Set As: "Card Payment:"
+  local : field : amtf : set as : $$filteramttotal:ledgerentries:f1cARD:$amount
+  empty : $$issysname:$POSCARDLEDGER or $$isempty:$$filteramttotal:ledgerentries:f1cARD:$amount  or not @@isposinvoice
+  
+  [line: fpGift]
+  use : fpCash
+  Local: Field: nf : Set As: $POSGIFTLEDGER
+  local : field : amtf : set as : $$filteramttotal:ledgerentries:f1GIFT:$amount
+  empty : $$issysname:$POSGIFTLEDGER or $$isempty:$$filteramttotal:ledgerentries:f1GIFT:$amount  or not @@isposinvoice

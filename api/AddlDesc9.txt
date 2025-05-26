@@ -1,0 +1,15 @@
+
+[#Part: ICFG Common]
+local : line : ICFGLedAddlDesc : delete : invisible
+
+[#Line: EIAccInfo]
+Explode     : EI DescExplosion : NOT $$IsEmpty:$LedgerName AND ##ICFGLedAddlDesc AND NOT $$IsEmpty:$BasicUserDescription
+
+[#Field: EI AccDesc]
+    SubForm     : EI LedDescExplosion   	: ##ICFGLedAddlDesc AND  +
+	                                         	  NOT $$IsSysName:$$Value AND NOT $$IsExploded:EIDescExplosion AND @@IsInvoice
+;;border : thin box
+
+
+
+

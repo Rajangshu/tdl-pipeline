@@ -1,0 +1,8 @@
+;;[System : Formula]
+;;cwDiscUnlockCondition :
+
+
+[#Field: VCHBATCH Discount]
+    Skip On     : if @@cwDiscUnlockCondition then no else $$Line > 1 OR $$IsEmpty:$BilledQty OR (NOT @@DoEditAll AND $$IsValidPriceLevel:$PriceLevel AND NOT $$IsEmpty:@@StdVchRate)
+
+

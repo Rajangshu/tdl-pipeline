@@ -1,0 +1,126 @@
+;; Sri Ganeshji : Sri Balaji : Sri Pitreshwarji : Sri Durgaji : Sri Venkateshwara
+
+/*
+Objective(s) -
+-	This code demonstrates the usage of System Functions
+
+Syntax -
+-	$$SysInfo:<Parameter>
+	where Parameter can be ApplicationPath, CurrentPath, SystemDate, SystemTime,
+	SystemTimeHMS, SystemName, IsWindows, WindowsVersion, WindowsUser, IPAddress,
+	MACAddress
+-	Various System related information is clubbed into single function 'SysInfo'
+
+Last Modification -
+-	Altered on 23-01-2010
+*/
+
+[Function: SMP System Functions]
+
+	Local Formula	: SysInfo Machine Date	: $$SysInfo:SystemDate
+	Local Formula	: SysInfo Is Windows	: $$SysInfo:IsWindows
+
+	00	: SET FILE LOG ON
+	05	: LOG	: "Application Path	: " + $$SysInfo:ApplicationPath	;; Returns Application Path i.e., Tally EXE Path
+	10	: LOG	: "Current Data Path: " + $$SysInfo:CurrentPath ;; Returns Data Path as set in the Tally.INI
+	20	: LOG	: "System Date 		: " + $$String:@SysInfoMachineDate ;; Returns Machine Date
+	25	: LOG	: "System Time		: " + $$SysInfo:SystemTime ;; Returns Machine Time
+	26	: LOG	: "System Time (HMS): " + $$SysInfo:SystemTimeHMS ;; Returns Machine Time in Hours, Minutes, Seconds Format
+	30	: LOG	: "System Name		: " + $$SysInfo:SystemName ;; Returns Machine Name
+	40	: LOG	: "Is Windows		: " + $$String:@SysInfoIsWindows ;; Returns True if Operating System is Windows
+	50	: LOG	: "Windows Version	: " + $$SysInfo:WindowsVersion ;; Returns current Windows Version with Build info
+	60	: LOG	: "Windows User		: " + $$SysInfo:WindowsUser ;; Returns user name logged in Windows Session
+	70	: LOG	: "IP Address		: " + $$SysInfo:IPAddress ;; Returns Network IPAddress
+	80	: LOG	: "Mac Address		: " + $$SysInfo:MacAddress ;; Returns Network Adapter's Media Access Control Address
+	85	: SET FILE LOG OFF
+	90	: EXEC COMMAND	: "TDLFunc.Log"
+
+[Report: SMP System Functions]
+
+	Form	: SMP System Functions
+	Title	: "System Functions"
+
+[Form: SMP System Functions]
+
+	Parts	: Form SubTitle, SMP System Functions
+	Local	: Field	: Form SubTitle	: Info	: "System Information"
+	Width	: 60% Page
+
+[Part: SMP System Functions]
+
+	Lines	: SMP App Path, SMP Curr Path, SMP Sys Date, SMP Sys Time, SMP Sys Time HMS
+	Lines	: SMP Sys Name, SMP Is Windows, SMP Win Version, SMP Windows User
+	Lines	: SMP IP Address, SMP Mac Address
+
+	[Line: SMP App Path]
+
+		Fields	: Medium Prompt, SMP System Functions
+		Local	: Field	: Medium Prompt			: Set As	: "Application Path :"
+
+		[Field: SMP System Functions]
+
+			Use			: Name Field
+			Set As		: $$SysInfo:ApplicationPath
+			FullWidth	: Yes
+
+	[Line: SMP Curr Path]
+
+		Fields	: Medium Prompt, SMP System Functions
+		Local	: Field	: Medium Prompt			: Set As	: "Current Data Path :"
+		Local	: Field	: SMP System Functions	: Set As	: $$SysInfo:CurrentPath
+
+	[Line: SMP Sys Date]
+
+		Fields	: Medium Prompt, SMP System Functions
+		Local	: Field	: Medium Prompt			: Set As	: "System Date :"
+		Local	: Field	: SMP System Functions	: Set As	: $$SysInfo:SystemDate
+
+	[Line: SMP Sys Time]
+
+		Fields	: Medium Prompt, SMP System Functions
+		Local	: Field	: Medium Prompt			: Set As	: "System Time :"
+		Local	: Field	: SMP System Functions	: Set As	: $$SysInfo:SystemTime
+
+	[Line: SMP Sys Time HMS]
+
+		Fields	: Medium Prompt, SMP System Functions
+		Local	: Field	: Medium Prompt			: Set As	: "System Time (HMS):"
+		Local	: Field	: SMP System Functions	: Set As	: $$SysInfo:SystemTimeHMS
+
+	[Line: SMP Sys Name]
+
+		Fields	: Medium Prompt, SMP System Functions
+		Local	: Field	: Medium Prompt			: Set As	: "System Name :"
+		Local	: Field	: SMP System Functions	: Set As	: $$SysInfo:SystemName
+
+	[Line: SMP Is Windows]
+
+		Fields	: Medium Prompt, SMP System Functions
+		Local	: Field	: Medium Prompt			: Set As	: "Is Windows :"
+		Local	: Field	: SMP System Functions	: Set As	: $$SysInfo:IsWindows
+
+	[Line: SMP Win Version]
+
+		Fields	: Medium Prompt, SMP System Functions
+		Local	: Field	: Medium Prompt			: Set As	: "Windows Ver :"
+		Local	: Field	: SMP System Functions	: Set As	: $$SysInfo:WindowsVersion
+
+	[Line: SMP Windows User]
+
+		Fields	: Medium Prompt, SMP System Functions
+		Local	: Field	: Medium Prompt			: Set As	: "Windows User :"
+		Local	: Field	: SMP System Functions	: Set As	: $$SysInfo:WindowsUser
+
+	[Line: SMP IP Address]
+
+		Fields	: Medium Prompt, SMP System Functions
+		Local	: Field	: Medium Prompt			: Set As	: "IP Address :"
+		Local	: Field	: SMP System Functions	: Set As	: $$SysInfo:IPAddress
+
+	[Line: SMP Mac Address]
+
+		Fields	: Medium Prompt, SMP System Functions
+		Local	: Field	: Medium Prompt			: Set As	: "Mac Address :"
+		Local	: Field	: SMP System Functions	: Set As	: $$SysInfo:MacAddress
+
+;; End-of-File

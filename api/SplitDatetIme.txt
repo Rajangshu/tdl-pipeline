@@ -1,0 +1,35 @@
+; cwSplitDateTime :
+
+        [#Line: EI DateTimeOfInvoice]
+        add : option : lnDateofInvoice : @@cwSplitDateTime
+        
+        
+        [!line : lnDateofInvoice]
+        add : field : sp,snf
+            Local       : Field : Medium Prompt : Set as : If @@ShowExciseDet then $$LocaleString:"Date of Invoice :" else $$LocaleString:"Date :"
+            local : field : snf : storage : cwCreateTime
+            local : field : snf : set as : if $$isempty:$$value then @@MachineTimeFormula else $$value
+            local : Field : EI DTofInvoice : Set as      : if (@@InvoiceInCreate AND $$IsEmpty:$$Value AND (@@IsSales OR @@IsPurchase)) then @@UniversalDateFormula else $$Value
+            local : field : sp : info : "Time:"
+            local : field : snf : style : normal bold
+            local : field : sp : width : 5
+            local : field : sp : style : normal bold
+
+        [#Line: EI DateTimeOfRemoval]
+          add : option : lnDateofRemoval : @@cwSplitDateTime
+        
+          [!line : lnDateofRemoval]
+          add : field : sp,snf
+            Local       : Field : Medium Prompt : Info : $$LocaleString:"Date of Removal :"
+            local : field : snf : storage : cwExtra1
+            local : field : snf : set as : if $$isempty:$$value then $$machinetime else $$value
+            local : Field : EI DTofRemoval :     Set as      : if NOT $$IsEmpty:$$Table:EIChallanNo:$BasicDateTimeOfRemoval then $$Table:EIChallanNo:$BasicDateTimeOfRemoval else +
+    if (@@InvoiceInCreate AND $$IsEmpty:$$Value AND NOT @@IsOrderVch) then @@UniversalDateFormula else $$Value
+
+
+            local : field : sp : info : "Time:"
+            local : field : snf : style : normal bold
+            local : field : sp : width : 5
+            local : field : sp : style : normal bold
+
+

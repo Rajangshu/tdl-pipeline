@@ -1,0 +1,597 @@
+;; PRODUCT   : vch security  v1.2
+;; PRODUCT-ID: c9d6f0f7-9a32-4835-b04f-8204a486a587
+;; AUTHOR    : TallyDeveloper
+;; haldiram1 :  752188482 ;; on 13-02-09
+;; haldiram2 : 793058094 ;; on 20-03-09
+;; haldiram3 : 715022541
+;; dhulagarh : 783018135
+;; mukundpur : 783096867
+
+;;[#menu : gateway of tally]
+;;add : item : @@IsAdmin3 ;; @@login
+;;add : item : @@ISADMIN2
+
+    [include : cwvchtypeentry.txt]
+    [include : deletelock.txt]
+;    [include : c:\d7comps\tcommon\commonformulae.txt]
+    
+
+    [System : Formula]
+
+ blockOwner : no
+ cwReadOnlyMode : no
+ cwNoModify : if not @@cwnormaluser then no else $date < @@cwCMPLastVoucher
+   IsAdmin2 : if @@indemo then @@chkowner else yes
+   chkowner : if @@blockowner then no else ($$isowner:##Svusername) ;; = $Ownername:Company:##Svcurrentcompany)
+   IsAdmin1 : If @@IsAdmin2 then "Admin" else "normal"
+   IsAdmin3 : If @@IsAdmin2 then no else yes
+  cwnoclass : no ;;$useClassinPurchaseAndSales:Company:##svcurrentcompany
+
+cwnormaluser: not $$isowner:##Svusername
+
+cwStopDelete: if @@cwReadOnlyMode then @@cwnormaluser and @@ckDate else no
+cwStopPrint : if @@cwReadOnlyMode then @@cwnormaluser and @@ckDate else no
+cwStopCancel: if @@cwReadOnlyMode then @@cwnormaluser and @@ckDate else no
+
+ckDate : yes ;; ($date < @@cwCMPLastVoucher)
+
+cannotmodifyreadonly : "Cannot Modify Voucher"
+
+
+[#menu : gateway of tally]
+;;add : item : at end : @@cwCMPLastVoucher
+;;add : item : @@isadmin2
+
+     [#form : voucher]
+    control : cannotmodifyreadonly : @@cwNoModify and (Not $$increatemode)
+
+
+       [#Menu: Accounts Info.]
+add : option : delai : @@cwnormaluser
+
+[!menu : delai]
+delete : item : @@locVoucherTypes
+
+
+  [#menu : gateway of tally]
+  add : option : chaninv  :  not @@isadmin2 and $$isempty:@@pgvchtype2  ;;
+  
+  [!menu : chaninv]
+delete : key item : @@locInventoryVouchers
+    
+    
+    
+[#Report: Accounting Voucher]
+    Set : SVVoucherType: if @@isadmin2 then ##svvouchertype else if $$InCreateMode then if Not @@ispgvalid then @@pgvchtype else ##svvouchertype else $vouchertypename
+
+[collection : pgvchtypes]
+       type : vouchertype
+     filter : hasUserCreateAlter
+
+[collection : pgvchtypes2]
+       use :  pgvchtypes
+     filter : cwinvtype
+
+    [system : formula]
+hasUserCreateAlter : $$filtercount:ScreatA:hasuser > 0 or $$filtercount:userEdit:hassuser > 0
+
+    hasuser : $Screat = ##svusername
+  pgvchtype : if @@isadmin2 then "Payment" else $$collectionfield:$name:first:pgvchtypes
+  pgvchtype2 : if @@isadmin2 then "Stock Journal" else $$collectionfield:$name:first:pgvchtypes2
+   hassuser : $sEdit = ##svusername
+  ispgvalid : $$filtercount:pgvchtypes:curvchvalid > 0
+curvchvalid : $name = ##svvouchertype
+  isEDITvalid : $$filtercount:pgvchtypes:curEditValid > 0
+curEditValid : $name =  ##svvouchertype
+
+
+ pgenabledSales : if @@isadmin2 then yes else ($$filtercount:pgvchtypes:pgsalesena = 0)
+
+pgenabledPurchase : if @@isadmin2 then yes else ($$filtercount:pgvchtypes:pgPurchaseena = 0)
+
+pgenabledContra : if @@isadmin2 then yes else $$filtercount:pgvchtypes:pgContraena <> 0
+
+PgEnabledPayment : if @@isadmin2 then yes else $$filtercount:pgvchtypes:pgPaymentEna <> 0
+PgEnabledReceipt : if @@isadmin2 then yes else $$filtercount:pgvchtypes:pgRcptEna <> 0
+PgEnabledjournal : if @@isadmin2 then yes else $$filtercount:pgvchtypes:pgJrnlEna <> 0
+
+PgEnabledCNote : if @@isadmin2 then yes else $$filtercount:pgvchtypes:pgCNoteena <> 0
+
+PGEnabledDnote : if @@isadmin2 then yes else $$filtercount:pgvchtypes:pgDNoteena <> 0
+
+pgPaymentEna : $$ispayment:$name
+pgsalesena: $$issales:$name
+pgPurchaseena : $$IsPurchase:$name
+pgContraena : $$IsContra:$name
+pgCNoteena  : $$iscreditnote:$name
+pgDNoteena  : $$isDebitnote:$name
+pgRcptEna : $$isreceipt:$name
+pgJrnlEna : $$isjournal:$name
+
+[#Table: ChgVchType]
+filter : pgcanchange
+;;border : thin box
+
+[#table:List of VchTypes]
+filter : pgcanchange
+
+[system :formula]
+pgcanchange : IF @@ISADMIN2 THEN YES ELSE if @@cwnoclass then yes else @@hasUserCreateAlter
+
+  [system : formula]
+ salesvch : $$issales:$name
+
+ [#Button : VCH InvButton]
+ inactive : if @@ISADMIN2 then no else @@pgvchtype2 = ""
+
+       [#Button: VCH InvKey]
+        Action : Set : SVVoucherType : @@ValidInvVoucher2
+        
+         [system : formula]
+ValidInvVoucher2 : if @@isadmin then @@ValidInvVoucher else @@pgvchtype2
+
+
+; --------------- new treatment has to be done begin
+[#Button:  Sales Button]
+option : doenaSales : (@@cwnoclass and not @@isadmin2)
+
+[!button : doenaSales]
+     inactive : @@pgenabledSales
+
+[#Button:  Purchase Button]
+option : doEnaPur : (@@cwnoclass and not @@isadmin2)
+
+[!button : doEnaPur]
+     inactive : @@pgenabledPurchase
+     
+; --------------- new treatment has to be done end
+[#Button:  Contra Button]
+     inactive : NOT @@PgEnabledContra
+     
+[#Button:  CNoteButton]
+     inactive : not @@PgEnabledCNote
+
+[#Button:  DNoteButton]
+    inactive : not @@PGEnabledDnote
+
+[#Button:  Journal Button]
+    inactive : not @@PgEnabledjournal
+
+[#Button:  Payment Button]
+    inactive : not @@PgEnabledPayment
+
+[#Button:  Receipt Button]
+     inactive : not @@PgEnabledReceipt
+
+[#Button:  DelyNoteButton]
+    inactive : @@CreateDeliverynote
+
+[#Button:  PurcOrderButton]
+     inactive : @@CreatePurchaseOrder
+
+[#Button:  SalesOrderButton]
+     inactive :@@CreateSalesOrder
+     
+
+[#Button:  RcptNoteButton]
+     inactive : @@CreateReceiptNote
+     
+[#Button:  RejInButton]
+     inactive :@@CreateRejin
+     
+[#Button:  RejoutButton]
+     inactive :@@CreateRejout
+     
+[#Button:  PhysStk Button]
+     inactive :@@CreatePhysStk
+     
+[#Button:  Stock Jrnl Button]
+     inactive :@@CreateStkJrnl
+;**************************Creat*****************************
+
+
+[System : Formula]
+  vtypeA  : If  @@CreateSales=no then "Sales" Else if  @@CreatePurchase= no then "Purchase"  else +
+       if @@CreatePayment = no then "Payment" Else if @@CreateReceipt= no then "Receipt" Else +
+       If @@Createjournal = no then "Journal" Else if @@CreateContra = no then "Credit note" Else +
+       If @@CreateDebitnote = no then "Debit note" Else If @@CreateDeliverynote = no then "Delivery note"  Else +
+       If @@CreateSalesOrder = no then "Sales Order" Else if @@CreatePurchaseOrder = no then "Purchase Order" Else +
+          "Memorandum"
+
+ [collection : CAll]
+        type : ScreatA: vouchertype
+    child of : ##svvouchertype
+      Filter : CSalesFilter
+
+ [collection : CSales]
+        type : ScreatA: vouchertype
+    Child of : "sales"
+      Filter : CSalesFilter
+
+     [System : Formula]
+CreateSales  :  If  $$FilterCount:Csales:CSalesFilter=1  then no  else @@IsAdmin3
+CSalesFilter : ##SVUserName= $Screat
+
+;*********
+
+ [Collection : CPurchase]
+        type : ScreatA: vouchertype
+    Child of : "Purchase"
+      Filter : CPurchaseFilter
+
+[System : Formula]
+   CreatePurchase  :  If  $$FilterCount:CPurchase:CPurchaseFilter=1  then no else @@IsAdmin3
+   CPurchaseFilter:##SVUserName= $Screat
+
+;*********
+
+[Collection : CContra]
+        type :ScreatA: vouchertype
+    Child of : "Contra"
+      Filter : CContraFilter
+
+[System : Formula]
+   CreateContra  :  If  $$FilterCount:CContra:CContraFilter=1  then no else @@IsAdmin3
+   CContraFilter:##SVUserName= $Screat
+
+
+;**********
+
+[Collection : CCreditnote]
+        type :ScreatA: vouchertype
+    Child of : "Credit note"
+      Filter : CCreditnoteFilter
+
+[System : Formula]
+   CreateCreditnote  :  If  $$FilterCount:CCreditnote:CCreditnoteFilter=1  then no else @@IsAdmin3
+   CCreditnoteFilter:##SVUserName= $Screat
+
+;**********
+
+[Collection : CDebitnote]
+        type :ScreatA: vouchertype
+    Child of : "Debit note"
+      Filter : CDebitnoteFilter
+
+[System : Formula]
+   CreateDebitnote  :  If  $$FilterCount:CDebitnote:CDebitnoteFilter=1  then no else @@IsAdmin3
+   CDebitnoteFilter:##SVUserName= $Screat
+
+;************
+
+[Collection : CDeliverynote]
+        type :ScreatA: vouchertype
+    Child of : "Delivery note"
+      Filter : CdeliverynoteFilter
+
+[System : Formula]
+   CreateDeliverynote  :  If  $$FilterCount:CDeliverynote:CdeliverynoteFilter=1  then no else @@IsAdmin3
+   CdeliverynoteFilter:##SVUserName= $Screat
+
+;************
+
+[Collection : Cjournal]
+        type :ScreatA: vouchertype
+    Child of : "journal"
+      Filter : CdeliverynoteFilter
+
+[System : Formula]
+   Createjournal  :  If  $$FilterCount:Cjournal:CdeliverynoteFilter=1  then no else @@IsAdmin3
+   CdeliverynoteFilter:##SVUserName= $Screat
+
+;************
+
+[Collection : CPayment]
+        type :ScreatA: vouchertype
+    Child of : "Payment"
+      Filter : CPaymentFilter
+
+[System : Formula]
+   CreatePayment  :  If  $$FilterCount:CPayment:CPaymentFilter=1  then no else @@IsAdmin3
+;;if @@isadmin2 then yes else $$filtercount:pgvchtypes:CPaymentFilter <> 0
+   CPaymentFilter: ##SVUserName= $Screat
+
+
+;************
+[Collection : CPurchaseOrder]
+        type :ScreatA: vouchertype
+    Child of : "Purchase Order"
+      Filter : CPurchaseOrderFilter
+
+[System : Formula]
+   CreatePurchaseOrder  :  If  $$FilterCount:CPurchaseOrder:CPurchaseOrderFilter=1  then no else @@IsAdmin3
+   CPurchaseOrderFilter:##SVUserName= $Screat
+;************
+[Collection : CSalesOrder]
+        type :ScreatA: vouchertype
+    Child of : "Sales Order"
+      Filter : CSalesOrderFilter
+
+[System : Formula]
+   CreateSalesOrder  :  If  $$FilterCount:CSalesOrder:CSalesOrderFilter=1  then no else @@IsAdmin3
+   CSalesOrderFilter:##SVUserName= $Screat
+;************
+
+[Collection : CReceipt]
+        type :ScreatA: vouchertype
+    Child of : "Receipt"
+      Filter : CReceiptFilter
+
+[System : Formula]
+   CreateReceipt  :  If  $$FilterCount:CReceipt:CReceiptFilter=1  then no else @@IsAdmin3
+   CReceiptFilter:##SVUserName= $Screat
+;************
+
+
+ [Collection : CReceiptnote]
+        type :ScreatA: vouchertype
+    Child of : "Receipt Note"
+      Filter : CReceiptFilter
+
+[System : Formula]
+   CreateReceiptNote  :  If  $$FilterCount:CReceiptNote:CReceiptNoteFilter=1  then no else @@IsAdmin3
+   CReceiptnoteFilter:##SVUserName= $Screat
+   
+[System : Formula]
+   CreateRejin  :  If  $$FilterCount:CRejin:CReceiptnoteFilter=1  then no else @@IsAdmin3
+   CreateRejout  :  If  $$FilterCount:CRejout:CReceiptnoteFilter=1  then no else @@IsAdmin3
+CreatePhysStk : If  $$FilterCount:CPhys:CReceiptnoteFilter=1  then no else @@IsAdmin3
+CreateStkJrnl : If  $$FilterCount:Cstkj:CReceiptnoteFilter=1  then no else @@IsAdmin3
+
+ [Collection : CRejin]
+        type :ScreatA: vouchertype
+    Child of : "Rejections in"
+      Filter : CReceiptFilter
+
+ [Collection : CRejout]
+        type : ScreatA: vouchertype
+    Child of : "Rejections out"
+      Filter : CReceiptFilter
+
+ [Collection : CPhys]
+        type : ScreatA: vouchertype
+    Child of : "Physical Stock"
+      Filter : CReceiptFilter
+
+ [Collection : Cstkj]
+        type :ScreatA: vouchertype
+    Child of : "stock journal"
+      Filter : CReceiptFilter
+
+     [system : formula]
+    pghasinv : If $$FilterCount:vouchertype:cwhasinv > 0  then no else @@IsAdmin3
+    cwhasinv : if not @@cwinvtype then 0 else $$filtercount:ScreatA:CReceiptFilter
+   cwinvtype : $$IsPurcOrder:$$name or $$IsSalesOrder:$$name ;;or $$IsRejectionOn:$name or $$IsRejOut:$name or $$IsStockJrnl:$name or $$IsDelNote:$name or $$IsRcptNote:$name or $$IsPhysStock:$name
+
+;; [collection : cinvf]
+ 
+;************
+
+;;[Collection : CReceiptnote]
+;;        type :ScreatA: vouchertype
+;;    Child of : "Receipt Note"
+;;      Filter : CReceiptFilter
+
+;;[System : Formula]
+;;   CreateReceiptNote  :  If  $$FilterCount:CReceiptNote:CReceiptNoteFilter=1  then no else yes
+;;   CReceiptnoteFilter:##SVUserName= $Screat
+;************
+
+
+ ;****************************ForAlter***************************
+
+
+[#collection : Companyaccvouchers]
+add : filter : myfilter
+
+[#collection : CompanyInvvouchers]
+add : filter : myfilter
+
+[#collection : ledgervouchers]
+add : filter : myfilter
+
+
+     [system : formula]
+   myfilter  : if @@isadmin2 then yes else NOT @@isEDITvalid ;;if $$iscontra:$vouchertypename then @@AlterContra2 else no ;; then @@altersales else @@altercontra
+   myfilter2 : @@AlterSales
+   myfilter3 : @@AlterPurchase
+   myfilter4 : @@AlterContra
+   myfilter5 : @@AlterCreditnote
+   myfilter6 : @@AlterDebitnote
+   myfilter7 : @@AlterDeliverynote
+   myfilter8 : @@Alterjournal
+   myfilter9 : @@AlterPayment
+  myfilter10 : @@AlterPurchaseOrder
+  myfilter11 : @@AlterSalesOrder
+  myfilter12 : @@AlterReceipt
+  myfilter13 : @@AlterReceiptNote
+
+;****************************Alter***************
+
+
+
+     [#Field : DSP VchDate]
+      ADD : OPTION : MSALES2 : ($$ISSALES:$VOUCHERTYPENAME and not @@cwReadOnlyMode)
+      ADD : OPTION : MSALES3 : $$IsPurchase:$VOUCHERTYPENAME and not @@cwReadOnlyMode
+      ADD : OPTION : MSALES4 : $$IsContra:$VOUCHERTYPENAME and not @@cwReadOnlyMode
+      ADD : OPTION : MSALES5 : $$IsCreditNote:$VOUCHERTYPENAME and not @@cwReadOnlyMode
+      ADD : OPTION : MSALES6 : $$IsDebitNote:$VOUCHERTYPENAME and not @@cwReadOnlyMode
+      ADD : OPTION : MSALES7 : $$IsDelNote:$VOUCHERTYPENAME and not @@cwReadOnlyMode
+      ADD : OPTION : MSALES8 : $$IsJournal:$VOUCHERTYPENAME and not @@cwReadOnlyMode
+      ADD : OPTION : MSALES9 : $$IsPayment:$VOUCHERTYPENAME and not @@cwReadOnlyMode
+      ADD : OPTION : MSALES10 : $$IsPurcOrder:$VOUCHERTYPENAME and not @@cwReadOnlyMode
+      ADD : OPTION : MSALES11 : $$IsSalesOrder:$VOUCHERTYPENAME and not @@cwReadOnlyMode
+      ADD : OPTION : MSALES12 : $$IsReceipt:$VOUCHERTYPENAME and not @@cwReadOnlyMode
+      ADD : OPTION : MSALES13 : $$IsRcptNote:$VOUCHERTYPENAME and not @@cwReadOnlyMode
+      
+[!FIELD : MSALES2]
+       Alter : Voucher: $$IsVoucher AND NOT $IsDeleted AND (not @@myfilter2 )
+;;       Border :thin box : @@altersales
+
+
+[!FIELD : MSALES3]
+       Alter : Voucher: $$IsVoucher AND NOT $IsDeleted AND (NOT (@@myfilter3))
+
+;************
+[!FIELD : MSALES4]
+       Alter : Voucher: $$IsVoucher AND NOT $IsDeleted AND (NOT (@@myfilter4))
+
+;************
+[!FIELD : MSALES5]
+       Alter : Voucher: $$IsVoucher AND NOT $IsDeleted AND (NOT (@@myfilter5))
+
+;************
+[!FIELD : MSALES6]
+       Alter : Voucher: $$IsVoucher AND NOT $IsDeleted AND (NOT (@@myfilter6))
+
+[!FIELD : MSALES7]
+       Alter : Voucher: $$IsVoucher AND NOT $IsDeleted AND (NOT (@@myfilter7))
+
+[!FIELD : MSALES8]
+       Alter : Voucher: $$IsVoucher AND NOT $IsDeleted AND (NOT (@@myfilter8))
+
+[!FIELD : MSALES9]
+       Alter : Voucher: $$IsVoucher AND NOT $IsDeleted AND (NOT (@@myfilter9))
+
+[!FIELD : MSALES10]
+       Alter : Voucher: $$IsVoucher AND NOT $IsDeleted AND (NOT (@@myfilter10))
+
+[!FIELD : MSALES11]
+       Alter : Voucher: $$IsVoucher AND NOT $IsDeleted AND (NOT (@@myfilter11))
+
+[!FIELD : MSALES12]
+       Alter : Voucher: $$IsVoucher AND NOT $IsDeleted AND (NOT (@@myfilter12))
+
+[!FIELD : MSALES13]
+       Alter : Voucher: $$IsVoucher AND NOT $IsDeleted AND (NOT (@@myfilter13))
+
+
+;*******************************************************************
+[collection : ASales]
+     type :userEdit: vouchertype
+ child of : $vouchertypename
+   FILTER : ASalesFilter
+ 
+[System : Formula]
+;;   AlterSales   : If  @@IsAdmin3 then no else $$FilterCount:ASales:ASalesFilter =1 ;;> 0
+AlterSales : if $$filtercount:ASales:ASalesFilter = 1 then no else @@isadmin3
+   ASalesFilter : ##SVUserName=$sEdit
+
+;*********
+
+[Collection : APurchase]
+        type :userEdit: vouchertype
+    Child of : "Purchase"
+      Filter : APurchaseFilter
+
+[System : Formula]
+   AlterPurchase  :  If  $$FilterCount:APurchase:APurchaseFilter=1  then no else @@IsAdmin3
+   APurchaseFilter:##SVUserName= $sEdit
+
+;*********
+
+[Collection : AContra]
+        type :userEdit: vouchertype
+    Child of : "Contra"
+      Filter : AContraFilter
+
+[System : Formula]
+   AlterContra  :  If  $$FilterCount:AContra:AContraFilter=1  then no else @@IsAdmin3
+   AContraFilter:##SVUserName= $sEdit
+
+   AlterContra2  :  If  $$owner:$$FilterCount:AContra:AContraFilter=1  then no else @@IsAdmin3
+
+;**********
+
+[Collection : ACreditnote]
+        type :userEdit: vouchertype
+    Child of : "Credit note"
+      Filter : ACreditnoteFilter
+
+[System : Formula]
+   AlterCreditnote  :  If  $$FilterCount:ACreditnote:ACreditnoteFilter=1  then no else @@IsAdmin3
+   ACreditnoteFilter:##SVUserName= $sEdit
+
+;**********
+
+[Collection : ADebitnote]
+        type :userEdit: vouchertype
+    Child of : "Debit note"
+      Filter : ADebitnoteFilter
+
+[System : Formula]
+   AlterDebitnote  :  If  $$FilterCount:ADebitnote:ADebitnoteFilter=1  then no else @@IsAdmin3
+   ADebitnoteFilter:##SVUserName= $sEdit
+
+;************
+
+[Collection : ADeliverynote]
+        type :userEdit: vouchertype
+    Child of : "Delivery note"
+      Filter : AdeliverynoteFilter
+
+[System : Formula]
+   AlterDeliverynote  :  If  $$FilterCount:ADeliverynote:AdeliverynoteFilter=1  then no else @@IsAdmin3
+   AdeliverynoteFilter:##SVUserName= $sEdit
+
+;************
+
+[Collection : Ajournal]
+        type :userEdit: vouchertype
+    Child of : "journal"
+      Filter : AdeliverynoteFilter
+
+[System : Formula]
+   Alterjournal  :  If  $$FilterCount:Ajournal:AdeliverynoteFilter=1  then no else @@IsAdmin3
+   AdeliverynoteFilter:##SVUserName= $sEdit
+
+;************
+
+[Collection : APayment]
+        type :userEdit: vouchertype
+    Child of : "Payment"
+      Filter : APaymentFilter
+
+[System : Formula]
+   AlterPayment  :  If  $$FilterCount:APayment:APaymentFilter=1  then no else @@IsAdmin3
+   APaymentFilter:##SVUserName= $sEdit
+
+;************
+[Collection : APurchaseOrder]
+        type :userEdit: vouchertype
+    Child of : "Purchase Order"
+      Filter : APurchaseOrderFilter
+
+[System : Formula]
+   AlterPurchaseOrder  :  If  $$FilterCount:APurchaseOrder:APurchaseOrderFilter=1  then no else @@IsAdmin3
+   APurchaseOrderFilter:##SVUserName= $sEdit
+;************
+[Collection : ASalesOrder]
+        type :userEdit: vouchertype
+    Child of : "Sales Order"
+      Filter : ASalesOrderFilter
+
+[System : Formula]
+   AlterSalesOrder  :  If  $$FilterCount:ASalesOrder:ASalesOrderFilter=1  then no else @@IsAdmin3
+   ASalesOrderFilter:##SVUserName= $sEdit
+;************
+
+[Collection : AReceipt]
+        type :userEdit: vouchertype
+    Child of : "Receipt"
+      Filter : AReceiptFilter
+
+[System : Formula]
+   AlterReceipt  :  If  $$FilterCount:AReceipt:AReceiptFilter=1  then no else @@IsAdmin3
+   AReceiptFilter:##SVUserName= $sEdit
+;************
+[Collection : AReceiptnote]
+        type :userEdit: vouchertype
+    Child of : "Receipt Note"
+      Filter :AReceiptnoteFilter
+
+[System : Formula]
+   AlterReceiptNote  :  If  $$FilterCount:AReceiptNote:AReceiptnoteFilter=1  then no else @@IsAdmin3
+   AReceiptnoteFilter:##SVUserName= $sEdit
+
+

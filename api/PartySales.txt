@@ -1,0 +1,114 @@
+
+[#menu : gateway of tally]
+add : item : at end : a1 : display : Transact Report
+
+
+[Report: Transact Report]
+
+	Use			: DSP Template
+	Form		: TransVchReport
+
+[Form: TransVchReport]
+
+	Use			: DSP Template
+	Part		: dspacctitles,TransVchTitle, TransVchBody
+	Width		: 100% Screen
+	Height		: 100% Screen
+	Delete		: Buttons			: ExplodeFlag
+
+[Part: TransVchTitle]
+
+	Lines		: TransVchTitle
+
+	[Line: TransVchTitle]
+	
+		Use 	: TransVchLedDetail
+
+		Local 	: Field : Default			: Type 	 : String
+		Local 	: Field : Default			: Align	 : Centre
+		Local 	: Field : Default		 	: Style	 : Normal Bold
+
+		Local	: Field : TransVchTypeName 	: Set as : "Voucher Type Name"
+		Local 	: Field : TransVchDrAmt		: Set as : "Debit Amt"
+		Local 	: Field : TransVchCrAmt		: Set as : "Credit Amt"
+		Border 	: Thin Top Bottom
+	
+[Part: TransVchBody]
+
+	Lines  		: TransVchLedDetail
+	Bottom Lines: TransVchLedTotal
+	Repeat 		: TransVchLedDetail		: TransVchSummaryColl
+	Scroll 		: Vertical
+	CommonBorder: Yes
+	Total		: TransVchDrAmt, TransVchCrAmt
+
+	[Line: TransVchLedDetail]
+	
+		Fields 		 	: TransVchTypeName,name field
+		local : field : name field : set as : $TransVchLed
+		Right Fields 	: TransVchDrAmt, TransVchCrAmt,amount field
+		local : field : amount field : set as : $TransNettAmt ;;Transvchdramt ;;NettAmt ;;$TransVchDrAmt - $TransVchCrAmt
+
+		Local 	: Field : Default		 : Style	 : Normal
+
+		[Field: TransVchTypeName]
+		
+			Use		: Name Field
+			Set as	: $TransVchName
+
+		[Field: TransVchDrAmt]
+		
+			Use 	: Amount Forex Field
+			Set as 	: $TransVchDrAmt
+			Border 	: Thin Left Right
+	
+		[Field: TransVchCrAmt]
+		
+			Use		: Amount Forex Field
+			Set as 	: $TransVchCrAmt
+			Border  : Thin Right
+;;			invisible: yes
+
+[Line: TransVchLedTotal]
+
+	Use 	: TransVchLedDetail
+	Local	: Field	: Default			: Style	 	: Normal Bold
+	Local 	: Field : TransVchTypeName 	: Set as 	: "Total"
+	Local 	: Field : TransVchDrAmt		: Set as 	: $$Total:TransVchDrAmt
+	Local 	: Field : TransVchCrAmt		: Set as 	: $$Total:TransVchCrAmt
+	Border 	: Thin Top Bottom
+
+[Collection: TransVchColl]
+
+	Type 	: Voucher
+	filter : my1
+;;	fetch : vouchertypename
+
+[Collection: TransVchSummaryColl]
+
+	SourceCollection: TransVchColl
+
+	Walk			: Ledger Entries
+
+;;	By				: TransVchName		: $VoucherTypeName
+	;; Grouping By VoucherTypeName done here to get a Voucherwise Totals across the source
+
+	By				: TransVchLed		: $PartyLedgerName
+	;; Grouping By PartyName done here to get a Partywise Totals across the source
+
+	Aggr Compute	: TransVchDrAmt		: Sum 		: If $$IsDr:$Amount then $Amount else 0
+	Aggr Compute	: TransVchCrAmt		: Sum  		: If NOT $$IsDr:$Amount then $Amount else 0
+	aggr compute : TransNettAmt : sum: $Amount ;;- $TransVchCrAmt
+
+;;	Filter			: TransVchFilters
+	;; Filtering done here to retrieve only values pertaining to the requested Party
+         sort : @@default : $TransNettAmt ;;TransVchDrAmt - $transvchCramt ;;TransNettAmt
+         
+[System: Formula]
+                    my1 : $$issales:$vouchertypename or $$IsCreditNote:$vouchertypename
+         TransVchFilters : $$isempty:$TransNettAmt
+	TransVchFilter 	: $$issales:$TransVchName or $$iscreditnote:$TransVchName ;;#LedgerName = $TransVchLed
+	TransVchOpBal	: $OpeningBalance:Ledger:#LedgerName
+ 	TransVchClBal	: $ClosingBalance:Ledger:#LedgerName
+	
+;; End-of-Code

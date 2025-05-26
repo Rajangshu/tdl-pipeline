@@ -1,0 +1,24 @@
+; Created By: pg on 2011-09-01 11:53
+[report : apl]
+form : e1
+Export : Yes
+;;variable : xGrpList
+;;set : xGrpList : ""
+
+[form : e1]
+part : e1
+
+[part : e1]
+line : e1
+repeat : e1 : Price levels
+scroll : vertical
+XMLTAg : "Sundry.List"
+
+
+[line : e1]
+field : name field
+local : field : name field : set as : $PriceLevel
+local : field : name field : XMLTAg : "NAME"
+local: Field: name field: max: 100
+Local: field: name field: Width:100
+

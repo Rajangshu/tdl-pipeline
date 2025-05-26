@@ -1,0 +1,137 @@
+; Created By: pg on 2011-07-31 13:52
+[Include: E:\D7COMPS\tcommon\CommonFields2.txt]
+
+[Collection: ColLed0]
+        Use: ledger
+    filter : ColLed0Filter
+    
+
+
+    [system: Formula]
+ColLed0Filter: ($$isempty:$openingbalance and $$isempty:$closingbalance and $$isempty:$tbaldebits and $$isempty:$tbalcredits) and @@cldel1x
+cldel1x : ($parent <> "Financer") and ($parent <> "Sales Executive") and $$CanDelete
+
+[#menu : gateway of tally]
+add : bottom button : StaleLedgers
+
+[key : StaleLedgers]
+title : "Stale Ledgers"
+key : Alt + 0
+action : call : DelStaleLedgers
+/*
+[function : DelStaleLedgers]
+variable : svfromdate : date
+variable : svtodate : date
+variable : totalsteps : number
+variable : lname : string
+variable : ctr : number
+
+10 : set : svfromdate: @@cwBooksFrom
+20 : set : svtodate: @@cwCMPLastVoucher
+21 : set : totalSteps : $$numitems:ColLed0
+22 : set : lname : $$collectionfield:$name:1:ColLed0
+23 : set : ctr : 1
+
+30 : START PROGRESS: ##TotalSteps:”Stale Ledger Deletion”:@@CmpMailName:##Lname
+35 : walk collection :  ColLed0
+40 : delete object : $name
+41 : set : ctr : ##ctr + 1
+45 : showprogress:##ctr
+50 : end walk
+55 : end progress
+
+;------------------
+*/
+
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: Led0Lock ;;: @@Led0DemoLock
+       
+     [!menu: Led0Lock]
+        add: Item: before: @@locQuit: @@Led0Report: Display: RepLed0
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   Led0Report: "Led0"
+ Led0DemoLock: $$MachineDate < $$Date:"02/08/2011"
+     
+    [Report: RepLed0]
+        use: Dsp Template
+      Title: @@Led0Report
+   Printset: Report Title: @@Led0Report
+       Form: FrmLed0
+     Export: Yes
+;;     set  : svfromdate : ##svcurrentdate
+;;     set  : svTodate : ##svcurrentdate
+ set : svfromdate: @@cwBooksFrom
+ set : svtodate: @@cwCMPLastVoucher
+
+      [Form: FrmLed0]
+        use: DSP Template
+       Part: DspAccTitles,PrtLed0
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: Led0botbrk,Led0botOpbrk
+	Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn2_EditMaster, BottomToolBarBtn3_Delete, BottomToolBarBtn6_AddMaster, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+	
+      [part: Led0botBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: Led0botopbrk]
+        use: dspacctitles
+  add: part: Led0TitlePart
+
+      [part: Led0TitlePart]
+       line: LnLed0Title
+       
+      [line: LnLed0CurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+  
+      [Part: PrtLed0]
+       Line: LnLed0CurrPeriod,LnLed0Title,LnLed0
+bottom Line: LnLed0Totals
+     repeat: LnLed0: ColLed0
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+
+
+      [Line: LnLed0Title]
+        use: LnLed0
+     option: titleopt
+local:field: fwf: set as: "Description"
+Local: Field: amtf : Set As: "Cl. Bal."
+      local: field: default : style: normal bold
+
+      [Line: LnLed0]
+     Fields: fwf,amtf
+     Option: Alter on Enter
+     local: field: fwf: set as : $name
+Key   : Delete Line Object
+option : alter on enter
+local : field : fwf : alter : ledger : $$isledger
+local : field : fwf : width: 200
+local : field : fwf : max: 200
+Local: Field: amtf : Set As: $closingbalance
+
+      [line: LnLed0Totals]
+        use: LnLed0
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: fwf: set as: "Total"
+      local: field: amtf : set as :  $$total:amtf
+
+
+

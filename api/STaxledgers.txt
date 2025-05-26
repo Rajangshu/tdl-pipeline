@@ -1,0 +1,82 @@
+
+     [#menu: Gateway of Tally]
+;;        add: Option: StaxLedgersLock: @@StaxLedgersDemoLock
+       
+     [!menu: StaxLedgersLock]
+        add: Item: before: @@locQuit: @@StaxLedgersReport: Display: cwStaxLedgers
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   StaxLedgersReport: "StaxLedgers"
+ StaxLedgersDemoLock: @@indebug
+     
+    [Report: cwStaxLedgers]
+        use: Dsp Template
+      Title: @@StaxLedgersReport
+   Printset: Report Title: @@StaxLedgersReport
+       Form: FrmStaxLedgers
+     Export: Yes
+
+      [Form: FrmStaxLedgers]
+        use: DSP Template
+       Part: DspAccTitles,PrtStaxLedgers
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: StaxLedgersbotbrk,StaxLedgersbotOpbrk
+
+      [part: StaxLedgersbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: StaxLedgersbotopbrk]
+        use: dspacctitles
+  add: part: StaxLedgersTitlePart
+
+      [part: StaxLedgersTitlePart]
+       line: LnStaxLedgersTitle
+  
+      [Part: PrtStaxLedgers]
+       Line: LnStaxLedgersTitle,LnStaxLedgers
+bottom Line: LnStaxLedgersTotals
+     repeat: LnStaxLedgers: ColStaxLedgers
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColStaxLedgers]
+        Use: ledger
+     Filter: ColStaxLedgersFilter
+     fetch : FORSERVICETAX,SERVICECATEGORY,STXDUTYHEAD
+
+    [system: Formula]
+ColStaxLedgersFilter: ($FORSERVICETAX) or (not $$isempty:$STXDutyHead) or $name contains "Round"
+
+
+      [Line: LnStaxLedgersTitle]
+        use: LnStaxLedgers
+     option: titleopt
+local:field: fwf: set as: "Ledgers"
+
+      [Line: LnStaxLedgers]
+     Fields: numf,d1,fwf
+     Local: Field: fwf : Set As: $name + @@cwstaxcat
+     local : field : fwf : width : 200
+     local : field : fwf : max   : 200
+     local : field : numf : set as : if $FORSERVICETAX then 1 else if $$IsSysNameEqual:ServiceTax:$STXDUTYHEAD then 2 else +
+     if $$IsSysNameEqual:EducationCess:$STXDutyHead then 3 else if $$IsSysNameEqual:SecondaryEducationCess:$STXDutyHead then 4 else 0
+     
+     [System : Formula]
+     cwstaxcat : if $FORSERVICETAX then "$" + $SERVICECATEGORY + "$" + $parent else ""
+     
+      [line: LnStaxLedgersTotals]
+        use: LnStaxLedgers
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: fwf: style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total:"
+      Local: Field: amtf : Set As: $$total:amtf
+
+

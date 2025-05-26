@@ -1,0 +1,268 @@
+;; Flat Discount Amount (also in Batch)
+
+;; define formula : disamtcondition
+;; define formula : discamtBoth : 0 for anyone, 1 for amt before , 2 for %, -1 for discamt
+
+;;[#menu : gateway of tally]
+;;add : item : at end : @@discamtboth
+
+;;[include : c:\d7comps\tcommon\refreshtdl.txt]
+[system : formula]
+discamtboth : 0
+disamtcondition2 : @@disamtcondition and (@@discamtboth > 0 or @@discamtboth = -1)
+DiscAmtPrior : @@DiscamtBoth = 1
+DiscAmtAfter: not @@DiscAmtPrior
+
+DiscPos1 : @@disamtcondition and @@discAmtPrior
+DiscPos2 : @@disamtcondition and @@discAmtAfter
+
+[#field : vchvalue]
+    ResetVal    :  if (@@NoBaseUnits OR $$IsEmpty:$BilledQty) then $$Value else (($Rate * $BilledQty * (100 - $Discount)) / 100) - $gmpuom
+
+; -------------- Discount Entry of Amount in Batch
+
+[#Line : VCHBATCH ColumnOne]
+    Option : BsInvInfoBatchT1 : @@discPos1
+    Option : BsInvInfoBatchT2 : @@discPos2
+
+[!line : BsInvInfoBatchT1]
+   add : right field : after : VCH RateUnitsTitle : GM VchUOMTitle
+
+[!line : BsInvInfoBatchT2]
+   add : right field : after : VCH DiscTitle : GM VchUOMTitle
+
+[#line :  VCHBATCH ColumnTwo]
+   add : Option : BsInvInfoBatchT2a : @@discPos1
+
+[#line :  VCHBATCH ColumnTwo]
+   add : Option : BsInvInfoBatchT2b : @@discPos2
+
+[!line : BsInvInfoBatchT2a]
+   add : right field : after : VCH RateUnitsTitle : GM VchUOMTitle
+ local : field : GM VchUOMTitle : info : ""
+
+[!line : BsInvInfoBatchT2b]
+   add : right field : after : VCH DiscTitle : GM VchUOMTitle
+ local : field : GM VchUOMTitle : info : ""
+
+[#Line : STKVCH Batch2]
+   add : Option : BsInvInfoBatch1 : @@discPos1
+   add : Option : BsInvInfoBatch2 : @@discPos2
+   add : option : BsInvSettings : @@discPos1 or @@discPos2
+   
+   
+   [!line:BsInvSettings]
+ Local: Field:GM VCHUom  : Set As: if $$line =1 then $$value else $$prevlinefield
+ Local: Field: GM VCHUom: Skip: $$line > 1
+
+  local : field : GM VCHUom : delete : inactive
+ local : field : GM VCHUom : add :  inactive : @@NoBaseUnits OR @@BatchAllocBreak
+
+[!Line : BsInvInfoBatch1]
+   Add : Right Field : After : VCHBATCH RateUnits: GM VCHUom2
+   
+[!Line : BsInvInfoBatch2]
+   Add : Right Field : After : VCHBATCH Discount: GM VCHUom2
+
+
+
+[field : GM VCHUom2]
+use : amount field
+storage : GMpUOm
+Width : 6
+skip on : @@NoBaseUnits OR @@BatchAllocBreak
+
+[System : Formula]
+noGmpUOM : not $$isempty:$GMpUOm
+cwgmpuomrate  : $$value
+
+
+
+; -------------- Discount Entry of Amount in Stock Level
+
+
+[#system : formula]
+;;    NrmlAmount          : (100 * @@cw1amt) / (100 - $Discount)
+
+;;        CalcedAmt               : ($Rate * $BilledQty * ((100 - $Discount) / 100))
+
+;;((($Rate * $BilledQty) - $gmpuom) * ((100 - $Discount) / 100))
+
+	CalcedAmt       	: (($Rate * $BilledQty * (100 - $Discount)) / 100) - $gmpuom
+
+[system : formula]
+    cw1amt : ($batchRate * $BilledQty) - $gmpuom
+    ceguom : if $discount = 0 then 0 else ($gmpuom * $$number:$BilledQty)
+cwCalcBatchAmt  : (@@cw1amt * ((100 - $Discount) / 100)) ;;+ @@ceguom ;;* $discount / 100
+
+[#Line: EI InvInfo]
+add : Option : BsInvInfoSettings : @@disamtcondition
+add : option : BsInvPos1 : @@DiscPos1
+add : option : BsInvPos2 : @@DiscPos2
+
+[#Line: cI InvInfo]
+add : Option : BsInvInfoSettings : @@disamtcondition
+add : option : BsInvPos1 : @@DiscPos1
+add : option : BsInvPos2 : @@DiscPos2
+
+[!line : bsInvPos1]
+Add : Right Field : After : VCH Rateunit: GM VCHUom
+
+[!line : bsinvPos2]
+Add : Right Field : After : VCH Discount: GM VCHUom
+
+
+
+[!Line : BsInvInfoSettings]
+;;local : field : GM VCHUom: set as :  if ($$IsMultiGodownOn OR @@HasBatchWise OR @@IsOrdersOn OR (@@HasTrackingNo AND @@IsJobOrderEnabled)) then $$CollAmtTotal:BatchAllocations:$GMPUom else $$value
+;;local : field : VCH Rate : set as : if ($$IsMultiGodownOn OR @@HasBatchWise OR @@IsOrdersOn OR (@@HasTrackingNo AND @@IsJobOrderEnabled)) then ($$collamttotal:BatchAllocations:$amount / $$collamttotal:BatchAllocations:$billedqty) - #GMVCHUom else +
+;;If #VCHBilledQty = 0 OR  #VCHBilledQty != 0 then $$value else $$value
+;;local :field : vch value : set as : $rate * $billedqty - $GMpUOm
+
+[Field : GM VchUOMTitle]
+Use : Name Field
+Width : 6
+Align : Centre
+Info  : "Dis Amt."
+align : right
+
+[Field : GM VCHUOM]
+Use : Amount field
+Width : 6
+align : RIGHT
+storage : GMpUOm
+Skip On  : @@HasInvSubAlloc
+set always : yes
+inactive : $$IsEnd:$StockITemName
+Set As: if @@HasInvSubAlloc then $$collamttotal:batchallocations:$GMpUOm else $$value
+;; {02.May.16 18:02} border :thin box
+
+
+[System : UDF]
+ GMPUom : Amount : 4
+
+
+[#Field: VCH Value]
+;;    ResetVal    : if (@@NoBaseUnits OR $$IsEmpty:$BilledQty) then $$Value else (($Rate - $gmpuom ) * $BilledQty * ((100 - $Discount) / 100))
+
+
+[#Line: EI ColumnOne]
+add : option : cweicol1a : @@discpos1
+add : option : cweicol1b : @@discpos2
+
+
+[!line : cweicol1a]
+add: right field : before : VCHDiscTitle : GM VchUOMTitle
+
+[!line : cweicol1b]
+add: right field : after : VCHDiscTitle : GM VchUOMTitle
+
+
+[#Line: EI ColumnTwo]
+add : option : cweicol2a : @@discpos1
+add : option : cweicol2b : @@discpos2
+
+
+[!line : cweicol2a]
+add : right field : before : VCHDiscTitle : GM VchUOMTitle
+local : field : GM VchUOMTitle : info : ""
+
+[!line : cweicol2b]
+add : right field : after : VCHDiscTitle : GM VchUOMTitle
+local : field : GM VchUOMTitle : info : ""
+
+;------------- Discount Printing.
+
+
+[#Field: EXPINV DiscTitle]
+add : option : einvdisctitle : @@disamtcondition
+
+[!field : einvdisctitle]
+   info : "Disc."
+   
+[#field : EXPINV Discount]
+; set as : if @@discamtboth = 0 and Not $$isempty:$gmpuom then $$Number:$gmpuom else $discount
+ ;;if Not $$isempty:$gmpuom then $$Number:$gmpuom else $discount
+; option : cwdiscamt : @@disamtcondition and Not $$isempty:$gmpuom and @@discamtboth = 0
+ 
+[!field : cwdiscamt]
+ delete : format
+    add : format : "NoZero,Decimals:2"
+  
+[#Line: EXPINV Column1]
+add : option : vc1a : @@discPos1
+add : option : vc1b : @@discPos2
+
+
+[!line : vc1a]
+   add : right field  : before : EXPINV DiscTitle : GM VchUOMTitle
+   local : field : GM VCHUOMtitle : border : thin left right
+   
+[!line : vc1b]
+   add : right field  : after: EXPINV DiscTitle : GM VchUOMTitle
+   local : field : GM VCHUOMtitle : border : thin left right
+
+
+  [#Line: EXPINV Column2]
+  add : option : vc2a : @@discpos1
+  add : option : vc2b : @@discpos2
+  
+
+[!line : vc2a]
+   add : right field  : before : EXPINV DiscTitle : GM VchUOMTitle
+   local : field : GM VchUOMTitle : info : ""
+   local : field : GM VCHUOMtitle : border : thin left right
+
+[!line : vc2b]
+   add : right field  : after: EXPINV DiscTitle : GM VchUOMTitle
+   local : field : GM VchUOMTitle : info : ""
+   local : field : GM VCHUOMtitle : border : thin left right
+
+[#Line: EXPINV InvDetails]
+  add : option : inv1 : @@discpos1
+  add : option : inv2 : @@discpos2
+  
+
+[!line : inv1]
+add : right field : before : EXPINV Discount : GM VCHUOM
+local : field : GM VCHUOM : delete : inactive
+local : field : GM VCHUOM : delete : set as
+local : field : GM VCHUOM : border : thin left right
+
+[!line : inv2]
+add : right field : after : EXPINV Discount : GM VCHUOM
+local : field : GM VCHUOM : delete : inactive
+local : field : GM VCHUOM : delete : set as
+local : field : GM VCHUOM : border : thin left right
+
+
+        [#Line : EXPINV AccDetails]
+  add : option : acc1 : @@discpos1
+  add : option : acc2 : @@discpos2
+  
+       [!line : acc1]
+       add : right field : before : EXPINV AccDiscount : GM VchUOMTitle
+   local : field : GM VchUOMTitle : info : ""
+
+       [!line : acc2]
+       add : right field : after : EXPINV AccDiscount : GM VchUOMTitle
+   local : field : GM VchUOMTitle : info : ""
+
+        [#Line: EXPINV Totals]
+        add : option : ftot1 : @@discPos1
+        add : option : ftot2 : @@discPos2
+        
+        [!line : ftot1]
+        add : right field : before : EXPINV DiscTotal:  GM VchUOM
+        local : field :  GM VchUOM : set as : $$collamttotal:inventoryentries:$gmpuom
+        local : field :  GM VchUOM : delete : inactive
+        local : field :  GM VchUOM : delete : storage
+        local : field :  GM VCHUOM : border : thin left right
+        
+        [!line : ftot2]
+        add : right field : after : EXPINV DiscTotal:  GM VchUOM
+        local : field :  GM VchUOM : set as : $$collamttotal:inventoryentries:$gmpuom
+        local : field :  GM VchUOM : delete : inactive
+        local : field :  GM VchUOM : delete : storage
+        local : field :  GM VCHUOM : border : thin left right
+

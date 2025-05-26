@@ -1,0 +1,29 @@
+[#Part: CMP Tax Info]
+line : cmpIECNoTitle,cmpIECNoTitle2
+
+[line : cmpIECNoTitle]
+use : CMP ISSTNumber Info
+Local		: Field	: Medium Prompt	: Set as	: "I.E.C. No.:"
+;;space top : 0.4
+
+[line : cmpIECNoTitle2]
+  use : cmpIECNoTitle
+invisible : yes
+
+     [#Part : CMP Tax Value]
+       line : cwIECNoValue,cwIECNoValue2
+
+      [line : cwIECNoValue]
+Left Fields : Medium Prompt, nf
+;;		Space Top   : 0.4
+      local : field : nf : storage : cwiecno
+      Local : Field	: Medium Prompt     : Set as	: ""
+		
+      [line : cwIECNoValue2]		
+        use : cwIECNoValue
+      local : field : nf : storage : cwiecno2
+  invisible : yes
+
+    [system : formula]
+cwCMPIECNO  : $cwiecno:company:##svcurrentcompany
+cwCMPIECNO2 : $cwiecno2:company:##svcurrentcompany

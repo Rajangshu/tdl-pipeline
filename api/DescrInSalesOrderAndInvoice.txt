@@ -1,0 +1,64 @@
+; Created By: suman on 2012-07-05 11:26
+
+
+  [#Line: EXPSMP InvDetails]
+    ADD:OPTION:CWEXPSMPInvDetails:@@cwdescription
+    
+    [!LINE:CWEXPSMPInvDetails]
+    Local: Field: EXPINV Desc: Set As: $Basicuserdescription
+    Local: Field: EXPINV Desc:style:normal
+    local : field: eidesc : set as : $$owner:$$collectionfield:$basicuserdescription:@@linep1:basicuserdescription
+    local : field: eidesc : delete : storage
+    local : field: eidesc :style:normal
+    local : field: eidesc:full width:yes
+    
+    delete:Explode: EXPSMP BatchDetails
+    local : line : EI DescExplosion : empty : $$line = $$numitems
+    add:explode:EXPSMP BatchDetails:(@@HasBatchWise OR @@IsOrderVch) AND @@InvWithBatches AND (NOT @@IsOrderVch OR @@OrdExplBatch)
+    local : line : EI DescExplosion:delete:indent
+    local :line :EI DescExplosion:style:normal
+
+
+
+
+    [#Line: EXPINV InvDetails]
+     add:option:cwEXPINVInvDetails:@@cwdescription
+     
+     [!line:cwEXPINVInvDetails]
+     Local: Field: EXPINV Desc: Set As:$Basicuserdescription
+     local:field:expinv desc:style:normal
+     local : field: eidesc : set as : $$owner:$$collectionfield:$basicuserdescription:@@linep1:basicuserdescription
+     local : field: eidesc : delete : storage
+     local : field: eidesc :  style : normal
+     local : field: eidesc : full width:yes
+     local : field: eidesc :delete: indent
+     
+     delete:Explode: EXPINV BatchDetails
+     local:line:EI DescExplosion:empty : $$line = $$numitems
+     add:Explode   : EXPINV BatchDetails :(@@HasBatchWise OR @@IsOrderVch) AND @@InvWithBatches AND (NOT @@IsOrderVch OR @@OrdExplBatch)
+     
+     
+
+      [#Line: ExciseMfgrInv InvDetails]
+        add:option:cwExciseMfgrInvInvDetails:@@cwdescription
+        
+        [!line:cwExciseMfgrInvInvDetails]
+        local:field:EXPINV Desc:set as:$Basicuserdescription
+        local:field:EXPINV Desc:style:tiny
+        local:field: EI Desc:set as:$$owner:$$collectionfield:$basicuserdescription:@@linep1:basicuserdescription
+        local : field: eidesc : delete : storage
+        local : field: eidesc :delete: indent
+        local : field: eidesc :full width:yes
+        
+        delete:explode: EXPINV BatchDetails
+        local:line:EI DescExplosion:empty : $$line = $$numitems
+        add:Explode   : EXPINV BatchDetails : (@@HasBatchWise OR @@IsOrderVchMfgr) AND @@InvWithBatchesMfgr AND (NOT @@IsOrderVchMfgr OR @@OrdExplBatchMfgr)
+
+
+
+
+
+
+
+   [System: Formula]
+  cwdescription:##SADesc = @@OnlyDesc

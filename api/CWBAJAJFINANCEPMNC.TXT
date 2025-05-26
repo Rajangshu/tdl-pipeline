@@ -1,0 +1,133 @@
+[include : "C:\Users\rajan\Desktop\coding by raja\machine learning\nekko\tally\APIIntegration\APIIntegration\APIIntegration\tcp\commonfunctions.txt"]
+
+[System : formula]
+cwBajajFinanceDEmoMode : NO  ;; yes to enable demo no to allow full access
+cwbajajfinancedemodate : '9/2/2021'
+cwbajajfinanceedudate : '9/1/2021'
+
+cwBajajFinanceDemoDt : if @@cwBajajFinanceDEmoMode then if @@CWEdu then $date <= @@cwBajajFinanceedudate else $date <= @@cwBajajFinancedemodate else yes
+cwBajajFinanceMachDemoDate : if @@cwBajajFinanceDEmoMode then if @@CWEdu then $$machinedate <= @@cwBajajFinanceedudate else $$machinedate <= @@cwBajajFinancedemodate else yes
+cwBajajFinanceSales : $$issales:$vouchertypename and @@cwBajajFinanceDemoDt
+
+[System : Formula] ;; Demo Formula
+cwShowDemoForm: @@cwBajajFinanceDEmoMode
+cwShowDemoDate: @@cwBajajFinancedemodate
+cwShowDemoDate2: @@cwBajajFinanceedudate
+
+[system : udf]
+cwBajajFinanceEnabled : logical : 111 ;; change this value.
+
+;--------------------------------------------- Company Config
+
+[#Form: Company Operations]
+                Switch   : cwBajajFinanceLowerRel  : cwBajajFinanceNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : cwBajajFinanceCurrenRel : cwBajajFinanceFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : cwBajajFinanceNOTFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End : cwBajajFinanceConfig
+                                
+[!Form : cwBajajFinanceFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : cwBajajFinanceConfig
+local : line : cwTestConfig : local : field : short name field : tool tip: "Double-Click for browsing to CircuitWorld.in"
+
+[#Part  : CMP TallyShopFeatures Left]
+line:cwBajajFinanceConfig,cwApplicabilityline,cwPartydetailsLine
+
+
+[Line : cwBajajFinanceConfig]
+Field : cwBajajFinanceConfigTitle,cwBajajFinanceConfig
+right field : Short name field
+Local: Field: short name field : info: "sales@circuitworld.in"
+Local: Field: short name field: case : normal
+Local: Field: short name field: Color : blue
+;;Local: Field: short name field: border : thin bottom
+Local: Field: short name field: width : 0
+
+
+key  : cwcwBajajFinanceBrowse
+
+[key : cwcwBajajFinanceBrowse]
+key : left double click
+action : browse : "www.circuitworld.in"
+
+
+[line:cwApplicabilityline]
+field:nf,cwlogical
+
+Local: Field: nf: info:"Show Applicability after Current Balance:"
+Local: Field: cwlogical: storage:cwApplicability
+Local: field: nf: Width:35
+
+[line:cwPartydetailsLine]
+field:nf,cwlogical
+
+Local: Field: nf: info:"Show Party Details Print :"
+Local: Field: cwlogical: storage:cwPartydetails
+Local: field: nf: Width:35
+
+[Field: cwBajajFinanceConfigTitle]
+Use : medium prompt
+info: "Enable Bajaj Finance Limited Customization?"
+width : 0
+
+[Field: cwBajajFinanceConfig]
+Use: logical field
+Set As: $cwBajajFinanceEnabled
+storage: cwBajajFinanceEnabled
+
+
+[System: Formula]
+cwBajajFinanceEnabled :  $cwBajajFinanceEnabled:COMPANY:##SVCURRENTCOMPANY
+cwApplicabilityEnabled:  $cwApplicability:COMPANY:##SVCURRENTCOMPANY
+cwPartyDetailsEnabled :  $cwPartydetails:COMPANY:##SVCURRENTCOMPANY
+
+
+
+;---------------------------------------------
+
+
+; UDF
+[include : cwBajajFinanceUDF.txt]
+[include : cwBajajFinanceUDF2.txt]
+
+; Master Changes 
+
+[include :ConfigChanges.txt]
+[include :vouchertypechanges.txt]
+
+
+; Transaction Changes
+
+
+[include :prime\salesvoucherchangesPM.txt]
+
+;; {28.Aug.21 18:22} [include :posvoucherchanges.txt]
+
+[include:financeDetails.txt]
+
+[include :invoiceprint.txt]
+
+
+;;;;;;;;;;;;; " For  PDF  start  ;;;;;;;;;;;;;;
+
+[include :pdffield.txt]
+[include : cwDSCompanyConfig.txt]
+[include:pdfvouchertypechanges.txt]
+
+[include : prime\VoucherEntryChangesPM.txt]
+[include : prime\ExportforEsigning2PM.txt]
+[include : ExportforEsigning3.txt]
+[include :reportpdfselected.txt]
+
+;;;;;;;;;;;;;;;;;;;; PDF END  ;;;;;;;;;;;;;;;;;
+
+ [include : functions\fnDODetails.txt]
+
+; Report Changes
+
+[include : BajajReport.txt]
+[include : BajajReportDetails.txt]
+[include : ExportPdfBySelectingBill.txt]
+[include :cwSimpleFormatInv.txt]
+

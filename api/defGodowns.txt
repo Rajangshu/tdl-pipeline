@@ -1,0 +1,279 @@
+;Modified by: Pg on 2012-12-29 18:00, ID: 
+;Modified by: Pg on 2012-12-28 12:02, ID: 
+;Modified by: Suman on 2012-12-27 14:35, ID: 
+; cwDefGodownListCondition : $$issales:$parent or $$isPurchase:$parent or $$iscreditnote:$parent or $$isdebitnote:$parent or $$isstockjrnl:$parent or $$issalesOrder:$parent or $$ispurcorder:$parent or $$isdelnote:$parent or $$isrcptNote:$parent
+; cwVchGodownListCondition : @@issales or @@ispurchase or @@iscreditnote or @@isdebitnote or @@isstockjrnl or @@IsSalesOrder OR @@IsPurcOrder OR @@IsDelNote OR @@IsRcptNote
+
+; cwUseDefGodownofPOS : Yes
+
+;[include : E:\d7comps\tcommon\refreshtdl.txt]
+
+[System : UDF]
+cwDefgodown  : string : 947
+cwDefGodownOut : string : 948
+SkipGodownInEntry : logical : 949
+
+
+[#Part: VTYP Behaviour]
+add : option : vtB : @@cwDefGodEnabledEnabled
+
+[!part : vtb]
+ ADD:LINE: cwDefGodown,cwDefGodown2 ;;,testsdfs
+
+
+[System : Formula]
+cwDefGdn : if ($$isstockjrnl:$vouchertypename and  not $isdeemedpositive) then  $cwDefGodownOut:vouchertypes:$vouchertypename else $cwDefgodown:vouchertypes:$vouchertypename
+cwDefGdnOut : $cwDefGodownOut:vouchertype:$vouchertypename
+
+[#Line: VCH POS Godown]
+local : field : VCH POS Godown : set by condition : @@cwUseDefGodownofPOS : @@cwDefGdn
+local : field : VCH POS Godown : skip : @@hascwDefGod and @@SkipGodownInEntry
+
+[line : testsdfs]
+field : short name field
+Local: Field: default: Skip: Yes
+Local: Field: short name field: Set As: $$IsJobMaterialReceive:$parent
+;; {28.Dec.12 13:14 - Pg, ID: } Local: Field: short name field: Border: thin box
+
+
+[line : cwDefGodown]
+Fields: Long Prompt, name field
+Local : Field : Long Prompt 	: set as : if $$isstockjrnl:$parent then "Default Godown (Inward) :" else "Default Godown :"
+Local : Field : Long Prompt 	: set always : yes
+Local : Field : Long Prompt 	: delete : info
+Local : Field : Long Prompt 	: skip : yes
+
+
+
+local : field : name field : table : Stockable Godown VchExtract, Not Applicable
+;empty : if ($$IsJobMaterialReceive:$parent or $$IsJobMaterialIssue:$parent) then no else NOT @@cwDefGodownListCondition
+local : field : name field : storage : cwDefgodown
+local : field : name field : key : Create Godown, Alter Godown
+Local : Field: name field  : Variable    : SV Godown
+
+;; {28.Dec.12 12:40 - Pg, ID: } Local: Field: long prompt : Color :blue
+local : field: default : inactive : ($$ispayment:$parent or $$isreceipt:$parent or $$iscontra:$parent or $$ismemo:$parent or $$isjournal:$parent)
+
+[line : cwDefGodown2]
+use : cwDefgodown
+local : field : default : inactive : if ($$IsJobMaterialReceive:$parent or $$IsJobMaterialIssue:$parent) then no else  not ($$isstockjrnl:$parent or $$IsJobOrderIn:$Parent or $$isJobOrderOut:$parent)
+local : field : name field : storage : cwDefGodownOut
+Local: Field: long prompt : info: "Default Godown (Outward):"
+
+
+
+    [#Field: VCHINV Godown]
+Set as      : if NOT $$Issysname:$$AltTable:VCHBATCHTrack:VCHBATCHOrder:$GodownName AND ($$IsEmpty:$$Value OR $$IsFieldEdited:VCHBATCHTrack OR $$IsFieldEdited:VCHBATCHOrder) then $$AltTable:VCHBATCHTrack:VCHBATCHOrder:$GodownName else +
+              if @@cwVchGodownListCondition and $$line = 1 then @@cwDefGdn else +
+              if $$IsEmpty:$$Value AND NOT $$IsEmpty:$PartyLedgerName then $$PrevGodown:$PartyLedgerName else +
+              if not $$isempty:$$value then $$Value else +
+              If ($$IsPurcOrder:##SVVoucherType OR $$IsSalesOrder:##SVVoucherType) AND $$IsEmpty:$$Value Then $$SysName:Any Else $$value
+;; {27.Dec.12 14:39 - Suman, ID: } border : thin box : @@cwVchGodownListCondition and $$isempty:@@cwDefGdn
+skip : @@hascwDefGod and @@SkipGodownInEntry  and $$line = 1
+;;border : thin box : @@IsJobMaterialTransferOutVch and not $$issysname:@@cwDefGdnOut
+;;              if @@IsJobMaterialTransferOutVch and not $$issysname:@@cwDefGdnOut and $$line = 1 then #cwxf else +
+
+
+
+[#Field: VCHACC Godown]
+;; border : thin box
+        Set as      : if NOT $$IsEmpty:$$AltTable:VCHBATCHTrack:VCHBATCHOrder:$GodownName AND ($$IsEmpty:$$Value OR $$IsFieldEdited:VCHBATCHTrack OR $$IsFieldEdited:VCHBATCHOrder) then $$AltTable:VCHBATCHTrack:VCHBATCHOrder:$GodownName else +
+                      if @@cwVchGodownListCondition and $$line = 1 then @@cwDefGdn else +
+                      if $$IsEmpty:$$Value AND NOT $$IsEmpty:$LedgerName then $$PrevGodown:$LedgerName else $$Value
+skip : @@hascwDefGod and @@SkipGodownInEntry    and $$line = 1
+
+            [#Line: SJDetailsA]
+            option:SJDetailsAopt:@@cwIsMultiGodownOn
+            [!line:SJDetailsAopt]
+            local : field : VCH StockItem : Sub Form    : STKVCH BatchAllocations : if $$sysname:@@cwdefgdnout or $$isempty:@@cwdefgdnout then no else NOT @@AsMfgJrnlEntry AND ((@@HasBatchWise OR (NOT @@HasBatchWise AND @@IsGodownTransfer AND $$IsIndentOn)) +
+                                            OR @@HasTrackingNo) AND ($$IsEmptyCollection:BatchAllocations OR NOT $$IsExploded:STKVCHBATCHExplosion) and @@SkipGodownInEntry and @@POSBatchItem
+
+[System: Formula]
+cwIsMultiGodownOn:$IsMultiGodownOn:COMPANY:##SVCURRENTCOMPANY
+                                [#Line: SJDetailsC]
+;; {28.Dec.12 13:07 - Pg, ID: }             local : field : VCH StockItem : Sub Form    : STKVCH BatchAllocations : NOT @@AsMfgJrnlEntry AND ((@@HasBatchWise OR (NOT @@HasBatchWise AND @@IsGodownTransfer AND $$IsIndentOn)) +
+;; {28.Dec.12 13:07 - Pg, ID: }                                             OR @@HasTrackingNo) AND ($$IsEmptyCollection:BatchAllocations OR NOT $$IsExploded:STKVCHBATCHExplosion) and @@SkipGodownInEntry
+;; {28.Dec.12 13:14 - Pg, ID: } border : thin box
+
+        [#Line: GTRNDetails]
+            local : field : VCH StockItem : Sub Form    : STKVCH BatchAllocations : NOT @@AsMfgJrnlEntry AND ((@@HasBatchWise OR (NOT @@HasBatchWise AND @@IsGodownTransfer AND $$IsIndentOn)) +
+                                            OR @@HasTrackingNo) AND ($$IsEmptyCollection:BatchAllocations OR NOT $$IsExploded:STKVCHBATCHExplosion) and @@SkipGodownInEntry
+
+;    [Line: SJ MfdItem]
+[#field: MVCH Godown]
+set as : if $$isempty:$$value then @@cwDefGdn else $$value
+skip : @@hascwDefGod and @@SkipGodownInEntry   ;; and $$line = 1
+
+
+[#Line: SJDetailsC]
+add : option : MyGod1 : @@cwDefGodEnabledEnabled
+
+[!line : MyGod1]
+add : field : cwxf
+;; {28.Dec.12 12:57 - Pg, ID: } Local: Field: cwxf: set by condition : @@isstockjrnl : $cwDefgodown:vouchertypes:$vouchertypename
+local : field : VCH Godown StkJrnl : set as : $cwDefgodown:vouchertypes:$vouchertypename
+;; {28.Dec.12 13:13 - Pg, ID: } local : field : vchgodown : set as : #cwxf ;; "g1" ;;$cwDefgodown:vouchertypes:$vouchertypename
+local: field: nf: Invisible: yes
+;; {28.Dec.12 13:07 - Pg, ID: }             local : field : VCH StockItem : add:Sub Form    : STKVCH BatchAllocations : yes ;;(@@HasBatchWise OR @@HasTrackingNo) AND @@SkipGodownInEntry
+local : field : vch godown : read only : @@hascwDefGod and @@SkipGodownInEntry
+local : field : vch godown : skip : ($isdeemedpositive and (not @@hasbatchwise and @@hascwDefGod and @@SkipGodownInEntry)) or (not $isdeemedpositive and (not @@hasbatchwise and not $$issysname:$cwDefGodownOut:vouchertype:$vouchertypename and @@SkipGodownInEntry))
+;;local : field : vch godown : delete : table
+
+;; {27.Dec.12 14:38 - Suman, ID: } local : field :default : border : thin box
+
+[#field : VCH Godown]
+set as : if $$isempty:$$value then @@cwDefGdn else $$value
+;; {10.Feb.16 17:57} border : thin box : not $isdeemedpositive
+;set as : @@cwDefGdn
+skip : @@hascwDefGod and @@SkipGodownInEntry   ;; and $$line = 1     @@cwDefGdn and @@SkipGodownInEntry  ;;
+
+
+
+;;   border : thin box
+        [#Field: GTRNDestination]
+set as : if $$isempty:$$value then @@cwDefGdn else $$value
+skip : @@hascwDefGod and @@SkipGodownInEntry    and $$line = 1
+;       border : thick box
+;------------------------
+[report : pgdefgodown]
+        use: Dsp Template
+      Title: @@pgDefGodownReport
+   Printset: Report Title: @@pgDefGodownReport
+       Form: FrmpgDefGodown
+     Export: Yes
+     variable : svvouchertype
+
+      [Form: FrmpgDefGodown]
+        use: DSP Template
+       Part: PrtpgDefGodown
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+
+      [Part: PrtpgDefGodown]
+       Line: LnpgDefGodown
+     repeat: LnpgDefGodown: ColpgDefGodown
+     scroll: Vertical
+ Common Border: YEs
+      ;Total: Qtyf,amtf
+
+[Collection: ColpgDefGodown]
+        Use: vouchertype
+     Filter: ColpgDefGodownFilter
+
+    [system: Formula]
+ColpgDefGodownFilter: $name = ##SVVouchertype
+
+      [Line: LnpgDefGodown]
+     Fields: name field
+Local: Field: name field: Set As: $cwDefgodown
+
+;- F11 F6
+
+[System: Formula]
+ cwDefGodownListCondition : @@cwDefGodEnabledEnabled and ($$issales:$parent or $$isPurchase:$parent or $$iscreditnote:$parent or $$isdebitnote:$parent or $$isstockjrnl:$parent +
+ or $$issalesOrder:$parent or $$ispurcorder:$parent or $$isdelnote:$parent or $$isrcptNote:$parent or $$IsJobMaterialReceive:$parent or $$IsJobMaterialIssue:$parent or $$IsJobOrderIn:$Parent or $$isJobOrderOut:$parent)
+
+ cwVchGodownListCondition : @@cwDefGodEnabledEnabled ;;and not ($$issysname:$cwDefgodown:Vouchertype:##SVVoucherType or $$issysname:$cwDefGodownOut:Vouchertype:##SVVoucherType)
+
+ cwUseDefGodownofPOS : @@IsPOSInvoice and not $$issysname:$cwDefgodown:Vouchertype:##SVVoucherType
+hascwDefGod :  not $$issysname:$cwDefgodown:Vouchertype:##SVVoucherType
+
+;;[#line : eiconsignee]
+;;local : field : default : border : Thin box : not $$issysname:$cwDefgodown:Vouchertypes:##SVVoucherType
+;------- Config
+
+;;Sri Ganeshji
+
+[#Form: Company Operations]
+                Switch   : cwDefGodEnabledLowerRel  : cwDefGodEnabledNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : cwDefGodEnabledCurrenRel : cwDefGodEnabledFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : cwDefGodEnabledNOTFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End : cwDefGodEnabledConfig
+
+[!Form : cwDefGodEnabledFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left : Add :  Line : At End  : cwDefGodEnabledConfig
+
+[#Part: CMP TallyShopFeatures Left]
+add:line:cwDefGodEnabledConfig
+
+[Line : cwDefGodEnabledConfig]
+Field : cwDefGodEnabledConfigTitle,cwDefGodEnabledConfig,shortprompt,logicalfield
+;right field : Short name field
+;Local: Field: short name field : info: "support@circuitworld.in"
+;Local: Field: short name field: case : normal
+;; {28.Dec.12 12:41 - Pg, ID: } Local: Field: short name field: Color : blue
+;;Local: Field: short name field: border : thin bottom
+;Local: Field: short name field: width : 0
+Local: Field: short prompt: info: "Skip in Entry:"
+Local: Field: logicalfield: storage: SkipGodownInEntry
+Local: Field: logicalfield: inactive : not #cwDefGodEnabledConfig
+Local: field: short prompt: Width:12.5
+
+[Field: cwDefGodEnabledConfigTitle]
+Use : medium prompt
+info: "Enable Voucher Type Wise Godown Setting?"
+Width: 0
+
+[Field: cwDefGodEnabledConfig]
+Use: logical field
+Set As: $cwDefGodEnabledEnabled
+storage: cwDefGodEnabledEnabled
+
+[system : udf]
+cwDefGodEnabledEnabled : logical : 8010 ;; change this value.
+
+[System: Formula]
+cwDefGodEnabledEnabled :  $cwDefGodEnabledEnabled:COMPANY:##SVCURRENTCOMPANY
+SkipGodownInEntry  : $SkipGodownInEntry:COMPANY:##SVCURRENTCOMPANY
+
+;;[#menu : Gateway of tally]
+;; add : item  : at end : @@cwDefGodEnabledEnabled
+
+
+
+;------- Material In & OUt
+		[#Line: EI DestinationGodown]
+          add : field :cwxf
+
+[field : cwxf]
+Set As: if $$IsJobMaterialIssue:##SVVoucherType then $cwDefgodown:vouchertypes:$vouchertypename else $cwDefGodownOut:vouchertypes:$vouchertypename
+set always : yes
+invisible : yes
+skip : yes
+color : blue
+
+
+	[#Field: EI VchDestinationGodown]
+		Set as		: If NOT $$IsMultiGodownOn Then $$SysName:NotApplicable Else +
+		if @@cwVchGodownListCondition then #cwxf else +
+					  If $$IsEmpty:$$Value Then $$SysName:NotApplicable Else $$Value
+	
+
+
+	[#Field: EI VchSourceGodown]
+		Set as		: If NOT $$IsMultiGodownOn Then $$SysName:NotApplicable Else +
+		if @@cwVchGodownListCondition then @@cwDefGdn else +		
+					  If $$IsEmpty:$$Value Then $$SysName:NotApplicable Else $$Value
+
+
+            [#Line: STKVCH Batch2]
+add : field : cwxf
+;;border : thick box
+;;local : field : cwxf : delete : invisible
+;; {28.Dec.12 13:06 - Pg, ID: } Local: Field: cwxf: Set As: if not $$isempty:$$Value then $$value else if $$line > 1 then $$sysname:endoflist else  if @@IsJobMaterialTransferOutVch then @@cwDefGdnOut else @@cwDefGdnOut
+;; {28.Dec.12 13:06 - Pg, ID: }   local: field : VCHBATCH Godown : set as : #cwxf
+
+[#field: VCHBATCH JobMaterialGodown]
+set as : if $$isempty:$$value and $$line = 1 then #cwxf else $$value
+skip : @@SkipGodownInEntry and $$line = 1 and not $$isempty:#cwxf
+
+;-------------- Job Work Order
+[#field: VCH BATCH Component Godown]
+;	Set as		: If $$ReportObject:$$NumItems:STKComponentItemList>0 Then @SetValAny Else @SetValAny
+;	SetValAny	: If $$IsEmpty:@SetVal Then $$SysName:Any Else @SetVal
+	SetValAny	: if @@cwVchGodownListCondition then @@cwDefGdnOut else  If $$IsEmpty:@SetVal Then $$SysName:Any Else @SetVal
+	

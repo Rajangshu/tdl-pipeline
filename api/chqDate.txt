@@ -1,0 +1,18 @@
+;; PRODUCT: Chq Date Blank
+;; PRODUCT-ID: 9cc7ec5c-3370-4bf9-8cfe-a7ab83434669
+;; AUTHOR: Tally Developer, Kolkata
+
+
+[include : C:\d7comps\tcommon\CommonVars.txt]
+
+ [#Field: Vch Bank AllocChequeDate]
+ delete : validate
+delete : set  as
+delete : set by condition
+
+[#Line: PCDate]
+;local : field :default : border : thin box
+
+[#Form: eVCH Printed Cheque]
+;button: change date
+

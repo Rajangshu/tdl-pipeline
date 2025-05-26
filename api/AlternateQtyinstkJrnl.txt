@@ -1,0 +1,67 @@
+/* How to Use This File.
+1. Create a Formula cwAqty (for Title of Alternate Qty Column)
+2. Create a Formula cwShowAQtyColumn for condition to display Alternate Qty Column
+
+[System : Formula]
+ cwaqty : "A.Qty"
+cwShowAQtyColumn  : $$isstockJrnl:##SVVoucherType
+;
+
+*/
+
+
+[field : cwAqtyTitle]
+   use : cwaqty
+info : @@cwaqty
+
+[field : cwaqty]
+   use : snf
+skip : yes
+set as : $$string:$actualqty:"Secondary,shortform,compact"
+
+   [field : cwAqtyx]
+   use : cwaqty
+;   info : ""
+
+[#Line: SJ TitleTwoB]
+add : option : cwSK2bTitle : @@cwShowAQtyColumn
+
+
+[#Line: SJTitleTwoC]
+add : option : cwSK2bTitle : @@cwShowAQtyColumn
+
+[!line : cwSK2bTitle]
+
+add : right field : after : VCH BilledQtyTitle : cwAqtyTitle
+
+[#Line: SJDetailsB]
+add : option : cwSJDetailsB : @@cwShowAQtyColumn
+
+[#LINE : SJDetailsD]
+add : option : cwSJDetailsB : @@cwShowAQtyColumn
+
+[!line : cwSJDetailsB]
+   add : right field : after : VCH BilledQty :cwaqty
+   add : right field : after : VCHSTKJrnl BilledQty : cwaqty
+   
+
+[#line: SJTotals]
+;local : field : cwaqtyxTotal :
+
+
+[field :cwAqtyxTotalIn]
+use : cwaqtyx
+
+[field :cwAqtyxTotalOut]
+use : cwaqtyx
+
+
+    [#Part: SJOut]
+    local : line:  sjTotals : add : Right Fields: after : VCH BilledQtyTotal : cwAqtyxTotalOut
+
+    local : line : sjTotals : local : field : cwaqtyxTotalOut : set as: @@cwSecondaryOutQty
+    
+    [#Part: SJIN]
+    local : line:  sjTotals : add : Right Fields: after : VCH BilledQtyTotal : cwAqtyxTotalIn
+    local : line : sjTotals : local : field : cwaqtyxTotalIn : set as: @@cwSecondaryInQty
+

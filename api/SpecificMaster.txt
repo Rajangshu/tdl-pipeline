@@ -1,0 +1,46 @@
+[Report: List of Accounts2]
+
+    Title       : $$LocaleString:"List of Accounts"
+    Variables   : SV CurrentCompany, SV FromDate, SV ToDate, SV SortMethod, IsItemWise
+    Variables   : AccountType, GroupName, CostCategoryName, CostCentreName, DSPGodownName, StockGroupName, StockCategoryName
+    Variable    : DSPShowMonthly, DSPNotScaleable, IMPClAsOp
+	Variable    : Serial Number, STariffclassification
+    Filtered    : Yes
+Variable : MyFilterPassing,MyFilterPassing2
+    Set         : AccountType       : if $$IsEmpty:##AccountType then $$SysName:Ledgers else ##AccountType
+    Set         : DSPNotScaleable   : Yes
+    Set         : SVFromDate        : $BooksFrom:Company:##SVCurrentCompany
+    Set         : SVToDate          : ""
+
+    PrintSet    : ReportTitle       : $$SPrintf:@@ListOfAccTypeFormat:##AccountType
+
+    PrintSet    : ReportSubTitle    : ""
+    Set         : IMPClAsOp         : No
+
+    Print       : Acct List Print Config
+
+    Export      : Yes
+    PrintSet    : PrintFileName     : "Master"
+    LOCAL : COLLECTION : EAT Employees : DELETE : COLLECTION : 	EAT Cost Categories
+    LOCAL : COLLECTION : EAT Employees : DELETE : Collection  : EAT Unit
+    LOCAL : COLLECTION : EAT Employees : DELETE : Collection  : EAT AttdType
+    LOCAL : COLLECTION : EAT Employees : DELETE : Collection  : EAT PayHeads
+    LOCAL : COLLECTION : EAT Employees : DELETE : Collection  : EAT Dir Employees
+    LOCAL : COLLECTION : EAT Employees : DELETE : Collection	: EAT Employee Grp
+    LOCAL : COLLECTION : EAT Employees : ADD : COLLECTION : CWEMP1
+
+;;LOCAL : PART : AccType Body : ADD : OPTION : EXPSoapEnvelopeOpt
+FORM : LIST OF ACCOUNTS2
+
+[FORM : LIST OF ACCOUNTS2]
+PART : P2LISTOFACC
+
+[PART : P2LISTOFACC]
+OPTION : EXPSoapEnvelopeOpt
+;;LOCAL : Part: EXPAcc Body : DELETE : OPTION :  EAT Employees
+
+[COLLECTION : CWEMP1]
+	Type       	: Cost Centre
+    Filter     	: EmployeesFilter
+    Filter	    : NotEmployeeGroupFilter
+   FILTER : MYREPFILTER

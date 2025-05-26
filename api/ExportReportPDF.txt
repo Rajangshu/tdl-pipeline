@@ -1,0 +1,94 @@
+; Created By: prakash on 2022-06-04 16:21, ID: 
+
+
+/*
+[variable : cwReportName]
+type : string
+persistent : no
+
+*/
+[variable : cwText]
+type : string
+persistent : no
+
+[report: cwExportOsReportPDF]
+use : dsptemplate
+
+variable : SVPrintFileName
+variable : SVExportLocation
+;; {04.Jun.22 17:33} variable: cwReportName
+variable : cwText
+
+variable : ledgername,groupname,costcentrename,costcategoryname,stockgroupname, stockcategoryname,stockitemname
+
+   form: FrmcwExporetRePortPDF
+
+  [form: FrmcwExporetRePortPDF]
+ option: small size form
+   part: prtcwExporetRePortPDF
+
+  [part: prtcwExporetRePortPDF]
+   line: lncwExporetRePortPDF
+   
+  [line: lncwExporetRePortPDF]
+  field: fldcwExporetRePortPDF
+  
+ [field: fldcwExporetRePortPDF]
+ use : name field
+ set as : $$cwExportReportPDF
+ set always : yes
+ 
+ [function : cwExportReportPDF]
+ variable : SVOpenFileAfterExport : logical : no
+ 
+;; {04.Jun.22 18:09}  05 : log : not $$isempty:$WAAutoWhatsapp:ledger:##ledgername and $WAAutoWhatsapp:ledger:##ledgername
+ 
+10 : if : not $$isempty:$WAAutoWhatsapp:ledger:##ledgername and $WAAutoWhatsapp:ledger:##ledgername
+11 : log : "Whatsapp export is Disabled for: " + ##LedgerName +" in: " + ##svCurrentCompany
+12 : return : "No"
+13 : end if
+
+20 : set : SVExportFormat : $$sysname:PDF
+
+30 : set : SVPrintFileName  :  ##SVExportLocation+$$MakeExportName:##SVPrintFileName:##SVExportFormat
+31 : set : SVExportFileName : ##SVPrintFileName
+
+;; {04.Jun.22 16:27} 35 : set : svPrintFileName : $$cwStringReplace:##SvPrintFileName:"/":""
+;; {04.Jun.22 16:27} 37 : set : svPrintFileName : $$cwStringReplace:##SvPrintFileName:"\":""
+
+38 : log :  ##SVExportFileName
+
+;; {04.Jun.22 16:57} 38 : log : ##cwReportName +" - " + ##SVExportLocation   + " - " + ##SVPrintFileName
+
+40 : export : LedgerOutstandings : yes : no
+
+50 : set : svExportFileName : $$stringpart:##svExportFileName:0:($$stringlength:##svExportFileName-3)   + "xml"
+
+60 : open file : ##svExportFileName : Text : Write
+70 : TRUNCATE FILE
+80 : WRITE FILE LINE : "<ENVELOP>"
+81 : log : @@cwWAExportLedgerMobile
+90 : WRITE FILE LINE : "<MOBILE>"+ @@cwWAExportLedgerMobile +"</MOBILE>"
+91 : WRITE FILE LINE : "<TEXT>"+ ##cwText +"</TEXT>"
+92 : WRITE FILE LINE : "<PATH>"+ ##svExportFileName +"</PATH>"
+93 : WRITE FILE LINE : "<COUNTRYCODE>"+ @@cwWaCountryCode +"</COUNTRYCODE>"
+94 : WRITE FILE LINE : "<VOUCHERNUMBER>"+ @@cwWAVoucherNumber +"</VOUCHERNUMBER>"
+95 : WRITE FILE LINE : "<SMSTEMPLATEID>"+ @@cwWASMSTEMPLATEID +"</SMSTEMPLATEID>"
+96 : WRITE FILE LINE : "<GUID>"+ @@cwWAGUId +"</GUID>"
+97 : WRITE FILE LINE : "<VOUCHERTYPENAME>"+ @@cwWAVoucherTypeName +"</VOUCHERTYPENAME>"
+98 : WRITE FILE LINE : "</ENVELOP>"
+
+
+955 : return :"Yes"
+
+[System: Formula]
+cwWAExportLedgerMobile : $ledgermobile:ledger:##ledgername
+cwWACountryCode: ""
+cwWAVoucherNumber: ""
+cwWASMSTEMPLATEID: ""
+cwWAGUId : ""
+cwWAVoucherTypeName:""
+
+
+
+

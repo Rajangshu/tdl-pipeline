@@ -1,0 +1,610 @@
+;; PRODUCT: Tally connectivity
+;; PRODUCT-ID: d022ba98-b2c3-4fc2-a0f9-e7a590ff5697
+;; AUTHOR: TallyDeveloper
+
+;; has Report : prgpath, variable : company name
+;; has Report : prgvers, variable : prgver
+;; has Report : pserial
+;; has Report : prgtemplate
+;; has Field : PrgExplodeLevel
+
+[include : ledgerexists.txt]
+[include : cwledgerexistsNew.txt]
+[include : GetNextVocher.txt]
+[include : itemparams.txt]
+[include : getitemdetails.txt]
+
+[system : formula]
+cwTallySEriallock : Yes
+cwTallySerialLockDate : $$Date:"18/11/2010"
+
+[report : CwCurrentCompany]
+use : list of companies
+local : line : List of Companies : invisible : $name <> ##svcurrentcompany
+local : line : List of Companies : add : field : dlr,cwguid
+
+[field : cwguid]
+set as : $GUID
+
+[Field : PrgExplodeLevel]
+   use : numberfield
+format : "Nocomma"
+set as : $$ExplodeLevel
+ Style : Normal
+
+[Report : prgPath]
+    use : PRGtemplate
+  local : field : disguisenamefield : set as : $Destination:COMPANY:##SVCURRENTCOMPANY
+
+[report : prgvers]
+    use : PRGtemplate
+  local : field : disguisenamefield : set as :  @@prgver
+  
+[Report : pSerial]
+    use : PRGtemplate
+;;  local : field: disguisenamefield: set as:  if @@cwTallySEriallock then (if $$machinedate < @@cwTallySerialLockDate  then $$serialnumber else -1) else $$serialnumber
+  local : field: disguisenamefield: set as: if $$serialnumber > 0 then $$serialnumber else 424
+[Field : pgName]
+use : Name field
+style : normal
+width : 100
+set as : $name
+
+[field : pgAmount]
+use : Amount Field
+format : "No Comma"
+
+[field: pgQty]
+  use : QtyPrimary Field
+format : "NoComma"
+
+
+[field : xd1]
+use : name field
+width : 1
+set as : ","
+
+[field : xd2]
+use : xd1
+
+[field : xd3]
+use : xd1
+
+[field : xd4]
+use : xd1
+
+[field : xd5]
+use : xd1
+
+[field : xd6]
+use : xd1
+
+[field : xd7]
+use : xd1
+
+[field : xd8]
+use : xd1
+
+[field : xd9]
+use : xd1
+
+[field : xd10]
+use : xd1
+
+[FIELD : DLR]
+USE : XD1
+SET AS : "$"
+
+[FIELD : DLR1]
+USE : dLR
+[FIELD : DLR2]
+USE : dLR
+[FIELD : DLR3]
+USE : dLR
+[FIELD : DLR4]
+USE : dLR
+[FIELD : DLR5]
+USE : dLR
+[FIELD : DLR6]
+USE : dLR
+[FIELD : DLR7]
+USE : dLR
+[FIELD : DLR8]
+USE : dLR
+[FIELD : DLR9]
+USE : dLR
+[FIELD : DLR10]
+USE : dLR
+[FIELD : DLR11]
+USE : dLR
+[FIELD : DLR12]
+USE : dLR
+[FIELD : DLR13]
+USE : dLR
+[FIELD : DLR14]
+USE : dLR
+[FIELD : DLR15]
+USE : dLR
+
+[field : d0]
+use : d1
+
+[FIELD : D1]
+USE : SHORT NAME FIELD
+INVISIBLE : if not $$InExportMode then yes else @@IsExcelFormat
+WIDTH : 1
+SET AS : "$"
+;set as : $$descname
+
+[FIELD : D2]
+USE : D1
+
+[FIELD : D3]
+   USE : D1
+
+[FIELD : D4]
+   USE : D1
+
+[FIELD : D5]
+   USE : D1
+
+[FIELD : D6]
+   USE : D1
+INVISIBLE : if not $$InExportMode then yes else @@IsExcelFormat
+
+[FIELD : D7]
+   USE : D1
+
+[FIELD : D8]
+   USE : D1
+
+[FIELD : D9]
+   USE : D1
+
+[FIELD : D10]
+   USE : D1
+
+[FIELD : D11]
+   USE : D1
+
+[FIELD : D12]
+   USE : D1
+
+[FIELD : D13]
+   USE : D1
+
+[FIELD : D14]
+   USE : D1
+
+[FIELD : D15]
+   USE : D1
+
+[FIELD : D16]
+   USE : D1
+
+[FIELD : D17]
+   USE : D1
+
+[FIELD : D18]
+   USE : D1
+
+[FIELD : D19]
+   USE : D1
+
+[FIELD : D20]
+   USE : D1
+
+[FIELD : D21]
+   USE : D1
+
+[FIELD : D22]
+   USE : D1
+
+[FIELD : D23]
+   USE : D1
+
+[FIELD : D24]
+  USE : D1
+
+[FIELD : D25]
+   USE : D1
+   
+ [FIELD : D26]
+   USE : D1
+
+[FIELD : D27]
+   USE : D1
+
+[FIELD : D28]
+   USE : D1
+
+[FIELD : D29]
+  USE : D1
+
+[FIELD : D30]
+   USE : D1
+
+[FIELD : D31]
+   USE : D1
+
+ [FIELD : D32]
+   USE : D1
+[FIELD : D33]
+   USE : D1
+[FIELD : D34]
+   USE : D1
+[FIELD : D35]
+   USE : D1
+[FIELD : D36]
+   USE : D1
+[FIELD : D37]
+   USE : D1
+
+[FIELD : D38]
+   USE : D1
+[FIELD : D39]
+   USE : D1
+   
+[FIELD : D40]
+   USE : D1
+[FIELD : D41]
+   USE : D1
+[FIELD : D42]
+   USE : D1
+[FIELD : D43]
+   USE : D1
+[FIELD : D44]
+   USE : D1
+[FIELD : D45]
+   USE : D1
+[FIELD : D46]
+   USE : D1
+[FIELD : D47]
+   USE : D1
+[FIELD : D48]
+   USE : D1
+[FIELD : D49]
+   USE : D1
+[FIELD : D50]
+   USE : D1
+
+
+[FIELD : D51]
+   USE : D1
+[FIELD : D52]
+   USE : D1
+[FIELD : D53]
+   USE : D1
+[FIELD : D54]
+   USE : D1
+[FIELD : D55]
+   USE : D1
+[FIELD : D56]
+   USE : D1
+   
+[FIELD : D57]
+   USE : D1
+   
+[FIELD : D58]
+   USE : D1
+   
+[FIELD : D59]
+   USE : D1
+   
+[FIELD : D60]
+   USE : D1
+   
+[FIELD : D61]
+   USE : D1
+   
+
+[FIELD : D62]
+   USE : D1
+   
+
+[FIELD : D63]
+   USE : D1
+   
+
+[FIELD : D64]
+   USE : D1
+   
+[FIELD : D65]
+   USE : D1
+
+ [FIELD : D66]
+   USE : D1
+
+
+ [FIELD : D67]
+   USE : D1
+
+
+
+   [FIELD : D68]
+   USE : D1
+
+
+   [FIELD : D69]
+   USE : D1
+
+
+   [FIELD : D70]
+   USE : D1
+
+
+   [FIELD : D71]
+   USE : D1
+
+
+   [FIELD : D72]
+   USE : D1
+
+    [FIELD : D73]
+   USE : D1
+
+
+
+    [FIELD : D74]
+   USE : D1
+
+
+    [FIELD : D75]
+   USE : D1
+
+
+    [FIELD : D76]
+   USE : D1
+
+
+    [FIELD : D77]
+   USE : D1
+   
+    [FIELD : D78]
+   USE : D1
+
+
+    [FIELD : D79]
+   USE : D1
+
+
+
+    [FIELD : D80]
+   USE : D1
+   
+
+    [FIELD : D81]
+   USE : D1
+   
+    [FIELD : D82]
+   USE : D1
+   
+    [FIELD : D83]
+   USE : D1
+   
+    [FIELD : D84]
+   USE : D1
+   
+    [FIELD : D85]
+   USE : D1
+   
+    [FIELD : D86]
+   USE : D1
+   
+   
+    [FIELD : D87]
+   USE : D1
+   
+    [FIELD : D88]
+   USE : D1
+   
+    [FIELD : D89]
+   USE : D1
+   
+    [FIELD : D90]
+   USE : D1
+   
+     [FIELD : D91]
+   USE : D1
+   
+     [FIELD : D92]
+   USE : D1
+   
+     [FIELD : D93]
+   USE : D1
+
+
+     [FIELD : D94]
+   USE : D1
+
+
+     [FIELD : D95]
+   USE : D1
+
+
+     [FIELD : D96]
+   USE : D1
+
+
+
+     [FIELD : D97]
+   USE : D1
+   
+   
+     [FIELD : D98]
+   USE : D1
+   
+     [FIELD : D99]
+   USE : D1
+   
+   
+     [FIELD : D100]
+   USE : D1
+
+
+    [FIELD : D101]
+   USE : D1
+
+
+      [FIELD : D102]
+   USE : D1
+
+
+      [FIELD : D103]
+   USE : D1
+
+
+      [FIELD : D104]
+   USE : D1
+
+
+      [FIELD : D105]
+   USE : D1
+
+
+      [FIELD : D106]
+   USE : D1
+
+
+      [FIELD : D107]
+   USE : D1
+
+
+      [FIELD : D108]
+   USE : D1
+
+
+      [FIELD : D109]
+   USE : D1
+   
+     [FIELD : D110]
+   USE : D1
+   
+    [FIELD : D111]
+   USE : D1
+
+    [FIELD : D112]
+   USE : D1
+   
+    [FIELD : D113]
+   USE : D1
+
+
+    [FIELD : D114]
+   USE : D1
+   
+    [FIELD : D115]
+   USE : D1
+   
+    [FIELD : D116]
+   USE : D1
+   
+    [FIELD : D117]
+   USE : D1
+   
+    [FIELD : D118]
+   USE : D1
+   
+    [FIELD : D119]
+   USE : D1
+   
+    [FIELD : D120]
+   USE : D1
+
+
+
+
+
+
+
+
+
+
+   
+
+[report : prgTemplate]
+    use : dsptemplate
+   Form : PrgTemplate
+
+  [Form : PrgTemplate]
+    use : dsptemplate
+   Part : PrgTemplate
+  width : 100% Page
+ height : 100% Page
+
+  [Part : PrgTemplate]
+   line : PrgTemplate
+ scroll : vertical
+
+  [Line : PrgTemplate]
+  Field : disguiseNameField
+  local : field : disguisenamefield : width  : 100
+  local : field : disguisenamefield : set always : yes
+
+ [field : disguiseNameField]
+    use : name field
+
+;------------------------------
+
+
+
+
+
+     [#menu: Gateway of Tally]
+;; {23.Sep.13 17:27}         add: Option: GetLedgerCreditPeriodLock ;; : @@GetLedgerCreditPeriodDemoLock
+       
+     [!menu: GetLedgerCreditPeriodLock]
+        add: Item: before: @@locQuit: @@GetLedgerCreditPeriodReport: Display: RepGetLedgerCreditPeriod
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   GetLedgerCreditPeriodReport: "GetLedgerCreditPeriod"
+;; GetLedgerCreditPeriodDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepGetLedgerCreditPeriod]
+        use: Dsp Template
+      Title: @@GetLedgerCreditPeriodReport
+   Printset: Report Title: @@GetLedgerCreditPeriodReport
+       Form: FrmGetLedgerCreditPeriod
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local : Button   : RelReports        : Inactive : Yes
+    variable : ledgername
+;; {23.Sep.13 17:27}     set : ledgername : "AJIT MARKETING"
+     
+      [Form: FrmGetLedgerCreditPeriod]
+        use: DSP Template
+       Part: PrtGetLedgerCreditPeriod
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+
+
+
+      [Part: PrtGetLedgerCreditPeriod]
+       Line: LnGetLedgerCreditPeriod
+       set : 1
+     repeat: LnGetLedgerCreditPeriod
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+
+      [Line: LnGetLedgerCreditPeriodTitle]
+        use: LnGetLedgerCreditPeriod
+     option: titleopt
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LnGetLedgerCreditPeriod]
+     Fields: name field
+      Local: Field: namefield: Set As: $billcreditperiod:ledger:##ledgername
+
+

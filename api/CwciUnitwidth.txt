@@ -1,0 +1,23 @@
+;; set formula : cwUWCond to Condition for width
+;; set width in cwUWWidth
+
+;;[system : formula]
+;;cwUWCond  :
+;;cwUWWidth :
+
+
+[#field : EXPINV RatePerTitle]
+   width: if @@cwUWCond then @@cwUWWidth else @@UnitsWidth
+
+[#field : EXPINV RatePer]
+   width: if @@cwUWCond then @@cwUWWidth else @@UnitsWidth
+;;border : thick box ;;: @@cwUWCond
+
+
+[#field : EXPINV AccRatePer]
+   width: if @@cwUWCond then @@cwUWWidth else @@UnitsWidth
+
+[#field : EXPINV RatePerTotal]
+   width: if @@cwUWCond then @@cwUWWidth else @@UnitsWidth
+
+

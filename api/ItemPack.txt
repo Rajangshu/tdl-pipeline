@@ -1,0 +1,19 @@
+
+[#Part: STKI Units]
+add : line: cwPack
+
+[line: cwPack]
+Fields      : Short Prompt, cwPack
+Local       : Field	: Short Prompt	: Set as	: "Pack:"
+Local       : Field : Short Prompt 	: Width		: @@ShortNameWidth
+space top : 0.05 inch
+
+
+
+[field: cwPack]
+use : snf
+storage : cwpack
+
+
+[System : Formula]
+cwItemPack  : $cwPack:stockitem:$stockitemname

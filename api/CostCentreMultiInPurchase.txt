@@ -1,0 +1,21 @@
+; Created By: Pg on 2019-12-11 12:25, ID: 
+
+
+[#Field: EI AccAllocAmt]
+;; {30.Mar.20 09:46}     Sub Form    : VCHCST Allocation 	:@@VchIsPurcInvoice AND $$IsSysName:$AutoCostLevel AND $$IsSysName:$CostCentreName AND ((@@HasCC) AND ($$IsEmptyCollection:CostCentreAllocations OR NOT $$IsExploded:VCHCSTAllocExplosion))
+
+Sub Form    : VCHCST Allocation 	:(@@issales or @@ispurchase or @@isdebitnote or @@IsCreditNote) AND $$IsSysName:$CostCentreName AND ((@@HasCC) AND ($$IsEmptyCollection:CostCentreAllocations OR NOT $$IsExploded:VCHCSTAllocExplosion))
+
+
+ [#field : eivalue]
+ Sub Form	: VCHCST Allocation 		: NOT @@IsPOSInvoice  AND $$IsSysName:$AutoCostLevel AND $$IsSysName:$CostCentreName AND (@@HasLedgerCC AND ($$IsSales:##SVVoucherType OR $$IsCreditNote:##SVVoucherType OR $$IsCreditNote:##SVVoucherType Or $$ispurchase:##SVVoucherType OR ##SVAccAllocOnOrder)) AND NOT (@@IsJobMaterialIssue OR @@IsJobMaterialRcpt)
+
+
+
+ [#Field: EI ValueTotal]
+  ThisHasCC   : $$IsSysName:$AutoCostLevel AND $$IsSysName:$CostCentreName AND (@@IsAccVch AND ($$IsCostCentresOn) AND ($IsCostCentresOn:Ledger:$LedgerName) AND (NOT $$IsEmpty:@SetVal))
+
+
+  ;;==============================================
+
+

@@ -1,0 +1,34 @@
+; Created By: pg on 2012-04-14 12:23
+; cwMfgDt
+
+[System: Formula]
+cwMfgDt2 : if $$isempty:@@cwMfgDt then "Mfg Dt." else @@cwMfgDt
+
+[#Field: EXPINV MfgPrompt]
+    Info        : $$LocaleString:@@cwMfgDt2
+    
+		[#Line: STKVCH POS BatchAllocations]
+			Local	: Field	: Short Prompt		: Set as	: $$LocaleString:@@cwMfgDt2
+			
+[#Field : POS MfgDateTitle]
+	Set As		: $$LocaleString:@@cwMfgDt2
+			
+			
+[#Line: SAGETitle1]
+            Local           : Field : SAGEExpiry    : Set as        : if $$IsSysNameEqual:ByMfgDate:#SAGEAgeingStyle then $$LocaleString:@@cwMfgDt2 else +
+                                                                      if $$IsPerishableOn then $$LocaleString:"Expiry Date" else ""
+			
+[#Field: STKALLOC MfgTitle]
+    Use         : Short Date Title Field
+    Style       : Small
+    Info        : $$LocaleString:@@cwMfgDt2
+
+    [#Line: SJ MfdBatch]
+        Local   : Field : Simple Prompt : Info   : $$LocaleString:@@cwMfgDt2
+        
+            [#Line: VCHBATCH Date]
+                Local       : Field : Simple Prompt         : Info      : $$LocaleString:@@cwMfgDt2
+                
+[#Field: VCH MfgDateTitle]
+    Setas       : $$LocaleString:@@cwMfgDt2
+

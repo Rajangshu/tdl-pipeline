@@ -1,0 +1,8 @@
+; formula
+; cwIMWidth
+; cwIMMAx
+
+
+[#form : stock item]
+local : Field: MST Name : width : @@cwimwidth
+local : Field: MST Name : max : @@cwimmax

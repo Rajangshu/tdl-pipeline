@@ -1,0 +1,50 @@
+; Created By: joy on 2021-12-14 17:17, ID: 
+
+[report :RepSimpleFormat]
+Object 		: Voucher : ##cwmyid
+form:RepSimpleFormat
+
+[form : RepSimpleFormat]
+  Top part : RepSimpleFormatTit,cwBajCmpDetailsPart,cwBajPartyDetailsPart
+  Part :cwSimpleFormatInvACCPart
+  bottom Part :  RepBajajExportPdfBottomPart
+  page Break : cwSimpleFormatCLBreak, cwSimpleFormatOPBreak
+  local:part:RepBajajExportPdfBottomPart:local:line:RepBajajExportPdfTotLine:Local: Field: amtf: Set As:$amount
+  local:part:cwBajPartyDetailsPart:border:thin left right bottom
+  Width  		: @@InvWidth Inch
+  Height 		: @@InvHeight Inch
+  Space Top   : @@InvSpace inch
+  Space Right : 0.5 inch
+  Space Left  : @@InvSpaceLeft  inch
+  Space Bottom: 0.25 inch
+  
+   [part : RepSimpleFormatTit]
+  line:RepSimpleFormatTit
+  [line: RepSimpleFormatTit]
+ field:fwfc
+ Local: Field: fwfc: Set As:$VCHPrintTitle:vouchertype:$vouchertypename
+ Local: Field: fwfc: Border: thin Bottom
+ Local: Field: fwfc: Style:Large Bold
+
+ [Part : cwSimpleFormatCLBreak]
+   use : RepBajajExportPdfBottomPart
+
+ [Part : cwSimpleFormatOpBreak]
+  part : RepSimpleFormatTit,cwBajCmpDetailsPart,cwBajPartyDetailsPart
+
+ [part : cwSimpleFormatINVACCPart]
+Parts       : RepBajajExportPdfInvPart,RepBajajExportPdfAccPart
+local:line:RepBajajExportPdfInvLineTitle:local: field: snf2: Invisible:not $cwdonoprint:vouchertype:$vouchertypename
+local:line:RepBajajExportPdfInvLine:local: field: snf2: Invisible:not $cwdonoprint:vouchertype:$vouchertypename
+local:line:RepBajajExportPdfInvLineTitle:local: field: snf3: Invisible:not $cwserialprint:vouchertype:$vouchertypename
+local:line:RepBajajExportPdfInvLine:local: field: snf3: Invisible:not $cwserialprint:vouchertype:$vouchertypename
+
+CommonBorder: Yes
+Vertical    : Yes
+Scroll      : Vertical
+Float       : No
+Total       :amtf
+border:thin left right bottom
+ 
+
+

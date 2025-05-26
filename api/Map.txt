@@ -1,0 +1,29 @@
+;; PRODUCT: <Enter the product name>
+;; PRODUCT-ID: 14eacabf-cfd9-482e-8263-b343f8a71fdd
+;; AUTHOR: TallyDeveloper
+
+[#Menu: Gateway of Tally]
+option : mymup  :  ($$serialnumber = -1) or ($$serialnumber= 0)
+
+[!menu : mymup]
+  add : Item    : before : @@locquit : "Multi A/c Printing"  :	Menu				: Printing Menu2
+  
+[menu : printingmenu2]
+	Title		: $$LocaleString:"Printing Menu"
+
+    Key Item    : @@locAccountBooks				: A : Menu	: Print Account Books	: $$IsAccountingOn:$$CurrentCompany
+    Key Item    : @@locOutstandingStatements	: O : Menu	: Print Outstandings    : $$IsAccountingOn:$$CurrentCompany
+    Item    	: BLANK 
+    Key Item    : @@locInventoryBooks        	: I : Menu  : Print Inventory Books : $$IsInventoryOn:$$CurrentCompany
+    Item    	: 
+    Key Item    : @@locDayBook               	: D : Print : Day Book              : NOT $$IsEmpty:$$SelectedCmps
+    Item    	: BLANK
+    Key Item    : @@locMultiVoucherPrinting  	: M : Print : Multi Voucher Print   : NOT $$IsEmpty:$$SelectedCmps
+    Key Item    : @@locMultiPayslipPrinting  	: P : Print : Multi Payslip Print   : NOT $$IsEmpty:$$SelectedCmps AND $$IsPayrollOn:$$CurrentSimpleCompany
+    Item    	: BLANK
+    Key Item    : @@locQuit						: Q
+
+    Control		: @@locOutstandingStatements	: $$Allow:Print:Outstandings AND $$IsAccountingOn:$$CurrentCompany AND $$IsBillWiseOn:$$CurrentCompany
+	Control		: @@locInventoryBooks        	: $$IsInventoryOn
+    Control		: @@locDayBook               	: $$Allow:Print:DayBook
+    Control		: @@locMultiPayslipPrinting  	: $$IsPayrollOn AND $$MODPayroll AND $$Allow:Print:PayrollReports

@@ -1,0 +1,11 @@
+;; PRODUCT: Purchase Signature
+;; PRODUCT-ID: 7d0ab021-23f3-4456-b97f-af0b259c24b1
+;; AUTHOR: TallyDeveloper
+;; pradeep goenka jhargram
+
+            [#Line: EXPSMP Signature]
+            add : option : myoptsig : @@ispurchase
+            
+            [!line : myoptsig]
+                Local           : Field : Simple Field : Set as : $$Sprintf:@@CompanyMailFormat:@@cmpmailname ;;$partyledgername
+

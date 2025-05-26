@@ -1,0 +1,276 @@
+;; PRODUCT: VAT Annexure v1.5 dtd 16-08-10
+;; PRODUCT-ID: 65bed3f5-b9f6-4c3f-b37e-305571b8dc37
+;; AUTHOR: Tally Developer
+
+;;Circuit World 9903002059/9903039753 circuit.world@yahoo.co.in
+
+[system : formula]
+;; isVatRepDdemo : set this variable $$machinedate < $$DATE:"18/08/2010"
+;; isVatRep4Purchase : for showing purchase report also
+;; isVatRep4Sales : for enabling in sales
+
+;;Client: PU, Shah
+;;Serial: , 751020930
+
+
+
+[collection : MasterLedTable]
+      Title : "Master Name"
+       type : Ledger
+;;   child of : $$GroupSundryDebtors
+ belongs to : yes
+     filter : isWB,regdealer
+;;      fetch : isMasterLedBroker
+      fetch : name
+
+[collection : MasterLedTable2]
+        use : MasterLedTable
+delete : filter ;;: regdealer
+add : filter : unregdealer
+
+      [System : Formula]
+      iswb : $statename = $statename:company:##svcurrentcompany
+      unregdealer : $VATDealerNature = "Unregistered Dealer"
+      regdealer : $VATDealerNature = "Composition Dealer" or $VATDealerNature = "VAT Dealer"
+      
+
+;;[include : C:\d7comps\tcommon\CommonFields2.txt]
+;;[include : C:\d7comps\tcommon\CommonFormulae.txt]
+
+;;     [#menu: Gateway of Tally]
+;;        add: Option: LedSummaryLock : @@isVatRepDdemo
+       
+     [!menu: LedSummaryLock]
+        add: Item: before: @@locQuit: @@LedSummaryReport: Display: RepLedSummary
+        add: Item: before: @@locQuit: @@LedSummaryReport2: Display: RepLedSummary2
+        add: Item: before: @@locQuit: @@LedSummaryReport3: Display: RepLedSummary3
+        add: Item: before: @@locQuit: @@LedSummaryReport4: Display: RepLedSummary4
+
+
+
+;;        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   LedSummaryReport: "Reg. Dealer (Below Rs 50000)"
+   LedSummaryReport2: "Reg. Dealer (Above Rs 50000)"
+   LedSummaryReport3: "Un Reg. Dealer (Below Rs 50000)"
+   LedSummaryReport4: "Un Reg. Dealer (Above Rs 50000)"
+   
+   LedSummaryReport5: "Purchase Reg. Dealer (Below Rs 50000)"
+   LedSummaryReport6: "Purchase Reg. Dealer (Above Rs 50000)"
+   LedSummaryReport7: "Purchase Un Reg. Dealer (Below Rs 50000)"
+   LedSummaryReport8: "Purchase Un Reg. Dealer (Above Rs 50000)"
+
+
+   
+       [#menu: VAT Reports]
+       add : option : cwVSales : @@isVatRep4Sales and @@isVatRepDdemo
+       add : option : cwVPurchase : @@isVatRep4Purchase and @@isVatRepDdemo
+       
+       [!menu : cwVSales]
+        add : item : before : @@locquit : @@LedSummaryReport: Display: RepLedSummary ;;: @@isVatRepDdemo
+        add : item : before : @@locquit : @@LedSummaryReport2: Display: RepLedSummary2 ;;: @@isVatRepDdemo
+        add: Item: before: @@locQuit: @@LedSummaryReport3: Display: RepLedSummary3 ;;: @@isVatRepDdemo
+        add: Item: before: @@locQuit: @@LedSummaryReport4: Display: RepLedSummary4 ;;: @@isVatRepDdemo
+        
+        [!menu : cwVPurchase]
+        add : item : before : @@locquit : @@LedSummaryReport5 : Display : RepLedSummary5 ;;: @@isVatRepDdemo
+        add : item : before : @@locquit : @@LedSummaryReport6 : Display : RepLedSummary6 ;;: @@isVatRepDdemo
+        add : Item : before : @@locQuit : @@LedSummaryReport7 : Display : RepLedSummary7 ;;: @@isVatRepDdemo
+        add : Item : before : @@locQuit : @@LedSummaryReport8 : Display : RepLedSummary8 ;;: @@isVatRepDdemo
+
+
+
+;;-------------------------
+
+[Report : RepLedSummary5]
+        use: RepLedSummary
+        set : vouchertypename : "Purchase"
+
+        local :   Line : LnLedSummaryTitle : local : field : amtf : set as : "Total Purchase during the period"
+        local : line : LnLedSummaryTitle : local :field : fwf : set as : "Name of the dealer to whom goods were Sold Purchase "
+
+[Report: RepLedSummary6]
+       use : RepLedSummary2
+       set : vouchertypename : "Purchase"
+       local :   Line : LnLedSummaryTitle : local : field : amtf : set as : "Total Purchase during the period"
+       local : line : LnLedSummaryTitle : local :field : fwf : set as : "Name of the dealer to whom goods were Sold Purchase "
+
+[Report: RepLedSummary7]
+       use : RepLedSummary3
+       set : vouchertypename : "Purchase"
+       local :   Line : LnLedSummaryTitle : local : field : amtf : set as : "Total Purchase during the period"
+       local : line : LnLedSummaryTitle : local :field : fwf : set as : "Name of the dealer to whom goods were Sold Purchase "
+
+[Report: RepLedSummary8]
+       use : RepLedSummary4
+       set : vouchertypename : "Purchase"
+       local :   Line : LnLedSummaryTitle : local : field : amtf : set as : "Total Purchase during the period"
+       local : line : LnLedSummaryTitle : local :field : fwf : set as : "Name of the dealer to whom goods were Sold Purchase "
+
+
+
+[Report: RepLedSummary]
+        use: Dsp Template
+      Title: @@LedSummaryReport
+   Printset: Report Title: @@LedSummaryReport
+       Form: FrmLedSummary
+     Export: Yes
+   variable: vouchertypename,familyvoucherflag
+       set : vouchertypename : "Sales"
+       set : familyvoucherflag : yes
+       set : svfromdate : ##svcurrentdate
+       set : svtodate : ##svcurrentdate
+local : line : LnLedSummaryTitle : local :field : fwf : set as : "Name of the dealer to whom goods were Sold Sales"
+
+    [Report: RepLedSummary2]
+       use : RepLedSummary
+      Title: @@LedSummaryReport2
+   Printset: Report Title  : @@LedSummaryReport2
+local : Line: LnLedSummary : add : empty : ($$numitems:ColLedVch = 0) or ($$Collamttotal:ColLedVch:$amt < 50000)
+local : line : LnLedSummaryTitle1 : LOCAL : FIELD : FWFC : SET AS : "Details of sales effected by dealer above Rupees fifty thousand to registered dealers within West Bengal during return period"
+local : line : LnLedSummaryTitle : local :field : fwf : set as : "Name of the dealer to whom goods were Sold Sales "
+
+[Report: RepLedSummary3]
+       use : RepLedSummary
+      Title: @@LedSummaryReport3
+   Printset: Report Title: @@LedSummaryReport3
+local : line : LnLedSummaryTitle1 : LOCAL : FIELD : FWFC : SET AS : "Details of Sales effected by dealer above Rupees fifty thousand to UnRegistered dealers within West Bengal during return period"
+local : line : LnLedSummaryTitle : local :field : fwf : set as : "Name of the dealer to whom goods were Sold Sales "
+;;local : collection : MasterLedTable : delete : filter : regdealer
+local : Part: PrtLedSummary : delete : repeat ;;
+local : Part: PrtLedSummary : add : repeat :  LnLedSummary: MasterLedTable2 ;;ColLedSummary
+
+
+[Report: RepLedSummary4]
+       use : RepLedSummary2
+      Title: @@LedSummaryReport4
+   Printset: Report Title: @@LedSummaryReport4
+local : line : LnLedSummaryTitle1 : LOCAL : FIELD : FWFC : SET AS : "Details of sales effected by dealer above Rupees fifty thousand to UnRegistered dealers within West Bengal during return period"
+local : line : LnLedSummaryTitle : local :field : fwf : set as : "Name of the dealer to whom goods were Sold Sales "
+local : Part: PrtLedSummary : delete : repeat ;;: LnLedSummary: MasterLedTable2 ;;ColLedSummary
+local : Part: PrtLedSummary : add : repeat :  LnLedSummary: MasterLedTable2 ;;ColLedSummary
+
+
+         [Form: FrmLedSummary]
+        use: DSP Template
+       Part: LedSummaryTitlePart,PrtLedSummary
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: LedSummarybotbrk,LedSummarybotOpbrk
+
+      [part: LedSummarybotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: LedSummarybotopbrk]
+       use : LedSummaryTitlePart
+
+      [part: LedSummaryTitlePart]
+       line: LnLedSummaryTitle0,LnLedSummaryTitle1,LnLedSummaryTitle,LnLedSummaryTitle
+  
+      [Part: PrtLedSummary]
+       Line: LnLedSummary
+     repeat: LnLedSummary: MasterLedTable ;;ColLedSummary
+     bottom line : LnLedSummaryTotals
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+      
+      [line : LnLedSummaryTitle0]
+      field : fwfc
+      local : field : fwfc : style : normal bold
+      local : field : fwfc : set as : "PART - II"
+      
+
+      [line : LnLedSummaryTitle1]
+      USE : LnLedSummaryTitle0
+      LOCAL : FIELD : FWFC : SET AS : "Details of sales effected by dealer below Rupees fifty thousand to registered dealers within West Bengal during return period"
+      local : field : fwfc : lines : 0
+      
+      
+[Collection : specificVchs]
+        use : SRC Filtered Vouchers of Company
+        
+
+[Collection: ColLedVch]
+   source collection : specificVchs
+    Fetch       : Date, VoucherNumber, Reference, VoucherTypeName, SortPosition, Narration, PartyLedgerName, PartyName
+	Fetch		: Reference, IsOptional, IsPostDated, MasterID, IsCancelled, IsDeleted
+	Fetch		: AllLedgerEntries.IsDeemedPositive ;;For POS Transaction Value
+
+      walk : ledger entries
+        by : partyledgername : $partyledgername
+   compute : PartyMain : $partyledgername
+AggrCompute: VatAmount : Sum : if not $$isempty:$VATASSESSABLEVALUE then $amount else 0
+aggrcompute : Amt : sum : if $ledgername = $partyledgername then $amount else 0
+aggrcompute : cnt : count : if $ledgername = $partyledgername then 1 else 0
+     filter : PartyMainFilter
+;;     fetch : *
+   
+
+    [system: Formula]
+ColLedSummaryFilter: Yes
+partyMainFilter : $PartyMain = $$ReqObject:$$name
+
+      [Line: LnLedSummaryTitle]
+        use: LnLedSummary
+     option: titleopt
+     local: field: cwslno : set as : "Sl. No."
+local:field: fwf: set as: "Name of the dealer to whom goods were Sold  "
+local : field : fwf1 : set as :"Full Postal Address"
+
+local:field:nf  : set as : "Registration Certificate No."
+local:field: amtf: set as: "Total sales during the period"
+local:field: nf2: set as: "Major Group of Commodity"
+local : field : numf : set as : "No. of tax invoice issued"
+local : field : amtf2 : set as : "Total Tax involved"
+local : field : default : lines :0
+local : field : amtf : lines :0
+border : thin top
+local : field : default : style  : normal bold
+
+
+[collection : padd]
+type : address : ledger
+child of : $name
+
+[system : formula]
+ccname2 : if $$numitems:padd = 0 then "" else $$FullList:Padd:$address
+
+
+      [Line: LnLedSummary]
+     Fields: cwslno,fwf,fwf1,nf,nf3
+right field: Amtf,nf2,numf,amtf2
+
+
+;;local : field : fwf1 : border : thin box
+local : field : fwf1 : set as :@@ccname2
+local : field : cwslno : width : 5
+local : field : fwf : set as   : $name  ;;+ " " +@@ccname2
+local : field : nf : set as    : $VATTINNumber:ledger:$name
+local : field : amtf : set as  : $$Collamttotal:ColLedVch:$amt
+local : field : nf2 : set as   : ""
+local : field : numf : set as  : $$collnumtotal:colledvch:$cnt ;;$$numitems:ColLedVch
+local : field : amtf2 : set as : $$collamttotal:colLedVch:$VatAmount
+empty : ($$numitems:ColLedVch = 0) or ($$Collamttotal:ColLedVch:$amt >= 50000)
+local : field : default : border : thin left right
+local : field : fwf : lines : 0
+Local: Field: nf3 : Set As: $name
+Local: Field: nf3 : invisible : yes
+
+      [line: LnLedSummaryTotals]
+        use: LnLedSummary
+;;     option: totalOpt
+;;      local: field: fwf: align: right
+;;      local: field: fwf: style: normal bold
+;;      local: field: qtyf: set as: $$total:qtyf
+;;      local: field: fwf: set sa: $$total:amtf
+local : field : default : inactive : yes
+      border : thin bottom
+
+
+
+

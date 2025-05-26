@@ -1,0 +1,190 @@
+;; PRODUCT: <Enter the product name>
+;; PRODUCT-ID: 35498fec-20a5-44ef-8974-4f69477c2dad
+;; AUTHOR: TallyDeveloper
+
+
+
+;[#menu : gateway of tally]
+;add: item : at end : le   : display : LedgerExists
+;add: item : at end : lbal : display : Ledgerbal
+;add : item : at end : loe   : display : isobjectExists
+
+
+[report : isobjectExists]
+use : ledgerexists
+variable : ledgername,accounttype
+local : field : le : set as : $$getObjByNameValue
+
+;; {10.Apr.17 14:31} SET : ACCOUNTTYPE : "stockitems"
+;; {10.Apr.17 14:31} set : ledgername : "Sarcer"
+
+;;/*
+;;[function : l2i]
+;;parameter : x2 : logical
+;;returns : integer
+;;10 : if : ##x2
+;;20 : return : 1
+;;30 : else
+;;40 : return : 0
+;;50 : end if
+
+;;*/
+
+[collection : cxCostCentres]
+type : cost centre
+	Fetch		: Name
+	Compute		: Alias		        : $$Alias
+
+
+[function : getObjByNameValue]
+  returns : logical
+;;05 : LOG : "Checking.: "+##ACCOUNTTYPE + ": " + ##ledgername
+;;06 : log :
+10 : if : $$IsSysNameEqual:Ledgers:##AccountType
+15 : RETURN : not $$isempty:$$filtervalue:$name:ledger:1:cwhasobj
+20 : endif
+
+25 : if : $$IsSysNameEqual:Groups:##AccountType
+30 : RETURN : not $$isempty:$$filtervalue:$name:group:1:cwhasobj
+35 : endif
+
+40 : if : $$IsSysNameEqual:CostCategories:##AccountType
+45 : RETURN : not $$isempty:$$filtervalue:$name:costcategory:1:cwhasobj
+50 : endif
+
+55 : if : $$IsSysNameEqual:cxCostCentres:##AccountType
+60 : RETURN : not $$isempty:$$filtervalue:$name:costcentres:1:cwhasobj
+65 : endif
+
+85 : IF : $$IsSysNameEqual:Godowns:##AccountType
+90 : RETURN : not $$isempty:$$filtervalue:$name:godown:1:cwhasobj
+95 : endif
+
+100: IF : $$IsSysNameEqual:StockGroups:##AccountType
+105: RETURN : not $$isempty:$$filtervalue:$name:stockgroup:1:cwhasobj
+110: endif
+
+115: IF : $$IsSysNameEqual:StockItems:##AccountType
+120: RETURN : not $$isempty:$$filtervalue:$name:stockitem:1:cwhasobj
+121: end if
+
+122: IF : $$IsSysNameEqual:Units:##AccountType
+125: RETURN : not $$isempty:$$filtervalue:$name:Unit:1:cwhasobj
+126: endif
+
+130: IF : $$IsSysNameEqual:StockCategories:##AccountType
+135: RETURN : not $$isempty:$$filtervalue:$name:StockCategorySRC:1:cwhasobj
+136: endif
+
+/*
+1000 : ENDIF
+1001 : ENDIF
+1002 : ENDIF
+1003 : ENDIF
+1004 : ENDIF
+1005 : ENDIF
+1006 : ENDIF
+1007 : ENDIF */
+
+[System: Formula]
+ cwhasobj : ($name = ##ledgername) or ($$alias = ##ledgername)
+
+/*
+If ($$IsSysNameEqual:PayHeads:##AccountType)
+If ($$IsSysNameEqual:StockCategories:##AccountType)
+If ($$IsSysNameEqual:SerialNumbers:##AccountType)
+If ($$IsSysNameEqual:TariffClassifications:##AccountType)
+
+
+$$IsSysNameEqual:Currencies:##AccountType then @@NumCurrLine else +
+$$IsSysNameEqual:Units:##AccountType then @@NumUnitsLine else +
+$$IsSysNameEqual:VoucherTypes:##AccountType then @@NumVTypeLine else +
+$$IsSysNameEqual:AttendanceTypes:##AccountType then @@NumAttdTypeLine else +
+$$IsSysNameEqual:BudgetScenarios:##AccountType then @@NumBdgtScnLine else ""
+
+*/
+
+
+[report :ItemExists]
+use : LedgerExists
+Local: Field: le : Set As: $$filtercount:stockitem:hasleditem
+
+[#menu : gateway of tally]
+;; {10.Apr.17 14:38} add: item : at end : le   : display : unitExists
+
+
+ [report :unitExists]
+use : LedgerExists
+;; {10.Apr.17 14:36} SET : ACCOUNTTYPE : "unit"
+;; {10.Apr.17 14:36} set : ledgername : "kmjjj"
+
+Local: Field: le : Set As: $$filtercount:unit:hasleditem
+
+;; {14.Jan.25 17:25} [report : cwLedgerExists]
+;; {14.Jan.25 17:25} use: LedgerExists
+;; {14.Jan.25 17:25} set : logi1 : yes
+
+
+
+[!line: cwShowLedgerDetails]
+add : field : d1,cwLedgerParent
+
+
+[field: cwLedgerParent]
+use : name field
+style : normal
+width : 300
+set as : $$filterValue:$parent:Ledger:1:hasled
+
+
+
+[report : LedgerExists]
+use : dsptemplate
+form : LedgerExists
+export : yes
+variable : ledgername,str2
+variable : logi1
+set : logi1 : no
+
+;;set : ledgername : "cash"
+;;variable : IsLedgerReport
+;;set : IsLedgerReport : yes
+[form : LedgerExists]
+use : dsptemplate
+part : LedgerExists
+button : changeitem
+[part : LedgerExists]
+line : LedgerExists
+repeat : LedgerExists ;;: currency
+scroll : vertical
+SET : 1
+
+[line : LedgerExists]
+field : le
+
+add : option: cwShowLedgerDetails : ##logi1
+
+
+[field : le]
+use : name field ;;,namefield
+set as : $$filtercount:ledger:hasled
+
+
+[system : formula]
+ hasled : ($name = ##ledgername) or ($$alias = ##ledgername) or (not $$isempty:##str2  and $PartyGSTIN=##str2)
+ hasleditem : ($name = ##ledgername) or ($$alias = ##ledgername) or ($partno=##ledgername)
+
+ ;;if $$issysname:##ledgername then yes else ($name=##ledgername or $PartyGSTIN=##str2)
+
+
+[report: ledgerbal]
+use : ledgerexists
+local : field : le : set as : @@cwcbxxx
+local : line : default : add : field : d1,amtf,d2,amtf2
+Local: Field: amtf : Set As: $TBalDebits:ledger:##ledgername
+Local: Field: amtf2 : Set As: $TBalCredits:ledger:##ledgername
+local : field : deafult : border : thin box
+
+[system : formula]
+cbl : $closingbalance:ledger:##ledgername ;;
+cwcbxxx: if $$isdr:@@cbl then -1 * $$number:@@cbl else  $$number:@@cbl

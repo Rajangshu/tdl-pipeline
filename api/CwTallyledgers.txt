@@ -1,0 +1,166 @@
+[#system:formula]
+cwDebug2x : yes
+
+[#menu: gateway of tally]
+;add : item : before : @@locquit : "1a" : display :cwTallySpecificLedger
+
+    [Report: cwTallySpecificLedger]
+        use: Dsp Template
+      Title: ##ledgername ;;@@TallyLedgersReport
+   Printset: Report Title: @@TallyLedgersReport
+       Form: FrmSpecificTallyLedgers
+     Export: Yes
+  variable : ledgername
+ ; set : ledgername:""
+
+
+  [form: FrmSpecificTallyLedgers]
+  part :prtSpecificTallyLedgers
+
+  [part :prtSpecificTallyLedgers]
+  line : lnSpecificTallyLedgers
+  repeat : lnSpecificTallyLedgers : cwspecificledger
+  scroll : vertical
+  
+  [line : lnSpecificTallyLedgers]
+  field : nf,d1,nf1,d2,nf2,d3,nf3,d4,nf4,d5,nf5,d6,nf6,d7,nf7,d8,nf8,d9,nf9,d10,nf10,d11,nf11,d12,nf12,d13,nf13,d14,nf14,d15,nf15,d16,nf16,d17,nf17
+  Local: Field: nf: Set  As: $name  ;;s1
+      Local: Field: nf1 : Set As: $$alias ;;s2
+      Local: Field: nf2 : Set As: $MAILINGNAME  ;;s3
+      Local: Field: nf3 : Set As: $LEDGERCONTACT ;;s4
+      Local: Field: nf4 : Set As: $parent  ;;s5
+      Local: Field: nf5 : Set As: $ledgerphone  ;;s6
+      Local: Field: nf6 : Set As: $ledgermobile  ;;s7
+      Local: Field: nf7 : Set As: $EMAIL          ;;s8
+      Local: Field: nf8 : Set As: $ledSTATENAME       ;;s9
+      Local: Field: nf9 : Set As: $$collectionfield:$address:1:address  ;;s10
+      Local: Field: nf10 : Set As: $$collectionfield:$address:2:address  ;;s11
+      Local: Field: nf11 : Set As: $$collectionfield:$address:3:address   ;;s12
+      Local: Field: nf12 : Set As: $$collectionfield:$address:4:address    ;;s13
+      Local: Field: nf13: Set As: $$collectionfield:$address:5:address     ;;s14
+      Local: Field: nf14 : Set As: $$collectionfield:$address:6:address     ;;s15
+      Local: Field: nf15: Set As:  $PartyGSTIN   ;;s16
+      Local: Field: nf16: Set As:  $pincode
+      
+  OPTION : cwexport : $$inexportmode
+
+
+  [collection: cwspecificledger]
+  use : ledger
+  filter : cwspecificledger
+  
+  [System: Formula]
+  cwspecificledger : $name= ##ledgername
+
+
+
+;;     [#menu: Gateway of Tally]
+;;        add: Option: TallyLedgersLock: @@TallyLedgersDemoLock
+       
+     [!menu: TallyLedgersLock]
+        add: Item: before: @@locQuit: @@TallyLedgersReport: Display: cwTallyLedgers
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   TallyLedgersReport: "TallyLedgers"
+ TallyLedgersDemoLock: $$MachineDate < $$Date:"02/08/2010"
+     
+    [Report: cwTallyLedgers]
+        use: Dsp Template
+      Title: ##groupname ;;@@TallyLedgersReport
+   Printset: Report Title: @@TallyLedgersReport
+       Form: FrmTallyLedgers
+     Export: Yes
+  variable : groupname
+
+      [Form: FrmTallyLedgers]
+        use: DSP Template
+       Part: DspAccTitles,PrtTallyLedgers
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: TallyLedgersbotbrk,TallyLedgersbotOpbrk
+        button : change item
+
+      [part: TallyLedgersbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: TallyLedgersbotopbrk]
+        use: dspacctitles
+  add: part: TallyLedgersTitlePart
+
+      [part: TallyLedgersTitlePart]
+       line: LnTallyLedgersTitle
+  
+      [Part: PrtTallyLedgers]
+       Line: LnTallyLedgers
+     repeat: LnTallyLedgers: ColTallyLedgers
+     scroll: Vertical
+ Common Border: YEs
+
+[Collection: ColTallyLedgers]
+       type : ledger
+  child of : @@cwgroupname ;;##groupname
+belongs to : yes
+
+    [system: Formula]
+cwgroupname : if ##groupname = "" then "sundry debtors" else ##groupname
+
+
+      [Line: LnTallyLedgers]
+     Fields: fwf,d1,fwf2,d2,fwf3,d3,fwf4,d4,fwf5,d5,fwf6,d6,fwf7,d7,fwf8,d8,fwf9,d9,fwf10,d10,nf1,d11,nf2,d12,nf3,d13,nf4,d14,nf5
+     Option: Alter on Enter
+      Local: Field: fwf : Set As: $name
+      Local: Field: fwf2 : Set As: $$alias
+      Local: Field: fwf3 : Set As: $MAILINGNAME
+      Local: Field: fwf4 : Set As: $LEDGERCONTACT
+      Local: Field: fwf5 : Set As: $parent
+      Local: Field: fwf6 : Set As: $ledgerphone
+      Local: Field: fwf7 : Set As: $ledgerfax
+      Local: Field: fwf8 : Set As: $EMAIL
+      Local: Field: fwf9 : Set As: $STATENAME
+      Local: Field: fwf10 : Set As: $$collectionfield:$address:1:address
+      Local: Field: nf1 : Set As: $$collectionfield:$address:2:address
+      Local: Field: nf2 : Set As: $$collectionfield:$address:3:address
+      Local: Field: nf3 : Set As: $$collectionfield:$address:4:address
+      Local: Field: nf4 : Set As: $$collectionfield:$address:5:address
+      Local: Field: nf5 : Set As: $$collectionfield:$address:6:address
+      
+      Local: field : fwf : Width : 100
+      Local: field : fwf : Width : 100
+      Local: field : fwf : Width : 100
+      Local: field : fwf : Width : 100
+      Local: field : fwf : Width : 100
+      Local: field : fwf : Width : 100
+      Local: field : fwf : Width : 100
+      Local: field : fwf : Width : 100
+      Local: field : fwf : Width : 100
+      Local: field : fwf : Width : 100
+
+      Local: field : fwf : max : 100
+      Local: field : fwf : max : 100
+      Local: field : fwf : max : 100
+      Local: field : fwf : max : 100
+      Local: field : fwf : max : 100
+      Local: field : fwf : max : 100
+      Local: field : fwf : max : 100
+      Local: field : fwf : max : 100
+      Local: field : fwf : max : 100
+      Local: field : fwf : max : 100
+
+      Local: field : nf1 : Width : 100
+      Local: field : nf2 : Width : 100
+      Local: field : nf3 : Width : 100
+      Local: field : nf4 : Width : 100
+      Local: field : nf5 : Width : 100
+      
+      Local: field : nf1 : max : 100
+      Local: field : nf2 : max : 100
+      Local: field : nf3 : max : 100
+      Local: field : nf4 : max : 100
+      Local: field : nf5 : max : 100
+
+
+

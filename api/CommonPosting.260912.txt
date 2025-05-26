@@ -1,0 +1,63 @@
+;Modified by: pg on 2012-09-26 16:01, ID: 
+; Created By: pg on 2012-05-24 12:54
+
+[function: isVoucherExists]
+parameter: VchTypeName : string
+parameter: myVchNo : string
+parameter: MyVchDate : date
+returns : number
+variable : myid : number
+;;00 : log : ##Vchtypename
+;;01 : log : ##myvchno
+;;02 : log : ##myvchdate
+;;04: log : $$numitems:cwTempVchExists
+05 : set : myid : $$Collectionfield:$masterid:first:cwTempVchExists
+;;06 : log : ##myid
+10 : return : ##myid
+
+[collection: cwTempVchExists]
+use : vouchers of company
+child of : ##myVchDate
+delete : filter : daybookfilter
+filter : cwTempVchExistsFilter
+fetch : masterid
+
+[System: Formula]
+cwTempVchExistsFilter : $vouchertypename = ##VchTypeName and $vouchernumber =##myVchNo
+
+
+
+[function : InsertLedgerEntry]
+parameter : ledgername : string
+parameter : ledgervalue : amount
+parameter : isDr : logical
+parameter : BillAlloc : string : ""
+
+;000x: log : "===================="
+000: log : ##ledgername
+001: log : ##isdr
+002: log : @@getDR * $$abs:##LedgerVAlue
+
+05 : do if : $$isempty:##ledgervalue : continue
+06 : do if : $$isempty:##ledgername : continue
+
+10 : insert collection object : ledger entries
+12 : set value : ledger name : ##ledgername
+13 : set value : isdeemedpositive : ##isdr
+14 : set value : amount : @@getDR * $$abs:##LedgerVAlue ;;totalb4advamt ;;autoAmt
+
+20 : if : ##billalloc <> ""
+141: insert collection object : bill allocations
+
+142: set value : name   : ##BillAlloc
+143: set value : amount : @@getDR *  $$abs:##LedgerValue ;;totalb4advamt ;;autoAmt
+144: set value : BillDate : $date
+145: set target: ..
+150: end if
+;000z: log : "===================="
+
+[System: Formula]
+getdr : if ##isDr then -1 else 1
+
+;-----------------------------------------------
+

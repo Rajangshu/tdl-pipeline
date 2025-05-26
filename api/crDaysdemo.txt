@@ -1,0 +1,241 @@
+;; PRODUCT: Credit Days Lock
+;; PRODUCT-ID: cdf460a1-f397-4526-ad54-8b5eb627f25e
+;; AUTHOR: Circuit World
+;; 722315430
+;; PRODUCT: Cr Days Lock
+
+;; Sri Ganeshji Maharaj : Sri Pitreshwarji Maharaj :
+;; Sri Balaji Maharaj : Sri Durgaji : Sri Venkateshwara
+
+;; credit days lock
+;;lockcw : no ;; lock on account and advance allocations in receipts and payments
+;;        crDDRmo : $date < $$date:"15/04/2011"
+;;lockcwNewRef : yes
+
+[#menu : gateway of tally]
+;;add : item : credit days lock
+
+
+[#Variable : ICFGDefaultBill]
+  Persistent  : yes
+
+[#system : Variable]
+ ICFGDefaultBill : No
+
+[#field : VCH NrmlRate]
+add : option : mysalesx : @@issales
+
+[#field : VCH POS Rate]
+add : option : mysalesx : @@issales
+
+[#FIELD : VCH NrmlValue]
+add : option : mysalesx : @@issales
+
+[!field : mysalesx]
+skip : yes ;;not $$isempty:$$value
+
+
+[System : Formula]
+VcOsFailPrompt  : "Credit Period Exceeded"
+VcOnAccPrompt   : "On Account not allowed"
+VcAdvancePrompt : "Advance not allowed"
+VcNewREfPrompt : "New Ref Not Allowed" ;;lockcwNewRef
+
+
+;; Condition to display : Credit Period Exceeded
+Vcosfail: if @@crDDRmo then @@Vcosfail2 else 0
+Vcosfail2 : if $$Number:$BillCreditPeriod:Ledger:$PartyLedgerName = 0  then 0 else  if $$IsDr:@@EIConBal then ($Date -  $$FilterValue:$BillDate:PendingBills:First:HasDr > $$Number:$BillCreditPeriod:Ledger:$PartyLedgerName) else 0
+;; {19.Feb.18 18:51} Vcosfail2 : if $$Number:$BillCreditPeriod:Ledger:$PartyLedgerName = 0  then 0 else  if $$IsDr:@@EIConBal then ($Date -  $$FilterValue:$BillDate:PendingBills:First:HasDr > $$Number:$BillCreditPeriod:Ledger:$PartyLedgerName) else 0
+HasDr :  $$IsDr:$BaseClosing
+;;$$CollectionField:$BillDate:1:PendingBills
+[#Form : Sales Color]
+control : VcOsFailPrompt : @@VcOsfail
+
+  [#Collection : PendingBills]
+           Add : Format : $BillCreditPeriod:UniversalDate
+
+;; {22.Sep.21 12:10}      [#Line:EI Consignee]
+     [#Part:EI Consignee]
+        add: option : VCOSCons : @@IsSales
+        
+[!part : VCOsCons]
+add:line:after:EI Consignee:cwCrDaysStatusLn
+[line:cwCrDaysStatusLn]
+add : field:vcinfoos,vcPromptTitle
+
+[!line:VCOsCons]
+add : field:after:inv mailname :vcinfoos,vcPromptTitle
+
+[field:vcinfoos]
+info :"Credit Days Status:"
+ Width:20
+;;set as : $$FilterValue:$BillDate:PendingBills:First:HasDr
+
+    [field : vcPromptTitle]
+    set as : if @@Vcosfail then @@VcosFailPrompt else "Within Credit Days"
+set always : yes
+     width :28 ;; 20
+     skip  : yes
+Border : Thin Box
+type:string:forced
+
+;; to disable On Account and Advance Type of Adjustments from all vouchers
+
+[#Field:VchBilltype]
+control : VCOnAccPrompt   : $BillType = $$SysName:OnAccount and @@lockcw
+control : VcAdvancePrompt : $BillType = $$SysName:Advance  and @@lockcw
+control : VcNewREfPrompt  : $BillType = $$SysName:NewRef  and @@lockcwNewRef
+
+;;==========================
+
+[#Report : Multi Ledger Limit]
+variable:varamtfcr
+variable:varcdaysf
+variable:varsetledbill
+set :varamtfcr:0
+set :varcdaysf:""
+set :varsetledbill:"no"
+
+[#Form: Multi Ledger Limit]
+add:Buttons:cwsetcrlimit
+add:Buttons:cwsetcrdays
+add:Buttons:cwsetbillbybill
+
+
+[#Line: MLEDLIM Titles]
+add:Right Fields    : before:MLEDLimitTitle:snf
+
+Local: Field: snf: info:"Bill-by-Bill"
+Local: field: snf: Width:7
+Local: Field: snf: Border: thin left
+
+
+[#Line: MLEDLIM Body]
+add: Right Fields : before:LED Limit :cwlogical
+Local: Field: LED Limit: Set As:##varamtfcr
+;; {22.Feb.18 11:43} Local: Field:  LED Credit: Local: Field: LEDCreditper: Set As:if $$isfieldedited then $$value else if $$isempty:##varcdaysf or ##varcdaysf=0 then $$value else $$string:##varcdaysf +" days"
+Local: Field: LED Limit: Set always:yes
+;; {22.Feb.18 11:41} Local: Field: LEDCreditStr: Set always:yes
+Local: Field: cwlogical: storage:IsBillWiseOn
+Local: Field: cwlogical: Set As:##varsetledbill
+
+;; {22.Feb.18 11:35} Local: Field: LED Credit: Border: thin box ;;left right
+;; {22.Feb.18 11:33} Local: Field: LED Limit: Border: thin box ;;left right
+
+
+[Button: cwsetcrlimit]
+
+    Key         :ctrl+ F6
+   action : modify variable : butsetcrllimit
+    Title       : $$LocaleString:"Set Cr.Limit"
+
+[Button: cwsetcrdays]
+
+    Key         :ctrl+  F7
+   action : modify variable : butsetcrldays
+    Title       : $$LocaleString:"Set Cr.Days"
+    
+    [Button: cwsetbillbybill]
+
+    Key         :ctrl+  F5
+   action : modify variable : butsetbillbybill
+    Title       : $$LocaleString:"Set Bill-by-Bill"
+
+
+[report:butsetcrllimit]
+ title  : "Set Cr.Limit"
+               form   : butsetcrllimit
+               [form  : butsetcrllimit]
+               part   : butsetcrllimit
+               Background  : @@SV_CMPCONFIG
+
+               [part  : butsetcrllimit]
+               line:lncrtitleset,lncrvalueset
+
+                       [line:lncrvalueset]
+                       space top:0.5
+                     Fields : amtf
+                     Local: Field: amtf: Modifies  : varamtfcr
+                     Local: field: amtf: Width:@@shortnamewidth
+
+
+                 [line:lncrtitleset]
+                 option:opttotals
+                  field:snf
+                  Local: Field: snf: info:"Credit Limit"
+                  Local: Field: snf: Color :blue
+                  Local: Field: snf: Border: thin bottom
+                  
+                  
+                  [report:butsetcrldays]
+              title  : "Set Cr.Days"
+               form   : butsetcrldays
+               [form  : butsetcrldays]
+               part   : butsetcrldays
+               Background  : @@SV_CMPCONFIG
+
+               [part  : butsetcrldays]
+               line:lncrtitleset2,lncrvalueset2
+
+                       [line:lncrvalueset2]
+                       space top:0.5
+                     Fields : snf
+                     Local: Field: snf: Modifies  : varcdaysf
+
+
+
+                 [line:lncrtitleset2]
+                 option:opttotals
+                  field:snf
+                  Local: Field: snf: info:"Credit Days"
+                  Local: Field: snf: Color :blue
+                  Local: Field: snf: Border: thin bottom
+                  
+                  
+                  
+                       [report:butsetbillbybill]
+              title  : "Set Bill-by-Bill"
+               form   : butsetbillbybill
+               [form  : butsetbillbybill]
+               part   : butsetbillbybill
+               Background  : @@SV_CMPCONFIG
+
+               [part  : butsetbillbybill]
+               line:butsetbillbybill
+
+                       [line:butsetbillbybill]
+                     Fields : long Prompt, fldsetbill
+                  Local       : Field : Long Prompt 	: Setas   : $$LocaleString:"Maintain balances bill-by-bill ?"
+                    Local       : Field : long Prompt :width:25
+
+                                     [Field: fldsetbill]
+ 				Use         : logical field
+				Modifies    : varsetledbill
+
+
+
+[variable : varamtfcr]
+type: amount
+default : 0
+persistent : no
+
+[variable : varcdaysf]
+     type : string
+  default : ""
+persistent: no
+
+[variable : varsetledbill]
+     type : logical
+  default : no
+persistent: no
+
+
+
+[system : variable]
+varamtfcr: 0
+varcdaysf: ""
+varsetledbill:"no"
+
+
+
+

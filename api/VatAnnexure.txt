@@ -1,0 +1,137 @@
+
+
+     [#menu: Gateway of Tally]
+        add: Option: LedSummaryLock : @@isMach
+       
+     [!menu: LedSummaryLock]
+        add: Item: before: @@locQuit: @@LedSummaryReport: Display: RepLedSummary
+;;        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   LedSummaryReport: "Annexure B Part II"
+   
+       [#menu: VAT Reports]
+add : item : before : @@locquit : @@LedSummaryReport: Display: RepLedSummary : @@ismach
+
+   
+
+    [Report: RepLedSummary]
+        use: Dsp Template
+      Title: @@LedSummaryReport
+   Printset: Report Title: @@LedSummaryReport
+       Form: FrmLedSummary
+     Export: Yes
+   variable: vouchertypename,familyvoucherflag
+       set : vouchertypename : "Sales"
+       set : familyvoucherflag : yes
+       set : svfromdate : ##svcurrentdate
+       set : svtodate : ##svcurrentdate
+       
+      [Form: FrmLedSummary]
+        use: DSP Template
+       Part: LedSummaryTitlePart,PrtLedSummary
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: LedSummarybotbrk,LedSummarybotOpbrk
+
+      [part: LedSummarybotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: LedSummarybotopbrk]
+       use : LedSummaryTitlePart
+
+      [part: LedSummaryTitlePart]
+       line: LnLedSummaryTitle0,LnLedSummaryTitle1,LnLedSummaryTitle,LnLedSummaryTitle
+  
+      [Part: PrtLedSummary]
+       Line: LnLedSummary
+     repeat: LnLedSummary: MasterLedTable ;;ColLedSummary
+     bottom line : LnLedSummaryTotals
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+      
+      [line : LnLedSummaryTitle0]
+      field : fwfc
+      local : field : fwfc : style : normal bold
+      local : field : fwfc : set as : "PART - II"
+      
+
+      [line : LnLedSummaryTitle1]
+      USE : LnLedSummaryTitle0
+      LOCAL : FIELD : FWFC : SET AS : "Details of sales effected by dealer in excess of rupees fifty thousand to registered dealers within West Bengal during return period"
+      local : field : fwfc : lines : 0
+      
+      
+[Collection : specificVchs]
+        use : specific vouchers of company
+        
+
+[Collection: ColLedVch]
+   source collection : specificVchs
+      walk : ledger entries
+        by : partyledgername : $partyledgername
+   compute : PartyMain : $MasterLedName:ledger:$partyledgername
+AggrCompute: VatAmount : Sum : if not $$isempty:$VATASSESSABLEVALUE then $amount else 0
+aggrcompute : Amt : sum : if $ledgername = $partyledgername then $amount else 0
+aggrcompute : cnt : count : if $ledgername = $partyledgername then 1 else 0
+    filter : PartyMainFilter
+   
+
+    [system: Formula]
+ColLedSummaryFilter: Yes
+partyMainFilter : $Partymain = $$ReqObject:$name
+
+      [Line: LnLedSummaryTitle]
+        use: LnLedSummary
+     option: titleopt
+     local: field: cwslno : set as : "Sl. No."
+local:field: fwf: set as: "Name of the Registered dealer to whom goods were sold with full Postal Address"
+local:field:nf  : set as : "Registration Certificate No."
+local:field: amtf: set as: "Total sales during the period"
+local:field: nf2: set as: "Major Group of Commodity"
+local : field : numf : set as : "No. of tax invoice issued"
+local : field : amtf2 : set as : "Total Tax involved"
+local : field : default : lines :0
+local : field : amtf : lines :0
+border : thin top
+local : field : default : style  : normal bold
+
+
+[collection : padd]
+type : address : ledger
+child of : $name
+
+[system : formula]
+ccname2 : if $$numitems:padd = 0 then "" else $$FullList:Padd:$address
+
+
+      [Line: LnLedSummary]
+     Fields: cwslno,fwf,nf
+right field: Amtf,nf2,numf,amtf2
+local : field : cwslno : width : 5
+local : field : fwf : set as : $name + " " +@@ccname2
+local : field : nf : set as : $VATTINNumber:ledger:$name
+local : field : amtf : set as : $$Collamttotal:ColLedVch:$amt
+local : field : nf2 : set as : ""
+local : field : numf : set as : $$collnumtotal:colledvch:$cnt ;;$$numitems:ColLedVch
+local : field : amtf2 : set as : $$collamttotal:colLedVch:$VatAmount
+empty : $$numitems:ColLedVch = 0
+local : field : default : border : thin left right
+local : field : fwf : lines : 0
+
+      [line: LnLedSummaryTotals]
+        use: LnLedSummary
+;;     option: totalOpt
+;;      local: field: fwf: align: right
+;;      local: field: fwf: style: normal bold
+;;      local: field: qtyf: set as: $$total:qtyf
+;;      local: field: fwf: set sa: $$total:amtf
+local : field : default : inactive : yes
+      border : thin bottom
+
+
+

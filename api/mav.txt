@@ -1,0 +1,37 @@
+        [report : x]
+       form : x
+        use : dsp template
+        title : ""
+        printset : report title : ""
+
+        [form : x]
+
+        part : x
+        use : dsp template
+        width : 100 % page
+        height : 100 % page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: DAILYGUNNYbotbrk,DAILYGUNNYbotOpbrk
+         Local: Field: snf : Set As: @@ks
+
+         [System : Formula]
+         ks : @@ks1
+         ks1 : @@ks
+
+        [part : x]
+        line   : x
+        repeat : x : stockitem
+
+
+
+        [line : x]
+        field : snf
+       add :  explode : xy
+       height : 1 inch
+
+        [part : xy]
+        line : x
+        repeat  : x : stockitem
+        scroll: vertical
+

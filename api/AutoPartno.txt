@@ -1,0 +1,306 @@
+; Created By: pg on 2011-11-22 15:03
+
+
+[#form : stock group]
+add : option : ShowBarCodeOption : @@cwAutoPartNosEnabled
+
+[!form : ShowBarCodeOption]
+add : part : SkipBarCodeLabelGeneration
+
+[!part : SkipBarCodeLabelGeneration]
+line : SkipBarCodeLabelGeneration
+
+[line : SkipBarCodeLabelGeneration]
+field : mp,cwlogical
+Local: Field: mp: info: "Skip BarCode Label Generation?"
+Local: Field: cwlogical: storage: cwSkipBarcodeLabelGeneration
+Local: field: mp: Width:0 ;; 4 inch
+
+
+
+; ================= Item Auto Inc Part No
+[#form : stock item]
+local : field : STKI PartNo : set as : if $$isempty:$$Value and not $$isfieldedited and @@notfx then (if @@itmaLIASCHK then @@getNewItmAliasValue else $$value) else $$Value
+local : field : STKI PartNo : set always : yes
+;add: bottom part : cwb1
+
+[part : cwb1]
+line : cwb1
+invisible : not @@cwCustomizationEnabled
+
+[line : cwb1]
+border : thin top bottom
+
+field : snf,nf,snf2,nf2
+Local: Field: snf: info: "Previous Bar Code:"
+Local: Field: snf2: info: "Next Bar Code:"
+Local: Field: nf: Set As: if $$numitems:newItemColl = 0 then "" else $$COLLECTIONFIELD:$partno1x:1:newItemColl
+Local: Field: nf2: Set As: if $$numitems:newItemColl = 0 then @@GetcwInitPartNo else $$number:$$COLLECTIONFIELD:$partno1x:1:newItemColl + 1
+Local: Field: nf: Skip: Yes
+Local: Field: nf2: Skip: Yes
+
+
+
+
+            [System : Formula]
+       itmaLIASCHK  : @@cwAutoPartNosEnabled and $$line = 1 and ($$increatemode or $$isempty:$$Value)
+getNewItmAliasValue : $$zerofill:@@cwnewno:@@cwNumZeros ;; $$number:$$COLLECTIONFIELD:$partno1x:1:newItemColl + 1
+
+
+[collection : newItemColl]
+       type : Stockitem
+     FORMAT : $partno1x,20 ;;@@cwpartycodeX,25
+       SORT : @@DEFAULT : -$partno1x
+      fetch : partno1x
+      filter : notfx
+
+      [System : Formula]
+        notfx : not $cwSkipBarcodeLabelGeneration:stockgroup:$parent ;;$partno1x starting with "T"
+      cwnewno : if $$numitems:newItemColl = 0 then @@GetcwInitPartNo else $$number:$$COLLECTIONFIELD:$partno1x:1:newItemColl + 1
+   BNewPartNo : $$zerofill:##mylastno:@@cwNumZeros
+   GetcwInitPartNo : if $$isempty:@@cwBarCodeStartingNo then 1 else @@cwBarCodeStartingNo
+      
+[#menu : stock items] ;;Inventory Info.]
+add : button : AutoFillPartNo
+
+[Button : AutoFillPArtNo]
+title :"Part No. Fill"
+key : f7
+action: call : AutoFillPartNos
+
+[function : AutoFillPartNos]
+  01xx : QueryBox:"Auto Fill Part Nos?":Yes:No
+  02xx : do if : not $$lastresult : continue
+  variable : myLastNo : number : @@cwnewno
+  variable : totctr : number : $$numitems:MyNewItems
+
+
+    05 : start progress : ##totctr : "Generating Part Nos" : "" : "Please Wait ..."
+    10 : walk collection :  MyNewItems
+
+    12 : if  : not $$isempty:$(stockitem,@@BNewPartNo).mailingname
+    13 : While : not $$isempty:$(stockitem,$$zeroFill:##mylastno:@@cwNumZeros).mailingname
+;    13a : Querybox:@@BNewPArtNo:yes:no
+    15 : set : myLastno : ##mylastno + 1
+    16 : end while
+    17 : end if
+
+  
+
+    20 : modify object : (stockitem,$name).mailingname[1].mailingname : @@BNewPartNo
+    30 : set : myLastno : ##mylastno + 1
+    40 : show progress : $$loopindex
+    
+    100 : end walk
+    120 : end  progress
+    
+    
+    [collection : MyNewItems]
+    use : Stockitem
+    fetch : partno1x
+    filter : myPartEmpty
+    
+    [System: Formula]
+    myPartEmpty : $$isempty:$partno1x
+
+
+;--------------- Putting PArt No must
+
+[#Part: STKI Basic]
+Option      : STKIWithPartNos     : @@cwAutoPartNosEnabled or ##MSTHasPartNos OR ##UsePartNumbers
+
+;--------------- F11 Config : Use Auto Part Nos
+
+
+;;Sri Ganeshji
+
+[#Form: Company Operations]
+                Switch   : cwAutoPartNosLowerRel  : cwAutoPartNosNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : cwAutoPartNosCurrenRel : cwAutoPartNosFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : cwAutoPartNosNOTFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End : cwAutoPartNosConfig,cwb1,cwAutoBatchFill
+                                
+[!Form : cwAutoPartNosFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : cwAutoPartNosConfig,cwb1,cwAutoBatchFill
+
+[Line : cwAutoPartNosConfig]
+Field : cwAutoPartNosConfigTitle,cwAutoPartNosConfig,medium prompt,number field,SHORT PROMPT,CWSTARTINGNUMBER,cwallowbctitle,cwallowbc
+local: field: medium prompt: info : "No. of Zeros to Prefill:"
+
+Local: Field: number field: storage: cwNumZeros
+Local: Field: number field: inactive : not #cwAutoPartNosConfig
+Local: Field: number field: set as : if $$value = 0 then 5 else $$value
+Local: Field: number field: set always : yes
+
+Local: Field: SHORT PROMPT: info: "Starting No:"
+
+[field:cwallowbctitle]
+use : short prompt
+info: "Allow Printing of Skipped Barcode:"
+Width: 0
+
+
+[field:cwLastCarton]
+use : number field
+storage : cwLastCarton
+skip : if not #cwAutoPartNosConfig then yes else not @@cwOwnerLevel
+
+
+[field : cwallowbc]
+use : logical field
+storage:cwPrintSkippedCodes
+
+[field : cwLastCartonSerial]
+use : short name field
+info: "Previous Carton:"
+
+[line : cwAutoBatchFill]
+Field : cwAutoPartNosConfigTitle,cwAutoPartNosConfig,medium prompt,number field,cwLastCartonSerial,cwLastCarton ;;cwPrefixPartnostr,cwPrefixPartno,
+local: field: medium prompt: info : "No. of Zeros to Prefill:"
+
+Local: Field: cwAutoPartNosConfigTitle: info: "Auto Create Batch ?"
+Local: Field: cwAutoPartNosConfig: storage: cwAutoCreateBatch
+
+Local: Field: number field: storage: cwNumZerosBatch
+Local: Field: number field: inactive : not #cwAutoPartNosConfig
+Local: Field: number field: set as : if $$value = 0 then 5 else $$value
+Local: Field: number field: set always : yes
+
+
+[field:cwPrefixPartnostr]
+use : short name field
+info:"Attach PartNo:"
+
+
+[field : cwPrefixPartno]
+use : short name field
+storage : cwPartNoAttach
+table : cwPartNoAttach,Not Applicable
+
+
+
+[collection : cwPartNoAttach]
+title :"Part No Attach Mode"
+listname : @@cwPartNoasPrefix
+listname : @@cwPartNoasSuffix
+
+[System: Formula]
+cwPartNoasPrefix :"Part No as Prefix"
+cwPartNoasSuffix :"Part No as Suffix"
+
+
+
+[Field: cwAutoPartNosConfigTitle]
+Use : medium prompt
+info: "Generate Auto Part No's?"
+
+[Field: cwAutoPartNosConfig]
+Use: logical field
+;Set As: $cwAutoPartNosEnabled
+storage: cwAutoPartNosEnabled
+
+[field : CWSTARTINGNUMBER]
+use : short name field
+storage : cwBarCodeStartingNo
+Set As: if $$isempty:$$value then 1 else $$value
+inactive : not #cwAutoPartNosConfig
+
+[system : udf]
+cwAutoPartNosEnabled : logical : 171 ;; change this value.
+cwNumZeros : number : 171
+cwBarCodeStartingNo : string : 175
+cwSkipBarcodeLabelGeneration: logical : 102
+
+cwAutoCreateBatch : logical : 1020
+cwNumZerosBatch : number : 1025
+cwItemAutoCreateBatch : logical : 1022
+ cwPrintSkippedCodes  : logical : 1023
+ cwLastCarton : number : 1024
+ cwPartNoAttach : string : 1024
+ cwVchHasBatchFill :logical : 1025
+cwVchHasBatchFillQty : logical : 1026
+
+[System: Formula]
+cwAutoPartNosEnabled :  $cwAutoPartNosEnabled:COMPANY:##SVCURRENTCOMPANY
+cwNumZeros : $cwNumZeros:COMPANY:##SVCURRENTCOMPANY
+cwBarCodeStartingNo : $cwBarCodeStartingNo:COMPANY:##SVCURRENTCOMPANY
+
+cwAutoCreateBatch : $cwAutoCreateBatch:COMPANY:##SVCURRENTCOMPANY
+cwNumZerosBatch : $cwNumZerosBatch:COMPANY:##SVCURRENTCOMPANY
+
+;------------------- Setting To Set AutoCreateInBatch in Stock Item
+
+[#Part: STKI Batch]
+add : line : after : STKI Batchable : cwAutoFillBatch,cwAutoFillBatchVchQty
+
+[line : cwAutoFillBatch]
+field : medium prompt, cwlogical
+Local: Field: medium prompt: info: "Auto Create Batch?"
+Local: Field: cwlogical: storage: cwItemAutoCreateBatch
+local: field: default: inactive: if not @@cwAutoCreateBatch then yes else not #STKIBatchable
+Local: Field: cwlogical: Set As: if not @@cwAutoCreateBatch then no else $$value
+
+Local: Field: default: Color : blue
+
+
+        [line: cwAutoFillBatchVchQty]
+        field : medium prompt,cwlogical2,sp,numf
+        Local: Field: cwlogical2: storage: cwVchHasBatchFillQty
+        Local: Field: medium prompt: info: "Auto Fill Qty (in Outward ):"
+;; {30.Jul.13 16:43} local: field: cwlogical2: inactive: if not @@cwAutoCreateBatch then yes else not #cwlogical
+Local: Field: cwlogical2: Set As: if not @@cwAutoCreateBatch then no else $$value
+Local: Field: default: Color : blue
+Local: Field: sp: Set As:"Item Qty:"
+Local: Field: numf: storage:cwAutoQuantity
+
+;----------------- Skipping Qty Field when auto fill is enabled
+;------------------ When Creating New Batch.
+
+[System: Formula]
+cwSkipBatchFormula : @@cwAutoCreateBatch and $cwVchHasBatchFillQty:stockitem:$stockitemname and @@IsOutwardType
+
+[#Line: STKVCH Batch2]
+add : option : cwSkipBatchFlds : @@cwSkipBatchFormula
+
+
+[!line : cwSkipBatchFlds]
+;;Right Fields: VCHBATCH Godown, VCHBATCH Name, +
+;;VCHBATCH ActualQty, VCHBATCH BilledQty, VCHBATCH Rate, VCHBATCH RateUnits, VCHBATCH ItemRate, VCHBATCH Discount, VCHBATCH ItemDiscount, VCHBATCH Value, VCHBATCH AddlValue
+
+Local: Field: VCHBATCH ActualQty: Skip: Yes
+Local: Field: VCHBATCH BilledQty: Skip: yes
+;; {05.Jun.15 12:08} Local: Field: VCHBATCH BilledQty: Set As: $cwAutoQuantity:stockitem:$stockitemname  ;;if $$isempty:$cwAutoQuantity:stockitem:$stockitemname then $cwAutoQuantity:stockitem:$stockitemname else $$value
+
+
+
+/*
+[#Part: New Number]
+add : line :at beginning : cwff
+
+[field : cwitm]
+use : name field
+set as : #VCHStockItem
+set always : yes
+skip : yes
+
+[line : cwff]
+field : cwitm
+
+        [#Field: New Number]
+;        set as : $stockitemname
+;        set always : yes
+set as : @@cwbnextname
+
+[Collection: cwBatches]
+    Type   : Batch
+Childof		: #cwitm
+Fetch		: Name
+sort : @@default : -$name
+
+
+[System: Formula]
+cwbnextname : $$zerofill:@@cwNNo:@@cwNumZerosBatch
+cwNNo : $$number:$$collectionfield:$name:1:cwBatches + 1
+*/

@@ -1,0 +1,5 @@
+; Created By: pg on 2012-05-24 15:59
+
+[#Form: Sales Order Color]
+delete : Control         : PartyLimitMsg  ;;: (NOT $IsOptional) AND $IsBudgetsOn:Company:##SVCurrentCompany AND @@PartyLimitExceeded
+

@@ -1,0 +1,34 @@
+[#Import File: SVReceiveClientMsgs]
+	Empty	:	($$IsVoucherType AND $IgnoreModVchTypeMasters:ServerRule:##SVServerRule AND $$InAlterMode) or ($$isstockitem and @@enablestktrans)
+
+
+
+
+
+[#Form: Company Operations]
+                Switch   : lockitemLowerRel  : lockitemNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : lockitemCurrenRel : lockitemFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : lockitemNOTFor3.2]
+Local: Part : CMP AccFeat Left : Add : Line : At End : enablecmpstktransfer
+
+
+[!Form : lockitemFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left : Add :  Line : At End  :enablecmpstktransfer
+
+
+
+[line:enablecmpstktransfer]
+    field:medium prompt,cwlogical
+    Local: Field:medium prompt : Set As:"Don`t Send Stock Item (in Synch) ?"
+    Local: Field: cwlogical: storage:ceenablecmpstktrans
+    Local: field: medium prompt: Width:30
+    Local: Field: default: Color : blue
+    
+
+ [System: Formula]
+ enablestktrans:$ceenablecmpstktrans:COMPANY:##SVCURRENTCOMPANY
+ 
+    [System: UDF]
+    ceenablecmpstktrans :logical :7090
+

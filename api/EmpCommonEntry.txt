@@ -1,0 +1,147 @@
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ; Designation
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[#field:Employee Designation]
+add : option : cwEmpDesig : @@cwetdesignationTable
+
+[!field : cwempdesig]
+  table : cwempdesigcc,notapplicable : @@cwEtdesignationUnder = @@cwcctable
+  table : cwempdesigsc,notapplicable : @@cwEtdesignationUnder = @@cwsctable
+ option : cc : @@cwEtdesignationUnder = @@cwcctable
+ option : sc : @@cwEtdesignationUnder = @@cwsctable
+
+ [table : cwempdesigcc]
+    type : costcentre
+  fetch : name
+child of: @@cwEtdesignationUnderName
+ title : @@cwEtdesignationUnderName
+
+ [table : cwempdesigsc]
+    use : stockcategory
+child of: @@cwEtdesignationUnderName
+
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ; Function
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ [#field: Employee Function]
+    add : option : cwEmpFunction : @@cwetFunctionTable
+
+[!field : cwEmpFunction]
+  table : cwempFunctioncc,notapplicable : @@cwetFunctionUnder = @@cwcctable
+  table : cwempFunctionsc,notapplicable : @@cwetFunctionUnder = @@cwsctable
+ option : cc : @@cwetFunctionUnder = @@cwcctable
+ option : sc : @@cwetFunctionUnder = @@cwsctable
+
+ [table : cwempFunctioncc]
+    type : costcentre
+  fetch : name
+childof : @@cwetFunctionUnderName
+  title : @@cwetFunctionUnderName
+
+ [table : cwempFunctionsc]
+    use : stockcategory
+childof : @@cwetFunctionUnderName
+  title : @@cwetFunctionUnderName
+
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ; Location
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ [#field: Employee Location]
+    add : option : cwEmpLocation : @@cwetlocationTable
+
+[!field : cwEmplocation]
+  table : cwemplocationcc,notapplicable : @@cwetlocationUnder = @@cwcctable
+  table : cwemplocationsc,notapplicable : @@cwetlocationUnder = @@cwsctable
+ option : cc : @@cwetlocationUnder = @@cwcctable
+ option : sc : @@cwetlocationUnder = @@cwsctable
+
+ [table : cwemplocationcc]
+    type : costcentre
+  fetch : name
+childof : @@cwetlocationUnderName
+  title : @@cwetlocationUnderName
+
+  
+
+ [table : cwemplocationsc]
+    use : stockcategory
+childof : @@cwetlocationUnderName
+
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ; Location
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+	[#Part: Employee General Detail]
+	  add : option : cwgradeenable : @@cwetgradeTable
+	  
+	[!part : cwgradeenable]
+	add : line : after : Employee Location : cwEmployeeGrade
+	
+	[line: cwEmployeeGrade]
+					Field	: Medium Prompt, cwEmployee grade
+					Local   : Field : Medium Prompt : Info  : $$LocaleString:"Grade"													;;; To Show in Employee master
+	 [field: cwEmployee grade]
+    Use          : Name Field
+    Width        : 20
+    Style		 : Small Bold
+	 storage : cwEmpGrade
+  table : cwempgradecc,notapplicable : @@cwetgradeUnder = @@cwcctable
+  table : cwempgradesc,notapplicable : @@cwetgradeUnder = @@cwsctable
+ option : cc : @@cwetgradeUnder = @@cwcctable
+ option : sc : @@cwetgradeUnder = @@cwsctable
+
+ [table : cwempgradecc]
+    type : costcentre
+  fetch : name
+childof : @@cwetgradeUnderName
+title : @@cwetgradeUnderName
+
+ [table : cwempgradesc]
+    use : stockcategory
+childof : @@cwetgradeUnderName
+	
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ; Seperate Emp Payslip Print Name
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[#Part: Employee ParentInfo]
+add : option : cwsepEmpPrint : @@cwhasSepEmpName
+
+[!part : cwsepempPrint]
+add : line : at beginning : cwSepEmpPrint
+
+[line : cwSepEmpPrint]
+Field 		: Short Prompt, nf
+Local 		: Field : Short Prompt 	: Info 	: $$LocaleString:"Print Slip Name"
+local : field : nf : storage : cwEmpPrintName
+Local : Field : nf : Set As: if $$isempty:$$value then $name else $$value
+
+[#Field: Payslip EmpName]
+	SetName			:  if @@cwhasSepEmpName then @@cwSepEmpName else @@cwNormalempName
+
+
+        [System : Formula]
+   cwSepEmpName : if not $$isempty:@@cwSepEmpName2 then @@cwSepEmpName2 else @@cwNormalempName
+   cwSepEmpName2 : $cwEmpPrintName:CostCentre:##CostCentreName
+cwNormalempName : $Name:CostCentre:##CostCentreName
+
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ; Seperate Retirement
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[#Line : Employee DeactivationDate]
+   add : option : cwRetireSeperate : @@cwetSepRetireDate
+
+[!line : cwRetireSeperate]
+Local  : Field : Short Prompt : Set as : "Date of Resignation" + ":"
+add : field : mp,sdf
+local : field : mp : info : "Date of Retirement:"
+;;local: field : mp : width : @@shortwidth
+local : field : sdf : storage : cwRetiredate
+local : field : sdf : validate : $$isempty:$$value or $$value > $DateOfJoin
+
+

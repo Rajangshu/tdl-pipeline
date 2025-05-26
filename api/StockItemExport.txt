@@ -1,0 +1,676 @@
+; Created By: Prakash on 2024-03-26 17:10, ID: 
+
+
+     [#menu: Account Statements]
+        add: Option: cwStockItemExportLock ;;: $$machineDate < $$date:"05-04-2024" ;; cwStockItemExportDemoLock
+
+     [#menu: Gateway of Tally]
+;; {28.Mar.24 14:09}         add: Option: cwStockItemExportLock ;; : @@cwStockItemExportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@cwStockItemExportReport: Display: RepcwStockItemExport
+
+
+
+     [!menu: cwStockItemExportLock]
+        add: Item: before: @@locQuit: @@cwStockItemExportReport: Display: RepcwStockItemExport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   cwStockItemExportReport: "Stock Item Export"
+;; cwStockItemExportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepcwStockItemExport]
+        use: Dsp Template
+;; Use				: Range Value Template
+        Use				: Range  Template
+        
+      Title: @@cwStockItemExportReport
+   Printset: Report Title: @@cwStockItemExportReport
+       Form: FrmcwStockItemExport
+     Export: Yes
+;; {26.Mar.24 17:11}      set  : svfromdate : ##svcurrentdate
+;; {26.Mar.24 17:11}      set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmcwStockItemExport]
+        use: DSP Template
+       Part: PrtTitle0cwStockItemExport,PrtcwStockItemExport
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: cwStockItemExportbotbrk,cwStockItemExportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+  add:button:Save View,change view
+ ;;    local : button : report config : action :modify variable: cwStockItemExportConfigure
+        option : enable Range filters
+        
+      [part: cwStockItemExportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: cwStockItemExportbotopbrk]
+        use: dspacctitles
+  add: part: cwStockItemExportTitlePart
+
+      [part: cwStockItemExportTitlePart]
+       line: LncwStockItemExportTitle
+       
+      [line: LncwStockItemExportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0cwStockItemExport]
+      line : LncwStockItemExportCurrPeriod
+      
+      [Part: PrtcwStockItemExport]
+       Line: LncwStockItemExportTitle,LncwStockItemExport
+bottom Line: LncwStockItemExportTotals
+     repeat: LncwStockItemExport: ColcwStockItemExport
+     scroll: Both
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColcwStockItemExport]
+        use: stock item
+
+
+      [Line: LncwStockItemExportTitle]
+        use: LncwStockItemExport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+      local: field: default : style: normal bold
+Local: Field: numf: Set As:'Levels'
+local: field: snf1 : set as : 'Name'
+local: field: snf2 : set as : 'mailingname'
+local: field: snf3 : set as : 'parent'
+local: field: snf4 : set as : 'StockCategory'
+local: field: snf5 : set as : 'Units'
+local: field: snf6 : set as : 'AlternativeUnits'
+local: field: snf7 : set as : 'Conversion'
+local: field: snf8 : set as : 'Denominator'
+local: field: snf9 : set as : 'AllowNegativeStockLock'
+local: field: snf10 : set as : 'Allow Rate Lock'
+local: field: snf11 : set as : 'StandardCost'
+local: field: snf12 : set as : 'StandardRate'
+local: field: snf13 : set as : 'GSTApplicable'
+local: field: snf14 : set as : 'HSNDescription'
+local: field: snf15 : set as : 'HSNCode'
+local: field: snf16 : set as : 'IsNonGSTGoods'
+local: field: snf17 : set as : 'CalculationType'
+local: field: snf18 : set as : 'Taxability'
+local: field: snf19 : set as : 'isReverseChargeApplicable'
+local: field: snf20 : set as : 'isIneligibleforInputCredit'
+local: field: snf21 : set as : 'IGSTPercent'
+local: field: snf22 : set as : 'CGSTPercent'
+local: field: snf23 : set as : 'SGSTPercent'
+local: field: snf24 : set as : 'CESSPErcent'
+local: field: snf25 : set as : 'TypeofSupply'
+local: field: snf26 : set as : 'ReportingUQC'
+local: field: snf27 : set as : 'OpeningBalance'
+local: field: snf28 : set as : 'GodownName'
+local: field: snf29 : set as : 'BatchName'
+local: field: snf30 : set as : 'Quantity'
+local: field: snf31 : set as : 'Rate'
+local: field: snf32 : set as : 'Per'
+local: field: snf33 : set as : 'Amount'
+Local: Field: snf55 : Set As: 'MfdOn'
+local: field: snf34 : set as : 'BranchCode'
+local: field: snf35 : set as : 'Product'
+local: field: snf36 : set as : 'PackSize'
+local: field: snf37 : set as : 'Weight'
+local: field: snf38 : set as : 'NoofCarton'
+local: field: snf39 : set as : 'NoofDrum'
+Local: Field: snf40 : Set As: "ISBATCHWISEON"
+Local: Field: snf41: Set As: "ISPERISHABLEON"
+
+local: field: snf42 : set as : 'IGNOREPHYSICALDIFFERENCE' ;; IGNOREPHYSICALDIFFERENCE
+local: field: snf43 : set as : 'IGNORENEGATIVESTOCK' ;; IGNORENEGATIVESTOCK
+local: field: snf44 : set as : 'TREATSALESASMANUFACTURED' ;; TREATSALESASMANUFACTURED
+local: field: snf45 : set as : 'TREATPURCHASESASCONSUMED' ;; TREATPURCHASESASCONSUMED
+local: field: snf46 : set as : 'TREATREJECTSASSCRAP' ;; TREATREJECTSASSCRAP
+local: field: snf47 : set as : 'HASMFGDATE' ;; HASMFGDATE
+local: field: snf48 : set as : 'ALLOWUSEOFEXPIREDITEMS' ;; ALLOWUSEOFEXPIREDITEMS
+local: field: snf49 : set as : 'ADJDIFFINFIRSTSALELEDGER' ;;  ADJDIFFINFIRSTSALELEDGER
+local: field: snf50 : set as : 'ADJDIFFINFIRSTPURCLEDGER' ;; ADJDIFFINFIRSTPURCLEDGER
+local: field: snf51 : set as : 'CALCONMRP' ;; CALCONMRP
+local: field: snf52 : set as : 'ISMRPINCLOFTAX' ;; ISMRPINCLOFTAX
+local: field: snf53 : set as : 'INCLUSIVETAX' ;; INCLUSIVETAX
+local: field: snf54 : set as : 'GSTCALCSLABONMRP' ;; GSTCALCSLABONMRP
+
+      [Line: LncwStockItemExport]
+field: numf,snf1, snf2, snf3, snf4, snf5, snf6, snf7, snf8, snf9, snf10, snf11, snf12, snf13, snf14, snf15, snf16, snf17, snf18, snf19, snf20, +
+ snf21, snf22, snf23, snf24, snf25, snf26, snf27, snf28, snf29, snf30, snf31, snf32, snf33, snf34, snf35, snf36, snf37, snf38, snf39, snf40,snf41, +
+ SNF42, SNF43, SNF44, SNF45, SNF46, SNF47, SNF48, SNF49, SNF50, SNF51, SNF52, SNF53, SNF54, snf55
+
+Local: Field: numf: Set As: 5
+
+ local: field: snf1 : set as : $name ;;Name
+local: field: snf2 : set as : $mailingname ;;Part Number
+local: field: snf3 : set as : $parent ;;StockGroup
+local: field: snf4 : set as : IF $$ISSYSNAME:$CATEGORY THEN '' ELSE $CATEGORY ;;StockCategory
+local: field: snf5 : set as : $BASEUNITS ;;Units
+local: field: snf6 : set as : if not $$issysname:$ADDITIONALUNITS then $ADDITIONALUNITS else '' ;;Alternative Units
+local: field: snf7 : set as : $CONVERSION ;;Conversion
+local: field: snf8 : set as : $DENOMINATOR ;;Denominator
+local: field: snf9 : set as : $cwNegativeStockLockitem ;;Allow Negative Stock Lock
+local: field: snf10 : set as : $cwratelock ;;Allow Rate Lock
+local: field: snf11 : set as : $COSTINGMETHOD ;;StandardCost
+local: field: snf12 : set as : $VALUATIONMETHOD ;;StandardRate
+local: field: snf13 : set as : $GSTAPPLICABLE ;;GST Applicable
+
+local: field: snf14 : set as : '' ;;HSN Description
+local: field: snf15 : set as : '' ;;HSN Code
+local: field: snf16 : set as : '' ;;Is Non GST Goods
+local: field: snf17 : set as : '' ;;Calculation Type
+local: field: snf18 : set as : '' ;;Taxability
+local: field: snf19 : set as : '' ;;is Reverse Charge Applicable
+local: field: snf20 : set as : '' ;;is Ineligible for Input Credit
+local: field: snf21 : set as : '' ;;IGSTPercent
+local: field: snf22 : set as : '' ;;CGSTPercent
+local: field: snf23 : set as : '' ;;SGSTPercent
+local: field: snf24 : set as : '' ;;CESSPErcent
+local: field: snf25 : set as : '' ;;Type of Supply
+
+local: field: snf26 : set as : $GSTREPUOM ;;Reporting UQC
+
+local: field: snf27 : set as : $$string:$closingValue:"NoZero,NoComma" ;;Opening Balance
+local: field: snf28 : set as : '' ;;Godown Name
+local: field: snf29 : set as : '' ;;Batch Name
+local: field: snf30 : set as : $$string:$closingBalance:"NoZero,NoComma" ;;Quantity
+local: field: snf31 : set as : $$string:$closingRATE:"NoZero,NoComma" ;;Rate
+local: field: snf32 : set as : "" ;;Per
+
+local: field: snf34 : set as : $cwcmpdepcd:COMPANY:##SVCURRENTCOMPANY ;;BranchCode
+local: field: snf35 : set as : $cwPRD ;;Product
+local: field: snf36 : set as : $cwPackSize ;;PackSize
+local: field: snf37 : set as : $cwWeight ;;Weight
+local: field: snf38 : set as : $cwNoofCarton ;;No of Carton
+local: field: snf39 : set as : $cwNoofDrum ;;No of Drum
+Local: Field: snf40: Set As: $ISBATCHWISEON
+Local: Field: snf41: Set As: $ISPERISHABLEON
+
+local: field: snf42 : set as : $IGNOREPHYSICALDIFFERENCE ;; IGNOREPHYSICALDIFFERENCE
+local: field: snf43 : set as : $IGNORENEGATIVESTOCK ;; IGNORENEGATIVESTOCK
+local: field: snf44 : set as : $TREATSALESASMANUFACTURED ;; TREATSALESASMANUFACTURED
+local: field: snf45 : set as : $TREATPURCHASESASCONSUMED ;; TREATPURCHASESASCONSUMED
+local: field: snf46 : set as : $TREATREJECTSASSCRAP ;; TREATREJECTSASSCRAP
+local: field: snf47 : set as : $HASMFGDATE ;; HASMFGDATE
+local: field: snf48 : set as : $ALLOWUSEOFEXPIREDITEMS ;; ALLOWUSEOFEXPIREDITEMS
+local: field: snf49 : set as : $ADJDIFFINFIRSTSALELEDGER ;;  ADJDIFFINFIRSTSALELEDGER
+local: field: snf50 : set as : $ADJDIFFINFIRSTPURCLEDGER ;; ADJDIFFINFIRSTPURCLEDGER
+local: field: snf51 : set as : $CALCONMRP ;; CALCONMRP
+local: field: snf52 : set as : $ISMRPINCLOFTAX ;; ISMRPINCLOFTAX
+local: field: snf53 : set as : $INCLUSIVETAX ;; INCLUSIVETAX
+local: field: snf54 : set as : $GSTCALCSLABONMRP ;; GSTCALCSLABONMRP
+
+explode : closingBalanceDetails
+explode : cwSTANDARDCOSTLIST
+explode : cwFULLPRICELIST
+explode : cwMRPDETAILS
+
+explode: cwGSTDetails
+
+[part: cwGSTDetails]
+line: cwGSTDetails
+repeat :  cwGSTDetails: GSTDETAILS
+
+[line: cwGSTDETAILS]
+ use: LncwStockItemExport
+delete : explode
+Local: Field: numf: Set As: '50'
+local: field: snf1 : set as : $$prevlinefield
+local: field: snf2 : set as : $$prevlinefield
+
+local: field: snf3 : set as : $$cwYYMMDD:$APPLICABLEFROM
+local: field: snf4 : set as : $CALCULATIONTYPE
+local: field: snf5 : set as : $HSNCODE
+local: field: snf6 : set as : $TAXABILITY
+local: field: snf7 : set as : $ISREVERSECHARGEAPPLICABLE
+local: field: snf8 : set as : $ISNONGSTGOODS
+local: field: snf9 : set as : $GSTINELIGIBLEITC
+local: field: snf10 : set as : $INCLUDEEXPFORSLABCALC
+local: field: snf11 : set as : ''
+local: field: snf12 : set as : ''
+local: field: snf13 : set as : ''
+local: field: snf14 : set as : ''
+local: field: snf15 : set as : ''
+local: field: snf16 : set as : ''
+local: field: snf17 : set as : ''
+local: field: snf18 : set as : ''
+local: field: snf19 : set as : ''
+local: field: snf20 : set as : ''
+local: field: snf21 : set as : ''
+local: field: snf22 : set as : ''
+local: field: snf23 : set as : ''
+local: field: snf24 : set as : ''
+local: field: snf25 : set as : ''
+local: field: snf26 : set as : ''
+local: field: snf27 : set as : ''
+local: field: snf28 : set as : ''
+local: field: snf29 : set as : ''
+local: field: snf30 : set as : ''
+local: field: snf31 : set as : ''
+local: field: snf32 : set as : ''
+local: field: snf33 : set as : ''
+;; {28.Mar.24 13:46} local: field: snf34 : set as : ''
+local: field: snf35 : set as : ''
+local: field: snf36 : set as : ''
+local: field: snf37 : set as : ''
+local: field: snf38 : set as : ''
+local: field: snf39 : set as : ''
+local: field: snf40 : set as : ''
+local: field: snf41 : set as : ''
+local: field: snf42 : set as : ''
+local: field: snf43 : set as : ''
+local: field: snf44 : set as : ''
+local: field: snf45 : set as : ''
+local: field: snf46 : set as : ''
+local: field: snf47 : set as : ''
+local: field: snf48 : set as : ''
+local: field: snf49 : set as : ''
+local: field: snf50 : set as : ''
+local: field: snf51 : set as : ''
+local: field: snf52 : set as : ''
+local: field: snf53 : set as : ''
+local: field: snf54 : set as : ''
+add: explode : cwStateWiseDetails
+
+[part: cwStateWiseDetails]
+line :cwStateWiseDetails
+repeat : cwStateWiseDetails: StateWiseDetails
+
+[line : cwStateWiseDetails]
+use :  LncwStockItemExport
+delete : explode
+Local: Field: numf: Set As: '60'
+local: field: snf1 : set as : $$prevlinefield
+local: field: snf2 : set as : $$prevlinefield
+local: field: snf3 : set as : if $STATENAME = $$sysname:Any then 'any' else $STATENAME
+local: field: snf4 : set as : $RATEDETAILS[1].GSTRATEDUTYHEAD
+local: field: snf5 : set as : $RATEDETAILS[1].GSTRATE
+local: field: snf6 : set as : $RATEDETAILS[1].GSTRATEVALUATIONTYPE
+local: field: snf7 : set as : $RATEDETAILS[2].GSTRATEDUTYHEAD
+local: field: snf8 : set as : $RATEDETAILS[2].GSTRATE
+local: field: snf9 : set as : $RATEDETAILS[2].GSTRATEVALUATIONTYPE
+local: field: snf10 : set as : $RATEDETAILS[3].GSTRATEDUTYHEAD
+local: field: snf11 : set as : $RATEDETAILS[3].GSTRATE
+local: field: snf12 : set as : $RATEDETAILS[3].GSTRATEVALUATIONTYPE
+local: field: snf13 : set as : ''
+local: field: snf14 : set as : ''
+local: field: snf15 : set as : ''
+local: field: snf16 : set as : ''
+local: field: snf17 : set as : ''
+local: field: snf18 : set as : ''
+local: field: snf19 : set as : ''
+local: field: snf20 : set as : ''
+local: field: snf21 : set as : ''
+local: field: snf22 : set as : ''
+local: field: snf23 : set as : ''
+local: field: snf24 : set as : ''
+local: field: snf25 : set as : ''
+local: field: snf26 : set as : ''
+local: field: snf27 : set as : ''
+local: field: snf28 : set as : ''
+local: field: snf29 : set as : ''
+local: field: snf30 : set as : ''
+local: field: snf31 : set as : ''
+local: field: snf32 : set as : ''
+local: field: snf33 : set as : ''
+;; {28.Mar.24 13:46} local: field: snf34 : set as : ''
+local: field: snf35 : set as : ''
+local: field: snf36 : set as : ''
+local: field: snf37 : set as : ''
+local: field: snf38 : set as : ''
+local: field: snf39 : set as : ''
+local: field: snf40 : set as : ''
+local: field: snf41 : set as : ''
+local: field: snf42 : set as : ''
+local: field: snf43 : set as : ''
+local: field: snf44 : set as : ''
+local: field: snf45 : set as : ''
+local: field: snf46 : set as : ''
+local: field: snf47 : set as : ''
+local: field: snf48 : set as : ''
+local: field: snf49 : set as : ''
+local: field: snf50 : set as : ''
+local: field: snf51 : set as : ''
+local: field: snf52 : set as : ''
+local: field: snf53 : set as : ''
+local: field: snf54 : set as : ''
+
+
+[part: closingBalanceDetails]
+line : closingBalanceDetails
+repeat: closingBalanceDetails : cwbatch
+
+[collection: cwbatch]
+type: Batch
+child of :$name
+
+[line : closingBalanceDetails]
+use: LncwStockItemExport
+delete : explode
+Local: Field: numf: Set As: '10'
+local: field: snf1 : set as : $$prevlinefield
+local: field: snf2 : set as : $$prevLineField
+local: field: snf3 : set as : ''
+local: field: snf4 : set as : ''
+local: field: snf5 : set as : ''
+local: field: snf6 : set as : ''
+local: field: snf7 : set as : ''
+local: field: snf8 : set as : ''
+local: field: snf9 : set as : ''
+local: field: snf10 : set as : ''
+local: field: snf11 : set as : ''
+local: field: snf12 : set as : ''
+local: field: snf13 : set as : ''
+local: field: snf14 : set as : ''
+local: field: snf15 : set as : ''
+local: field: snf16 : set as : ''
+local: field: snf17 : set as : ''
+local: field: snf18 : set as : ''
+local: field: snf19 : set as : ''
+local: field: snf20 : set as : ''
+local: field: snf21 : set as : ''
+local: field: snf22 : set as : ''
+local: field: snf23 : set as : ''
+local: field: snf24 : set as : ''
+local: field: snf25 : set as : ''
+local: field: snf26 : set as : ''
+local: field: snf27 : set as : ''
+local: field: snf28 : set as : ''
+local: field: snf29 : set as : ''
+local: field: snf30 : set as : ''
+local: field: snf31 : set as : ''
+local: field: snf32 : set as : ''
+local: field: snf33 : set as : ''
+;; {28.Mar.24 13:46} local: field: snf34 : set as : ''
+local: field: snf35 : set as : ''
+local: field: snf36 : set as : ''
+local: field: snf37 : set as : ''
+local: field: snf38 : set as : ''
+local: field: snf39 : set as : ''
+local: field: snf40 : set as : ''
+local: field: snf41 : set as : ''
+local: field: snf42 : set as : ''
+local: field: snf43 : set as : ''
+local: field: snf44 : set as : ''
+local: field: snf45 : set as : ''
+local: field: snf46 : set as : ''
+local: field: snf47 : set as : ''
+local: field: snf48 : set as : ''
+local: field: snf49 : set as : ''
+local: field: snf50 : set as : ''
+local: field: snf51 : set as : ''
+local: field: snf52 : set as : ''
+local: field: snf53 : set as : ''
+local: field: snf54 : set as : ''
+
+
+local: field: snf27 : set as : $$string:$closingValue:"NoZero,NoComma" ;;Opening Balance
+local: field: snf28 : set as : if $godownName  contains "sound" then  "1. " + #snf34 + "_Sound" else if $godownname contains "Damage" then "2. "+ #snf34 + "_Damage" else if $godownname contains "Short" then "3. " + #snf34 + "_Short" else #snf34 + "_" + $godownName   ;;Godown Name
+local: field: snf29 : set as : $batchName ;;Batch Name
+local: field: snf30 : set as : $$string:$closingBalance:"NoZero,NoComma"  ;;Quantity
+local: field: snf31 : set as : $$string:$closingRATE:"NoZero,NoComma" ;;Rate
+local: field: snf55 : set as : $mfdOn ;; MfdOn
+
+remove if : $$isempty:$closingBalance and $$isempty:$closingValue
+
+      
+      [part: cwSTANDARDCOSTLIST]
+      line: cwSTANDARDCOSTLIST
+;; {28.Mar.24 17:32}       repeat: cwSTANDARDCOSTLIST : STANDARDCOSTLIST
+      
+      [line: cwSTANDARDCOSTLIST]
+use: LncwStockItemExport
+delete : explode
+Local: Field: numf: Set As: '20'
+local: field: snf1 : set as :$$prevlinefield
+local: field: snf2 : set as : $$prevLineField
+local: field: snf3 : set as : $$cwYYMMDD:$STANDARDCOSTLIST[-1].DATE
+local: field: snf4 : set as : $STANDARDCOSTLIST[-1].RATE
+local: field: snf5 : set as : ''
+local: field: snf6 : set as : ''
+local: field: snf7 : set as : ''
+local: field: snf8 : set as : ''
+local: field: snf9 : set as : ''
+local: field: snf10 : set as : ''
+local: field: snf11 : set as : ''
+local: field: snf12 : set as : ''
+local: field: snf13 : set as : ''
+local: field: snf14 : set as : ''
+local: field: snf15 : set as : ''
+local: field: snf16 : set as : ''
+local: field: snf17 : set as : ''
+local: field: snf18 : set as : ''
+local: field: snf19 : set as : ''
+local: field: snf20 : set as : ''
+local: field: snf21 : set as : ''
+local: field: snf22 : set as : ''
+local: field: snf23 : set as : ''
+local: field: snf24 : set as : ''
+local: field: snf25 : set as : ''
+local: field: snf26 : set as : ''
+local: field: snf27 : set as : ''
+local: field: snf28 : set as : ''
+local: field: snf29 : set as : ''
+local: field: snf30 : set as : ''
+local: field: snf31 : set as : ''
+local: field: snf32 : set as : ''
+local: field: snf33 : set as : ''
+;; {28.Mar.24 13:46} local: field: snf34 : set as : ''
+local: field: snf35 : set as : ''
+local: field: snf36 : set as : ''
+local: field: snf37 : set as : ''
+local: field: snf38 : set as : ''
+local: field: snf39 : set as : ''
+local: field: snf40 : set as : ''
+local: field: snf41 : set as : ''
+local: field: snf42 : set as : ''
+local: field: snf43 : set as : ''
+local: field: snf44 : set as : ''
+local: field: snf45 : set as : ''
+local: field: snf46 : set as : ''
+local: field: snf47 : set as : ''
+local: field: snf48 : set as : ''
+local: field: snf49 : set as : ''
+local: field: snf50 : set as : ''
+local: field: snf51 : set as : ''
+local: field: snf52 : set as : ''
+local: field: snf53 : set as : ''
+local: field: snf54 : set as : ''
+
+      
+      [part: cwFULLPRICELIST]
+      line: cwFULLPRICELIST
+      repeat: cwFULLPRICELIST : cwFULLPRICELIST
+      
+      [collection: cwFULLPRICELIST]
+      source collection : default
+      walk : FULLPRICELIST
+
+      compute var : mypricelevel : stirng : $pricelevel
+     by : pricelevel : $priceLevel
+      compute : date : $$reqobject:$$filtervalue:$date:fullpricelist:last:cwNameOfPriceList
+      aggrcompute : rate : min : if $date = $$tgtobject:$date then $$collectionfield:$rate:1:PriceLevelList else $$tgtobject:$rate ;;if $date = $$tgtobject:$date then $rate else $$tgtobject:$rate
+
+      [System: Formula]
+      cwNameOfPriceList: $priceLevel = ##myPriceLevel
+
+      [line: cwFULLPRICELIST]
+use: LncwStockItemExport
+delete : explode
+Local: Field: numf: Set As: '30'
+local: field: snf1 : set as : $$prevLineField
+local: field: snf2 : set as : $$prevLineField
+local: field: snf3 : set as : $DATE
+local: field: snf4 : set as : $PRICELEVEL ;;PRICELEVELLIST[-1].RATE
+local: field: snf5 : set as : $rate
+local: field: snf6 : set as : ''
+local: field: snf7 : set as : ''
+local: field: snf8 : set as : ''
+local: field: snf9 : set as : ''
+local: field: snf10 : set as : ''
+local: field: snf11 : set as : ''
+local: field: snf12 : set as : ''
+local: field: snf13 : set as : ''
+local: field: snf14 : set as : ''
+local: field: snf15 : set as : ''
+local: field: snf16 : set as : ''
+local: field: snf17 : set as : ''
+local: field: snf18 : set as : ''
+local: field: snf19 : set as : ''
+local: field: snf20 : set as : ''
+local: field: snf21 : set as : ''
+local: field: snf22 : set as : ''
+local: field: snf23 : set as : ''
+local: field: snf24 : set as : ''
+local: field: snf25 : set as : ''
+local: field: snf26 : set as : ''
+local: field: snf27 : set as : ''
+local: field: snf28 : set as : ''
+local: field: snf29 : set as : ''
+local: field: snf30 : set as : ''
+local: field: snf31 : set as : ''
+local: field: snf32 : set as : ''
+local: field: snf33 : set as : ''
+;; {28.Mar.24 13:46} local: field: snf34 : set as : ''
+local: field: snf35 : set as : ''
+local: field: snf36 : set as : ''
+local: field: snf37 : set as : ''
+local: field: snf38 : set as : ''
+local: field: snf39 : set as : ''
+local: field: snf40 : set as : ''
+local: field: snf41 : set as : ''
+local: field: snf42 : set as : ''
+local: field: snf43 : set as : ''
+local: field: snf44 : set as : ''
+local: field: snf45 : set as : ''
+local: field: snf46 : set as : ''
+local: field: snf47 : set as : ''
+local: field: snf48 : set as : ''
+local: field: snf49 : set as : ''
+local: field: snf50 : set as : ''
+local: field: snf51 : set as : ''
+local: field: snf52 : set as : ''
+local: field: snf53 : set as : ''
+local: field: snf54 : set as : ''
+
+
+
+      [part: cwMRPDETAILS]
+      line: cwMRPDETAILS
+     ; repeat: cwMRPDETAILS : MRPDETAILS
+
+      [line: cwMRPDETAILS]
+use: LncwStockItemExport
+delete : explode
+Local: Field: numf: Set As: '40'
+local: field: snf1 : set as : $$prevLineField
+local: field: snf2 : set as : $$prevLineField
+local: field: snf3 : set as : $$cwYYMMDD:$MRPDETAILS[-1].FROMDATE
+local: field: snf4 : set as : if $$issysname:$MRPDETAILS[-1].MRPRATEDETAILS[-1].STATENAME then '' else $MRPDETAILS[-1].MRPRATEDETAILS[-1].STATENAME
+
+local: field: snf5 : set as : $MRPDETAILS[-1].MRPRATEDETAILS[-1].MRPRATE
+local: field: snf6 : set as : ''
+local: field: snf7 : set as : ''
+local: field: snf8 : set as : ''
+local: field: snf9 : set as : ''
+local: field: snf10 : set as : ''
+local: field: snf11 : set as : ''
+local: field: snf12 : set as : ''
+local: field: snf13 : set as : ''
+local: field: snf14 : set as : ''
+local: field: snf15 : set as : ''
+local: field: snf16 : set as : ''
+local: field: snf17 : set as : ''
+local: field: snf18 : set as : ''
+local: field: snf19 : set as : ''
+local: field: snf20 : set as : ''
+local: field: snf21 : set as : ''
+local: field: snf22 : set as : ''
+local: field: snf23 : set as : ''
+local: field: snf24 : set as : ''
+local: field: snf25 : set as : ''
+local: field: snf26 : set as : ''
+local: field: snf27 : set as : ''
+local: field: snf28 : set as : ''
+local: field: snf29 : set as : ''
+local: field: snf30 : set as : ''
+local: field: snf31 : set as : ''
+local: field: snf32 : set as : ''
+local: field: snf33 : set as : ''
+;; {28.Mar.24 13:46} local: field: snf34 : set as : ''
+local: field: snf35 : set as : ''
+local: field: snf36 : set as : ''
+local: field: snf37 : set as : ''
+local: field: snf38 : set as : ''
+local: field: snf39 : set as : ''
+local: field: snf40 : set as : ''
+local: field: snf41 : set as : ''
+local: field: snf42 : set as : ''
+local: field: snf43 : set as : ''
+local: field: snf44 : set as : ''
+local: field: snf45 : set as : ''
+local: field: snf46 : set as : ''
+local: field: snf47 : set as : ''
+local: field: snf48 : set as : ''
+local: field: snf49 : set as : ''
+local: field: snf50 : set as : ''
+local: field: snf51 : set as : ''
+local: field: snf52 : set as : ''
+local: field: snf53 : set as : ''
+local: field: snf54 : set as : ''
+
+ /*
+
+      <GSTDETAILS.LIST>
+       <APPLICABLEFROM>20180401</APPLICABLEFROM>
+       <CALCULATIONTYPE>On Value</CALCULATIONTYPE>
+       <HSNCODE>32129020</HSNCODE>
+       <TAXABILITY>Taxable</TAXABILITY>
+       <ISREVERSECHARGEAPPLICABLE>No</ISREVERSECHARGEAPPLICABLE>
+       <ISNONGSTGOODS>No</ISNONGSTGOODS>
+       <GSTINELIGIBLEITC>No</GSTINELIGIBLEITC>
+       <INCLUDEEXPFORSLABCALC>No</INCLUDEEXPFORSLABCALC>
+       <STATEWISEDETAILS.LIST>
+        <STATENAME>&#4; Any</STATENAME>
+        <RATEDETAILS.LIST>
+         <GSTRATEDUTYHEAD>Central Tax</GSTRATEDUTYHEAD>
+         <GSTRATEVALUATIONTYPE>Based on Value</GSTRATEVALUATIONTYPE>
+         <GSTRATE> 9</GSTRATE>
+        </RATEDETAILS.LIST>
+        <RATEDETAILS.LIST>
+         <GSTRATEDUTYHEAD>State Tax</GSTRATEDUTYHEAD>
+         <GSTRATEVALUATIONTYPE>Based on Value</GSTRATEVALUATIONTYPE>
+         <GSTRATE> 9</GSTRATE>
+        </RATEDETAILS.LIST>
+        <RATEDETAILS.LIST>
+         <GSTRATEDUTYHEAD>Integrated Tax</GSTRATEDUTYHEAD>
+         <GSTRATEVALUATIONTYPE>Based on Value</GSTRATEVALUATIONTYPE>
+         <GSTRATE> 18</GSTRATE>
+        </RATEDETAILS.LIST>
+        <GSTSLABRATES.LIST>        </GSTSLABRATES.LIST>
+       </STATEWISEDETAILS.LIST>
+       <TEMPGSTDETAILSLABRATES.LIST>       </TEMPGSTDETAILSLABRATES.LIST>
+      </GSTDETAILS.LIST>
+
+
+      */
+      
+      
+        [line: LncwStockItemExportTotals]
+        use: LncwStockItemExport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf

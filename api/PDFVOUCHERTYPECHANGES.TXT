@@ -1,0 +1,141 @@
+; Created By: suman on 2021-07-29 14:01, ID: 
+
+; Created By: Pg on 2018-09-11 18:12, ID:
+
+[System: Formula]
+cwVchdsEnabled : $cwDSEnabled:Vouchertype:##svVouchertype ;;##SVVoucherType
+cwREgdsEnabled : $cwDSEnabled:Vouchertype:##svVouchertype ;;##VoucherTypeName
+
+[#Part: VTYP Behaviour]
+;; {30.Jul.21 11:30} add: option : cwVtypeEnabledocEsign:@@cwBajajFinanceEnabled ;;: @@cwDSEnabled
+
+;; {15.Sep.18 13:01} local : field : default : border : thick box : @@cwDSEnabled
+
+[!part : cwVtypeEnabledocEsign]
+add : line:  cwVtypeEnabledocEsign
+
+[line: cwVtypeEnabledocEsign]
+field: long prompt,logical field
+Local: Field: long prompt: info: "Upload to BF?"
+Local: field: long prompt: Width: @@longwidth
+Local: Field: logical field : storage: cwDSEnabled
+
+Local: Field : logical field : SubForm : cwDocdetails: $$value
+Local: Field : long prompt :width:25
+
+space top : .5
+invisible : yes
+
+
+[Report: cwDocdetails]
+   form: FrmcwDocdetails
+  title: "Uploading Document..."
+
+  [form: FrmcwDocdetails]
+ option: small size form
+   part: prtcwDocdetails
+
+  [part: prtcwDocdetails]
+   line: lncwDocdetails
+   line : lncwDocdetailsx,cwposition1,cwposition2Title,cwposition2,cwPDFSignatureOn ,cwPDFCopies  , cwActionTitle,cwAction,cwAction2,cwesignAction,cwesignAction2
+  [line: lncwDocdetails]
+  field: fsp,fsnf,fsnf3
+  Local: Field: fsp: info: "Template:"
+  Local: Field: fsnf: storage: cwVchTemplate
+  Local: Field: fsnf3: info: "(Optional)"
+
+  border : thin bottom
+
+  [line:lncwDocdetailsx]
+   field: fsnf
+   Local: Field: fsnf: info: "Signature Position :"
+   Local: Field: fsnf: border:thin bottom
+   Local: Field: fsnf: width:0
+
+  [line: cwposition1]
+  space top : 0.5
+  field : fsp,fnumf,fsp2,fnumf2
+  Local: Field: fsp: info: "Left"
+  Local: Field: fsp2: info: "Top"
+  Local: Field: fnumf: storage: cwLeft
+  Local: Field: fnumf2: storage: cwTop
+
+  [line : cwposition2Title]
+  field : fsnf
+  Local: Field: fnf: info: "Position"
+
+   [line: cwposition2]
+  use :cwposition1
+  Local: Field: fsp: info: "Bottom"
+  Local: Field: fsp2: info: "Right"
+  Local: Field: fnumf: storage: cwBottom
+  Local: Field: fnumf2: storage: cwRight
+  border : thin bottom
+
+
+  [line : cwPDFCopies]
+  field: fsp ,fnumf
+  Local: Field: fsp: info: "Copies:"
+  Local: Field: fnumf: storage: cwPrintCopies
+
+  [line: cwPDFSignatureOn]
+  field : fsp,fsnf
+  local: field : fsp : info: "Put Signature on:"
+  Local: Field: fsnf: table: cwPutSignatureOn,Not Applicable
+  Local: Field: fsp: width: 0
+  Local: Field: fsnf: Set As: if $$isempty:$$value then @@cwDSLastPage else $$value
+   Local: Field: fsnf: storage:cwPutSignatureOn
+
+
+
+  [collection : cwPutSignatureOn]
+  title:"Signature on Page"
+  listname : @@cwDSLastPage
+  listname : @@cwDSfirstPage
+  listname : @@cwDSAllPages
+
+
+  [System: Formula]
+  cwDSLastPage : "Last Page"
+  cwDSfirstPage: "First Page"
+  cwDSAllPages:"All Pages"
+
+
+  [line : cwActiontitle]
+  field : fsnf
+  Local: Field: fsnf: info: "Action to take:"
+  Local: Field: fsnf: Border: thin bottom
+
+  [line : cwaction]
+  field : fsp,flogical,fsp2,flogical2
+  Local: Field: fsp: info: "Print:"
+  Local: Field: fsp2: info: "E-Mail to Party:"
+  Local: Field: flogical: storage: cwPrint
+  Local: Field: flogical2: storage: cwEmail
+
+  [line : cwaction2]
+  field : fsp,flogical,fsp2,fsnf
+  Local: Field: fsp: info: "Move to:"
+  Local: Field: fsp2: info: "Folder:"
+  Local: Field: flogical: storage: cwMovetoFolder
+  Local: Field: fsnf: storage: cwMovePath
+  Local: Field: fsnf: Skip: not #flogical
+
+[line:cwesignAction]
+field : fsnf
+  Local: Field: fsnf: info: "Invoice Dimension (in inches) :"
+  Local: Field: fsnf: Border: thin bottom
+  Local: Field: fsnf: width:0
+
+[line:cwesignAction2]
+space top : 0.5
+  field : fsp,fnumf,fsp2,fnumf2
+  Local: Field: fsp: info: "Height"
+  Local: Field: fsp2: info: "Width"
+  Local: Field: fnumf: storage: cwdocformatlheightnum
+  Local: Field: fnumf2: storage: cwdocformatlwidthnumf
+
+  Local: Field: fnumf: align:left
+  Local: Field: fnumf2: align:left
+
+

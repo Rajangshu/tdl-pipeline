@@ -1,0 +1,347 @@
+;; Set: IMedate to a date;
+;; set: imedemo : yes or no
+;[include : PrintAcross.txt]
+
+
+
+[system : formula]
+;   IMedate : $$DATE:"18/10/2011"
+;imedemo : no ;; if yes then demo mode else full access
+ xydemo : if @@imedemo then $$MachineDate <= @@IMedate else yes
+ demodt : if @@imedemo then $DATE <= @@IMedate else yes
+ImeEnable : @@demodt and ($$IsSales:$VoucherTypeName or $$ispurchase:$vouchertypename or $$iscreditnote:$vouchertypename or $$isdebitnote:$vouchertypename)
+
+[Variable : essesjbFilterVariable]
+Type : String
+Volatile : yes
+
+
+[System : Variable]
+essesjbFilterVariable : ""
+
+
+;;[#Menu : Account Books]
+
+[#menu : gateway of tally]
+   Add : Item : Before : @@locquit : IMEI Register : Display : IMEI Register  : @@xydemo
+
+
+
+[Report : IMEI Register]
+use : dsptemplate
+Add : Form : IMEI Register
+set : essesjbFilterVariable : ""
+set : svfromdate : ##svcurrentdate ;;$$monthstart:
+set : svtodate : ##svcurrentdate ;;$$monthend:
+
+[Form : IMEI Register]
+use : dsptemplate
+Height : 100% Screen
+Width  : 100% Screen
+Background  : White, Surf Green
+TopParts   : IMEICmp, IMEIDetails
+BottomParts : IMEIBottom
+Button : Filter
+;;Button : PrintButton
+delete : pagebreak
+add : Page Break : IMEIClPgBreak, IMEIOpPgBreak
+
+[Part : IMEICmp]
+TopParts :  IMEICmp1,  IMEICmp2, IMEITitle
+Vertical : yes
+
+[Part : IMEICmp1]
+Line : IMEICmpName, IMEICmpAdd
+Repeat : IMEICmpAdd : Company Address
+Invisible : Not $$InPrintMode
+
+[Line :IMEICmpName]
+Field : IMEICmpName
+Invisible : Not $$InPrintMode
+
+[Field : IMEICmpName]
+Use : Name Field
+Full Width : yes
+Style : Normal Bold
+Set As : @@CMPMailName
+Align : Centre
+
+[Line : IMEICmpAdd]
+Field : IMEICmpAdd
+Invisible : Not $$InPrintMode
+
+[Field : IMEICmpAdd]
+Use : Name Field
+Style : Small
+Align : Centre
+Full Width : yes
+Set As : $Address
+
+[Part : IMEICmp2]
+Line : IMEICmpTitle
+
+[Line : IMEICmpBlank]
+Use : IMEICmpName
+Space Top : 1
+Space Bottom : 1
+Local : Field : IMEICmpName : Set As : ""
+Invisible : Not $$InPrintMode
+
+[Line : IMEICmpTitle]
+Use : IMEICmpName
+Local : Field : IMEICmpName : Set As : "IMEI Register"
+Invisible : no
+Space Bottom : 1
+
+[Part : IMEITitle]
+Line : IMEITitle1, IMEITitle2
+Border : Column Titles
+
+[Line : IMEITitle1]
+;;Use : IMEIDetails
+Fields : IMEDate, IMELed,IMELed1
+Right Fields : IMEVchType,IMEVchNo, IMEAmt, IMEDrAmt, IMECrAmt
+Delete : Right Field : IMEAmt
+Add : Fields : After : ImeLed : IMENOTitle
+Local : Field : Default : Type : String
+Local : Field : Default : Align : Centre
+Local : Field : ImeDate : Set As : "Date"
+Local : Field : ImeLed : Set As : "Particulars"
+Local : Field : ImeVchNo : Set As : "Vch No."
+Local : Field : ImeVchType  : Set As : "Vch Type"
+Local : Field : ImeDrAmt : Set As : "Debit"
+Local : Field : ImeCrAmt : Set As : "Credit"
+Local : Field : ImeDrAmt : Align : Right 
+Local : Field : ImeCrAmt : Align : Right 
+Local: Field: IMELed1: Set As: "IME"
+Local: field: IMELed1: Align: centre
+
+[Line : IMEITitle2]
+;;Use : IMEIDetails
+Fields : IMEDate, IMELed,IMELed1
+Right Fields : IMEVchType,IMEVchNo, IMEAmt, IMEDrAmt, IMECrAmt
+Delete : Right Field : IMEAmt
+Local : Field : Default : Type : String
+Local : Field : Default : Style : Normal
+Local : Field : Default : Align : Centre
+Local : Field : ImeDate : Set As : ""
+Local : Field : ImeLed : Set As : ""
+Local : Field : ImeVchNo : Set As : ""
+Local : Field : ImeVchType  : Set As : ""
+Local : Field : ImeDrAmt : Set As : "Amount"
+Local : Field : ImeCrAmt : Set As : "Amount"
+Local : Field : ImeDrAmt : Align : Right 
+Local : Field : ImeCrAmt : Align : Right 
+Add : Fields : After : ImeLed : IMENOTitle
+Local :field:IMENOTitle:info:"" ;;Number"
+Local :field:IMELed1:Style : Normal Bold
+
+Local: Field: IMELed1: Set As: "Number"
+Local: field: IMELed1: Align: centre
+
+[Field : IMENOTitle]
+Use : Name Field
+Width : 20
+Set As : "Item"
+Align: Left
+
+[Part : IMEIDetails]
+Lines : IMEIDetails
+Repeat: IMEIDetails : essesjbCollection
+Scroll: Vertical
+Total : IMEDrAmt, IMECrAmt
+
+[Line : IMEIDetails]
+Option : AlterOnEnter : $$IsVoucher ;;AND NOT $IsDeleted
+Fields : IMEDate, IMELed
+Right Fields :IMELed1, IMEVchType,IMEVchNo, IMEAmt, IMEDrAmt, IMECrAmt
+Explode : IMEIExplode
+
+
+[Field : IMEDate]
+Use : Short Date Field
+Alter : Voucher : $$IsVoucher ;;AND NOT $IsDeleted AND (NOT ($$IsPayroll:$VoucherTypeName OR $$IsAttendance:$VoucherTypeName))
+Style : Normal
+Set As : $Date
+
+[Field : IMELed]
+Use : Name Field
+Set As : $LedgerName
+Width : 25
+
+
+[field:IMELed1]
+  use:name field
+  setas:""
+;;  cells:
+  width:20
+;;  border:thin box
+
+
+[Field : IMEVchType]
+Use : Name Field
+Width : 10
+Align : Centre
+Style : Normal
+Set As : $VoucherTypeName
+
+[Field : IMEVchNo]
+Use : Name Field
+Width : 10
+Align : Centre
+Style : Normal
+Set As :$VoucherNumber
+
+[Field : IMEAmt]
+Use : Amount Field
+Invisible : yes
+;;Storage : $amount ;;Amount : All Ledger Entries : First
+set as : 0 ;;$amount
+
+
+[Field : IMEDrAmt]
+Use : Amount Field
+Set As :if $$isdr:$amount then $amount else 0 ;;$amount ;; $$IfDr:#IMEAmt
+
+[Field : IMECrAmt]
+Use : Amount Field
+Set As :if not $$isdr:$amount then $amount else 0 ;; $$IfCr:#IMEAmt
+
+[Part : IMEIExplode]
+Line  : IMEIExplode
+;;Scroll : Vertical
+Repeat : IMEIExplode :InventoryEntries
+
+[Line:IMEIExplode]
+Field :essesjbStkItem0,essesjbStkItem,essesjbStkIME,essesjbAmount2
+;;right fields:ImeDrAmtx
+Indent : 9
+Explode : IMEIExplosion ;;:  $$NumItems:BasicUserDescription > 1
+
+[field:essesjbStkItem0]
+  use: name field
+  setas:""
+;;  cells:2
+;;  width:12
+;; border:thick box
+
+[Field : essesjbStkItem]
+Use : Name Field
+Set As : $StockItemName
+Width : 25
+;;border:thin box
+
+[Field : essesjbStkIME]
+Use : Name Field
+;;Storage : basicUserDescription : UserDescription : First
+Style : If ##essesjbFilterVariable <> "" and $$value = ##essesjbFilterVariable Then "Normal Bold Italic" Else "Normal Italic"
+Width : 20
+Align : Right
+set as : $basicuserdescription ;;else "" ;;$$collectionfield:$basicuserdescription:1:basicuserdescription else $$asREqObj:$$collectionfield:$basicuserdescription:@xlinep1:basicuserdescription
+
+;;border:thin box
+
+[Field : essesjbAmount2]
+Use : Amount Field
+Width : 10
+Style : Normal Italic
+Set As :""  ;;$Amount
+
+[field:ImeDrAmtx]
+  use:amount field
+  setas:$amount  ;;if $$isdr:$amount then $amount else 0
+
+
+[Part : IMEIExplosion]
+Line : IMEIExplosion
+Repeat : IMEIExplosion :basicUserDescription
+
+
+[system : formula]
+cwl1 : $$line +1
+ ;;$$fulllist:basicuserdescription:$basicuserdescription ;;
+
+[Line : IMEIExplosion]
+  Use : IMEIExplode
+Local : Field : essesjbStkItem : Set As : ""
+Local : Field : essesjbStkIME  : Set As : $$OWNER:$$collectionfield:$basicUserDescription:@@cwl1:BasicuserDescription
+Local : Field : essesjbStkIME  : lines : 0
+Local : Field : essesjbAmount2  : Set As : ""
+delete : explode
+empty : $$line = $$numitems
+
+[Part : IMEIBottom]
+Height : 5
+Line : IMEIBottom
+
+[Line : IMEIBottom]
+Border : Totals
+Use : IMEIDetails
+Delete : Right Field : IMEAmt
+Local : Field : ImeDate : Set As : ""
+Local : Field : ImeLed : Set As : ""
+Local : Field : ImeVchNo : Set As : ""
+Local : Field : ImeVchType  : Style : Normal Bold
+Local : Field : ImeVchType  : Set As : "Total :"
+Local : Field : ImeVchType  : Align : Right
+Local : Field : ImeDrAmt : Set As : $$Total:IMEDrAmt
+Local : Field : ImeCrAmt : Set As : $$Total:IMECrAmt
+
+[Part : IMEIClPgBreak]
+Use : DYBK ClPageBreak
+
+[Part : IMEIOpPgBreak]
+Use : IMEICmp
+
+[Button : Filter]
+Key : F12
+Action  : Modify Variables : Filter IME
+
+[Report : Filter IME]
+Auto : yes
+
+[Form: Filter IME]
+Parts       : Filter IMETitle,Filter IME
+Full Width  : No
+Space Right : 2
+Space Left  : 4
+No confirm  : Yes
+Option      : Small Size Form
+;;Background  : Very Light Grey, Very Light Grey
+
+[Part : Filter IMETitle]
+Line : Form Sub Title
+Space Bottom : 0.5
+Local : Field : Form Sub Title : Info : "Filter By IME Number"
+
+[Part : Filter IME]
+Line  : Filter IME
+
+[Line  : Filter IME]
+Field : Short Prompt, Filter IME
+Local : Field : Short Prompt : Info : "Enter IME No. :"
+
+[Field : Filter IME]
+Use : Name Field
+Style : Normal
+Modifies : essesjbFilterVariable
+
+[Collection : essesjbCollection]
+Type	: Voucher
+Filter  : IsNonOptionalCancelledVchs,cwimeFilter1,essesjbSalesFilter ;;,f2filter
+fetch : amount
+
+[system : Formula]
+     cwimeFilter1  : @@imeEnable ;;AND @@demodt
+essesjbSalesFilter : if ##essesjbFilterVariable = "" then yes else $$ItmBudHasIme
+
+[function : ItmBudHasIme]
+returns : logical
+10 : return : not $$isempty:$inventoryentries[1,@@budofItems].stockitemname
+
+[System: Formula]
+budofItems : not $$isempty:$basicuserdescription[1,@@mybudsame].basicuserdescription
+mybudsame : $basicuserdescription contains ##essesjbFilterVariable
+
+
+

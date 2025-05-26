@@ -1,0 +1,203 @@
+; logobj is required.
+
+[System: Formula]
+cwModifiedAfterLastSynch : if $$isempty:$cwModifiedOn then yes else $cwModifiedOn >= @@dspfromdate
+cwShowAlteredDetails : no
+cwShowCreatedDetails : no
+
+[#form : Master Inventory Form]
+add : part : cwCreateDate
+
+[#form : Master Accounting Form]
+add : part : cwCreateDate
+
+[part :cwCreateDate]
+line : cwCreateDate,cwModDate
+
+[Line: cwModDate]
+Local: field: default: Width: 0
+field : sp,sdf,snf5,snf6,snf7
+ Local: Field: snf5: Set As: $$machinedate
+Local: Field: snf5: storage: cwModifiedOnDate
+Local: Field: snf7: storage: cwModifieduser
+Local: Field: snf7: Set As:##svusername
+;; {26.Jun.13 17:18} Local: Field: snf5: Border: thin box ;;left right
+Local: Field: snf5: Skip: Yes
+Local: Field: sp: info: "Altered:"
+Local: Field: sp2: info: "Time:"
+Local: Field: snf6: Set As: $$machinetime
+Local: Field: snf6: storage: cwModifiedOnTime
+Local: Field: default: Skip: Yes
+Local: Field: snf6: Set Always : yes
+local: field: snf6: type: String : forced
+local: field: snf5: type: String : forced
+Local: Field: sdf: storage: cwModifiedOn
+Local: Field: sdf: Set As: $$machinedate
+
+local: field: snf5: Invisible: yes
+
+invisible : not @@cwShowAlteredDetails
+
+[line : cwCreateDate]
+field : sp,sdf,snf,sp4,snf8,sp2,numf3,sp3,snf3
+Local: field: default: Width: 0
+Local: Field: sp2: info: "MasterID:"
+Local: Field: numf3: Set As: $masterid
+Local: Field: numf3: Skip: Yes
+Local: field: numf3: Format: "NoZero,NoComma"
+;; {29.Sep.15 15:15} border : thin top
+Local: Field: sp3: info: "CW ID:"
+Local: Field: snf3: storage: cwMasterId
+Local: Field: snf3: Set As: if $$isempty:$$value then $$MakeUniqueID else $$value
+Local: field: snf3: Width: 3    inch
+Local: field: sp3: Width:0
+Local: Field: snf3: Skip: Yes
+
+local :field : sp3 :invisible : $$isunit
+local :field : snf3 :invisible : $$isunit
+
+
+Local: Field: sp : info: "Created:"
+Local: Field: sdf : storage: CwCreateDAte
+Local: Field: sdf : Set As: $$machinedate
+local : field : sdf : skip : yes
+local : field : sdf : color : "RED"
+local : field : sdf : style : normal bold
+local : field : snf : color : "RED"
+local : field : snf : style : normal bold
+
+Local: Field: snf : set as : $$machinetime
+Local: Field: snf : storage: cwCreateTime
+local : field : snf : skip : yes
+
+
+Local: Field: snf8: storage: cwCreatedby
+Local: Field: snf8: set as : if $$isempty:$$value then ##svusername else $$value
+Local: Field: snf8: Skip: Yes
+invisible : not @@cwShowCreatedDetails
+
+[#form : list of accounts]
+add: button : cwUpdateMasterModifer ;;: @@cwOwnerLevel
+
+[key : cwUpdateMasterModifer]
+title : "Update Masters"
+key : f7
+action : call : cwUpdateMasters
+
+[System: Formula]
+cwMyfilt : $$isempty:$CwCreateDAte
+numcoltemp : $$numitems:colftempUpd
+
+[collection : colftempUpd]
+use : colftemp
+filter : cwMyfilt
+fetch : CwCreateDAte
+
+[function : cwUpdateMasters]
+
+variable : myusername : string : ##svusername
+variable : ctr : number :1
+variable : mydate : date : $$machinedate
+variable : mytime : time : $$machinetime
+
+x0 : log :"Updating :"+ $$string:@@numColTemp
+00sx : log : ##accounttype
+;; {11.Feb.19 18:25} 00sy : log : $$IsSysNameEqual:ledgers:##AccountType
+00 : Query Box	: "Update "+ ##accountType + " ?" : Yes: No
+01 : If	: not $$LastResult
+02 : return : no
+03 : end if
+
+
+04 : if : $$numitems:colftempUpd = 0
+05 : return : no
+06 : end if
+
+
+07 : start block
+08 : Start Batch Post
+
+09 : start progress : @@numcoltemp : "Updating "+ ##accounttype : "Please Wait" : ".."
+20 : walk collection : colftempUpd
+;; {11.Feb.19 17:27} 21 : log : $name
+
+101: if :  $$IsSysNameEqual:Groups:##AccountType
+101a :  modify object : (group,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID, cwModifiedOn[1].cwModifiedOn : ##mydate
+101b : end if
+
+102: if :  $$IsSysNameEqual:ledgers:##AccountType
+102a: modify object : (ledger,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID, cwModifiedOn[1].cwModifiedOn : ##mydate
+102b : end if
+
+103: if :  $$IsSysNameEqual:PayHeads:##AccountType
+103a:  modify object : (payhead,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID, cwModifiedOn[1].cwModifiedOn : ##mydate
+103b: endif
+
+104: if :  $$IsSysNameEqual:CostCentres:##AccountType
+104a: modify object : (CostCentre,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID, cwModifiedOn[1].cwModifiedOn : ##mydate
+104b: end if
+
+105: if :  $$IsSysNameEqual:CostCategories:##AccountType
+105b :  modify object : (CostCategory,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID , cwModifiedOn[1].cwModifiedOn : ##mydate
+105c : end if
+
+106: if :  $$IsSysNameEqual:Employees:##AccountType
+106b :  modify object : (Employee,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID , cwModifiedOn[1].cwModifiedOn : ##mydate
+106c: end if
+
+107: if :  $$IsSysNameEqual:EmployeeGroup:##AccountType
+107a :  modify object : (EmployeeGroup,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID , cwModifiedOn[1].cwModifiedOn : ##mydate
+107b: end if
+
+108: if :  $$IsSysNameEqual:BudgetScenarios:##AccountType
+108a:  modify object : (BudgetScenario,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID, cwModifiedOn[1].cwModifiedOn : ##mydate
+108b : end if
+
+109: if :  $$IsSysNameEqual:Godowns:##AccountType
+109a :  modify object : (Godown,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID , cwModifiedOn[1].cwModifiedOn : ##mydate
+109b : end if
+
+110: if :  $$IsSysNameEqual:StockGroups:##AccountType
+110a :  modify object : (StockGroup,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID , cwModifiedOn[1].cwModifiedOn : ##mydate
+110b : end if
+
+111: if :  $$IsSysNameEqual:StockCategories:##AccountType
+111a :  modify object : (StockCategory,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID , cwModifiedOn[1].cwModifiedOn : ##mydate
+111b : end if
+
+112: if :  $$IsSysNameEqual:StockItems:##AccountType
+112a :  modify object : (StockItem,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID , cwModifiedOn[1].cwModifiedOn : ##mydate
+112b : end if
+
+113: if :  $$IsSysNameEqual:Currencies:##AccountType
+113a :  modify object : (Currency,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID , cwModifiedOn[1].cwModifiedOn : ##mydate
+113b : end if
+
+114: if :  $$IsSysNameEqual:Units:##AccountType
+114a :  modify object : (Unit,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID , cwModifiedOn[1].cwModifiedOn : ##mydate
+114b : end if
+
+115: if :  $$IsSysNameEqual:VoucherTypes:##AccountType
+115a :  modify object : (VoucherType,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID , cwModifiedOn[1].cwModifiedOn : ##mydate
+115b : end if
+
+116: if :  $$IsSysNameEqual:AttendanceTypes:##AccountType
+116a:  modify object : (AttendanceType,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID, cwModifiedOn[1].cwModifiedOn : ##mydate
+116b : end if
+
+117: if :  $$IsSysNameEqual:DeducteeTypes:##AccountType
+117b :  modify object : (DeducteeType,$name).CwCreateDAte[1].CwCreateDAte :##mydate ,cwCreateTime[1].cwCreateTime:##mytime,cwCreatedby[1].cwCreatedby : ##myusername,cwModifiedOnDate[1].cwModifiedOnDate : ##mydate, cwModifiedOnTime[1].cwModifiedOnTime: ##mytime,cwModifieduser[1].cwModifieduser : ##myusername,cwMasterId[1].cwMasterId : $$MakeUniqueID , cwModifiedOn[1].cwModifiedOn : ##mydate
+117c : end if
+
+
+21b: show progress : ##ctr
+21c: increment : ctr
+
+22 : end walk
+
+40 : end batch post
+45 : end block
+
+50 : end progress
+
+

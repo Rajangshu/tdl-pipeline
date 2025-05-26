@@ -1,0 +1,12 @@
+; Created By: pg on 2012-08-03 17:40
+
+    [#Part: VCH Status]
+      add : line : CWCreatedOn
+      
+  [line: CWCreatedOn]
+    field: sp,nf
+    Local: Field: nf: Set As: if $$increatemode then $$string:$date + " " + $$string:$$machinetime else $$value
+    Local: Field: nf: storage: cwCreatedOn
+    Local: Field: nf: Skip: Yes
+    Local: Field: sp: info:"Created On:"
+    

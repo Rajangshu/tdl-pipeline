@@ -1,0 +1,465 @@
+; Created By: pg on 2012-06-16 11:55
+; V : 1.0 dtd 2012.06.16
+; UDf
+; Voucher Entry
+; Batch
+; Print
+; Configure
+; Company Master Changes
+; Changes in Voucher Type
+; Register
+; Register Config
+
+;--------------- UDf
+[system : udf]
+cwFreeQtyEnabled : logical : 8000
+cwFreeQtytitle   : string : 8000
+;;cwFreeQty : quantity : 8000
+cwFreeQtyMode     : string : 8001
+
+[System: Formula]
+;;cwFreeQtyCalc : 1 ;; 0= Free (Actual - Billed) 1 = Reject (Billed - Actual)
+
+ConditionForFreeQtyColEntry :$cwFreeQtyEnabled:Vouchertype:##SVVoucherType
+ConditionForFreeQtyColPrint : @@ConditionForFreeQtyColEntry
+cwFreeQtyTitle: $cwFreeQtytitle:Vouchertype:##SVVoucherType
+cwFreeQtyCalc : if $cwFreeQtyMode:Vouchertype:##SVVoucherType = @@cwActqty then 0 else 1
+cwFreeQtyCalc2 : if $cwFreeQtyMode:COMPANY:##SVCURRENTCOMPANY  = @@cwActqty then 0 else 1
+
+;------------ Voucher Entry
+[#Form: Export Invoice]
+add : option : FreeQtyTotalinFooter : @@ConditionForFreeQtyColEntry
+
+[!form : FreeQtyTotalinFooter]
+    Local           : Line      : VCH NarrPrompt    : Add   : Right Field : after : EI QtyTotal : cwVCHFreeQtyTotal
+    Local           : Line      : VCH NarrPrompt    : local : field : cwVCHFreeQtyTotal : style : normal
+
+[#Part: EI InvInvoice]
+total : cwFreeQty
+
+[#part : EI InvInfo]
+total : cwFreeQty
+
+
+  [#line : Ei Invinfo]
+  add : option : cwVchFreeQtyEntry : @@ConditionForFreeQtyColEntry
+
+  [#line : ci Invinfo]
+  add : option : cwVchFreeQtyEntry : @@ConditionForFreeQtyColEntry
+
+  [!line : cwVchFreeQtyEntry]
+  add : right field : after : VCH BilledQty : cwFreeQty
+  
+  
+  [#Line: STKVCH AltUnits]
+     add : option : cwstkvchaltunits : @@ConditionForFreeQtyColEntry
+     
+
+     
+   [!line:cwstkvchaltunits]
+     add : right field : after : VCH AltBilledQty : cwFreeQty
+     Local: field:cwFreeQty : Width:8
+
+     
+
+
+[field : cwFreeQtyTitle]
+use : cwFreeQty
+delete : storage
+type: String
+info: @@cwFreeQtyTitle
+skip : yes
+fixed : yes
+align: centre
+style : normal bold
+
+  
+  [field : cwFreeQty]
+Use         : Qty Primary Field
+Width       : @@VCHQtyWidth
+Set always  : Yes
+ Skip: Yes
+;; storage: cwFreeQty
+ Set As: if @@cwFreeQtyCalc2 = 0 then  $actualQty - $billedqty else $billedqty - $actualQty
+Invisible   : @@isFreeQtyInvisible
+style : normal
+
+[Field : cwVCHFreeQtyTotal]
+Use         : Qty Primary Field
+Width       : @@VCHQtyWidth
+Set always  : Yes
+ Skip: Yes
+;; storage: cwFreeQty
+ Set As: $$total:cwFreeQty
+Invisible   : @@isFreeQtyInvisible
+style : normal bold
+border : totals
+
+
+[System: Formula]
+isFreeQtyInvisible: If @@IsJobOrdersOn Then Yes Else NOT $DiffActualQty OR $$IsPhysStock:##SVVoucherType OR $$IsStockJrnl:##SVVoucherType
+
+            [#Line : EI ColumnOne]
+            add : option : EiC1TitleFreeQty :  @@ConditionForFreeQtyColEntry
+            
+             [!line : EiC1TitleFreeQty]
+            add : right field : after : VCH QtyTitle :cwFreeQtyTitle
+
+            [#Line : EI ColumnTwo]
+            add : option : EiC1TitleFreeQty2 :  @@ConditionForFreeQtyColEntry
+
+             [!line : EiC1TitleFreeQty2]
+            add : right field : after : VCH BilledQtyTitle :cwFreeQtyTitle
+           Local: Field: cwFreeQtyTitle: info: ""
+           
+ [#Line: STKVCH Totals]
+;; {28.Apr.14 18:00}  border : thin box
+
+
+;---------------------------  Batch
+
+[System : Formula]
+cwFreeQtyBatchFormula : @@ConditionForFreeQtyColEntry
+
+[#Line: VCHBATCH ColumnOne]
+  add : option : cwFreeQtyC1 : @@cwFreeQtyBatchFormula
+
+[!line : cwFreeQtyC1]
+;;Right Fields: VCH GodownTitle, VCH BatchNameTitle, VCH QtyTitle, VCH RateTitle, VCH RateUnitsTitle, VCH DiscTitle, VCH AmtTitle
+;;add : right field : after : :
+
+;;local : field :  : info :""
+add : right field : before : VCH RateTitle : cwFreeQtyTitle
+
+
+ [#Line: VCHBATCH ColumnTwo]
+add : option : cwFreeQtyC2 : @@cwFreeQtyBatchFormula
+
+[!line : cwFreeQtyC2]
+;;Right Fields: VCH MfgDateTitle, VCH ExpiryDateTitle, VCH ActualQtyTitle, VCH BilledQtyTitle, VCH RateTitle, VCH RateUnitsTitle, VCH DiscTitle, VCH AmtTitle
+
+add : right field : after : VCH BilledQtyTitle : cwFreeQtyTitle
+Local: Field: cwFreeQtyTitle: info: ""
+
+
+
+		[#Part: VCHBATCH Allocation]
+		    Total       : cwFreeQty
+
+
+
+[#Line: STKVCH Batch2]
+add : option : cwFreeQtyBatch2 : @@cwFreeQtyBatchFormula
+
+
+[!line : cwFreeQtyBatch2]
+add : right field : after : VCHBATCH BilledQty: cwFreeQty
+
+
+
+[#Line: STKVCH BatchTotal]
+add : option : cwFreeQtyBatchTot : @@cwFreeQtyBatchFormula
+
+
+[!line : cwFreeQtyBatchTot]
+add : right field : after : VCHBATCH BQtyTotal : cwVCHFreeQtyTotal
+local : field :  cwVCHFreeQtyTotal: border : totals
+
+[#Line: VCHBATCH Date]
+add : option : cwFreeQtyBatchDate : @@cwFreeQtyBatchFormula
+
+
+[!line : cwFreeQtyBatchDate]
+;;                Right Fields: Simple Prompt, VCHBATCH Mfd, Info Field, VCHBATCH Expiry  , +
+;;                              VCHBATCHAltActualQty, VCHBATCHAltBilledQty, VCH DiscTitle
+
+
+
+  [#Line: VCHBATCH Date]
+   add : option : cwVCHBATCHDate : @@cwFreeQtyBatchFormula
+   
+   
+  [!line:cwVCHBATCHDate]
+   add : right field : after : VCHBATCHAltBilledQty: cwFreeQty
+
+
+
+;;add : right field : after : :
+;;local : field :  : info : ""
+;------------------------------------ Print
+
+[System: Formula]
+ConditionForFreeQtyColPrint2 : @@ConditionForFreeQtyColPrint and ##cwPrintFreeQty
+
+    [#Part: EXPINV Column]
+    local : field : cwFreeQtyTitle : invisible :  @@isFreeQtyInvisible or not ##cwPrintFreeQty
+    local : field : cwFreeQtyTitle : border : thin left
+    
+        [#Line: EXPINV Column1]
+          add : option : cwFreeQtyPrintC1 : @@ConditionForFreeQtyColPrint
+
+
+        [!line: cwFreeQtyPrintC1]
+          add : right field : before : EXPINV RateTitle : cwFreeQtyTitle
+        
+        [#Line: EXPINV Column2]
+          add : option : cwFreeQtyPrintC2 : @@ConditionForFreeQtyColPrint
+        
+        [!line: cwFreeQtyPrintC2]
+          add : right field : before : EXPINV RateTitle : cwFreeQtyTitle
+         Local: Field:cwFreeQtyTitle : info: ""
+
+    [#Part: EXPINV Details]
+    local : field : cwFreeQty : invisible :  @@isFreeQtyInvisible or not ##cwPrintFreeQty
+    total : cwFreeQty
+    
+        [#Line: EXPINV InvDetails]
+        add : option : eiInvcwFreeQty : @@ConditionForFreeQtyColPrint
+        
+        [!line : eiInvcwFreeQty]
+        add : right field : before : EXPINV Rate : cwFreeQty
+                local : field : cwfreeqty : border : thin left
+        
+                [#Line: EXPINV AltQty]
+                  add : option : eiInvcwFreeQtyAlt : @@ConditionForFreeQtyColPrint
+                  
+                  [!line: eiInvcwFreeQtyAlt]
+                  add : RightFields : before : EXPINV RateTitle :cwFreeQty
+                  local : field : cwFreeQty : set as : 0
+
+                [#Line: EXPINV ExciseTariff]
+                add : option : cwFreeQtyETarrif : @@ConditionForFreeQtyColPrint
+                
+                [!line : cwFreeQtyETarrif]
+                add : right field : before  : EXPINV RateTitle : cwFreeQty
+                Local: Field: cwFreeqty: Set As: 0
+
+					[#Line: EXPINV BatchName]
+					add : option : cwFreeQtyInBatch: @@ConditionForFreeQtyColPrint
+					
+					[!line : cwFreeQtyInBatch]
+					add : right field : before : EXPINV RateTitle : cwFreeQty
+					Local: Field: cwFreeQty: Style: small
+					Local: field: cwFreeQty: Width: @@VCHQtyWidth + 1.5
+					
+					
+        [#Line: EXPINV AccDetails]					
+        add : option : PrintDymmyACCFreeQty : @@ConditionForFreeQtyColPrint
+        
+        [!line : PrintDymmyACCFreeQty]
+        add : right field : before :EXPINV AccRate : cwFreeQty
+        local : field : cwfreeqty : border : thin left
+        
+        				[#Line : EXPInvDescExplosion]
+        				add : option : cwFreeQTyDescExp : @@ConditionForFreeQtyColPrint
+				
+				 [!line :cwFreeQTyDescExp]
+					add : Right Fields: before : EXPINV AccRate : cwFreeQty
+
+        [#Line: EXPINV Totals]
+        add : option : PrintFreeQtyTotal : @@ConditionForFreeQtyColPrint2
+        
+        [!line : PrintFreeQtyTotal]
+        add : right field : before: EXPINV RateTotal : cwVCHFreeQtyTotal
+        local : field : cwVCHFreeQtyTotal : border : thin left
+
+; ------------------ Configure
+[line : PrintFreeQtyForVch]
+            Field		: Medium Prompt, cwPrintFreeQty
+            Local		: Field : Medium Prompt : Info     : $$LocaleString:"Print "+@@cwFreeQtyTitle+" Quantity Column ?"
+			Invisible	: @@IsJobMaterialIssue or not @@ConditionForFreeQtyColPrint
+;; {28.Apr.14 18:00} 			Local: Field: default: Border: thin box ;;left right
+
+[field : cwPrintFreeQty]
+use : logical field
+modifies : cwPrintFreeQty
+
+[variable : cwPrintFreeQty]
+type :logical
+persistent : yes
+
+[system : variable]
+cwPrintFreeQty : yes
+
+
+    [#Part: DNPCFG Right]
+    add : line : after : DNActualQty : PrintFreeQtyForVch
+    
+    [#Part: IPCFG Right]
+    add : line : after : SAActualQty : PrintFreeQtyForVch
+
+    [#Part: POPCFG Right]
+    add : line : after : POActualQty : PrintFreeQtyForVch
+    
+    [#part : PUPCFG Right]
+    add : line : after : PUActualQty :  PrintFreeQtyForVch
+    
+    [#Part: RNPCFG Right]
+    add : line : after : RNActualQty : PrintFreeQtyForVch
+    
+    [#Part: SOPCFG Right]
+    add : line : after : SOActualQty : PrintFreeQtyForVch
+    
+
+;----------------------------------------- Company Master Changes
+[#Form: Company Operations]
+                Switch   : cwFreeQtyLowerRel  : cwFreeQtyNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : cwFreeQtyCurrenRel : cwFreeQtyFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : cwFreeQtyNOTFor3.2]
+Local: Part : CMP AccFeat Left : Add : Line : At End : cwFreeQtyConfig
+                                
+[!Form : cwFreeQtyFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : cwFreeQtyConfig
+
+[Line : cwFreeQtyConfig]
+Field : cwFreeQtyConfigTitle,cwFreeQtyConfig,cFreeQtyConfigTitlePrompt,cFreeQtyConfigTitle,cFreeQtyConfigModePrompt,cFreeQtyMode
+
+[Field: cwFreeQtyConfigTitle]
+Use : medium prompt
+info: "Enable Free/Reject Qty?"
+
+
+[Field: cwFreeQtyConfig]
+Use: logical field
+;;Set As: $cwFreeQtyEnabled
+storage: cwFreeQtyEnabled
+width : 5
+
+[field: cFreeQtyConfigTitlePrompt]
+use : simple prompt
+info : "Def. Caption:"
+
+[field : cFreeQtyConfigTitle]
+use : short name field
+storage : cwFreeQtytitle
+Set As: if $$isempty:$$value then "Free " else $$value
+inactive : not #cwFreeQtyConfig
+width: 10
+
+[field :cFreeQtyConfigModePrompt]
+use : simple prompt
+info: "Def. Mode:"
+
+[field : cFreeQtyMode]
+use  : short name field
+table : cwFreeQtyModetable
+storage: cwFreeQtyMode
+inactive : not #cwFreeQtyConfig
+Set As: if $$isempty:$$value then @@cwActqty else $$value
+width: 10
+
+[collection : cwFreeQtyModetable]
+title : "Mode"
+listname : @@cwActqty
+listname :@@cwFBillQty
+
+[System: Formula]
+cwActqty  : "Actual - Billed"
+cwFBillQty : "Billed - Actual"
+
+[System: Formula]
+cwFreeQtyEnabled :  $cwFreeQtyEnabled:COMPANY:##SVCURRENTCOMPANY
+cwFreeQtyDeftitle: $cwFreeQtytitle:COMPANY:##SVCURRENTCOMPANY
+cwFreeQtyDefMode : $cwFreeQtyMode:COMPANY:##SVCURRENTCOMPANY
+
+;------------------ Changes in Voucher Type
+        [#Part: VTYP BehaviourMain]
+        add : option : cwFreeQtyConfig : @@cwFreeQtyEnabled
+        
+        [!part : cwFreeQtyConfig]
+        add : line : at beginning : cwFreeQtyVTitle,cwFreeQtyotherOptions1,cwFreeQtyotherOptions2
+        
+  [line: cwFreeQtyVTitle]
+  field: name field
+  Local: Field: name field: info: @@cwFreeQtyDeftitle
+  Local: Field: name field: Style: Normal Bold
+  Local: field: name field: fullWidth: yes
+  Local: field: name field: Align: centre
+  Local: Field: name field: Border: thin bottom
+
+  [line: cwFreeQtyotherOptions1]
+use : cwFreeQtyConfig
+delete : Field : cFreeQtyConfigTitlePrompt,cFreeQtyConfigTitle,cFreeQtyConfigModePrompt,cFreeQtyMode
+Local: Field: cFreeQtyConfigTitle: Set As: if $$isempty:$$value then @@cwFreeQtyDeftitle else $$value
+Local: Field: cFreeQtyMode: Set As: if $$isempty:$$value then @@cwFreeQtyDefMode else $$value
+Local: Field: cwFreeQtyConfigTitle: info: "Enable Free/Reject Qty?"
+Local: field: cwFreeQtyConfigTitle : Width: 18
+Local: Field: cFreeQtyConfigTitlePrompt: info: "Caption:"
+Local: Field: cFreeQtyConfigTitlePrompt: width: 12
+Local: Field: cFreeQtyConfigModePrompt: info: "Mode:"
+Local: Field: cFreeQtyConfigModePrompt: width : 7
+;;local : field : default : border : thin box
+Local: field: cFreeQtyMode: Width: 17
+
+[line : cwFreeQtyotherOptions2]
+use : cwFreeQtyConfig
+delete : field :    cwFreeQtyConfigTitle,cwFreeQtyConfig
+Local: Field: cFreeQtyConfigTitle: Set As: if $$isempty:$$value then @@cwFreeQtyDeftitle else $$value
+Local: Field: cFreeQtyMode: Set As: if $$isempty:$$value then @@cwFreeQtyDefMode else $$value
+Local: Field: cwFreeQtyConfigTitle: info: "Enable "+ @@cwFreeQtyDeftitle + "?"
+Local: field: cwFreeQtyConfigTitle : Width: 18
+Local: Field: cFreeQtyConfigTitlePrompt: info: "Caption:"
+Local: Field: cFreeQtyConfigTitlePrompt: width: 12
+Local: Field: cFreeQtyConfigModePrompt: info: "Mode:"
+Local: Field: cFreeQtyConfigModePrompt: width : 7
+;;local : field : default : border : thin box
+Local: field: cFreeQtyMode: Width: 17
+border : thin bottom
+space bottom : 1.1
+
+;------------------------------ Register
+
+[#collection : Columnar Specific Vouchers of Company]
+fetch : cwfREEQty
+fetch : Inventoryentries.actualqty
+compute : myqty : $$collqtytotal:inventoryentries:@@getmyqty
+
+[#collection: Columnar Filtered Vouchers of Company]
+fetch : cwfreeQty
+fetch : Inventoryentries.actualqty
+compute : myqty : $$collqtytotal:inventoryentries:@@getmyqty
+
+[#Part: DB Columnar]
+local : line: DSP ColVchTitle : local : field: cwcolQty: type : string
+local : line: DSP ColVchTitle : local : field: cwcolQty: info : @@cwFreeQtyDeftitle ;;cwFreeQtyTitle
+total : cwColQty
+local : line : DSP ColVchTotal : local : field : cwColQty : set as : $$total:cwColQty
+
+
+[#Line: DSP ColVchDetail]
+add : field: after : DBC Qty : cwColQty
+
+[field: cwColQty]
+use : Qty Primary Field
+style : normal
+;;set as : $cwfreeQty
+ Set As: if $$explodelevel = 0 then $myQty else @@getmyqty
+border : thin left
+invisible : not ##cwFreeQtyinRegister
+;; {07.Feb.13 18:44} set as : $actualqty ;;$billedqty
+FORMAT : "nOzERO"
+
+[System: Formula]
+getmyqty : if @@cwFreeQtyCalc2 = 0 then  $actualQty - $billedqty else $billedqty - $actualQty
+
+;---------------- Register Config
+
+[#Part: CMP COLBasics]
+add : line : after : COLREGWithRate : cwCOLREGWithFree
+
+[line : cwCOLREGWithFree]
+invisible : not @@cwFreeQtyEnabled or $$isempty:@@cwFreeQtyDeftitle ;;cwFreeQtyTitle
+        Fields      : Medium Prompt, logical field
+        Local       : Field : Medium Prompt : Info      : $$LocaleString:"Show "+@@cwFreeQtyDeftitle +" Details ?"
+        Local       : Field : Medium Prompt : Inactive  : NOT #COLREGWithQty
+        Local       : Field : logical field : Inactive  : NOT #COLREGWithQty
+        local       : field : logical field : modifies : cwFreeQtyinRegister
+        
+        [variable : cwFreeQtyinRegister]
+        type : logical
+        persistent : yes
+        
+        [system : variable]
+         cwFreeQtyinRegister : no
+

@@ -1,0 +1,35 @@
+;;[#menu : gateway of tally]
+;;item : TallyVouchersGuid : display : TallyVouchersGuid
+
+[report : TallyVouchersGuid]
+use : dsptemplate
+Variable : familyVoucherFlag
+Variable : voucherTypeName
+form : TallyVouchersGuid
+
+[form : TallyVouchersGuid]
+  use : dsptemplate
+Width : 100 % Page
+Height: 100 % Page
+ part : TallyVouchersGuid
+
+[part : TallyVouchersGuid]
+ line : TallyVouchersGuid
+repeat: TallyVouchersGuid : vch
+scroll: vertical
+
+[collection : vch]
+type : vouchers
+filter: vchfilter
+
+[system : formula]
+vchFilter : if $$isempty:##vouchertypename then yes else $VoucherTypeName = ##vouchertypename
+
+[line : TallyVouchersGuid]
+field : TallyVouchersGuid,dlr,pgVchType
+
+[field : TallyVouchersGuid]
+use : name field
+width : 50
+set as : $GUID
+

@@ -1,0 +1,31 @@
+
+[#field : posinvrate]
+add : option : cwPOSINVRATE : @@cwVatrateIncShowCondition
+
+[!field : cwPOSINVRATE]
+set as : $CWINVVATINCRATE
+
+
+[#Field: POS InvAmount]
+set by condition : @@cwVatrateIncShowCondition : $CWINVVATINCRATE * $billedqty
+
+	[#Line: POS AccInfo]
+empty if	: (@@POSCardFilter OR @@POSChqFilter OR @@POSCashFilter OR @@POSGiftFilter) OR $$IsEmpty:$Amount OR (@@cwVatrateIncShowCondition AND @@CWVATLEDGERNAME)
+
+		[#Field: POS TotalAmount]
+		Set As	: $$CollAmtTotal:InventoryEntries:$Amount + $$Total:POSAccAmount
+		SET BY CONDITION : @@cwVatrateIncShowCondition : $$CollAmtTotal:InventoryEntries:$Amount + $$Total:POSAccAmount + $$FILTERAMTTOTAL:LEDGERENTRIES:CWVATLEDGERNAME:$AMOUNT
+
+[System : Formula]
+CWVATLEDGERNAME : $LEDGERNAME CONTAINS "vat"
+
+
+;;	[#Line: POS TaxDetails]
+;;		Empty 		: $$IsEmpty:$Rate or $amount = 0
+;;		border : thin box
+;;		local : Field: POS VatRate : set as : "A"
+;;		delete : field
+
+[#Line: POS ClassDetails]
+;;border : thin box
+empty  : $$isempty:$Amount

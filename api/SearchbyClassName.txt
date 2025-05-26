@@ -1,0 +1,117 @@
+;Modified by: Pg on 2012-12-12 18:55, ID: 
+;Modified by: Pg on 2012-12-12 11:13, ID: 
+;Modified by: Pg on 2012-12-11 13:18, ID: 
+; Created By: pg on 2012-05-24 17:32
+;------------------ Process for incorporating Class
+[#Field: IFLT Method]
+      Delete  : Table
+
+      Add      : Table : MethodTable1 : #IFLTType != ""  ;; we add our collection in tally's default field as table
+
+
+
+[Collection: MethodTable1] ;; This is developer defined collection
+
+      Use      : MethodTable
+      Object  : ChequeNoObject
+
+
+
+[Object : ChequeNoObject] ;; our defined object
+
+        UserMethodName  : "Class"               ;; Display name in Table
+
+        Method Name        : classname     ;; Storage name in voucher
+
+        CollectionSource    : ""                              ;; current collection
+
+        SecondaryObject   : ""                               ;; as storage is at voucher
+
+        MethodType          : "string"                    ;; Storage type on basis of which you would get comparision
+
+;;operators
+;----------- Collections
+
+[#collection : Vouchers of Company]
+fetch : classname
+
+[#COLLECTION : Daybook Vouchers of Company]
+fetch : classname
+
+[#collection : Specific Vouchers of Company]
+fetch : classname
+
+[#collection : Vouchers of Ledger]
+fetch : classname
+
+;------------------ Show Class in Voucher Register.
+[#Report: Voucher Register]
+local : line : DBTitle1 : add : right field : at beginning : nfclass
+local : line : DBTitle1 : local : field : nfclass : info :"Class"
+
+;;local : Line: DSP VchAccTitles : local : field : default : border : thinbox
+local : line : DSP VchDetail  : add : right field : at beginning : nfclass
+local: field: nfclass : cells : 1
+Local: Field: nfclass : Set As: $classname
+local : field : nfclass : width : @@shortwidth
+local : collection : Filtered Vouchers of Company : fetch  :classname
+local : collection : Specific Vouchers of Company : fetch  :classname
+
+;------------------ Show Class in Day Book.
+[#Report: day book]
+local : line : DBTitle1 : add : right field : at beginning : nfclass
+local : line : DBTitle1 : local : field : nfclass : info :"Class"
+
+;;local : Line: DSP VchAccTitles : local : field : default : border : thinbox
+local : line : DSP VchDetail  : add : right field : at beginning : nfclass
+local: field: nfclass : cells : 1
+Local: Field: nfclass : Set As: $classname
+local : field : nfclass : width : @@shortwidth
+
+;------------------ Show Class in Ledger Voucher.
+[#Report: ledger vouchers]
+;; {12.Dec.12 11:43 - Pg, ID: } local : field :default : border : thin box
+local : part : LV VchTitle : local : line : default : add : right field : at beginning : nfclass ;;local : field : default : border : thick box
+;; {12.Dec.12 18:59 - Pg, ID: } local : line : DSP VchAccTitles : invisible : yes ;; add : right field : at beginning : nfclass
+;; {12.Dec.12 18:59 - Pg, ID: } local : field :default : set as : $$descname
+local : part : LV VchTitle : local : line : default :  local : field : nfclass : info :"Class"
+
+;;local : Line: DSP VchAccTitles : local : field : default : border : thinbox
+local : line : DSP VchDetail  : add : right field : at beginning : nfclass
+local: field: nfclass : cells : 1
+Local: Field: nfclass : Set As: $classname
+local : field : nfclass : width : @@shortwidth
+
+
+;---------- Field used.
+[field : nfclass]
+use : name field
+style : normal
+invisible : not ##cwShowClass
+
+
+;----------- F12 Configure
+[#Part: DYBKCFG Common]
+add : line : after : DSPExplodeBank : cwClassf
+
+[#Part: LEDVCHCFG Common]
+add : line : after : DSPExplodeBank : cwClassF
+    
+    [part : cwClassf]
+    line : cwClassf
+    
+    [line : cwClassf]
+    field : medium prompt,logical field
+    Local: Field: medium prompt: info: "Show Class?"
+    Local: Field: default: Color : blue
+    local : field : logical field : modifies : cwShowClass
+    
+    [system : variable]
+    cwShowClass : no
+    
+    [variable : cwShowClass]
+    type : logical
+    default : no
+    persistent : yes
+
+    

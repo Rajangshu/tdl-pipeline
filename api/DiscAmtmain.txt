@@ -1,0 +1,54 @@
+
+;;Client:
+;;Serial:
+; Created By: pg on 2012-03-28 13:32
+
+;[include : E:\d7comps\tcommon\RefreshTDL.txt]
+;[include : E:\d7comps\tcommon\CommonFields2.txt]
+;[include : E:\d7comps\tcommon\CommonFormulae.txt]
+;[include : E:\d7comps\tcommon\ShowDemoForm.txt] ;; Demo Form
+[include : E:\d7comps\tcommon\Discamt2.txt] ;; Demo Form
+;;[include : Changelog.txt] ;; Not Related to Tally, But For Changes we do in Project
+
+[System : formula]
+discamtDEmoMode : Yes  ;; yes to enable demo no to allow full access
+discamtdemodate : $$date:"07-04-2012"
+discamtedudate : $$date:"02-05-2012"
+disamtcondition : @@issales
+
+;discamtDemoDt : if @@discamtDEmoMode then if @@CWEdu then $date <= @@discamtedudate else $date <= @@discamtdemodate else yes
+;discamtMachDemoDate : if @@discamtDEmoMode then if @@CWEdu then $$machinedate <= @@discamtedudate else $$machinedate <= @@discamtdemodate else yes
+;discamtSales : $$issales:$vouchertypename and @@discamtDemoDt
+
+[System : Formula] ;; Demo Formula
+cwShowDemoForm: @@discamtDEmoMode
+cwShowDemoDate: @@discamtdemodate
+
+
+
+; UDF
+;[include : discamtUDF.txt]
+
+; Master Changes 
+
+; Transaction Changes
+
+
+; Report Changes
+
+;;[include : E:\d7comps\tcommon\CommonVars.txt]
+;;[include : E:\d7comps\tcommon\tallyserial.txt]
+;;[include : E:\d7comps\tcommon\servervouchers.txt]
+;;[include : E:\d7comps\tcommon\commonudf.txt]
+;;[include : E:\d7comps\tcommon\commonborders.txt]
+;;[include : E:\d7comps\tcommon\Cwwbst.txt]
+;;[include : E:\d7comps\tcommon\addwbstno.txt]
+;;[include : E:\d7comps\tcommon\CMPWBSTNO.txt]
+;;[include : E:\d7comps\tcommon\cwwaybills.txt]
+;;[include : E:\d7comps\tcommon\cmpIECNo.txt]
+;;[include : E:\d7comps\tcommon\addtableinconsignee.txt]
+;;[include : E:\d7comps\tcommon\LedTANNo.txt]
+;;[include : E:\d7comps\tcommon\LedCSTNo.txt]
+;;[include : E:\d7comps\tcommon\batchchange.txt]
+;;[include : E:\d7comps\tcommon\broker.txt] ;; for enabling broker
+

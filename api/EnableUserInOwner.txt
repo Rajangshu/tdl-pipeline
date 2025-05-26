@@ -1,0 +1,13 @@
+; Created By: Pg on 2014-01-07 16:28, ID: 
+
+;; {07.Jan.14 16:48} [#menu : gateway of tally]
+;; {07.Jan.14 16:48} add: item: "111"
+
+[#Menu: Company]
+  delete :   Control     : @@locSecurityControl
+add:   delete :   Control     : @@locSecurityControl      : ($$IsCmpOwner or @@cwOwnerLevel) AND ($$SelectedCmps > 0) AND ($IsSecurityOn:Company:##SVCurrentCompany)
+
+
+[#Menu: Security Control]
+    Key Item    : @@locUsersAndPasswords   : U : Alter        : Company Users         : (not $$IsCmpOwner and @@cwOwnerLevel) AND $$SelectedCmps > 0 AND $IsSecurityOn:Company:##SVCurrentCompany
+;; {07.Jan.14 16:51}        Key Item    : "Alter My Company"                : A   : Alter Collection  : Company           : $$SelectedCmps > 0

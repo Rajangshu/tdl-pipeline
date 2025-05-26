@@ -1,0 +1,93 @@
+; Created By: pg on 2012-05-03 12:51
+
+
+     [#menu: Gateway of Tally]
+;;        add: Option: LastVchNoLock: @@LastVchNoDemoLock
+       
+     [!menu: LastVchNoLock]
+        add: Item: before: @@locQuit: @@LastVchNoReport: Display: RepLastVchNo
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   LastVchNoReport: "LastVchNo"
+ LastVchNoDemoLock: $$MachineDate < $$Date:"02-06-2012"
+     
+    [Report: RepLastVchNo]
+        use: Dsp Template
+      Title: @@LastVchNoReport
+   Printset: Report Title: @@LastVchNoReport
+       Form: FrmLastVchNo
+     Export: Yes
+;;     set  : svfromdate : ##svcurrentdate
+;;     set  : svTodate : ##svcurrentdate
+variable : vouchertypename
+;;set : vouchertypename : "b sales"
+local : collection : SpecificVouchersofCompany : sort : @@default : $vouchernumber
+     
+      [Form: FrmLastVchNo]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0LastVchNo,PrtLastVchNo
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: LastVchNobotbrk,LastVchNobotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+    local : button : report config : action :modify variable: MyPLConfigure
+      [part: LastVchNobotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: LastVchNobotopbrk]
+        use: dspacctitles
+  add: part: LastVchNoTitlePart
+
+      [part: LastVchNoTitlePart]
+       line: LnLastVchNoTitle
+       
+      [line: LnLastVchNoCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0LastVchNo]
+      line : LnLastVchNoCurrPeriod
+      
+      [Part: PrtLastVchNo]
+       Line: LnLastVchNoTitle,LnLastVchNo
+bottom Line: LnLastVchNoTotals
+set : 1
+     repeat: LnLastVchNo
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+
+      [Line: LnLastVchNoTitle]
+        use: LnLastVchNo
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LnLastVchNo]
+     Fields: fwf
+Local: Field: fwf: Set As: $$collectionfield:$vouchernumber:(-1):SpecificVouchersofCompany
+      [line: LnLastVchNoTotals]
+        use: LnLastVchNo
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: amtf : set as :  $$total:amtf
+
+

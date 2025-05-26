@@ -1,0 +1,62 @@
+; Created By: joy on 2022-01-14 11:56, ID: 
+
+;;[#Line : AnantGalleryConfig]
+;;Local: Field: short name field : info: ""
+;;delete:key  : cwAnantGalleryBrowse
+
+;;[#Form : AnantGalleryFor3.2]
+;;local : line : cwTestConfig : local : field : short name field : tool tip: ""
+
+[#menu : Gateway of tally]
+delete : button :cwDocketRequest
+
+
+[#key : cwSiteBtn]
+title : "Samriddhi Infotech"
+key : f5
+action : display :RepSamriddhiInfotech
+
+[style:SIStyle1]
+font:"Calibri"
+height:45
+bold:yes
+
+[style:SIStyle2]
+font:"Calibri"
+height:20
+bold:yes
+
+
+[Report:RepSamriddhiInfotech]
+form:RepSamriddhiInfotech
+[form:RepSamriddhiInfotech]
+part:RepSamriddhiInfotech
+height:2.5 inch
+width:5.5 inch
+
+[part:RepSamriddhiInfotech]
+line:SamriddhiInfotechCmpLn,SamriddhiInfotechConPer,SamriddhiInfotechConNo,SamriddhiInfotechmailid
+
+[line:SamriddhiInfotechCmpLn]
+field:fwfc
+Local: Field: fwfc:info:"Samriddhi Infotech"
+Local: Field: fwfc: Style:SIStyle1
+Local: Field: fwfc: Color : blue
+
+[line:SamriddhiInfotechConPer]
+field:fwfc
+Local: Field: fwfc:info:"Contact Person - Sumanta Chowdhury"
+Local: Field: fwfc: Style:SIStyle2
+space bottom:0.3
+
+[line:SamriddhiInfotechConNo]
+field:fwfc
+Local: Field: fwfc:info:"Contact Number - 9475591097"
+Local: Field: fwfc: Style:SIStyle2
+space bottom:0.3
+
+[line:SamriddhiInfotechmailid]
+field:fwfc
+Local: Field: fwfc:info:"Mail ID - sumanta@samriddhiinfotech.com"
+Local: Field: fwfc: Style:SIStyle2
+

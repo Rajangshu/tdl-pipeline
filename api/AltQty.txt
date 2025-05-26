@@ -1,0 +1,249 @@
+; Created By: pg on 2011-10-19 15:14
+; AltQtyActive : @@issales
+
+[System: Formula]
+pur:$$ispurchase:$parent
+sls:$$issales:$parent
+deln:$$isdelnote:$parent
+crnl:$$iscreditnote:$parent
+slor:$$issalesorder:$parent
+puror:$$ispurcorder:$parent
+stkj:$$IsStockJrnl:$parent
+isrn:$$isrcptnote:$parent
+cwisvchtypewisealtqty:$cwisvchtypewisealtqty:Vouchertype:##SVVoucherType
+
+  [System: Formula]
+AltQtyActive : @@cwisvchtypewisealtqty
+
+
+
+
+            [#Part: VTYP Behaviour]
+              add : option : cwenablealtqty  :(@@pur or @@sls or @@deln or @@crnl or @@slor or @@puror or @@stkj or @@isrn) and @@AltQtyEntryEnabled
+
+
+               [!Part: cwenablealtqty]
+                add : line :cwenablealtqty
+
+                [Line: cwenablealtqty]
+                Fields  : Long Prompt, cwlogical
+	Local : Field : Long Prompt : Set as : "Is AltQty Voucher ?"
+	Space Top   : 0.5
+	Local: Field: cwlogical: storage: cwisvchtypewisealtqty	
+	Local: Field: default: Color : blue
+	
+	
+
+
+
+      [System: Formula]
+AltQtyActive2 : @@AltQtyActive and @@cwItemHasAltQty
+
+            [#Line: EI ColumnOne]
+ add : option : AltQtyActiveTitle : @@AltQtyActive
+ 
+            [#Line: SJ TitleTwoB]
+ add : option : AltQtyActiveTitle : @@AltQtyActive
+
+            [#Line: SJ TitleTwoC]
+ add : option : AltQtyActiveTitle : @@AltQtyActive
+
+ [!line : AltQtyActiveTitle]
+add : right field : at beginning : NUMF,SNFX,NUMF2,SNFX2
+local: field: numf : type: String
+local: field: numf2: type: String
+Local: Field: numf: info:"Qty"
+Local: Field: numf2: info:"Alt.Qty"
+Local: field: numf: Align: Right
+Local: field: numf2: Align: Right
+Local: Field: snfx: info:""
+Local: Field: snfx2: info: ""
+Local: Field: numf: Style: Normal Bold
+Local: Field: numf2: Style: Normal Bold
+
+
+[#LINE : EI INVINFO]
+ add : option : AltQtyActive : @@AltQtyActive
+
+ 
+[#LINE : CI INVINFO]
+ add : option : AltQtyActive : @@AltQtyActive
+
+[!line : AltQtyActive]
+ADD : RIGHT FIELD : AT BEGINNING : NUMF,SNFX,NUMF2,SNFX2
+
+Local: Field: SNFX : Set As: $BASEUNITS:STOCKITEM:$STOCKITEMNAME
+Local: Field: SNFX2 : Set As: $AdditionalUnits:STOCKITEM:$STOCKITEMNAME
+
+Local: Field: SNFX : SKIP : YES
+Local: Field: SNFX2 : SKIP : YES
+;; {20.May.13 13:34} local : field : numf : border : thin box
+LOCAL : FIELD : NUMF : Inactive    :$$IsEnd:$StockItemName OR @@NoBaseUnits or (not @@cwItemHasAltQty)
+LOCAL : FIELD : NUMF2 : Inactive    : $$IsEnd:$StockItemName OR @@NoBaseUnits or (not @@cwItemHasAltQty)
+LOCAL : FIELD : SNFX : Inactive    : $$IsEnd:$StockItemName OR @@NoBaseUnits or (not @@cwItemHasAltQty)
+LOCAL : FIELD : SNFX2 : Inactive    : $$IsEnd:$StockItemName OR @@NoBaseUnits or (not @@cwItemHasAltQty)
+
+Local: Field: SNFX : STORAGE : cwUNIT1
+Local: Field: SNFX2 : STORAGE : cwUNIT2
+
+Local: Field: NUMF : STORAGE : cwQTY1
+Local: Field: NUMF2 : STORAGE : cwQTY2
+
+
+ Local: Field: numf: Set As:If @@cwHasInvAlloc Then $$CollNumTotal:BatchAllocations:$cwqty1 else $$value
+ Local: Field: numf2: Set As:If @@cwHasInvAlloc Then $$CollNumTotal:BatchAllocations:$cwqty2 else #numf * $conversion:stockitem:$stockitemname / $denominator:stockitem:$stockitemname
+
+;; {20.Dec.22 17:47} Local: Field: numf: skip : @@cwHasInvAlloc
+;; {20.Dec.22 17:47} Local: Field: numf2: skip : @@cwHasInvAlloc
+;; {22.Sep.17 10:56} border:thick box
+
+;;local : FIELD : vCH NrmlBilledQty : SET AS : $$ASQTY:@@MYQTY
+
+[System: Formula]
+cwHasInvAlloc :if (NOT $$IsStockJrnl:##SVVoucherType AND @@IsPOSInvoice) then no else If @@IsJobMaterialVchs Then $IsCostTrackingAvbl OR (@@HasTrackingNo AND @@IsJobOrderEnabled) OR @@HasBatchWise OR $$IsMultiGodownOn OR @@IsOrdersOn OR @@IsJobOrderVouchers Else @@HasInvSubAlloc
+
+[#FIELD : vCH NrmlBilledQty]
+        Set as    	: If @HasInvAlloc Then $$CollQtyTotal:BatchAllocations:$BilledQty Else if @@AltQtyActive and @@itemHasAltQty then $$ASQTY:@@MYQTY else @ResetVal
+        
+[#Field: VCH POSBilledQty]
+Set as			: If $DiffActualQty Then (If @@InvoiceInCreate AND NOT $$IsFieldEdited Then $ActualQty Else $$Value) Else +
+								 (If NOT $$IsFieldEdited then $$ASQTY:@@MYQTY else $$value) ;;$$IsEmpty:$$Value Then $$AsQty:1 Else $$Value)
+
+
+[System : Formula]
+MYQTY : @@MYQTY0 + " = "  + @@MYQTY1
+MYQTY0 : $$STRING:#NUMF + " " + #SNFX
+MYQTY1 : $$STRING:#NUMF2 + " " + #SNFX2
+itemHasAltQty : not $$issysname:$Additionalunits:stockitem:$stockitemname
+;------------------------------------------------------
+
+
+[System : Formula]
+DiaENABatchFormula : @@AltQtyActive and @@cwItemHasAltQty
+
+[#Line: VCHBATCH ColumnOne]
+  add : option : DiaENAC1 : @@DiaENABatchFormula
+
+
+[!line : DiaENAC1]
+add : right field : before : VCH QtyTitle : snfx,snfx2
+
+
+local : field : snfx : info : $BASEUNITS:STOCKITEM:$STOCKITEMNAME ;;"Qty"
+local : field : snfx2 : info : $AdditionalUnits:STOCKITEM:$STOCKITEMNAME ;;"Alt. Qty"
+
+Local: field: snfx: Width: @@numberwidth
+Local: field: snfx2: Width: @@numberwidth
+
+Local: field: snfx: Align: Right
+Local: field: snfx2: Align: Right
+
+;;local: field: snfx: Invisible: yes
+;;local: field: snfx2: Invisible: yes
+
+ [#Line: VCHBATCH ColumnTwo]
+add : option : DiaENAC2 : @@DiaENABatchFormula
+
+[!line : DiaENAC2]
+;;Right Fields: VCH MfgDateTitle, VCH ExpiryDateTitle, VCH ActualQtyTitle, VCH BilledQtyTitle, VCH RateTitle, VCH RateUnitsTitle, VCH DiscTitle, VCH AmtTitle
+;;add : right field : after : :
+
+;;local : field :  : info : ""
+
+
+		[#Part: VCHBATCH Allocation]
+		    Total       : numf,numf2
+
+
+
+[#Line: STKVCH Batch2]
+add : option : DiaENABatch2 : @@DiaENABatchFormula
+
+
+
+[!line : DiaENABatch2]
+;;Right Fields: VCHBATCH Godown, VCHBATCH Name, +
+;;VCHBATCH ActualQty, VCHBATCH BilledQty, VCHBATCH Rate, VCHBATCH RateUnits, VCHBATCH ItemRate, VCHBATCH Discount, VCHBATCH ItemDiscount, VCHBATCH Value, VCHBATCH AddlValue
+
+add : right field : before : VCHBATCH ActualQty : numf,numf2
+ Local: Field: NUMF : STORAGE : cwQTY1
+Local: Field: NUMF2 : STORAGE : cwQTY2
+
+;; {17.Apr.19 14:31} Local: Field: numf2 : Set As:if $$isfieldedited then $$value else #numf* $conversion:stockitem:$stockitemname / $denominator:stockitem:$stockitemname  ;;#numf * $conversion:stockitem:$stockitemname / $denominator:stockitem:$stockitemname
+
+local : field : numf : inactive : @@batchallocbreak
+local : field : numf2 : inactive : @@batchallocbreak
+local : field : VCHBATCH ActualQty: skip : yes
+local : field : VCHBATCH BilledQty: skip : yes
+;;local : field : VCHBATCH BilledQty: border: thin box
+Local: Field: VCHBATCH RateUnits:show table:yes
+Local: Field: VCHBATCH RateUnits:table:unit
+
+
+
+add : option : GetHasBatch : $IsBatchWiseOn:StockItem:$StockItemName and @@itemHasAltQty
+
+[!line : GetHasBatch]
+local : field : numf  : set by condition  : $$increatemode and not $$isfieldedited : $$number:$$table:vchbatchname:$ClosingAsondate
+local : field : numf2 : set by condition : $$increatemode and not $$isfieldedited : $$number:($$string:($$table:vchbatchname:$ClosingAsondate):"Secondary")
+;; {13.Apr.19 16:28} local : field : numf2 : set by condition : $$increatemode : $$InitValue:"Number"
+
+    [#Field: VCHBATCH NrmlAQty]
+
+        Set as      : if @@AltQtyActive and @@itemHasAltQty then $$ASQTY:@@MYQTY else if $DiffActualQty then @ResetVal else $BilledQty
+
+    [#Field: VCHBATCH NrmlBQty]
+
+		Set as 			: if $$isfieldedited then $$value else if @@AltQtyActive and @@itemHasAltQty then $$ASQTY:@@MYQTY else if NOT $$IsEmpty:$$AltTable:VCHBATCHTrack:VCHBATCHOrder:$BilledQty AND ($$IsEmpty:$$Value) then @FinalBalVal else if not $$isempty:$$Table:VCHBATCHTrack:$FinalBalance and $$isempty:$$value then $$Table:VCHBATCHTrack:$FinalBalance else if not $$isempty:$$Table:VCHBatchName:$ClosingAsondate then $$Table:VCHBatchName:$ClosingAsondate else  @ResetVal
+		
+
+    [#Field: VCH JrnlBilledQty]
+    set by condition : @@AltQtyActive and @@itemHasAltQty : $$ASQTY:@@MYQTY
+
+    [#Field: VCHBATCH JrnlBQty]
+set as: if @@AltQtyActive and @@itemHasAltQty then $$ASQTY:@@MYQTY else if NOT +
+$$IsEmpty:$$AltTable:VCHBATCHTrack:VCHBATCHOrder:$BilledQty AND +
+($$IsEmpty:$$Value OR $$IsFieldEdited:VCHBATCHTrack OR $$IsFieldEdited:VCHBATCHOrder) then @FinalBalVal else $$Value
+
+
+
+[#Line: STKVCH BatchTotal]
+add : option : DiaENABatchTot : @@DiaENABatchFormula
+
+
+[!line : DiaENABatchTot]
+add :		        Right Fields: before : VCHBATCH AQtyTotal : numf3,numf4
+Local: Field: numf3 : Set As: $$total:numf
+Local: Field: numf4 : Set As: $$total:numf2
+Local: Field: numf3: Skip: Yes
+Local: Field: numf4: Skip: Yes
+
+local : field : numf3  : border : totals
+local : field : numf4  : border : totals
+
+;------------------------- alt qty in Stock Journal.
+
+            [#Line: SJDetailsB]
+            add : option : altqtyactive : @@AltQtyActive
+            add : option : altqtyactive2 : @@AltQtyActive
+            
+            [!line : altqtyactive2]
+            add: field : qtyf
+            Local: Field: qtyf: Set As: $$asqty:@@myqty
+            Local: Field: qtyf: Border: thin box ;;left right
+            Local: Field: qtyf: storage: billedqty
+            Local: Field: qtyf: Skip: Yes
+            Local: Field: qtyf: invisible: Yes
+;; {27.May.13 18:31}             local: field :VCH JrnlActualQty : readonly : yes
+            
+            
+            
+
+            [#Line: SJDetailsD]
+            add : option : altqtyactive : @@AltQtyActive
+            add : option : altqtyactive2 : @@AltQtyActive
+
+            
+;; {27.May.13 18:15}             [!line: cwsjinAlt]
+            
+            

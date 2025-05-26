@@ -1,0 +1,518 @@
+;; PRODUCT: <Enter the product name>
+;; PRODUCT-ID: ac089e4d-e5a8-4632-b473-c9262b026035
+;; AUTHOR: TallyDeveloper
+
+;; report: server vouchers, will give vouchers of specified voucher type
+;; report: pgMasterList : will give master name list for a type
+;; report: mytrialbalance will give trial balance.
+;; changes in statutory to give statistics
+;; report : PgMasterData1 : Gives XML for an Object parameter : accounttype and name
+
+[include : masterlist.txt]
+[include : PriceListNamesFromTally.txt] ;; call apl
+[include : TallyMaster2.txt]
+[include : commonlink.txt]
+[include : TallyAlterId.txt]
+[include : VchTypePrefix.txt]
+[include : LastVchno.txt]
+ [REPORT : ServerVouchers] ;; for transfer of data from 1 co. to another.
+      Use : Voucher Register
+     set : familyvoucherflag : No
+
+;;[#menu : gateway of tally]
+;;add : item : at end: sv : display : specificvoucher
+
+ [REPORT : SpecificVoucher] ;; for transfer of data from 1 co. to another.
+     Use : Voucher Register
+variable : str1
+     set : familyvoucherflag : No
+;;     set : vouchertypename : "receipt note"
+;;     set : str1 : "1"
+  Local  : Line  : DSP VchDetail : Empty : $vouchernumber <> ##str1
+
+; ---------- Stat Details Starts
+
+[#Line: StatDetail]
+add : Field : after : STATName : dlr
+local : field : dlr : invisible: NOT ##SVExport
+local : field : statname : width : 100
+add : right field : dlr1,cwIsVoucher
+local : field : dlr1 : invisible : Not ##svexport
+local : field :  cwIsVoucher : invisible : Not ##svexport
+
+[field : cwIsVoucher]
+use: shortname field
+width : 5
+set as : if $$IsVoucherType then True else False
+
+; ---------- Stat Details End
+
+; ---------- Gives XML for an Object
+
+     [Report : PgMasterData1]
+         use : PgMasterList2
+  LOCAL : LINE : EXPORT Master Full Object : ADD : eMPTY : $NAME <> ##MyFilterPassing
+
+; ----------------------------------
+
+     [Report : PgMasterValues]
+         use : PgMasterList2
+       local : line  : pgMasterList2 : add : field : dlr9,pgParent2,dlr10,pgUOM,dlr11,pgOpQty,dlr12,pgTrInQty,dlr13,pgTrOutQty,dlr14,pgClQty
+       local : field : dlr9  : invisible  : Not ##ShowParent
+       local : field : dlr10 : invisible :  (Not @@isStk)
+       local : field : dlr11 : invisible : (Not @@isStk)
+       local : field : dlr12 : invisible : (Not @@isStk)
+       local : field : dlr13 : invisible : (Not @@isStk)
+       local : field : dlr14 : invisible : (Not @@isStk)
+       
+         set : ShowParent : yes
+         set : OnlyName : no
+         set : CWShowAll : no
+         set : dspshownett : yes
+
+       [field : pgOpQty]
+       use : qtyprimary field
+       format : "NoSymbol"
+       set as : $OpeningBalance
+       invisible : (Not @@isStk)
+       
+       [Field : pgTrInQty]
+       use : pgopQty
+       set as : $StkInQty
+       
+       [Field : pgTrOutQty]
+       use : pgopQty
+       set as : $StkOutQty
+
+       [Field : pgClQty]
+       use : pgopQty
+       set as : $ClosingBalance
+       
+   [variable : CwShowAll]
+        type : Logical
+     Default : False
+
+   [variable : MyFilterPassing]
+        type : String
+     Default : ""
+
+   [variable : MyFilterPassing2]
+        type : String
+     Default : ""
+
+   [variable : ShowParent]
+        type : Logical
+     Default : False
+
+   [variable : OnlyName]
+        type : Logical
+     Default : True
+
+     [system : Variable]
+MyFilterPassing : ""
+MyFilterPassing2 : ""
+    OnlyName : True
+   ShowParent: False
+
+    [SYSTEM  : FORMULA]
+ myitemstart : ($NAME STARTING WITH ##myfilterpassing) ;;and (not $$isempty:$closingbalance)
+ myRepfilter : if ##myfilterpassing = "" then @@MYREPFILTER2 else if $$StringLength:##myfilterpassing = 1 then (@@myitemstart AND @@MYREPFILTER2) else ($name = ##myfilterpassing AND @@MYREPFILTER2)
+ MYREPFILTER2 : IF ##MYFILTERPASSING2 = "" THEN YES ELSE  $$isbelongsto:##MYFILTERPASSING2 ;; $PARENT = ##MYFILTERPASSING2
+ isNettVisible : ##OnlyName or Not ##dspShowNett
+ IsDRCRVisible : ##OnlyName or Not ##CwShowAll
+
+   [Variable : itmcnt]
+        Type : STRING
+     Default : Yes
+  Persistent : No
+    Volatile : No
+
+     [System : Variable]
+      itmcnt : ""
+
+     [SYSTEM : FORMULA]
+   EXPLEDGER : $$IsSysNameEqual:Ledgers:##AccountType
+     EXPITEM : $$IsSysNameEqual:StockItems:##AccountType
+
+
+ [Report : pgMasterList2]
+Variables: AccountType, GroupName, CostCategoryName, CostCentreName, DSPGodownName, StockGroupName, StockCategoryName
+Variable : MyFilterPassing,OnlyName,ShowParent,DSPShowNett,CwShowAll,ledgername,MyFilterPassing2
+Variable : IsCCBkup
+Filtered : Yes
+  Export : Yes
+    form : pgMasterList2
+
+   [form : pgMasterList2]
+  Button : F2ChangePeriod, ChangeCompany, BlankButton, +
+           AL Groups, +
+           AL Ledger, +
+           AL CstCat, +
+           AL CstCtr, +
+           AL Budget, +
+           AL Currency, Second Blank Button, +
+           AL Stock Groups, +
+           AL Stock Categories, +
+           AL Stock Items, +
+           AL Unit, +
+           AL Godown, +
+           AL Voucher Type,ExportButton
+                  
+    part : pgMasterLista
+   Width : 100 % Page
+  Height : 100 % Page
+
+     
+   [part : pgMasterLista]
+  OPTION : pgMasterList2 :  nOT ##SVEXPORT or nOT ($$IsSysNameEqual:XML:##SVExportFormat OR $$IsSysNameEqual:AnsiXML:##SVExportFormat)
+  OPTION : EXPSoapEnvelope2 : ##SVExport AND ($$IsSysNameEqual:XML:##SVExportFormat OR $$IsSysNameEqual:AnsiXML:##SVExportFormat)
+  
+[!part : EXPSoapEnvelope2]
+     use : EXPSoapEnvelope
+
+   [!part : pgMasterList2]
+    line : pgMasterList2
+  scroll : vertical
+  Option : pAT Groups2 : $$IsSysNameEqual:Groups:##AccountType
+  Option : pAT Ledgers2        : $$IsSysNameEqual:Ledgers:##AccountType
+  Option : pAT PayHeads2	      : $$IsSysNameEqual:PayHeads:##AccountType
+  Option : pAT CostCentres2    : $$IsSysNameEqual:CostCentres:##AccountType ;;AND $$ExplodeLevel > 0
+  Option : pAT CostCategories2 : ($$IsSysNameEqual:CostCategories:##AccountType) OR +
+                         			   		  ($$IsSysNameEqual:Employees:##AccountType AND $$ExplodeLevel = 0) OR ($$IsSysNameEqual:EmployeeGroups:##AccountType AND $$ExplodeLevel = 0)
+  Option : pAT Employees2      : $$IsSysNameEqual:Employees:##AccountType ;;AND $$ExplodeLevel > 0
+  Option : pAT EmployeeGroups2 : $$IsSysNameEqual:EmployeeGroups:##AccountType ;;AND $$ExplodeLevel > 0
+  Option : pAT Budgets Scenario2: $$IsSysNameEqual:BudgetScenarios:##AccountType
+  Option : pAT Godowns2        : $$IsSysNameEqual:Godowns:##AccountType OR $$IsSysNameEqual:Locations:##AccountType
+  Option : pAT StockGroups2    : $$IsSysNameEqual:StockGroups:##AccountType
+  Option : pAT StockCategories2: $$IsSysNameEqual:StockCategories:##AccountType
+  Option : pAT StockItems2     : $$IsSysNameEqual:StockItems:##AccountType
+  Option : pAT Currencies2     : $$IsSysNameEqual:Currencies:##AccountType
+  Option : pAT Units2          : $$IsSysNameEqual:Units:##AccountType
+  Option : pAT VoucherTypes2   : $$IsSysNameEqual:VoucherTypes:##AccountType
+  Option : pAT Attd Types2     : $$IsSysNameEqual:AttendanceTypes:##AccountType
+  Option : pAT Deductee Type2  : $$IsSysNameEqual:DeducteeTypes:##AccountType
+
+
+
+
+  [!Part : pat Groups2]
+   local : collection : group : add : filter : myRepfilter
+  Repeat : pgMasterList2 : Group ;;ChildOfGroupName
+   Local : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+  [!Part : pat Ledgers2]
+   local : collection : Ledger : add : filter : myRepfilter
+  Repeat : pgMasterList2 : ledger ;;ListGroupLedgerChildOfGroupName
+   Local : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+  [!Part : pat PayHeads2]
+  Option : pat Groups2
+  Option : pat Ledgers2
+   Local : Collection : GroupChildOfGroupName : Add : Filter : PayHeadGroup,myRepFilter
+		Local		: Collection	: LedgerChildOfGroupName	: Add		: Filter	: PayrollLedFilter,MyRepFilter
+		Local		: Line			: pgMasterList2			: Remove If	: ($$IsGroup AND $NumPayHeadsInGroup = 0) OR ($$IsLedger AND NOT $ForPayroll)
+
+  [!Part : pat Budgets Scenario2]
+   local : collection : budget : add : filter : myRepfilter
+  Repeat : pgMasterList2 : budget ;;ListBudgetChildofBDGTName
+   Local : Key : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+  [!Part : pat Cost Categories2]
+   local : collection : costcategoryobject : add : filter : myRepfilter
+  Repeat : pgMasterList2 : Cost Category Object
+   Local : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+  [!Part : pat Cost Centres2]
+   local : collection : allcostcentre : add : filter : myRepfilter
+  Repeat : pgMasterList2 : All Cost Centre ;;ListCostCentreChildofCCName
+
+
+  [!Part : pat Employees2]
+   local : collection : ListEmployeeChildOfEmpName : add : filter : myRepfilter
+  Repeat : pgMasterList2 : ListEmployeeChildOfEmpName
+   Local : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:PayrollMasters
+
+    [!Part: pat EmployeeGroups2]
+        local : collection : ListEmployeeGroups : add : filter : myRepfilter
+        Repeat      : pgMasterList2 : ListEmployeeGroups
+        Local       : Key   : Delete Line Object	: Inactive	: NOT $$CanDelete OR NOT $$Allow:Alter:PayrollMasters
+		Local		: Field	: AccType Name 			: Style 	: "Normal Bold"
+
+    [!Part: pat Godowns2]
+        local : collection : Godown : add : filter : myRepfilter
+        Repeat      : pgMasterList2 : Godown ;;ChildOfGodownName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:InventoryMasters
+
+    [!Part: pat Stock Groups2]
+        local : collection : StockGroup : add : filter : myRepfilter
+        Repeat      : pgMasterList2 : StockGroup ;;ChildOfGroupName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:InventoryMasters
+
+    [!Part: pat Stock Categories2]
+        local : collection : StockCategory : add : filter : myRepfilter
+        Repeat      : pgMasterList2 : StockCategory ;;ItemChildOfStockCategoryName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:InventoryMasters
+
+    [!Part: pat Stock Items2]
+        local : collection : StockItem : add : filter : myRepfilter
+        Repeat      : pgMasterList2 : stockitem ;;StockGroupItemChildOfGroupName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:InventoryMasters
+
+    [!Part: pat Currencies2]
+        local : collection : Currency : add : filter : myRepfilter
+        Repeat      : pgMasterList2 : Currency
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+    [!Part: pat Units2]
+        local : collection : Unit : add : filter : myRepfilter
+        Repeat      : pgMasterList2 : Unit
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR +
+                    (NOT $ForPayroll AND NOT $$Allow:Alter:InventoryMasters) OR +
+                    ($ForPayroll AND NOT $$Allow:Alter:PayrollMasters)
+
+    [!Part: pat Voucher Types2]
+        local : collection : VoucherType : add : filter : myRepfilter
+        Repeat      : pgMasterList2 : Voucher Type
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+    [!Part: pat Attd Types2]
+        local : collection : ListAttdTypeChildofATName : add : filter : myRepfilter
+        Repeat      : pgMasterList2 : ListAttdTypeChildofATName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:PayrollMasters
+
+    [!Part: pat Deductee Type2]
+        local : collection : DeducteeType : add : filter : myRepfilter
+        Repeat      : pgMasterList2 : Deductee Type
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete
+
+      [FIELD : pgMasterList]
+       width : 200
+      set as : $name
+
+      ALTER : LEDGER : $$ISLEDGER
+      ALTER : GROUP : $$ISGROUP
+      
+      ALTER : STOCKITEM : $$ISSTOCKITEM
+      ALTER : STOCKGROUP : $$ISSTOCKGROUP
+      ALTER : STOCKCATEGORY : $$ISSTOCKCATEGORY
+      ALTER : UNIT : $$IsUnit
+        
+       [line : pgMasterList2]
+       field : pgMasterList,dlr,pgOpAmt,dlr1,pgOpAmtcr,dlr2,pgOpAmtDr,dlr3,pgTramt,dlr4,pgTrAmtDr,dlr5,+
+       pgTramtCr,dlr6,pgclamt,dlr7,pgclamtcr,dlr8,pgclamtdr
+       local : field : dlr : invisible : @@isNettVisible
+       local : field : dlr1 : invisible : @@isDRCRVisible
+       local : field : dlr2 : invisible : @@isDRCRVisible
+       local : field : dlr3 : invisible : @@isNetVisible
+       local : field : dlr4 : invisible : @@isDRCRVisible
+       local : field : dlr5 : invisible : @@isNettVisible
+       local : field : dlr6 : invisible : @@isNettVisible
+       local : field : dlr7 : invisible : @@isDRCRVisible
+       local : field : dlr8 : invisible : @@isDRCRVisible
+
+      [field : pgopamt]
+         use : Amount field
+      Format : "NoComma"
+       width : 12
+      set as : @@OPVALUE1
+   invisible : @@isNettVisible
+       
+      [field : pgopamtcr]
+         use : pgOpAmt
+      set as : @@OPVALUE1
+   invisible : @@isDRCRVisible
+   
+      [field : pgUOM]
+         use : name field
+      set as : $BaseUnits
+   invisible : (Not $$IsStockItem) or (Not ##ShowParent) or ##onlyName
+
+ [Field : pgVchTypeParent]
+   type : String
+  width : 30
+ set as : @@CWVCHTYPENAME
+ px : if $$isvoucher then $voucherTypename else $Name
+
+
+[System : Formula]
+
+CWVCHTYPENAME : if $$isSales:@px then "Sales" else  +
+ if $$isPurchase:@px then "Purchase" else +
+ if $$isAttendance:@px then "Attendance" else +
+ if $$isPayment:@px then "Payment" else +
+ if $$isContra:@px then "Contra" else +
+ if $$isCreditNote:@px then "Credit Note" else +
+ if $$isDebitNote:@px then "Debit Note" else +
+ if $$isDelNote:@px then "Delivery Note" else +
+ if $$IsRcptNote:@px then "Receipt Note" else +
+ if $$isJournal:@px then "Journal" else @p2
+
+ p2 : if $$isREceipt:@px then "Receipt" else +
+ if $$isMemo:@px then "Memorandum" else +
+ if $$IsPayroll:@px then "Payroll" else +
+ if $$IsPhysStock:@px then "Physical Stock" else +
+ if $$IsPurcOrder:@px then "Purchase Order" else +
+ if $$IsSalesOrder:@px then "Sales Order" else +
+ if $$IsRejIn:@px then "Rejections In" else +
+ if $$IsRejOut:@px then "Rejections Out" else +
+ if $$IsRevJrnl:@px then "Reversing Journal" else +
+ if $$IsStockJrnl:@px then "Stock Journal" else $Parent:VoucherType:@px
+
+
+  [Field: pgParent]
+     use: Name Field
+  set as: $Parent
+
+      [field : pgParent2]
+         use : name field
+      set as : $Parent
+   invisible : (Not ##ShowParent) or ##onlyName
+
+      [SYSTEM : FORMULA]
+    OPBALANCE : ""
+    isStk : @@isstk1 or ##onlyName
+    
+    isStk1 : ($$ISSTOCKITEM OR $$ISSTOCKGROUP OR $$ISSTOCKCATEGORY)
+      OPVALUE1 : IF @@IsStk1 THEN $OPENINGVALUE ELSE $TBalOpening ;;OPENINGbALANCE
+
+      [field : pgopamtdr]
+         use : pgOpAmt
+      set as : if $$isdr:$TBalOpening  then $TBalOpening else 0
+   invisible : @@isDRCRVisible
+   
+      [field : pgtramt]
+         use : pgOpAmt
+      set as : $$NettAmount:$TBalDebits:$TBalCredits
+   invisible : yes ;;@@isNettVisible
+   
+      [field : pgtramtcr]
+         use : pgOpAmt
+      set as : $TBalCredits
+   invisible : @@isNetVisible
+   
+      [field : pgtramtdr]
+         use : pgOpAmt
+      set as : $TBalDebits
+   invisible : @@isNettVisible
+   
+      [field : pgclamt]
+         use : pgopamt
+      set as : $TBAlclosing ;;ClosingBalance
+   invisible : @@isNettVisible
+   
+      [field : pgclamtdr]
+         use : pgopamt
+      set as : if $$isdr:$TBAlclosing then $TBAlclosing else 0
+   invisible : @@isDRCRVisible
+   
+      [field : pgclamtcr]
+         use : pgopamt
+      set as : if Not $$isdr:$TBAlclosing then $TBAlclosing else 0
+   invisible : @@isDRCRVisible
+   
+
+[REPORT : SEARCHBYID]
+     Use : Voucher Register
+     set : familyvoucherflag : No
+     VARIABLE : itmcnt
+;;   add : set :  At Beginning :  ITMCNT : "15"
+     Local       : Collection : Specific Vouchers of Company : Filter : ISOFALTERID
+
+    [SYSTEM : FORMULA]
+    ISOFALTERID : $ALTERID = $$NUMBER:##ITMCNT
+ISOFVoucherNumber : $VoucherNumber = ##MyFilterPassing
+
+[REPORT : GetVch]
+     Use : Voucher Register
+     set : familyvoucherflag : No
+    variable : MyFilterPassing
+     Local       : Collection : Specific Vouchers of Company : Filter : ISOFVoucherNumber
+     
+;;[#menu : gateway of tally]
+;;add : item : at end : CWVChBasicLedger : display : CWVChBasicLedger
+;;add : item : at end : CWVChBasicgROUP : display : CWVChBasicGROUP
+
+ [report : CWVChBasicLedger]
+     use : CWVChBasic
+Variable : LedgerName
+   local : Part : CwVchBasic : repeat : cwVchBasic : cwLedgervouchers
+;;   local : line : cwVchBasic : replace : Field : pgvchamt: DSPVCHDRAMT
+local : field : pgVchAmt : set as : @@TotalLedVchAmt
+
+
+ [report : CWVChBasicGroup]
+     use : CWVChBasic
+Variable : GroupName
+   local : Part : CwVchBasic : repeat : cwVchBasic : cwGroupvouchers
+;;   local : line : cwVchBasic : replace : Field : pgvchamt: DSPVCHDRAMT
+local : field : pgVchAmt : set as : @@TotalGrpVchAmt
+;;   set : gROUPname : "SalesaCCOUNTS"
+
+   [Collection : CwLedgervouchers]
+   type : vouchers : ledger
+   child of : ##ledgername
+
+   [Collection : CwgROUPvouchers]
+   type : vouchers : Group
+   child of : ##GroupName
+
+ [report : CWVChBasic]
+     use : dsptemplate
+variable : vouchertypename
+variable : familyvoucherflag
+    Form : CwVchBasic
+  EXPORT : YES
+
+   [form : CwVchBasic]
+    part : CwVchBasic
+   width : 100% page
+  height : 100% Page
+
+   [Part : CwVchBasic]
+    line : CwVchBasic
+  repeat : CwVchBasic : CwVouchers
+  Scroll : vertical
+
+   [Line : CwVchBasic]
+   Field : pgVchDate,dlr1,pgVchType,dlr2,pgVchNumber,dlr3,pgVchParty,dlr4,pgVch2ndLedger,dlr5,pgVchAmt,DLR6,pgVchTypeParent,DLR7,PGGUID
+
+;- ---------------------------------
+
+     [#menu: Gateway of Tally]
+;;        add: Option: PgTallyledgerClassLock: @@cwdebug
+       
+     [!menu: PgTallyledgerClassLock]
+        add: Item: before: @@locQuit: PgTallyledgerClassReport: Display: PgTallyledgerClass
+
+
+    [Report: PgTallyledgerClass]
+        use: Dsp Template
+      Title: @@PgTallyledgerClassReport
+   Printset: Report Title: @@PgTallyledgerClassReport
+       Form: FrmPgTallyledgerClass
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+     variable : ledgername
+     
+      [Form: FrmPgTallyledgerClass]
+        use: DSP Template
+       Part: DspAccTitles,PrtPgTallyledgerClass
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+
+      [Part: PrtPgTallyledgerClass]
+       set : 1
+       Line: LnPgTallyledgerClass
+     repeat: LnPgTallyledgerClass
+     scroll: Vertical
+
+
+
+      [Line: LnPgTallyledgerClass]
+     Fields: fwf
+Local: Field: fwf : Set As: $TAXCLASSIFICATIONNAME:ledger:##ledgername
+
+

@@ -1,0 +1,2079 @@
+;; {29.Aug.20 12:50}  [#system:formula] cwdebugfld : @@cwdebug ; "nfdebug"
+
+[#menu : Gateway of Tally]
+;add : option :cw_debug_items : @@cwdebug
+
+[!menu : cw_Debug_items]
+add : item : before : @@locquit : @@cw_debug_menu: menu : cw_debug_menu
+
+[System: Formula]
+cw_debug_menu : "9. CW Debug Menu"
+
+[menu : cw_Debug_menu]
+title : "Debug Menu"
+
+
+
+ ;; option:cwexport:$$inexportmode and ($$IsSysNameEqual:SDF:##SVExportFormat OR $$IsSysNameEqual:AnsiSDF:##SVExportFormat) ;; or $$IsSysNameEqual:XML:##SVExportFormat OR $$IsSysNameEqual:AnsiXML:##SVExportFormat)
+
+[!line: cwExport]
+/*Local: field: nf: Width: 100
+Local: field: nf1: Width: 100
+Local: field: nf2: Width: 100
+Local: field: nf3: Width: 100
+Local: field: nf4: Width: 100
+Local: field: nf5: Width: 100
+Local: field: nf6: Width: 100
+Local: field: nf7: Width: 100
+Local: field: nf8: Width: 100
+Local: field: nf9: Width: 100
+Local: field: nf10: Width: 100
+
+Local: field: snf: Width: 100
+Local: field: snf1: Width: 100
+Local: field: snf2: Width: 100
+Local: field: snf3: Width: 100
+Local: field: snf4: Width: 100
+Local: field: snf5: Width: 100
+Local: field: snf6: Width: 100
+Local: field: snf7: Width: 100
+Local: field: snf8: Width: 100
+Local: field: snf9: Width: 100
+Local: field: snf10: Width: 100
+*/
+Local: field: nf: Width: 00
+Local: field: nf1: Width: 00
+Local: field: nf2: Width: 00
+Local: field: nf3: Width: 00
+Local: field: nf4: Width: 00
+Local: field: nf5: Width: 00
+Local: field: nf6: Width: 00
+Local: field: nf7: Width: 00
+Local: field: nf8: Width: 00
+Local: field: nf9: Width: 00
+Local: field: nf10: Width: 00
+Local: field: nf11: Width: 00
+Local: field: nf12: Width: 00
+Local: field: nf13: Width: 00
+Local: field: nf14: Width: 00
+Local: field: nf15: Width: 00
+Local: field: nf16: Width: 00
+Local: field: nf17: Width: 00
+Local: field: nf18: Width: 00
+Local: field: nf19: Width: 00
+Local: field: nf20: Width: 00
+Local: field: nf21: Width: 00
+Local: field: nf22: Width: 00
+Local: field: nf23: Width: 00
+Local: field: nf24: Width: 00
+Local: field: nf25: Width: 00
+Local: field: nf26: Width: 00
+Local: field: nf27: Width: 00
+
+Local: field: snf: Width: 00
+Local: field: snf1: Width: 00
+Local: field: snf2: Width: 00
+Local: field: snf3: Width: 00
+Local: field: snf4: Width: 00
+Local: field: snf5: Width: 00
+Local: field: snf6: Width: 00
+Local: field: snf7: Width: 00
+Local: field: snf8: Width: 00
+Local: field: snf9: Width: 00
+Local: field: snf10: Width: 00
+Local: field: snf11: Width: 00
+Local: field: snf12: Width: 00
+Local: field: snf13: Width: 00
+Local: field: snf14: Width: 00
+Local: field: snf15: Width: 00
+Local: field: snf16: Width: 00
+Local: field: snf17: Width: 00
+Local: field: snf18: Width: 00
+Local: field: snf19: Width: 00
+Local: field: snf20: Width: 00
+Local: field: snf21: Width: 00
+Local: field: snf22: Width: 00
+Local: field: snf23: Width: 00
+Local: field: snf24: Width: 00
+Local: field: snf25: Width: 00
+Local: field: snf26: Width: 00
+Local: field: snf27: Width: 00
+Local: field: snf28: Width: 00
+Local: field: snf29: Width: 00
+Local: field: snf30: Width: 00
+Local: field: snf31: Width: 00
+Local: field: snf32: Width: 00
+Local: field: snf33: Width: 00
+Local: field: snf34: Width: 00
+Local: field: snf35: Width: 00
+Local: field: snf36: Width: 00
+Local: field: snf37: Width: 00
+Local: field: snf38: Width: 00
+Local: field: snf39: Width: 00
+Local: field: snf40: Width: 00
+Local: field: snf41: Width: 00
+Local: field: snf42: Width: 00
+
+
+[!field : cw]
+  color : Blue
+
+[!field : cw1]
+style : normal bold
+
+ [part : sampleReport]
+  line : SampleReportLine
+
+ [line : SampleReportLine]
+ field : fwfC
+ Local : Field : fwfC : Set As: "This is a Sample Copy"
+ LOCAL : FIELD : FWFC : STYLE : NORMAL BOLD
+
+[line : cwindent]
+field : nf
+Local: Field : nf: Style: normal bold
+Local: Field: nf : Skip: Yes
+
+[line : cwindent2]
+  use : cwindent
+
+[line : cwDefcmpaddrFull]
+field : fwfc
+Local: Field: fwfc : Set As: @@cwCMPFullAddress
+local : field : fwfc : lines: 0
+
+[line : cwclline]
+right field : nf
+Local: Field: nf : Set As: "Continued to Page No. "+ $$string:@@cwnextpage
+border : thin top
+
+[line : cwFromPrevPage]
+use :cwclline
+Local: Field: nf : Set As:"Continued from Page No. "+ $$string:@@cwPrevPage
+delete : border
+
+[part : cwDummyPart]
+line: cwblankline
+
+   [line : cwfor]
+   field : fwf
+   right field : fwf2
+   Local: Field: fwf2 : Set As: @@FORCMPMAIL
+   local : field : fwf2 : align : right
+
+   [line : cwAuthorised]
+   use : cwfor
+   Local: Field: fwf2 : Set As: "Authorised Signatory"
+   
+;;[#Form: LocalTDL Config]
+;;option : cwreftdl
+
+[line : cwSubject]
+field : fwfc
+Local: Field: fwfc : Set As: $$SPrintf:@@SubjectToJurisdictionFormat:@@Jurisdiction
+
+[line : cwComputer]
+field : fwfc
+Local : Field: fwfc : Set As: "Computer Generated Invoice, requires no signature."
+[border: cwdouble top bottom]
+top: double
+bottom : double
+    [!line : totalOpt]
+     local : field : default : delete : storage
+     local : field : default : delete : inactive
+     local : field : default : skip   : yes
+    delete : explode
+    delete : empty
+    delete : invisible
+    delete : remove if
+    border : Totals
+
+    [!line : TitleOpt]
+     local : field : default : type   : string
+     local : field : default : delete : storage
+     local : field : default : delete : inactive
+     local : field : default : set as : ""
+     local : field : default : skip   : yes
+    delete : explode
+    delete : empty
+    delete : invisible
+    delete : remove if
+    border : Column Titles
+    local: field : default : style : normal bold
+    local : field : numf : type : string
+    
+    [!line : TitleOpt2]
+      use : titleOpt
+      delete : border
+    delete : remove if
+    
+    [!line : TitleOpt3]
+       use : titleOpt
+    border : thin bottom
+
+    [!line : TitleOpt3thick]
+       use : titleOpt
+    border : thick bottom
+
+    [!line : TitleOpt4]
+       use : titleOpt
+    border : thin top
+      
+    [!line : TitleOpt4thick]
+       use : titleOpt
+    border : thick top
+
+    [!line : TitleOpt5]
+       use : titleOpt
+    border : thin top bottom
+
+    [!line : defborder]
+     local : field : default : border : thin box
+     
+   [!field : titleopt]
+    delete : inactive
+    delete : storage
+      type : string
+      skip : yes
+;;border : thin box
+    [!line : defbox]
+     local : field : default : border : thin box
+    
+    [!part : defbox]
+     local : field : default : border : thin box
+    
+
+    [field : nf]
+       use : name field
+     style : normal
+set always : yes
+
+[system : formula]
+cwdebugfld : no
+
+    [field : nfdebug]
+    use : nf
+    invisible : not @@cwdebugfld
+    border : thin box
+
+    [field : nf1]
+       use : nf
+
+    [field : nf2]
+       use : nf
+
+    [field : nf3]
+       use : nf
+
+    [field : nf4]
+       use : nf
+
+    [field : nf5]
+       use : nf
+
+    [field : nf6]
+       use : nf
+
+    [field : nf7]
+       use : nf
+       
+    [field : nf8]
+       use : nf
+       
+    [field : nf9]
+       use : nf
+       
+    [field : nf10]
+       use : nf
+
+    [field : nf11]
+       use : nf
+
+    [field : nf12]
+       use : nf
+
+    [field : nf13]
+       use : nf
+
+    [field : nf14]
+       use : nf
+
+    [field : nf15]
+       use : nf
+       
+    [field : nf16]
+       use : nf
+
+    [field : nf17]
+       use : nf
+
+    [field : nf18]
+       use : nf
+
+    [field : nf19]
+       use : nf
+
+    [field : nf20]
+       use : nf
+           [field : nf21]
+       use : nf
+       [field : nf22]
+       use : nf
+       [field : nf23]
+       use : nf
+       [field : nf24]
+       use : nf
+       [field : nf25]
+       use : nf
+       [field : nf26]
+       use : nf
+
+       [field : nf27]
+       use : nf
+
+       [field : nf28]
+       use : nf
+       
+    [field : nf29]
+       use : nf
+
+    [field : nf30]
+       use : nf
+
+    [field : nf31]
+       use : nf
+
+    [field : nf32]
+       use : nf
+
+    [field : nf33]
+       use : nf
+
+    [field : nf34]
+       use : nf
+
+    [field : nf35]
+       use : nf
+
+    [field : nf36]
+       use : nf
+
+    [field : nf37]
+       use : nf
+
+    [field : nf38]
+       use : nf
+
+    [field : nf39]
+       use : nf
+
+    [field : nf40]
+       use : nf
+
+    [field : nf41]
+       use : nf
+
+    [field : nf42]
+       use : nf
+
+    [field : nf43]
+       use : nf
+
+    [field : nf44]
+       use : nf
+
+    [field : nf45]
+       use : nf
+
+    [field : nf46]
+       use : nf
+
+    [field : nf47]
+       use : nf
+
+    [field : nf48]
+    use : nf
+
+    [field : nf49]
+    use : nf
+
+    [field : nf50]
+    use : nf
+
+  [field : nf51]
+  use : nf
+
+
+ [field : nf52]
+ use : nf
+
+ [field : nf53]
+ use : nf
+
+ [field : nf54]
+ use : nf
+
+ [field : nf55]
+    use : nf
+ [field : nf56]
+    use : nf
+ [field : nf57]
+    use : nf
+ [field : nf58]
+    use : nf
+ [field : nf59]
+    use : nf
+ [field : nf60]
+    use : nf
+ [field : nf61]
+    use : nf
+ [field : nf62]
+    use : nf
+ [field : nf63]
+    use : nf
+    
+     [field : nf64]
+    use : nf
+     [field : nf65]
+    use : nf
+
+     [field : nf66]
+    use : nf
+
+    
+    ;;===================
+
+    [field : fwf]
+      use  : nf
+full width : yes
+;;set always : yes
+
+    [field : fwf1]
+       use : fwf
+
+    [field : fwf2]
+       use : fwf
+
+    [field : fwf3]
+       use : fwf
+        
+    [field : fwf4]
+       use : fwf
+
+    [field : fwf5]
+       use : fwf
+       
+    [field : fwf6]
+       use : fwf
+
+    [field : fwf7]
+       use : fwf
+
+    [field : fwf8]
+       use : fwf
+
+    [field : fwf9]
+       use : fwf
+
+    [field : fwf10]
+       use : fwf
+       
+    [field : fwf11]
+       use : fwf
+       
+    [field : fwf12]
+       use : fwf
+       
+    [field : fwf13]
+       use : fwf
+       
+     [field : fwf14]
+       use : fwf
+       
+     [field : fwf15]
+       use : fwf
+       
+       
+       
+
+    [field : fwfc]
+      use  : fwf
+     align : centre
+
+    [field : fwfc1]
+      use  : fwfc
+
+    [field : fwfc2]
+      use  : fwfc
+
+    [field : fwfc3]
+      use  : fwfc
+
+    [field : fwfc4]
+      use  : fwfc
+      
+      
+    [field : cwFldPassword]
+    use : snf
+
+    [field : snf]
+       use : short name field
+     style : normal
+set always : yes
+
+    [field : snf1]
+       use : snf
+
+    [field : snf2]
+       use : snf
+
+    [field : snf3]
+       use : snf
+
+    [field : snf4]
+       use : snf
+
+    [field : snf5]
+       use : snf
+
+    [field : snf6]
+       use : snf
+
+    [field : snf7]
+       use : snf
+
+    [field : snf8]
+       use : snf
+
+    [field : snf9]
+       use : snf
+
+    [field : snf10]
+       use : snf
+
+    [field : snf11]
+       use : snf
+
+    [field : snf12]
+       use : snf
+
+    [field : snf13]
+       use : snf
+
+    [field : snf14]
+       use : snf
+
+    [field : snf15]
+       use : snf
+
+    [field : snf16]
+       use : snf
+    [field : snf17]
+       use : snf
+    [field : snf18]
+       use : snf
+
+    [field : snf19]
+       use : snf
+       
+    [field : snf20]
+       use : snf
+       
+        [field:snf21]
+       use:snf
+
+       [field:snf22]
+       use:snf
+
+       [field:snf23]
+       use:snf
+
+       [field:snf24]
+       use:snf
+
+       [field:snf25]
+       use:snf
+
+       [field:snf26]
+       use:snf
+
+       [field:snf27]
+       use:snf
+
+     [field : snf28]
+       use : snf
+
+    [field : snf29]
+       use : snf
+
+    [field : snf30]
+       use : snf
+
+    [field : snf31]
+       use : snf
+
+    [field : snf32]
+       use : snf
+
+    [field : snf33]
+       use : snf
+
+    [field : snf34]
+       use : snf
+
+    [field : snf35]
+       use : snf
+
+    [field : snf36]
+       use : snf
+
+    [field : snf37]
+       use : snf
+
+    [field : snf38]
+       use : snf
+
+    [field : snf39]
+       use : snf
+
+    [field : snf40]
+       use : snf
+
+    [field : snf41]
+       use : snf
+
+    [field : snf42]
+       use : snf
+
+    [field : snf43]
+       use : snf
+    [field : snf44]
+       use : snf
+    [field : snf45]
+       use : snf
+
+    [field : snf46]
+       use : snf
+
+    [field : snf47]
+       use : snf
+       
+       [field : snf48]
+       use : snf
+       
+       [field : snf49]
+       use : snf
+       
+       [field : snf50]
+       use : snf
+       
+       [field : snf51]
+       use : snf
+       
+
+       [field : snf52]
+       use : snf
+
+       [field : snf53]
+       use : snf
+
+       [field : snf54]
+       use : snf
+
+       [field : snf55]
+       use : snf
+       [field : snf56]
+       use : snf
+
+       [field : snf57]
+       use : snf
+       [field : snf58]
+       use : snf
+
+       [field : snf59]
+       use : snf
+
+       [field : snf60]
+       use : snf
+       
+        [field : snf61]
+       use : snf
+
+        [field : snf62]
+       use : snf
+        [field : snf63]
+       use : snf
+        [field : snf64]
+       use : snf
+        [field : snf65]
+       use : snf
+        [field : snf66]
+       use : snf
+        [field : snf67]
+       use : snf
+        [field : snf68]
+       use : snf
+        [field : snf69]
+       use : snf
+        [field : snf70]
+       use : snf
+       
+        [field : snf71]
+       use : snf
+        [field : snf72]
+       use : snf
+        [field : snf73]
+       use : snf
+        [field : snf74]
+       use : snf
+        [field : snf75]
+       use : snf
+        [field : snf76]
+       use : snf
+        [field : snf77]
+       use : snf
+        [field : snf78]
+       use : snf
+        [field : snf79]
+       use : snf
+       
+       [field : snf80]
+       use : snf
+       
+        [field : snf81]
+       use : snf
+        [field : snf82]
+       use : snf
+        [field : snf83]
+       use : snf
+        [field : snf84]
+       use : snf
+        [field : snf85]
+       use : snf
+        [field : snf86]
+       use : snf
+        [field : snf87]
+       use : snf
+        [field : snf88]
+       use : snf
+       
+        [field : snf89]
+       use : snf
+       
+       [field : snf90]
+       use : snf
+       
+       [field : snf91]
+       use : snf
+       [field : snf92]
+       use : snf
+       [field : snf93]
+       use : snf
+       [field : snf94]
+       use : snf
+       [field : snf95]
+       use : snf
+       [field : snf96]
+       use : snf
+       [field : snf97]
+       use : snf
+       [field : snf98]
+       use : snf
+       [field : snf99]
+       use : snf
+       
+       [field : snf100]
+       use : snf
+       
+       
+       
+
+
+    [field : qtyf]
+       use : qty Primary field
+     style : normal
+ set always : yes
+
+    [field: qtyf1]
+      use : qtyf
+      
+    [field : qtyf2]
+      use : qtyf
+      
+    [field : qtyf3]
+      use : qtyf
+
+    [field : qtyf4]
+      use : qtyf
+
+    [field : qtyf5]
+      use : qtyf
+
+    [field : qtyf6]
+      use : qtyf
+
+    [field : qtyf7]
+      use : qtyf
+
+   [field : qtyf8]
+      use : qtyf
+      
+    [field : qtyf9]
+      use : qtyf
+
+    [field : qtyf10]
+      use : qtyf
+
+    [field : qtyf11]
+      use : qtyf
+
+
+    [field : qtyf12]
+      use : qtyf
+      
+      
+      [field : qtyf13]
+      use : qtyf
+      
+      [field : qtyf14]
+      use : qtyf
+      
+      [field : qtyf15]
+      use : qtyf
+      
+      [field : qtyf16]
+      use : qtyf
+
+
+      [field : qtyf17]
+      use : qtyf
+      
+      [field : qtyf18]
+      use : qtyf
+      
+      [field : qtyf19]
+      use : qtyf
+      
+      [field : qtyf20]
+      use : qtyf
+      
+
+      [field : qtyf21]
+      use : qtyf
+      
+
+      [field : qtyf22]
+      use : qtyf
+      
+
+      [field : qtyf23]
+      use : qtyf
+      
+
+      [field : qtyf24]
+      use : qtyf
+      
+
+      [field : qtyf25]
+      use : qtyf
+      
+
+      [field : qtyf26]
+      use : qtyf
+
+      [field : qtyf27]
+      use : qtyf
+
+      [field : qtyf28]
+      use : qtyf
+      
+
+      [field : qtyf29]
+      use : qtyf
+      
+
+      [field : qtyf30]
+      use : qtyf
+      
+      [field : qtyf31]
+      use : qtyf
+      
+      [field : qtyf32]
+      use : qtyf
+      
+      [field : qtyf33]
+      use : qtyf
+      
+      [field : qtyf34]
+      use : qtyf
+      
+      [field : qtyf35]
+      use : qtyf
+      
+      
+    [field : qtynsf]
+       use : qty Primary field
+     style : normal
+    format : "NoSymbol"
+set always : yes
+
+    [field : qtynsf1]
+       use : qtynsf
+
+    [field : qtynsf2]
+       use : qtynsf
+
+    [field : qtysf]
+       use : qty Secondary field
+     style : normal
+set always : yes
+
+    [field : rateNUF]
+       use : Number field
+    format : "NoZero,Decimals:2,NoSymbol," ;;+ ##ShowForex
+     style : normal
+    set as : $$number:$rate
+    align : right
+    
+    [field : ratenuf2]
+      use : ratenuf
+
+
+    [field : ratef]
+       use : rate field
+     style : normal
+    set as : $rate
+     width : if NOT $$InPixelMode then 11 else 9
+set always : yes
+
+    [field : ratef2]
+      use : ratef
+
+    [field : ratef3]
+      use : ratef
+
+    [field : ratef4]
+      use : ratef
+
+    [field : rateuf]
+       use : rate units field
+     style : normal
+    set as : $rate
+set always : yes
+
+    [field : ratepf]
+       use : rate price field
+     style : normal
+    set as : $rate
+set always : yes
+
+    [field : ratepf2]
+    use : ratepf
+    
+    [field : ratepf3]
+    use : ratepf
+
+[field : ratepf4]
+    use : ratepf
+    
+    [field : amtf]
+       use : amount field
+     style : normal
+    set as : $amount
+    format : "NoZero,Decimals:2"
+set always : yes
+
+    [field : amtf1]
+       use : amtf
+
+    [field : amtf2]
+       use : amtf
+
+    [field : amtf3]
+       use : amtf
+       
+    [field : amtf4]
+       use : amtf
+
+    [field : amtf5]
+       use : amtf
+
+    [field : amtf6]
+       use : amtf
+
+    [field : amtf7]
+       use : amtf
+
+    [field : amtf8]
+       use : amtf
+
+    [field : amtf9]
+       use : amtf
+
+    [field : amtf10]
+       use : amtf
+
+    [field : amtf11]
+       use : amtf
+
+    [field : amtf12]
+       use : amtf
+
+    [field : amtf13]
+       use : amtf
+       
+    [field : amtf14]
+       use : amtf
+
+    [field : amtf15]
+       use : amtf
+
+    [field : amtf16]
+       use : amtf
+
+    [field : amtf17]
+       use : amtf
+
+    [field : amtf18]
+       use : amtf
+
+    [field : amtf19]
+       use : amtf
+
+    [field : amtf20]
+       use : amtf
+       
+      [field : amtf21]
+use : amtf
+[field : amtf22]
+use : amtf
+[field : amtf23]
+use : amtf
+
+[field : amtf24]
+use : amtf
+[field : amtf25]
+use : amtf
+[field : amtf26]
+use : amtf
+
+[field : amtf27]
+use : amtf
+
+[field : amtf28]
+use : amtf
+
+[field : amtf29]
+use : amtf
+
+[field : amtf30]
+use : amtf
+
+[field : amtf31]
+use : amtf
+
+[field : amtf32]
+use : amtf
+
+[field : amtf33]
+use : amtf
+
+[field : amtf34]
+use : amtf
+[field : amtf35]
+use : amtf
+
+[field : amtf36]
+use : amtf
+[field : amtf37]
+use : amtf
+
+[field : amtf38]
+use : amtf
+
+[field : amtf39]
+use : amtf
+
+[field : amtf40]
+use : amtf
+
+[field : amtf41]
+use : amtf
+
+[field : amtf42]
+use : amtf
+
+
+[field : amtf43]
+use : amtf
+
+[field : amtf44]
+use : amtf
+
+[field : amtf45]
+use : amtf
+
+
+[field : amtf46]
+use : amtf
+
+[field : amtf47]
+use : amtf
+
+[field : amtf48]
+use : amtf
+
+[field : amtf49]
+use : amtf
+
+[field : amtf50]
+use : amtf
+
+[field : amtf51]
+use : amtf
+
+[field : amtf52]
+use : amtf
+
+[field : amtf53]
+use : amtf
+
+[field : amtf54]
+use : amtf
+
+[field : amtf55]
+use : amtf
+
+[field : amtf56]
+use : amtf
+
+[field : amtf57]
+use : amtf
+
+[field : amtf58]
+use : amtf
+
+[field : amtf59]
+use : amtf
+
+[field : amtf60]
+use : amtf
+
+[field : amtf61]
+use : amtf
+
+
+[field : amtf62]
+use : amtf
+
+[field : amtf63]
+use : amtf
+
+
+[field : amtf64]
+use : amtf
+
+[field : amtf65]
+use : amtf
+
+[field : amtf66]
+use : amtf
+
+[field : amtf67]
+use : amtf
+
+[field : amtf68]
+use : amtf
+
+[field : amtf69]
+use : amtf
+
+
+[field : amtf70]
+use : amtf
+
+[field : amtf71]
+use : amtf
+
+[field : amtf72]
+use : amtf
+
+[field : amtf73]
+use : amtf
+
+[field : amtf74]
+use : amtf
+
+[field : amtf75]
+use : amtf
+
+[field : amtf76]
+use : amtf
+
+[field : amtf77]
+use : amtf
+
+[field : amtf78]
+use : amtf
+
+
+[field : amtf79]
+use : amtf
+
+[field : amtf80]
+use : amtf
+
+[field : amtf81]
+use : amtf
+
+[field : amtf82]
+use : amtf
+
+[field : amtf83]
+use : amtf
+
+
+[field : amtf84]
+use : amtf
+[field : amtf85]
+use : amtf
+
+[field : amtf86]
+use : amtf
+
+[field : amtf87]
+use : amtf
+[field : amtf88]
+use : amtf
+
+[field : amtf89]
+use : amtf
+[field : amtf90]
+use : amtf
+
+[field : amtf91]
+use : amtf
+
+[field : amtf92]
+use : amtf
+[field : amtf93]
+use : amtf
+[field : amtf94]
+use : amtf
+[field : amtf95]
+use : amtf
+[field : amtf96]
+use : amtf
+[field : amtf97]
+use : amtf
+[field : amtf98]
+use : amtf
+[field : amtf99]
+use : amtf
+[field : amtf100]
+use : amtf
+
+    [field : numf]
+       use : number field
+     align : right
+     style : normal
+    format : "NoZero"
+    set always : yes
+
+    [field : numf1]
+       use : numf
+
+    [field : numf2]
+       use : numf
+
+    [field : numf3]
+       use : numf
+
+    [field : numf4]
+       use : numf
+
+    [field : numf5]
+       use : numf
+
+    [field : numf6]
+       use : numf
+
+    [field : numf7]
+       use : numf
+       
+    [field : numf8]
+       use : numf
+       
+    [field : numf9]
+       use : numf
+       
+    [field : numf10]
+       use : numf
+       
+    [field : numf11]
+       use : numf
+
+    [field : numf12]
+       use : numf
+
+     [field : numf13]
+       use : numf
+
+    [field : numf14]
+       use : numf
+
+    [field : numf15]
+       use : numf
+
+    [field : numf16]
+       use : numf
+       
+    [field : numf17]
+       use : numf
+
+    [field : numf18]
+       use : numf
+
+    [field : numf19]
+       use : numf
+
+    [field : numf20]
+       use : numf
+       
+    [field : numf21]
+       use : numf
+
+    [field : numf22]
+       use : numf
+
+    [field : numf23]
+       use : numf
+
+    [field : numf24]
+       use : numf
+[field:numf25]
+use:numf
+
+[field:numf26]
+use:numf
+
+[field:numf27]
+use:numf
+
+[field:numf28]
+use:numf
+
+[field:numf29]
+use:numf
+
+[field:numf30]
+use:numf
+
+
+[field:numf31]
+use:numf
+
+[field:numf32]
+use:numf
+
+[field:numf33]
+use:numf
+
+[field:numf34]
+use:numf
+
+[field:numf35]
+use:numf
+
+[field:numf36]
+use:numf
+
+[field:numf37]
+use:numf
+
+[field:numf38]
+use:numf
+
+[field:numf39]
+use:numf
+
+[field:numf40]
+use:numf
+
+
+[field : numf41]
+      use : numf
+
+[field : numf42]
+      use : numf
+
+[field : numf43]
+      use : numf
+
+ [field : numf44]
+      use : numf
+
+[field : numf45]
+      use : numf
+
+[field : numf46]
+      use : numf
+
+[field : numf47]
+      use : numf
+
+ [field : numf48]
+      use : numf
+
+ [field : numf49]
+      use : numf
+
+ [field : numf50]
+      use : numf
+      
+      
+
+
+     [field : numf51]
+      use : numf
+
+      [field : numf52]
+      use : numf
+
+       [field : numf53]
+      use : numf
+
+
+       [field : numf54]
+      use : numf
+
+
+       [field : numf55]
+      use : numf
+
+
+       [field : numf56]
+      use : numf
+
+
+       [field : numf57]
+      use : numf
+
+
+       [field : numf58]
+      use : numf
+
+
+
+       [field : numf59]
+      use : numf
+
+
+
+       [field : numf60]
+      use : numf
+      
+      [field : numf61]
+      use : numf
+      
+      [field : numf62]
+      use : numf
+      
+      [field : numf63]
+      use : numf
+      
+      [field : numf64]
+      use : numf
+      
+      [field : numf65]
+      use : numf
+      [field : numf66]
+      use : numf
+      [field : numf67]
+      use : numf
+      [field : numf68]
+      use : numf
+      [field : numf69]
+      use : numf
+      [field : numf70]
+      use : numf
+      
+       [field : numf71]
+      use : numf
+
+
+       [field : numf72]
+      use : numf
+
+
+       [field : numf73]
+      use : numf
+
+
+       [field : numf74]
+      use : numf
+
+
+       [field : numf75]
+      use : numf
+      
+      [field : numf76]
+      use : numf
+
+
+      [field : numf77]
+      use : numf
+
+
+      [field : numf78]
+      use : numf
+
+
+      [field : numf79]
+      use : numf
+
+
+      [field : numf80]
+      use : numf
+
+          [field : numf81]
+      use : numf
+
+          [field : numf82]
+      use : numf
+
+          [field : numf83]
+      use : numf
+
+          [field : numf84]
+      use : numf
+
+
+          [field : numf85]
+      use : numf
+      
+      
+      
+
+          [field : numf86]
+      use : numf
+
+
+
+
+
+          [field : numf87]
+      use : numf
+      
+      
+
+          [field : numf88]
+      use : numf
+      
+      
+      
+
+          [field : numf89]
+      use : numf
+      
+      
+      
+
+          [field : numf90]
+      use : numf
+      
+      
+         [field : numf91]
+      use : numf
+      
+      
+      
+
+         [field : numf92]
+      use : numf
+      
+
+         [field : numf93]
+      use : numf
+      
+
+         [field : numf94]
+      use : numf
+      
+
+         [field : numf95]
+      use : numf
+
+         [field : numf96]
+      use : numf
+
+         [field : numf97]
+      use : numf
+
+         [field : numf98]
+      use : numf
+
+         [field : numf99]
+      use : numf
+
+
+
+         [field : numf100]
+      use : numf
+
+
+
+  [field : numf101]
+       use : numf
+
+    [field : numf102]
+       use : numf
+
+    [field : numf103]
+       use : numf
+
+    [field : numf104]
+       use : numf
+
+    [field : numf105]
+       use : numf
+
+    [field : numf106]
+       use : numf
+
+    [field : numf107]
+       use : numf
+
+    [field : numf108]
+       use : numf
+
+    [field : numf109]
+       use : numf
+
+    [field : numf110]
+       use : numf
+
+    [field : numf111]
+       use : numf
+
+    [field : numf112]
+       use : numf
+
+     [field : numf113]
+       use : numf
+
+    [field : numf114]
+       use : numf
+
+    [field : numf115]
+       use : numf
+
+    [field : numf116]
+       use : numf
+
+    [field : numf117]
+       use : numf
+
+    [field : numf118]
+       use : numf
+
+    [field : numf119]
+       use : numf
+
+    [field : numf120]
+       use : numf
+
+
+
+
+
+
+
+
+
+
+
+
+
+       
+       
+
+    [field : cwslno]
+       use : number field
+     align : left
+     style : normal
+    set as : $$line
+    format : "NoZero"
+set always : yes
+
+    [field : dtf]
+       use : unidate field
+     style : normal
+set always : yes
+
+    [field : dtf1]
+       use : dtf
+
+    [field : dtf2]
+       use : dtf
+       
+ [field : discf]
+    use : number field
+ style : normal
+ align : right
+ format :"NoZero,NoComma,Percentage"
+ width : 0.7 inch
+ set as: $discount
+set always : yes
+
+[field : sdf]
+   use : short date field
+ style : normal
+set always : yes
+width : @@shortwidth - 1
+
+[field : sdf2]
+   use : sdf
+
+[field : sdf3]
+   use : sdf
+
+[field : sdf4]
+   use : sdf
+
+[field : sdf5]
+   use : sdf
+
+[field : sdf6]
+   use : sdf
+
+[field:sdf7]
+  use:sdf
+
+[field:sdf8]
+  use:sdf
+  
+[field:sdf9]
+  use:sdf
+  
+[field:sdf10]
+  use:sdf
+  
+[field:sdf11]
+  use:sdf
+  
+[field:sdf12]
+  use:sdf
+  
+[field:sdf13]
+  use:sdf
+
+[field:sdf14]
+  use:sdf
+
+[field:sdf15]
+  use:sdf
+
+    [line: cwl1]
+    
+    [line: cwl2]
+    
+    
+    [line : cwl3]
+    
+    [line : cwl4]
+    
+  [line: cwl5]
+
+  [line: cwl6]
+
+  [line: cwl7]
+
+  [line: cwl8]
+
+  [line: cwl9]
+
+  [line : cwl10]
+  
+  [line : CwBlankLine]
+  field : name field
+  local : field : name field : skip : yes
+
+  [line : CwBlankLine1]
+    use : CwBlankLine
+
+  [line : CwBlankLine2]
+    use : CwBlankLine
+
+  [line : CwBlankLine3]
+    use : CwBlankLine
+
+  [line : CwBlankLine4]
+    use : CwBlankLine
+
+  [line : CwBlankLine5]
+    use : CwBlankLine
+
+  [line : CwBlankLine6]
+    use : CwBlankLine
+
+  [line : CwBlankLine7]
+    use : CwBlankLine
+    
+  [line : CwBlankLine8]
+    use : CwBlankLine
+    
+  [line : CwBlankLine9]
+    use : CwBlankLine
+    
+  [line : CwBlankLine10]
+    use : CwBlankLine
+
+  [line : CwBlankLine11]
+    use : CwBlankLine
+  [line : CwBlankLine12]
+    use : CwBlankLine
+  [line : CwBlankLine13]
+    use : CwBlankLine
+  [line : CwBlankLine14]
+    use : CwBlankLine
+  [line : CwBlankLine15]
+    use : CwBlankLine
+    
+  [line : CwBlankLine16]
+    use : CwBlankLine
+  [line : CwBlankLine17]
+    use : CwBlankLine
+  [line : CwBlankLine18]
+    use : CwBlankLine
+  [line : CwBlankLine19]
+    use : CwBlankLine
+  [line : CwBlankLine20]
+    use : CwBlankLine
+
+
+[field : snfd]
+use : short date field
+style : normal
+set always : yes
+
+[field : sp]
+use : short prompt
+
+[field : sp1]
+use : sp
+
+[field : sp2]
+use : sp
+
+[field : sp3]
+use : sp
+
+[field : sp4]
+use : sp
+
+[field : sp5]
+use : sp
+
+[field : sp6]
+use : sp
+
+[field : sp7]
+use : sp
+
+[field : sp8]
+use : sp
+
+[field : sp9]
+use : sp
+
+[field : sp10]
+use : sp
+
+[field : mp]
+use : medium prompt
+
+[field : mp2]
+use : mp
+
+[field : mp3]
+use : mp
+
+[field:mp4]
+use:mp
+
+
+[field : lp]
+use : long prompt
+
+[field : lp2]
+use : lp
+
+[field : snfx]
+  use  : snf
+ width : @@shortwidth - 5
+ 
+[field : snfx1]
+   use : snfx
+
+[field : snfx2]
+   use : snfx
+
+[field : snfx3]
+   use : snfx
+
+[field : snfx4]
+   use : snfx
+
+[field : snfx5]
+   use : snfx
+
+[field : snfx6]
+   use : snfx
+
+[field : snfx7]
+   use : snfx
+
+[field : snfx8]
+   use : snfx
+
+[field : snfx9]
+   use : snfx
+
+[field : snfx10]
+   use : snfx
+   
+[field : snfx11]
+   use : snfx
+   
+[field : snfx12]
+   use : snfx
+   
+[field : snfx13]
+   use : snfx
+   
+[field : snfx14]
+   use : snfx
+   
+[field : snfx15]
+   use : snfx
+
+
+ [Field : cwLogical]
+ use : logical Field
+ set always : yes
+ set as : if $$value then yes else No
+
+ [Field : cwLogical1]
+    use : logical Field
+ set always : yes
+ set as : if $$value then yes else No
+
+ [Field : cwLogical2]
+    use : logical Field
+ set always : yes
+ set as : if $$value then yes else No
+
+  [Field : cwLogical3]
+    use : logical Field
+ set always : yes
+ set as : if $$value then yes else No
+
+  [Field : cwLogical4]
+    use : logical Field
+ set always : yes
+ set as : if $$value then yes else No
+ 
+ [Field : cwLogical5]
+    use : logical Field
+ set always : yes
+ set as : if $$value then yes else No
+
+  [Field : cwLogical6]
+    use : logical Field
+ set always : yes
+ set as : if $$value then yes else No
+
+  [Field : cwLogical7]
+    use : logical Field
+ set always : yes
+ set as : if $$value then yes else No
+
+  [Field : cwLogical8]
+    use : logical Field
+ set always : yes
+ set as : if $$value then yes else No
+
+  [Field : cwLogical9]
+    use : logical Field
+ set always : yes
+ set as : if $$value then yes else No
+
+  [Field : cwLogical10]
+    use : logical Field
+ set always : yes
+ set as : if $$value then yes else No
+
+
+
+[FIELD : UNIdf]
+USE : UNI DATE FIELD
+
+[FIELD : UNIdf2]
+USE : UNIdf
+
+[field : cwdebugfield2]
+use : nf
+set as :"CW_FIELD_END"
+
+
+;;==========================================================
+
+/*
+ [#menu: Gateway of Tally]
+ add: Option: cwListofCompanieslock ;; : @@dDemoLock
+
+
+ [#menu : cw_Debug_menu]
+;;  add: Item: before: @@locQuit: @@cwListofCompaniesReport: Display: ListofCompanies
+
+  [!menu: cwListofCompanieslock]
+  add: Item: before: @@locQuit: @@cwListofCompaniesReport: Display: ListofCompanies
+
+
+
+  [System: formula]
+  cwListofCompaniesReport: "ListofCompanies"
+
+  */
+
+
+
+
+[Report: List of Companies]
+
+Form	: List of Companies
+
+[Form: List of Companies]
+
+Part	: List of Companies
+
+[Part: List of Companies]
+
+Line	: List of Companies
+Repeat	: List of Companies : List of Companies
+Scroll	: Vertical
+XMLTag	: "COMPANYNAME.LIST"
+
+[Line: List of Companies]
+
+Field	: List of Companies
+
+[Field: List of Companies]
+
+Set as	: $Name
+XMLTag	: "COMPANYNAME"
+
+
+
+

@@ -1,0 +1,47 @@
+[system : formula]
+odet1 : $odet1:company:##svcurrentcompany
+odet2 : $odet2:company:##svcurrentcompany
+odet3 : $odet3:company:##svcurrentcompany
+odet4 : $odet4:company:##svcurrentcompany
+odet5 : $odet5:company:##svcurrentcompany
+
+[#Part: Company MailingDetails]
+add : bottom line: odetitle,odet1,odet2,odet3,odet4,odet5
+	Height		: 18.0
+	
+  [line: odetitle]
+   field : fwfc
+   local : field: fwfc  : set as : "Other Details"
+   local : field : fwfc : border : thin bottom
+   local : field : fwfc : skip : yes
+   space top : 0.05
+
+  [line: odet1]
+   field : sp,fwf
+   local : field : sp : info : "1:"
+   local : field: sp : width : 2
+   local : field : fwf : storage : odet1
+   local: field : fwf : max : 300
+   local: field : fwf : case : normal
+
+  [line: odet2]
+  use : odet1
+   local : field : sp : info : "2:"
+   local : field : fwf : storage : odet2
+
+  [line: odet3]
+  use : odet1
+   local : field : sp : info : "3:"
+   local : field : fwf : storage : odet3
+
+  [line: odet4]
+  use : odet1
+   local : field : sp : info : "4:"
+   local : field : fwf : storage : odet4
+
+  [line: odet5]
+  use : odet1
+   local : field : sp : info : "5:"
+   local : field : fwf : storage : odet5
+
+

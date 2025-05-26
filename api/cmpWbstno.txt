@@ -1,0 +1,32 @@
+[#line : CMP STNumber]
+local : field : CMP STNumber : delete : skip
+
+
+;;[system : udf]
+;;CWWBSTNumber : string : 901 ;; used in : addwbstno.txt
+;;		[#Part: CMP Tax Info]
+;;		  add : line : after: CMP VAT TINNumber Info : cwCMPWBSTNOTitle
+		  
+;;                 [line: cwCMPWBSTNOTitle]
+;;			Right Field : Medium Prompt
+;;			Local : Field	: Medium Prompt	: info	: $$LocaleString:"WBST No."
+;;			Option     	: Small Size Line
+;;			Space Top   : 0.4
+
+               		
+;;                  [#Part: CMP Tax Value]
+;;            add  : line : after : CMP VAT TINNumber : cwCMPWBSTNOValue
+               
+;;                   [line: cwCMPWBSTNOValue]
+;;            Left Fields : Medium Prompt, cwCMPWBSTNumber
+;;		Local	: Field	: Medium Prompt     : info : "WBST No.:"
+;;    	    Space Top   : 0.4
+		
+;;                  [field: cwCMPWBSTNumber]
+;;                    Use : Short Name Field
+;;                  Width : @@NameWidth
+;;                Storage : CWWBSTNumber
+;;                   Case : Normal
+;;              ASCIIOnly : Yes
+
+

@@ -1,0 +1,328 @@
+; Created By: joy on 2021-12-01 15:32, ID: 
+
+
+[Report : RepBajajExportPdf]
+form:RepBajajExportPdf
+
+[form : RepBajajExportPdf]
+   Top parts :cwRepInvTitleLn
+   Part : RepBajajExportPdfInvACCPart
+   bottom Part :  RepBajajExportPdfBottomPart
+;; {14.Dec.21 17:32}    page Break : RepBajajExportPdfCLBreak, RepBajajExportPdfOPBreak
+   
+        Width  		: @@InvWidth Inch
+        Height 		: @@InvHeight Inch
+        Space Top   : @@InvSpace inch
+        Space Right : 0.5 inch
+        Space Left  : @@InvSpaceLeft  inch
+        Space Bottom: 0.25 inch
+
+;; {14.Dec.21 17:32}  [Part : RepBajajExportPdfCLBreak]
+;; {14.Dec.21 17:32}    use : RepBajajExportPdfBottomPart
+
+;; {14.Dec.21 17:32}  [Part : RepBajajExportPdfOpBreak]
+;; {14.Dec.21 17:32}   part : RepBajajExportPdfTopPart
+
+ [part : cwRepInvTitleLn]
+  line:cwRepInvTitleLn
+  [line: cwRepInvTitleLn]
+ field:fwfc
+ Local: Field: fwfc: Set As:$VCHPrintTitle:vouchertype:@@CWBajVchTypeName
+ Local: Field: fwfc: Border: thin Bottom
+ Local: Field: fwfc: Style:Large Bold
+
+ [System: Formula]
+CWBajVchTypeName:$$CollectionField:$vouchertypename:First:cwParentSelectedSrcx
+cwRepDoNoPrintopt: if @@cwSeperateDetailsbyVchType then $cwdonoprint:vouchertype:@@CWBajVchTypeName else $cwdonoprint:COMPANY:##SVCURRENTCOMPANY
+cwRepSerialPrintopt: if @@cwSeperateDetailsbyVchType then $cwserialprint:vouchertype:@@CWBajVchTypeName else $cwserialprint:COMPANY:##SVCURRENTCOMPANY
+  
+ [part :cwBajCmpDetailsPart]
+ line:cwBajCmpNameLn,cwBajCmpAddLn,cwBajCmpGrpCodeLn
+  repeat:cwBajCmpAddLn:CompanyAddressxy
+
+    [Collection: CompanyAddressxy]
+	
+    Type        : Address   : Company
+    Child of    : ##SVCurrentCompany
+ delete:Object      : Company State
+delete:Object  	: Company CINumber
+delete:	Object      : Company Contacts
+delete:	Object		: Company FaxNo
+delete:	Object      : Company Email
+delete:	Object		: Company Website
+Filter      : IsNotBlankAddr
+	
+Option		: Company GSTINumber	: (##IsVoucher OR ##IsMultiVchReport) AND @@IsGSTOnAndAppl
+Option		: Company TINTRNNumber	: (##IsVoucher OR ##IsMultiVchReport) AND @@IsVChGVATApplicable
+ ;;=========================
+ [line:cwBajCmpNameLn]
+ field:fwfc
+ Local: Field: fwfc: Set As: @@cmpmailname ;; $Name:company:##svcurrentcompany
+ Local: Field: FWFc: Style:style1
+ 
+[style:style1]
+font:"Normal"
+height:15
+bold:yes
+
+ [line:cwBajCmpAddLn]
+ field:fwfc
+ Local: Field:fwfc: Set As:$address
+ Local: Field:fwfc:line:0
+ SPACE BOTTOM:0.1
+
+
+  [line:cwBajCmpGrpCodeLn]
+ field:fwfc
+ Local: Field: fwfc: Set As:"Group Code :  "  + $cwvchpartnerid:Vouchertype:$vouchertypename
+ SPACE BOTTOM:0.2
+ border:thin bottom
+ 
+ ;;=========================	
+  
+ [part : cwBajPartyDetailsPart]
+ line :cwRepInvVchNoln,cwRepInvPartyLn,cwRepInvPartyAddLn
+ repeat:cwRepInvPartyAddLn:cwParty
+;; {02.Dec.21 15:07}  border:thin box
+ Option	: EXPVCHBuyerAddressxx: NOT $$IsEmpty:$BasicBuyerAddress AND ##ICFGSupplementary
+ Option	: cwPosInvAddress:@@cwPosinv
+ Option	: cwBuyerAddressPos:@@cwPosinv and ##ICFGSupplementary
+ 
+[!Part: cwPosInvAddress]
+Repeat		: cwRepInvPartyAddLn: PosPartyLedgerAddress
+[!Part: cwBuyerAddressPos]
+Repeat		: cwRepInvPartyAddLn: Address
+
+[!Part: EXPVCHBuyerAddressxx]	
+Repeat		: cwRepInvPartyAddLn: BasicBuyerAddress	
+		
+ 
+ [line: cwRepInvVchNoln]
+field: sp,nf
+right fields:sp2,sdf
+Local: Field: sp: Set As:"No."
+Local: Field: nf: Set As:$vouchernumber
+Local: Field: sp2: Set As:"Date."
+Local: Field: sdf: Set As:$date
+Local: Field: nf: Style: Normal Bold
+Local: Field: sdf: Style: Normal Bold
+space bottom:0.4
+Local: field: sp: Width:14
+
+[line:cwRepInvPartyLn]
+field:sp,nf
+Local: Field: sp: Set As:"Party A/c Name"
+Local: Field: nf: Set As:@@cwPOSNormalPartyName
+Local: field: sp: Width:14
+Local: Field: nf: Style: Normal Bold
+
+ [line:cwRepInvPartyAddLn]
+  field:snf,fwf
+  Local: Field: snf: Set As:if $$line =1 then "Address                 :" else ""
+  Local: Field:fwf: Set As:if @@cwPosinv then  $Address else (if ##ICFGSupplementary then $BasicBuyerAddress else $Address)
+
+  Local: field: snf: Width:14
+   space bottom:0.2
+
+   [System: Formula]
+   cwBajPosPartyadd:If NOT ##ICFGSupplementary AND ##ICFGDefaultDet Then $$FullList:PosPartyLedgerAddress:$Address Else $$FullList:Address:$Address
+   cwBajposPartyName : if  $$issysname:$partyname then "Cash" else $partyname
+;;@@SaleTitle
+;;@@InvPartyName
+;; party address : cwParty collection, cwPartyFullAddress formula
+ [part : RepBajajExportPdfINVACCPart]
+ line:cwmainLine
+ repeat:cwmainLine:cwParentSelectedSrcx
+  CommonBorder: Yes
+Vertical    : Yes
+Scroll      : Vertical
+Float       : No
+Total       :amtf
+ border:thin box
+ 
+   [line : cwmainLine]
+   field : nf
+explode : cwBajCmpDetailsPart
+explode : cwBajPartyDetailsPart
+explode : RepBajajExportPdfInvPart
+explode : RepBajajExportPdfAccPart
+height:0.2
+
+ 
+;; {01.Dec.21 16:22} Parts       : RepBajajExportPdfInvPart, RepBajajExportPdfAccPart
+
+ 
+  [Collection: cwParentSelectedSrcx]
+ Data Source: Parent Report: Selected
+
+
+ [part : RepBajajExportPdfInvPart]
+  line : RepBajajExportPdfInvLineTitle,RepBajajExportPdfInvLine,RepBajajExportPdfInvLineTotal
+repeat : RepBajajExportPdfInvLine : Inventory Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+
+ [Line : RepBajajExportPdfInvLine]
+ field :fwf
+right fields :snf2,snf3,numf,numf2,amtf
+local : field : fwf : set as : if @@cwItemfromDO then $cwbfModelNo else @@invitemname
+local : field: snf :set as : $$linenumber
+ local: field: snf2 : set as :$cwdealid ;; "DO Number"
+ local: field: snf3 : set as :$cwSerialNo ;; "Serial"
+local : field : numf : set as : $billedqty
+local : field : numf2 : set as : $rate
+local : field : amtf : set as : $amount
+Local: field: numf2: Format: "Decimal:2,NoZero"
+local: field: snf2: Invisible:not @@cwRepDoNoPrintopt
+local: field: snf3: Invisible:not @@cwRepSerialPrintopt
+
+;; {01.Dec.21 18:37} Local: Field: default: Border: thin right
+;; {01.Dec.21 18:37} Local: Field: amtf:delete: Border: thin right
+
+explode : RepBajajExportPdfBUDPart : $basicuserdescription != ''
+explode : RepBajajExportPdfBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+
+[line: RepBajajExportPdfInvLineTitle]
+ use : RepBajajExportPdfInvLine
+delete : explode
+   local : field: default : type : string
+   
+   local : field : snf: set as : "SL"
+ local: field: fwf : set as : "Name of Item"
+ local: field: snf2 : set as : "DO Number"
+ local: field: snf3 : set as : "Serial"
+ local : field : numf : set as : "Qty."
+ local: field : numf2 : set as : "Rate"
+ local : field : amtf : set as :"Amount"
+ 
+ local : field : qtyf : align : right
+ local: field : ratef : align : right
+ local : field : amtf : align : right
+ Local: Field: default: Style: Normal Bold
+ border:thin top bottom
+ height:1.5
+ 
+
+
+[part : RepBajajExportPdfBatchPart]
+line : RepBajajExportPdfBatchLine
+repeat : RepBajajExportPdfBatchLine : BatchAllocations
+
+
+[line : RepBajajExportPdfBatchLine]
+  use : RepBajajExportPdfBUDLine
+local : field : fwf : set as : if @@cwItemfromDO then $$explodeowner:$cwbfSerialNo else $batchname
+ local : field : numf : set as :"" ;; "Qty."
+ local: field : numf2 : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+  local: field: snf2 : set as :"" ;; "DO Number"
+ local: field: snf3 : set as :"" ;; "Serial"
+
+[part : RepBajajExportPdfBUDPart]
+line: RepBajajExportPdfBUDLine
+repeat : RepBajajExportPdfbudline : basicuserdescription
+
+[line : RepBajajExportPdfBudLine]
+ use  : RepBajajExportPdfINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : $basicuserdescription
+ local : field : numf : set as :"" ;; "Qty."
+ local: field : numf2 : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+   local: field: snf2 : set as :"" ;; "DO Number"
+ local: field: snf3 : set as :"" ;; "Serial"
+ 
+
+[line : RepBajajExportPdfInvLineTotal]
+ use  : RepBajajExportPdfINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : ""
+ local : field : numf : set as :"" ;; "Qty."
+ local: field : numf2 : set as : "" ;;"Rate"
+   local: field: snf2 : set as :"" ;; "DO Number"
+ local: field: snf3 : set as :"" ;; "Serial"
+local : field : amtf : set as : $$collamttotal:inventoryentries:$amount
+local : field : amtf : border :thin top
+space bottom : 0.05
+
+
+ [part : RepBajajExportPdfACCPart]
+  line : RepBajajExportPdfACCLine
+repeat : RepBajajExportPdfACCLine : Ledger Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+ [Line : RepBajajExportPdfACCLine]
+   use : RepBajajExportPdfINVLine
+empty : $ledgername = $partyledgername or $$issysname:$ledgername or $$isempty:$amount
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"NoZero,Percentage"
+local : field : ratef  : set as : $basicrateofinvoicetax
+local : field : snf : set as : ""
+local : field : fwf : set as : $ledgername
+ local : field : numf : set as :"" ;; "Qty."
+ local: field : numf2 : set as : "" ;;"Rate"
+
+delete : explode
+
+  [part : RepBajajExportPdfBottomPart]
+   line : RepBajajExportPdfTotLine,cwRepForLn
+
+  
+  [line : RepBajajExportPdfTotLine]
+    use : RepBajajExportPdfACCLine
+ delete : empty
+  local : field : ratef  : set as :""
+  local : field : fwf : set as : "Total:"
+  Local: Field: amtf: Set As:$$CollectionField:$amount:First:cwParentSelectedSrcx  ;;$$total:amtf
+;; {01.Dec.21 16:59}   local : field : fwf : align : right
+  local : field : amtf : format : "ShowBaseSymbol" 
+  Local: Field: default: Style: Normal Bold
+  height:1.5
+    border:thin left right bottom
+    
+     [line:cwRepForLn]
+   right fields:nf
+   Local: Field:nf: Set As:@@FORCMPMAIL2
+  Local: Field:nf: Style: Normal Bold
+  Local: field: nf: Align:centre
+   Local: field:nf: Width:35
+   space top:1
+   
+   ;;=========================================
+   
+
+ [function : cwfunExportPdf]
+ variable : myvid : string : $$Sprintf:@@VCHMasterID:@@GSTCurntVchrMSTID
+
+ 000 : set target
+;; {01.Dec.21 17:39}  001 : log : $masterid
+;; {01.Dec.21 17:39}  0003 : log : ##myvid
+ 0004 : call : cwfunExportPdf2
+
+
+ [function : cwfunExportPdf2]
+;; {01.Dec.21 17:39}  0001 : log :$$numitems:InventoryEntries
+ 0540 : Set   :SVExportFormat  :$$SysName:PDF
+
+0550 : Set   :SVExportLanguage:$$SysName:English
+0560 : Set   :SVPrintFileName :"E:\All\JOY\cwBajaj\Invoice.Pdf"
+0570 : set: SVOpenFileAfterExport : yes
+0580 : export : RepBajajExportPdf : yes : yes
+
+
+
+
+  
+  
+

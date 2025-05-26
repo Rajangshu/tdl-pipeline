@@ -1,0 +1,140 @@
+;Modified by: Pg on 2012-12-26 11:32, ID: 
+;; Sri Ganeshji : Sri Balaji : Sri Pitreshwarji : Sri Durgaji : Sri Venkateshwara
+
+/* 
+   Auto Number Generation for Manual Numbering Method Voucher Types with Prefix
+   Name Specified in the Company Master. If the company data has been splitted then 
+   this logic will not work.
+*/
+
+[System: UDF]
+
+    CMPVCHPrefix 		: String  : 1001
+    ManualSuffix		: String  : 1002
+    ManualPrefix		: String  : 1003
+    ManualStartNumber	: Number  : 1004
+    ManVchNumber 		: Number  : 450
+    cwNumZeros : number : 451
+
+
+
+[#Field : VCH Number]
+
+	Set as		: If $$InCreateMode then @SetVal else $$Value
+	SetVal		: If @@AutoVchNumbering then $VoucherNumber else $$GEtMyPrevNo ;; @@ManuNumber
+	Skip On		: Yes
+	Set Always	: Yes
+	
+[function : GetMyPrevNo]
+returns : string
+variable : currno : number
+variable : numz : number : $cwNumZeros:Vouchertype:##SVVoucherType
+05 : do if : ##numz  = 0 : set : numz : 1
+
+10 : set : currno : $$number:$$PrevNumber:##SVVoucherType
+30 : if : ##currno = 0
+35 : set : currno : $ManualStartNumber:VoucherType:##SVVoucherType
+40 : else
+45 : set : currno : ##currno + 1
+50 : end if
+60 : return :  @@SHVVchPrefixName + $$zerofill:##currno:##numz + @@SHVVchSuffixName
+
+/*	
+[Collection: CurrentCompanyVouchers]
+
+    Type        : Voucher
+	Filter		: CurrentCompanyVouchers
+	Sort		: Default : - $SHVNumericVchNo
+
+[#Object: Voucher]
+
+	SHVNumericVchNo			: $$Number:@@SHVNumericVchNoFor
+    SHVVchStartNumber       : $ManualStartNumber:VoucherType:##SVVoucherType
+*/
+
+[System: Formula]
+    ManuNumber              : @@SHVVchPrefixName + $$String:#ManVCHNumber + @@SHVVchSuffixName
+	NoOfSVCurrentVouchers	: $$CollectionField:$SHVNumericVchNo:1:CurrentCompanyVouchers
+
+	CurrentCompanyVouchers	: $VoucherTypeName = ##SVVOUCHERTYPE 
+    SHVVchPrefixName        : $ManualPrefix:VoucherType:##SVVoucherType
+	SHVVchSuffixName		: $ManualSuffix:VoucherType:##SVVoucherType
+	
+	SHVNumericVchNoFor		: $ManVchNumber
+
+
+[#Part: VTYP Advance]
+        
+    Add     : Lines   :  VTYP Manual Prefix, VTYP Manual Suffix, VTYP Manual Start ,vtyp manual num zeros
+
+[line : vtyp manual num zeros]
+field :long prompt,number field
+Local: Field: long prompt: Set As: "Num Zeros:"
+Local: Field: number field: storage: cwNumZeros
+		Local   : Field : default   : Inactive  : NOT $$IsSysNameEqual:Manual:#VTYPNumbering
+		Local   : Field : Long Prompt : Indent    : 2
+                		
+	[Line: VTYP Manual Start]
+
+		Field   : Long Prompt, VTYP Manual Start
+		
+		Local   : Field : Long Prompt   : Set as    : "Starting Number :"
+		Local   : Field : Long Prompt   : Indent    : 2
+		Local   : Field : Long Prompt   : Inactive  : NOT $$IsSysNameEqual:Manual:#VTYPNumbering
+
+	[Line: VTYP Manual Suffix]
+		
+		Field   : Long Prompt, Manual Suffix 
+		Local   : Field : Long Prompt : Set as    : "Suffix ? "
+		Local   : Field : Long Prompt : Indent    : 2
+		Local   : Field : Long Prompt : Inactive  : NOT $$IsSysNameEqual:Manual:#VTYPNumbering
+
+		[Field: Manual Suffix]
+			Use         : Short Name Field
+			Storage     : Manual Suffix
+			Width		: @@ShortWidth          
+			Inactive    : NOT $$IsSysNameEqual:Manual:#VTYPNumbering
+
+	[Line: VTYP Manual Prefix]
+
+		Field   	: Long Prompt, Manual Prefix
+		Local   	: Field : Long Prompt   : Set as    : "Prefix ? "
+		Local       : Field : Long Prompt 	: Indent    : 2
+		Local       : Field : Long Prompt 	: Inactive  : NOT $$IsSysNameEqual:Manual:#VTYPNumbering
+
+		[Field: Manual Prefix]
+
+			Use         : Short Name Field
+			Storage     : Manual Prefix
+			Width		: @@ShortWidth          
+			Inactive    : NOT $$IsSysNameEqual:Manual:#VTYPNumbering
+			
+		[Field: VTYP Manual Start]
+
+			Use         : Number Field
+			Set as      : $ManualStartNumber
+			Storage     : ManualStartNumber
+			Width       : @@ShortWidth    
+			Inactive    : NOT $$IsSysNameEqual:Manual:#VTYPNumbering
+			Validate    : NOT $ManualStartNumber<1
+/*
+[#Field: VCH Narration]
+
+    Set as      : @@SHVVchStartNumber
+    Set Always  : Yes
+    
+[#Line: VCH Type]
+
+    Add : Field : Man VCH Number
+
+	[Field: Man VCH Number]
+		
+		Use         : Number Field
+		Set as      : If $$Number:@@NoOfSVCurrentVouchers = $$Number:"0" then $SHVVchStartNumber +
+					  else @@NoOfSVCurrentVouchers + 1
+		Storage     : ManVchNumber
+		SEt Always  : Yes
+		Invisible   : Yes
+*/
+;; End-of-File
+

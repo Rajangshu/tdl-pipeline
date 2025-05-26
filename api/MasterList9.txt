@@ -1,0 +1,372 @@
+;; DO NO INCLUDE THIS. INCLUDE : SERVER VOUCHERS
+
+[#menu : gateway of tally]
+add : item : a1 : display : pggroups
+
+
+[Report : pgVoucherTypes]
+use : PgMasterListParent
+set : ACCOUNTTYPE : $$sysname:voucherTypes
+local : line : pgmasterlist : add : fields :dlr1,pgVchTypeParent
+
+[Report : PGBankLedgers]
+;use : pggroups
+form : pgledgers
+export : yes
+local: collection : ledger : add : filter : BelongsToBankGroup
+[form : pgledgers]
+part : pgledgers
+
+[part : pgledgers]
+line : pggroups
+repeat : pggroups : ledger
+scroll : vertical
+
+
+
+[REPORT: pgGroupsNew]
+use : pgLedgersNew
+    set : AccountType : $$sysname:Groups
+local : collection : group : belongsto : yes
+local : part : pgmasterlist :   Repeat : pgMasterList : cwGroup
+
+[collection : cwGroup]
+use : Group
+child of : ##MYFILTERPASSING2
+belongs to : yes
+
+
+[REPORT: pgLedgersNew]
+use : pgLedgers
+local : collection : ledger : belongsto : yes
+;;local : part : pgmasterlist : delete : option : pat Ledgers
+
+local : part : pgmasterlist :   Repeat : pgMasterList : cwledger
+   Local : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+
+[report: pgLedgersNewdetailed]
+use : pgLedgersNew
+local: line : pgMasterList : add : field : d1,nf,d2,nf2,d3,nf3,d4,nf4,d5,nf5,d6,nf6,d7,nf7,d8,nf8,d9,nf9,d10,nf10,d11,nf11,d12,nf12,d13,nf13,d14,nf14,d15,cwlogical
+Local: Field: nf : Set As: $MAILINGNAME
+Local: Field: nf2 : Set As: $$collectionfield:$address:1:address
+Local: Field: nf3 : Set As: $$collectionfield:$address:2:address
+Local: Field: nf4 : Set As: $$collectionfield:$address:3:address
+Local: Field: nf5 : Set As: $$collectionfield:$address:4:address
+Local: Field: nf6 : Set As: $$collectionfield:$address:5:address
+Local: Field: nf7 : Set As: $Parent
+Local: Field: nf8 : Set As: $statename
+Local: Field: nf9 : Set As: $pincode
+Local: Field: nf10 : Set As: $LEDGERPHONE
+Local: Field: nf11 : Set As: $email
+Local: Field: nf12 : Set As: $INCOMETAXNUMBER
+Local: Field: nf13 : Set As: $VATTINNUMBER + " " +$SALESTAXNUMBER
+Local: Field: nf14 : Set As: $INTERSTATESTNUMBER
+Local: Field: cwlogical : Set As: $ISSTXPARTY
+
+Local: Field: nf : width : 100
+Local: Field: nf2 : width : 100
+Local: Field: nf3 : width : 100
+Local: Field: nf4 : width : 100
+Local: Field: nf5 : width : 100
+Local: Field: nf6 : width : 100
+Local: Field: nf7 : width : 100
+Local: Field: nf8 : width : 100
+Local: Field: nf9 : width : 100
+Local: Field: nf10 : width : 100
+Local: Field: nf11 : width : 100
+Local: Field: nf12 : width : 100
+Local: Field: nf13 : width : 100
+Local: Field: nf14 : width : 100
+
+Local: Field: nf : MAx : 100
+Local: Field: nf2 : MAx : 100
+Local: Field: nf3 : MAx : 100
+Local: Field: nf4 : MAx : 100
+Local: Field: nf5 : MAx : 100
+Local: Field: nf6 : MAx : 100
+Local: Field: nf7 : MAx : 100
+Local: Field: nf8 : MAx : 100
+Local: Field: nf9 : MAx : 100
+Local: Field: nf10 : MAx : 100
+Local: Field: nf11 : MAx : 100
+Local: Field: nf12 : MAx : 100
+Local: Field: nf13 : MAx : 100
+Local: Field: nf14 : MAx : 100
+
+;;   [#menu : gateway of tally]
+;;   add : item : pgl : display : pgLedgersNewdetailed
+   
+[Report : pgLedgers]
+    use : PgMasterList
+    set : AccountType : $$sysname:Ledgers
+
+[Report : pgGroups]
+;;    use : PgMasterList
+;;    set : AccountType : $$sysname:Groups
+form : pggroups
+export : yes
+
+[form : pggroups]
+part : pggroups
+[part : pggroups]
+line : pggroups
+repeat : pggroups : group
+scroll : vertical
+
+[line : pggroups]
+field : fwf
+Local: Field: fwf : Set As: $name
+Local: field: fwf: Width: 111
+
+
+
+
+[report : pgLedgersDetailed]
+use : pgLedgers
+local: line : pgMasterList : add : field : d1,nf,d2,nf2,d3,nf3,d4,nf4,d5,nf5,d6,nf6,d7,nf7,d8,nf8,d9,nf9,d10,nf10,d11,nf11,d12,nf12,d13,nf13,d14,nf14,d15,cwlogical
+Local: Field: nf : Set As: $MAILINGNAME
+Local: Field: nf2 : Set As: $$collectionfield:$address:1:address
+Local: Field: nf3 : Set As: $$collectionfield:$address:2:address
+Local: Field: nf4 : Set As: $$collectionfield:$address:3:address
+Local: Field: nf5 : Set As: $$collectionfield:$address:4:address
+Local: Field: nf6 : Set As: $$collectionfield:$address:5:address
+Local: Field: nf7 : Set As: $Parent
+Local: Field: nf8 : Set As: $statename
+Local: Field: nf9 : Set As: $pincode
+Local: Field: nf10 : Set As: $LEDGERPHONE
+Local: Field: nf11 : Set As: $email
+Local: Field: nf12 : Set As: $INCOMETAXNUMBER
+Local: Field: nf13 : Set As: $VATTINNUMBER + " " +$SALESTAXNUMBER
+Local: Field: nf14 : Set As: $INTERSTATESTNUMBER
+Local: Field: cwlogical : Set As: $ISSTXPARTY
+Local: Field: nf : width : 100
+Local: Field: nf2 : width : 100
+Local: Field: nf3 : width : 100
+Local: Field: nf4 : width : 100
+Local: Field: nf5 : width : 100
+Local: Field: nf6 : width : 100
+Local: Field: nf7 : width : 100
+Local: Field: nf8 : width : 100
+Local: Field: nf9 : width : 100
+Local: Field: nf10 : width : 100
+Local: Field: nf11 : width : 100
+Local: Field: nf12 : width : 100
+Local: Field: nf13 : width : 100
+Local: Field: nf14 : width : 100
+
+Local: Field: nf : MAx : 100
+Local: Field: nf2 : MAx : 100
+Local: Field: nf3 : MAx : 100
+Local: Field: nf4 : MAx : 100
+Local: Field: nf5 : MAx : 100
+Local: Field: nf6 : MAx : 100
+Local: Field: nf7 : MAx : 100
+Local: Field: nf8 : MAx : 100
+Local: Field: nf9 : MAx : 100
+Local: Field: nf10 : MAx : 100
+Local: Field: nf11 : MAx : 100
+Local: Field: nf12 : MAx : 100
+Local: Field: nf13 : MAx : 100
+Local: Field: nf14 : MAx : 100
+
+[collection : cwledger]
+use : ledger
+child of : ##MYFILTERPASSING2
+belongs to : yes
+
+
+[report : pgEmp]
+use : pgmasterlist
+set  : accounttype : $$SysName:Employees
+
+;;[#MENU : GATEWAYOF TALLY]
+;;ADD: ITEM : AT END : SS : DISPLAY : PgMasterListParent
+[Report : PgMasterListParent]
+use : PgMasterList
+variable : showparent
+set : showparent : yes
+local : line : pgmasterlist : add : field :dlr,pgparent
+local : field : pgparent : delete : invisible
+local : field : pgparent : width : 100
+local : field : pgparent : max : 100
+
+[Report : PgMasterListParent2]
+use : PgMasterListParent
+set : AccountType : $$sysname:Ledgers
+local : line : pgmasterlist : add : field : dlr2,numf
+local : field : numf : set as : if  $$IsBelongsTo:$$groupsundrydebtors then 1 else if $$IsBelongsTo:$$groupsundrycreditors then 2 else 3
+
+[Report : PgMasterListParentGroup2]
+use : PgMasterListParent2
+set : AccountType : $$sysname:Groups
+
+
+
+[REPORT : cwMYTRIALBALANCE]
+USE : PGMASTERLIST
+LOCAL : PART : PGMASTERLIST : REPEAT : PGMASTERLIST : LEDGER
+LOCAL : LINE : PGMASTERLIST : EMPTY : $$ISEMPTY:$CLOSINGBALANCE
+LOCAL : LINE :PGMASTERLIST : ADD : FIELD : AT END : DLR,CLBALV
+local : line : PGMASTERLIST : ADD : FIELD : AT Beginning : PrgExplodeLevel,DLR3
+local : field : clbalv : set as : $closingbalance
+LOCAL : LINE :PGMASTERLIST : ADD : explode : ledgerhasbills : $IsBillWiseOn
+
+[part : ledgerhasbills]
+     LINE : EXPLEDGER
+   REPEAT : EXPLEDGER : expPENDINGBILLS
+   
+   [line : EXPLEDGER]
+   field : name field
+
+;;[#MENU  : GATEWAY OF TALLY]
+;;ADD : ITEM : AT END : pgMasterList : DISPLAY : pgMasterList
+
+ [Report : pgMasterList]
+Variables: AccountType, GroupName, CostCategoryName, CostCentreName, DSPGodownName, StockGroupName, StockCategoryName
+Variable : MyFilterPassing,MyFilterPassing2
+Filtered : Yes
+  Export : Yes
+    form : pgMasterList
+
+   [form : pgMasterList]
+  Button : F2ChangePeriod, ChangeCompany, BlankButton, +
+           AL Groups, +
+           AL Ledger, +
+           AL CstCat, +
+           AL CstCtr, +
+           AL Budget, +
+           AL Currency ;;Second Blank Button, +
+;;           AL Stock Groups, +
+;;           AL Stock Categories, +
+;;           AL Stock Items, +
+;;           AL Unit, +
+;;           AL Godown, +
+;;           AL Voucher Type,ExportButton
+
+    part : pgMasterList
+   Width : 100 % Page
+  Height : 100 % Page
+
+   [part : pgMasterList]
+    line : pgMasterList
+  scroll : vertical
+  Option : pAT Groups : $$IsSysNameEqual:Groups:##AccountType
+  Option : pAT Ledgers        : $$IsSysNameEqual:Ledgers:##AccountType
+  Option : pAT PayHeads	      : $$IsSysNameEqual:PayHeads:##AccountType
+  Option : pAT CostCentres    : $$IsSysNameEqual:CostCentres:##AccountType ;;AND $$ExplodeLevel > 0
+  Option : pAT CostCategories : ($$IsSysNameEqual:CostCategories:##AccountType) OR +
+                         			   		  ($$IsSysNameEqual:Employees:##AccountType AND $$ExplodeLevel = 0) OR ($$IsSysNameEqual:EmployeeGroups:##AccountType AND $$ExplodeLevel = 0)
+  Option : pAT Employees      : $$IsSysNameEqual:Employees:##AccountType ;;AND $$ExplodeLevel > 0
+  Option : pAT EmployeeGroups : $$IsSysNameEqual:EmployeeGroups:##AccountType ;;AND $$ExplodeLevel > 0
+  Option : pAT Budgets Scenario: $$IsSysNameEqual:BudgetScenarios:##AccountType
+  Option : pAT Godowns        : $$IsSysNameEqual:Godowns:##AccountType OR $$IsSysNameEqual:Locations:##AccountType
+  Option : pAT StockGroups    : $$IsSysNameEqual:StockGroups:##AccountType
+  Option : pAT StockCategories: $$IsSysNameEqual:StockCategories:##AccountType
+  Option : pAT StockItems     : $$IsSysNameEqual:StockItems:##AccountType
+  Option : pAT Currencies     : $$IsSysNameEqual:Currencies:##AccountType
+  Option : pAT Units          : $$IsSysNameEqual:Units:##AccountType
+  Option : pAT VoucherTypes   : $$IsSysNameEqual:VoucherTypes:##AccountType
+  Option : pAT Attd Types     : $$IsSysNameEqual:AttendanceTypes:##AccountType
+  Option : pAT Deductee Type  : $$IsSysNameEqual:DeducteeTypes:##AccountType
+
+  [!Part : pat Groups]
+   local : collection : group : add : filter : myRepfilter
+  Repeat : pgMasterList : Group ;;ChildOfGroupName
+   Local : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+  [!Part : pat Ledgers]
+   local : collection : Ledger : add : filter : myRepfilter
+  Repeat : pgMasterList : ledger ;;ListGroupLedgerChildOfGroupName
+   Local : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+  [!Part : pat PayHeads]
+  Option : pat Groups
+  Option : pat Ledgers
+   Local : Collection : GroupChildOfGroupName : Add : Filter : PayHeadGroup,myRepFilter
+		Local		: Collection	: LedgerChildOfGroupName	: Add		: Filter	: PayrollLedFilter,MyRepFilter
+		Local		: Line			: pgMasterList			: Remove If	: ($$IsGroup AND $NumPayHeadsInGroup = 0) OR ($$IsLedger AND NOT $ForPayroll)
+
+
+    [!Part: pat Budgets Scenario]
+        local : collection : budget : add : filter : myRepfilter
+        Repeat      : pgMasterList : budget ;;ListBudgetChildofBDGTName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+    [!Part: pat Cost Categories]
+        local : collection : costcategoryobject : add : filter : myRepfilter
+        Repeat      : pgMasterList : Cost Category Object
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+    [!Part: pat Cost Centres]
+        local : collection : allcostcentre : add : filter : myRepfilter
+        Repeat      : pgMasterList : All Cost Centre ;;ListCostCentreChildofCCName
+;;        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR +
+;;                    (NOT $ForPayroll AND NOT $$Allow:Alter:AccountsMasters) OR +
+;;                    ($ForPayroll AND NOT $$Allow:Alter:PayrollMasters)
+
+
+    [!Part: pat Employees]
+        local : collection : ListEmployeeChildOfEmpName : add : filter : myRepfilter
+        Repeat      : pgMasterList : ListEmployeeChildOfEmpName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:PayrollMasters
+
+    [!Part: pat EmployeeGroups]
+        local : collection : ListEmployeeGroups : add : filter : myRepfilter
+        Repeat      : pgMasterList : ListEmployeeGroups
+        Local       : Key   : Delete Line Object	: Inactive	: NOT $$CanDelete OR NOT $$Allow:Alter:PayrollMasters
+		Local		: Field	: AccType Name 			: Style 	: "Normal Bold"
+
+    [!Part: pat Godowns]
+        local : collection : Godown : add : filter : myRepfilter
+        Repeat      : pgMasterList : Godown ;;ChildOfGodownName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:InventoryMasters
+
+    [!Part: pat Stock Groups]
+        local : collection : StockGroup : add : filter : myRepfilter
+        Repeat      : pgMasterList : StockGroup ;;ChildOfGroupName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:InventoryMasters
+
+    [!Part: pat Stock Categories]
+        local : collection : StockCategory : add : filter : myRepfilter
+        Repeat      : pgMasterList : StockCategory ;;ItemChildOfStockCategoryName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:InventoryMasters
+
+    [!Part: pat Stock Items]
+        local : collection : StockItem : add : filter : myRepfilter
+        Repeat      : pgMasterList : stockitem ;;StockGroupItemChildOfGroupName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:InventoryMasters
+        local : collection : stockitem : fetch : partno
+    [!Part: pat Currencies]
+        local : collection : Currency : add : filter : myRepfilter
+        Repeat      : pgMasterList : Currency
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+    [!Part: pat Units]
+        local : collection : Unit : add : filter : myRepfilter
+        Repeat      : pgMasterList : Unit
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR +
+                    (NOT $ForPayroll AND NOT $$Allow:Alter:InventoryMasters) OR +
+                    ($ForPayroll AND NOT $$Allow:Alter:PayrollMasters)
+
+    [!Part: pat Voucher Types]
+        local : collection : VoucherType : add : filter : myRepfilter
+        Repeat      : pgMasterList : Voucher Type
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+    [!Part: pat Attd Types]
+        local : collection : ListAttdTypeChildofATName : add : filter : myRepfilter
+        Repeat      : pgMasterList : ListAttdTypeChildofATName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:PayrollMasters
+
+    [!Part: pat Deductee Type]
+        local : collection : DeducteeType : add : filter : myRepfilter
+        Repeat      : pgMasterList : Deductee Type
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete
+
+       [line : pgMasterList]
+       field : pgMasterList
+       ;;,dlr,pgOpAmt,dlr1,pgOpAmtcr,dlr2,pgOpAmtDr,dlr3,pgTramt,dlr4,pgTrAmtCr,dlr5,+
+;;       pgTramtDr,dlr6,pgclamt,dlr7,pgclamtcr,dlr8,pgclamtdr
+OPTION : ALTER ON ENTER
+

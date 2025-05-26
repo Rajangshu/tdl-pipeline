@@ -1,0 +1,114 @@
+; Created By: pg on 2012-06-16 14:54
+[system : udf]
+cwPymtFavoringEnabled : logical : 8002 ;; change this value.
+cwRcptFavoringEnabled : logical : 8003 ;; change this value.
+
+
+			[#Line: WithPPR PayDetails]
+			add : option : PrintFavoringDetails : @@PrintFavoringDetailsCondition
+			
+			[!line : PrintFavoringDetails]
+			
+			add : field : cwFavoring
+;;			local : field : default : border : thin box
+			delete : indent
+			delete : field : Amount Field
+			
+			[field : cwFavoring]
+			use : name field
+			style: small
+			set as : $PAYMENTFAVOURING
+			full width : yes
+			
+[#Collection: BankPymtAdvice AllChequeDetails]			
+compute : PAYMENTFAVOURING : $PAYMENTFAVOURING
+
+;--------------------- Enable Add On Payment Favoring
+
+
+;;Sri Ganeshji
+
+[#Form: Company Operations]
+                Switch   : cwPymtFavoringLowerRel  : cwPymtFavoringNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : cwPymtFavoringCurrenRel : cwPymtFavoringFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : cwPymtFavoringNOTFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End : cwPymtFavoringConfig
+                                
+[!Form : cwPymtFavoringFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : cwPymtFavoringConfig
+
+[Line : cwPymtFavoringConfig]
+Field : cwPymtFavoringConfigTitle,cwPymtFavoringConfig,cwRcptFavoringConfigTitle,cwRcptFavoringConfig
+
+[Field: cwPymtFavoringConfigTitle]
+Use : medium prompt
+info: "Print Favouring Name in Payment ?"
+Width: 25
+
+[Field: cwPymtFavoringConfig]
+Use: logical field
+;;Set As: $cwPymtFavoringEnabled
+storage: cwPymtFavoringEnabled
+
+[field : cwRcptFavoringConfigTitle]
+use : cwPymtFavoringConfigTitle
+info :"Print Favouring Name in Receipts:"
+
+[field: cwRcptFavoringConfig]
+use : cwPymtFavoringConfig
+storage :  cwRcptFavoringEnabled
+
+
+[System: Formula]
+cwPymtFavoringEnabled :  $cwPymtFavoringEnabled:COMPANY:##SVCURRENTCOMPANY
+cwRcptFavoringEnabled :  $cwRcptFavoringEnabled:COMPANY:##SVCURRENTCOMPANY
+
+PrintFavoringDetailsCondition : ($$isReceipt:##SVVouchertype and @@cwRcptFavoringEnabled and ##cwReceiptFavoring) or ($$isPayment:##SVVouchertype and @@cwPymtFavoringEnabled  and ##cwPaymentFavoring)
+
+;------------- VAriables
+
+    [#Part: Payment Print Config]
+    add : line : after : PPRWith PymtDetails : cwPrintPaymentFavoring
+    
+    [#Part: Receipt Print Config]
+    add : line : after : PPRWith PymtDetails : cwPrintReceipttFavoring
+    
+    [line : cwPrintPaymentFavoring]
+    invisible : not @@cwPymtFavoringEnabled
+			Field: Medium Prompt, Logical Field
+			Local: Field: Medium Prompt : Info 		: $$LocaleString:"Print Favouring Name ?"
+			Local: Field: Logical Field : Modifies	: cwPaymentFavoring
+			local: field : medium prompt : indent : 4
+;;			local : field : logical field : skip : not ##PPRWithPymtDetails
+;;			Local: Field: logical field : Set As: if ##PPRWithPymtDetails then $$value else no
+			
+			
+[line : cwPrintReceipttFavoring]
+use : cwPrintPaymentFavoring
+invisible : not @@cwRcptFavoringEnabled
+Local: Field: Logical Field : Modifies	: cwReceiptFavoring
+
+			
+			[variable : cwPaymentFavoring]
+			type: logical
+			persistent : yes
+			
+			[system : variable]
+			cwPaymentFavoring: yes
+
+    
+			[variable : cwReceiptFavoring]
+			type: logical
+			persistent : yes
+			
+			[system : variable]
+			cwReceiptFavoring: yes
+			
+			
+;; {04.Jan.18 13:06} 			[#line : DSP LedBankExplosion]
+;; {04.Jan.18 13:06} 			add : field : cwFavoring
+
+			
+			

@@ -1,0 +1,242 @@
+; Created By: Akshay on 2016-01-28 18:02, ID: 
+
+
+     [#menu: Gateway of Tally]
+;; {19.Jan.17 13:36}         add: Option: getitemdetailsLock ;; : @@getitemdetailsDemoLock
+       
+     [!menu: getitemdetailsLock]
+        add: Item: before: @@locQuit: @@getitemdetailsReport: Display: Repitemdetails
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   getitemdetailsReport: "Item Details"
+;; getitemdetailsDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Repitemdetails]
+        use: Dsp Template
+      Title: @@getitemdetailsReport
+   Printset: Report Title: @@getitemdetailsReport
+       Form: Frmgetitemdetails
+     Export: Yes
+;; {19.Jan.17 13:27}      set  : svfromdate : ##svcurrentdate
+;; {19.Jan.17 13:27}      set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable:stockitemname
+;; {19.Jan.17 13:32}     set :stockitemname:"Aamchur (50 Kg = 1 Bag)"
+     
+      [Form: Frmgetitemdetails]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0getitemdetails,Prtgetitemdetails
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: getitemdetailsbotbrk,getitemdetailsbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: getitemdetailsbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: getitemdetailsbotopbrk]
+        use: dspacctitles
+  add: part: getitemdetailsTitlePart
+
+      [part: getitemdetailsTitlePart]
+       line: LngetitemdetailsTitle
+       
+      [line: LngetitemdetailsCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0getitemdetails]
+      line : LngetitemdetailsCurrPeriod
+      
+      [Part: Prtgetitemdetails]
+       Line: LngetitemdetailsTitle,Lngetitemdetails
+bottom Line: LngetitemdetailsTotals
+     repeat: Lngetitemdetails: Colgetitemdetails
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: Colgetitemdetails]
+         type :stock item
+     Filter: ColgetitemdetailsFilter
+
+    [system: Formula]
+ColgetitemdetailsFilter:if ##stockitemname="" then yes else ($name = ##stockitemname) or (@@cwpartycodex = ##stockitemname) or ($partno=##stockitemname)
+
+      [Line: LngetitemdetailsTitle]
+        use: Lngetitemdetails
+     option: titleopt
+local:field:snf8:set as:"Name"
+local:field:snf9:set as:"Code"
+local:field:snf:set as:"Part No"
+Local: Field:nf2  : Set As:"Product Description"
+Local: Field: nf3 : Set As:"Tally Parent"
+Local: Field: nf4 : Set As:"Category"
+Local: Field: numf2 : Set As:"DP"
+Local: Field: numf1 : Set As:"Vat Rate"
+Local: Field: snf4: Set As: "Costing Method"
+Local: Field: sdf: Set As:"Update Date"
+Local: Field: ratepf: Set As:"Cost Price "
+Local: Field: ratepf2: Set As:"STD Price "
+Local: Field: numf3: info: "Discount"
+Local: Field: nf5: Set As:"Sales Ledger Name"
+Local: Field: snf2: Set As:"Sales Vat Class"
+Local: Field: nf6: Set As:"Purchase Ledger Name"
+Local: Field: snf3: Set As:"Purchase Vat Class"
+Local: Field: snfx: Set As: "UOM"
+Local: Field: snfx2: Set As: "Alt.UOM"
+Local: Field: numf4: Set As: "Conv."
+Local: Field: numf5: Set As: "Denom."
+
+
+Local: Field: snf7: info: "Godown Name"
+Local: Field: qtyf: info: "Qty"
+Local: Field: qtyf2: info: "AltQty"
+Local: Field: ratepf3: info: "Rate"
+local: field: amtf: info: "Amount"
+local : field : default: background : @@SV_STOCKSUMMARY ;; white
+
+
+;Qtyf3,ratepf4,Amtf5,qtyf4
+Local: Field: qtyf5: info: "OPQty"
+Local: Field: qtyf3: info: "ClQty"
+Local: Field: ratepf4: info: "ClRate"
+Local: Field: amtf5: info: "ClAmt"
+Local: Field: qtyf4: info: "ClAltQty"
+
+Local: Field: numf6: info: "Op.Rate"
+Local: Field: qtyf6: info: "Op.Qty"
+Local: Field: STKIOpAltitdet: info: "Alt.Op.Qty"
+
+      local: field: default : style: normal bold
+
+      [Line: Lngetitemdetails]
+     Fields:snf8,d1,snf9,d2,snf,d8,snfx,d5,nf2,d4,nf3,d3,nf4,d6,numf5,d7,numf4,d9,snfx2,d10,numf1,d11,snf4,d12,sdf,d13,ratepf,d14,ratepf2,d16,numf3,d22,qtyf5,d17,Qtyf3,d18,ratepf4,d19,Amtf5,d20,qtyf4,d21,numf6,d23,qtyf6,d24,STKIOpAltitdet,d25   ;;,nf5,snf2,nf6,snf3
+;; {28.Jan.16 18:18} right field: snf7,Qtyf,ratepf3,Amtf,qtyf2, Qtyf3,ratepf4,Amtf5,qtyf4
+
+;; {19.Jan.17 13:32}   Fields:snf8,d1,snf9,d2,snf,d8,snfx,d5,nf2,d4,nf3,d3,numf6,d23,qtyf6,d24,STKIOpAltitdet
+     Option: Alter on Enter
+Local: Field: snf8: Set As: $name
+Local: Field: snf: Set As: $partno
+Local: Field: snf9: Set As:$$Alias  ;;$$LocaleString:$$Alias:2:Yes  ;; if $$isempty:@@cwpartycodex then "" else @@cwpartycodex
+
+Local: Field: nf2 : Set As:if $$isempty:$description then $name else $description
+Local: Field: nf3 : Set As: if not $$issysname:$parent then $parent else ""
+local:field:nf4:set as: if not $$issysname:$category then $category else ""
+Local: Field: snfx: Set As: $baseunits
+Local: Field: snfx2: Set As: if not $$issysname:$additionalunits then $additionalunits else ""
+Local: Field: numf5: Set As: if not $$issysname:$additionalunits then $Denominator else ""
+Local: Field: numf4: Set As: if not $$issysname:$additionalunits then $conversion else ""
+Local: Field: numf1 : Set As:$rateofvat
+Local: Field: snf4: Set As: $costingmethod
+;;LOCAL : FIELD : NUMF2 : TYPE : DATE
+Local: Field: sdf: Set As: $$collectionfield:$date:(-1):STANDARDPRICELIST
+Local: Field: ratepf : Set As: $$collectionfield:$rate:(-1):STANDARDCOSTLIST
+local:field: ratepf2 : setas  : $$collectionfield:$rate:(-1):STANDARDPRICELIST
+local : field : nf1: modifies : stockitemname
+Local: Field: numf3 : Set As: $$collectionfield:$cwdiscount:(-1):STANDARDPRICELIST
+
+
+local:field: qtyf : Format      : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf2 : Format      : "NoSymbol, Short Form, No Compact,NoZero,Secondary"
+Local: Field: qtyf2 : Set As: if not $$issysname:$additionalunits then #qtyf else 0
+Local: Field: qtyf2 : type : quantity : secondary
+
+local:field: numf2 : format : "NoSymbol,decimals:2"
+     local: field: nf1: alter : stock item : $$isstockitem
+;; EXPLODE : PLEVEL1 : @@CWDEBUG
+
+local : field : snf : alter : stock item : $$isstockitem
+Local: field: numf2 : Format: "NoZero,Decimals:2"
+local: field: numf2: Invisible: yes
+
+ Local: field: nf3: Width:100
+ Local: field: nf3: max:100
+Local: field: sdf: Width:15
+Local: field: ratepf: Width:9
+
+Local: Field: nf5: Set As: $$collectionfield:$name:first:SALESLIST ;; "Sales Ledger Name"
+Local: Field: snf2: Set As:$$collectionfield:$TAXCLASSIFICATIONNAME:first:SALESLIST ;;"Sales Vat Class"
+Local: Field: nf6: Set As:$$collectionfield:$name:first:PURCHASELIST ;;"Purchase Ledger Name"
+Local: Field: snf3: Set As:$$collectionfield:$TAXCLASSIFICATIONNAME:first:PURCHASELIST ;;"Purchase Vat Class"
+
+Local: Field: snf7: Set As: if $$explodelevel = 0 then $$collectionfield:$godownname:1:batchallocations else $$collectionfield:$godownname:@@linep1ex:batchallocations
+Local: Field: qtyf: Set As: if $$explodelevel = 0 then $$collectionfield:$openingbalance:1:batchallocations else $$collectionfield:$openingbalance:@@linep1ex:batchallocations
+
+Local: Field: ratepf3: Set As: #amtf / #qtyf
+Local: Field: amtf: Set As: if $$explodelevel = 0 then $$collectionfield:$openingvalue:1:batchallocations else $$collectionfield:$openingvalue:@@linep1ex:batchallocations
+local : field : default: border : thin right
+local: field : default : background : if $$isodd:$$linenumber then @@SV_STOCKSUMMARY else "Released Pale Yellow"
+
+Local: Field: numf6: Set As:$openingrate
+Local: Field: qtyf6: Set As:$openingbalance
+Local: Field: qtyf7: Set As:if not $$issysname:$additionalunits then $openingbalance else 0
+
+local:field: qtyf6 : Format      : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf7 : Format      : "NoSymbol, Short Form, No Compact,NoZero,Secondary"
+
+
+;Qtyf3,ratepf4,Amtf5,qtyf4
+Local: Field: qtyf5: Set As: $openingbalance  ;;if $$explodelevel = 0 then $$collectionfield:$closingbalance:1:batchallocations else $$collectionfield:$closingbalance:@@linep1ex:batchallocations
+Local: Field: qtyf3: Set As: $closingbalance  ;;if $$explodelevel = 0 then $$collectionfield:$closingbalance:1:batchallocations else $$collectionfield:$closingbalance:@@linep1ex:batchallocations
+Local: Field: ratepf4: Set As: #amtf / #qtyf
+Local: Field: amtf5: Set As: $closingvalue ;;if $$explodelevel = 0 then $$collectionfield:$closingvalue:1:batchallocations else $$collectionfield:$closingvalue:@@linep1ex:batchallocations
+
+local:field: qtyf4 : Format      : "NoSymbol, Short Form, No Compact,NoZero,Secondary"
+Local: Field: qtyf4 : Set As: if not $$issysname:$additionalunits then #qtyf3 else 0
+Local: Field: qtyf4 : type : quantity : secondary
+
+     Local: field: snf8: Width:100
+     Local: field: snf9: Width:100
+     Local: field: snf: Width:100
+     Local: field: snf8: max:100
+     Local: field: snf9: max:100
+     Local: field: snf: max:100
+     Local: field: snfx2: max:100
+     Local: field: snfx: max:100
+     Local: field: ratepf: max:100
+     
+     Local: field: qtyf5: Width:100
+     Local: field: numf6: Width:100
+     Local: field: qtyf6: Width:100
+     Local: field: qtyf7: Width:100
+     Local: field: numf5: Width:100
+     Local: field: numf7: Width:100
+     Local: field: snf4: Width:100
+     Local: field: sdf: Width:100
+     Local: field: ratepf: Width:100
+     Local: field: STKIOpAltitdet: Width:100
+     Local: field: snfx2: Width:100
+     Local: field: snfx: Width:100
+     
+     [Field: STKIOpAltitdet]
+    Use         : Qty Secondary Field
+    Type        : String
+    Set as      : if not $$issysname:$additionalunits then ($$String:$OpeningBalance:Secondary,noSymbol,ShortForm,NoCompact,NoComma) else ""
+
+;; {19.Jan.17 13:31}     Inactive    : $$IsSysName:$AdditionalUnits OR $$IsEmpty:$OpeningBalance
+
+     
+     
+      [line: LngetitemdetailsTotals]
+        use: Lngetitemdetails
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

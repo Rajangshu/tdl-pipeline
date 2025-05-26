@@ -1,0 +1,19 @@
+; Created By: pg on 2011-10-28 15:10
+
+[System: Formula]
+GRN0 : @@IsRcptNote
+
+[#Line: STKVCH Batch2]
+add : option : xBatch2 : @@GRN0
+
+
+[!line : xBatch2]
+;;Right Fields: VCHBATCH Godown, VCHBATCH Name, +
+;;VCHBATCH ActualQty, VCHBATCH BilledQty, VCHBATCH Rate, VCHBATCH RateUnits, VCHBATCH ItemRate, VCHBATCH Discount, VCHBATCH ItemDiscount, VCHBATCH Value, VCHBATCH AddlValue
+
+;;add : right field : after : :
+;;local : field :  : inactive : @@batchallocbreak
+local : field : VCHBATCH ActualQty : delete : validate
+;;local : field : default : border : thin box
+
+

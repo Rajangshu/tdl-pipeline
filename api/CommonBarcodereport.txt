@@ -1,0 +1,79 @@
+; Created By: pg on 2011-09-19 17:51
+
+     [#menu: Gateway of Tally]
+;        add: Option: pgitemnameLock : @@cwdebug
+
+     [!menu: pgitemnameLock]
+        add: Item: before: @@locQuit: @@pgitemnameReport: Display: Reppgitemname
+
+    [System: formula]
+   pgitemnameReport: pgitemname
+ pgitemnameDemoLock: $$MachineDate < $$Date:"02/08/2010"
+
+    [Report: Reppgitemname]
+        use: Dsp Template
+      Title: @@pgitemnameReport
+   Printset: Report Title: @@pgitemnameReport
+       Form: Frmpgitemname
+     Export: Yes
+   variable: stockitemname,IsStockReport,IsItemReport
+set : IsStockReport : yes
+set : IsItemReport : yes
+
+;set : stockitemname : "Rice Bags 50 Kg"
+
+      [Form: Frmpgitemname]
+        use: DSP Template
+       Part: DspAccTitles,Prtpgitemname
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+    button : change item
+
+      [Part: Prtpgitemname]
+       Line: LnpgitemnameTitle,Lnpgitemname
+     repeat: Lnpgitemname: Colpgitemname
+     scroll: Vertical
+ Common Border : YEs
+;;     Total :
+
+[Collection: Colpgitemname]
+        Use: stockitem
+     Filter: ColpgitemnameFilter
+     fetch : rateofmrp
+
+    [system: Formula]
+ColpgitemnameFilter: $name = ##stockitemname
+myqty : $$AsQty:1
+myPrice : $RateofMRP ;;:stockitem:$stockitemname ;; $$GetPriceFromLevel:$name:"MRP":@@DSPfromdate:@@myqty
+
+      [Line: LnpgitemnameTitle]
+        use: Lnpgitemname
+      local: field : Default : type : string
+     border: column titles
+      local: field :default : set as : $$DescName
+
+      [Line: Lnpgitemname]
+     Fields: fwf,d11,nf,d12,fwf2,d13,fwf3,d14,fwf4,d15,fwf5,d16,nf1,dlr7,nf2,d1,nf3,d2,nf4,d3,nf5,d4,nf6,d5,nf7,d6,nf8,d8,nf9,d9,nf10,d10,nf11,d17
+     Option: Alter on Enter
+;;     local : field : amtf : width : 50
+     local : field : fwf : set as : $PartNo
+     local : field: nf : set as: @@myPrice ;;:"Decimals:2"
+     local : field : fwf2 : set as : $Description
+     Local: Field: fwf3: Set As: $cwsortno
+     Local: Field: fwf4: Set As: $cwsize
+     Local: Field: fwf5: Set As: $cwproduct
+     
+     Local: Field: nf1: Set As: $cwproduct2
+     Local: Field: nf2: Set As: $cwproduct3
+     Local: Field: nf3: Set As: $cwproduct4
+     Local: Field: nf4: Set As: $cwproduct5
+     Local: Field: nf5: Set As: $cwproduct10
+     Local: Field: nf6: Set As: $cwproduct11
+     Local: Field: nf7: Set As: $cwproduct12
+     Local: Field: nf8: Set As: $cwproduct13
+     Local: Field: nf9: Set As: $cwproduct14
+     
+     Local: Field: Default: width: 100
+
+

@@ -1,0 +1,50 @@
+
+[system : formula]
+;; {08.Apr.13 15:22} cwwbinact :if  $vouchertypename contains "Import" then no else (NOT @@IsCSTVoucher OR $$IsSysNameEqual:NotApplicable:#CSTFormTypeIssue OR $$IsEmpty:#CSTFormTypeIssue)
+cwwbinact :if  $vouchertypename contains "Import" then no else (NOT @@IsCSTVoucher OR $$IsSysNameEqual:NotApplicable:#CSTFormTypeRecd OR $$IsEmpty:#CSTFormTypeRecd)
+;; Sales Inactive: NOT @@IsCSTVoucher OR $$IsSysNameEqual:NotApplicable:#CSTFormTypeRecd OR $$IsEmpty:#CSTFormTypeRecd
+
+;;[#Line	: VCH CSTFormRecd] ;; sales
+;;[#line : VCH CSTEFormRecd]
+;; {08.Apr.13 15:43} [#Line: VCH CSTFormIssued]
+[#line:VCH CSTEFormIssued]
+
+    add : field : snf,cwWayBillNo,snf2,cwWaybillDate,snf3,cwEndorsementNo,snf4,CwEndorsementDate
+    local : field : snf : inactive : @@cwwbinact
+    local : field : snf : skip : yes
+    local : field : snf : set as: "Way Bill No:"
+
+    local : field : snf2 : inactive : @@cwwbinact
+    local : field : snf2 : skip : yes
+    local : field : snf2 : set as: "Date:"
+
+    local : field : snf3 : inactive : @@cwwbinact
+    local : field : snf3 : skip : yes
+    local : field : snf3 : set as: "Check Point:"
+
+    local : field : snf4 : inactive : @@cwwbinact
+    local : field : snf4 : skip : yes
+    local : field : snf4 : set as: "Date:"
+    local : field : snf2 : width : @@shortwidth - 5
+    local : field : snf4 : width : @@shortwidth - 5
+
+ [field : cwWayBillNo]
+    use : name field
+storage : cwWayBillNo
+Inactive: @@cwwbinact
+
+ [field : cwWaybillDate]
+    use : short date field
+storage : cwWayBillDate
+Inactive: @@cwwbinact
+
+ [field : cwEndorsementNo]
+    use : name field
+storage : cwEndorsementNo
+Inactive: @@cwwbinact
+
+ [field : CwEndorsementDate]
+   use  : short date field
+storage : cwEndorsementDate
+Inactive: @@cwwbinact
+

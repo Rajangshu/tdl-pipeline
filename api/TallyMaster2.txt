@@ -1,0 +1,174 @@
+;;[#menu : gateway of tally]
+;; add : Item :at end : TAllyMasterList2 : display : TAllyMasterList2
+ 
+ [Report : TAllyMasterList2]
+Variables: AccountType, GroupName, CostCategoryName, CostCentreName, DSPGodownName, StockGroupName, StockCategoryName
+Variable : MyFilterPassing,MyFilterPassing2
+Filtered : Yes
+  Export : Yes
+    form : TallyMasterList2
+TITLE : ##myfilterpassing2
+
+   [form : TallyMasterList2]
+  Button : F2ChangePeriod, ChangeCompany, BlankButton, +
+           AL Groups, +
+           AL Ledger, +
+           AL CstCat, +
+           AL CstCtr, +
+           AL Budget, +
+           AL Currency, Second Blank Button, +
+           AL Stock Groups, +
+           AL Stock Categories, +
+           AL Stock Items, +
+           AL Unit, +
+           AL Godown, +
+           AL Voucher Type,ExportButton
+;;ADD : option : FrmChildof : ##myFilterPassing2 <> ""
+    part : TallyMasterList2
+   Width : 100 % Page
+  Height : 100 % Page
+
+;;[!part : frmChildof]
+local : collection : default : ADD: child of : ##myfilterpassing2
+local : collection : default : belongs to : yes
+
+   [part : TallyMasterList2]
+    line : TallyMasterList2
+  scroll : vertical
+  Option : tml2 Groups : $$IsSysNameEqual:Groups:##AccountType
+  Option : tml2 Ledgers        : $$IsSysNameEqual:Ledgers:##AccountType
+  Option : tml2 PayHeads	      : $$IsSysNameEqual:PayHeads:##AccountType
+  Option : tml2 CostCentres    : $$IsSysNameEqual:CostCentres:##AccountType ;;AND $$ExplodeLevel > 0
+  Option : tml2 CostCategories : ($$IsSysNameEqual:CostCategories:##AccountType) OR +
+                         			   		  ($$IsSysNameEqual:Employees:##AccountType AND $$ExplodeLevel = 0) OR ($$IsSysNameEqual:EmployeeGroups:##AccountType AND $$ExplodeLevel = 0)
+  Option : tml2 Employees      : $$IsSysNameEqual:Employees:##AccountType ;;AND $$ExplodeLevel > 0
+  Option : tml2 EmployeeGroups : $$IsSysNameEqual:EmployeeGroups:##AccountType ;;AND $$ExplodeLevel > 0
+  Option : tml2 Budgets Scenario: $$IsSysNameEqual:BudgetScenarios:##AccountType
+  Option : tml2 Godowns        : $$IsSysNameEqual:Godowns:##AccountType OR $$IsSysNameEqual:Locations:##AccountType
+  Option : tml2 StockGroups    : $$IsSysNameEqual:StockGroups:##AccountType
+  Option : tml2 StockCategories: $$IsSysNameEqual:StockCategories:##AccountType
+  Option : tml2 StockItems     : $$IsSysNameEqual:StockItems:##AccountType
+  Option : tml2 Currencies     : $$IsSysNameEqual:Currencies:##AccountType
+  Option : tml2 Units          : $$IsSysNameEqual:Units:##AccountType
+  Option : tml2 VoucherTypes   : $$IsSysNameEqual:VoucherTypes:##AccountType
+  Option : tml2 Attd Types     : $$IsSysNameEqual:AttendanceTypes:##AccountType
+  Option : tml2 Deductee Type  : $$IsSysNameEqual:DeducteeTypes:##AccountType
+
+  [!Part : tml2 Groups]
+;;   local : collection : group : add : filter : myRepfilter
+  Repeat : TallyMasterList2 : Group ;;ChildOfGroupName
+   Local : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+  [!Part : tml2 Ledgers]
+;;   local : collection : Ledger : add : filter : myRepfilter
+  Repeat : TallyMasterList2 : ledger ;;ListGroupLedgerChildOfGroupName
+   Local : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+  [!Part : tml2 PayHeads]
+  Option : tml2 Groups
+  Option : tml2 Ledgers
+   Local : Collection : GroupChildOfGroupName : Add : Filter : PayHeadGroup ;;,myRepFilter
+Local		: Collection	: LedgerChildOfGroupName	: Add		: Filter	: PayrollLedFilter ;;,MyRepFilter
+Local		: Line			: TallyMasterList2			: Remove If	: ($$IsGroup AND $NumPayHeadsInGroup = 0) OR ($$IsLedger AND NOT $ForPayroll)
+
+    [!Part: tml2 Budgets Scenario]
+;;        local : collection : budget : add : filter : myRepfilter
+        Repeat      : TallyMasterList2 : budget ;;ListBudgetChildofBDGTName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+    [!Part: tml2 Cost Categories]
+;;        local : collection : costcategoryobject : add : filter : myRepfilter
+        Repeat      : TallyMasterList2 : Cost Category Object
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+    [!Part: tml2 Cost Centres]
+        local : collection : allcostcentre : add : filter : myRepfilter1
+        Repeat      : TallyMasterList2 : All Cost Centre ;;ListCostCentreChildofCCName
+;;        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR +
+;;                    (NOT $ForPayroll AND NOT $$Allow:Alter:AccountsMasters) OR +
+;;                    ($ForPayroll AND NOT $$Allow:Alter:PayrollMasters)
+
+[System : Formula]
+myRepfilter1 :  $$IsBelongsToCategory:##MYFILTERPASSING
+
+    [!Part: tml2 Employees]
+;;        local : collection : ListEmployeeChildOfEmpName : add : filter : myRepfilter
+        Repeat      : TallyMasterList2 : ListEmployeeChildOfEmpName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:PayrollMasters
+
+    [!Part: tml2 EmployeeGroups]
+;;        local : collection : ListEmployeeGroups : add : filter : myRepfilter
+        Repeat      : TallyMasterList2 : ListEmployeeGroups
+        Local       : Key   : Delete Line Object	: Inactive	: NOT $$CanDelete OR NOT $$Allow:Alter:PayrollMasters
+		Local		: Field	: AccType Name 			: Style 	: "Normal Bold"
+
+    [!Part: tml2 Godowns]
+;;        local : collection : Godown : add : filter : myRepfilter
+        Repeat      : TallyMasterList2 : Godown ;;ChildOfGodownName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:InventoryMasters
+
+    [!Part: tml2 Stock Groups]
+;;        local : collection : StockGroup : add : filter : myRepfilter
+        Repeat      : TallyMasterList2 : StockGroup ;;ChildOfGroupName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:InventoryMasters
+
+    [!Part: tml2 Stock Categories]
+;;        local : collection : StockCategory : add : filter : myRepfilter
+        Repeat      : TallyMasterList2 : StockCategory ;;ItemChildOfStockCategoryName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:InventoryMasters
+
+    [!Part: tml2 Stock Items]
+;;        local : collection : StockItem : add : filter : myRepfilter
+        Repeat      : TallyMasterList2 : stockitem ;;StockGroupItemChildOfGroupName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:InventoryMasters
+
+    [!Part: tml2 Currencies]
+;;        local : collection : Currency : add : filter : myRepfilter
+        Repeat      : TallyMasterList2 : Currency
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+    [!Part: tml2 Units]
+;;        local : collection : Unit : add : filter : myRepfilter
+        Repeat      : TallyMasterList2 : Unit
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR +
+                    (NOT $ForPayroll AND NOT $$Allow:Alter:InventoryMasters) OR +
+                    ($ForPayroll AND NOT $$Allow:Alter:PayrollMasters)
+
+    [!Part: tml2 Voucher Types]
+;;        local : collection : VoucherType : add : filter : myRepfilter
+        Repeat      : TallyMasterList2 : Voucher Type
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:AccountsMasters
+
+    [!Part: tml2 Attd Types]
+;;        local : collection : ListAttdTypeChildofATName : add : filter : myRepfilter
+        Repeat      : TallyMasterList2 : ListAttdTypeChildofATName
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete OR NOT $$Allow:Alter:PayrollMasters
+
+    [!Part: tml2 Deductee Type]
+;;        local : collection : DeducteeType : add : filter : myRepfilter
+        Repeat      : TallyMasterList2 : Deductee Type
+        Local       : Key   : Delete Line Object : Inactive : NOT $$CanDelete
+
+       [line : TallyMasterList2]
+       field : nf ;;,d1,nf2 ;;,d2,nf3,d3,nf4,d4,nf5,d5,nf6
+       local : field : nf : width : 100
+       local : field : nf : max : 100
+
+       local : field : nf2 : width : 100
+       local : field : nf2 : max : 100
+
+      local : field : nf3 : width : 100
+      local : field : nf3 : max : 100
+       local : field : nf4 : width : 100
+       local : field : nf4 : max : 100
+
+       local : field : nf5 : width : 100
+       local : field : nf5 : max : 100
+
+       local : field : nf6 : width : 100
+       local : field : nf6 : max : 100
+       
+       Local: Field: nf : Set As: $name
+       Local: Field: nf2 : Set As: $parent
+       
+

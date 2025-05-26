@@ -1,0 +1,19 @@
+
+
+[#Part: LED Other Details]
+add : line : after : LED VAT TIN No : CWLedCSTNo
+
+    [Line: CWLedCSTNo]
+Fields  : Medium Prompt, CWLedCSTNo
+Local   : Field : Medium Prompt  : Set as        : "CST No. :"
+Local   : Field : Medium Prompt  : Inactive      : Not @@cwPartyGrp
+
+[field : CWLedCSTNo]
+        Use             : Name Field
+        Storage         : cwLEDCSTNo
+          Inactive      : Not @@cwPartyGrp
+        Case            : Normal
+        Ascii Only	: Yes
+
+[system : formula]
+cwLedCSTNo : $cwLEDCSTNo:ledger:$partyledgername

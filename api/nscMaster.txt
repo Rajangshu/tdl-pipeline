@@ -1,0 +1,26 @@
+;; Sri Ganeshji : Sri Balaji : Sri Pitreshwarji : Sri Durgaji : Sri Venkateshwara
+
+[#Part: CMP InvFeat Right]
+
+	Add	: Lines : After	: CMP UsePriceLevels	: TSPL FFE Control Neg Stk
+
+	[Line: TSPL FFE Control Neg Stk]
+
+		Fields      : Medium Prompt, TSPL FFE Control Neg Stk
+        Local       : Field : Medium Prompt   	: Set as        : $$LocaleString:"Control Negative Stock ?"
+        Invisible   : NOT $IsInventoryOn 
+        Space Top   : 0.4
+
+		[Field: TSPL FFE Control Neg Stk]
+
+			Use         : Logical Field
+			Set as		: If NOT $IsInvoicingOn then "No" else $$Value
+			Storage     : TSPL FFE ControlNegStk
+			Skip		: If $$IsRemoteCompany Then Yes Else NOT $IsInvoicingOn
+			Set Always	: Yes
+
+[System: UDF]
+
+	TSPL FFE Control Neg Stk	: Logical	: 1100
+		
+;; End-of-File
