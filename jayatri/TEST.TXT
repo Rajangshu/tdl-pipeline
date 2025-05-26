@@ -1,0 +1,432 @@
+; Created By: Anil on 2024-01-22 14:54, ID: 
+
+; Created By: Anil on 2023-04-22 15:08, ID:
+
+[#Line: EI ColumnOne]
+add:option:cwEIColumnOneopt:@@YellowStoneEnabled and @@issales
+
+[!Line: cwEIColumnOneopt]
+add:right field:after:VCH RateUnitsTitle:numf
+
+Local: Field: numf: info: "Amount"
+Local: Field:VCH AmtTitle : Set As:$$LocaleString:"Net Amount"
+
+local: field: numf: type: String
+Local: field: numf: Align: centre
+Local : field :numf : Lines : 0
+
+[#Line: EI ColumnTwo]
+;; {22.Jan.24 14:56} add:option:cwEIColumnTwoopt:@@YellowStoneEnabled and @@issales
+
+;; {22.Jan.24 14:56} [!Line: cwEIColumnTwoopt]
+add:right field:after:VCH RateUnitsTitle:qtyf ;;numf
+
+Local: Field: qtyf: info: ""
+
+[#Line: EI InvInfo]
+;; {22.Jan.24 14:55} add:option:cwEIInvInfoopt:@@YellowStoneEnabled and @@issales
+
+;; {22.Jan.24 14:55} [!Line:cwEIInvInfoopt]
+
+add:right field:after:VCH RateUnit:qtyf ;;numf
+
+Local: Field: qtyf: Set As:$$CollQtyTotal:BatchAllocations:$cwShortQty
+Local: Field: qtyf: storage:cwshortQtystrg2
+Local: Field: qtyf: Style: Normal Bold
+
+
+[#Line : VCH NarrPrompt]
+;; {22.Jan.24 14:55} add:option:cwVCHNarrPrompt:@@YellowStoneEnabled and @@issales
+
+;; {22.Jan.24 14:55} [!Line :cwVCHNarrPrompt]
+Local: field: EI ValueTotal: Width:16
+
+;; {22.Jan.24 15:25} [#Form: Export Invoice]
+[#Form: Excise Dealer SalesInvoice]
+
+
+Local: Field: default: Border: thin box ;;left right
+;; {22.Jan.24 14:55} add:option:cwExportInvoiceopt:@@YellowStoneEnabled and @@issales
+
+;; {22.Jan.24 14:55} [!Form: cwExportInvoiceopt]
+
+Local : Line: VCH NarrPrompt: Add   : Right Field 	: before: EIValueTotal:cwshortQtyfldxx
+Local : Line: VCH NarrPrompt: Add   : Right Field 	: after: EI QtyTotal:cwshortQtyfldxx ;;numf10
+
+Local: Field: qtyf:border:totals
+Local: Field: numf10:border:totals
+
+Local: Field: cwshortQtyfldxx: Set As:$$CollQtyTotal:inventoryentries:$cwshortQtystrg2
+Local: field: cwshortQtyfldxx: Align: centre
+Local: Field: cwshortQtyfldxx: Style: Normal Bold
+;; {22.Jan.24 15:03} Local: Field: qtyf: Skip: Yes
+Local: Field: numf10: Skip: Yes
+
+
+[field:cwshortQtyfldxx]
+ use:qtyf ;;numf
+ border:thin box
+
+ ;;======================================
+ 
+ ; Created By: Khokan on 2024-01-22 18:15, ID:
+
+; Created By: khokan on 2020-06-12 19:40, ID:
+
+
+[System: Formula]
+SalesFormAccept :$$IsJobMaterialReceive:$vouchertypename ;; 1 Here Set Condition for Auto Post
+
+ [#form : voucher]
+ on : form Accept : @@SalesFormAccept  : Form Accept
+ on : form Accept : @@SalesFormAccept : Call :CWpurcPostVchnew
+
+; ------------------------- For Accept Code}
+
+
+[function : CWpurcPostVchnew]
+  returns : logical
+variable  : myvchno : string :$vouchernumber
+variable  : myvchdate : date : $date
+variable  : Vchtypename : string  :$cwAutopostminVchTypemin:Vouchertype:##SVVoucherType    ;; 2 Here Set Voucher Type to Post
+
+variable  : cwDRLedger : string   :$cwexpenesminledgermin  ;;"Purchase"
+variable  : cwCRLedger : string   :$partyledgername
+
+variable : ctr : number : 1
+variable : myamt : amount ;;: $cwbatteryAmountnew  ;;$amount
+variable : myamt1 : amount: $cwTotalAmountnewmin
+
+variable : mycgstamt : amount: $cwminCGSTAMTmin
+variable : mysgstamt : amount: $cwminsGSTAMTmin
+variable : myigstamt : amount: $cwminIGSTAMTmin
+
+variable : myroledamt:amount:$cwminROUNDOFFAMTmin
+variable : mycwWastageShortageamt:amount:$cwWastageShortageamtmin
+variable : mycwminTDSAMT:amount:$cwminTDSAMTmin
+
+
+variable : mycwWastageShortageminLedger : string:$cwWastageShortageminLedger
+variable : mycwroundoffminledger : string:$cwroundoffminledger
+variable : mycgstled : string:$cwCGSTminledger
+variable : mysgstled : string:$cwSGSTminledger
+variable : myigstled : string:$cwIGSTminledger
+variable : mycwTDSMINledger : string:$cwTDSMINledger
+;; {28.Jan.22 17:55} variable : mycwexpenesminledger : string1:$cwexpenesminledger
+
+
+variable : VchExistsId : number
+variable : VchExists : Logical
+variable : myid : string
+variable : mycwchllandt :date
+
+variable : myitem : string
+variable : mycwchllanno : string
+variable : myCONSIGNEESTATENAME : string
+variable : myqty  : number
+variable : myrate : number
+variable : myamount : number
+
+variable:mycwWastageShortageminLedger2:string
+variable:mycwWastageShortageamt2:amount
+
+variable :mygodownname :string:$cwisjobworkernew:ledger:$partyledgername ;;:"Main Location"
+variable :myPartyGSTIN :string  ;;:"Main Location"
+variable :mybatchname :string : "Primarybatch "
+variable :myPLACEOFSUPPLY :string:$statename:COMPANY:##SVCURRENTCOMPANY
+variable :myCONSIGNEECOUNTRYNAME:string
+variable:myCONSIGNEEGSTIN:string
+
+
+;; {26.Aug.20 16:57}  0001:log:##myamt
+
+
+variable : myamtx:number  ;;:$cwstockplamt
+variable : myamt2:number  ;;:$cwstockplamt
+variable : myamt3:number  ;;:$cwstockplamt
+variable : myamt4:number  ;;1:$cwstockplamt
+
+
+
+10 : if : $$issysname:##Vchtypename
+
+30 : continue
+40 : end if ;; $$issysname:##Vchtypename
+
+50 : if : $$issysname:##cwDRLedger
+;; {14.Jun.20 20:01} 60 : log : "Debit Ledger Not Configured"
+70 : continue
+80 : end if ;; $$issysname:##cwDRLedger
+
+90 : if : $$issysname:##cwCRLedger
+;; {14.Jun.20 20:02} 91 : log : "Credit Ledger Not Configured"
+92 : continue
+93 : end if ;; $$issysname:##cwCRLedger
+
+
+;; {02.Feb.22 12:32} 01xx : QueryBox:"Post Vouchers ?":Yes:No
+01xx : QueryBox:"Are you sure for commit Expense booking ?":Yes:No
+02xx : do if : not $$lastresult : continue
+
+
+
+100: set : myvchno :$vouchernumber
+105: set : mycwchllanno : $cwchllanno
+106: set : mycwchllandt : $cwchllandt
+107: set : myPartyGSTIN :$PartyGSTIN:ledger:$partyledgername
+108:set :myPLACEOFSUPPLY :$statename:COMPANY:##SVCURRENTCOMPANY
+109:set :myCONSIGNEESTATENAME :$statename:COMPANY:##SVCURRENTCOMPANY
+110: set :myCONSIGNEECOUNTRYNAME:$COUNTRYNAME:COMPANY:##SVCURRENTCOMPANY
+111: set :myCONSIGNEEGSTIN:@@cwGSTNNumber
+
+
+
+120: set : VchExistsId : $$isVoucherExists:##VchTypeName:##myVchNo:##MyVchDate
+130: set : VchExists : ##VchExistsId > 0
+140 : set : myid : $$SPrintf:@@VCHMasterID:##VchExistsId
+
+150 : if : ##VchExists
+
+
+160 : new object: voucher : ##myId
+
+f100 : if : not $$issysname:$$collectionfield:$stockitemname:1:inventoryentries
+f102 : continue
+f103 : end if
+
+
+200: else
+210: new object : voucher
+220: end if
+;; {15.Feb.22 15:54} 221 : set value : isinvoice : yes
+;; {02.Feb.22 11:26} 221 : set value : isinvoice :no ;; yes
+230 : set value : date : ##myVCHDate
+240 : set value : vouchernumber : ##myVchNo
+250 : set value : REFERENCE :##mycwchllanno  ;; ##myVchNo
+255 : set value : ReferenceDate :##mycwchllandt  ;; ##myVchNo
+
+260: set value : vouchertypename : ##VchTypeName
+270: set value : partyledgername :##cwcRLedger  ;;##mycwSupplierName  ;; ##cwDRLedger
+
+;;1111:log:##myPartyGSTIN
+1111x:log:##myPLACEOFSUPPLY
+275: set value : PARTYGSTIN :##myPartyGSTIN
+;;276: set value : PLACEOFSUPPLY :##myPLACEOFSUPPLY  ;;$statename:COMPANY:##SVCURRENTCOMPANY
+
+280: SET : SVViewName :$$SysName:InvVchView
+
+
+281:walk collection:collBASICBUYERADDRESSnewpurc
+306: insert collection object :ADDRESS
+307:set value:ADDRESS:$address
+;;1236:log:$address
+281c: set target : ..
+
+304:end walk
+
+
+
+ 282: set value : STATENAME :$ledSTATENAME:ledger:$partyledgername
+ 283: set value : COUNTRYOFRESIDENCE  :"India"
+ 284: set value : PLACEOFSUPPLY :##myPLACEOFSUPPLY ;;$ledSTATENAME:ledger:$partyledgername
+ 285: set value : CONSIGNEESTATENAME :##myCONSIGNEESTATENAME
+ 286: set value : CONSIGNEECOUNTRYNAME :##myCONSIGNEECOUNTRYNAME
+ 287: set value : CONSIGNEEGSTIN :##myCONSIGNEEGSTIN
+ 288: set value :PARTYNAME:##cwcRLedger
+
+ 289: set value :BasicBuyerName:##SVCURRENTCOMPANY
+ 289x: set value :GSTREGISTRATIONTYPE:"Regular"
+
+ 290: set value :CONSIGNEEMAILINGNAME:##SVCURRENTCOMPANY
+ 291: set value :BASICBASEPARTYNAME:$partyledgername  ;;"ADEPT INFOWAYAS PVT LIMITED"
+
+;; 292: set value :VCHENTRYMODE:"As Voucher"
+
+
+  293: set value :PARTYMAILINGNAME:##cwcRLedger  ;;ADEPT INFOWAYAS PVT LIMITED"
+294: setvalue :VCHENTRYMODE:"As Voucher"
+
+350:insert collection object:ledgerentries
+360 : set value : ledgername :##cwcRLEdger
+
+370 : set value : amount :$$ascramt:##myamt1
+;; {31.Jan.22 14:12} 370 : set value : amount :$$asdramt:##myamt1
+
+
+
+371 : insert collection object : BillAllocations
+372 : set value : name : $vouchernumber
+
+373 : set value : amount:$$asamount:##myamt1
+
+374 :set target : ..
+
+
+380:set :myitem:$cwproductminLedgermin
+
+390:set :myqty:$cwminqtymin
+;; {28.Jan.22 15:54} 360:set :myrate:$cwbatteryRate
+400:set :myamount:$cwmingstamtmin
+
+410:set :mybatchname:"Primarybatch "   ;;$batchname
+;; {22.Feb.22 10:20} 420:set :mygodownname:$cwisjobgodown:ledger:$partyledgername
+420:set :mygodownname:$cwisjobgodownled:ledger:$partyledgername
+
+
+;;===================================
+
+500:insert collection object:INVENTORYENTRIES
+
+510:set value:stockitemname:##myitem
+
+520 : start block
+530 : set object
+
+540:set value:actualqty:-1*$$asqty:##myqty
+550:set value:billedqty:-1*$$asqty:##myqty
+560x:set value:rate:$$asrate:##myamount/##myqty
+560:set value:amount:$$asdramt:##myamount
+
+570 : SET VALUE : isdeemedpositive:"yes"
+   /*
+ 292x: set value :GSTOVRDNINELIGIBLEITC:"&#4"
+292c: set value :GSTOVRDNISREVCHARGEAPPL:"&#4"
+ 292v: set value :GSTOVRDNTAXABILITY:"Taxable"
+ 292b: set value :GSTSOURCETYPE:"Company"
+ 292n: set value :HSNSOURCETYPE:"Company" ;;>Company</HSNSOURCETYPE>
+ 292m: set value :GSTOVRDNTYPEOFSUPPLY:"Services"  ;;>Services</GSTOVRDNTYPEOFSUPPLY>
+ 292a: set value :GSTRATEINFERAPPLICABILITY:"As per Masters/Compan"   ;;>As per Masters/Company</GSTRATEINFERAPPLICABILITY>
+ 292s: set value :GSTHSNNAME:"998821" ;;</GSTHSNNAME>
+ 292d: set value :GSTHSNINFERAPPLICABILITY:"As per Masters/Company" ;;</GSTHSNINFERAPPLICABILITY>
+
+*/
+580: end block
+
+600 : Insert Collection Object : BATCHALLOCATIONS
+;;610 : set value : OrderDueDate :($$DateRange:##myVCHDate:($$TgtObject:$Date):True)
+
+620: set value : Batchname : ##mybatchname
+630: set value : Godownname : ##mygodownname
+
+
+640: start block
+650: set object
+
+660:set value:actualqty:$$asqty:##myqty  *-1
+670:set value:billedqty:$$asqty:##myqty  *-1
+673:set value:rate:$$asrate:##myamount/##myqty
+680:set value:amount:$$asdramt:##myamount
+
+
+
+
+690 : end block
+
+;; {31.Jan.22 14:14} 685 : set target : ..
+
+;;====================================================================
+
+700 : insert collection object :ACCOUNTINGALLOCATIONS
+;;705 : log : ##cwdRLedger
+710:set value:LEDGERNAME:##cwdRLedger
+
+
+720: set value : amount :$$asamount:##myamount*-1
+
+
+800 : insert collection object : ledger entries
+810 : set value : ledger name : ##mycwWastageShortageminLedger
+820 : set value : amount :##mycwWastageShortageamt   ;; -1*$$asamount:1 ;;$$abs:##mycwWastageShortageamt ;;@@getDR * $$abs:##LedgerVAlue ;;totalb4advamt ;;autoAmt
+830 : set value : isdeemedpositive :yes
+
+
+;; {31.Jan.22 17:12} 831 : set target : ..
+
+;; {31.Jan.22 16:32} 831x:log:##mycgstled
+;; {31.Jan.22 16:32} 832x:log:##mycgstamt
+
+
+
+840 : insert collection object : ledger entries
+850 : set value : ledger name :##mycgstled
+
+
+860 : set value : amount :##mycgstamt*-1
+
+855 : set value : isDeemedPositive:no
+
+;; {31.Jan.22 17:36} 871a:set target : ..
+
+
+880 : insert collection object : ledger entries
+890 : set value : ledger name : ##mySgstled
+900 : set value : amount :##mysgstamt*-1
+
+;;910 : set value : isdeemedpositive :no
+
+;; {31.Jan.22 18:01} 911:set target : ..
+
+;; {31.Jan.22 17:40} 911x:set target : ..
+;; {31.Jan.22 17:09} 911xx:set target : ..
+
+;;11111:log:##myIgstled
+;;222222:log:##myigstamt
+
+920 : insert collection object : ledger entries
+930 : set value : ledger name : ##myIgstled
+940 : set value : amount :##myigstamt  ;;*-1
+950 : set value : isdeemedpositive :yes
+
+;;951:set target : ..
+
+
+
+ 1000 : insert collection object : ledger entries
+ 1010 : set value : ledger name : ##mycwTDSMINledger
+ 1020 : set value : amount :##mycwminTDSAMT  ;;*-1
+ 1030 : set value : isdeemedpositive :yes
+
+
+
+ 1050 : insert collection object : ledger entries
+ 1060 : set value : ledger name : ##mycwroundoffminledger
+ 1070 : set value : amount :##myroledamt*-1
+
+
+;;855ab : log target
+
+;; {22.Feb.22 15:37} 7777777 : log : "A1"
+;; {31.Jan.22 16:43}  f0001 : log target
+;; f0002 : log object
+
+
+;;==========================================================================================
+
+;----------------------------------- Insert Ledger Entry End
+
+;; 1499 : refresh tdl
+1500 : if : not ##VchExists
+1510: create target
+1520 : end if
+
+1530 : if : ##VChExists
+1540 : save target
+1550 : end if
+
+2000 : return
+
+
+
+ [System: Formula]
+
+cwledwiswgst:$statename:COMPANY:##SVCURRENTCOMPANY=$LedStateName:ledger:##cwCRLedger
+
+
+
+;;============================================
+
+  [Collection: collBASICBUYERADDRESSnewpurc]
+type : address : ledger
+child of:##cwCRLedger  ;;$partyledgername
+
+

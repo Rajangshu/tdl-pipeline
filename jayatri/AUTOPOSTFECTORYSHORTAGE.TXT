@@ -1,0 +1,248 @@
+; Created By: Anil on 2024-02-06 17:07, ID: 
+
+; Created By: Anil on 2024-01-19 13:58, ID:
+
+;;[include: e:\d7comps\tprime\CommonPosting.txt]
+
+
+[System: Formula]
+autopostTransportFectoryFormAccept :$$IsJobMaterialReceive:##svvouchertype;; 1 Here Set Condition for Auto Post
+;; {22.Dec.23 10:44} autopostTransportShortageFormAccept :$$IsJobMaterialIssue:##svvouchertype;; 1 Here Set Condition for Auto Post
+cwEnableFectoryQtytype:$cwEnableFectoryAutoPost:vouchertype:$vouchertypename
+
+ [#form : voucher]
+ on : form Accept : @@autopostTransportFectoryFormAccept and @@cwEnableFectoryQtytype : Form Accept
+ on : form Accept : @@autopostTransportFectoryFormAccept and @@cwEnableFectoryQtytype : Call : FectoryConsumptionpostPostVch ;;ConsumptionpostPostVch
+;; {22.Dec.23 11:48}  on : form Accept : @@autopostTransportShortageFormAccept and @@cwEnableShortageQtytype : Call : ConsumptionpostPostVch:yes
+
+;; {22.Jan.24 11:40}  on : form Accept : @@autopostTransportShortageFormAccept and @@cwEnableShortageQtytype and $cwshortQtystrglog="yes": Form Accept
+;; {22.Jan.24 11:40}  on : form Accept : @@autopostTransportShortageFormAccept and @@cwEnableShortageQtytype and $cwshortQtystrglog="yes": Call : ConsumptionpostPostVch
+
+; ------------------------- For Accept Code}
+
+[function : FectoryConsumptionpostPostVch]
+  returns : logical
+ variable  : myvchno : string : $vouchernumber
+ variable  : myvchdate : date : $date
+ variable  : Vchtypename : string  :$cwFectoryVoucherType:Vouchertype:$Vouchertypename ;;"Stock Journal"   ;; 2 Here Set Voucher Type to Post
+ variable  : cwDRLedger : string   :$partyledgername    ;; 3 here Set Debit Ledger
+ variable  : cwCRLedger : string   :$partyledgername    ;; 4 Here Set Credit Ledger
+
+ variable : ctr : number : 1
+ variable : myamt : amount : 0
+ variable : VchExistsId : number
+ variable : VchExists : Logical
+ variable : myid : string
+
+ variable:cwTypestkjrnl:string
+ variable:cwLRNumberpurcxx:string
+ variable:cwLRDatepurcxx:date
+ variable:cwConsigneeNamepurcxx:string
+ variable:cwSupplierNamepurcxx:string
+ variable:cwTransporterNamepurcxx:string
+ variable:BatchRatexx:number
+ variable:Batchamtxx:amount
+ variable:cwFentQtystrgxx:number
+ variable:cwScrpQtystrgxx:number
+ variable:xstockitemname:string
+ variable:xACTUALQTY:quantity
+ variable:xbilledqty:quantity
+ variable :xrate: number
+ variable :xamount: number
+ variable :xbatchname: string
+ variable :xgodownname: string
+
+ variable : mybatchname : string
+ variable : cwNoofBalespurcxx : string
+ variable : mygodownname : string
+ variable : mygodownname2 : string
+
+ variable : hasdata : logical : no
+
+;; {15.Jan.24 10:45}  01aa : QueryBox:"Auto Post Consumption ?":Yes:No
+ 01aa : QueryBox:"Book For Fectory Shortage Qty ?":Yes:No
+ 02aa : do if : not $$lastresult : continue
+
+0T010 : if : $$issysname:##Vchtypename
+0T012 : log : "Voucher Type Not Configured"
+0T014 : continue
+0T015 : end if ;; $$issysname:##Vchtypename
+
+ 00T50 : if : $$issysname:##cwDRLedger
+ 00T60 : log : "Debit Ledger Not Configured"
+ 00T70 : continue
+ 00T80 : end if ;; $$issysname:##cwDRLedger
+
+ 00T90 : if : $$issysname:##cwCRLedger
+ 00T91 : log : "Credit Ledger Not Configured"
+ 00T92 : continue
+ 00T93 : end if ;; $$issysname:##cwCRLedger
+
+;; {07.Dec.17 16:32} 00t10x : log : "--------------------------xx--"
+
+ 001 : set : myvchno : $vouchernumber
+ 002 : Set : SVViewName : $$SysName:ConsVchView ;;InvVchView
+;; {19.Jan.24 19:00}  0100 : set : mygodownname :$cwVchTypetransGodown:Vouchertype:$Vouchertypename  ;; $godownname
+ 0101 : set : mygodownname2 :$cwVchTypestkFectoryGodown:Vouchertype:##vchTypeName  ;; $godownname
+
+ 003 : set : VchExistsId : if $masterid = 0 then 0 else $$isVoucherExists:##VchTypeName:##myVchNo:##MyVchDate
+ 004 : set : VchExists : ##VchExistsId > 0
+
+ 005 : set : myid : $$SPrintf:@@VCHMasterID:##VchExistsId
+ 006 : if : ##VchExists
+ 007 : new object: voucher : ##myId
+ 008 :  while : $$tgtobject:$$numitems:INVENTORYENTRIESout > 0
+ 009 : delete collection object : INVENTORYENTRIESout : 1 : yes
+ 010 : end while
+ 011 : else
+ 012 : new object : voucher
+ 013 : end if
+
+ 020 : set value : date : ##myVCHDate
+ 021 : set value : vouchernumber : ##myVchNo
+
+ 022 : set value : vouchertypename : ##VchTypeName
+ 023 : set value : partyledgername : ##cwDRLedger
+
+;; {20.Jan.24 11:29}  115a: set value : destinationgodownname: ##mygodownname2
+;; {22.Dec.23 16:13} 999: set : mygodownname : 'main location'
+
+;; {06.Feb.24 17:43}  024 : call : cwInsertItemValues : No
+;; {06.Feb.24 17:43}  025 : call : cwInsertItemValues : yes
+ 
+  024 : call : cwInsertItemValues2 : No
+ 025 : call : cwInsertItemValues2 : yes
+
+
+ 375 : if : not ##VchExists
+ 400 : create target
+ 410 : end if
+
+ 420 : if : ##VChExists
+ 421 : save target
+
+ 422 : end if
+
+ 430 : return
+
+
+
+;; {06.Feb.24 17:43}  [function: cwInsertItemValues]
+ [function: cwInsertItemValues2]
+ parameter : cwDeemedPositive : logical
+
+ variable : cwMultiplier : number : if ##cwDeemedPositive then -1 else -1
+
+ 000  : log :    "cwInsertItemalues: " +$$string:##cwdeemedPositive
+
+ 024 : walk collection:collcwcomsumptionFectory ;;collcwcomsumption
+
+;; {21.Dec.23 17:04} abcd  : log object
+
+
+ 063 : set :cwTypestkjrnl:$cwHouseTypepurc1 ;;$cwTypepurc1
+ 063a : set :cwNoofBalespurcxx:$cwHouseNoofBalespurc1 ;;$cwNoofBalespurc1
+ 063b : set :cwLRNumberpurcxx:$cwHouseLRNumberpurc1 ;;$cwLRNumberpurc1
+ 063c : set :cwLRDatepurcxx:$cwHouseLRDatepurc1 ;;$cwLRDatepurc1
+ 063ca : set :cwConsigneeNamepurcxx:$cwHouseConsigneeNamepurc1 ;;$cwConsigneeNamepurc1
+ 063d : set :cwSupplierNamepurcxx:$cwHouseSupplierNamepurc1 ;;$cwSupplierNamepurc1
+ 063e : set :cwTransporterNamepurcxx:$cwHouseTransporterNamepurc1 ;;$cwTransporterNamepurc1
+ 063f : set :BatchRatexx:$BatchRate1
+ 063g : set :Batchamtxx:$BatchRate1
+ 063i : set :cwFentQtystrgxx:$cwFentQtystrg1
+ 063j : set :cwScrpQtystrgxx:$cwScrpQtystrg1
+ 064 : set :xactualqty:$cwShortQty1
+ 065 : set :xbilledqty:$cwShortQty1
+;; {21.Dec.23 15:57}  066 : set :xrate:$BatchRate1 ;;$closingrate
+;; {29.Dec.23 18:57}  067 : set :xamount:$closingbalance
+ 067 : set :xamount:$cwShortQty1*$BatchRate1 ;;$amount ;;$closingbalance
+
+ 0100 : set : mygodownname :$godownname ;;$cwVchTypetransGodown:Vouchertype:$Vouchertypename  ;; $godownname
+;; {19.Jan.24 19:00}  0100 : set : mygodownname :$cwVchTypetransGodown:Vouchertype:$Vouchertypename  ;; $godownname
+ 0105 : set : mybatchname : $batchname
+;; {21.Dec.23 15:13}  0105a : set : cwNoofBalespurcxx : $cwNoofBalespurc1
+
+ 028 : set :xstockitemname:$stockitemname
+
+ 030 : INSERT COLLECTION OBJECT:INVENTORYENTRIESout
+ 040 : set value:stockitemname:##xstockitemname
+
+
+ 060 : start block
+ 062 : set object
+
+
+
+ 70 :SET VALUE:actualqty:##xbilledqty *##cwMultiplier
+ 80 :SET VALUE:billedqty:##xbilledqty*##cwMultiplier
+;; {21.Dec.23 15:47}  84 : set value:rate:##xrate
+ 85 : set value:amount:##xamount
+
+ 90 :set value:ISDEEMEDPOSITIVE:##cwDeemedPositive
+ 98 : end block
+
+
+ 100: insert collection object : Batch Allocations
+;; {06.Feb.24 17:33}  86 : set value:cwTypepurc:##cwTypestkjrnl
+ 86 : set value:cwHouseTypepurc:##cwTypestkjrnl
+ 87 : set value:cwHouseNoofBalespurc:##cwNoofBalespurcxx
+ 88 : set value:cwHouseLRNumberpurc :##cwLRNumberpurcxx
+ 89 : set value:cwHouseLRDatepurc :##cwLRDatepurcxx
+ 89d : set value:cwHouseConsigneeNamepurc:##cwConsigneeNamepurcxx
+ 89a : set value:cwHouseSupplierNamepurc:##cwSupplierNamepurcxx
+ 89b : set value:cwHouseTransporterNamepurc:##cwTransporterNamepurcxx
+ 89e : set value:cwFentQtystrg:##cwFentQtystrgxx
+ 89f : set value:cwScrpQtystrg:##cwScrpQtystrgxx
+
+ 110: set value : batchname :##mybatchname
+ 115: set value : godownname:if ##cwDeemedPositive then ##mygodownname2 else ##mygodownname
+ 115b : log:if ##cwDeemedPositive then ##mygodownname2 else ##mygodownname
+ 115a: set value : destinationgodownname:if ##cwDeemedPositive then ##mygodownname2 else ##mygodownname
+ 116 : start block
+ 117 : set object
+
+ 120: set value : actualqty :##xbilledqty*##cwMultiplier
+ 122: set value : billedqty :##xbilledqty*##cwMultiplier
+ 122x : set value:Rate:$$asrate:##BatchRatexx ;;*-1 ;;##xrate
+ 123 : set value:amount:$$asamount:##xamount
+;; {19.Jan.24 18:34}  123 : set value:amount:$billedqty ;;*##BatchRatexx ;;$$asamount:##xamount
+
+;; {22.Dec.23 11:51}  71 : log :$$asrate:##BatchRatexx
+
+ 124 : end block
+ 125 : set target : ..
+
+ 140 : end walk
+
+
+;;==============================================================================
+
+
+;; {06.Feb.24 17:43} [Collection:collcwcomsumption]
+[Collection:collcwcomsumptionFectory]
+ source collection :default
+ walk:INVENTORYENTRIESin,Batch Allocations
+
+by:stockitemname:$stockitemname
+by:batchname:$batchname
+by:godownname:$godownname
+;; {06.Feb.24 17:30} compute:cwTypepurc1:$cwHouseTypepurc            ;;$cwTypepurc            ;;cwHouseTypepurc
+compute:cwHouseTypepurc1:$cwHouseTypepurc            ;;$cwTypepurc            ;;cwHouseTypepurc
+compute:cwHouseNoofBalespurc1:$cwHouseNoofBalespurc   ;;$cwNoofBalespurc   ;;cwHouseNoofBalespurc
+compute:cwHouseLRNumberpurc1:$cwHouseLRNumberpurc      ;;cwLRNumberpurc     ;;cwHouseLRNumberpurc
+compute:cwHouseLRDatepurc1:$cwHouseLRDatepurc           ;;$cwLRDatepurc         ;;cwHouseLRDatepurc
+compute:cwHouseConsigneeNamepurc1:$cwHouseConsigneeNamepurc ;;$cwConsigneeNamepurc ;;cwHouseConsigneeNamepurc
+compute:cwHouseSupplierNamepurc1:$cwHouseSupplierNamepurc ;;$cwSupplierNamepurc   ;;cwHouseSupplierNamepurc
+compute:cwHouseTransporterNamepurc1:$cwHouseTransporterNamepurc ;;$cwTransporterNamepurc ;;cwHouseTransporterNamepurc
+compute:cwFentQtystrg1:$cwFentQtystrg
+compute:cwScrpQtystrg1:$cwScrpQtystrg
+compute:BatchRate1:$BatchRate
+aggr compute:amount:sum:$amount
+;; {08.Dec.23 14:35} by:cwvchdpl1: $cwvchdpl
+aggr compute: cwShortQty1: sum :$cwShortQty ;;$billedqty ;;$cwShortQty ;; $billedqty
+compute:closingrate:$closingrate
+;; {29.Dec.23 18:57} aggr compute:closingbalance:sum:$closingbalance
+
+
+
+

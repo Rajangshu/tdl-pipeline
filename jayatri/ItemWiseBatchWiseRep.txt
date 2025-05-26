@@ -1,0 +1,275 @@
+; Created By: Anil on 2024-07-30 15:07, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: ItemWiseBatchWiseLock ;; : @@ItemWiseBatchWiseDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ItemWiseBatchWiseReport: Display: RepItemWiseBatchWise
+  */
+
+
+     [!menu: ItemWiseBatchWiseLock]
+        add: Item: before: @@locQuit: @@ItemWiseBatchWiseReport: Display: RepItemWiseBatchWise
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ItemWiseBatchWiseReport: "ItemWiseBatchWise"
+;; ItemWiseBatchWiseDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepItemWiseBatchWise]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@ItemWiseBatchWiseReport
+   Printset: Report Title: @@ItemWiseBatchWiseReport
+
+       Form: FrmItemWiseBatchWise
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+        
+        variable:str1,str2,str3,str4,str5
+          set:str1:""
+          set:str2:""
+          set:str3:""
+          set:str4:""
+          set:str5:""
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmItemWiseBatchWise]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0ItemWiseBatchWise,PrtItemWiseBatchWise
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: ItemWiseBatchWisebotbrk,ItemWiseBatchWisebotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+add:button:cwStkRepfillBtnxx
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: ItemWiseBatchWiseConfigure
+
+      [part: ItemWiseBatchWisebotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ItemWiseBatchWisebotopbrk]
+        use: dspacctitles
+  add: part: ItemWiseBatchWiseTitlePart
+
+      [part: ItemWiseBatchWiseTitlePart]
+       line: LnItemWiseBatchWiseTitle
+       
+      [line: LnItemWiseBatchWiseCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0ItemWiseBatchWise]
+      line : LnItemWiseBatchWiseCurrPeriod
+      
+      [Part: PrtItemWiseBatchWise]
+       Line: LnItemWiseBatchWiseTitle,LnItemWiseBatchWise
+bottom Line: LnItemWiseBatchWiseTotals
+     repeat: LnItemWiseBatchWise: ColItemWiseBatchWisemain
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+ ;;PRINTED 56*60 (998821)
+ ;; batch 1501
+ 
+[Collection: ColItemWiseBatchWisemain]
+                  /*
+;; {30.Jul.24 17:25} source Collection: souColItemWiseBatchWisemain
+source Collection: souColItemWiseBatchWisemain
+by:name:$name
+by:PARENT:$PARENT
+by:GODOWNNAME:$GODOWNNAME
+ aggr compute:closingbalance:sum:$$number:$closingbalance
+ SEARCH KEY:$PARENT+$GODOWNNAME+$name ;;+$cwLRNumberpurc
+
+[Collection: souColItemWiseBatchWisemain]
+                   */
+collection:ColBatchWise:ColItemWise
+ SEARCH KEY:$PARENT+$GODOWNNAME ;;+$cwLRNumberpurc
+ 
+[Collection: ColBatchWise]
+type:batch
+Child of:$$LoopCollObj:$name
+filter:cwStkRepfillItemxx,cwStkRepfillItemxx2,cwgodownfilterxx,cwgodownfilterxx2,cwitembatchfltxx
+ FILTER:ColItemWiseBatchWiseFilter2
+;; {30.Jul.24 17:03}  SEARCH KEY:$PARENT+$BATCHNAME+$GODOWNNAME+$cwLRNumberpurc
+
+ 
+[Collection: ColItemWise]
+type:stockitem
+ /*       Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColItemWiseBatchWiseFilter,IsNonOptionalCancelledVchs    */
+
+    [system: Formula]
+ColItemWiseBatchWiseFilter2: $godownnAME="Factory Unfinished (Paikpara)" OR $godownnAME="NAV JIWAN (Job Worker)"
+
+
+      [Line: LnItemWiseBatchWiseTitle]
+        use: LnItemWiseBatchWise
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Godown Name"
+local:field: snf3: set as: "Godown Name2"
+local:field: snf2: set as: "LR No."
+local:field: nf: set as: "Batch Name"
+local:field: fwf: set as: "Item Name"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: LnItemWiseBatchWise]
+     Fields: ItemWiseBatchWisemastid,nf,fwf,snf,snf3,snf2
+Right Field: Qtyf
+
+     Option: Alter on Enter
+        key: ItemWiseBatchWiseDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: snf: set as:$godownname ;; "LR No."
+local:field: snf3: set as:$godownname ;; "LR No."
+local:field: snf2: set as:$cwLRNumberpurc ;; "LR No."
+local:field: nf: set as: $name ;;"Batch Name"
+local:field: fwf: set as: $parent ;;"Item Name"
+local:field: qtyf: set as: $closingbalance ;;"Item Name"
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: ItemWiseBatchWiseDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: ItemWiseBatchWiseDisplayVoucher
+
+ 	
+     [Report: ItemWiseBatchWiseDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #ItemWiseBatchWisemastid
+	
+
+        [Field: ItemWiseBatchWisemastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnItemWiseBatchWiseTotals]
+        use: LnItemWiseBatchWise
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      
+      [button:cwStkRepfillBtnxx]
+    title:"Filter"
+    key:f7
+    action : modify variable :cwStkRepfillBtnxx
+
+
+        [Report: cwStkRepfillBtnxx]
+        form   : cwStkRepfillBtnxx
+        [form  :cwStkRepfillBtnxx]
+         part   :cwStkRepfillBtnxx
+        ; height:30% page
+        width:45% page
+       ;  Background  :Very Light Blue ;;@@SV_UNYELLOW
+
+        [part  :cwStkRepfillBtnxx]
+        line:cwStkRepfillTitxx,cwbatchnameFiltLn,cwbatchnameFiltLn2,cwbatchnameFiltLn3,cwbatchnameFiltLn4,cwbatchnameFiltLn5
+
+
+        [line:cwStkRepfillTitxx]
+        field:fwfc
+        Local: Field: fwfc: info: "Filter"
+        Local: Field: fwfc: Style: Normal Bold
+
+          [line:cwbatchnameFiltLn]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"Item"
+     Local: Field: nf:modifies:str1
+     Local: Field: Medium Prompt: Style: Normal Bold
+     Local: Field: nf: table:collstkitemxx,Not Applicable
+     Local: Field: nf: Show table: Always
+     space top:0.3
+     
+     [Collection: collstkitemxx]
+     type:stock item
+     
+     [Collection: collstkgodownxx]
+     type:godown
+     
+      [line:cwbatchnameFiltLn2]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"LR No."
+     Local: Field: nf:modifies:str2
+     Local: Field: Medium Prompt: Style: Normal Bold
+;; {30.Jul.24 15:53}      Local: Field: nf: table:collstkitemxx,Not Applicable
+;; {30.Jul.24 15:53}      Local: Field: nf: Show table: Always
+
+ [line:cwbatchnameFiltLn3]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"Godown"
+     Local: Field: nf:modifies:str3
+     Local: Field: Medium Prompt: Style: Normal Bold
+     Local: Field: nf: table:collstkgodownxx,Not Applicable
+     Local: Field: nf: Show table: Always
+
+ [line:cwbatchnameFiltLn4]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"Godown2"
+     Local: Field: nf:modifies:str4
+     Local: Field: Medium Prompt: Style: Normal Bold
+     Local: Field: nf: table:collstkgodownxx,Not Applicable
+     Local: Field: nf: Show table: Always
+
+[line:cwbatchnameFiltLn5]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"Batch"
+     Local: Field: nf:modifies:str5
+     Local: Field: Medium Prompt: Style: Normal Bold
+;; {30.Jul.24 15:53}      Local: Field: nf: table:collstkitemxx,Not Applicable
+;; {30.Jul.24 15:53}      Local: Field: nf: Show table: Always
+
+     [System: Formula]
+     cwStkRepfillItemxx:if $$issysname:##str1 then yes else $parent= ##str1
+     cwStkRepfillItemxx2:if $$issysname:##str2 then yes else $cwLRNumberpurc= ##str2
+     cwgodownfilterxx:if $$issysname:##str3 then yes else $godownname= ##str3
+     cwgodownfilterxx2:if $$issysname:##str4 then yes else $godownname= ##str4
+     cwitembatchfltxx:if $$issysname:##str5 then yes else $batchname= ##str5
+
+

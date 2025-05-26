@@ -1,0 +1,15 @@
+; Created By: Anil on 2024-03-27 17:32, ID: 
+
+[#Part: VTYP BehaviourMain]
+add:option:cwVTYPBehaviourMainopt:@@cwstkjrnlVoucher
+[!Part: cwVTYPBehaviourMainopt]
+add:line:cwSubjecttoLine
+
+[line:cwSubjecttoLine]
+field:mp,nf
+
+Local: Field: mp: info: "Jurisdiction"
+Local: Field: nf: storage:cwJurisdiction
+
+[System: Formula]
+cwInvJurisdiction:$cwJurisdiction:vouchertype:$vouchertypename

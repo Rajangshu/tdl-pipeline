@@ -1,0 +1,186 @@
+; Created By: Anil on 2024-04-08 17:02, ID: 
+
+
+[#Part  : CMP TallyShopFeatures Left]
+add:line:JayatriTestConfig,fndeline1,cwdocbaselined,cwitemline,imagepathline,cwexepathln,CwGodownDetailsLn
+
+[line:fndeline1]
+ field:sp,cwlogical
+ Local: Field: sp: Set As:"F/N Details"
+ Local: Field : cwlogical : SubForm : fnderep1: $$value
+ Local: Field:cwlogical : storage:cwFNDetailsstrg
+ Local: field: sp: Width:18
+
+ [report:fnderep1]
+ form:fnderep1
+
+ [form:fnderep1]
+ part:fnderep1
+
+ [part:fnderep1]
+ line:fnmsline1,natureline1,valuinline1,fromtoline1
+
+ [line:fnmsline1]
+ field:sp,snf
+ Local: Field: sp: Set As:"M/S Title"
+ Local: Field: snf: storage:cwmstitle
+ Local: field: sp: Width:20
+ space bottom:0.5
+ Local: Field: nf: Style: Normal Bold
+
+
+ [line:natureline1]
+ field:sp,nf
+ Local: Field: sp: Set As:"Nature Of Goods"
+ Local: Field: nf: storage:cwNatureOfGoods ;;cwcmpNatureOfGoods
+;; {20.Apr.24 17:44}  Local: Field: nf: storage:cwcmpNatureOfGoods
+ Local: field: sp: Width:20
+ space bottom:0.5
+ Local: Field: nf: Style: Normal Bold
+
+
+ [line:valuinline1]
+ field:sp,snf
+ Local: Field: sp: Set As:"Value of Insurance"
+ Local: Field: snf: storage:cwcmpValueofInsurance
+ Local: field: sp: Width:20
+ local : field : numf : format :"Decimals:2,NoZero"
+ space bottom:0.5
+ Local: Field: snf: Style: Normal Bold
+
+
+  [line:fromtoline1]
+ field:sp,snf
+ Local: Field: sp: Set As:"From"
+ Local: Field: sp2: Set As:"To"
+ Local: Field: snf: storage:cwcmpfromfn
+ Local: Field: snf: Style: Normal Bold
+ Local: field: sp: Width:20
+
+
+ [line:eunicledline]
+ field:sp,cwlogical
+
+ Local: Field: sp: Set As:"For unique Party Ledger?"
+ Local: Field: cwlogical: storage:cwenicforparty
+ Local: field: sp: Width:20
+
+ space bottom:0.5
+ 
+ ;;============================
+ [line:cwdocbaselined]
+field:sp,nf
+Local: Field: sp: Set As:"Doc Base Path :"
+Local: Field: nf: storage:cwBasePath
+Local: field: sp: Width:25
+Local: field: nf: Width:30
+
+;; {06.Aug.24 18:05} local: field:default: inactive:not #cwlogical
+Local: Field: nf: Style: Normal Bold
+
+
+ [line:cwitemline]
+field:sp,cwlogical
+
+
+Local: Field: sp: Set As:"Use Image Path in Item :"
+Local: Field: cwlogical: storage:cwDocitem
+
+;; {06.Aug.24 17:30} local: field:default: inactive:not $cwEnableDoc
+Local: field: sp: Width:25
+
+[System: Formula]
+cwDocitemEnable:$cwDocitem:COMPANY:##SVCURRENTCOMPANY
+cwBasePath : $cwBasePath:COMPANY:##SVCURRENTCOMPANY
+
+ [line:imagepathline]
+       field:medium prompt,nf
+       Local: Field: medium prompt: Set As:"Image Path:"
+       Local: Field: nf: storage:cwImagepath
+;; {29.Jul.21 17:54}        Local: Field: nf: storage:cwImageLoc
+
+
+;; {05.Jan.17 14:10}        [System: UDF]
+;; {05.Jan.17 14:10}         cwimagepath:string:1
+
+    [line:cwexepathln]
+ field : medium prompt,fwf
+ Local: Field: medium prompt: info: "App Location(Full EXE Path) :"
+ Local: Field: fwf: storage: cwRitwikaAppLoc
+ local: field: fwf: Case: Normal
+ 
+ [line:CwGodownDetailsLn]
+ field:sp,cwlogical
+
+ Local: Field: sp: Set As:"For Holding Report"
+ Local: Field: cwlogical: storage:CwGodownDetails
+ Local: Field : cwlogical : SubForm : CwGodownDetailsRep: $$value
+ Local: field: sp: Width:20
+
+ space bottom:0.5
+ 
+ [report:CwGodownDetailsRep]
+ form:CwGodownDetailsRep
+
+ [form:CwGodownDetailsRep]
+ part:CwGodownDetailsRep
+
+ [part:CwGodownDetailsRep]
+ line:cwGodownLine1,cwGodownLine2,cwGodownLine3,cwGodownLine4,cwGodownLine5
+ 
+ [line:cwGodownLine1]
+ field : medium prompt,nf
+ Local: Field: medium prompt: info: "Receive Qty:"
+ Local: Field: nf: storage: cwIsMRKol1
+ local: field: nf: Case: Normal
+ Local: Field: default: Color : blue
+ Local: Field: snf: Style: Normal Bold
+ Local: Field: nf: table: cwgodowntablenew,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ [line:cwGodownLine2]
+ field : medium prompt,nf
+ Local: Field: medium prompt: info: "Measurement Qty:"
+ Local: Field: nf: storage: cwIsMOKata1
+ local: field: nf: Case: Normal
+ Local: Field: default: Color : blue
+ Local: Field: snf: Style: Normal Bold
+ Local: Field: nf: table: cwgodowntablenew,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ [line:cwGodownLine3]
+ field : medium prompt,nf
+ Local: Field: medium prompt: info: "MR Kata Hold Qty:"
+ Local: Field: nf: storage: cwIsMRKata1
+ local: field: nf: Case: Normal
+ Local: Field: default: Color : blue
+
+ Local: Field: nf: table: cwgodowntablenew,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ [line:cwGodownLine4]
+ field : medium prompt,nf
+ Local: Field: medium prompt: info: "Is MO DO:"
+ Local: Field: nf: storage: cwIsMODO1
+ local: field: nf: Case: Normal
+ Local: Field: default: Color : blue
+ Local: Field: snf: Style: Normal Bold
+ Local: Field: nf: table: cwgodowntablenew,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ [line:cwGodownLine5]
+ field : medium prompt,nf
+ Local: Field: medium prompt: info: "MR DO Holding Qty:"
+ Local: Field: nf: storage: cwIsMRDO1
+ local: field: nf: Case: Normal
+ Local: Field: default: Color : blue
+ Local: Field: snf: Style: Normal Bold
+ Local: Field: nf: table: cwgodowntablenew,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ [Collection: cwgodowntablenew]
+ Title       		: $$LocaleString:"List of Godowns"
+ type:godown
+ 
+
+

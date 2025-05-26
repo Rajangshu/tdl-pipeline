@@ -1,0 +1,295 @@
+; Created By: Anil on 2024-03-22 18:12, ID: 
+
+[System: Formula]
+cwEnableStockJournalYes:$cwEnableStockJournal:vouchertype:$vouchertypename
+
+[#Part: GDWN Location]
+add:option:cwGDWNLocationopt:@@JayatriTestEnabled
+[!Part: cwGDWNLocationopt]
+add:bottom line:cwgodownaddline
+
+[line:cwgodownaddline]
+field:fwf
+Local: Field: fwf: Set As:$$fulllist:Address:$Address ;;#GDWNLocation
+Local: Field: fwf: storage:cwgodownaddnewfldstrg
+Local: Field: fwf: Border: thin box ;;left right
+local: field: fwf: Invisible: yes
+
+[#Line: LED GSTIN]
+ADD:OPTION:CWLEDGSTINOPT:@@JayatriTestEnabled
+
+[!Line: CWLEDGSTINOPT]
+ADD:FIELD:SNF,SNF1,SNF2
+
+Local: Field: SNF: Set As:$GSTIN ;;#LEDGSTIN ;;$GSTIN
+Local: Field: SNF2: Border: thin box ;;left right
+;; {28.Mar.24 15:23} Local: Field: SNF: storage:CWLEDGERGSTNMBR
+Local: Field: SNF1: storage:CWLEDGERADDRESS
+Local: Field:SNF1 : Set As:$$fulllist:LedAddress:$LEDAddress ;;$address
+Local: Field:SNF2 : Set As:$PRIORSTATENAME ;;#LEDState
+
+local: field: SNF: Invisible: yes
+local: field: SNF1: Invisible: yes
+local: field: SNF2: Invisible: yes
+
+;; {18.Apr.24 11:22} [#Form: NRML StkJrnl]
+;; {18.Apr.24 11:22} Local: Field: default: Border: thin box ;;left right
+[#Part: SJ MainTitle]
+delete:Option		: ReadonlyPart
+ADD:OPTION:CWSJMainTitleOPTNEW:@@cwEnableStockJournalYes AND @@JayatriTestEnabled
+[!Part: CWSJMainTitleOPTNEW]
+add:line:cwpstkjrnlpartyLn,cwchallannoLine2,cwchallandateLn2,cwtransporterLn2,cwvehiclesnoLn2,cwstkjrnltargetgdLn
+
+[field:cwpartyfld]
+use:nf
+
+[line:cwpstkjrnlpartyLn]
+field:sp,cwpartyfld,SNF,SNF1,SNF2
+
+Local: Field: sp: info: "Party Name"
+Local: Field: cwpartyfld: storage:cwpstkjrnlparty
+Local: Field: cwpartyfld: table: ledger,Not Applicable
+Local: Field: cwpartyfld: Show table: Always
+ Local: Field: cwpartyfld:Key      :Create Ledger, Alter Ledger
+ Local: Field: cwpartyfld:Variable :SV Ledger
+ 
+;; {27.Mar.24 18:29}  Local: Field: SNF: Set As:$CWLEDGERGSTNMBR:Ledger:#nf ;;$LedGSTRegDetails[Last].GSTIN
+ Local: Field: SNF: Set As:$(Ledger,#cwpartyfld).LedGSTRegDetails[Last].GSTIN ;;$GSTIN:Ledger:#cwpartyfld ;;$LedGSTRegDetails[Last].GSTIN
+ Local: Field: SNF1: Set As:$CWLEDGERADDRESS:Ledger:#cwpartyfld
+ Local: Field: snf2: Set As:$PRIORSTATENAME:Ledger:#cwpartyfld
+ Local: Field: snf: storage:CWVCHLEDGERGSTNMBR
+ Local: Field: snf1: storage:CWVCHLEDGERADDRESS
+ Local: Field: snf2: storage:CWVCHLEDGERstare
+ Local: Field: SNF: Border: thin box ;;left right
+ 
+local: field: SNF: Invisible: yes
+local: field: SNF1: Invisible: yes
+local: field: SNF2: Invisible: yes
+
+[line:cwchallannoLine2]
+field:sp,nf
+
+Local: Field: sp: Set As:"Challan No"
+Local: Field: nf: storage:cwchallanno
+
+
+[line:cwchallandateLn2]
+field:sp,sdf
+
+Local: Field: sp: Set As:"Challan Date"
+Local: Field: sdf: storage:cwchallandate
+
+[line:cwtransporterLn2]
+field:sp,nf
+
+Local: Field: sp: Set As:"Transport"
+Local: Field: nf: storage:cwtransporte
+Local: Field: nf: table:collcwTransporter,Not Applicable
+Local: Field: nf: Show table: Always
+Local: field: nf: Width:30
+Local: Field:Medium Prompt : Style: small
+Local: Field:nf : Style: small Bold
+
+[line:cwvehiclesnoLn2]
+field:sp,nf
+
+Local: Field: sp: Set As:"Vehicles No"
+Local: Field: nf: storage:cwvehiclesno
+
+[line:cwstkjrnltargetgdLn]
+field:sp,cwgodownfld,nf2
+
+Local: Field: sp: info: "Consumption Godown"
+Local: Field: nf2: Set As:$cwgodownaddnewfldstrg:godown:#cwgodownfld
+Local: Field: nf2: storage:cwstkjrnlgodownaddstrg
+Local: field: sp: Width:16
+local: field: nf2: Invisible: yes
+
+[field:cwgodownfld]
+use:nf
+table: godown,Not Applicable
+Show table: Always
+storage:cwstkjrnlgodown
+
+/*[#Field: VCH Godown]
+set as:$cwstkjrnlgodown
+border:thin box   */
+
+;;============================================
+
+[#Line: VCHBATCH ColumnOne]
+add:option:cwVCHBATCHColumnOneoptnewx:@@cwEnableStockJournalYes AND @@JayatriTestEnabled
+[!Line: cwVCHBATCHColumnOneoptnewx]
+;; {29.Apr.24 17:46} ADD:RIGHT FIELD:AFTER:VCH BatchNameTitle:SNF19
+ADD:RIGHT FIELD:AFTER:VCH GodownTitle:SNF20,SNF19
+add:right field:after:VCH BatchNameTitle:snf40,snf1,snf,snf2,sdf,snf10,snf4,snf5
+
+Local: Field: SNF19: info: "Batch Name"
+Local: Field: SNF20: info: "Godown"
+Local: field: SNF19: Align: centre
+Local: field: SNF20: Align: centre
+
+;; {29.Apr.24 18:01}  Local: Field: snf36: INFO:"Bale No"
+ Local: Field: snf40: INFO:"Sup.Inv No"
+ Local: Field: snf: INFO:"No of Bales"
+ Local: Field: snf1: INFO:"Type"
+ Local: Field: snf2: INFO:"LR Number"
+ Local: Field: sdf: INFO:"LR Date"
+ Local: Field: snf10: INFO:"House"
+ Local: Field: snf4: INFO:"Supplier Name"
+ Local: Field: snf5: INFO:"Trans Name"
+
+
+local: field:  VCH BatchNameTitle: Invisible: yes
+
+Local: field: snf10: Align: centre
+
+;; {29.Apr.24 18:45}    Local: field: snf: Width: 8
+;; {29.Apr.24 18:45}  Local: field: snf1: Width: 8
+
+[#line:STKVCH Batch2]
+add:option:cwstkjrnlSTKVCHBatch2opt:@@cwEnableStockJournalYes AND @@JayatriTestEnabled
+[!line:cwstkjrnlSTKVCHBatch2opt]
+add:right Field:after:VCHBATCH Name:snf40,snf1,snf,snf2,sdf,snf10,snf4,snf5
+
+ Local: Field: snf40: storage:cwDirectPurInvNo;;"Sup.Inv No"
+ Local: Field: snf: storage:cwNoofBalespurc;;"No of Bales"
+ Local: Field: snf1: storage:cwTypepurc ;;"Type"
+ Local: Field: snf2: storage:cwLRNumberpurc ;;"LR Number"
+ Local: Field: sdf: storage:cwLRDatepurc ;;"LR Date"
+ Local: Field: snf10: storage:cwConsigneeNamepurc ;;"House"
+ Local: Field: snf4: storage:cwSupplierNamepurc ;;"Supplier Name"
+ Local: Field: snf5: storage:cwTransporterNamepurc ;;"Trans Name"
+ 
+ Local: Field: snf40: Set As:$$table:VCHBATCHName:$cwDirectPurInvNo
+ Local: Field: snf: Set As:$$table:VCHBATCHName:$cwNoofBalespurc
+ Local: Field: snf1: Set As:$$table:VCHBATCHName:$cwTypepurc
+ Local: Field: snf2: Set As:$$table:VCHBATCHName:$cwLRNumberpurc
+ Local: Field: snf4: Set As:$$table:VCHBATCHName:$cwSupplierNamepurc
+ Local: Field: snf5: Set As:$$table:VCHBATCHName:$cwTransporterNamepurc
+ Local: Field: sdf: Set As:$$table:VCHBATCHName:$cwLRDatepurc
+ Local: Field: snf10: Set As:$$table:VCHBATCHName:$cwConsigneeNamepurc
+ 
+ Local: Field: snf1: table:cwcolltype,Not Applicable
+ Local: Field: snf1: Show table: Always
+ 
+ Local: Field: snf40: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf1: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf2: INACTIVE :@@BatchAllocBreak
+ Local: Field: sdf: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf4: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf5: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf10: INACTIVE :@@BatchAllocBreak
+
+ 
+ [#Collection: Active Batches VchExtract]
+ add:option:cwstkjrnlActiveBatchesVchExtractopt:@@cwEnableStockJournalYes AND @@JayatriTestEnabled
+ 
+ [!Collection: cwstkjrnlActiveBatchesVchExtractopt]
+ Title       		: $$LocaleString:"List of Active Batches"
+delete:SubTitle            : $$LocaleString:"Name", @@ExpirySubTitle, $$LocaleString:"Balance"
+add:SubTitle            : $$LocaleString:"Name",$$LocaleString:"Balance",$$LocaleString:"",$$LocaleString:"Type",$$LocaleString:"House",$$LocaleString:"Supplier Name",$$LocaleString:"Transporter Name",$$LocaleString:"No of Bales",$$LocaleString:"Type",$$LocaleString:"LR Number",$$LocaleString:"LR Date",$$LocaleString:"Sup Inv(Dir)",$$LocaleString:"Balance"
+add:Fetch				: Name,cwNoofBalespurc,cwTypepurc,cwConsigneeNamepurc,cwLRNumberpurc,cwLRDatepurc,cwDirectPurInvNo,cwSupplierNamepurc,cwTransporterNamepurc, Parent, ExpiryPeriod, ActualQty, ClosingBalance, GodownName, ClosingAsondate, MfdOn
+add:Format      		: $Name,10
+add:format:$cwTypepurc,10
+add:format:$cwConsigneeNamepurc,10
+add:format:$cwSupplierNamepurc,10
+add:format:$cwTransporterNamepurc,10
+add:format:$cwNoofBalespurc,10
+add:format:$cwLRNumberpurc,10
+add:format:$cwLRDatepurc,10
+add:format:$cwDirectPurInvNo,10
+
+[#Part: GTRNDestination]
+ADD:OPTION:CWGTRNDestinationOPTNEW:@@cwEnableStockJournalYes AND @@JayatriTestEnabled
+[!Part: CWGTRNDestinationOPTNEW]
+add:line:cwpstkjrnlpartyLn,cwchallannoLine2,cwchallandateLn2,cwtransporterLn2,cwvehiclesnoLn2,cwstkjrnltargetgdLn
+
+[#Line: GTRNDetails]
+add:option:cwGTRNDetailsopt:@@cwEnableStockJournalYes AND @@JayatriTestEnabled
+[!Line: cwGTRNDetailsopt]
+Local: Field: VCH Godown: Set As:#cwgodownfld
+
+;;======================================
+[System: Formula]
+cwEnableCustomisationYes:$cwEnableCustomisation:vouchertype:$vouchertypename
+
+[#Report: Voucher]
+add:option:cwStkJrnlVoucherOpt :@@cwEnableCustomisationYes
+[!Report:cwStkJrnlVoucherOpt]
+variable:str3 ;;logi2
+set:str3:""
+
+[#Form: Voucher]
+add:option:cwStkJrnlvoucherOpt :@@cwEnableCustomisationYes
+;; {29.Jul.24 10:31} Local: Field: default: Border: thin box ;;left right
+[!Form:cwStkJrnlvoucherOpt]
+add:button:cwGstBtn
+
+[Button:cwGstBtn]
+title : "Gst Button"
+Action : Modify Variables:cwGstBtnrep
+key : alt + 2
+
+[report:cwGstBtnrep]
+form:cwGstBtnfrm
+
+[form:cwGstBtnfrm]
+part:cwGstBtnprt
+WIDTH:30% PAGE
+height :20% page
+
+[part:cwGstBtnprt]
+line:cwGstBtnLine,cwStkLedgerNameLn,cwStkLedgerNameLn2,cwStkLedgerNameLn3
+BORDER:THIN BOX
+
+[line:cwGstBtnLine]
+field:fwfc
+
+Local: Field: fwfc: info: "GST DETAILS"
+BORDER:THIN BOX
+
+[line:cwStkLedgerNameLn]
+field:fwfc
+right field:numf,amtf
+
+Local: Field: fwfc: Info: "Ledger Name"
+Local: Field: numf: Info: "Rate"
+Local: Field: amtf: Info: "Amount"
+local: field: amtf: type: String
+local: field: numf: type: String
+Local: Field: default: Style: Normal Bold
+Local: Field: amtf: Border: thin left
+border:thin bottom
+
+[line:cwStkLedgerNameLn2]
+field:fwf
+right field:numf,amtf
+
+Local: Field: fwf: table: cwstkjrnlled,Not Applicable
+Local: Field: fwf: Show table: Always
+Local: Field: fwf: storage:cwStkLedger
+Local: Field: numf: storage:cwStkLedgerRate
+Local: Field: amtf: storage:cwStkLedgeramt
+Local: Field: amtf: Border: thin left
+local : field : numf : format :"Decimals:1,NoZero"
+
+[line:cwStkLedgerNameLn3]
+use:cwStkLedgerNameLn2
+
+Local: Field: fwf: table: cwstkjrnlled,Not Applicable
+Local: Field: fwf: Show table: Always
+Local: Field: fwf: storage:cwStkLedger2
+Local: Field: numf: storage:cwStkLedgerRate2
+Local: Field: amtf: storage:cwStkLedgeramt2
+Local: Field: amtf: Border: thin left
+local : field : numf : format :"Decimals:1,NoZero"
+
+[Collection: cwstkjrnlled]
+type:ledger
+;; {27.Aug.24 13:18} child of:"Duties & Taxes" ;;"GST"
+
+
+
+

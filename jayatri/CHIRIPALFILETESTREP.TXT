@@ -1,0 +1,458 @@
+; Created By: Anil on 2024-05-18 18:53, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+;; {24.Jun.24 13:09}         add: Option: ChiripalFileTestLock ;; : @@ChiripalFileTestDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ChiripalFileTestReport: Display: RepChiripalFileTest
+  */
+
+
+     [!menu: ChiripalFileTestLock]
+        add: Item: before: @@locQuit: @@ChiripalFileTestReport: Display: RepChiripalFileTest
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ChiripalFileTestReport: "Chiripal File"
+;; ChiripalFileTestDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepChiripalFileTest]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@ChiripalFileTestReport
+   Printset: Report Title: @@ChiripalFileTestReport
+
+       Form: FrmChiripalFileTest
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmChiripalFileTest]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0ChiripalFileTest,PrtChiripalFileTest
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: ChiripalFileTestbotbrk,ChiripalFileTestbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: ChiripalFileTestConfigure
+
+      [part: ChiripalFileTestbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ChiripalFileTestbotopbrk]
+        use: dspacctitles
+  add: part: ChiripalFileTestTitlePart
+
+      [part: ChiripalFileTestTitlePart]
+       line: LnChiripalFileTestTitle
+       
+      [line: LnChiripalFileTestCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0ChiripalFileTest]
+      line : LnChiripalFileTestCurrPeriod
+      
+      [Part: PrtChiripalFileTest]
+       Line: LnChiripalFileTestTitle,LnChiripalFileTest
+bottom Line: LnChiripalFileTestTotals
+     repeat: LnChiripalFileTest: ColChiripalFileTestmain ;;ColChiripalFileTestmainX
+     scroll:both ;; Vertical
+ Common Border: YEs
+      Total: Qtyf,qtyf1,qtyf2,qtyf3,amtf,amtf1
+
+; Main Collection
+[Collection: ColChiripalFileTestmain]
+source collection: ColChiripalFileTest
+walk: allinventoryentries, batchallocations
+by:ParentItem:$ParentItem
+by: date:            $date
+by: voucherTypeName: $voucherTypeName
+by: reference:   $reference
+by: voucherNumber:   $voucherNumber
+by: partyledgername:   $partyledgername
+by: stockitemName:   $stockItemName
+by: batchName:       $batchName
+;; {21.May.24 15:37} by: cwHousesuppinvno1: $cwHousesuppinvno
+compute:BILLOFLADINGNO1:$BILLOFLADINGNO
+compute:cwLRNumberpurc1:$cwLRNumberpurc
+compute:cwLRNumberpurcmoph1:$...BILLOFLADINGNO
+compute:cwLRDatepurc1:$cwLRDatepurc
+compute: cwVchSortOrder: $mySortOrder
+compute: cwHousesuppinvno5: $cwHousesuppinvno ;;$cwHousesuppinvno
+compute:CONSIGNEEMAILINGNAME1:$CONSIGNEEMAILINGNAME
+compute:cwRecedQty1:$cwRecedQty
+compute:cwShortQty1:$cwShortQty
+compute:cwinvamt1:@@cwinvamt
+compute:cwVCHIGSTVALUE2x:@@cwVCHIGSTVALUE2
+compute:cwVCHCGSTVALUE2x:@@cwVCHCGSTVALUE2
+compute:cwVCHSGSTVALUE2x:@@cwVCHSGSTVALUE2
+compute:cwRoffValuex:@@cwRoffValue
+compute:cwTotalAmountnewmin1x:$cwTotalAmountnewmin1
+aggr compute: billedQty: sum: $billedQty
+fetch:BILLOFLADINGNO
+
+[Collection: ColChiripalFileTest]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColChiripalFileTestFilter,IsNonOptionalCancelledVchs
+     compute:cwTotalAmountnewmin1:$cwTotalAmountnewmin
+    compute: mySortOrder: if $$isPurchase:$vouchertypename then 1 else if $$IsJobMaterialReceive:$voucherTypename then 2 else 3
+    
+;; {21.May.24 18:08}     compute: cwHousesuppinvno : if $$isPurchase:$voucherTypeName then $reference else ""
+
+
+    [system: Formula]
+;; {21.May.24 12:42} ColChiripalFileTestFilter: $cwEnablePurchase:vouchertype:$voucherTypeName or $cwHouseMaterialOut:vouchertype:$voucherTypeName ;;or $cwHouseMaterialOut:vouchertype:$voucherTypeName
+ColChiripalFileTestFilter: $cwEnablePurchase:vouchertype:$voucherTypeName ;;or $cwTransportChallanvchtype:vouchertype:$voucherTypeName ;;or $cwHouseMaterialOut:vouchertype:$voucherTypeName
+;;$$CollectionField:$cwTotalAmountnewmin:First:<Collection>
+
+[field:cwpursupinvfld]
+use:snf
+Invisible: yes
+ 
+      [Line: LnChiripalFileTestTitle]
+        use: LnChiripalFileTest
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: snf10: set as: "Voucher Type "
+local:field: snf11: set as: "Sup Inv"
+local:field: snf5: set as: "Sup Inv Bill NO "
+local:field: snf: set as: "VCH Bill NO "
+local:field: snf1: set as: "L.R NO"
+local:field: snf2: set as: "Our Quality"
+local:field: snf3: set as: "Lot NO"
+local:field: snf4: set as: "Desp. LR From Job Party"
+local:field: amtf10: set as: "TRP Fare"
+local:field: sdf: set as: "Bill Date"
+local:field: sdf2: set as: "LR Date "
+local:field: sdf3: set as: "Received Date  By Job Party"
+local:field: sdf4: set as: "DT OF Booking"
+local:field: sdf5: set as: "Received Date (At Factory)"
+local:field: nf: set as: "Party Name"
+local:field: nf1: set as: "Place Of Delivery"
+local:field: fwf: set as: "Quality"
+local:field: qtyf: set as: "Metre"
+local:field: qtyf1: set as: "MTR Checking From Job Party"
+local:field: qtyf2: set as: "MTR Despatch From Job Party"
+local:field: qtyf3: set as: "Add/Less"
+local:field: numf: set as: "ELG"
+local:field: amtf: set as: "Amount"
+local:field: amtf1: set as: "Net Amount"
+local:field: ratepf : set as : "Rate"
+
+local:field:fwf:indent:8
+Local : field : snf4: Lines : 0
+Local : field : snf5: Lines : 0
+Local : field : sdf3: Lines : 0
+Local : field : sdf4: Lines : 0
+Local : field : sdf5: Lines : 0
+Local : field : qtyf1: Lines : 0
+Local : field : qtyf2: Lines : 0
+
+      local: field: sdf : style: style1y
+      local: field: sdf2 : style: style1y
+      local: field: sdf3 : style: style1y
+      local: field: sdf4 : style: style1y
+      local: field: sdf5 : style: style1y
+      local: field: snf : style: style1y
+      local: field: snf5 : style: style1y
+      local: field: snf1 : style: style1y
+      local: field: snf2 : style: style1y
+      local: field: snf3 : style: style1y
+      local: field: snf4 : style: style1y
+      local: field: amtf10 : style: style1y
+      local: field: amtf : style: style1y
+      local: field: amtf1 : style: style1y
+      local: field: nf : style: style1y
+      local: field: nf1 : style: style1y
+      local: field: fwf : style: style1y
+      local: field: qtyf : style: style1y
+      local: field: qtyf1 : style: style1y
+      local: field: qtyf2 : style: style1y
+      local: field: qtyf3 : style: style1y
+      local: field: numf : style: style1y
+
+      Local: field: default: Align: centre
+      Local: field: fwf: delete:Align: centre
+
+; Main Line
+      [Line: LnChiripalFileTest]
+     Fields: ChiripalFileTestmastid,cwpursupinvfld,snf11,snf10,snf,snf5,sdf,nf,fwf
+Right Field: snf1,sdf2,amtf10,Qtyf,ratepf,Amtf,amtf3,amtf4,amtf5,amtf6,amtf1,nf1,sdf3,snf3,Qtyf1,Qtyf5,snf2,Qtyf2,Qtyf3,numf,sdf4,snf4,sdf5
+;; {04.Jul.24 14:17} Right Field: snf1,sdf2,snf5,Qtyf,ratepf,Amtf,amtf3,amtf4,amtf5,amtf6,amtf1,nf1,snf2,sdf3,snf3,Qtyf1,Qtyf2,Qtyf3,numf,sdf4,snf4,sdf5
+
+     Option: Alter on Enter
+        key: ChiripalFileDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: snf10: set as: $vouchertypename ;;"BILL NO "
+local:field: snf11: set as: $batchName ;;"BILL NO "
+local:field: cwpursupinvfld: set as: $batchName ;;"BILL NO "
+local:field: snf: set as: $vouchernumber ;;"BILL NO "
+local:field: snf5: set as: $reference ;;"BILL NO "
+local:field: snf1: set as: $cwLRNumberpurc1 ;;if $$isempty:$cwHousesuppinvno5 then $cwLRNumberpurc1 else "" ;;$BILLOFLADINGNO ;;"L.R NO"
+local:field: snf2: set as: $ParentItem ;;"OUR QUALITY"
+local:field: snf3: set as: $cwHousesuppinvno5 ;;if $$isempty:$billedqty then $batchname else ""   ;;"LOT NO"
+local:field: snf4: set as: "" ;;if $$isempty:$cwHousesuppinvno5 then "" else $cwLRNumberpurcmoph1 ;;"DESP. LR FROM JOB PARTY"
+Local: Field: amtf10: Set As:$cwTotalAmountnewmin1x ;;if $$isempty:$billedqty then "" else $batchname  ;;$batchname
+local:field: sdf: set as: $date ;;if $$isempty:$billedqty then "" else $date ;;"BILL DATE"
+local:field: sdf2: set as: $cwLRDatepurc1 ;;if $$isempty:$cwHousesuppinvno5 then $cwLRDatepurc1 else ""   ;;"LR DATE "
+local:field: sdf3: set as: "" ;;$date ;;if $$isempty:$billedqty then $date else ""  ;;"RECEIVED DATE  BY JOB PARTY"
+local:field: sdf4: set as: "" ;;$date ;;if $$isempty:$cwHousesuppinvno5 then "" else $date ;;"DT OF BOOKING"
+local:field: sdf5: set as: "" ;;$date ;;"RECEIVED DATE (AT FACTORY)"
+local:field: nf: set as: $partyledgername ;;"PARTY NAME"
+local:field: nf1: set as: $CONSIGNEEMAILINGNAME1 ;;if $$isempty:$billedqty then "" else $CONSIGNEEMAILINGNAME1 ;;"PLACE OF DELIVERY"
+local:field: fwf: set as: $stockitemname ;;"QUALITY"
+local:field: qtyf: set as: $billedqty ;;if $$isempty:$batchname then "" else $billedqty ;;"METRE"
+;; {04.Jul.24 17:13} local:field: qtyf1: set as: $cwRecedQty1 ;;if $$isempty:$billedqty then $cwRecedQty1 else "";;"MTR CHECKING FROM JOB PARTY"
+;; {04.Jul.24 17:13} local:field: qtyf2: set as: if $$isempty:$cwHousesuppinvno5 then "" else $billedqty ;;#qtyf1+#qtyf3 ;;"MTR DESPATCH FROM JOB PARTY"
+local:field: qtyf3: set as: $cwShortQty1 ;;#qtyf2-#qtyf1 ;;"ADD/LESS"
+Local: Field: Qtyf5: Set As:"" ;;#qtyf
+local:field: numf: set as:#qtyf3/#qtyf1;;"ELG"
+local:field: amtf: set as: if $$isempty:$batchname then "" else $cwinvamt1 ;;"Amount"
+local:field: amtf1: set as:#amtf+(#amtf3+#amtf4+#amtf5+#amtf6) ;;$amount  ;;"NET AMT"
+Local: Field: amtf3: Set As:$cwVCHIGSTVALUE2x
+Local: Field: amtf4: Set As:$cwVCHCGSTVALUE2x
+Local: Field: amtf5: Set As:$cwVCHSGSTVALUE2x
+Local: Field: amtf6: Set As:$cwRoffValuex
+;; {17.May.24 12:30} local:field: ratepf : set as : "" ;;"Rate"
+Local: field: numf: Format      : "NoZero,Percentage"
+
+local: field: qtyf5: Invisible: yes
+local: field: amtf3: Invisible: yes
+local: field: amtf4: Invisible: yes
+local: field: amtf5: Invisible: yes
+local: field: amtf6: Invisible: yes
+local: field: snf10: Invisible: yes
+local: field: snf11: Invisible: yes
+
+Local: field: snf4: Align: centre
+
+Local: field: snf: Width:8
+Local: field: snf1: Width:10
+Local: field: snf2: Width:28
+Local: field: snf4: Width:12
+Local: field: sdf: Width:7
+Local: field: sdf2: Width:7
+Local: field: sdf3: Width:7
+Local: field: sdf4: Width:7
+Local: field: amtf10: Width:8
+Local: field: amtf: Width:10
+Local: field: amtf1: Width:10
+Local: field: ratepf: Width:6
+Local: field: nf: Width: 32
+Local: field: nf1: Width: 32
+Local: field: numf: Width: 6
+Local: Field: default: Border: thin right ;;left right
+Local: Field:default: Style: style2y
+border:thin top
+
+add:explode:cwMrPhExplodeLine
+
+[part:cwMrPhExplodeLine]
+line:cwMrPhExplodeLine
+repeat:cwMrPhExplodeLine:ColMrPhExplodemain
+
+[Collection: ColMrPhExplodemain]
+source collection: ColMrPhExplode
+walk: allinventoryentries,batchallocations
+by: date:            $date
+by: vouchertypename:   $vouchertypename
+by: batchName:       $batchName
+compute:BILLOFLADINGNO1:$BILLOFLADINGNO
+compute:cwLRNumberpurc1:$cwLRNumberpurc
+;; {04.Jul.24 16:29} compute:cwLRNumberpurcmoph1:$...BILLOFLADINGNO
+compute:cwLRDatepurc1:$cwLRDatepurc
+compute:cwRecedQty1:$cwRecedQty
+filter:cwMrPhExplodeflter
+
+[Collection: ColMrPhExplode]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: MrphTransportChallanvchtype,IsNonOptionalCancelledVchs
+     
+[System: Formula]
+MrphTransportChallanvchtype:$cwTransportChallanvchtype:vouchertype:$vouchertypename
+cwMrPhExplodeflter: $batchName=#cwpursupinvfld
+
+[line:cwMrPhExplodeLine]
+use: LnChiripalFileTest
+delete:explode
+
+local:field: snf1: set as: "" ;;$cwLRNumberpurc1
+local:field: sdf2: set as: "" ;;$cwLRDatepurc1
+local:field: sdf: set as: ""
+local:field: sdf3: set as: $date
+local:field: snf3: set as:$batchName
+local:field: snf11: set as:$batchName
+local:field: qtyf1: set as: $cwRecedQty1
+local:field: sdf4: set as: ""
+Local: Field: sdf5: Set As:"" ;;$date5
+local:field: snf10: set as: $vouchertypename ;;"BILL NO "
+Local: Field: Qtyf5: Set As:#qtyf1
+Local: Field: cwpursupinvfld: Set As:$$prevlinefield
+delete:border:thin top
+
+add:explode:cwMoPhExplodeLine
+
+[part:cwMoPhExplodeLine]
+line:cwMoPhExplodeLine
+repeat:cwMoPhExplodeLine:ColChiripalFileMoPhMain ;;ColChiripalFileMain
+
+[Collection: ColChiripalFileMoPhMain]
+source collection:ColChiripalFileMoPh
+walk: inventoryentriesin,batchallocations
+
+;; {05.Jul.24 11:08} by: date5:            $date
+by: voucherTypeName: $voucherTypeName
+by: stockitemName:   $stockItemName
+by: cwHousesuppinvno5: $cwHousesuppinvno ;;$$cwtestfun ;; $$fulllist:batchallocations:$cwHousesuppinvno
+compute:cwLRNumberpurc5:$cwLRNumberpurc
+compute:cwLRDatepurc5:$cwLRDatepurc
+aggr compute: billedQty5: sum: $billedQty
+fetch:BILLOFLADINGNO
+ filter:cwMoPhExplodeflter
+
+
+[Collection: ColChiripalFileMoPh]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColChiripalFileFilter,IsNonOptionalCancelledVchs
+
+fetch:BILLOFLADINGNO,InventoryEntriesIn.BatchAllocations.* ;;cwHousesuppinvno
+
+
+    [system: Formula]
+;; {18.May.24 12:49} ColChiripalFileFilter:  $$ispurchase:$voucherTypeName or $cwTransportChallanvchtype:vouchertype:$voucherTypeName
+ColChiripalFileFilter:  $cwHouseMaterialOut:vouchertype:$voucherTypeName ;;or $cwTransportChallanvchtype:vouchertype:$voucherTypeName
+;; {18.May.24 12:04} ColChiripalFileMatInFilter: $cwTransportChallanvchtype:vouchertype:$voucherTypeName
+cwMoPhExplodeflter: $cwHousesuppinvno5=#cwpursupinvfld
+
+[line:cwMoPhExplodeLine]
+use: LnChiripalFileTest
+delete:explode
+
+Local: Field: snf2: Set As:$stockitemname
+Local: Field: qtyf2: Set As:$billedQty5
+Local: Field: sdf4: Set As:$cwLRDatepurc5
+Local: Field: fwf: Set As:""
+Local: Field: nf: Set As:""
+Local: Field: nf1: Set As:""
+Local: Field: snf: Set As:""
+Local: Field: sdf5: Set As:"" ;;$$reportobject:$$collectionfieldbykey:$date5:#snf11:Colchiripalmrkolrepmain ;;$date5
+local:field: snf10: set as: $vouchertypename ;;"BILL NO "
+Local: Field: snf3: Set As:""
+Local: Field: snf4: Set As:$cwLRNumberpurc5
+Local: Field: snf11: Set As:$cwHousesuppinvno5
+Local: Field: cwpursupinvfld: Set As:$$prevlinefield
+Local: Field: qtyf5: Set As:$$prevlinefield
+Local: Field: qtyf3: Set As:#qtyf2-#qtyf5
+Local: Field: numf: Set As:$$number:(#qtyf3/#qtyf5)
+delete:border:thin top
+
+add:explode:cwMRKolExplodeLine
+
+[part:cwMRKolExplodeLine]
+line:cwMRKolExplodeLine
+repeat:cwMRKolExplodeLine:Colchiripalmrkolrepmain
+
+[Collection: Colchiripalmrkolrepmain]
+source collection:Colchiripalmrkolrep
+walk: inventoryentriesin,batchallocations
+
+by: date5:            $date
+by: voucherTypeName: $voucherTypeName
+by: stockitemName:   $stockItemName
+by: cwHousesuppinvno5: $cwHousesuppinvno
+ filter:cwMoPhExplodeflter
+
+[Collection: Colchiripalmrkolrep]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColchiripalmrkolrepFilter,IsNonOptionalCancelledVchs
+          Parm Var: SVFromDate	: Date	: $StartingFrom:Company:##SVCurrentCompany
+Parm Var: SVToDate	: Date	:$LastVoucherDate:Company:##SVCurrentCompany ;;$EndingAt:Company:##SVCurrentCompany
+
+
+    [system: Formula]
+ColchiripalmrkolrepFilter: $cwFectoryReceive:vouchertype:$vouchertypename ; $$isSales:$voucherTypeName
+
+[line:cwMRKolExplodeLine]
+use: LnChiripalFileTest
+delete:explode
+
+Local: Field: sdf5: Set As:$date5
+Local: Field: snf3: Set As:"" ;;$cwHousesuppinvno5
+Local: Field: snf11: Set As:$cwHousesuppinvno5
+Local: Field: cwpursupinvfld: Set As:$$prevlinefield
+Local: Field: fwf: Set As:""
+delete:border:thin top
+
+;;=============================
+
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: ChiripalFileTestDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: ChiripalFileTestDisplayVoucher
+
+ 	
+     [Report: ChiripalFileTestDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #ChiripalFileTestmastid
+	
+
+        [Field: ChiripalFileTestmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnChiripalFileTestTotals]
+        use: LnChiripalFileTest
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: qtyf1: set as: $$total:qtyf1
+      local: field: qtyf2: set as: $$total:qtyf2
+      local: field: qtyf3: set as: $$total:qtyf3
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: ratepf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      local: field: amtf1 : set as :  $$total:amtf1
+
+

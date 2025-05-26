@@ -1,0 +1,165 @@
+; Created By: Anil on 2024-03-13 11:19, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: DoOrderTestRepLock ;; : @@DoOrderTestRepDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@DoOrderTestRepReport: Display: RepDoOrderTestRep
+
+
+
+     [!menu: DoOrderTestRepLock]
+        add: Item: before: @@locQuit: @@DoOrderTestRepReport: Display: RepDoOrderTestRep
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   DoOrderTestRepReport: "DoOrderTestRep"
+;; DoOrderTestRepDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepDoOrderTestRep]
+        use: Dsp Template
+;; Use				: Range Value Template
+        Use				: Range  Template
+        
+      Title: @@DoOrderTestRepReport
+   Printset: Report Title: @@DoOrderTestRepReport
+       Form: FrmDoOrderTestRep
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmDoOrderTestRep]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0DoOrderTestRep,PrtDoOrderTestRep
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: DoOrderTestRepbotbrk,DoOrderTestRepbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+  add:button:Save View,change view
+ ;;    local : button : report config : action :modify variable: DoOrderTestRepConfigure
+        option : enable Range filters
+        
+      [part: DoOrderTestRepbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: DoOrderTestRepbotopbrk]
+        use: dspacctitles
+  add: part: DoOrderTestRepTitlePart
+
+      [part: DoOrderTestRepTitlePart]
+       line: LnDoOrderTestRepTitle
+       
+      [line: LnDoOrderTestRepCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0DoOrderTestRep]
+      line : LnDoOrderTestRepCurrPeriod
+      
+      [Part: PrtDoOrderTestRep]
+       Line: LnDoOrderTestRepTitle,LnDoOrderTestRep
+bottom Line: LnDoOrderTestRepTotals
+     repeat: LnDoOrderTestRep: ColDoOrderTestRepmain ;;ColDoOrderTestRep
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColDoOrderTestRepmain]
+source Collection: ColDoOrderTestRep
+ walk:inventoryentriesout,BatchAllocations
+;; {24.Jan.24 18:08}  Walk : MultiComponentList,MultiComponentItemList
+;; {24.Jan.24 17:33} Walk : inventoryentries,BatchAllocations
+ by:ParentItem:$ParentItem  ;;$...stockItemname
+;; {24.Jan.24 17:52} by:vouchernumber1:$vouchernumber
+by:masterid1:$masterid
+by:stockitemname1:$stockitemname
+by:godownname:$godownname
+by:batchname:$batchname
+by:orderno1:$orderno
+compute:cwNoofBalespurc1:$cwNoofBalespurc
+compute:cwLRNumberpurc1:$cwLRNumberpurc
+compute:cwConsigneeNamepurc1:$cwConsigneeNamepurc
+compute:cwSupplierNamepurc1:$cwSupplierNamepurc
+compute:cwHousesuppinvno1:$cwHousesuppinvno
+compute:cwTransporterNamepurc1:$cwTransporterNamepurc
+compute:closingbalance:$$number:$cwRecedQty ;;$billedqty
+compute:rate:$rate
+aggr compute:billedqty1:sum:$billedqty
+aggr compute:amount:sum:$amount
+;; {13.Mar.24 11:45} filter:ColDoOrderTestRepFilter
+
+[Collection: ColDoOrderTestRep]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+;; {13.Mar.24 11:45}      Filter: ColDoOrderTestRepFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColDoOrderTestRepFilter: $cwDoOrder:vouchertype:$vouchertypename="yes"
+
+      [Line: LnDoOrderTestRepTitle]
+        use: LnDoOrderTestRep
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: snf: set as: "Godown"
+local:field: snf1: set as: "No Of Bale"
+local:field: snf2: set as: "Lr No"
+local:field: snf3: set as: "House"
+local:field: snf4: set as: "Transporter"
+local:field: snf5: set as: "Sup Name"
+local:field: snf6: set as: "Sup Inv"
+local:field: nf: set as: "Item Name"
+local:field: nf1: set as: "batch Name"
+local:field: fwf: set as: "Party"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LnDoOrderTestRep]
+     Fields: snf10,snf11,snf,Snf1,snf2,snf3,snf4,snf5,snf6,nf,fwf
+right field: ratepf,Qtyf,Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: snf: set as :  $godownname ;;"Godown"
+local:field: snf1: set as: $cwNoofBalespurc1;;"No Of Bale"
+local:field: snf2: set as: $cwLRNumberpurc1 ;;"Lr No"
+local:field: snf3: set as: $cwConsigneeNamepurc1 ;;"House"
+local:field: snf4: set as: $cwTransporterNamepurc1 ;;"Transporter"
+local:field: snf5: set as: $cwSupplierNamepurc1 ;;"Sup Name"
+local:field: snf6: set as: $cwHousesuppinvno1 ;;"Sup Inv"
+local:field: nf: set as  : $stockitemname1;;"Item Name"
+local:field: nf1: set as : $batchname;;"Item Name"
+local:field: fwf: set as : $partyledgername;;"Party"
+local:field: qtyf: set as: $billedqty1;;"Qty."
+local:field: amtf: set as: $amount;;"Value"
+Local: Field: snf10: Set As:$ParentItem
+Local: Field: snf11: Set As:$masterid1
+
+
+      [line: LnDoOrderTestRepTotals]
+        use: LnDoOrderTestRep
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

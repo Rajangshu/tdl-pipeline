@@ -1,0 +1,1384 @@
+; Created By: Anil on 2025-02-03 19:05, ID: 
+
+; Created By: Anil on 2024-02-08 15:19, ID:
+
+[System: Formula]
+
+cwrmIncaptionNew:$cwrmIncaption:vouchertype:$vouchertypename
+cwFGrmIncaption:$cwFGrmIncaption:vouchertype:$vouchertypename
+
+[#Field: VCH BatchNameTitle]
+  add:option:VCHBatchNameTitleMatInopt:@@cwHouseMaterialInYes ;;JayatriTestEnabled
+  ;;add:option:VCHBatchNameTitleMatInopt2:@@cwFGMaterialInYes ;;JayatriTestEnabled
+
+ [!field:VCHBatchNameTitleMatInopt]
+    Setas :@@cwrmIncaptionNew	
+
+     [!field:VCHBatchNameTitleMatInopt2]
+    Setas :@@cwFGrmIncaption	
+
+;;===============================
+[#Field: EI DestinationGodown]
+   add:option:EIDestinationGodownMrKataminopt2:@@cwHouseMaterialInyesOnly ;;and @@JayatriTestEnabled
+
+  [!field:EIDestinationGodownMrKataminopt2]
+
+;; {02.Sep.24 11:22}     SET AS:$cwGodownvch:ledger:$partyledgername
+    SET AS:$cwHouseMatInSourceGodown:vouchertype:$vouchertypename
+border:thin box
+
+		
+;;=======================================
+[#Part: EI Consignee]
+add:option:cwEIConsigneeopt5:@@JayatriTestEnabled
+[!Part: cwEIConsigneeopt5]
+width:100% Screen
+;; {30.Aug.24 17:32} border:thin box
+[#line:ei consignee]
+;; {20.Apr.24 10:40} add:optin:cwEIConsigneeoptxx:@@JayatriTestEnabled
+;; {20.Apr.24 10:40} [!line:cwEIConsigneeoptxx]
+
+Local: field: Simple Prompt: Width: 28
+Local: field: ei consignee: Width: 75
+
+[#part:ei consignee]
+add:option:cweiconsigneeoptmo:@@cwHouseMaterialInYesOnly or @@cwFGMaterialInOPT or @@cwForprocessmaterialyes
+[!part:cweiconsigneeoptmo]
+
+add:line:MOChallanNoline1
+
+[line:MOChallanNoline1]
+
+field:sp,cwnewnf9,cwnewnf10,cwnewnf11,cwnewnf12,cwnewnf13,cwnewnf14
+Local: Field: sp: Set As:"Order No.:"
+Local: field:ei consignee : Width:40
+Local: Field:ei consignee : Border: thin box ;;left right
+
+Local: field: sp: Width:16
+
+Local: Field: sp: Style:small
+;; {23.Jul.24 12:24} local: field:sp : Invisible: yes
+
+
+[field:cwnewnf9]
+use:nf
+Set As:@@cwfiltBASICPURCHASEORDERNO
+ storage:cwmoorder1
+;; {23.Jul.24 12:24} Invisible: yes
+ Skip: Yes
+ style:small
+;; {16.Jul.24 15:10}  border:thin box
+width:12
+
+
+ [System: Formula]
+ cwfiltBasicOrderDatedate:$$CollectionField:$BasicOrderDate:First:InvoiceOrderList
+
+ [field:cwnewnf10]
+use:nf
+Set As:@@cwfiltBASICPURCHASEORDERNOx
+ storage:cwmoorder2
+;; {23.Jul.24 12:25} Invisible: yes
+;; {15.Jul.24 15:57}  Skip: Yes
+ style:small
+ width:12
+
+ [field:cwnewnf11]
+use:nf
+Set As:@@cwfiltBASICPURCHASEORDERNO3
+ storage:cwmoorder3
+;; {23.Jul.24 12:29} Invisible: yes
+ Skip: Yes
+ style:small
+ width:12
+
+  [field:cwnewnf12]
+  use:snf
+ Set As:@@cwfiltBASICPURCHASEORDERNO4
+  storage:cwmoorder4
+Invisible: yes
+ Skip: Yes
+ style:small
+width:12
+
+ [field:cwnewnf13]
+ use:snf
+ Set As:@@cwfiltBASICPURCHASEORDERNO5
+ storage:cwmoorder5
+Invisible: yes
+ Skip: Yes
+ style:small
+width:12
+
+
+ [field:cwnewnf14]
+use:snf
+Set As:@@cwfiltBASICPURCHASEORDERNO6
+ storage:cwmoorder6
+Invisible: yes
+ Skip: Yes
+ style:small
+width:12
+
+  [System: Formula]
+ cwfiltBASICPURCHASEORDERNO:$$CollectionField:$BasicPurchaseOrderNo:First:InvoiceOrderList
+ cwfiltBASICPURCHASEORDERNOx:$$CollectionField:$BasicPurchaseOrderNo:2:InvoiceOrderList
+ cwfiltBASICPURCHASEORDERNO3:$$CollectionField:$BasicPurchaseOrderNo:3:InvoiceOrderList
+ cwfiltBASICPURCHASEORDERNO4:$$CollectionField:$BasicPurchaseOrderNo:4:InvoiceOrderList
+ cwfiltBASICPURCHASEORDERNO5:$$CollectionField:$BasicPurchaseOrderNo:5:InvoiceOrderList
+ cwfiltBASICPURCHASEORDERNO6:$$CollectionField:$BasicPurchaseOrderNo:6:InvoiceOrderList
+
+
+;;=======================================
+[#Collection: Active Batches VchExtract]
+add:option:cwMrKataActiveBatchesVchExtract:@@cwHouseMaterialInYes
+[!Collection: cwMrKataActiveBatchesVchExtract]
+
+Title       		: $$LocaleString:"List of Active Batches"
+delete:SubTitle            : $$LocaleString:"Name", @@ExpirySubTitle, $$LocaleString:"Balance"
+add:SubTitle            : $$LocaleString:"Name",$$LocaleString:"Balance",$$LocaleString:"Supplier Name",$$LocaleString:"Transporter Name",$$LocaleString:"No of Bales",$$LocaleString:"Type",$$LocaleString:"Sup Inv",$$LocaleString:"LR Number",$$LocaleString:"LR Date",$$LocaleString:"Balance"
+;; {08.Apr.24 11:34} delete:Fetch				: Name, Parent, ExpiryPeriod, ActualQty, ClosingBalance, GodownName, ClosingAsondate, MfdOn
+add:Fetch				: cwSupplierNamepurc,cwTransporterNamepurc,cwConsigneeNamepurc,cwHousesuppinvno,cwLRNumberpurc
+
+add:Format      		: $Name,10
+add:format:$cwSupplierNamepurc,10
+add:format:$cwTransporterNamepurc,10
+add:format:$cwConsigneeNamepurc,10
+add:format:$cwHousesuppinvno,10
+add:format:$cwLRNumberpurc,10
+
+
+;;=======================
+
+ [#Line: VCHBATCH ColumnOne]
+ add:option:cwVCHBATCHColumnOneoptx :@@cwHouseMaterialInYes or @@cwForprocessmaterialyes;;@@IsJobMaterialReceiveopt
+ [!Line: cwVCHBATCHColumnOneoptx]
+  add:right field:after:VCH RateTitle:cwmrkatartfld,numf2,NUMF6,numf3,SNF10 ;;,snf20,sdf ;;,snf5,snf6,snf7,snf8 ;;,numf10 ;;,numf4,numf5
+  add:right field:before:VCH BatchNameTitle:snf,snf51
+  add:right field:before:VCH QtyTitle:snf5,snf18,snf6,snf7,snf8,snf20,sdf,numf16 ;;,numf17
+
+ Local: Field: numf2: info: "JW Rate"
+ Local: Field: NUMF6: info: "Pac. Mat. Rate"
+ Local: Field: numf3: info: "Rate"
+ Local: Field: SNF10: info:"NO OF BALE"
+ Local: Field: snf20: info:"Lr No"
+ Local: Field: sdf: info:"Lr Date"
+ Local: Field: snf5: info:"Sup/Inv"
+ Local: Field: snf18: info:"Sup/Inv (Dir)"
+ Local: Field: snf6: info:"Sup Name"
+ Local: Field: snf7: info:"House"
+ Local: Field: snf8: info:"Trns Name"
+ Local: Field: numf16: info:"Rate"
+ Local: Field: cwmrkatartfld: info:"RM Rate"
+ 
+
+ Local: Field: numf: Style: style4 ;;Style1 ;;small Bold
+ Local: Field: numf2: Style: style4 ;;Style1 ;;small Bold
+ Local: Field: NUMF6: Style: style4 ;;Style1 ;;small Bold
+ Local: Field: numf3: Style: style4 ;;Style1 ;;small Bold
+ Local: Field: VCH GodownTitle: Style: style4 ;;Style1
+ Local: Field: VCH BatchNameTitle: Style: style4 ;;Style1
+ Local: Field: VCH QtyTitle: Style: style4 ;;Style1
+ Local: Field: VCH RateTitle: Style: style4 ;;Style1
+ Local: Field: VCH RateUnitsTitle: Style: style4 ;;Style1
+ Local: Field: VCH AmtTitle: Style: style4 ;;Style1
+ Local: Field: snf: Style: style4 ;;Style1
+ Local: Field: snf51: Style: style4 ;;Style1
+
+ Local: Field: snf: info:"Type"
+ Local: Field: snf51: info:"Skip"
+
+ Local: Field: VCH RateTitle: Set As:$$LocaleString:"RM Rate"
+
+;; {07.Feb.25 13:09}  local: field: numf17: Invisible: yes
+local: field: sdf: Invisible: if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then no else yes
+local: field: snf5: Invisible: if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then no else yes
+local: field: snf18: Invisible: if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then no else yes
+local: field: snf6: Invisible: if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then no else yes
+local: field: snf7: Invisible: if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then no else yes
+local: field: snf8: Invisible: if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then no else yes
+local: field: snf20: Invisible: if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then no else yes
+local: field: SNF10: Invisible: yes ;;if @@cwHouseMaterialInYesOnly then yes else no
+local: field:VCH RateTitle: Invisible:if @@cwCutofdateoption then yes else no
+local: field:numf27: Invisible:if @@cwForprocessmaterialyes="yes" then yes else no
+
+Local: field: snf51: Width:8
+Local: field: numf16: Width:1
+;; {31.Aug.24 18:55} Local: field: VCH GodownTitle: Width:26
+/*Local: field: snf: Align: centre
+Local: field: snf51: Align: centre
+ Local: field: snf20: Align: centre
+ Local: field: sdf: Align: centre   */
+;; {02.Sep.24 13:23} local: field: snf51: Invisible:if @@cwHouseMaterialInYes then yes else no
+
+ [#Line: VCH IsPrimaryItem]
+ add:field:cwrmratef ;;,cwrmratef2
+
+
+ [field : cwrmratef]
+       use : rate field
+       storage:batchrate
+        Invisible: yes
+
+[field : cwrmratef2]
+       use : rate field
+       set as:$$asrate:$cwEffectiverateofPrimaryItem
+       border:thin box
+;; {26.Aug.24 14:22}        storage:batchrate
+;; {26.Aug.24 14:02}         Invisible: yes
+
+
+
+/*[#Field: VCHBATCH Rate]
+add:option:cwmrkataVCHBATCHRateopt:@@cwHouseMaterialInYes or @@cwForprocessmaterialyes
+
+[!Field: cwmrkataVCHBATCHRateopt]
+delete:Set by Condition
+delete:option
+delete:Set as
+add:Set by Condition:yes :if $$line=1 then $$value else #cwrmratef
+;; {26.Aug.24 15:55} add:Set by Condition:yes :$$asrate:#cwrmratef2 ;;if $$line=1 then $$value else #cwrmratef2 ;;#cwrmratef
+Invisible: if @@cwForprocessmaterialyes then no else yes   */
+
+[field:cwmrkatartfld]
+use:numf
+storage:cwmrkatartstrg
+Invisible:if @@cwCutofdateoption then no else yes
+skip:yes
+
+
+ [#line:STKVCH Batch2]
+ add:option:cwSTKVCHBatch2optx:@@cwHouseMaterialInYes or @@cwForprocessmaterialyes;;@@IsJobMaterialReceiveopt
+ [!Line: cwSTKVCHBatch2optx]
+ add:right field:after:VCHBATCH Rate:cwmrkatartfld,numf15,numf2,NUMF6,numf3,numf4,SNF10;;,snf20,sdf ;;,snf5,snf6,snf7,snf8 ;;,numf4,numf5,qtyf1
+  add:right field:before:VCHBATCH Name:snf,cwlogical ;;,snf41
+  add:right field:before:VCHBATCH Value:numf5
+  add:right field:before:VCHBATCH BilledQty:snf5,snf18,snf6,snf7,snf8,snf20,sdf,numf16 ;;numf17
+
+;; {03.Jan.24 16:02}  Local: Field: numf: storage:cwrmRate
+ Local: Field: numf2: storage:cwJWRate
+ Local: Field: NUMF6: storage:cwpacmatrate ;;"Pac. Mat. Rate"
+ Local: Field: numf3: storage:cwJWRateclculation
+ Local: Field: numf4: storage:cwJWtotalrate
+ Local: Field: numf: Set As:$BatchRate ;;$rate ;;$$asrate:#VCHBATCHRate
+ Local: Field: numf5: Set As:$$number:#VCHBATCHBilledQty*#numf4
+
+ Local: Field: numf15: Set As:$cwEffectiverateofPrimaryItem
+ Local: Field:numf15 : Border: thin box ;;left right
+;; {26.Aug.24 16:49}  local: field: VCHBATCH Rate: Invisible: if @@cwForprocessmaterialyes="yes" then yes else no
+
+;; {03.Jan.24 15:56}  Local: Field: numf: Set As:$rate ;;if $$line=1 then "" else #numf5 ;;$$prevlinefiel
+
+;; {03.Jan.24 16:02}  Local: Field: numf3: Set As:#numf+#numf2
+;; {07.Feb.25 13:52}  Local: Field: numf3: Set As:$$number:#VCHBATCHRate ;;*$$number:#numf2 ;;#numf+#numf2
+ Local: Field: numf3: Set As:$$number:#VCHBATCHRate ;;if $$increatemode then #cwmrkatartfld else $$number:#VCHBATCHRate ;;*$$number:#numf2 ;;#numf+#numf2
+;; {11.Feb.25 16:00}  Local: Field: numf4: Set As:#cwmrkatartfld+#numf2+#NUMF6 ;;#VCHBATCHBilledQty*#VCHBATCHRate
+;; {19.Feb.25 12:01}  Local: Field: numf4: Set As:if @@cwForprocessmaterialyes then #cwmrkatartfld+#numf2+#NUMF6 else #numf3+#numf2+#NUMF6
+;; {19.Feb.25 15:50}  Local: Field: numf4: Set As:if @@cwHouseMaterialInYes then #cwmrkatartfld+#numf2+#NUMF6 else #numf3+#numf2+#NUMF6
+;; {19.Feb.25 16:06}  Local: Field: numf4: Set As:if @@cwHouseMaterialInYes then #cwmrkatartfld+#numf2+#NUMF6 else #numf15+#numf2+#NUMF6
+
+ 
+;; {19.Feb.25 16:16}  Local: Field: numf4: Set As:#numf3+#numf2+#NUMF6 ;;#VCHBATCHBilledQty*#VCHBATCHRate
+
+ Local: Field: numf: Style: small ;;Style1
+ Local: Field: numf2: Style: small ;;Style1
+ Local: Field: NUMF6: Style: small ;;Style1
+ Local: Field: numf3: Style: small ;;Style1
+
+ Local: Field: snf: Set As:if $cwFGProductitem:stockitem:#allocname="yes" then $cwtypeitem1:stockitem:#allocname else @@cwHouseMatIntype ;;@@cwTypevchtype
+ Local: Field: snf: storage:cwmatinTypevchtype
+ Local: Field: cwlogical: storage:cwvchskip
+;; {14.Jun.24 11:33}  Local: Field: snf41: Set As:@@cwUseasScrapfilterdo ;;$cwUseasFent:stockgroup:$parent:stockitem:$stockitemname
+;; {14.Jun.24 11:33}  Local: Field: snf41: Border: thin box ;;left right
+;; {31.Aug.24 18:31} local: field: snf: Invisible: yes
+
+ Local: Field: snf5: Set As:$$CollectionField:$cwConsInvNo:First:cwcollConsumption
+ Local: Field: snf18: Set As:$$CollectionField:$cwConsDirSup:First:cwcollConsumption
+ Local: Field: snf6: Set As:$$CollectionField:$cwConsSuplName:First:cwcollConsumption
+ Local: Field: snf7: Set As:$$CollectionField:$cwConsHouseName:First:cwcollConsumption
+ Local: Field: snf8: Set As:$$CollectionField:$cwConsTransName:First:cwcollConsumption
+ Local: Field: snf10: Set As:$$CollectionField:$cwNoofBalesName:First:cwcollConsumption
+ Local: Field: snf20: Set As:$$CollectionField:$cwLRNumberName:First:cwcollConsumption
+ Local: Field: sdf: Set As:$$CollectionField:$cwLRDatename:First:cwcollConsumption
+ Local: Field: numf16: Set As:$$CollectionField:$cwConsRate:First:cwcollConsumption
+ Local: Field: cwmrkatartfld: Set As:$cwconsrtstrg ;;#cwconsrtfld3 ;;$$CollectionField:$cwConsRate:First:cwcollConsumption
+;; {06.Feb.25 17:20}  Local: Field: numf16: Set As:$$CollectionField:$cwConsRate:First:cwcollConsumption
+ local : field : numf16 : type : number : forced
+/* ;; {25.May.24 16:17}  Local: Field: snf5: Set As:$cwConsInvNo ;;if $$isempty:$cwConsBatchName then $cwConsInvNo else $cwConsBatchName
+ Local: Field: snf18: Set As:$cwConsDirSup ;;if $$isempty:$cwConsBatchName then $cwConsInvNo else $cwConsBatchName
+ Local: Field: snf6: Set As:$cwConsSuplName
+ Local: Field: snf7: Set As:$cwConsHouseName
+ Local: Field: snf8: Set As:$cwConsTransName
+ Local: Field: SNF10: Set As:$cwNoofBalesName
+ Local: Field: SNF20: Set As:$cwLRNumberName
+ Local: Field: sdf: Set As:$cwLRDatename */
+;; {02.Sep.24 13:22}  local: field: cwlogical: Invisible:if @@cwHouseMaterialInYes then yes else no
+
+ Local: Field: snf5: storage:cwHousesuppinvno ;;cwConsInvNoMatIn
+ Local: Field: snf18: storage:cwDirectPurInvNo ;;cwDirectPurInvNo
+ Local: Field: snf6: storage:cwSupplierNamepurc ;;cwConsSuplNameMatIn
+ Local: Field: snf7: storage:cwConsigneeNamepurc ;;cwConsHouseNameMatIn
+ Local: Field: snf8: storage:cwTransporterNamepurc ;;cwConsTransNameMatIn
+ Local: Field: snf10: storage:cwNoofBalespurc ;;cwNoofBalesNameMatIn
+ Local: Field: snf20: storage:cwLRNumberpurc ;;cwLRNumberNameMatIn
+ Local: Field: sdf: storage:cwLRDatepurc ;;cwLRDatenameMatIn
+
+ /*Local: Field: snf5: storage:cwConsInvNoMatIn
+ Local: Field: snf18: storage:cwDirectPurInvNo
+ Local: Field: snf6: storage:cwConsSuplNameMatIn
+ Local: Field: snf7: storage:cwConsHouseNameMatIn
+ Local: Field: snf8: storage:cwConsTransNameMatIn
+ Local: Field: snf10: storage:cwNoofBalesNameMatIn
+ Local: Field: snf20: storage:cwLRNumberNameMatIn
+ Local: Field: sdf: storage:cwLRDatenameMatIn   */
+;; {02.Sep.24 10:50}  Local: Field:VCHBATCH Godown : Border: thin box ;;left right
+;; {31.Aug.24 18:55}  Local: field: VCHBATCH Godown: Width:20
+
+ local: field: numf3: Invisible: yes
+;; {11.Jan.24 15:11}  local: field: numf4: Invisible: yes
+ local: field: numf5: Invisible: yes
+  local: field: numf15: Invisible: if @@cwHouseMaterialInYesOnly="yes" then yes else no
+;; {11.Feb.25 16:18}   local: field: cwmrkatartfld: Invisible:if @@cwCutofdateoption then no else yes
+Local: field: numf16: Width:1
+
+local: field: snf10: Invisible: yes
+;; {07.Feb.25 13:09} local: field: numf17: Invisible: yes
+local: field: sdf: Invisible: if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then no else yes
+local: field: snf5: Invisible: if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then no else yes
+local: field: snf18: Invisible: if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then no else yes
+local: field: snf6: Invisible: if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then no else yes
+local: field: snf7: Invisible: if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then no else yes
+local: field: snf8: Invisible: if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then no else yes
+local: field: snf20: Invisible: if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then no else yes
+
+Local: Field: snf5: Skip: Yes
+Local: Field: snf18: Skip: Yes
+Local: Field: snf6: Skip: Yes
+Local: Field: snf7: Skip: Yes
+Local: Field: snf8: Skip: Yes
+Local: Field: snf10: Skip: Yes
+Local: Field: snf20: Skip: Yes
+Local: Field: sdf: Skip: Yes
+Local: Field: numf16: Skip: Yes
+Local: Field: VCHBATCH Rate: Skip: Yes
+Local: Field: VCHBATCH Name: Skip: if $cwvchskip="Yes" then yes else no
+Local: Field:cwlogical : Skip:If $$InCreateMode Then Yes else no
+local: field:VCHBATCH Rate: Invisible:if @@cwCutofdateoption then yes else no
+
+Local: Field:VCHBATCH Rate:delete:Set by Condition
+Local: Field:VCHBATCH Rate:delete:option
+Local: Field:VCHBATCH Rate:delete:Set as
+Local: Field:VCHBATCH Rate:add:Set by Condition:yes :$$asrate:#numf16 ;;if $$increatemode then #cwmrkatartfld else #numf16
+;; {07.Feb.25 13:38} Local: Field:VCHBATCH Rate:add:Set by Condition:yes :if $$increatemode then #numf17 else #numf16
+;; {07.Feb.25 13:39} local : field : VCHBATCH Rate : type : rate : forced
+;; {05.Feb.25 14:24} Local: Field:VCHBATCH Rate:add:Set by Condition:yes :if $$line=1 then $$value else #cwrmratef
+Local: Field:numf10:Set as :if $$line=1 then $$value else $$prevlinefield
+;; {02.Sep.24 10:32} local: field:VCHBATCH Rate : Invisible:if @@cwHouseMaterialInYesOnly or @@cwForprocessmaterialYesOnly then yes else no
+
+Local: Field:VCHBATCH Value:delete:Set by Condition
+Local: Field:VCHBATCH Value:delete:Set as
+Local: Field:VCHBATCH Value:add:Set by Condition:yes:#numf5
+
+
+ Local: field: numf: Format: "nozero,decimals:2"
+ Local: field: numf2: Format: "nozero,decimals:2"
+ Local: field: NUMF6: Format: "nozero,decimals:2"
+ Local: field: numf3: Format: "nozero,decimals:2"
+ Local: field: numf4: Format: "nozero,decimals:2"
+
+Local: Field: numf:Inactive   :@@BatchAllocBreak
+Local: Field: numf2:Inactive  : @@BatchAllocBreak
+Local: Field: NUMF6:Inactive  : @@BatchAllocBreak
+Local: Field: numf3:Inactive  : @@BatchAllocBreak
+Local: Field: numf4:Inactive  : @@BatchAllocBreak
+
+Local: Field: numf: Style: style4 ;;Style1
+ Local: Field: numf2: Style: style4 ;;Style1
+ Local: Field: NUMF6: Style: style4 ;;Style1
+ Local: Field: numf3: Style: style4 ;;Style1
+ Local: Field: VCHBATCH Godown: Style: style4 ;;Style1
+ Local: Field: VCHBATCH Name: Style: style4 ;;Style1
+ Local: Field: VCHBATCH BilledQty: Style: style4 ;;Style1
+ Local: Field: VCHBATCH Rate: Style: style4 ;;Style1
+ Local: Field: VCHBATCH RateUnits: Style: style4 ;;Style1
+ Local: Field: VCHBATCH Value: Style: style4 ;;Style1
+ Local: Field: snf: Style: style4 ;;Style1
+
+ /*Local: field: snf20: Align: centre
+ Local: field: sdf: Align: centre     */
+
+ [#Line: cwSTKVCHBatch2optx]
+ add:option:cwSTKVCHBatch2optxmrkata:@@cwHouseMaterialInYes
+ [!Line: cwSTKVCHBatch2optxmrkata]
+ Local: Field: numf4: Set As:#cwmrkatartfld+#numf2+#NUMF6  ;;if @@cwHouseMaterialInYes then #cwmrkatartfld+#numf2+#NUMF6 else #numf15+#numf2+#NUMF6
+
+  [#Line: cwSTKVCHBatch2optx]
+ add:option:cwSTKVCHBatch2optxmrdo:@@cwFGMaterialInOPT
+ [!Line: cwSTKVCHBatch2optxmrdo]
+ Local: Field: numf4: Set As:#numf15+#numf2+#NUMF6  ;;if @@cwHouseMaterialInYes then #cwmrkatartfld+#numf2+#NUMF6 else #numf15+#numf2+#NUMF6
+
+;; {11.Mar.24 18:10}  Local: Field : VCHBATCH Name : SubForm :cwConsumptionitemNameKcMatIn ;;cwConsumptionitemName ;;repbajajitem:$$value
+
+[System: Formula]
+cwkatatype:$cwVoucherTypevch:vouchertype:$vouchertypename
+cwCalcedAmt:(if $$IsMultiGodownOn Then $BatchRate else $Rate) * $BilledQty  ;;* $cwJWRate ;;* (100 - $Discount)) / 100)
+cwHouseMatIntype:$cwHouseMatIntype:vouchertype:$vouchertypename
+
+;;==================================
+
+
+[#Line: EI InvInfo]
+add:option:cwEIInvInfoMatInOpt:@@cwHouseMaterialInYes or @@cwForprocessmaterialyes
+[!Line: cwEIInvInfoMatInOpt]
+add:right field:before:VCH Rate:numf18
+
+Local: Field: numf18: Set As: $$CollectionField:$cwJWtotalrate:First:BatchAllocations
+Local: field: numf18: format : "NoZero,Decimals:2,NoSymbol,"
+ Local: Field:VCH Rate:delete:Set by Condition
+Local: Field:VCH Rate:delete:Set as
+Local: Field:VCH Rate:delete:option
+Local: Field:VCH Rate:add:Set by Condition:yes :#numf18
+local: field: VCH Rate: Invisible: yes
+;; {10.Sep.24 18:29} local: field: VCH StockItem : on : focus : $$numitems=0 : call : fillMrkataname
+
+/*[#Field: VCH StockItem]
+add:Option	: cwVCHStockItemOnFocus2
+
+[!Field: cwVCHStockItemOnFocus2]
+on : focus : yes : call : fillMrkataname */
+
+
+;;========================
+  [#line:STKVCH Batch2]
+  add:option:cwSTKVCHBatch2optxx:@@cwHouseMaterialInYes or @@cwForprocessmaterialyes and @@JayatriTestEnabled
+  [!line:cwSTKVCHBatch2optxx]
+;; {06.Apr.24 12:38} add:right field:after:VCHBATCH BilledQty:numf22
+   Local: Field:VCHBATCH Godown : Set As:@@cwHouseMatInTargetGodown ;;if @@cwKataCheckingChallanvch then @@cwVchTypeSourcematinGodown else @@cwVchTypeSourceGodown
+
+/*Local: Field:VCHBATCH BilledQty:delete:Set by Condition
+Local: Field:VCHBATCH BilledQty:delete:Set as
+Local: Field:VCHBATCH BilledQty:delete:option
+Local: Field:VCHBATCH BilledQty:add:Set by Condition:yes :#numf22
+Local: Field: numf22: Border: thin box ;;left right
+
+Local: Field: numf22: Set As:$cwFGQty
+local: field: numf22: Invisible: yes */
+
+
+[System: Formula]
+cwVchTypeSourcematinGodown:$cwVchTypeSourcematinGodown:vouchertype:$vouchertypename
+cwVchTypeSourceGodown:$cwVchTypeSourceGodown:vouchertype:$vouchertypename
+cwHouseMatInTargetGodown:$cwHouseMatInTargetGodown:vouchertype:$vouchertypename
+
+;;==============================Mat In Kc===================
+[System: Formula]
+cwHouseMaterialInYesOnly:$cwHouseMaterialIn:vouchertype:$vouchertypename="yes"
+cwForprocessmaterialYesOnly:$cwForprocessmaterial:vouchertype:$vouchertypename="yes"
+cwFGMaterialInYesOnly:$cwFGMaterialIn:vouchertype:$vouchertypename="yes"
+
+[#Field: VCHBATCH Name]
+ ADD:OPTION:CWVCHBATCHNameMINKCOPT:@@cwHouseMaterialInYesOnly
+ [!field:CWVCHBATCHNameMINKCOPT]
+
+SubForm : cwConsumptionitemNameKcMatIn
+
+
+ [report:cwConsumptionitemNameKcMatIn]
+form:cwConsumptionitemNameKcMatIn
+variable:str1
+variable:VarItemnew ;;vTransLedCntnew
+set:VarItemnew:""
+set:str1:$$owner:$$owner:$VoucherSourceGodown  ;;"DAMODAR (JETPUR)"
+title:""
+
+[form:cwConsumptionitemNameKcMatIn]
+part:cwConsumptionitemName1Kc,cwConsumptionitemNameKc ;;,cwDummyPart,cwConsumptionitemName2Kc,cwConsumptionitemName3Kc,cwConsumptionitemName2AKc
+width:70% Screen
+height:80% Screen
+
+
+[part:cwConsumptionitemName1Kc]
+line:cwConsumptionitemName1Kc
+
+[part:cwConsumptionitemNameKc]
+line:cwConsumptionitemNameKc,cwConsumptionitemName2Kc
+bottom line:cwConsumptionitemtotalName1Kc2
+;; {07.Feb.25 12:21} bottom line:cwConsumptionitemtotalName1Kc,cwConsumptionitemtotalName1Kc2
+
+repeat:cwConsumptionitemName2Kc:cwcollConsumption
+
+break on  : $$issysname:$cwConsumProduct
+scroll: vertical
+;; {25.Apr.22 15:14} option: small size part
+common border:yes
+totals:numf,numf3,numf5,numf6,numf10,amtf
+
+/*[Collection: cwcollConsumption]
+type : cwcollConsumption :ledger
+child of : $name  */
+
+[line:cwConsumptionitemName1Kc]
+field:sp,cwconsgodownfKc
+Local: Field: sp: info: "Godown Name:"
+Local: Field:sp : Style: style6 ;;small
+Local: Field:cwconsgodownfKc : Style: style5
+Local: field: sp: Width:15
+
+[line:cwConsumptionitemNameKc]
+use:cwConsumptionitemName2kc
+ option: titleopt
+Local: Field: fwf: info: "Product22"
+Local: Field: numf: info: "Qty" ;;"Bom Qty"
+Local: Field: snf12: info: "Update Qty" ;;"Bom Qty"
+Local: Field: snf13: info: "Update rate" ;;"Bom Qty"
+Local: Field: numf33: info: "Line No" ;;"Bom Qty"
+Local: Field: numf2: info: "RM Qty" ;;"Consumption Qty"
+Local: Field: snf: info: "Godown"
+Local: Field: snf2: info: "Batch Name"
+Local: Field: SNF10: info: "No of Bale" ;;"Batch Name"
+Local: Field: snf20: info: "Lr No" ;;"Batch Name"
+Local: Field: sdf: info: "Lr Date" ;;"Batch Name"
+Local: Field: snf8: info: "Sup Inv No" ;;"Batch Name"
+Local: Field: snf9: info: "Sup Inv (Dir)" ;;"Batch Name"
+Local: Field: numf3: info: "Rate"
+Local: Field: cwmoratefld: info: ""
+Local: Field: snfx: info: "UOM"
+;; {24.Jan.24 13:11} Local: Field: numf8: info: "Bdj Rate"
+Local: Field: numf10: info: "Consumption Amt"
+Local: Field: numf31: info: "Id"
+Local: Field: numf13: info: "No"
+Local: Field: ratef: info: "rate5"
+Local: Field: numf19: info: "Line NO2"
+
+
+local : field : fwf : delete : storage
+local : field : numf : delete : storage
+local : field : snf12 : delete : storage
+local : field : snf13 : delete : storage
+local : field : numf33 : delete : storage
+local : field : numf2 : delete : storage
+local : field : snf : delete : storage
+local : field : snf2 : delete : storage
+local : field : cwmoratefld : delete : storage
+local : field : snf4 : delete : storage
+local : field : snf10 : delete : storage
+local : field : snf20 : delete : storage
+local : field : sdf : delete : storage
+local : field : snf8 : delete : storage
+local : field : snf9 : delete : storage
+local : field : numf3 : delete : storage
+local : field : snfx : delete : storage
+local : field : numf31 : delete : storage
+local : field : numf12 : delete : storage
+local : field : numf13 : delete : storage
+local : field : ratef : delete : storage
+local : field : numf19 : delete : storage
+
+local : field : numf8 : delete : storage
+local : field : numf10 : delete : storage
+
+local : field : fwf : delete : inactive
+local : field : numf : delete : inactive
+local : field : snf12 : delete : inactive
+local : field : snf13 : delete : inactive
+local : field : numf33 : delete : inactive
+local : field : numf2 : delete : inactive
+local : field : numf3 : delete : inactive
+local : field : snfx : delete : inactive
+local : field : numf4 : delete : inactive
+local : field : numf5 : delete : inactive
+local : field : numf6 : delete : inactive
+local : field : numf7 : delete : inactive
+local : field : numf : delete : inactive
+local : field : numf8 : delete : inactive
+local : field : numf10 : delete : inactive
+local : field : snf : delete : inactive
+local : field : snf2 : delete : inactive
+local : field : cwmoratefld : delete : inactive
+local : field : snf4 : delete : inactive
+local : field : snf8 : delete : inactive
+local : field : snf9 : delete : inactive
+local : field : snf10 : delete : inactive
+local : field : snf20 : delete : inactive
+local : field : sdf : delete : inactive
+local : field : numf31 : delete : inactive
+local : field : numf12 : delete : inactive
+local : field : numf13 : delete : inactive
+local : field : ratef : delete : inactive
+local : field : numf19 : delete : inactive
+
+Local : field : default: Lines : 0
+Local: field: default: Align:centre
+Local: Field: fwf: Style: style5
+Local: Field: snf: Style: style5
+Local: Field: snf4: Style: style5
+Local: Field: snf10: Style: style5
+Local: Field: snf20: Style: style5
+Local: Field: sdf: Style: style5
+Local: Field: snf8: Style: style5
+Local: Field: snf9: Style: style5
+Local: Field: snf2: Style: style5
+Local: Field: cwmoratefld: Style: style5
+Local: Field: numf: Style: style5
+Local: Field: snf12: Style: style5
+Local: Field: snf13: Style: style5
+Local: Field: numf33: Style: style5
+Local: Field: numf1: Style: style5
+Local: Field: numf2: Style: style5
+Local: Field: numf3: Style: style5
+Local: Field: snfx: Style: style5
+Local: Field: numf4: Style: style5
+Local: Field: numf5: Style: style5
+Local: Field: numf6: Style: style5
+Local: Field: numf7: Style: style5
+Local: Field: numf8: Style: style5
+Local: Field: numf10: Style: style5
+Local: Field: numf11: Style: style5
+Local: Field: numf19: Style: small Bold
+
+
+[line:cwConsumptionitemName2Kc]
+
+field:fwf
+right fields:nf9,snf2,snf8,snf9,snf3,snf4,snf5,SNF10,snf20,sdf,numf,snf12,snf13,numf2,snf,numf3,cwmoratefld,snfx,numf10,numf31,numf12,NUMF13 ;;,amtf ;;numf33 ;;,numf19
+;; {15.Jul.24 15:31} right fields:nf9,snf8,snf9,snf3,snf4,snf5,SNF10,snf20,sdf,numf,snf12,snf13,numf2,snf,numf3,cwmoratefld,snfx,numf10,numf31,numf12,NUMF13
+
+Local: Field: fwf: storage:cwConsumProduct
+Local: Field: numf: storage:cwBomQty
+Local: Field: numf2: storage:cwConsumQty
+Local: Field: snf12: storage:cwUpdateBomQty
+Local: Field: snf13: storage:cwUpdateBomrate
+Local: Field: snf: storage:cwConsGodown
+Local: Field: snf2: storage:cwConsBatchName
+Local: Field: snf8: storage:cwConsInvNo
+Local: Field: snf9: storage:cwConsDirSup
+Local: Field: snf3: storage:cwConsHouseName
+Local: Field: snf4: storage:cwConsSuplName
+Local: Field: snf5: storage:cwConsTransName
+Local: Field: snf10: storage:cwNoofBalesName
+Local: Field: snf20: storage:cwLRNumberName
+Local: Field: sdf: storage:cwLRDatename
+Local: Field: numf3: storage:cwConsRate
+Local: Field: cwmoratefld: storage:cwConsRate
+Local: Field: numf10: storage:cwConsumptionAmt
+Local: Field: snfx: Set As:$baseunits:stockitem:#fwf
+Local: Field: NUMF13: storage:cwlineMOVCH
+Local: Field: numf19: storage:cwlineMOVCHkataord
+Local: Field: numf31: storage:cwmasteridConsump
+Local: Field: numf12: storage:cwUpdateSubQtyConsump
+Local: Field: numf33: storage:cwlineofitemstrg
+;; {25.Jan.24 16:44} Local: Field: numf7: Set As:$$number:$billedqty
+;; {25.Jan.24 16:35} Local: Field: numf2: Set As:#numf*#numf7
+
+;; {24.Jan.24 18:55} Local: Field: numf3: Set As:$$CurrentValue:$$GodownItemValue:#snf:#fwf:$ClosingRate
+;; {25.Jan.24 16:34} Local: Field: numf3: Set As:#numf10/#numf2 ;;$$CurrentValue:$$GodownItemValue:#snf:#fwf:$ClosingRate
+
+Local: Field:numf31 :Set As:if $$issysname:#fwf then $$value else $$table:snf2:$mymasterid1 ;;$masterid1
+Local: Field:numf12 :Set As:if $$issysname:#fwf then $$value else $$table:snf2:$mycwUpdateSubQtydo ;;$mycwUpdateSubQtydo1 ;;$cwUpdateSubQtydo1
+Local: Field:numf13:Set As:if $$issysname:#fwf then $$value else $$table:snf2:$mycwpplineno ;;$cwpplineno1
+Local: Field:numf19:Set As:if $$issysname:#fwf then $$value else $$table:snf2:$mycwpplinenokataord ;;$cwpplineno1
+local : field : numf13 : type : number : forced
+
+
+Local: Field: snf2: table:MrkataBatchname,Not Applicable
+;; {17.Jul.24 12:42} Local: Field: snf2: table:ColKataCheckingMatOutRep,Not Applicable
+;; {11.Mar.24 18:31} Local: Field: snf2: table:ColtrstrepDoMatOutMain,Not Applicable
+;; {02.Jul.24 12:40} Local: Field: snf2: Show table: Always
+local:field:snf2:Dynamic:yes
+
+;; {05.Jun.24 17:30} local: field: numf: Invisible: yes
+local: field: numf1: Invisible: yes
+local: field: numf2: Invisible: yes
+;; {05.Feb.25 13:18} local: field: numf3: Invisible: yes
+;; {07.Feb.25 12:38} local: field: numf10: Invisible: yes
+local: field: snfx: Invisible: yes
+local: field: snf4: Invisible: yes
+local: field: snf5: Invisible: yes
+local: field: nf9 : Invisible: yes
+local: field: snf12: Invisible: yes
+local: field: snf13: Invisible: yes
+local: field: NUMF13: Invisible: yes
+local: field: numf31: Invisible: yes
+local: field: numf12: Invisible: yes
+local: field: cwmoratefld: Invisible: yes
+
+Local: Field: default: Border: thin right
+Local: Field: default: Style: style6
+Local: field: numf2: Width:12
+Local: field: numf3: Width:10
+Local: field: numf5: Width:11
+Local: field: numf10: Width:12
+Local: field: cwmoratefld: Width:10
+
+local: field: numf: inactive:$$issysname:#fwf
+local: field: numf1: inactive:$$issysname:#fwf
+local: field: numf2: inactive:$$issysname:#fwf
+local: field: numf3: inactive:$$issysname:#fwf
+local: field: cwmoratefld: inactive:$$issysname:#fwf
+local: field: snf: inactive:$$issysname:#fwf
+local: field: snf4: inactive:$$issysname:#fwf
+local: field: snf8: inactive:$$issysname:#fwf
+local: field: snf9: inactive:$$issysname:#fwf
+local: field: snf10: inactive:$$issysname:#fwf
+local: field: snf20: inactive:$$issysname:#fwf
+local: field: sdf: inactive:$$issysname:#fwf
+local: field: snf2: inactive:$$issysname:#fwf
+local: field: numf4: inactive:$$issysname:#fwf
+local: field: numf5: inactive:$$issysname:#fwf
+local: field: numf6: inactive:$$issysname:#fwf
+local: field: numf7: inactive:$$issysname:#fwf
+local: field: numf8: inactive:$$issysname:#fwf
+
+;; {17.Jul.24 12:42} Local: Field: fwf: table: cwVchStockItemExtract,Not Applicable
+Local: Field: fwf: table: MrkataItemname,end of list ;;,Not Applicable
+Local: Field: fwf: Show table: Always
+;; {06.Sep.24 11:47} LOCAL:FIELD:FWF:Modifies: VarItemnew:yes
+local:field:fwf:Dynamic:yes
+
+
+local: field: snf3: Invisible: yes
+;; {23.Feb.24 11:07} local: field: numf9: Invisible: yes
+
+Local: field: numf: Format: "nozero,decimals:2"
+Local: field: numf1: Format: "nozero,decimals:2"
+Local: field: cwmoratefld: Format: "nozero,decimals:2"
+Local: field: numf2: Format: "nozero,decimals:2"
+Local: field: numf3: Format: "nozero,decimals:2"
+Local: field: numf4: Format: "nozero,decimals:2"
+Local: field: numf5: Format: "nozero,decimals:2"
+Local: field: numf6: Format: "nozero,decimals:2"
+Local: field: numf7: Format: "nozero,decimals:2"
+Local: field: numf8: Format: "nozero,decimals:2"
+
+Local: Field:snf2 :Set As:$$table:snf2:$cwbatchname ;;$batchname
+Local: Field:snf3 :Set As:$$table:snf2:$mycwConsigneeNamepurc ;;$cwConsigneeNamepurc1
+Local: Field:snf4 :Set As:$$table:snf2:$mycwSupplierNamepurc ;;$cwSupplierNamepurc1
+Local: Field:snf5 :Set As:$$table:snf2:$mycwTransporterNamepurc ;;$cwTransporterNamepurc1
+Local: Field:snf10 :Set As:$$table:snf2:$mycwNoofBalespurc ;;$cwNoofBalespurc1
+Local: Field:snf20 :Set As:$$table:snf2:$mycwLRNumberpurc ;;$cwLRNumberpurc1
+Local: Field:sdf :Set As:$$table:snf2:$mycwLRDatepurc ;;$cwLRDatepurc1
+Local: Field: numf10: Set As:#cwmoratefld*#numf2 ;;#numf3*#numf2 ;;$$CollectionField:$ClosingValue:$$line:Coltestrepmain
+;; {05.Feb.25 12:40} Local: Field:numf3 :Set As:$$number:#snf13 ;;$$CollectionField:$rate1:1:MrkataBatchname ;;$$number:#snf13 ;;$rate
+Local: Field:numf3 :Set As:$$table:snf2:$mymrkatarate;;$$CollectionField:$rate1:1:MrkataBatchname ;;$$number:#snf13 ;;$rate
+Local: Field:numf2 : Set As:$$number:#snf12 ;;#numf ;;$$CollectionField:$forqty:$$line:collitemgodownname
+Local: Field:snf8 :Set As:$$table:snf2:$mycwHousesuppinvno ;;$cwHousesuppinvno1
+Local: Field:snf9 :Set As:$$table:snf2:$mycwDirectPurInvNo ;;$cwDirectPurInvNo1
+Local: Field:numf :Set As:$$number:#snf12 ;;$$table:snf2:$billedqty1
+Local: Field: cwmoratefld: Set As:$$number:#snf13 ;;$$CollectionField:$rate1:1:MrkataBatchname  ;;$$asrate:#snf13
+Local: Field: ratef: Set As:$$table:snf2:$mrkatarate1  ;;snf2:$rate1
+local : field : numf3 : type : number : forced
+
+;; {05.Feb.25 12:44} Local: Field:snf12:Set As:$$table:snf2:$myClosingBalance ;;$billedqty1 ;;$cwPurRecedQty1
+Local: Field:snf12:Set As:$$table:snf2:$myClosingBalance ;;$billedqty1 ;;$cwPurRecedQty1
+Local: Field:numf33:Set As:if $$line=1 then 1 else $$prevlinefield+1 ;;$$line
+Local: Field:snf13:Set As:$$table:snf2:$mymrkatarate ;;rate
+local: field: snf12: type: string:forced
+;; {05.Feb.25 13:13} local: field: snf13: type: string:forced
+
+;; {06.Sep.24 23:23} Local: Field:fwf :Set As:if $$line=1 then $$value else endoflist ;;collMO ;;Coltestrepmain ;;collMO
+/*;; {05.Jun.24 17:13} Local: Field:fwf :Set As:$$CollectionField:$stockitemname1:$$line:ColKataCheckingMatOutRep ;;collMO ;;Coltestrepmain ;;collMO
+Local: Field:snf2 :Set As:$$CollectionField:$batchname:$$line:ColKataCheckingMatOutRep ;;Coltestrepmain ;;collMO
+Local: Field:snf3 :Set As:$$CollectionField:$cwConsigneeNamepurc1:$$line:ColKataCheckingMatOutRep ;;Coltestrepmain ;;collMO
+Local: Field:snf4 :Set As:$$CollectionField:$cwSupplierNamepurc1:$$line:ColKataCheckingMatOutRep ;;Coltestrepmain ;;collMO
+Local: Field:snf5 :Set As:$$CollectionField:$cwTransporterNamepurc1:$$line:ColKataCheckingMatOutRep ;;Coltestrepmain ;;collMO
+Local: Field:snf10 :Set As:$$CollectionField:$cwNoofBalespurc1:$$line:ColKataCheckingMatOutRep ;;Coltestrepmain ;;collMO
+Local: Field:snf20 :Set As:$$CollectionField:$cwLRNumberpurc1:$$line:ColKataCheckingMatOutRep ;;Coltestrepmain ;;collMO
+Local: Field:sdf :Set As:$$CollectionField:$cwLRDatepurc1:$$line:ColKataCheckingMatOutRep ;;Coltestrepmain ;;collMO
+Local: Field: numf10: Set As:#numf3*#numf2 ;;$$CollectionField:$ClosingValue:$$line:Coltestrepmain
+Local: Field: numf3: Set As:$$CollectionField:$rate:$$line:ColKataCheckingMatOutRep ;;Coltestrepmain ;;#numf10/#numf2 ;;$$CurrentValue:$$GodownItemValue:#snf:#fwf:$ClosingRate
+Local: Field:numf2 : Set As:#numf ;;$$CollectionField:$forqty:$$line:collitemgodownname
+;; {05.Jun.24 17:14} Local: Field:snf8 :Set As:@@cwsupInvnumberx
+Local: Field:snf9 :Set As:$$CollectionField:$cwDirectPurInvNo1:$$line:ColKataCheckingMatOutRep
+
+Local: Field:numf:Set As:$$CollectionField:$billedqty1:$$line:ColKataCheckingMatOutRep ;;Coltestrepmain  */
+Local: Field:snf :Set As:#EIDestinationGodown
+
+Local: Field: default: Skip: Yes
+Local: Field: fwf: delete:Skip: Yes
+Local: Field: nf9: delete:Skip: Yes
+Local: Field: numf2: delete:Skip: Yes
+Local: Field: snf2: delete:Skip: Yes
+Local: Field: snf12: delete:Skip: Yes
+Local: Field: snf13: delete:Skip: Yes
+Local: field: numf10: Format: "decimals:2"
+
+[line:cwConsumptionitemtotalName1Kc]
+use:cwConsumptionitemName2Kc
+ border:totals
+
+Local: Field: fwf: info:"Total" ;; "Product"
+Local: Field: numf: set as:$$CollNumTotal:cwcollConsumption:$cwBomQty ;; "Qty"
+Local: Field: numf2: set as:"" ;;$$CollNumTotal:cwcollConsumption:$cwConsumQty;; "Qty"
+
+Local: Field: numf2: storage:cwConsumQtytotal
+
+Local: Field: numf10: set as:"" ;;$$CollNumTotal:cwcollConsumption:$cwConsumptionAmt
+Local: Field: numf12: set as:#numf3/#numf33
+
+Local: Field: numf3: set as:$$CollNumTotal:cwcollConsumption:$cwConsRate
+;; {07.Feb.25 12:57} Local: Field: amtf: set as:$$CollamtTotal:cwcollConsumption:$cwmrkataupdateamtstrg
+Local: Field: numf33: set as:$$prevlinefield ;;:#numf33 ;; $$CollectionField:$cwlineofitemstrg:(-1):cwcollConsumption ;;$$prevlinefield
+local : field : numf33 : type : number : forced
+Local: Field:snf: info:""
+Local: Field:snf2: info:""
+Local: Field:numf8: info:""
+Local: field: numf10: Format: "decimals:2"
+
+Local: Field: numf: Skip: Yes
+Local: Field: numf1: Skip: Yes
+Local: Field: numf2: Skip: Yes
+Local: Field: numf3: Skip: Yes
+Local: Field: numf4: Skip: Yes
+Local: Field: numf5: Skip: Yes
+Local: Field: numf6: Skip: Yes
+Local: Field: numf7: Skip: Yes
+Local: Field: numf10: Skip: Yes
+
+local : field : fwf : delete : storage
+local : field : numf : delete : storage
+local : field : numf2 : delete : storage
+local : field : numf3 : delete : storage
+local : field : numf4 : delete : storage
+local : field : numf5 : delete : storage
+local : field : numf6 : delete : storage
+local : field : numf9 : delete : storage
+local : field : numf10 : delete : storage
+local : field : numf7 : read only:yes
+
+local : field : fwf : delete : inactive
+local : field : numf : delete : inactive
+local : field : numf2 : delete : inactive
+local : field : numf3 : delete : inactive
+local : field : numf4 : delete : inactive
+local : field : numf5 : delete : inactive
+local : field : numf6 : delete : inactive
+local : field : numf : delete : inactive
+local : field : numf9 : delete : inactive
+local : field : numf10 : delete : inactive
+
+ Local: Field: default: Style: style5 ;;small
+ 
+[field:cwconsrtfld]
+use:numf
+skip:yes
+
+[field:cwconsrtfld2]
+use:numf
+skip:yes
+storage:cwconsrtstrg
+Format	: Decimal:2
+Width:12
+
+[field:cwconsrtfld3]
+use:numf
+skip:yes
+Width:12
+
+[line:cwConsumptionitemtotalName1Kc2]
+right field:cwconsrtfld,cwconsrtfld2,cwconsrtfld3
+border:totals
+Local: Field: cwconsrtfld: Set As:$$CollNumTotal:cwcollConsumption:$cwBomQty ;;$cwConsRate
+Local: Field: cwconsrtfld3: Set As:$$CollNumTotal:cwcollConsumption:$cwConsumptionAmt ;;$$CollectionField:$cwlineofitemstrg:(-1):cwcollConsumption
+;; {07.Feb.25 12:48} Local: Field: cwconsrtfld3: Set As:$$CollamtTotal:cwcollConsumption:$cwmrkataupdateamtstrg ;;$$CollectionField:$cwlineofitemstrg:(-1):cwcollConsumption
+Local: Field: cwconsrtfld2: Set As:#cwconsrtfld3/#cwconsrtfld
+local : field : cwconsrtfld3 : type : number : forced
+
+ [System: Formula]
+  cwsupInvnumberx:$$CollectionField:$cwHousesuppinvno1:$$line:ColKataCheckingMatOutRep
+  cwsupInvnumberx2:$$CollectionField:$batchname:$$line:ColKataCheckingMatOutRep
+
+[System: Formula]
+cwminFilter:#fwf=$stockitemname
+
+[field:cwconsgodownfKc]
+use:snf
+
+Set As:$$owner:$$owner:$VoucherSourceGodown
+storage:cwVoucherSourceGodown
+skip:yes
+Width:30
+;;==============================
+[System: Formula]
+cwHouseMaterialInkcyesOnly2:$cwHouseMaterialIn:vouchertype:$vouchertypename ;;OR $cwForprocessmaterial:VOUCHERTYPE:$VOUCHERTYPENAME="YES"
+
+[#Form: JobMaterial Journal Voucher]
+
+;; {24.Jul.24 15:25} add:option:cwvoucherOptmrkata :@@cwHouseMaterialInkcyes or @@cwForprocessmaterialyes and @@JayatriTestEnabled
+add:option:cwvoucherOptmrkata :@@cwHouseMaterialInkcyesOnly2 or @@cwForprocessmaterialyes and @@JayatriTestEnabled
+
+[!Form:cwvoucherOptmrkata]
+on: form accept : yes : form accept
+on: form accept : yes : call : UpdateSUBordvchfromMasterOrdVchminmrkata
+
+[Function: UpdateSUBordvchfromMasterOrdVchminmrkata]
+Variable: MasterIdVar: number
+variable: ProgressCount : number :0
+variable : MyItemname2 : string  ;;:$stockitemname
+variable : MyOrdline2 : number
+variable : MykataOrdline2 : number
+variable : MySubQty2 : number
+
+;; {12.Jun.24 10:29} 05 : start progress : ($$numitems:collminout) : "Updating" : "Please Wait..."
+05 : start progress : ($$numitems:collminoutmrkata) : "Updating" : "Please Wait..."
+10 :walk collection:collminoutmrkata ;;collminout
+15 :set  :MasterIdVar :$cwmasteridMO1
+16 : set : MyItemname2:$stockitemname
+17 : set : MyOrdline2:$cwlineMOVCH2x
+;; {09.Sep.24 18:51} 17a : set : MykataOrdline2:$cwlineMOVCHkataord2x
+18 : set : MySubQty2 :$cwmomiqty2x
+
+;; {10.Jun.24 17:49} 18:log object
+20aaa : log :##MySubQty2
+
+24:if :##MyOrdline2>0 ;;and ##MykataOrdline2 >0
+
+25: CALL	: UpdateSUBordvchfromMasterOrdVch1minmrkata:##MasterIdVar:##MyItemname2:##MyOrdline2:##MySubQty2
+26:end if
+30:      increment  :ProgressCount
+;; {08.Feb.22 11:28} 35:log:#ProgressCount
+40 : show progress : ##ProgressCount
+45 : continue
+50 : end walk
+55 : end progress
+
+[Function: UpdateSUBordvchfromMasterOrdVch1minmrkata]
+parameter : MyMasterid : number
+parameter : MyItemnamepar : string
+parameter : MyOrdline2par : number
+;; {09.Sep.24 18:55} parameter : MykataOrdline2par : number
+parameter : MySubQty2par : number
+
+variable : MasterVchId : number
+variable : vid : string
+variable : Mybatch : string:"Primarybatch "
+variable : MyItemname : string ;;:$stockitemname
+
+variable : MySubQty : number
+variable : MyOrdline : number
+;; {09.Sep.24 18:51} variable : MykataOrdline : number
+;;variable : MyOrdPreQty : Quantity
+
+
+;; {01.Feb.22 17:37} variable : counter : number
+VARIABLE:slno:STRING
+
+30 : SET : VID	: $$SPrintf:@@VCHMasterID:##MyMasterid
+;;45 : set :slno :$cwMyLineNojwo
+
+40 : set : MyItemname :##MyItemnamepar
+46 : set : MySubQty :##MySubQty2par
+47 : set : MyOrdline :##MyOrdline2par  ;;$cwlineMOVCH2x
+;; {09.Sep.24 18:51} 47a : set : MykataOrdline :##MykataOrdline2par
+
+89:log:"---xxxxxx---------------------"
+100x1:log:##MyMasterid
+100x2:log:##MyItemnamepar
+100x:log:##MyOrdline
+100xx:log:##MySubQty
+150:log:"-aaaa-----------------------"
+
+;; {16.Feb.24 12:44} 200: modify object :(Voucher, ##VID).inventoryentriesout[1,@@sameitem].cwUpdateSubQty[1].cwUpdateSubQty:##MySubQty ;;,inventoryentries[1,@@sameitem].BatchAllocations[1,@@samebatch].cwUpdateSubQty[1].cwUpdateSubQty:##MySubQty
+
+
+;; {11.Jun.24 16:34} 200: modify object :(Voucher, ##VID).inventoryentriesout[1,@@sameitemdo].batchallocations[##MyOrdline].cwUpdateSubQtydo[1].cwUpdateSubQtydo:##MySubQty
+200: modify object :(Voucher, ##VID).inventoryentriesout[##MyOrdline].cwUpdateSubQtydo[1].cwUpdateSubQtydo:##MySubQty
+
+[System: Formula]
+sameitemdo:$stockitemname = ##MyItemname
+;; {11.Jun.24 17:37} sameitemdo:$stockitemname = ##MyItemname
+;;=======================================================================================================================
+
+ ;;=lot=== MO/ORD/030    MD Abid
+ ;;mi-- MO/ORD/030
+
+[Collection: collminoutmrkata]
+source Collection:default
+walk:inventoryentriesout, Batch Allocations
+by:stockitemname:$stockitemname
+by:batchname:$batchname
+by:cwmasteridMO1:$cwmasteridMO
+;; {11.Jun.24 16:25} compute:stockitemname:$stockitemname
+aggr compute:billedqty:sum:$$number:$billedqty
+;; {09.Sep.24 13:11} by:cwmomiqty2x:$cwmomiqty2
+compute:cwmomiqty2x:$cwmomiqty2
+compute:cwlineMOVCH2x:$cwlineMOVCH2
+compute:cwlineMOVCHkataord2x:$cwlineMOVCHkataord2
+
+format:$stockitemname,10
+format:$batchname,10
+format:$billedqty,10
+format:$cwmasteridMO1,10
+format:$cwmomiqty2x,10
+format:$cwlineMOVCH2x,10
+format:$cwlineMOVCHkataord2x,10
+
+;;===============================
+[#Line: VCHStkCons Allocation1]
+add:option:cwVCHStkConsAllocation1optkc:@@cwHouseMaterialInkcyesOnly2 and @@JayatriTestEnabled
+[!Line: cwVCHStkConsAllocation1optkc]
+add:right field:numf3,numf4,numf5,numf14 ;;,numf15
+
+Local: Field: numf3:storage:cwmasteridmo
+ Local: Field: numf4:storage:cwmomiqty
+ Local: Field: numf5:storage:cwmomiqty2
+ Local: Field: numf5: Set As:#numf4+$$number:$billedqty
+
+ Local: Field: numf4: Set As:#newnumf41Kc ;;#newnumf41
+;; {06.Sep.24 12:07}  Local: Field: numf4: Set As:#newqty1Kc ;;#newnumf41Kc ;;#newnumf41
+ Local: Field: numf3: Set As:#newsnf41Kc ;;#newsnf41do
+;; {10.Jun.24 16:19}  Local: Field: snf: table: collminout,Not Applicable
+
+;; {12.Jun.24 10:11}  Local: Field: snf12: Border: thin box ;;left right
+;; {12.Jun.24 10:11}  Local: Field: snf12:Set As:$$FilterValue:$cwpplineno1:ColKataCheckingMatOutRep:$$line:monoFilterkc
+
+ Local: Field: numf14:Set As:#newlinenumkc ;;#newlinenum
+ Local: Field: numf15:Set As:#newlinenum2kcfld
+  Local: Field: numf14:storage:cwlineMOVCH2
+  Local: Field: numf15:storage:cwlineMOVCHkataord2
+  local : field : numf14 : type : number : forced
+  local: field: snf12: Invisible: yes
+  local: field: numf3: Invisible: yes
+  local: field: numf4: Invisible: yes
+  local: field: numf5: Invisible: yes
+  local: field: numf14: Invisible: yes
+  local: field: numf15: Invisible: yes
+
+   [System: Formula]
+ monoFilterkc:#allocname=$stockitemname1
+;;=======================================================
+/*[part:cwConsumptionitemName2Kc]
+line:cwproNamescraptitlelineKc,cwproNamescraplineKc,cwproNamescraptotallineKc
+
+repeat:cwproNamescraplineKc:collcwproNamescrap
+
+break on  : $$issysname:$cwProductNamescrap
+scroll: vertical
+border:thin box
+common border:yes
+[Collection: collcwproNamescrap]
+type:collcwproNamescrap
+
+[line:cwproNamescraptitlelineKc]
+use:cwproNamescraplineKc
+Local: Field: fwf: info:"Scrap Product Name"
+Local: Field: numf: info: "Qty"
+Local: Field: numf1: info: "Rate"
+Local: Field: snfx: info: "Uom"
+Local: Field: numf2: info: "Amount"
+Local: Field: numf11: info: "RM Qty"
+
+;; {27.Jan.24 17:02} Local: Field: numf3: Set As:$$prevlinefield
+
+local : field : fwf : delete : inactive
+local : field : numf : delete : inactive
+local : field : numf11 : delete : inactive
+local : field : numf1 : delete : inactive
+local : field : snfx : delete : inactive
+local : field : numf2 : delete : inactive
+local : field : fwf : delete : storage
+local : field : numf : delete : storage
+local : field : snfx : delete : storage
+local : field : numf11 : delete : storage
+local : field : numf1 : delete : storage
+local : field : numf2 : delete : storage
+Local: Field: default: Style: small Bold
+Local: field: default: Align:centre
+
+Local: Field: fwf: Style: style5 ;;small Bold
+Local: Field: snf: Style: style5 ;;small Bold
+Local: Field: snfx: Style: style5 ;;small Bold
+Local: Field: snf2: Style: style5 ;;small Bold
+Local: Field: numf: Style: style5 ;;small Bold
+Local: Field: numf11: Style: style5 ;;small Bold
+Local: Field: numf1: Style: style5 ;;small Bold
+Local: Field: numf2: Style: style5 ;;small Bold
+ option: titleopt
+
+
+
+[line:cwproNamescraplineKc]
+field:fwf
+
+;; {27.Jan.24 16:58} right fields:numf,numf11,numf1,snfx,numf2
+right fields:numf,numf11,numf1,snfx,numf2
+
+Local: Field: fwf: storage:cwProductNamescrap
+Local: Field: numf: storage:cwscrapqtyn
+Local: Field: numf11: storage:cwscrapRmqtyn
+Local: Field: numf1: storage:cwscrapRaten
+Local: Field: numf2: storage:cwscrapamtn
+;; {25.Jan.24 17:20} Local: Field: numf2: Set As:#numf1*#numf
+Local: Field: numf2: Set As:#numf1*#numf11
+Local: Field: snfx: Set As:$baseunits:stockitem:#fwf
+Local: Field: numf11: Set As:#numf
+
+Local: Field: numf1: Set As:$$CollectionField:$rate:$$line:ColKataCheckingMatOutRep ;;ColtrstrepDoMatOutMain
+
+Local: Field: fwf: table:collscrapitem,Not Applicable
+Local: Field: fwf: Show table: Always
+Local: field: sp: Width:12
+
+Local: Field:numf2: Skip: Yes
+Local: field: numf2: Format: "decimals:2"
+ Local: field: numf5: Width:12
+ Local: field: numf2: Width:12
+ Local: field: nf: Width:30
+
+ local: field: numf: inactive:$$issysname:#fwf
+ local: field: numf11: inactive:$$issysname:#fwf
+local: field: numf1: inactive:$$issysname:#fwf
+local: field: numf2: inactive:$$issysname:#fwf
+local: field: numf3: inactive:$$issysname:#fwf
+local: field: SNFX: inactive:$$issysname:#fwf
+
+Local: Field: default: Style: style6 ;;small
+Local: Field: default: Border: thin right  */
+
+/*[Collection: collscrapitem]
+type:stockitem
+title:"List Stock Item"
+filter:cwUseasScrapfilter
+
+[System: Formula]
+;; {18.Jan.24 14:53} cwUseasScrapfilter:$cwUseasScrap:stockgroup:$parent="yes"
+cwUseasScrapfilter:$cwUseasScrap:stockgroup:$parent:stockitem:$name="yes"  */
+
+/*[line:cwproNamescraptotallineKc]
+ use:cwproNamescraplineKc
+
+ Local: Field: nf: Set As:""
+ Local: Field: numf: info: ""
+ Local: Field: numf1: info: ""
+ Local: Field: numf2: info: ""
+
+ local : field : nf : delete : inactive
+local : field : numf : delete : inactive
+local : field : numf1 : delete : inactive
+local : field : numf2 : delete : inactive
+local : field : nf : delete : storage
+local : field : numf : delete : storage
+local : field : numf1 : delete : storage
+local : field : numf2 : delete : storage
+
+;;=============================================
+
+[part:cwConsumptionitemName2AKc]
+line:cwproNamefenttitlelineKc,cwproNamefentlineKc,cwproNamefenttotallineKc ;;,cwproNamefenttotalline2
+
+repeat:cwproNamefentlineKc:collcwproNamefent
+
+break on  : $$issysname:$cwProductNamefent
+scroll: vertical
+border:thin box
+common border:yes
+height:1 inch
+
+
+
+[line:cwproNamefenttitlelineKc]
+use:cwproNamefentlinedo
+;; {08.Mar.24 16:53} Local: Field: fwf: info:"Fent Product Name"
+Local: Field: fwf: info:"Co-Product"
+Local: Field: numf: info: "Qty"
+Local: Field: numf11: info: "RM Qty"
+Local: Field: numf1: info: "Rate"
+Local: Field: snfx: info: "Uom"
+Local: Field: numf2: info: "Amount"
+
+local : field : fwf : delete : inactive
+local : field : numf : delete : inactive
+local : field : numf11 : delete : inactive
+local : field : numf1 : delete : inactive
+local : field : snfx : delete : inactive
+local : field : numf2 : delete : inactive
+local : field : fwf : delete : storage
+local : field : numf : delete : storage
+local : field : snfx : delete : storage
+local : field : numf11 : delete : storage
+local : field : numf15 : delete : storage
+local : field : numf1 : delete : storage
+local : field : numf2 : delete : storage
+Local: Field: default: Style: small Bold
+Local: field: default: Align:centre
+
+Local: Field: fwf: Style: style5 ;;small Bold
+Local: Field: snf: Style: style5 ;;small Bold
+Local: Field: snfx: Style:style5 ;; small Bold
+Local: Field: snf2: Style: style5 ;;small Bold
+Local: Field: numf: Style: style5 ;;small Bold
+Local: Field: numf11: Style: style5 ;;small Bold
+Local: Field: numf1: Style: style5 ;;small Bold
+Local: Field: numf2: Style: style5 ;;small Bold
+ option: titleopt
+
+
+
+[line:cwproNamefentlineKc]
+field:fwf
+
+right fields:numf,numf11,numf1,snfx,numf2
+
+Local: Field: fwf: storage:cwProductNamefent
+Local: Field: numf: storage:cwfentqtyn
+Local: Field: numf11: storage:cwfentRMqtyn
+Local: Field: numf1: storage:cwfentRaten
+Local: Field: numf2: storage:cwfentamtn
+;; {25.Jan.24 17:29} Local: Field: numf2: Set As:#numf1*#numf
+Local: Field: numf2: Set As:#numf1*#numf11
+Local: Field:numf11 : Set As:#numf
+Local: Field: snfx: Set As:$baseunits:stockitem:#fwf
+Local: Field: numf1: Set As:$$CollectionField:$rate:$$line:ColKataCheckingMatOutRep ;;ColtrstrepDoMatOutMain
+
+;; {07.Feb.24 15:48} Local: Field: numf: Set As:#cwFGblncQtyfld ;;$$CollectionField:$cwBomQty:1:cwcollConsumption
+
+Local: Field: fwf: table:collfentitem,Not Applicable
+Local: Field: fwf: Show table: Always
+Local: field: sp: Width:12
+
+Local: Field:numf2: Skip: Yes
+Local: field: numf2: Format: "decimals:2"
+ Local: field: numf5: Width:12
+ Local: field: numf2: Width:12
+ Local: field: nf: Width:30
+
+ local: field: numf: inactive:$$issysname:#fwf
+ local: field: numf11: inactive:$$issysname:#fwf
+local: field: numf1: inactive:$$issysname:#fwf
+local: field: numf2: inactive:$$issysname:#fwf
+local: field: numf3: inactive:$$issysname:#fwf
+local: field: SNFX: inactive:$$issysname:#fwf
+;; {06.Feb.24 13:06} local: field: numf15: inactive:$$issysname:#fwf
+
+Local: Field: default: Style: style6 ;;small
+Local: Field: default: Border: thin right
+
+
+[line:cwproNamefenttotallineKc]
+ use:cwproNamefentlineKc
+
+ Local: Field: nf: Set As:""
+ Local: Field: numf: info: ""
+ Local: Field: numf1: info: ""
+;; {06.Feb.24 13:06}  Local: Field: numf15: info: ""
+ Local: Field: numf2: info: ""
+
+ local : field : nf : delete : inactive
+local : field : numf : delete : inactive
+local : field : numf1 : delete : inactive
+local : field : numf2 : delete : inactive
+local : field : nf : delete : storage
+local : field : numf : delete : storage
+local : field : numf1 : delete : storage
+;; {06.Feb.24 13:06} local : field : numf15 : delete : storage
+local : field : numf2 : delete : storage
+
+[line:cwproNamefenttotalline2Kc]
+field:numf15,numf16,cwFGblncQtyfldKc ;;numf17
+
+Local: Field: numf15: Set As:$$CollectionField:$cwBomQty:1:cwcollConsumption
+Local: Field: numf16: Set As:$cwFGQty ;;$$CollectionField:$cwBomQty:1:cwcollConsumption
+Local: Field: cwFGblncQtyfldKc: Set As:#numf15-#numf16
+Local: Field: numf15: Border: thin box ;;left right
+Local: Field: numf17: Border: thin box ;;left right
+Local: Field: numf17: storage:cwFGblncQty
+
+[field:cwFGblncQtyfldKc]
+ use:numf
+ storage:cwFGblncQty
+
+;;===========================================
+
+[part:cwConsumptionitemName3Kc]
+line:cwTotalComsCostlineKc,cwFGQtylineKc,cwEffectiverateofPrimarylineKc
+
+[line:cwTotalComsCostlineKc]
+
+right fields:sp,numf5,numf1,numf,numf2,numf10 ;;,numf11
+Local: Field: sp: Set As:"Total Raw Material Comsuption Cost"
+Local: Field: numf2: storage:cwTotalComsuptionCost
+
+Local: Field: numf10: Set As:#numf2
+
+;; {17.Jan.24 17:27} Local: Field: numf2: storage:cwTotalComsuptionCost
+
+Local: Field: nf: table:collscrapitem,Not Applicable
+Local: Field: nf: Show table: Always
+Local: Field: numf: Set As:$$CollNumTotal:cwcollConsumption:$cwConsumptionAmt
+
+Local: Field: numf1: Set As:$$CollNumTotal:collcwproNamescrap:$cwscrapamtn
+Local: Field: numf11: Set As:$$CollNumTotal:collcwproNamescrap:$cwscrapRmqtyn
+Local: Field: numf5: Set As:$$CollNumTotal:collcwproNamefent:$cwfentamtn
+Local: field: sp: Width:12
+Local: Field: numf2: Set As:#numf+#numf1 ;;-#numf5
+Local: Field:numf: Skip: Yes
+Local: field: numf2: Format: "decimals:2"
+Local: Field: numf2: Border: totals
+
+local: field: numf: Invisible: yes
+local: field: numf1: Invisible: yes
+local: field: numf5: Invisible: yes
+local: field: numf10: Invisible: yes
+Local: field: sp: Width:30
+ Local: field: numf2: Width:12
+Local: Field: numf2: Skip: Yes
+Local: Field: DEFAULT: Style: style5
+
+[line:cwFGQtylineKc]
+
+;; {17.Jan.24 17:57} fields:sp
+right fields:sp,numf2,numf10
+Local: Field: sp: Set As:"Semi Finished Qty"
+Local: Field: numf2: storage:cwFGQty
+;; {12.Mar.24 13:22} Local: Field: numf2: Set As:$$CollNumTotal:cwcollConsumption:$cwConsumQty
+
+Local: Field: numf10: Set As:$$prevlinefield
+
+;; {25.Jan.24 12:04} Local: Field: numf2: Set As:$$number:$billedqty
+Local: field: sp: Width:30
+ Local: field: numf2: Width:12
+;; {25.Jan.24 12:04} Local: Field: numf2: Skip: Yes
+local: field: numf10: Invisible: yes
+Local: Field: DEFAULT: Style: style5
+
+[line:cwEffectiverateofPrimarylineKc]
+
+;; {17.Jan.24 17:57} fields:sp
+right fields:sp,numf1,numf,numf2,numf10
+
+Local: Field: sp: Set As:"Effective rate of Primary Semi Finished Item:" ;;"FG Qty"
+
+;; {25.Jan.24 12:09} Local: Field: numf: Set As:$$number:$billedqty
+Local: Field: numf: Set As:$cwFGQty ;;$$number:$billedqty
+Local: Field: numf10: Set As:$$prevlinefield
+
+;; {17.Jan.24 17:27} Local: Field: numf2: storage:cwTotalComsuptionCost
+
+Local: Field: nf: table:collscrapitem,Not Applicable
+Local: Field: nf: Show table: Always
+
+Local: Field: numf1: Set As:$cwTotalComsuptionCost
+Local: Field: numf2: storage:cwEffectiverateofPrimaryItem
+local: field: numf: Invisible: yes
+local: field: numf1: Invisible: yes
+local: field: numf10: Invisible: yes
+Local: Field: numf2: Skip: Yes
+
+Local: field: sp: Width:36
+ Local: field: numf2: Width:12
+Local: Field: numf2: Set As:#numf10/#numf
+;; {25.Jan.24 12:45} Local: Field: numf2: Set As:#numf1/#numf
+;; {25.Jan.24 12:09} Local: Field:numf: Skip: Yes
+Local: field: numf2: Format: "decimals:2"
+Local: Field: numf2: Border: totals
+Local: Field: numf2: read only: Yes
+Local: Field: DEFAULT: Style: style5 */
+
+/*[Collection: collfentitem]
+type:stockitem
+title:"List Stock Item"
+filter:cwUseasfentfilter
+
+[System: Formula]
+;; {18.Jan.24 14:53} cwUseasScrapfilter:$cwUseasScrap:stockgroup:$parent="yes"
+cwUseasfentfilter:$cwUseasFent:stockgroup:$parent:stockitem:$name="yes"   */
+

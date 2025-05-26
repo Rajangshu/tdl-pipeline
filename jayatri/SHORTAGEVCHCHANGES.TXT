@@ -1,0 +1,83 @@
+; Created By: Anil on 2024-01-20 11:50, ID: 
+
+[System: Formula]
+cwBalesstkjrnlvchtypeYES:$cwTransportShortage:vouchertype:$vouchertypename
+
+[#Line: VCHBATCH ColumnOne]
+ add:option:VCHBATCHColumnOneshortopt:@@cwBalesstkjrnlvchtypeYES;;and @@cwRawMaterialDetailsyes
+
+ [!line:VCHBATCHColumnOneshortopt]
+
+ add:right field:after:VCH BatchNameTitle:suppnof,suppdtf
+ add:right field:after:VCH BatchNameTitle:snf1,snf,snf2,sdf,snf10,snf4,snf5,suppnof,suppdtf  ;;,snf7,snf8,snf9,snf10,snf11,snf12,snf13,snf14,snf15
+ add:right field:before:VCH BatchNameTitle:snf20
+ Local: Field: snf: INFO:"No of Bales" ;;@@cwRMCaptionsName1   ;;IF @@cwRawMaterialyes THEN @cwRMCaptionsName1  ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName1 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName1 else ""
+ Local: Field: snf1: INFO:"Type" ;;@@cwRMCaptionsName1   ;;IF @@cwRawMaterialyes THEN @cwRMCaptionsName1  ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName1 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName1 else ""
+ Local: Field: snf2: INFO:"LR Number" ;;@@cwRMCaptionsName2  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName2 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName2 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName2 else ""
+ Local: Field: sdf: INFO:"LR Date" ;;@@cwRMCaptionsName3   ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName3 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName3 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName3 else ""
+ Local: Field: snf10: INFO:"House" ;;@@cwRMCaptionsName4
+ Local: Field: snf4: INFO:"Supplier Name" ;;@@cwRMCaptionsName4  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName4 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName4 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName4 else ""
+ Local: Field: snf5: INFO:"Transporter Name" ;;@@cwRMCaptionsName5  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName5 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName5 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName5 else ""
+
+ Local: Field: snf20: info: "Godown"
+ local: field: VCH GodownTitle: Invisible: yes
+ 
+  Local: Field: DEFAULT: Style:Style2
+  Local: Field: VCH BatchNameTitle: Style:Style1
+  Local: Field: VCH QtyTitle: Style:Style1
+  Local: Field: VCH RateTitle: Style:Style1
+  Local: Field: VCH AmtTitle: Style:Style1
+  Local: field: snf10: Align: centre
+  Local: field: snf20: Align: centre
+
+
+ [System: Formula]
+;; {01.Dec.23 14:18} cwjooroptFilter:$$IsJobMaterialIssue:$vouchertypename
+ cwjooroptFilter:$$IsJobOrderOut:$vouchertypename
+
+
+ [#line:STKVCH Batch2]
+
+ add:option:STKVCHBatch2shortlanopt:@@cwBalesstkjrnlvchtypeYES;;and @@cwRawMaterialDetailsyes
+
+
+
+ [!line:STKVCHBatch2shortlanopt]
+
+ add:right Field:after:VCHBATCH Name:snf1,snf,snf2,sdf,snf10,snf4,snf5,suppnof2,suppdtf2
+
+  add:right field:before:VCHBATCH BilledQty:cwRecedQtyf
+
+ Local: Field: snf: storage:cwNoofBalespurc
+ Local: Field: snf1: storage:cwTypepurc
+ Local: Field: snf2:storage:cwLRNumberpurc
+ Local: Field: sdf:storage:cwLRDatepurc
+ Local: Field: snf4:storage:cwSupplierNamepurc
+ Local: Field: snf10:storage:cwConsigneeNamepurc
+ Local: Field: snf5:storage:cwTransporterNamepurc
+ Local: Field: SNF1: Set As:@@cwTypevchtype
+
+ Local: Field: snf10: set as :$$ReptField:Name:2:ledger:$CONSIGNEEMAILINGNAME
+ Local: Field: snf4: set as :$cwSupplierNamepurc ;;$$ReptField:Name:2:ledger:$partyledgername
+ Local: Field: snf5: set as :$cwTransporterNamepurc ;;$$ReptField:Name:2:ledger:$$owner:$$owner:$cwTransporterpurc ;;$cwTransporterpurc
+ Local: Field: snf2: set as :$BILLOFLADINGNO
+
+ Local: Field: sdf: set as :$BillofLadingDate
+
+ Local: Field: DEFAULT: Style:Style2
+  Local: Field: snf1: Skip: Yes
+  Local: Field: snf2: Skip: Yes
+  Local: Field: snf3: Skip: Yes
+  Local: Field: snf4: Skip: Yes
+  Local: Field: snf5: Skip: Yes
+  Local: Field: sdf: Skip: Yes
+  Local: Field: snf10: Skip: Yes
+  Local: field: snf10: Align: centre
+
+ Local: Field: snf: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf1: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf2: INACTIVE :@@BatchAllocBreak
+ Local: Field: sdf: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf4: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf5: INACTIVE :@@BatchAllocBreak
+

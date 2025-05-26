@@ -1,0 +1,229 @@
+; Created By: Anil on 2024-07-20 13:48, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+;; {12.Aug.24 18:52}         add: Option: DoOrderUnclearedLock ;; : @@DoOrderUnclearedDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@DoOrderUnclearedReport: Display: RepDoOrderUncleared
+  */
+
+
+     [!menu: DoOrderUnclearedLock]
+        add: Item: before: @@locQuit: @@DoOrderUnclearedReport: Display: RepDoOrderUncleared
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   DoOrderUnclearedReport: "Do Order Uncleared"
+;; DoOrderUnclearedDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepDoOrderUncleared]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@DoOrderUnclearedReport
+   Printset: Report Title: @@DoOrderUnclearedReport
+
+       Form: FrmDoOrderUncleared
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+        variable:str1,str2
+        set:str1:""
+        set:str2:""
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmDoOrderUncleared]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0DoOrderUncleared,PrtDoOrderUncleared
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: DoOrderUnclearedbotbrk,DoOrderUnclearedbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+add:button:cwDoItemButton
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: DoOrderUnclearedConfigure
+
+      [part: DoOrderUnclearedbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: DoOrderUnclearedbotopbrk]
+        use: dspacctitles
+  add: part: DoOrderUnclearedTitlePart
+
+      [part: DoOrderUnclearedTitlePart]
+       line: LnDoOrderUnclearedTitle
+       
+      [line: LnDoOrderUnclearedCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0DoOrderUncleared]
+      line : LnDoOrderUnclearedCurrPeriod
+      
+      [Part: PrtDoOrderUncleared]
+       Line: LnDoOrderUnclearedTitle,LnDoOrderUncleared
+bottom Line: LnDoOrderUnclearedTotals
+     repeat: LnDoOrderUncleared: cwInOrdersofLedger
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+;; {20.Jul.24 13:53} [Collection: ColDoOrderUncleared]
+[Collection: cwInOrdersofLedger]
+
+	Use				: cwJobWrkLedInOrdersLed
+
+	Fetch			: LedgerEntries.MasterID, LedgerEntries.IsVCHOfStockJrnl, LedgerEntries.Date, LedgerEntries.CurLangVoucherTypeName
+	Fetch			: LedgerEntries.VoucherTypeName, LedgerEntries.VoucherNumber
+
+	Fetch			: LedgerEntries.JWAllocQty
+	
+	Compute			: OrderedQty			: $TotalOrdFinishedQty
+
+	Sort        	: @@Default         	: $Date, $$Name
+    Sort        	: @@SortAlphaIncr   	: $Parent
+    Sort        	: @@SortAlphaDecr   	: -$Parent
+    Sort        	: @@PartyWiseIncr   	: $TrackLedger
+    Sort        	: @@PartyWiseDecr   	: -$TrackLedger
+    Sort        	: @@AmountWiseIncr  	: $$Abs:$PendingValue
+    Sort        	: @@AmountWiseDecr  	: -$$Abs:$PendingValue
+    Sort        	: @@QtyWiseIncr     	: $$Abs:$ClosingBalance
+    Sort        	: @@QtyWiseDecr     	: -$$Abs:$ClosingBalance
+
+	Filter			: IsJobOutOrder
+       filter:cwDoitemnamefilter,cwDoNoVchfilter
+
+[Collection: cwJobWrkLedInOrdersLed]
+	
+	ParmVar		: pvStkName		: String: ##SVStockItemName
+	ParmVar		: pvLedName		: String: ##JWLedgerName	
+	ParmVar		: pvOrderName	: String: ##SVOrderName	
+	
+	Type		: Ledger In Orders
+	ChildOf		: ##pvLedName
+		
+	Fetch		: Name, Parent, TrackLedger, OrderType, Date, OrderDueDate, TotalOrdFinishedQty, TotalFinishedQty, ClosingBalance, IsJobInOrder, IsJobOutOrder, ClosingValue, Rate
+	Fetch		: BatchName, GodownName, ParentItem, OrderPreclosureQty, IsJobInMatInOrder, IsJobInMatOutOrder, IsJobOutMatInOrder, IsJobOutMatOutOrder
+	
+	Compute     : TrackLedgerAlias 		: $$ReptField:Name:2:Ledger:$TrackLedger
+	Compute		: StkItemParentAlias   	: $$ReptField:Name:2:StockItem:$Parent
+	Compute		: StkItemParentPNAlias	: $$ReptField:MailingName:2:StockItem:$Parent
+	Compute		: StkItemParentPNName	: $PartNo:StockItem:$Parent
+	Compute		: StkItemParentDesc     : $Description:StockItem:$Parent
+	
+	Parm Var: SVFromDate	: Date	: $StartingFrom:Company:##SVCurrentCompany
+        Parm Var: SVToDate	: Date	:$LastVoucherDate:Company:##SVCurrentCompany ;;$EndingAt:Company:##SVCurrentCompany
+
+	
+	Filter		: ClosingStatusFilter, OrderWithinDateFilter, OrderDueOnlyFilter, ForCurrentOrder, ForCurrentStk
+;; {20.Jul.24 13:59}         Cleared		: Yes
+
+      [Line: LnDoOrderUnclearedTitle]
+        use: LnDoOrderUncleared
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Vch No"
+local:field: snf10: set as: "Vch Type"
+;; {19.Jul.24 18:10} local:field: nf: set as: "Name"
+local:field: fwf: set as: "Item Name"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+
+local: field: sdf : style: style1y ;;normal bold
+local: field: snf : style: style1y ;;normal bold
+local: field: snf10 : style: style1y ;;normal bold
+local: field: fwf : style: style1y ;;normal bold
+local: field: qtyf : style: style1y ;;normal bold
+local: field: amtf : style: style1y ;;normal bold
+local: field: ratepf : style: style1y ;;normal bold
+
+Local: field:sdf : Align: centre
+Local: field:snf : Align: centre
+Local: field:snf10 : Align: centre
+Local: field:qtyf : Align: centre
+Local: field:amtf : Align: centre
+Local: field:ratepf : Align: centre
+
+; Main Line
+      [Line: LnDoOrderUncleared]
+     Fields: DoOrderUnclearedmastid,snf10,sdf,snf,fwf
+Right Field: Qtyf,ratepf,Amtf
+
+     Option: Alter on Enter
+        key: DoOrderUnclearedDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: sdf : set as : $date
+local:field: fwf: set as: $parent ;;"Description"
+local:field: qtyf: set as: $OrderedQty ;;"Description"
+Local: Field: snf: Set As:$VoucherNumber
+Local: Field: snf10: Set As:$VoucherTypeName
+Remove If:@@cwDoorderCounta
+
+local: field: snf10: Invisible: yes
+Local: Field: default: Border: thin right
+local: field: default : style: style2y
+
+Local: field: snf: Width:8
+
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: DoOrderUnclearedDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: DoOrderUnclearedDisplayVoucher
+
+ 	
+     [Report: DoOrderUnclearedDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #DoOrderUnclearedmastid
+	
+
+        [Field: DoOrderUnclearedmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnDoOrderUnclearedTotals]
+        use: LnDoOrderUncleared
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

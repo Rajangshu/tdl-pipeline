@@ -1,0 +1,139 @@
+; Created By: Anil on 2024-02-23 18:29, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+;; {18.Mar.24 13:22}         add: Option: testrepMatOutLock ;; : @@testrepMatOutDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@testrepMatOutReport: Display: ReptestrepMatOut
+
+
+
+     [!menu: testrepMatOutLock]
+        add: Item: before: @@locQuit: @@testrepMatOutReport: Display: ReptestrepMatOut
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   testrepMatOutReport: "testrepMatOut"
+;; testrepMatOutDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: ReptestrepMatOut]
+        use: Dsp Template
+;; Use				: Range Value Template
+        Use				: Range  Template
+        
+      Title: @@testrepMatOutReport
+   Printset: Report Title: @@testrepMatOutReport
+       Form: FrmtestrepMatOut
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmtestrepMatOut]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0testrepMatOut,PrttestrepMatOut
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: testrepMatOutbotbrk,testrepMatOutbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+  add:button:Save View,change view
+ ;;    local : button : report config : action :modify variable: testrepMatOutConfigure
+        option : enable Range filters
+        
+      [part: testrepMatOutbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: testrepMatOutbotopbrk]
+        use: dspacctitles
+  add: part: testrepMatOutTitlePart
+
+      [part: testrepMatOutTitlePart]
+       line: LntestrepMatOutTitle
+       
+      [line: LntestrepMatOutCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0testrepMatOut]
+      line : LntestrepMatOutCurrPeriod
+      
+      [Part: PrttestrepMatOut]
+       Line: LntestrepMatOutTitle,LntestrepMatOut
+bottom Line: LntestrepMatOutTotals
+     repeat: LntestrepMatOut: ColtestrepMatOutmain ;;ColtestrepMatOut
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColtestrepMatOutmain]
+source collection:ColtestrepMatOut
+walk:inventoryentriesout,BatchAllocations
+by:stockitemname:$stockitemname
+by:partyledgername:$partyledgername
+by:batchname:$batchname
+compute:rate:$rate
+aggr compute:billedqty:sum:$billedqty
+aggr compute:amount:sum:$amount
+
+[Collection: ColtestrepMatOut]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColtestrepMatOutFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColtestrepMatOutFilter: $$IsJobMaterialIssue:$vouchertypename
+;; {07.Mar.24 18:48} ColtestrepMatOutFilter: $cwHouseMaterialIn:vouchertype:$vouchertypename
+
+      [Line: LntestrepMatOutTitle]
+        use: LntestrepMatOut
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Item Name"
+local:field: nf1: set as: "batch Name"
+local:field: fwf: set as: "Party"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LntestrepMatOut]
+     Fields: nf,fwf,nf1
+right field: ratepf,Qtyf,Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : $rate ;;#amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+;; {23.Feb.24 18:33} local:field: sdf: set as: "";;"Date"
+local:field: nf: set as: $stockitemname;;"Item Name"
+local:field: nf1: set as: $batchname;;"Item Name"
+local:field: fwf: set as: $partyledgername;;"Party"
+local:field: qtyf: set as: $billedqty;;"Qty."
+local:field: amtf: set as: $amount;;"Value"
+
+
+
+      [line: LntestrepMatOutTotals]
+        use: LntestrepMatOut
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

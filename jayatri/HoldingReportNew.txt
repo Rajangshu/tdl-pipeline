@@ -1,0 +1,561 @@
+; Created By: Anil on 2024-07-31 18:31, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: HoldingReportNewLock ;; : @@HoldingReportNewDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@HoldingReportNewReport: Display: RepHoldingReportNew
+  */
+
+
+     [!menu: HoldingReportNewLock]
+        add: Item: before: @@locQuit: @@HoldingReportNewReport: Display: RepHoldingReportNew
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   HoldingReportNewReport: "HoldingReportNew"
+;; HoldingReportNewDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepHoldingReportNew]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@HoldingReportNewReport
+   Printset: Report Title: @@HoldingReportNewReport
+
+       Form: FrmHoldingReportNew
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+variable:str1,str2,str3
+          set:str1:""
+          set:str2:""
+          set:str3:""
+ list Variable: cwAllPhyStock
+
+     
+      [Form: FrmHoldingReportNew]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0HoldingReportNew,PrtHoldingReportNew
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: HoldingReportNewbotbrk,HoldingReportNewbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+set: logi1 : $$fillPhysicalStock
+     option: enable Range filters
+     add:button:cwStkRepItemfiltBtn
+
+ ;;    local : button : report config : action :modify variable: HoldingReportNewConfigure
+
+      [part: HoldingReportNewbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: HoldingReportNewbotopbrk]
+        use: dspacctitles
+  add: part: HoldingReportNewTitlePart
+
+      [part: HoldingReportNewTitlePart]
+       line: LnHoldingReportNewTitle
+       
+      [line: LnHoldingReportNewCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0HoldingReportNew]
+      line : LnHoldingReportNewCurrPeriod
+      
+      [Part: PrtHoldingReportNew]
+       Line: LnHoldingReportNewTitle,LnHoldingReportNew
+bottom Line: LnHoldingReportNewTotals
+     repeat: LnHoldingReportNew:ColItemBatchWis ;; ColHoldingReportNew
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,NUMF,NUMF1,NUMF2,NUMF3,NUMF4,NUMF5,NUMF6
+
+; Main Collection
+
+
+   [Collection: ColItemBatchWis]
+
+   source Collection: sourcColItemBatchWis
+   by:PARENT:$PARENT
+   by:name:$name
+   by:GODOWNNAME:$GODOWNNAME
+   by:cwLRNumberpurc1:$cwLRNumberpurc
+ ;;  by:cwmrvchdate1:$cwmrvchdate
+   by:cwConsigneeNamepurc1:$cwConsigneeNamepurc
+
+   aggr compute:closingbalance:sum:$$number:$closingbalance
+
+   aggr compute:closingbalance1:sum:if $godownname=@@cwIsMRKol1 then $$number:$closingbalance else $$InitValue:"Quantity"
+   aggr compute:closingbalance2:sum:if $godownname=@@cwIsMOKata1 then $$number:$closingbalance else $$InitValue:"Quantity"
+   aggr compute:closingbalance3:sum:if $godownname=@@cwIsMRKata1 then $$number:$closingbalance else $$InitValue:"Quantity"
+   aggr compute:closingbalance4:sum:if $godownname=@@cwIsMODO1 then $$number:$closingbalance else $$InitValue:"Quantity"
+   aggr compute:closingbalance5:sum:if $godownname=@@cwIsMRDO1 then $$number:$closingbalance else $$InitValue:"Quantity"
+
+   SEARCH KEY:$PARENT+$GODOWNNAME+$name
+
+;; {01.Aug.24 13:27}    SEARCH KEY:$PARENT+$name
+    filter:jeColItemWiseBatchWiseFilter2
+    filter:cwemptycwLRNumberpurcfil
+    filter:cwjetStkItemfillItem,cwjetStkLrNoItem,cwjetStkitembatchflt
+
+   [Collection: sourcColItemBatchWis]
+
+collection:jwColBatchWise:jwColItemWise
+ SEARCH KEY:$PARENT+$GODOWNNAME
+
+[Collection: jwColBatchWise]
+type:batch
+Child of:$$LoopCollObj:$name
+filter:jeColItemWiseBatchWisezeroFilter
+
+
+
+   [system: Formula]
+jeColItemWiseBatchWiseFilter2: $godownnAME=@@cwIsMRKol1 OR $godownnAME=@@cwIsMOKata1 or $godownnAME=@@cwIsMRKata1 OR $godownnAME=@@cwIsMODO1 or $godownname=@@cwIsMRDO1
+jeColItemWiseBatchWisezeroFilter:not $$isempty:$closingbalance
+
+[Collection: jwColItemWise]
+type:stockitem
+fetch:cwLRNumberpurc,cwConsigneeNamepurc,cwmrvchdate
+
+
+    [system: Formula]
+
+
+cwemptycwLRNumberpurcfil:not $$isempty:$cwLRNumberpurc1  ;;@@cwemptycwLRNumberpurcfil2
+cwemptycwLRNumberpurcfil2:$$CollectionField:$cwLRNumberpurc:First:BATCHALLOCATIONS
+
+cwMrkolOpt:$cwFectoryReceive:vouchertype:$vouchertypename="yes"
+cwmrkolDirOpt:$cwDirectPurchasevchtype:vouchertype:$vouchertypename="yes"
+cwMoKataOpt:$cwKatacheckingmatEnable:vouchertype:$vouchertypename="yes"
+cwMrKataOpt:$cwHouseMaterialIn:vouchertype:$vouchertypename="yes"
+cwMoDoOpt:$cwAllowToMatReceive:vouchertype:$vouchertypename="yes"
+cwMrdoOpt:$cwFGMaterialIn:vouchertype:$vouchertypename="yes"
+
+;; {01.Aug.24 10:46} ColHoldingReportNewFilter: $$IsJobMaterialIssue:$VoucherTypeName
+
+      [Line: LnHoldingReportNewTitle]
+        use: LnHoldingReportNew
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Receive Date"
+local:field: nf: set as: "Party Name"
+local:field: fwf: set as: "Quality"
+local:field: snf: set as: "LR NO."
+local:field: nf9: set as: "Total Design"
+local:field: numf: set as:"Receive Qty" ;; "Factory Un-Finish"
+local:field: numf2: set as:"Measurement Qty" ;; "Nav Jiwan (RM)"
+local:field: numf3 : set as :"MR Kata Hold Qty" ;; "Nav Jiwan (FG)"
+local:field: numf4 : set as :"MO DO" ;; "Factory Ready"
+local:field: numf5 : set as :"MR DO Holding Qty" ;; "Factory Ready"
+Local : field : default: Lines : 0
+
+local: field: default : style: normal bold
+      
+Local: field:sdf : Align: centre
+Local: field:nf : Align: centre
+Local: field:snf : Align: centre
+Local: field:snf2 : Align: centre
+Local: field:numf : Align: centre
+Local: field:numf2 : Align: centre
+Local: field:numf3 : Align: centre
+Local: field:numf4 : Align: centre
+Local: field:numf5 : Align: centre
+Local: field:nf9 : Align: centre
+
+local: field: sdf : style: style1y ;;normal bold
+local: field: nf : style: style1y ;;normal bold
+local: field: nf9 : style: style1y ;;normal bold
+local: field: snf : style: style1y ;;normal bold
+local: field: snf2 : style: style1y ;;normal bold
+local: field: numf : style: style1y ;;normal bold
+local: field: numf2 : style: style1y ;;normal bold
+local: field: numf3 : style: style1y ;;normal bold
+local: field: numf4 : style: style1y ;;normal bold
+local: field: numf5 : style: style1y ;;normal bold
+
+; Main Line
+      [Line: LnHoldingReportNew]
+     Fields:HoldingReportNewmastid,sdf,nf,fwf,snf,nf9,snf10
+Right Field: numf,numf10,numf2,numf11,numf3,numf12,numf4,numf13,numf5,numf14,snf12,snf13,snf14
+
+     Option: Alter on Enter
+        key: HoldingReportNewDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: nf1: set as:$vouchertypename ;;"Receive Date"
+local:field: nf2: set as:$vouchernumber ;;"Receive Date"
+;; {01.Aug.24 18:26} local:field: sdf: set as:$$collectionfieldbykey:$date:@@keyReceiveDate:ColHoldingReportNew ;;"Receive Date"
+local:field: sdf: set as:$$reportobject:$$CollectionFieldByKey:$lvdate:@@keyReceiveDate:cwAllPhyStock
+local:field: nf: set as:if $$line=1 then @@cwMrKolPartyname else if $cwLRNumberpurc1 <> $$prevobj:$cwLRNumberpurc1 then @@cwMrKolPartyname else ""
+;; {02.Aug.24 12:01} local:field: fwf: set as:$parent
+local:field: fwf: set as:if $$line=1 then $parent else if $cwLRNumberpurc1 <> $$prevobj:$cwLRNumberpurc1 then $parent else ""
+local:field: nf9: set as:$name ;;if not $$isempty:$closingbalance1 then "" else $name ; $stockitemname ;;"Quality"
+;; {02.Aug.24 11:48} local:field: snf: set as:$cwLRNumberpurc1 ;; $cwLRNumberpurc1 ;;"LR NO."
+local:field: snf: set as:if $$line=1 then $cwLRNumberpurc1 else if $cwLRNumberpurc1 <> $$prevobj:$cwLRNumberpurc1 then $cwLRNumberpurc1 else ""
+local:field: snf14: set as: $cwLRNumberpurc1 ;;"LR NO."
+;; {02.Aug.24 11:32} local:field: snf2: set as: $batchname ;;"Total Design"
+local:field: snf10: set as:$godownname ;;"Total Design"
+
+local:field: numf: set as:$closingbalance1 ;;$$FilterNumTotal:colljtBatchInGodownName:cwjeIsSameBatchGodown:$ClosingBalance
+local:field: numf2: set as:$closingbalance2 ;;$$FilterNumTotal:colljtBatchInGodownName2:cwjeIsSameBatchGodown:$ClosingBalance
+
+local:field: numf3: set as:$closingbalance3 ;;$$FilterNumTotal:colljtBatchInGodownName3:cwjeIsSameBatchGodown:$ClosingBalance
+local:field: numf4: set as:$closingbalance4 ;;$$FilterNumTotal:colljtBatchInGodownName4:cwjeIsSameBatchGodown:$ClosingBalance
+local:field: numf5: set as:$closingbalance5
+
+Local: Field:numf10: Set As: if $$line=1 then #numf else if $cwLRNumberpurc1 <> $$prevobj:$cwLRNumberpurc1 then #numf else $$prevlinefield+#numf
+Local: Field:numf11: Set As: if $$line=1 then #numf2 else if $cwLRNumberpurc1 <> $$prevobj:$cwLRNumberpurc1 then #numf2 else $$prevlinefield+#numf2
+Local: Field:numf12: Set As: if $$line=1 then #numf3 else if $cwLRNumberpurc1 <> $$prevobj:$cwLRNumberpurc1 then #numf3 else $$prevlinefield+#numf3
+Local: Field:numf13: Set As: if $$line=1 then #numf4 else if $cwLRNumberpurc1 <> $$prevobj:$cwLRNumberpurc1 then #numf4 else $$prevlinefield+#numf4
+Local: Field:numf14: Set As: if $$line=1 then #numf5 else if $cwLRNumberpurc1 <> $$prevobj:$cwLRNumberpurc1 then #numf5 else $$prevlinefield+#numf5
+
+
+Local: Field: default: Border: thin right
+local: field: snf10: Invisible: yes
+local: field: snf12: Invisible: yes
+local: field: snf13: Invisible: yes
+local: field: snf14: Invisible: yes
+local: field: numf10: Invisible: yes
+local: field: numf11: Invisible: yes
+local: field: numf12: Invisible: yes
+local: field: numf13: Invisible: yes
+local: field: numf14: Invisible: yes
+
+local: field: default : style: style2y ;;normal bold
+
+Local: field:sdf : Align: centre
+Local: field:nf : Align: centre
+Local: field:snf : Align: centre
+Local: field:snf2 : Align: centre
+Local: field:nf9 : Align: centre
+
+;; {01.Aug.24 16:36} explode:expmrkata
+explode:expmrkatasub:$$line=$$numitems or $cwLRNumberpurc1<>$$nextobj:$cwLRNumberpurc1
+
+[System: Formula]
+keyReceiveDate:#FWF+#SNF
+cwjeStockItemNameIsParent:$Parent = #fwf
+cwjeIsSameBatchGodown : $BatchName= #nf9 AND $GodownName = #snf10
+cwMrKolPartyname:$name:ledger:$cwConsigneeNamepurc1
+
+[part:expmrkatasub]
+line:expmrkatasub
+[line:expmrkatasub]
+use: LnHoldingReportNew
+delete:explode
+border:totals
+local:field: snf12: set as:"" ;;$stockitemname ;;"Total Design"
+local:field: snf13: set as:"" ;;$godownname ;;"Total Design"
+local:field: fwf: set as: "Sub Total" ;;"Total Design"
+local:field: snf: set as: "" ;;"Total Design"
+local:field: snf2: set as:"" ;; $batchname ;;"Total Design"
+ Local: Field: snf14: Set As:"" ;;$$prevlinefield
+ Local: Field: nf: Set As:"" ;;$$prevlinefield
+ Local: Field: nf9: Set As:"" ;;$$prevlinefield
+ Local: field: fwf: Align: Right ;;centre
+ local:field: numf10: set as:$$total:numf10;;#qtyf2 ;;"Qty."
+local:field: numf11: set as:$$total:numf11;;#qtyf2 ;;"Qty."
+local:field: numf12: set as:$$total:numf12;;#qtyf2 ;;"Qty."
+local:field: numf13: set as:$$total:numf13;;#qtyf2 ;;"Qty."
+local:field: numf14: set as:$$total:numf14;;#qtyf2 ;;"Qty."
+
+local:field: numf10: set as: $$prevlinefield
+local:field: numf11: set as: $$prevlinefield
+local:field: numf12: set as: $$prevlinefield
+local:field: numf13: set as: $$prevlinefield
+local:field: numf14: set as: $$prevlinefield
+Local: Field: numf: Set As:#numf10
+Local: Field: numf2: Set As:#numf11
+Local: Field: numf3: Set As:#numf12
+Local: Field: numf4: Set As:#numf13
+Local: Field: numf5: Set As:#numf14
+
+/*local:field: numf: set as:""
+local:field: numf2: set as:""
+local:field: numf3: set as:""
+local:field: numf4: set as:""
+local:field: numf5: set as:"" */
+
+
+[part:expmrkata]
+line:expmrkata
+repeat:expmrkata:collexpmrkata
+
+[Collection: collexpmrkata]
+source collection: srccollexpmrkata
+walk:allinventoryentries,BATCHALLOCATIONS
+
+;;by:vouchertypename:$vouchertypename
+by:stockitemname:$stockitemname
+by:cwLRNumberpurc1:$cwLRNumberpurc
+by:batchname:$batchname
+by:godownname:$godownname
+
+
+;; {01.Aug.24 16:39} filter:jeColItemWiseBatchWiseFilter2 ;,cwLRNumberpurc1filter
+filter:cwLRNumberpurc1filter
+
+[Collection: srccollexpmrkata]
+Use: Vouchers of Company
+delete: filter : daybookfilter
+Filter: expmrkatafilter,IsNonOptionalCancelledVchs
+keep source : ().
+
+[System: Formula]
+;; {01.Aug.24 12:34} expmrkatafilter:$$IsJobMaterialReceive:$VoucherTypeName  ;and @@cwMrKataOpt
+expmrkatafilter:$$IsJobMaterialReceive:$VoucherTypeName and @@cwMrKataOpt
+ cwLRNumberpurc1filter:$cwLRNumberpurc1=#snf14
+ 
+[line:expmrkata]
+use: LnHoldingReportNew
+delete:explode
+
+local:field: snf12: set as:$stockitemname ;;"Total Design"
+local:field: snf13: set as:$godownname ;;"Total Design"
+local:field: fwf: set as: "" ;;"Total Design"
+local:field: snf: set as: "" ;;"Total Design"
+local:field: snf2: set as: $batchname ;;"Total Design"
+ Local: Field: snf14: Set As:$$prevlinefield
+
+local:field: numf: set as:$$collectionfieldbykey:$closingbalance:@@keyhlodingnew:ColItemBatchWis
+local:field: numf2: set as:$$collectionfieldbykey:$closingbalance:@@keyhlodingnew2:ColItemBatchWis
+local:field: numf3: set as:$$collectionfieldbykey:$closingbalance:@@keyhlodingnew3:ColItemBatchWis
+local:field: numf4: set as:$$collectionfieldbykey:$closingbalance:@@keyhlodingnew4:ColItemBatchWis
+local:field: numf5: set as:$$collectionfieldbykey:$closingbalance:@@keyhlodingnew5:ColItemBatchWis
+
+Local: Field:default: Color : blue
+
+
+   ;------------------------------  Alter Voucher Start (4.1)
+   
+  [System: Formula]
+  keyhlodingnew:#snf12+@@cwIsMRKol1+#snf2 ;;"FG_Kata"+#snf2
+
+  keyhlodingnew2:#snf12+@@cwIsMOKata1+#snf2
+  keyhlodingnew3:#snf12+@@cwIsMRKata1+#snf2
+  keyhlodingnew4:#snf12+@@cwIsMODO1+#snf2
+  keyhlodingnew5:#snf12+@@cwIsMRDO1+#snf2
+  
+cwIsMRKol1:$cwIsMRKol1:COMPANY:##SVCURRENTCOMPANY
+cwIsMOKata1:$cwIsMOKata1:COMPANY:##SVCURRENTCOMPANY
+cwIsMRKata1:$cwIsMRKata1:COMPANY:##SVCURRENTCOMPANY
+cwIsMODO1:$cwIsMODO1:COMPANY:##SVCURRENTCOMPANY
+cwIsMRDO1:$cwIsMRDO1:COMPANY:##SVCURRENTCOMPANY
+
+   
+
+        [Key: HoldingReportNewDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: HoldingReportNewDisplayVoucher
+
+ 	
+     [Report: HoldingReportNewDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #HoldingReportNewmastid
+	
+
+        [Field: HoldingReportNewmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnHoldingReportNewTotals]
+        use: LnHoldingReportNew
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      /*local: field: NUMF : set as :  $$total:NUMF
+      local: field: NUMF1 : set as :  $$total:NUMF1
+      local: field: NUMF2 : set as :  $$total:NUMF2
+      local: field: NUMF3 : set as :  $$total:NUMF3
+      local: field: NUMF4 : set as :  $$total:NUMF4
+      local: field: NUMF5 : set as :  $$total:NUMF5*/
+
+;;=============================================================================
+
+
+
+
+ [variable:cwAllPhyStock]
+ variable : uniqueElementName : string
+ variable : lvStockItemName : string
+ variable: lvBatchName : string
+ variable: lvgodownname : string
+ variable: lvcwZeroValueps1 : string
+ variable: lvQuantity : quantity
+ variable: lvQuantity2 : number
+ variable: lvcwThanps1 : number
+ variable: lvdate : date
+
+
+  [system : variable]
+list variable :cwAllPhyStock
+
+
+[function:fillPhysicalStock]
+variable: lvTestIndexVar : string
+variable: lvTextId : number
+
+
+10 : LIST DELETE	: cwAllPhyStock
+
+20 : walk collection :ColPhysicalStockReportALL
+25 : set :lvTestIndexVar : $stockItemName +$cwLRNumberpurc1  ;; $batchName ;;+$godownname
+
+30 : if : not $$listfind:cwAllPhyStock:##lvTestIndexVar
+	
+40 : list add : cwAllPhyStock : ##lvTestIndexVar
+41 : set : lvTextId : $$listIndex:cwAllPhyStock:##lvTestIndexVar
+50 : set : cwAllPhyStock[##lvTextId].uniqueElementName : ##lvTestIndexVar
+
+52 : set : cwAllPhyStock[##lvTextId].lvStockItemName : $stockitemname
+54 : set : cwAllPhyStock[##lvTextId].lvBatchName : $cwLRNumberpurc1
+55 : set : cwAllPhyStock[##lvTextId].lvgodownname : $godownname
+
+
+57:log:$stockitemname
+
+60 : else
+	
+70 : set : lvTextId : $$listIndex:cwAllPhyStock:##lvTestIndexVar	
+	
+80 : end if
+	
+90 : set : cwAllPhyStock[##lvTextId].lvQuantity : $billedqty
+92 : set : cwAllPhyStock[##lvTextId].lvdate : $date
+
+;;95:log:##lvStockItemName
+;; {21.Mar.24 10:59} 96:log:##lvBatchName
+;;97:log:$actualqty
+	
+2222 : end walk
+
+
+
+[Collection:cwAllPhyStock]
+ data source: variable :cwAllPhyStock
+  format:$lvStockItemName
+  format:$lvBatchName
+  format:$lvgodownname
+
+  format:$lvQuantity
+
+  format:$lvdate
+  sort:@@default:$lvStockItemName,$lvBatchName,$lvdate
+
+  search key:$lvStockItemName+$lvBatchName  ;;+$lvgodownname
+  keep source: ().
+      			
+      			
+      			
+      			
+[Collection: ColPhysicalStockReportALL]
+
+source Collection: sourColPhysicalStockReportALL
+walk:allinventoryentries,batchallocations
+by:date:$date
+
+by:stockitemname:$stockitemname
+by:cwLRNumberpurc1:$cwLRNumberpurc
+
+aggr compute:billedqty:sum:$billedqty
+
+
+[Collection: sourColPhysicalStockReportALL]
+   Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColHoldingReportNewFilter,IsNonOptionalCancelledVchs
+    keep source : ().	
+  Parm Var: SVFromDate	: Date	: $StartingFrom:Company:##SVCurrentCompany
+Parm Var: SVToDate	: Date	:$LastVoucherDate:Company:##SVCurrentCompany
+
+
+[System: Formula]
+ColHoldingReportNewFilter:$$IsJobMaterialReceive:$VoucherTypeName and @@cwMrkolOpt or @@cwmrkolDirOpt
+
+;;==========================
+
+[button:cwStkRepItemfiltBtn]
+    title:"Filter"
+    key:f7
+    action : modify variable :cwStkRepItemfiltrep
+
+
+        [Report: cwStkRepItemfiltrep]
+        form   : cwStkRepItemfiltrep
+        [form  :cwStkRepItemfiltrep]
+         part   :cwStkRepItemfiltrep
+        ; height:30% page
+        width:45% page
+       ;  Background  :Very Light Blue ;;@@SV_UNYELLOW
+
+        [part  :cwStkRepItemfiltrep]
+        line:cwStkRepfiltTitx,cwItemnameFiltLn,cwVchLrNoFiltLn3,cwbatchnameFiltLn ;;,cwItembatchnameFiltLn4 ;;,cwbatchnameFiltLn5
+
+
+        [line:cwStkRepfiltTitx]
+        field:fwfc
+        Local: Field: fwfc: info: "Filter"
+        Local: Field: fwfc: Style: Normal Bold
+
+          [line:cwItemnameFiltLn]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"Item"
+     Local: Field: nf:modifies:str1
+     Local: Field: Medium Prompt: Style: Normal Bold
+     Local: Field: nf: table:colljetstkitem,Not Applicable
+     Local: Field: nf: Show table: Always
+     space top:0.3
+
+     [Collection: colljetstkitem]
+     type:stock item
+     
+      [line:cwVchLrNoFiltLn3]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"LR No."
+     Local: Field: nf:modifies:str2
+     Local: Field: Medium Prompt: Style: Normal Bold
+
+     [line:cwbatchnameFiltLn]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"Batch"
+     Local: Field: nf:modifies:str3
+     Local: Field: Medium Prompt: Style: Normal Bold
+     
+[System: Formula]
+cwjetStkItemfillItem:if $$issysname:##str1 then yes else $parent= ##str1
+cwjetStkLrNoItem:if $$issysname:##str2 then yes else $cwLRNumberpurc1= ##str2
+cwjetStkitembatchflt:if $$issysname:##str3 then yes else $name= ##str3

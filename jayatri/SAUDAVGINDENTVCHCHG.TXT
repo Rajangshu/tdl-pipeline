@@ -1,0 +1,119 @@
+; Created By: Anil on 2024-01-20 13:21, ID: 00
+
+[System: Formula]
+cwVEPLSOMasterPOTagIndentOpt:(@@JobWorkModulePurcOrd and @@cwisIndentPurcOrd) and @@cwsaudamanagement
+
+[#Report: Voucher]
+;; {08.Feb.22 18:30} add:option:cwVIPOVoucherOpt:@@VEPLEnbPurcOrdOpt and @@cwisIndentPurcOrd
+;; {08.Feb.22 18:30} [!Report:cwVIPOVoucherOpt]
+variable:logi1
+set:logi1:yes
+
+[#Form: Voucher]
+add:option:cwMasterordvoucherOpt ;;:@@cwVEPLSOMasterPOTagIndentOpt
+[!Form:cwMasterordvoucherOpt]
+add:button:cwClearOrdBtn
+
+[Button:cwClearOrdBtn]
+title : "Pre-Close Oty"
+action : set : logi1 : not ##logi1
+key : alt + 1
+
+
+;; {02.Feb.22 12:39} [#Line:eiconsignee]
+;; {02.Feb.22 12:39} add:field:numf
+;; {02.Feb.22 12:39} Local: Field: numf: storage:CwTestQty
+/*
+[#Line: STKVCH Batch2]
+add:option:STKVCHBatch2opt:@@cwVEPLMasterOrdOpt
+[!Line:STKVCHBatch2opt]
+
+;;Right Fields: VCHBATCH Godown, VCHBATCH Name,+
+;;VCHBATCH ActualQty, VCHBATCH BilledQty,VCHBATCH ClosureInv,VCHBatch PreClsBalance, VCHBATCH Closure, VCH OrderClosureDate, VCH RateIncl, VCHBATCH Rate, VCHBATCH RateUnits, VCHBATCH ItemRate, VCHBATCH Discount, VCHBATCH ItemDiscount, VCHBATCH Value, VCHBATCH AddlValue
+
+;; {03.Feb.22 11:36} add:right fields:after:VCHBATCH Discount:numf
+add:right fields:before:VCHBATCH Closure:numf
+ Local: Field: numf: storage:cwUpdateSubQty
+;; {03.Feb.22 11:40} Local: Field:VCHBATCH Closure : Set As:#numf
+local: field: numf: inactive:@@NoBaseUnits OR @@BatchAllocBreak
+
+
+                  */
+
+ [#Line: EI ColumnOne]
+ add:option:EIColumnOneopt;;:@@cwVEPLSOMasterPOTagIndentOpt
+
+
+;;Fields      : VCH ItemTitle
+;;Right Fields: VCH QtyTitle, VCH InclRateTitle, VCH RateTitle, VCH RateUnitsTitle, VCH DiscTitle, VCH AmtTitle
+
+ [!line:EIColumnOneopt]
+
+
+add:right fields:after:VCH QtyTitle:numf
+
+ Local: Field:numf: info:"Clr Ord Oty"
+ local: field: numf: Invisible: ##logi1
+ Local: Field: numf: Style: Normal Bold
+
+  [#Line: EI ColumnOneRate]
+  add:option:cwEIColumnOneRateopt;;:@@cwVEPLSOMasterPOTagIndentOpt
+[!line:cwEIColumnOneRateopt]
+
+
+;; Fields      : VCH ItemTitle
+;; Right Fields: VCH QtyTitle, VCH InclRateTitle, VCH RateTitle, VCH RateUnitsTitle, VCH DiscTitle, VCH AmtTitle
+
+add:right fields:after:VCH QtyTitle:numf
+
+ Local: Field:numf:info:""
+ local: field: numf: Invisible: ##logi1
+
+
+ [#Line: EI Columntwo]
+ add:option:EIColumntwoopt;;:@@cwVEPLSOMasterPOTagIndentOpt
+[!line:EIColumntwoopt]
+
+
+;;Fields      : VCH ItemTitle
+;;Right Fields: VCH ActualQtyTitle, VCH BilledQtyTitle, VCH InclRateTitle, VCH RateTitle, VCH RateUnitsTitle, VCH DiscTitle, VCH AmtTitle
+
+add:right fields:after:VCH BilledQtyTitle:numf
+
+ Local: Field:numf:info:""
+ local: field: numf: Invisible: ##logi1
+
+
+
+   [#Line: CI InvInfo]
+   add:option:EIInvInfoopt;;:@@cwVEPLSOMasterPOTagIndentOpt
+
+
+   [#Line: EI InvInfo]
+   add:option:EIInvInfoopt;;:@@cwVEPLSOMasterPOTagIndentOpt
+
+ [!line:EIInvInfoopt]
+;;Fields      : EI DeemedPos, VCH StockItem
+;;Right Fields: VCH ActualQty, VCH BilledQty, VCH RateIncl, VCH Rate, VCH RateUnit, VCH PrevItem, VCH Discount, VCH Value
+add:right fields:after:VCH BilledQty:numf
+ Local: Field: numf: storage:cwUpdateSubQty
+;; {02.Feb.22 15:35}  Local: Field: numf: Set As:if $$increatemode then $billedqty else $$value
+local: field: numf: inactive:$$IsEnd:$StockItemName OR @@NoBaseUnits
+Local: field:numf: Format:"Decimal:2,NoZero"
+ local: field: numf: Invisible: ##logi1
+
+
+
+ [#Line: EI InvInfo]
+   add:option:EIInvInfopurcopt:@@ispurchase
+
+ [!line:EIInvInfopurcopt]
+
+add:right fields:after:VCH BilledQty:snf20
+ Local: Field: snf20: storage:cwsaudanonew
+;; {20.Jan.24 14:10}  Local: Field: snf20: Border: thin box ;;left right
+ local: field: snf20: Invisible: yes
+
+
+
+

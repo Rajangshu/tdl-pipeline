@@ -1,0 +1,740 @@
+; Created By: Anil on 2024-01-19 10:47, ID: 
+
+[System: Formula]
+
+ cwTransportChallanVoucher:$$IsJobMaterialReceive:$parent
+
+ [#Part: VTYP Behaviour]
+
+ add:option:newVTYPBehaviourtrchallopt:@@cwTransportChallanVoucher
+
+ [!part:newVTYPBehaviourtrchallopt]
+
+ add:line:cwadditionalTrChallanfeatuline
+
+ [line:cwadditionalTrChallanfeatuline]
+
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Additional Feature:"
+ Local: Field: cwlogical: storage:cwAddfeTransportChallan
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ Local: Field : cwlogical : SubForm : cwAddfeTransportChallanrep: $$value
+
+ [report:cwAddfeTransportChallanrep]
+ form:cwAddfeTransportChallanrep
+ title:""
+
+ [form:cwAddfeTransportChallanrep]
+ part:cwAddfeTransportChallanrep
+
+
+ [part:cwAddfeTransportChallanrep]
+ part:cwAddfeTransportChallanrep1
+
+ [part:cwAddfeTransportChallanrep1]
+;; {26.Dec.23 16:45}  line:cwvchTransportChallanline,typevcline,cwVchTypeSelectedGodown2line,cwEnableShortageQtytypeline,cwVoucherTypevchGodown2line,cwcwVchTypetransGodown2line,cwKataCheckingChallanline,gddetails1,gddetails2   ;;,cwMaterialOutforKataCheckingine,cwVoucherTypevchkkataline
+ line:cwvchTransportChallanline,cwHouseMaterialOutLn,cwFectoryReceiveLn,cwHouseMaterialLnLine,cwFGMaterialLnLine,cwForProcessMatInLine,enablAllowAutopostingline,CwdirectPurchaseLine ;;cwadditionalfeatuvchtypeline
+
+[line:typevcline]
+ field:Long Prompt,snf
+ Local: Field: Long Prompt: Set As:"Type"
+ Local: Field: snf: storage:cwTypevchtype
+
+ Local: Field: snf: table:cwcolltype,Not Applicable
+ Local: Field: snf: Show table: Always
+ local:field:snf:variable:svcost centre
+ local:field:SNF:key:Create Cost Centre, Alter CstCtr
+  Local: Field: default: Style:Style2
+;; {19.Jan.24 11:01} Local: Field: snf: Skip: if $cwTransportChallanvchtype="yes" then no else yes
+
+ [line:cwvchTransportChallanline]
+
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"House Receive Challan(Pur):"
+ Local: Field: cwlogical: storage:cwTransportChallanvchtype
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+ 
+ Local: Field : cwlogical : SubForm :TransportChallanvchtyperep:$$value
+
+ [report:TransportChallanvchtyperep]
+form:TransportChallanvchtyperep
+
+[form:TransportChallanvchtyperep]
+part:TransportChallanvchtyperep
+
+[part:TransportChallanvchtyperep]
+width:40% page
+line:typevcline,cwVchSourceGodownLine,cwVchTypeSelectedGodown2line,cwMatInBatchCapLn,cwEnableShortageQtytypeline,cwVoucherTypevchGodown2line,cwcwVchTypetransGodown2line ;;,cwKataCheckingChallanline,gddetails1,gddetails2   ;;,cwMaterialOutforKataCheckingine,cwVoucherTypevchkkataline
+
+  [line: cwVchTypeSelectedGodown2line]
+ field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Target Godown:" ;;"Source Godown:"
+ Local: Field: nf: storage:cwVchTypeTargetGodown
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+;; {19.Jan.24 10:58}  Local: Field: nf: Skip: if $cwTransportChallanvchtype="yes" then no else yes
+
+ [line:cwVchSourceGodownLine]
+ field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Source Godown:" ;;"Source Godown:"
+ Local: Field: nf: storage:cwVchTypeSourceGodown
+
+ Local: Field: default: Style:Style2
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ [line:cwMatInBatchCapLn]
+ field:long prompt,snf
+ Local: Field: long prompt: Set As:"Batch Caption"
+ Local: Field: snf: storage:cwrmcaption
+ Local: Field:default: Style:style2
+
+
+ [line:cwEnableShortageQtytypeline]
+
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Enable Shortage Qty:"
+ Local: Field: cwlogical: storage:cwEnableShortageQtytype
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+;; {19.Jan.24 10:58}  Local: Field: cwlogical: Skip: if $cwTransportChallanvchtype="yes" then no else yes
+
+
+  [line: cwVoucherTypevchGodown2line]
+ field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Voucher Type:"
+ Local: Field: nf: storage:cwVoucherTypevch
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: nf: table: collcwVouchertypes,Not Applicable
+ Local: Field: nf: Show table: Always
+;; {19.Jan.24 10:58}  Local: Field: nf: Skip: if $cwTransportChallanvchtype="yes" then no else yes
+
+
+  [Collection:collcwVouchertypes]
+  tityle:"List of Voucher Type"
+
+ Type        : Voucher Type
+ Child of    : $$VchTypeStockJrnl
+ Belongs To  : Yes
+
+
+
+
+  [line: cwcwVchTypetransGodown2line]
+ field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Godown:"
+ Local: Field: nf: storage:cwVchTypetransGodown
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: Field: nf:Keys        : Create Godown, Alter Godown
+ Local: Field: nf:Variable :SV Godown
+;; {19.Jan.24 10:58}  Local: Field: nf: Skip: if $cwTransportChallanvchtype="yes" then no else yes
+
+
+[line:cwHouseMaterialOutLn]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"House Material Out:"
+ Local: Field: cwlogical: storage:cwHouseMaterialOut
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+
+ Local: Field : cwlogical : SubForm :cwHouseMaterialOutrep:$$value
+
+ [report:cwHouseMaterialOutrep]
+form:cwHouseMaterialOutrep
+
+[form:cwHouseMaterialOutrep]
+part:cwHouseMaterialOutrep
+
+[part:cwHouseMaterialOutrep]
+width:40% page
+line:HouseMatCaptionLn,HouseMattypeline,HouseMatJWrateLn,HouseMatTransportRateLn,HouseMatSourceGodownLn,HouseMatTargetGodownLn,CwInTransiteGodownLn,HouseMatInTransitAutopostLn,HouseMatVchTyeLn,HouseMatAutoPostGodownLn
+
+[line:HouseMatCaptionLn]
+field:long prompt,snf
+ Local: Field: long prompt: Set As:"Batch Caption"
+ Local: Field: snf: storage:cwrmcaptionMatoutph
+ Local: Field:default: Style:style2
+ Local: Field: default: Color : blue
+ 
+[line:HouseMattypeline]
+ field:Long Prompt,snf
+ Local: Field: Long Prompt: Set As:"Type"
+ Local: Field: snf: storage:cwHouseMattype
+
+ Local: Field: snf: table:cwcolltype,Not Applicable
+ Local: Field: snf: Show table: Always
+ local:field:snf:variable:svcost centre
+ local:field:SNF:key:Create Cost Centre, Alter CstCtr
+  Local: Field: default: Style:Style2
+  
+[line:HouseMatJWrateLn]
+field:Long Prompt,cwlogical
+Local: Field: Long Prompt: Set As:"Jw Rate"
+ Local: Field: cwlogical: storage:cwHouseMatJWrate
+ Local: Field: default: Style:Style2
+ 
+[line:HouseMatTransportRateLn]
+field:Long Prompt,cwlogical
+Local: Field: Long Prompt: Set As:"Transport Rate"
+Local: Field: cwlogical: storage:cwHouseMatTransportRate
+Local: Field: default: Style:Style2
+
+[line:HouseMatSourceGodownLn]
+field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Source Godown:" ;;"Source Godown:"
+ Local: Field: nf: storage:cwHouseMatSourceGodown
+
+ Local: Field: default: Style:Style2
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+[line:HouseMatTargetGodownLn]
+field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Target Godown:" ;;"Source Godown:"
+ Local: Field: nf: storage:cwHouseMatTargetGodown
+
+ Local: Field: default: Style:Style2
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+[line:CwInTransiteGodownLn]
+field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"In-Transit Godown:" ;;"Source Godown:"
+ Local: Field: nf: storage:cwHouseMatInTransitGodown
+
+ Local: Field: default: Style:Style2
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+
+[line:HouseMatInTransitAutopostLn]
+field:Long Prompt,cwlogical
+Local: Field: Long Prompt: Set As:"Enable InTransit"
+Local: Field: cwlogical: storage:cwHouseMatInTransitAutopost
+Local: Field: default: Color : blue
+Local: Field: default: Style:Style2
+
+[line:HouseMatVchTyeLn]
+ field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Voucher Type:"
+ Local: Field: nf: storage:cwHouseMatVchTye
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: nf: table: collcwMatInVouchertypes,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+[line:HouseMatAutoPostGodownLn]
+field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Godown:"
+ Local: Field: nf: storage:cwHouseMatAutoPostGodown
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: Field: nf:Keys        : Create Godown, Alter Godown
+ Local: Field: nf:Variable :SV Godown
+ 
+ [Collection:collcwMatInVouchertypes]
+  tityle:"List of Voucher Type"
+
+ Type        : Voucher Type
+ Belongs To  : Yes
+ 
+ ;;=============================
+ 
+[line:cwFectoryReceiveLn]
+field:Long Prompt,cwlogical
+Local: Field: Long Prompt: Set As:"Fectory Receive"
+Local: Field: cwlogical: storage:cwFectoryReceive
+Local: Field: default: Color : blue
+Local: Field: default: Style:Style2
+
+Local: Field : cwlogical : SubForm : cwAddfectoryRecrep: $$value
+
+ [report:cwAddfectoryRecrep]
+ form:cwAddfectoryRecrep
+ title:""
+
+ [form:cwAddfectoryRecrep]
+ part:cwAddfectoryRecrep
+
+
+ [part:cwAddfectoryRecrep]
+;; {14.May.24 17:01}  line:cwFectoryTypeLine,cwFectorySourceGodownLn,cwFectoryTargetGodownLn,FectoryMatCaptionLn,EnableFectoryAutoLn,FectoryAutoPostVchtypeLn,FectoryAutoPostGodownLn
+ line:cwFectoryTypeLine,cwFectorySourceGodownLn,cwFectoryTargetGodownLn,FectoryMatCaptionLn,EnableFectoryAutoLn,FectoryAutoPostVchtypeLn,FectoryAutoPostGodownLn,ForNKqtyLine
+ 
+ [line:cwFectoryTypeLine]
+ field:Long Prompt,snf
+ Local: Field: Long Prompt: Set As:"Type"
+ Local: Field: snf: storage:cwFectoryMattype
+
+ Local: Field: snf: table:cwcolltype,Not Applicable
+ Local: Field: snf: Show table: Always
+ local:field:snf:variable:svcost centre
+ local:field:SNF:key:Create Cost Centre, Alter CstCtr
+  Local: Field: default: Style:Style2
+  Local: Field: default: Color : blue
+ 
+ [line:cwFectorySourceGodownLn]
+ field:Long Prompt,nf
+Local: Field: Long Prompt: Set As:"Source Godown:"
+Local: Field: nf: storage:cwFectorySourceGodown
+
+ Local: Field: default: Style:Style2
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+[line:cwFectoryTargetGodownLn]
+ field:Long Prompt,nf
+Local: Field: Long Prompt: Set As:"Target Godown:"
+Local: Field: nf: storage:cwFectoryTargetGodown
+
+ Local: Field: default: Style:Style2
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ [line:FectoryMatCaptionLn]
+ field:long prompt,snf
+ Local: Field: long prompt: Set As:"Batch Caption"
+ Local: Field: snf: storage:cwrmcaption
+ Local: Field:default: Style:style2
+ 
+ [line:EnableFectoryAutoLn]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Enable Fectory Auto Post:"
+ Local: Field: cwlogical: storage:cwEnableFectoryAutoPost
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+ 
+ [line:FectoryAutoPostVchtypeLn]
+ field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Voucher Type:"
+ Local: Field: nf: storage:cwFectoryVoucherType
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: nf: table: collcwVouchertypes,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ [line:FectoryAutoPostGodownLn]
+  field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Godown:"
+ Local: Field: nf: storage:cwfectoryGodown
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: Field: nf:Keys        : Create Godown, Alter Godown
+ Local: Field: nf:Variable :SV Godown
+ 
+ [line:ForNKqtyLine]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"For NK Qty:"
+ Local: Field: cwlogical: storage:cwForNKqty
+
+ Local: Field: default: Style:Style2
+ 
+ 
+ ;;==============================
+ 
+ [line:cwHouseMaterialLnLine]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"House Material In:"
+ Local: Field: cwlogical: storage:cwHouseMaterialIn
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+
+ Local: Field : cwlogical : SubForm :cwHouseMaterialInrep:$$value
+
+ [report:cwHouseMaterialInrep]
+form:cwHouseMaterialInrep
+
+[form:cwHouseMaterialInrep]
+part:cwHouseMaterialInrep
+
+[part:cwHouseMaterialInrep]
+width:40% page
+line:HouseMatInCaptionLn,HouseMatIntypeline,HouseMatInJWrateLn,HouseMatInSourceGodownLn,HouseMatInTargetGodownLn ;;,gddetails1,gddetails2
+
+[line:HouseMatInCaptionLn]
+field:long prompt,snf
+ Local: Field: long prompt: Set As:"Batch Caption"
+ Local: Field: snf: storage:cwrmIncaption
+ Local: Field:default: Style:style2
+ Local: Field: default: Color : blue
+
+[line:HouseMatIntypeline]
+ field:Long Prompt,snf
+ Local: Field: Long Prompt: Set As:"Type"
+ Local: Field: snf: storage:cwHouseMatIntype
+
+ Local: Field: snf: table:cwcolltype,Not Applicable
+ Local: Field: snf: Show table: Always
+ local:field:snf:variable:svcost centre
+ local:field:SNF:key:Create Cost Centre, Alter CstCtr
+  Local: Field: default: Style:Style2
+
+[line:HouseMatInJWrateLn]
+field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Jw Rate"
+ Local: Field: cwlogical: storage:cwHouseMatInJWrate
+ Local: Field: default: Style:Style2
+ 
+ [line:HouseMatInSourceGodownLn]
+field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Source Godown:" ;;"Source Godown:"
+ Local: Field: nf: storage:cwHouseMatInSourceGodown
+
+ Local: Field: default: Style:Style2
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+
+[line:HouseMatInTargetGodownLn]
+field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Target Godown:" ;;"Source Godown:"
+ Local: Field: nf: storage:cwHouseMatInTargetGodown
+
+ Local: Field: default: Style:Style2
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+/* [Line: gddetails1]
+field :Long Prompt,snf
+Local: Field: Long Prompt: info: "Zero Fill:"
+Local: Field: snf: storage:cwgdprefix
+ Local: Field: default: Style:Style2
+
+[Line: gddetails2]
+field:Long Prompt,snf
+Local: Field: Long Prompt: info: "Lot Starting No. :"
+Local: Field: snf: storage:cwgdStartingno
+ Local: Field: default: Style:Style2   */
+ 
+;;=========================================
+
+[line:cwadditionalfeatuvchtypeline]
+
+  field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Configuration:"
+ Local: Field: cwlogical: storage:cwExpBookAdditionalFeatureAllow
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ Local: Field : cwlogical : SubForm :cwMiAdditionalFeatureAllowrep: $$value
+
+ [report:cwMiAdditionalFeatureAllowrep]
+ form:cwMiAdditionalFeatureAllowrep
+
+ [form:cwMiAdditionalFeatureAllowrep]
+ part:cwMiAdditionalFeatureAllowrep
+
+ [part:cwMiAdditionalFeatureAllowrep]
+ line:cwUseforExpenseBookingline,cwSelectVoucherTypeline,cExpenseBookingLedgerline,mincgstlinex,minsgstlinex,minIgstlinex,minTDSlinex,minroundlinex,cwcwUseforInHouselinex
+
+ /* [line: cwUseforJobWorkline]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Outside"
+ Local: Field: cwlogical: storage:cwUseforJobWork
+
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue        */
+
+ [line: cwUseforExpenseBookingline]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Use for Expense Booking"
+ Local: Field: cwlogical: storage:cwExpBookUseforExpenseBooking
+
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : red
+
+;; {21.Feb.24 12:44}  local: field: cwlogical: skip:not $cwUseforJobWork
+
+
+ [line: cwSelectVoucherTypeline]
+ field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Select Voucher Type"
+ Local: Field: nf: storage:cwExpBookSelectVoucherType
+
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : red
+
+;; {21.Feb.24 13:44}  Local: Field: nf: table:collcwSelectVoucherType,Not Applicable
+ Local: Field: nf: table:cwVouchertypes,Not Applicable
+ Local: Field: nf: Show table: Always
+;; {21.Feb.24 12:45}  local: field: nf: skip:not $cwUseforJobWork
+
+ [Collection: collcwSelectVoucherType]
+
+ Type	: Voucher Type
+ title:"List of Vouchers"
+ Child of:$$VchTypePurcOrder
+
+ [line: cExpenseBookingLedgerline]
+ field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Expense Booking Ledger"
+ Local: Field: nf: storage:cwExpBookexpenesminled
+
+;; {21.Feb.24 12:45}  local: field: nf: skip:not $cwUseforJobWork
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : red
+
+ Local: Field: nf: table:collledwexpbooking,Not Applicable
+ Local: Field: nf: Show table: Always
+
+
+ [Collection:collledwexpbooking]
+ type:ledger
+ title:"List of Ledger"
+ ;;child of:
+
+ [line: cwSelectVoucherItemline]
+ field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Select Item"
+ Local: Field: nf: storage:cwExpBookSelectItem
+
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : red
+;; {21.Feb.24 12:45}  local: field: nf: skip:not $cwUseforJobWork
+
+ Local: Field: nf: table:collcwcwSelectItem,Not Applicable
+ Local: Field: nf: Show table: Always
+
+
+ [Collection: collcwcwSelectItem]
+ type:stockitem
+ title:"List of Stock Item"
+
+
+ [line: cwcwUseforInHouselinex]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"In-House"
+ Local: Field: cwlogical: storage:cwExpBookUseforInHouse
+
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+
+
+
+ [line:mincgstlinex]
+ field:long prompt,nf
+ Local: Field: long prompt: Set As:"CGST"
+ Local: Field: nf: storage:cwExpBookCGSTminledgermin
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: nf: Show table: Always
+
+ Local: field: nf: Width:30
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : red
+;; {21.Feb.24 12:45}  local: field: nf: skip:not $cwUseforJobWork
+
+ [line:minsgstlinex]
+ field:long prompt,nf
+ Local: Field: long prompt: Set As:"SGST"
+ Local: Field: nf: storage:cwExpBookSGSTminledgermin
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: nf: Show table: Always
+
+ Local: field: nf: Width:30
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : red
+;; {21.Feb.24 12:45}  local: field: nf: skip:not $cwUseforJobWork
+
+ [line:minIgstlinex]
+ field:long prompt,nf
+ Local: Field: long prompt: Set As:"IGST"
+ Local: Field: nf: storage:cwExpBookIGSTminledgermin
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: nf: Show table: Always
+
+ Local: field: nf: Width:30
+
+  Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : red
+;; {21.Feb.24 12:45}  local: field: nf: skip:not $cwUseforJobWork
+
+/*  [Collection:collcwexpenesledger]
+ type:ledger
+ title:"Title"  */
+
+ [line:minTDSlinex]
+ field:long prompt,nf
+ Local: Field: long prompt: Set As:"TDS"
+ Local: Field: nf: storage:cwExpBookTDSMINledgermin
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: nf: Show table: Always
+
+ Local: field: nf: Width:30
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : red
+;; {21.Feb.24 12:45}  local: field: nf: skip:not $cwUseforJobWork
+
+ [line:minroundlinex]
+ field:long prompt,nf
+ Local: Field: long prompt: Set As:"Round Off"
+ Local: Field: nf: storage:cwExpBookroundoffminledgermin
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: nf: Show table: Always
+ ;;Local: Field: nf: Style: small Bold
+ Local: field: nf: Width:30
+
+Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : red
+;; {21.Feb.24 12:45}  local: field: nf: skip:not $cwUseforJobWork
+
+
+
+;;=====================================
+
+ [line:cwFGMaterialLnLine]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"FG Material In:"
+ Local: Field: cwlogical: storage:cwFGMaterialIn
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+
+ Local: Field : cwlogical : SubForm :cwFGMaterialInrep:$$value
+
+ [report:cwFGMaterialInrep]
+form:cwFGMaterialInrep
+
+[form:cwFGMaterialInrep]
+part:cwFGMaterialInrep
+
+[part:cwFGMaterialInrep]
+width:40% page
+line:FGMatInCaptionLn,FGMatIntypeline,FGMatInJWrateLn,FGMatInTargetGodownLn
+
+[line:FGMatInCaptionLn]
+field:long prompt,snf
+ Local: Field: long prompt: Set As:"Batch Caption"
+ Local: Field: snf: storage:cwrmIncaption ;;cwFGrmIncaption
+ Local: Field:default: Style:style2
+ Local: Field: default: Color : blue
+
+[line:FGMatIntypeline]
+ field:Long Prompt,snf
+ Local: Field: Long Prompt: Set As:"Type"
+ Local: Field: snf: storage:cwHouseMatIntype  ;;cwFGMatIntype
+
+ Local: Field: snf: table:cwcolltype,Not Applicable
+ Local: Field: snf: Show table: Always
+ local:field:snf:variable:svcost centre
+ local:field:SNF:key:Create Cost Centre, Alter CstCtr
+  Local: Field: default: Style:Style2
+
+[line:FGMatInJWrateLn]
+field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Jw Rate"
+ Local: Field: cwlogical: storage:cwHouseMatInJWrate  ;;cwFGMatInJWrate
+ Local: Field: default: Style:Style2
+
+
+[line:FGMatInTargetGodownLn]
+field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Target Godown:"
+ Local: Field: nf: storage:cwHouseMatInTargetGodown  ;;cwFGMatInTargetGodown
+
+ Local: Field: default: Style:Style2
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ ;;=====================================
+ [line:cwForProcessMatInLine]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"For process material in:"
+ Local: Field: cwlogical: storage:cwForprocessmaterial
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+
+ Local: Field : cwlogical : SubForm :cwForprocessmaterialinrep:$$value
+
+ [report:cwForprocessmaterialinrep]
+form:cwForprocessmaterialinrep
+
+[form:cwForprocessmaterialinrep]
+part:cwForprocessmaterialinrep
+
+[part:cwForprocessmaterialinrep]
+width:40% page
+line:FGMatInCaptionLn,FGMatIntypeline,FGMatInJWrateLn,FGMatInTargetGodownLn
+
+ ;;===================================
+ 
+ [line:CwdirectPurchaseLine]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Direct Purchase:"
+ Local: Field: cwlogical: storage:cwDirectPurchasevchtype
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+
+ Local: Field : cwlogical : SubForm :cwDirectPurchasevchtyperep:$$value
+
+ [report:cwDirectPurchasevchtyperep]
+form:cwDirectPurchasevchtyperep
+
+[form:cwDirectPurchasevchtyperep]
+part:cwDirectPurchasevchtyperep
+
+[part:cwDirectPurchasevchtyperep]
+width:40% page
+line:typevcline,cwVchSourceGodownLine,cwVchTypeSelectedGodown2line,cwMatInBatchCapLn,cwEnableShortageQtytypeline,cwVoucherTypevchGodown2line,cwcwVchTypetransGodown2line ;;,cwKataCheckingChallanline,gddetails1,gddetails2   ;;,cwMaterialOutforKataCheckingine,cwVoucherTypevchkkataline
+
+

@@ -1,0 +1,262 @@
+; Created By: Anil on 2024-05-23 11:45, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+;; {23.May.24 17:51}         add: Option: cwDailySaleswiseoutstandingLock ;; : @@cwDailySaleswiseoutstandingDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@cwDailySaleswiseoutstandingReport: Display: RepcwDailySaleswiseoutstanding
+  */
+
+
+     [!menu: cwDailySaleswiseoutstandingLock]
+        add: Item: before: @@locQuit: @@cwDailySaleswiseoutstandingReport: Display: RepcwDailySaleswiseoutstanding
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   cwDailySaleswiseoutstandingReport: "Daily Sales wise Outstanding"
+;; cwDailySaleswiseoutstandingDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepcwDailySaleswiseoutstanding]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@cwDailySaleswiseoutstandingReport
+   Printset: Report Title: @@cwDailySaleswiseoutstandingReport
+
+       Form: FrmcwDailySaleswiseoutstanding
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+variable:str2,str3,str4,str5,str6,str7,str8,str9,str10,logi1
+    set:str2:""
+    set:str3:""
+    set:str4:""
+    set:str5:""
+    set:str6:""
+    set:str8:""
+    set:str9:""
+    set:str10:""
+    set :logi1:"no"
+;; {24.May.24 16:03}     title:##str3
+     
+      [Form: FrmcwDailySaleswiseoutstanding]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0cwDailySaleswiseoutstanding,PrtcwDailySaleswiseoutstanding
+      Width: 100% Page
+     Height: 100% Page
+     Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: cwDailySaleswiseoutstandingbotbrk,cwDailySaleswiseoutstandingbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: cwDailySaleswiseoutstandingConfigure
+ button:cwsregbottonds
+ 
+      [part: cwDailySaleswiseoutstandingbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: cwDailySaleswiseoutstandingbotopbrk]
+        use: dspacctitles
+  add: part: cwDailySaleswiseoutstandingTitlePart
+
+      [part: cwDailySaleswiseoutstandingTitlePart]
+       line: LncwDailySaleswiseoutstandingTitle
+       
+      [line: LncwDailySaleswiseoutstandingCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0cwDailySaleswiseoutstanding]
+      line : LncwDailySaleswiseoutstandingCurrPeriod
+      
+      [Part: PrtcwDailySaleswiseoutstanding]
+       Line: LncwDailySaleswiseoutstandingTitle,LncwDailySaleswiseoutstanding
+bottom Line: LncwDailySaleswiseoutstandingTotals
+     repeat: LncwDailySaleswiseoutstanding: ColcwDailySaleswiseoutstanding
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: ColcwDailySaleswiseoutstanding]
+type:bills
+fetch : LedgerEntries.*,LedgerEntries.LedgerEntries.InventoryEntries.*
+
+filter:cwdspartymsnfilter,cwdsagentfilterds,cwdssalesmfilternewds,cwdsareafilterds,cwdscwledcity1filterds,cwdscwledpincode1filterds,cwdsitemnamefilterds
+
+ Filter: ColcwDailySaleswiseoutstandingFilter ;;,IsNonOptionalCancelledVchs
+add:option:cwColcwDailySaleswiseoutstanding1:##logi1
+
+[!collection:cwColcwDailySaleswiseoutstanding1]
+add:filter: samecashdiscCounta
+
+    [system: Formula]
+ColcwDailySaleswiseoutstandingFilter: not $$isempty:$closingbalance ; $$isSales:$voucherTypeName
+cwdspartymsnfilter:if $$issysname:##str8 then yes else $parent =##str8
+cwdsagentfilterds:if $$issysname:##str4 then yes else $cwcaption4vch =##str4
+cwdssalesmfilternewds:if $$issysname:##str5 then yes else $cwcaption1vch =##str5
+cwdscwledcity1filterds:if $$issysname:##str9 then yes else $cwcaption5vch =##str9
+cwdsareafilterds:if $$issysname:##str6 then yes else $cwcaption6vch =##str6
+cwdscwledpincode1filterds:if $$issysname:##str10 then yes else $PinCode:ledger:$parent=##str10
+cwdsitemnamefilterds:if $$issysname:##str3 then yes else $$filterCount:LedgerEntries:sameItemCounta > 0
+sameItemCounta : if $$filterCount:ledgerEntries:cwItemExists1 > 0 then yes else no
+cwItemExists1 : if $$filterCount:InventoryEntries:cwItemExists > 0 then yes else no
+cwItemExists : $stockitemname = ##str3 ;; if $stockitemname = ##str3 then 1 else 0
+
+samecashdiscCounta:if $$filterCount:ledgerEntries:cwcashdiscExists1 > 0 then yes else no
+cwcashdiscExists1 :$cwIsCashDiscount = ##logi1
+
+      [Line: LncwDailySaleswiseoutstandingTitle]
+        use: LncwDailySaleswiseoutstanding
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Voucher No"
+local:field: snf1: set as: "Item Name"
+local:field: snf2: set as: "Agent"
+local:field: snf3: set as: "Salesman"
+local:field: snf4: set as: "Area"
+local:field: snf5: set as: "City"
+local:field: snf6: set as: "Pincode"
+local:field: numf2: set as: "Rate"
+local:field: fwf: set as: "Party Name"
+local:field: amtf: set as: "Dr. Amount"
+Local: field: DEFAULT: Align:centre
+Local: field: FWF: Align:LEFT
+local:field: numf: set as:"Due Days"
+local: field: numf : style:styleCalisto2
+local: field: numf2 : style:styleCalisto2
+
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: snf : style:styleCalisto2
+local: field: snf1 : style:styleCalisto2
+local: field: snf2 : style:styleCalisto2
+local: field: snf3 : style:styleCalisto2
+local: field: snf4 : style:styleCalisto2
+local: field: snf5 : style:styleCalisto2
+local: field: snf6 : style:styleCalisto2
+
+; Main Line
+      [Line: LncwDailySaleswiseoutstanding]
+     Fields: cwDailySaleswiseoutstandingmastid,snf10,sdf,snf,fwf,snf2,snf3,snf4,snf5,snf6,snf1,numf2 ;;,qtyf
+right field:numf, Amtf
+
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$billdate ;;$date;; "Date"
+local:field: snf: set as:$name ;;@@cwnetsales2 ;; "Date"
+Local: Field: snf2: Set As:$cwcaption4vch
+Local: Field: snf3: Set As:$cwcaption1vch
+Local: Field: snf4: Set As:$cwcaption6vch
+Local: Field: snf5: Set As:$cwcaption5vch
+Local: Field: snf6: Set As:$pincode:ledger:$parent
+local:field: snf1: set as:"" ;;$$reportobject:$$collectionfieldbykey:$stockitemname:#fwf:ColJTAllItemwiesoutstandingreportnewmain ;;$stockitemname  ;;+"   "+@@cwnetsales3  ;; "Vch No"
+local:field: numf2: set as:"" ;;$$reportobject:$$collectionfieldbykey:$stockitemname:#fwf:ColJTAllItemwiesoutstandingreportnewmain ;;$stockitemname  ;;+"   "+@@cwnetsales3  ;; "Vch No"
+local:field: fwf: set as:$parent+"   "+@@cwnetsales3  ;; "Vch No"
+local:field: amtf: set as:$closingbalance;; "Dr. Amount"
+;; {06.Jul.21 19:16} local:field: snf: set as:@@CreditPeriod ;; "Dr. Amount"
+local:field: numf: set as:@@DSPToDate - $BillDate ;; "Dr. Amount"
+Local: Field: snf10: Set As:$cwIsCashDiscount ;;:ledger:$parent
+Local: Field:DEFAULT: Border: thin right
+Local: Field:sdf: Border: thin left right
+
+local: field: DEFAULT : style:styleCalisto
+Local: field: snf: Width:16
+Local: field: snf1: Width:22 ;;30
+Local: field: snf2: Width:18
+Local: field: snf4: Width:20
+Local: field: snf6: Width:9
+Local: field:numf: Width:8
+Local: field:numf2: Width:6
+local: field: snf10: Invisible: yes
+border:thin bottom
+
+add:explode:cwexpledpart2   ;;:$$line=$$numitems or $ledgername<>$$nextobj:$ledgername
+
+[part:cwexpledpart2]
+line:cwexpledpart2
+repeat: cwexpledpart2: ledgerentries
+
+[line:cwexpledpart2]
+use: LncwDailySaleswiseoutstanding
+
+Local: Field: fwf: Set As:"" ;;$$CollectionField:$partyledgername:@@linep1ex:ledgerentries ;;$ledgername
+Local: Field: snf2: Set As:"" ;;$cwcaption1vch
+Local: Field: snf3: Set As:"" ;;$cwcaption1vch
+Local: Field: snf4: Set As:"" ;;$cwcaption6vch
+Local: Field: snf5: Set As:"" ;;$cwcaption6vch
+delete:explode
+add:explode:cwexpitempart2
+
+[part:cwexpitempart2]
+line:cwexpitempart2
+repeat: cwexpitempart2: inventoryentries
+
+[line:cwexpitempart2]
+use:LncwDailySaleswiseoutstanding
+
+Local: Field: snf1: Set As:$stockitemname
+Local: Field: numf2: Set As:$rate
+Local: Field: snf6: Set As:""
+Local: Field: qtyf: Set As:$billedqty
+;; {15.May.24 16:27} local:field: sdf: set as: $$CollectionField:$billdate:First:ColJTAllItemwiesoutstandingreportnewmain2
+delete:explode
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: cwDailySaleswiseoutstandingDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: cwDailySaleswiseoutstandingDisplayVoucher
+
+ 	
+     [Report: cwDailySaleswiseoutstandingDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #cwDailySaleswiseoutstandingmastid
+	
+
+        [Field: cwDailySaleswiseoutstandingmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LncwDailySaleswiseoutstandingTotals]
+        use: LncwDailySaleswiseoutstanding
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

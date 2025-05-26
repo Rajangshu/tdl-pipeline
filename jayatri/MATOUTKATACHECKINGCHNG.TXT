@@ -1,0 +1,326 @@
+; Created By: Anil on 2024-02-07 17:20, ID: 
+
+[System: Formula]
+cwKataCheckingvch:$cwKataCheckingvch:vouchertype:$vouchertypename="yes"
+
+[#Field: EI JWNatureofProcess]
+add:option:eijwntuofprocess:@@cwKataCheckingvch ;;or @@cwVchProcessYes
+[!field:eijwntuofprocess]
+
+table:colleijwnatuorpro
+Show table: Always
+variable:svcost centre
+key:Create Cost Centre, Alter CstCtr
+
+[Collection: colleijwnatuorpro]
+Type: Cost Centre
+ title:"List of Process"
+ child of:"Process"
+
+ ;;==================
+
+  [#field:eiconsignee]
+  add:option:eijweiconsigneeopt:@@cwKataCheckingvch or @@cwHouseMaterialInYes or @@cwUseforDoOrderDetailsYES
+ [!field:eijweiconsigneeopt]
+ delete:table
+ add:table:collcwJobWorkerNamevch ,Not Applicable
+ Show table: Always
+
+ [Collection: collcwJobWorkerNamevch]
+ type:ledger
+ title:"List of Ledger"
+ filter:cwUseasJobWorker
+ Fetch	: Name
+ Align      : Right
+ FullHeight : Yes
+ Set as	    : $FirstName
+ Format     : $Name, 35
+
+ Client Only: Yes
+
+ [System: Formula]
+ cwUseasJobWorker:$cwUseasJobWorker="yes"
+
+
+ [#Field: VCH BatchNameTitle]
+  add:option:VCHBatchNameTitleKcopt:@@cwKataCheckingvch ;;JayatriTestEnabled
+
+ [!field:VCHBatchNameTitleKcopt]
+    Setas :@@cwrmcaptionInTransitex ;;cwrmcaptionnew
+;; {09.Feb.24 16:14}     border:thin box
+    
+ [System: Formula]
+ cwrmcaptionInTransitex:$cwrmcaptionInTransite:vouchertype:$vouchertypename
+                             ;;cwrmcaptionInTransite
+
+ ;;====================
+
+
+ [#Line: VCHBATCH ColumnOne]
+ add:option:VCHBATCHColumnOnemoutopt:@@cwKataCheckingvch
+
+ [!line:VCHBATCHColumnOnemoutopt]
+
+
+ add:right field:after:VCH BatchNameTitle:snf10,snf,snf2,snf4,snf11,snf12,snf5,suppnof,suppdtf  ;;,snf7,snf8,snf9,snf10,snf11,snf12,snf13,snf14,snf15
+
+ Local: Field: snf10: INFO:"Bale" ;;@@cwRMCaptionsName1   ;;IF @@cwRawMaterialyes THEN @cwRMCaptionsName1  ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName1 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName1 else ""
+ Local: Field: snf: INFO:"No of Bales" ;;@@cwRMCaptionsName1   ;;IF @@cwRawMaterialyes THEN @cwRMCaptionsName1  ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName1 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName1 else ""
+ Local: Field: snf2: INFO:"LR Number" ;;@@cwRMCaptionsName2  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName2 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName2 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName2 else ""
+ Local: Field: sdf: INFO:"LR Date" ;;@@cwRMCaptionsName3   ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName3 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName3 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName3 else ""
+ Local: Field: snf4: INFO:"Supplier Name" ;;@@cwRMCaptionsName4  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName4 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName4 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName4 else ""
+ Local: Field: snf11: INFO:"House" ;;@@cwRMCaptionsName4  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName4 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName4 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName4 else ""
+ Local: Field: snf5: INFO:"Transporter Name" ;;@@cwRMCaptionsName5  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName5 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName5 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName5 else ""
+ Local: Field: snf12: INFO:"Sup/Inv" ;;@@cwRMCaptionsName5  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName5 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName5 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName5 else ""
+
+;; {26.Dec.23 10:54}  Local: Field: VCH BatchNameTitle: Set As:if @@cwKataCheckingvch then $$LocaleString:"Bales Number" else $$LocaleString:"Batch/Lot No."
+  Local: Field: DEFAULT: Style:Style2
+  Local: Field: VCH BatchNameTitle: Style:Style1
+  Local: Field: VCH QtyTitle: Style:Style1
+  Local: Field: VCH RateTitle: Style:Style1
+  Local: Field: VCH AmtTitle: Style:Style1
+  
+  Local: field:snf4 : Align: centre
+  Local: field:snf5 : Align: centre
+  Local: field:snf11 : Align: centre
+  Local: field:snf12 : Align: centre
+
+  local: field: sdf: Invisible: if @@cwKataCheckingvch then yes else no
+  local: field: snf: Invisible: if @@cwKataCheckingvch then yes else no
+  local: field: snf1: Invisible: if @@cwKataCheckingvch then yes else no
+  local: field: snf4: Invisible: if @@cwKataCheckingvch then yes else no
+  local: field: snf5: Invisible: if @@cwKataCheckingvch then yes else no
+  local: field: snf10: Invisible: if @@cwKataCheckingvch then yes else no
+  local: field:snf11 : Invisible: yes
+  local: field:snf12 : Invisible: yes
+  local: field: snf2: Invisible: yes
+
+  Local: field:VCH RateTitle : Align: centre
+  Local: field: VCH RateTitle: Width:10
+
+  [#line:STKVCH Batch2]
+
+ add:option:STKVCHBatch2moutcopt:@@cwKataCheckingvch
+
+ [!line:STKVCHBatch2moutcopt]
+
+ add:right Field:after:VCHBATCH Name:cwbalefieldmiout,snf,snf2,sdf,snf4,snf11,snf12,snf5,suppnof2,suppdtf2
+ add:right field:before:VCHBATCH Rate:cwratefieldmiout
+ 
+ Local: Field: snf: storage:cwNoofBalespurc
+ Local: Field: snf2:storage:cwLRNumberpurc
+ Local: Field: sdf:storage:cwLRDatepurc
+ Local: Field: snf4:storage:cwSupplierNamepurc
+ Local: Field: snf5:storage:cwTransporterNamepurc
+ Local: Field: snf11: storage:cwConsigneeNamepurc
+ Local: Field: snf12: storage:cwHousesuppinvno
+
+;; {11.Mar.24 11:02}  Local: Field: snf: setas:$$table:VCHBATCHName:$cwNoofBalespurc
+ Local: Field: snf: setas:$$collectionfield:($$CollectionField:$cwHouseNoofBalespurckc:First:BatchAllocations):1:VOUCHERCOMPONENTLIST
+ Local: Field: snf1:setas:$$table:VCHBATCHName:$cwTypepurc
+ Local: Field: snf2:setas:$$collectionfield:($$CollectionField:$cwHouseLRNumberpurckc:First:BatchAllocations):1:VOUCHERCOMPONENTLIST ;;$$table:VCHBATCHName:$cwLRNumberpurc
+;; {11.Apr.24 11:34}  Local: Field: snf20:setas:$$collectionfield:($$CollectionField:$cwHouseLRDatepurckc:First:BatchAllocations):1:VOUCHERCOMPONENTLIST ;;$$table:VCHBATCHName:$cwLRNumberpurc
+ Local: Field: sdf:setas:$$collectionfield:($$CollectionField:$cwHouseLRDatepurckc:First:BatchAllocations):1:VOUCHERCOMPONENTLIST
+;; {09.Mar.24 18:56}  Local: Field: snf4:setas:$$table:VCHBATCHName:$cwSupplierNamepurc
+ Local: Field: snf4:Set As:$$collectionfield:($$CollectionField:$cwHouseSupplierNamepurckc:First:BatchAllocations):1:VOUCHERCOMPONENTLIST
+ Local: Field: snf11:Set As:$$collectionfield:($$CollectionField:$cwHouseConsigneeNamepurckc:First:BatchAllocations):1:VOUCHERCOMPONENTLIST
+ local: field: snf4: type : string : forced
+ Local: Field: snf5:setas:$$collectionfield:($$CollectionField:$cwHouseTransporterNamepurckc:First:BatchAllocations):1:VOUCHERCOMPONENTLIST
+ Local: Field: snf12:setas:$$collectionfield:($$CollectionField:$cwHousesuppinvnokc:First:BatchAllocations):1:VOUCHERCOMPONENTLIST
+ 
+ Local: Field:VCHBATCH Rate:delete:Set as
+Local: Field:VCHBATCH Rate:delete:Set by Condition
+Local: Field:VCHBATCH Rate:add:Set by Condition:yes:#cwratefieldmiout
+
+;; {11.Apr.24 11:33}  local: field:sdf : Invisible: if @@cwKataCheckingvch then yes else no
+ local: field:snf : Invisible: if @@cwKataCheckingvch then yes else no
+ local: field:snf1 : Invisible: if @@cwKataCheckingvch then yes else no
+ local: field:snf4 : Invisible: if @@cwKataCheckingvch then yes else no
+ local: field:snf5 : Invisible: if @@cwKataCheckingvch then yes else no
+ local: field:snf10 : Invisible: if @@cwKataCheckingvch then yes else no
+local: field: VCHBATCH Rate: Invisible: yes
+;; {30.Mar.24 17:27} local: field: VCHBATCHName: Invisible: yes
+local: field:snf11 : Invisible: yes
+  local: field:snf12 : Invisible: yes
+  local: field: snf2: Invisible: yes
+
+Local: field:snf4 : Align: centre
+  Local: field:snf5 : Align: centre
+  Local: field:snf11 : Align: centre
+  Local: field:snf12 : Align: centre
+
+  Local: Field: snf: Skip: Yes
+  Local: Field: snf4: Skip: Yes
+  Local: Field: snf11: Skip: Yes
+  Local: Field: snf12: Skip: Yes
+  Local: Field: snf5: Skip: Yes
+
+[field:cwbalefieldmiout]
+use:snf
+type : string : forced
+Set As:$$collectionfield:($$CollectionField:$batchname:First:BatchAllocations):1:VOUCHERCOMPONENTLIST
+storage:balefieldmioutstrg
+Style:Style2
+skip:yes
+Align: centre
+
+
+[field:cwratefieldmiout]
+use:ratef
+type : rate : forced
+Set As:@@cwbatchRatex
+delete:Format      : "Symbol,Forex"
+;; {16.Feb.24 12:32}  Invisible: yes
+ 
+
+[System: Formula]
+cwbatchRatex:$$collectionfield:($$CollectionField:$batchRate:First:BatchAllocations):1:VOUCHERCOMPONENTLIST
+ 
+/*[#Collection: Active Batches VchExtract]
+
+ [#Collection: Active Batches OrderExtract]
+  add:option:ActiveBatchesOrderExtractmoutopt:@@cwKataCheckingvch
+
+  [!Collection:ActiveBatchesOrderExtractmoutopt]
+
+  Title       		: $$LocaleString:"List of Active Batches"
+  DELETE:SubTitle
+  ADD:SubTitle              : $$LocaleString:"Name", @@ExpirySubTitle, $$LocaleString:"Balance",$$LocaleString:"No of Bales",$$LocaleString:"Supplier Name",$$LocaleString:"Transporter Name"
+
+ add:format:$cwNoofBalespurc,10
+ add:format:$cwSupplierNamepurc,10
+ add:format:$cwTransporterNamepurc,10
+
+ fetch:cwNoofBalespurc,cwTypepurc,cwLRNumberpurc,cwLRDatepurc,cwSupplierNamepurc,cwTransporterNamepurc */
+
+
+;;===========================
+[#Line: VCHBATCH Component ColumnOne]
+add:option:cwkataorderVCHBATCHComponentColumnOneopt:@@cwKataCheckingvch
+[!Line: cwkataorderVCHBATCHComponentColumnOneopt]
+add:right field:after:VCH BatchNameTitle:cwVCHBatchNameTitle
+Local		: Field	: cwVCHBatchNameTitle	: Delete	: Border
+Local		: Field	: cwVCHBatchNameTitle	: Add		: Border      : Double Sub Column Titles  : ($$IsPerishableOn OR $$IsBatchWiseOn)
+Local		: Field	: cwVCHBatchNameTitle	: Width		: If ($$IsPerishableOn OR $$IsBatchWiseOn) Then 18 Else @@VCHBatchNameWidth
+
+local: field: VCH BatchNameTitle: Invisible: if @@cwKataCheckingvch then yes else no
+local: field: cwVCHBatchNameTitle: Invisible: if @@cwKataCheckingvch then no else yes
+add:right field:before:VCH BoMQtyTitle:snf5,snf7,snf,snf1,snf2,snf3
+
+Local: Field: snf5: info: "No of Bales"
+Local: Field: snf: info: "Suply Name"
+Local: Field: snf1: info: "House"
+Local: Field: snf2: info: "Trns Name"
+Local: Field: snf3: info: "Sup/Inv"
+Local: Field: snf7: info: "Lr Date"
+
+local: field: snf: Invisible: yes
+local: field: snf1: Invisible: yes
+local: field: snf2: Invisible: yes
+local: field: snf3: Invisible: yes
+local: field: snf5: Invisible: yes
+local: field: snf7: Invisible: yes
+
+[Field: cwVCHBatchNameTitle]
+
+	Width		: if @@HasMfgDateSet OR @@HasExpiryDate then 19 else @@VCHBatchNameWidth
+    Setas       : $$LocaleString:"Bales Number"
+    Style       : Small Bold
+    Align       : Centre
+    SubTitle    : Yes
+    Border      : Double Sub Column Titles  : @@HasMfgDateSet OR @@HasExpiryDate
+    Invisible   : NOT @@IsPhysStock AND NOT @@HasBatchWise
+    Skip        : Yes
+    Fixed       : Yes
+
+[#Line: VCHBATCH Component ColumnTwo]
+add:option:cwkataordVCHBATCHComponentColumnTwoopt:@@cwKataCheckingvch
+[!Line: cwkataordVCHBATCHComponentColumnTwoopt]
+add:right field:before:VCH ActualQtyTitle:snf5,snf7,snf,snf1,snf2,snf3
+
+Local: Field: snf5: info: ""
+Local: Field: snf: info: ""
+Local: Field: snf1: info: ""
+Local: Field: snf2: info: ""
+Local: Field: snf3: info: ""
+
+local: field: snf: Invisible: yes
+local: field: snf1: Invisible: yes
+local: field: snf2: Invisible: yes
+local: field: snf3: Invisible: yes
+local: field: snf5: Invisible: yes
+local: field: snf7: Invisible: yes
+
+[#field:VCHBATCH BoMBilledQty]
+add:option:cwVCHBATCHBoMBilledQtyopt:@@cwKataCheckingvch and @@JayatriTestEnabled
+[!field:cwVCHBATCHBoMBilledQtyopt]
+
+delete:set as
+delete:Set By Condition
+add:Set By Condition:yes:$$table:VCHBATCHBoMBatchName:$ClosingBalance
+
+[#Line: VCH STKBatch Component Batch]
+add:option:cwkataordVCHSTKBatchComponentBatchopt:@@cwKataCheckingvch
+[!Line: cwkataordVCHSTKBatchComponentBatchopt]
+;; {11.Apr.24 11:26} add:right field:before:VCHBATCH BoMBilledQty:snf5,snf6,snf,snf1,snf2,snf3
+add:right field:before:VCHBATCH BoMBilledQty:snf5,snf6,snf7,snf,snf1,snf2,snf3
+
+Local: Field: snf: Set As:$$table:VCHBATCHBoMBatchName:$cwHouseSupplierNamepurc
+Local: Field: snf1: Set As:$$table:VCHBATCHBoMBatchName:$cwHouseConsigneeNamepurc
+Local: Field: snf2: Set As:$$table:VCHBATCHBoMBatchName:$cwHouseTransporterNamepurc
+Local: Field: snf3: Set As:$$table:VCHBATCHBoMBatchName:$cwHousesuppinvno
+Local: Field: snf5: Set As:$$table:VCHBATCHBoMBatchName:$cwHouseNoofBalespurc
+Local: Field: snf6: Set As:$$table:VCHBATCHBoMBatchName:$cwHouseLRNumberpurc
+Local: Field: snf7: Set As:$$table:VCHBATCHBoMBatchName:$cwHouseLRDatepurc
+
+Local: Field: snf: storage:cwHouseSupplierNamepurcKc
+Local: Field: snf1: storage:cwHouseConsigneeNamepurckc
+Local: Field: snf2: storage:cwHouseTransporterNamepurckc
+Local: Field: snf3: storage:cwHousesuppinvnokc
+Local: Field: snf5: storage:cwHouseNoofBalespurckc
+Local: Field: snf6: storage:cwHouseLRNumberpurckc
+Local: Field: snf7: storage:cwHouseLRDatepurckc
+
+local: field: snf: Invisible: yes
+local: field: snf1: Invisible: yes
+local: field: snf2: Invisible: yes
+local: field: snf3: Invisible: yes
+local: field: snf5: Invisible: yes
+local: field: snf6: Invisible: yes
+local: field: snf7: Invisible: yes
+;;=============================
+
+[#Collection: Batches VchCompnentBatches]
+add:option:cwBatchesVchCompnentBatchesopt ;;:@@cwKataCheckingvch
+[!Collection: cwBatchesVchCompnentBatchesopt]
+ Title       		: $$LocaleString:"List of Active Batches"
+ DELETE:SubTitle
+  ADD:SubTitle              : $$LocaleString:"Name", @@ExpirySubTitle, $$LocaleString:"Balance",$$LocaleString:"No of Bales",$$LocaleString:"Type",$$LocaleString:"LR Number",$$LocaleString:"Date",$$LocaleString:"Supplier Name",$$LocaleString:"Sup/Inv",$$LocaleString:"Transporter Name"
+
+add:format:$cwNoofBalespurc,10
+add:format:$cwTypepurc,10
+add:format:$cwLRNumberpurc,10
+add:format:$cwLRDatepurc,10
+add:format:$cwSupplierNamepurc,10
+add:format:$cwHousesuppinvno,10
+add:format:$cwConsigneeNamepurc,10
+add:format:$cwTransporterNamepurc,10
+
+FETCH:cwNoofBalespurc,cwTypepurc,cwLRNumberpurc,cwLRDatepurc,cwSupplierNamepurc,cwConsigneeNamepurc,cwHousesuppinvno,cwTransporterNamepurc
+
+
+
+
+/*add:format:$cwHouseNoofBalespurc,10
+add:format:$cwHouseTypepurc,10 ;;$cwTypepurc,10
+add:format:$cwHouseLRNumberpurc,10 ;;$cwLRNumberpurc,10
+add:format:$cwHouseLRDatepurc,10 ;;$cwLRDatepurc,10
+add:format:$cwHouseSupplierNamepurc,10 ;;$cwSupplierNamepurc,10
+add:format:$cwHousesuppinvno,10
+add:format:$cwHouseConsigneeNamepurc,10
+add:format:$cwHouseTransporterNamepurc,10 ;;$cwTransporterNamepurc,10
+
+FETCH:cwHouseNoofBalespurc,cwHouseTypepurc,cwHouseLRNumberpurc,cwHouseLRDatepurc,cwHouseSupplierNamepurc,cwHouseConsigneeNamepurc,cwHousesuppinvno,cwHouseTransporterNamepurc
+                */
+
+

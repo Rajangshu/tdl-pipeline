@@ -1,0 +1,65 @@
+; Created By: Anil on 2024-07-08 17:15, ID: 
+
+[#Part: MST Parent]
+add:option:cwMSTParentopt:@@JayatriTestEnabled
+[!Part: cwMSTParentopt]
+;; {01.Aug.24 15:34} add:line:cwismrkolLine,cwismokolLine,cwismrkataLine,cwismodoLine,cwismrdoLine,cwEnableReportLn
+add:line:cwEnableReportLn,cwEnableRejectionLn
+
+
+[line:cwEnableReportLn]
+field:sp,cwlogical
+
+Local: Field: sp: info: "Show In Bale & Pcs Report"
+Local: Field:cwlogical : storage:cwShowInReport
+Local: Field: default: Color : blue
+Local: field: sp: Width:22
+
+[line:cwEnableRejectionLn]
+field:sp,cwlogical
+
+Local: Field: sp: info: "Rejection Godown"
+Local: Field:cwlogical : storage:cwEnableRejection
+Local: Field: default: Color : blue
+Local: field: sp: Width:22
+
+/*[line:cwismrkolLine]
+field:sp,cwlogical
+
+Local: Field: sp: info: "Receive Qty"
+Local: Field:cwlogical : storage:cwIsMRKol
+Local: Field: default: Color : blue
+Local: field: sp: Width:22
+
+[line:cwismokolLine]
+field:sp,cwlogical
+
+Local: Field: sp: info: "Measurement Qty"
+Local: Field:cwlogical : storage:cwIsMOKata
+Local: Field: default: Color : blue
+Local: field: sp: Width:22
+
+[line:cwismrkataLine]
+field:sp,cwlogical
+
+Local: Field: sp: info: "MR Kata Hold Qty"
+Local: Field:cwlogical : storage:cwIsMRKata
+Local: Field: default: Color : blue
+Local: field: sp: Width:22
+
+[line:cwismodoLine]
+field:sp,cwlogical
+
+Local: Field: sp: info: "Is MO DO"
+Local: Field:cwlogical : storage:cwIsMODO
+Local: Field: default: Color : blue
+Local: field: sp: Width:22
+
+[line:cwismrdoLine]
+field:sp,cwlogical
+
+Local: Field: sp: info: "MR DO Holding Qty"
+Local: Field:cwlogical : storage:cwIsMRDO
+Local: Field: default: Color : blue
+Local: field: sp: Width:22 */
+

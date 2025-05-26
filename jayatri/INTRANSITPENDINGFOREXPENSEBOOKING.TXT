@@ -1,0 +1,198 @@
+; Created By: Khokan on 2024-03-01 16:39, ID: 
+
+     [#menu: Gateway of Tally]
+;; {02.Mar.24 10:32}         add: Option: InTransitPendingforExpenseBookingLock ;; : @@InTransitPendingforExpenseBookingDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@InTransitPendingforExpenseBookingReport: Display: RepInTransitPendingforExpenseBooking
+
+
+
+     [!menu: InTransitPendingforExpenseBookingLock]
+        add: Item: before: @@locQuit: @@InTransitPendingforExpenseBookingReport: Display: RepInTransitPendingforExpenseBooking
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   InTransitPendingforExpenseBookingReport: " In - Transit - Pending for Expense Booking"
+;; InTransitPendingforExpenseBookingDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepInTransitPendingforExpenseBooking]
+        use: Dsp Template
+;; Use				: Range Value Template
+        Use				: Range  Template
+        
+      Title: @@InTransitPendingforExpenseBookingReport
+   Printset: Report Title: @@InTransitPendingforExpenseBookingReport
+       Form: FrmInTransitPendingforExpenseBooking
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    
+     variable:str1,str2,str3,str4,str5
+    set:str1:""
+    set:str2:""
+    set:str3:""
+    set:str4:""
+    set:str5:""
+     
+      [Form: FrmInTransitPendingforExpenseBooking]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0InTransitPendingforExpenseBooking,PrtInTransitPendingforExpenseBooking
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: InTransitPendingforExpenseBookingbotbrk,InTransitPendingforExpenseBookingbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+  add:button:Save View,change view
+ ;;    local : button : report config : action :modify variable: InTransitPendingforExpenseBookingConfigure
+        option : enable Range filters
+      add:button:InTrPendingforRecebotton
+      
+      [part: InTransitPendingforExpenseBookingbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: InTransitPendingforExpenseBookingbotopbrk]
+        use: dspacctitles
+  add: part: InTransitPendingforExpenseBookingTitlePart
+
+      [part: InTransitPendingforExpenseBookingTitlePart]
+       line: LnInTransitPendingforExpenseBookingTitle
+       
+      [line: LnInTransitPendingforExpenseBookingCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0InTransitPendingforExpenseBooking]
+      line : LnInTransitPendingforExpenseBookingCurrPeriod
+      
+      [Part: PrtInTransitPendingforExpenseBooking]
+       Line: LnInTransitPendingforExpenseBookingTitle,LnInTransitPendingforExpenseBooking
+bottom Line: LnInTransitPendingforExpenseBookingTotals
+     repeat: LnInTransitPendingforExpenseBooking: ColInTransitPendingforExpenseBooking
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColInTransitPendingforExpenseBooking]
+
+Type        : Purchase Orders
+
+Fetch  : Name, Date, OrderDueDate, FinalBalance, Closing Balance, GodownName, TrackLedger, BatchName, BilledQty, Rate, Discount, Amount
+	
+Fetch	: LedgerEntries.MasterID, LedgerEntries.IsVCHOfStockJrnl, LedgerEntries.Date, LedgerEntries.CurLangVoucherTypeName
+Fetch	: LedgerEntries.VoucherTypeName, LedgerEntries.VoucherNumber
+
+Fetch	: LedgerEntries.JWAllocQty
+Fetch	: LedgerEntries.BILLOFLADINGNO
+Fetch	: LedgerEntries.BillofLadingDate
+Fetch	: LedgerEntries.cwTransporterpurc
+Fetch	: LedgerEntries.BASICSHIPVESSELNO
+Fetch	: LedgerEntries.vouchertypename
+filter:ColInTransitPendingforExpenseBookingFilter,cwLRNoinfilter,cwTransporterinfilter,cwSupplierinfilter,cwVehicleinfilter
+
+
+
+    [system: Formula]
+ColInTransitPendingforExpenseBookingFilter:$cwInTrPendingforExpBooking:vouchertype:$vouchertypename
+
+      [Line: LnInTransitPendingforExpenseBookingTitle]
+        use: LnInTransitPendingforExpenseBooking
+     option: titleopt
+local:field: snf: set as: "LR No"
+local:field: sdf: set as: "LR Date"
+local:field: fwf: set as: "Transporter"
+local:field: nf: set as: "Supplier"
+local:field: snf2: set as: "Supplier Inv No"
+local:field: sdf2: set as: "Supplier Inv Date"
+local:field: snf3: set as: "Vehicle"
+local:field: qtyf: set as: "Quaility"
+local:field: snf4: set as: "Bale No"
+local:field: qtyf2: set as: "Qty"
+local:field: ratepf : set as : "Rate"
+local:field: amtf : set as : "Amount"
+
+;;local: field: default : style: normal bold
+Local: field: default: Align: centre
+Local: field: fwf: Align: left
+Local : field : default: Lines : 0
+
+local:field: snf: style:style1
+local:field: sdf:style:style1
+local:field: sdf2:style:style1
+local:field: fwf:style:style1
+local:field: nf: style:style1
+local:field: Snf2: style:style1
+local:field: Snf3: style:style1
+local:field: qtyf:style:style1
+local:field: qtyf2:style:style1
+local:field: ratepf :style:style1
+local:field: amtf:style:style1
+local:field: nf2:style:style1
+local:field: SNF4:style:style1
+
+      [Line: LnInTransitPendingforExpenseBooking]
+Fields: sdf,snf,fwf
+right field: nf,snf2,sdf2,snf3,qtyf,snf4,ratepf,Qtyf2,Amtf
+Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf2 : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+
+local:field: snf: set as:$BILLOFLADINGNO ;; "LR No"
+local:field: sdf: set as:$BillofLadingDate ;; "LR Date"
+local:field: fwf: set as:$partyledgername ;; "Transporter"
+local:field: nf: set as:$BASICBUYERNAME  ;; "Supplier"
+local:field: snf2: set as:$vouchernumber ;; "Supplier Inv No"
+local:field: sdf2: set as:$date ;; "Supplier Inv Date"
+local:field: snf3: set as:$BASICSHIPVESSELNO ;; "Vehicle"
+local:field: qtyf: set as:$$abs:$ClosingBalance ;;$billedqty ;; "Quaility"
+local:field: snf4: set as:$batchname ;; "Bale No"
+local:field: qtyf2: set as:$$abs:$ClosingBalance ;; "Qty"
+local:field: ratepf : set as :#amtf/#qtyf ;; "Rate"
+local:field: amtf : set as :$$abs:$Closingvalue ;; "Amount"
+Local: Field: default: Border: thin right
+local:field:DEFAULT: style:style2
+
+[line: LnInTransitPendingforExpenseBookingTotals]
+use: LnInTransitPendingforExpenseBooking
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+
+local: field: fwf: set as: "Total"
+local:field: snf: set as:"" ;; "LR No"
+local:field: sdf: set as:"" ;; "LR Date"
+
+local:field: nf: set as:"" ;; "Supplier"
+local:field: snf2: set as:"" ;; "Supplier Inv No"
+local:field: sdf2: set as:"" ;; "Supplier Inv Date"
+local:field: snf3: set as:"" ;; "Vehicle"
+local:field: qtyf: set as:$$total:qtyf ;; "Quaility"
+local:field: snf4: set as:"" ;; "Bale No"
+local:field: qtyf2: set as:$$total:qtyf2 ;; "Qty"
+local:field: ratepf : set as :"" ;; "Rate"
+local:field: amtf : set as :$$total:amtf ;; "Amount"
+
+local:field: snf: style:style1
+local:field: sdf:style:style1
+local:field: sdf2:style:style1
+local:field: fwf:style:style1
+local:field: nf: style:style1
+local:field: Snf2: style:style1
+local:field: Snf3: style:style1
+local:field: qtyf:style:style1
+local:field: qtyf2:style:style1
+local:field: ratepf :style:style1
+local:field: amtf:style:style1
+local:field: nf2:style:style1

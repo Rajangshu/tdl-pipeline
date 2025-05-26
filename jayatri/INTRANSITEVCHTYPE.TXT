@@ -1,0 +1,238 @@
+; Created By: Anil on 2024-01-29 15:37, ID: 
+
+[System: Formula]
+cwjobordVoucher:$$IsJobOrderOut:$parent
+CWJobMaterialIssue:$$IsJobMaterialIssue:$parent
+
+  [#Part: VTYP Behaviour]
+
+  add:option:newVTYPBehaviourjworopt2:@@cwjobordVoucher
+
+  [!part:newVTYPBehaviourjworopt2]
+
+  add:line:cwadditionalfeatuline2
+
+
+
+  [line:cwadditionalfeatuline2]
+
+  field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Additional Feature Allow:"
+ Local: Field: cwlogical: storage:cwInTransiteAdditionalFeatureAllow
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ Local: Field : cwlogical : SubForm : cwAdditionalFeatureAllowrep2: $$value
+
+ [report:cwAdditionalFeatureAllowrep2]
+ form:cwAdditionalFeatureAllowrep2
+
+ [form:cwAdditionalFeatureAllowrep2]
+ part:cwAdditionalFeatureAllowrep2
+
+ [part:cwAdditionalFeatureAllowrep2]
+ width:35% page
+
+;; {01.Feb.24 11:58}  line:EnablePurchaseLine2,cwrmcaptionline2,cwEnablrHouseLine2
+ line:cwrmcaptionline2,cwKataChekingLine,cwForprocessLine,cwDoorderLine,cwInTransitPendingforReceLine,cwIntransitDiirectLine ;;,cwEnablrHouseLine2
+
+/*[line:cwEnablrHouseLine2]
+field:long Prompt,cwlogical
+Local: Field:long Prompt: Set As:"Enable House"
+Local: Field: cwlogical: storage:cwInTransiteEnableHouse
+Local: Field: default: Style:Style2
+Local: Field: default: Color : blue
+
+ [line:EnablePurchaseLine2]
+ field:Long Prompt,cwlogical
+
+ Local: Field: Long Prompt: Set As:"Enable Purchase"
+ Local: Field: cwlogical: storage:cwInTransiteEnablePurchase
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue*/
+
+
+ [line:cwrmcaptionline2]
+ field:long prompt,snf
+ Local: Field: long prompt: Set As:"Batch Caption"
+ Local: Field: snf: storage:cwrmcaptionInTransite
+ Local: Field:default: Style:style2
+;; {19.Jan.24 16:38}  Local: Field: default: Color : blue
+
+ 
+ ;;=========================
+ 
+ [line:cwKataChekingLine]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Kata Checking" ;;"Use for In Transit (Purchase):"
+ Local: Field: cwlogical: storage:cwKataCheckingvch
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ Local: Field: cwlogical: Skip: if $cwUseforInTransitPurchase="yes" then Yes else no
+
+ Local: Field : cwlogical : SubForm :cwKataCheckingvchrep:$$value
+
+
+ [report:cwKataCheckingvchrep]
+form:cwKataCheckingvchfrm
+
+[form:cwKataCheckingvchfrm]
+part:cwKataCheckingvchpart
+
+[part:cwKataCheckingvchpart]
+width:40% page
+line:JwoutKatatypevcline,cwJwoutKataVchTypeSelectedGodown2line,enablAutopostingline,enablAutopostvchtypems
+ border:thick box
+
+ [line:JwoutKatatypevcline]
+ field:Long Prompt,snf
+ Local: Field: Long Prompt: Set As:"Type"
+ Local: Field: snf: storage:cwKataTypevchtype
+
+ Local: Field: snf: table:cwcolltype,Not Applicable
+ Local: Field: snf: Show table: Always
+ local:field:snf:variable:svcost centre
+ local:field:SNF:key:Create Cost Centre, Alter CstCtr
+  Local: Field: default: Style:Style2
+
+ [line:cwJwoutKataVchTypeSelectedGodown2line]
+ field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Target Godown:" ;;"Source Godown:"
+ Local: Field: nf: storage:cwVchTypeKataSourcematinGodown
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ [line:enablAutopostingline]
+field:long prompt,cwlogical
+
+Local: Field: long prompt: Set As:"Autoposting?"
+Local: Field: cwlogical: storage:cwKataEnableAutopostingmo
+ Local: Field: default: Style:Style2
+
+[line:enablAutopostvchtypems]
+field:long prompt,nf
+Local: Field: long prompt: Set As:"Autoposting Vch Type"
+Local: Field: nf: storage:cwKataAutopostingVchTypemo
+ Local: Field: nf: table: cwVouchertypes,Not Applicable
+ Local: Field: nf: Show table: Always
+;; {22.Feb.22 10:37} local: field: default: inactive:not $cwEnableAutoposting
+;;local: field: default: inactive:not $cwEnableAutopostingmo
+ Local: Field: default:Style:Style2
+ Local: Field: nf:Style:small
+ 
+ ;;============================
+ [line:cwForprocessLine]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"For Process" ;;"Use for In Transit (Purchase):"
+ Local: Field: cwlogical: storage:cwForProcess
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ Local: Field: cwlogical: Skip: if $cwUseforInTransitPurchase="yes" then Yes else no
+
+ Local: Field : cwlogical : SubForm :cwForProcessvchrep:$$value
+
+
+ [report:cwForProcessvchrep]
+form:cwForProcessvchfrm
+
+[form:cwForProcessvchfrm]
+part:cwForProcessvchpart
+
+[part:cwForProcessvchpart]
+width:40% page
+line:JwoutKatatypevcline,cwJwoutKataVchTypeSelectedGodown2line,enablAutopostingline,enablAutopostvchtypems
+ border:thick box
+ 
+ ;;=============================
+ 
+   [Line:cwInTransitPendingforReceLine]
+field:long prompt,cwlogical
+
+Local: Field: Long Prompt: Set As:"In - Transit - Pending for Received"
+ Local: Field: cwlogical: storage:cwInTransitPendingforRece
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ 
+ [line:cwIntransitDiirectLine]
+ field:long prompt,cwlogical
+
+Local: Field: Long Prompt: Set As:"In - Transit - Direct for Received"
+ Local: Field: cwlogical: storage:cwInTransitDirectforRece
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ 
+ ;;=============================
+ 
+  [Line:cwDoorderLine]
+field:long prompt,cwlogical
+
+Local: Field: Long Prompt: Set As:"Do Order" ;;"Use for In Transit (Purchase):"
+ Local: Field: cwlogical: storage:cwDoOrder
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+
+ Local: Field : cwlogical : SubForm : cwDoOrderRep: $$value
+
+
+ [report:cwDoOrderRep]
+ form:cwDoOrderfrm
+
+ [form:cwDoOrderfrm]
+ part:cwDoOrderpart
+
+ [part:cwDoOrderpart]
+ width:55% page
+;; {07.Aug.24 13:15}  height:2
+;; {07.Aug.24 18:24}  line:JwoutKatatypevcline,cwJwoutKataVchTypeSelectedGodown2line,enablAutopostingline,enablAutopostvchtypems,cwDoOrderline2
+ line:cwDoOrderline2
+
+ [line:cwDoOrderline2]
+ field:sp,fwf
+
+ Local: Field: sp: info:"Note"
+ Local: Field: fwf: storage:cwnote
+ Local : field : fwf: Lines : 0
+ local: Field: fwf: max: 100
+ Local: Field: default: Style:Style2
+
+ [System: Formula]
+ cwnoteinv:$cwnote:vouchertype:$vouchertypename
+
+ 
+;;===============================
+
+[#Part: VTYP Behaviour]
+
+  add:option:newVTYPEMATOUTopt2:@@CWJobMaterialIssue
+
+  [!part:newVTYPEMATOUTopt2]
+  line:cwMATOUTcaptionline ;;,cwAutoConsumptionLn
+  
+  [line:cwMATOUTcaptionline]
+ field:long prompt,snf
+ Local: Field: long prompt: Set As:"Batch Caption"
+ Local: Field: snf: storage:cwrmcaption
+ Local: Field:default: Style:style2
+
+ [line:cwAutoConsumptionLn]
+  field:long prompt,cwlogical
+ Local: Field: long prompt: Set As:"Auto Consumption:"
+ Local: Field: cwlogical: storage:cwAutoConsumption
+ Local: Field:default: Style:style2
+

@@ -1,0 +1,90 @@
+; Created By: Anil on 2024-01-17 16:42, ID: 
+
+[style:style1x]
+font:"Georgia"
+height:12
+bold:yes
+
+[style:style2x]
+font:"Georgia"
+height:10
+bold:no
+
+[style:style7]
+font:"Georgia"
+height:10
+bold:YES
+
+[style:style1]
+font:"Georgia"
+height:9
+bold:yes
+
+[style:style2]
+font:"Georgia"
+height:9
+bold:no
+
+[style:style1y]
+font:"Georgia"
+height:8
+bold:yes
+
+[style:style2y]
+font:"Georgia"
+height:8
+bold:no
+
+
+[style:style3]
+font:"Georgia"
+height:6
+bold:no
+
+[style:style4]
+font:"Georgia"
+height:8
+bold:no
+
+[style:style5]
+font:"Georgia"
+height:8
+bold:yes
+
+[style:style6]
+font:"Georgia"
+height:8
+bold:no
+
+;;=============================
+[style:styleCalisto]
+
+font:"Calisto MT" ;;"Times New Roman"
+height:9.3 ;;10.5
+bold:no
+
+[style:styleCalisto2]
+
+font:"Calisto MT" ;;"Times New Roman"
+height:8 ;;10.5
+bold:yes
+
+
+[style:styleCalistox]
+
+font:"Calisto MT" ;;"Times New Roman"
+height:9.8
+bold:no
+
+[style:styleCalistox2]
+
+font:"Calisto MT" ;;"Times New Roman"
+height:9.8
+bold:yes
+
+[style:styleCalistox3]
+
+font:"Calisto MT" ;;"Times New Roman"
+height:10
+bold:yes
+

@@ -1,0 +1,377 @@
+; Created By: Anil on 2024-01-17 16:49, ID: 
+
+/*[#Part: LED Mailing Address]
+add:option:cwLEDMailingAddressopt:@@JayatriTestEnabled
+
+[!Part:cwLEDMailingAddressopt]
+add : bottom line : before : LEDPinCode: cwcityline   */
+
+
+[#part: MST LED Explode Sundry]
+ add:option:MSTLEDExplodeSundryjwoopt:@@JayatriTestEnabled
+
+[!part:MSTLEDExplodeSundryjwoopt]
+;; {04.Apr.24 13:15} add:line:isgodownline,cwLedIsuseforIndent,useasjobworkerline,cwGodownvchline,cwsalespersonline,cwasmline,cwrsmline,cwagentline,cwcityline,cwarealine,cwzoneline
+add:line:cwLedIsuseforIndent,useasjobworkerline,cwGodownvchline,cwTransporterGodownLn,cwsalespersonline,cwasmline,cwrsmline,cwagentline,cwcityline,cwarealine,cwzoneline,cwTransporterLine ;;,cwpartyDormateLine
+
+[line:cwLedIsuseforIndent]
+field:long Prompt,cwlogical
+Local: Field:Long Prompt : Set As:"Is use for Sauda"
+Local: Field: cwlogical: storage:cwLedIsuseforIndent
+Local: Field:long Prompt: Style:style3
+Local: Field:cwlogical: Style:style3
+
+[line:useasjobworkerline]
+
+field:long prompt,cwlogical
+Local: Field:long prompt : Set As:"Use as Job Worker:"
+Local: Field: cwlogical: storage:cwUseasJobWorker
+
+Local: Field: default: Style:style3
+
+Local: Field: DEFAULT: Color : blue
+
+
+[line:cwGodownvchline]
+
+field:long prompt,nf
+Local: Field:long prompt : Set As:"Godown:"
+Local: Field: nf: storage:cwGodownvch
+Local: Field: nf: table:collcwGodownvch ,Not Applicable
+Local: Field: nf: Show table: Always
+
+Local: Field: default: Style:style3
+
+Local: Field: DEFAULT: Color : blue
+
+[line:cwTransporterGodownLn]
+field:long prompt,nf
+Local: Field:long prompt : Set As:"Transporter Godown:"
+Local: Field: nf: storage:cwTransporterGodownvch
+Local: Field: nf: table:collcwGodownvch ,Not Applicable
+Local: Field: nf: Show table: Always
+
+Local: Field: default: Style:style3
+
+Local: Field: DEFAULT: Color : blue
+
+
+[Collection: collcwGodownvch]
+ title:"List of Godown"
+type:godown
+
+
+[line:cwsalespersonline]
+field:long prompt,nf
+Local: Field:long prompt : Set As:"Sales Person:"
+Local: Field: nf: storage:cwSalesPersonled
+
+Local: Field: nf: table:collcwSalesPersonled,Not Applicable
+Local: Field: nf: Show table: Always
+
+;; {05.Apr.24 13:28} local:field:nf:variable:svcost centre
+;; {05.Apr.24 13:28} local:field:nf:key:Create Cost Centre, Alter CstCtr
+Local: Field: nf:Key      :Create Ledger, Alter Ledger
+Local: Field: nf:Variable :SV Ledger
+
+Local: Field: default: Style:style3
+Local: Field: nf: Style:style1
+
+[Collection: collcwSalesPersonled]
+type:ledger ;;cost centre
+title:"List of Sales Person"
+child of:"Sales Person"
+
+[line:cwasmline]
+field:long prompt,nf
+Local: Field:long prompt : Set As:"ASM:"
+
+Local: Field: nf: storage:cwAsmled
+
+Local: Field: nf: table:collcwAsmled ,Not Applicable
+Local: Field: nf: Show table: Always
+
+local:field:nf:variable:svcost centre
+local:field:nf:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: default: Style:style3
+Local: Field: nf: Style:style1
+
+[Collection:collcwAsmled]
+type:cost centre
+title:"List of ASM"
+child of:"ASM"
+
+[line:cwrsmline]
+field:long prompt,nf
+Local: Field:long prompt : Set As:"RSM:"
+Local: Field: nf: storage:cwRsmled
+
+Local: Field: nf: table:collcwRsmled ,Not Applicable
+Local: Field: nf: Show table: Always
+
+local:field:nf:variable:svcost centre
+local:field:nf:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: default: Style:style3
+Local: Field: nf: Style:style1
+
+[Collection:collcwRsmled]
+type:cost centre
+title:"List of RSM"
+child of:"RSM"
+
+[line:cwagentline]
+field:long prompt,nf
+Local: Field:long prompt : Set As:"Agent:"
+Local: Field: nf: storage:cwAgentled
+
+Local: Field: nf: table:collcwAgentled ,Not Applicable
+Local: Field: nf: Show table: Always
+
+Local: Field: nf:Key      :Create Ledger, Alter Ledger
+Local: Field: nf:Variable :SV Ledger
+
+Local: Field: default: Style:style3
+Local: Field: nf: Style:style1
+
+[Collection:collcwAgentled]
+type:Ledger
+title:"List of Agent"
+child of:"Agent"
+
+[line:cwcityline]
+field:long prompt,nf
+Local: Field:long prompt : Set As:"City:"
+Local: Field: nf: storage:cwCityled
+Local: Field: nf: table:collcwCityledX ,Not Applicable
+Local: Field: nf: Show table: Always
+local:field:nf:variable:svcost centre
+local:field:nf:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: default: Style:style3
+Local: Field: nf: Style:style1
+
+[Collection:collcwCityledX]
+type:cost centre
+title:"List of City"
+child of:"City"
+
+[line:cwarealine]
+field:long prompt,nf
+Local: Field:long prompt : Set As:"Area:"
+Local: Field: nf: storage:cwArealed
+Local: Field: nf: table:collcwArealed ,Not Applicable
+Local: Field: nf: Show table: Always
+
+local:field:nf:variable:svcost centre
+local:field:nf:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: default: Style:style3
+Local: Field: nf: Style:style1
+
+[Collection:collcwArealed]
+type:cost centre
+title:"List of Area"
+child of:"Area"
+
+[line:cwzoneline]
+field:long prompt,nf
+Local: Field:long prompt : Set As:"Zone:"
+Local: Field: nf: storage:cwZoneled
+
+Local: Field: nf: table:collcwZoneled ,Not Applicable
+Local: Field: nf: Show table: Always
+
+local:field:nf:variable:svcost centre
+local:field:nf:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: default: Style:style3
+Local: Field: nf: Style:style1
+
+[Collection:collcwZoneled]
+type:cost centre
+title:"List of Zone"
+child of:"Zone"
+
+[line:cwTransporterLine]
+field:long prompt,nf
+Local: Field:long prompt : Set As:"Transporter:"
+Local: Field: nf: storage:cwTransporterled
+
+;; {12.Apr.24 10:56} Local: Field: nf: table:collcwTransporterled,Not Applicable
+Local: Field: nf: table:collcwTransporter,Not Applicable
+Local: Field: nf: Show table: Always
+
+;; {05.Apr.24 13:28} local:field:nf:variable:svcost centre
+;; {05.Apr.24 13:28} local:field:nf:key:Create Cost Centre, Alter CstCtr
+Local: Field: nf:Key      :Create Ledger, Alter Ledger
+Local: Field: nf:Variable :SV Ledger
+
+
+Local: Field: default: Style:style3
+Local: Field: nf: Style:style1
+
+[Collection: collcwTransporterled]
+type:ledger
+title:"List of Transporter"
+child of:"Transporter"
+
+/*[line:cwpartyDormateLine]
+field:long prompt,cwlogical
+Local: Field: long prompt: Set As:"Party Dormate:"
+Local: Field:cwlogical: storage:cwpartyDormate
+Local: Field: default: Style:style3
+;; {24.Oct.24 12:06} Local: Field: nf: Style:style1  */
+
+[Collection: collgodown]
+type:godown
+title:"List of Godown"
+
+;;==================================
+
+[#Part:MST LED Explode Sales]
+add:option:cwMSTLEDDetailsoptnewopt:@@JayatriTestEnabled
+[!part:cwMSTLEDDetailsoptnewopt]
+add:line:enabledisline,enableProductdisline,enablevchlevline
+
+[line:enabledisline]
+field:long prompt,cwlogical
+Local: Field: long prompt: Set As:"Use for Partywise Discount:"
+Local: Field:cwlogical: storage:cwdiscpernew
+Local: Field: default: Style: Normal Bold
+
+ [line:enableProductdisline]
+field:long prompt,cwlogical
+Local: Field: long prompt: Set As:"Use for Productwise Discount:"
+Local: Field:cwlogical: storage:cwproductdiscpernew
+Local: Field: default: Style: Normal Bold
+
+
+
+ [line:enablevchlevline]
+field:long prompt,cwlogical
+Local: Field: long prompt: Set As:"Use for Vch Level Discount (Qty X Rate):"
+Local: Field:cwlogical: storage:cwuseforvchlevdisc
+Local: Field: default: Style: Normal Bold
+
+;;========================Ledeger Opening=====================
+[#Line: LEDALLOC CTLineOne]
+add:option:cwLEDALLOCCTLineOneopt:@@JayatriTestEnabled
+
+[!Line: cwLEDALLOCCTLineOneopt]
+add:field:after:LEDALLOC NameTitle:snf10,snf,snf1,snf2,snf3,snf4,snf5,snf6
+
+Local: Field: snf10: info:"Bill Type"
+Local: Field:snf : info:"Sales Person"
+Local: Field:snf1 : info:"ASM"
+Local: Field:snf2 : info:"RSM"
+Local: Field:snf3 : info:"Agent"
+Local: Field:snf4 : info:"City"
+Local: Field:snf5 : info:"Area"
+Local: Field:snf6 : info:"Zone"
+Local: Field: default: Style:style2
+
+Local: field: default: Align: centre
+
+[#Line: LEDALLOC CTLineTwo]
+add:option:cwLEDALLOCCTLineTwoopt:@@JayatriTestEnabled
+
+[!Line: cwLEDALLOCCTLineTwoopt]
+add:field:after:LEDALLOC NameTitle:snf10,snf,snf1,snf2,snf3,snf4,snf5,snf6
+
+Local: Field:snf10 : info:"" ;;"Sales Person"
+Local: Field:snf : info:"" ;;"Sales Person"
+Local: Field:snf1 : info:"" ;;"ASM"
+Local: Field:snf2 : info:"" ;;"RSM"
+Local: Field:snf3 : info:"" ;;"Agent"
+Local: Field:snf4 : info:"" ;;"City"
+Local: Field:snf5 : info:"" ;;"Area"
+Local: Field:snf6 : info:"" ;;"Zone"
+Local: Field: default: Style:style2
+
+
+[#Line: LEDALLOC MainLine]
+add:option:cwLEDALLOCMainLineopt:@@JayatriTestEnabled
+
+[!Line: cwLEDALLOCMainLineopt]
+add:field:after:LEDALLOCName:snf10,snf,snf1,snf2,snf3,snf4,snf5,snf6
+
+Local: Field: snf10: storage:cwvchBilltype   ;;"Sales Person"
+Local: Field: snf: storage:cwcaption1vch   ;;"Sales Person"
+Local: Field: snf1: storage:cwcaption2vch  ;;"ASM"
+Local: Field: snf2: storage:cwcaption3vch  ;;"RSM"
+Local: Field: snf3: storage:cwcaption4vch  ;;"Agent"
+Local: Field: snf4: storage:cwcaption5vch  ;;"City"
+Local: Field: snf5: storage:cwcaption6vch  ;;"Area"
+Local: Field: snf6: storage:cwcaption7vch  ;;"Zone"
+
+Local: Field: snf : set as:$$owner:$$owner:$cwSalesPersonled
+Local: Field: snf1 : set as:$$owner:$$owner:$cwAsmled
+Local: Field: snf2: set as:$$owner:$$owner:$cwRsmled
+Local: Field: snf3: set as:$$owner:$$owner:$cwAgentled
+Local: Field: snf4:set as:$$owner:$$owner:$cwCityled
+Local: Field: snf5:set as:$$owner:$$owner:$cwArealed
+Local: Field: snf6:set as:$$owner:$$owner:$cwZoneled
+
+Local: Field: snf10: table: cwbilltypetable,Not Applicable
+Local: Field: snf10: Show table: Always
+
+local: field: snf: type: String:forced
+local: field: snf1: type: String:forced
+local: field: snf2: type: String:forced
+local: field: snf3: type: String:forced
+local: field: snf4: type: String:forced
+local: field: snf5: type: String:forced
+local: field: snf6: type: String:forced
+
+Local: Field: snf: table:collcwSalesPersonled,Not Applicable
+Local: Field: snf: Show table: Always
+Local: Field: snf:Key      :Create Ledger, Alter Ledger
+Local: Field: snf:Variable :SV Ledger
+
+Local: Field: snf1: table:collcwAsmled ,Not Applicable
+Local: Field: snf1: Show table: Always
+local:field:snf1:variable:svcost centre
+local:field:snf1:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: snf2: table:collcwRsmled ,Not Applicable
+Local: Field: snf2: Show table: Always
+local:field:snf2:variable:svcost centre
+local:field:snf2:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: snf3: table:collcwAgentled ,Not Applicable
+Local: Field: snf3: Show table: Always
+Local: Field: snf3:Key      :Create Ledger, Alter Ledger
+Local: Field: snf3:Variable :SV Ledger
+
+Local: Field: snf4: table:collcwCityledX ,Not Applicable
+Local: Field: snf4: Show table: Always
+local:field:snf4:variable:svcost centre
+local:field:snf4:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: snf5: table:collcwArealed ,Not Applicable
+Local: Field: snf5: Show table: Always
+local:field:snf5:variable:svcost centre
+local:field:snf5:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: snf6: table:collcwZoneled ,Not Applicable
+Local: Field: snf6: Show table: Always
+local:field:snf6:variable:svcost centre
+local:field:snf6:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: default: Style:style2
+Local: field: default: Align: centre
+
+local: field: snf:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf1:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf2:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf3:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf4:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf5:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf6:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+
+;; {24.Apr.24 13:47} Local: field: snf5: Width:
+;;==========================
+
+

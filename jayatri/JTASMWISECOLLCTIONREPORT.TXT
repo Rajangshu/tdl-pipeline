@@ -1,0 +1,177 @@
+; Created By: Anil on 2024-05-01 12:00, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+;; {01.May.24 12:17}         add: Option: ASMWISEcollctionreportLock ;; : @@ASMWISEcollctionreportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ASMWISEcollctionreportReport: Display Collection: collRepASMTWISEcollctionreport
+
+
+
+     [!menu: ASMWISEcollctionreportLock]
+        add: Item: before: @@locQuit: @@ASMWISEcollctionreportReport: Display Collection: collRepASMTWISEcollctionreport
+        add: Item: before: @@locQuit: Blank
+        
+     [Collection: collRepASMTWISEcollctionreport]
+
+    Use         		: Extract Alias Collection
+   Source	Collection	: List of Cost Centres
+;; {22.Apr.24 11:53}     Title       		: $$LocaleString:"List of Cost Centres"
+    Title       		: $$LocaleString:"List of ASM"
+    Format      		: $CstCatName
+    Filter      		: CostCentreFilter
+    Report      		:RepASMWISEcollctionreport
+    Variable    		: SCostCentre
+    Trigger     		: SCostCentrexA
+        
+    [System: formula]
+   ASMWISEcollctionreportReport: "ASM Wise collction report"
+;; ASMWISEcollctionreportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepASMWISEcollctionreport]
+        use: Dsp Template
+;; Use				: Range Value Template
+        Use				: Range  Template
+        
+      Title: @@ASMWISEcollctionreportReport
+   Printset: Report Title: @@ASMWISEcollctionreportReport
+       Form: FrmASMWISEcollctionreport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmASMWISEcollctionreport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0ASMWISEcollctionreport,PrtASMWISEcollctionreport
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: ASMWISEcollctionreportbotbrk,ASMWISEcollctionreportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+  add:button:Save View,change view
+ ;;    local : button : report config : action :modify variable: ASMWISEcollctionreportConfigure
+        option : enable Range filters
+        
+      [part: ASMWISEcollctionreportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ASMWISEcollctionreportbotopbrk]
+        use: dspacctitles
+  add: part: ASMWISEcollctionreportTitlePart
+
+      [part: ASMWISEcollctionreportTitlePart]
+       line: LnASMWISEcollctionreportTitle
+       
+      [line: LnASMWISEcollctionreportCurrPeriod]
+     field: fwf,nf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style:style3x
+      Local: Field: fwf: Style:style3x
+      Local: Field: NF: Style:style3x
+      Local: Field: fwf: Set As:##SCostCentre
+
+      Local: Field: nf: Set As:$$ReptField:Name:2:ledger:##LedgerName
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf2:invisible: $$inprintmode
+
+      [part: PrtTitle0ASMWISEcollctionreport]
+      line : LnASMWISEcollctionreportCurrPeriod
+      
+      [Part: PrtASMWISEcollctionreport]
+       Line: LnASMWISEcollctionreportTitle,LnASMWISEcollctionreport
+bottom Line: LnASMWISEcollctionreportTotals
+     repeat: LnASMWISEcollctionreport: ColASMWISEcollctionreport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColASMWISEcollctionreport]
+ source Collection: Colreceiptsouagentcoll
+ by:date:$date
+ by:vouchernumber:$vouchernumber
+ by:partyledgername:$partyledgername
+;; {24.Apr.24 18:06}  compute:cwcaption2item1:$cwcaption2item:ledger:$partyledgername
+ compute:cwcaption2item1:$cwAsmled:ledger:$partyledgername
+ by:vouchertypename:$vouchertypename
+ aggr compute:rcptvalue:sum:$amount
+ compute:chqno:$AllLedgerEntries[1, @@IsBankLedgr].BankAllocations[1].InstrumentNumber
+
+search key:$partyledgername
+filter:ColASMWISEcollctionreportFilter
+
+    [system: Formula]
+ColASMWISEcollctionreportFilter: $cwAsmled:ledger:$partyledgername=##SCostCentre
+
+
+      [Line: LnASMWISEcollctionreportTitle]
+        use: LnASMWISEcollctionreport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: fwf: set as: "Party"
+local:field: SNF: set as: "Chq No"
+local:field: NF: set as: "Mode of Payment"
+
+local:field: amtf: set as: "Receipt"
+
+
+ local: field: sdf : style:style2x
+local: field: fwf : style:style2x
+local: field: SNF : style:style2x
+local: field: NF : style:style2x
+local: field: amtf : style:style2x
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+
+      [Line: LnASMWISEcollctionreport]
+Fields: sdf,fwf ;;,nf2
+right field: SNF,nf,Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$date ;; "DATE"
+local:field: fwf: set as:$partyledgername  ;$parent ;; "PARTY"  $$collectionfield:@@cwVchINSNO2:2:LedgerEntries
+local:field: SNF: set as:$chqno  ;;@@recmyNewChqNoa  ;; "CHQ NO"
+local:field: NF: set as:$vouchernumber ;;$name ;; "MODE OF PAYMENT"
+local:field: NF2: set as:$cwcaption2item1 ;$parent:ledger:$partyledgername ; $$CollectionField:$vouchertypename:First:ledgerentries ;; "MODE OF PAYMENT"
+
+local:field: amtf: set as:$rcptvalue  ;;$closingbalance ;; "RECEIPT"
+  local: field: DEFAULT : style:style3x
+
+;; {26.Aug.21 11:08}   Local: field: amtf: Format: "drcr"
+  Local: Field: default: Border: thin right
+;; {17.Sep.21 18:46}   Local: field: amtf: Format: "drcr"
+  border:thin bottom
+
+
+      [line: LnASMWISEcollctionreportTotals]
+        use: LnASMWISEcollctionreport
+     option: totalOpt
+     local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+local:field: sdf: set as:"" ;; "DATE"
+
+local:field: SNF: set as:"" ;; "CHQ NO"
+local:field: NF: set as:"" ;; "MODE OF PAYMENT"
+
+local:field: amtf: set as:"" ;; "RECEIPT"
+      local: field: amtf : set as :  $$total:amtf
+
+ local: field: sdf : style:style2x
+local: field: fwf : style:style2x
+local: field: SNF : style:style2x
+local: field: NF : style:style2x
+local: field: amtf : style:style2x

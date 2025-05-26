@@ -1,0 +1,287 @@
+; Created By: Anil on 2024-07-19 13:08, ID: 
+
+
+     [#menu: Gateway of Tally]
+;; {12.Aug.24 18:52}         add: Option: DoOrderTestosRepLock ;; : @@DoOrderTestosRepDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@DoOrderTestosRepReport: Display: RepDoOrderTestosRep
+  */
+
+
+     [!menu: DoOrderTestosRepLock]
+        add: Item: before: @@locQuit: @@DoOrderTestosRepReport: Display: RepDoOrderTestosRep
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   DoOrderTestosRepReport: "Do Order Cleared"
+;; DoOrderTestosRepDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepDoOrderTestosRep]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@DoOrderTestosRepReport
+   Printset: Report Title: @@DoOrderTestosRepReport
+
+       Form: FrmDoOrderTestosRep
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+        variable:str1,str2
+        set:str1:""
+        set:str2:""
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmDoOrderTestosRep]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0DoOrderTestosRep,PrtDoOrderTestosRep
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: DoOrderTestosRepbotbrk,DoOrderTestosRepbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+add:button:cwDoItemButton
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: DoOrderTestosRepConfigure
+
+      [part: DoOrderTestosRepbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: DoOrderTestosRepbotopbrk]
+        use: dspacctitles
+  add: part: DoOrderTestosRepTitlePart
+
+      [part: DoOrderTestosRepTitlePart]
+       line: LnDoOrderTestosRepTitle
+       
+      [line: LnDoOrderTestosRepCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0DoOrderTestosRep]
+      line : LnDoOrderTestosRepCurrPeriod
+      
+      [Part: PrtDoOrderTestosRep]
+       Line: LnDoOrderTestosRepTitle,LnDoOrderTestosRep
+bottom Line: LnDoOrderTestosRepTotals
+     repeat: LnDoOrderTestosRep: cwInOrdersofLedgerCld ;;ColDoOrderTestosRep
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+[Collection: cwInOrdersofLedgerCld]
+
+	Use				: ColDoOrderTestosRep
+
+	Fetch			: LedgerEntries.MasterID, LedgerEntries.IsVCHOfStockJrnl, LedgerEntries.Date, LedgerEntries.CurLangVoucherTypeName
+	Fetch			: LedgerEntries.VoucherTypeName, LedgerEntries.VoucherNumber
+
+	Fetch			: LedgerEntries.JWAllocQty
+	
+	Compute			: OrderedQty			: $TotalOrdFinishedQty
+
+	Sort        	: @@Default         	: $Date, $$Name
+    Sort        	: @@SortAlphaIncr   	: $Parent
+    Sort        	: @@SortAlphaDecr   	: -$Parent
+    Sort        	: @@PartyWiseIncr   	: $TrackLedger
+    Sort        	: @@PartyWiseDecr   	: -$TrackLedger
+    Sort        	: @@AmountWiseIncr  	: $$Abs:$PendingValue
+    Sort        	: @@AmountWiseDecr  	: -$$Abs:$PendingValue
+    Sort        	: @@QtyWiseIncr     	: $$Abs:$ClosingBalance
+    Sort        	: @@QtyWiseDecr     	: -$$Abs:$ClosingBalance
+	
+	Filter			: IsJobOutOrder
+	filter:cwDoitemnamefilter,cwDoNoVchfilter
+
+[Collection: ColDoOrderTestosRep]
+	
+	ParmVar		: pvStkName		: String: ##SVStockItemName
+	ParmVar		: pvLedName		: String: ##JWLedgerName	
+	ParmVar		: pvOrderName	: String: ##SVOrderName
+	
+	Type		: Ledger In Orders
+	ChildOf		: ##pvLedName
+		
+	Fetch		: Name, Parent, TrackLedger, OrderType, Date, OrderDueDate, TotalOrdFinishedQty, TotalFinishedQty, ClosingBalance, IsJobInOrder, IsJobOutOrder, ClosingValue, Rate
+	Fetch		: BatchName, GodownName, ParentItem, OrderPreclosureQty, IsJobInMatInOrder, IsJobInMatOutOrder, IsJobOutMatInOrder, IsJobOutMatOutOrder
+	
+	Compute     : TrackLedgerAlias 		: $$ReptField:Name:2:Ledger:$TrackLedger
+	Compute		: StkItemParentAlias   	: $$ReptField:Name:2:StockItem:$Parent
+	Compute		: StkItemParentPNAlias	: $$ReptField:MailingName:2:StockItem:$Parent
+	Compute		: StkItemParentPNName	: $PartNo:StockItem:$Parent
+	Compute		: StkItemParentDesc     : $Description:StockItem:$Parent
+	
+        Parm Var: SVFromDate	: Date	: $StartingFrom:Company:##SVCurrentCompany
+        Parm Var: SVToDate	: Date	:$LastVoucherDate:Company:##SVCurrentCompany ;;$EndingAt:Company:##SVCurrentCompany
+
+	
+	Filter		: ClosingStatusFilter, ForCurrentOrder, ForCurrentStk, OrderWithinDateFilter
+	
+	Cleared		: Yes
+
+[System: Formula]
+cwDoorderCounta:if $$filterCount:ledgerEntries:cwDOOrdExists1 = 0 then yes else no
+cwDOOrdExists1 :"DO_Ord" = #snf10
+;; {19.Jul.24 15:03} cwDoorderCounta:if $$filterCount:ledgerEntries:cwcashdiscExists1 > 0 then yes else no
+
+
+      [Line: LnDoOrderTestosRepTitle]
+        use: LnDoOrderTestosRep
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Vch No"
+local:field: snf10: set as: "Vch Type"
+;; {19.Jul.24 18:10} local:field: nf: set as: "Name"
+local:field: fwf: set as: "Item Name"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+
+local: field: sdf : style: style1y ;;normal bold
+local: field: snf : style: style1y ;;normal bold
+local: field: snf10 : style: style1y ;;normal bold
+local: field: fwf : style: style1y ;;normal bold
+local: field: qtyf : style: style1y ;;normal bold
+local: field: amtf : style: style1y ;;normal bold
+local: field: ratepf : style: style1y ;;normal bold
+
+Local: field:sdf : Align: centre
+Local: field:snf : Align: centre
+Local: field:snf10 : Align: centre
+Local: field:qtyf : Align: centre
+Local: field:amtf : Align: centre
+Local: field:ratepf : Align: centre
+
+; Main Line
+      [Line: LnDoOrderTestosRep]
+     Fields: DoOrderTestosRepmastid,snf10,sdf,snf,fwf
+Right Field: Qtyf,ratepf,Amtf
+
+     Option: Alter on Enter
+        key: DoOrderTestosRepDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: sdf : set as : $date
+local:field: fwf: set as: $parent ;;"Description"
+local:field: qtyf: set as: $OrderedQty ;;"Description"
+Local: Field: snf: Set As:$VoucherNumber
+Local: Field: snf10: Set As:$VoucherTypeName
+Remove If:@@cwDoorderCounta
+
+local: field: snf10: Invisible: yes
+Local: Field: default: Border: thin right
+local: field: default : style: style2y
+
+Local: field: snf: Width:8
+
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: DoOrderTestosRepDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: DoOrderTestosRepDisplayVoucher
+
+ 	
+     [Report: DoOrderTestosRepDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #DoOrderTestosRepmastid
+	
+
+        [Field: DoOrderTestosRepmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnDoOrderTestosRepTotals]
+        use: LnDoOrderTestosRep
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      
+;;======================================
+
+[button:cwDoItemButton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:cwDoItemRep
+
+ [report:cwDoItemRep]
+ form:cwDoItemfrm
+
+ [form:cwDoItemfrm]
+ part:cwDoItempart
+
+ HEIGHT:20% Screen ;;PAGE
+ WIDTH:30% Screen ;;PAGE
+
+ [part:cwDoItempart]
+ line:Dotitleline,DoItemNameline,DoNoVchline
+
+ [line:Dotitleline]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: Normal Bold
+ space bottom:0.5
+
+ [line:DoItemNameline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Item Name"
+ Local: Field: nf:modifies:str1
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: style2y
+ Local: Field: nf: Style: style2y
+ Local: Field: nf: table:collItemname,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ [Collection: collItemname]
+ type:Stock Item
+ title:"List of Item"
+ 
+ [line:DoNoVchline]
+  field:sp,nf
+ Local: Field: sp: Set As:"Do. No"
+ Local: Field: nf:modifies:str2
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+local: field: sp : style: style2y ;;normal bold
+local: field: nf : style: style2y ;;normal bold
+ 
+ [System: Formula]
+ cwDoitemnamefilter:if $$issysname:##str1 then yes else $stockitemname =##str1
+ cwDoNoVchfilter:if $$isempty:##str2 then yes else $voucherNumber =##str2
+

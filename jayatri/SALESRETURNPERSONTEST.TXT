@@ -1,0 +1,187 @@
+; Created By: Anil on 2024-06-15 10:59, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: salesReturnpersontestLock ;; : @@salesReturnpersontestDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@salesReturnpersontestReport: Display: RepsalesReturnpersontest
+  */
+
+
+     [!menu: salesReturnpersontestLock]
+        add: Item: before: @@locQuit: @@salesReturnpersontestReport: Display: RepsalesReturnpersontest
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   salesReturnpersontestReport: "salesReturnpersontest"
+;; salesReturnpersontestDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepsalesReturnpersontest]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@salesReturnpersontestReport
+   Printset: Report Title: @@salesReturnpersontestReport
+
+       Form: FrmsalesReturnpersontest
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmsalesReturnpersontest]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0salesReturnpersontest,PrtsalesReturnpersontest
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: salesReturnpersontestbotbrk,salesReturnpersontestbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: salesReturnpersontestConfigure
+
+      [part: salesReturnpersontestbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: salesReturnpersontestbotopbrk]
+        use: dspacctitles
+  add: part: salesReturnpersontestTitlePart
+
+      [part: salesReturnpersontestTitlePart]
+       line: LnsalesReturnpersontestTitle
+       
+      [line: LnsalesReturnpersontestCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0salesReturnpersontest]
+      line : LnsalesReturnpersontestCurrPeriod
+      
+      [Part: PrtsalesReturnpersontest]
+       Line: LnsalesReturnpersontestTitle,LnsalesReturnpersontest
+bottom Line: LnsalesReturnpersontestTotals
+     repeat: LnsalesReturnpersontest: ColsalesReturnpersontestmain ;;ColsalesReturnpersontest
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: ColsalesReturnpersontestmain]
+ source Collection: ColsalesReturnpersontest
+walk:inventoryentries
+
+by:partyledgername:$partyledgername
+by:stockitemname:$stockitemname
+
+;; {26.Apr.24 13:15} by:cwcaption1vch2:$..cwcaption2vch
+by:cwcaption1vch2:$..cwcaption1vch
+
+aggr compute:billedqty1:sum:$billedqty ;;$$CollAmtTotal:inventoryentries:$billedqty
+
+;; {28.Apr.22 15:40} aggr compute:amount:sum:$amount
+
+aggr compute:amount1:sum:$amount  ;;$$CollAmtTotal:inventoryentries:$amount
+
+compute:CWTEMPGSTEWAYTRANSPORTERNAME1:$CWTEMPGSTEWAYTRANSPORTERNAME
+compute:BILLOFLADINGNO1:$BILLOFLADINGNO
+compute:BILLOFLADINGDATE1:$BILLOFLADINGDATE
+compute:narration1:$narration
+compute:BASICFINALDESTINATION1:$BASICFINALDESTINATION
+
+ sort:@@default:$partyledgername
+filter:ColsalesReturnpersontestFilter
+search key:$partyledgername
+
+[Collection: ColsalesReturnpersontest]
+Type	   : Vouchers	: VoucherType
+Child Of   : $$VchTypeCreditNote
+Belongs To : Yes
+;; {27.Apr.22 12:57} filter:cwpartylednetsalesReturnfilter
+    [system: Formula]
+ColsalesReturnpersontestFilter: $cwcaption1vch2="VIKRAM KUMAR GUPTA" ;;##LedgerName
+
+      [Line: LnsalesReturnpersontestTitle]
+        use: LnsalesReturnpersontest
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: snf: set as: "Alias Name"
+local:field: nf: set as:  "Item name"
+local:field: nf1: set as: "Sales Person Name"
+local:field: fwf: set as: "Party Name"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: LnsalesReturnpersontest]
+     Fields: salesReturnpersontestmastid,snf,nf,nf1,fwf
+Right Field: ratepf,Qtyf,Amtf
+
+     Option: Alter on Enter
+        key: salesReturnpersontestDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: snf: set as: $$ReptField:Name:2:ledger:#fwf;;"no"
+local:field: nf: set as:  $stockitemname ;;"Party Name"
+local:field: nf1: set as: $cwcaption1vch2 ;;"Sales Person Name"
+local:field: fwf: set as: $partyledgername  ;;"Description"
+local:field: qtyf: set as: $billedqty1 ;;"Qty."
+local:field: amtf: set as: $amount1 ;;"Value"
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: salesReturnpersontestDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: salesReturnpersontestDisplayVoucher
+
+ 	
+     [Report: salesReturnpersontestDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #salesReturnpersontestmastid
+	
+
+        [Field: salesReturnpersontestmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnsalesReturnpersontestTotals]
+        use: LnsalesReturnpersontest
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

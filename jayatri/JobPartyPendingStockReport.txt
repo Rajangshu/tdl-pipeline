@@ -1,0 +1,236 @@
+; Created By: Anil on 2024-09-16 11:11, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+;; {17.Sep.24 12:58}         add: Option: JobPartyPendingStockLock ;; : @@JobPartyPendingStockDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@JobPartyPendingStockReport: Display: RepJobPartyPendingStock
+  */
+
+
+     [!menu: JobPartyPendingStockLock]
+        add: Item: before: @@locQuit: @@JobPartyPendingStockReport: Display: RepJobPartyPendingStock
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   JobPartyPendingStockReport: "Job Party Pending Stock"
+;; JobPartyPendingStockDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepJobPartyPendingStock]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@JobPartyPendingStockReport
+   Printset: Report Title: @@JobPartyPendingStockReport
+
+       Form: FrmJobPartyPendingStock
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmJobPartyPendingStock]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0JobPartyPendingStock,PrtJobPartyPendingStock
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: JobPartyPendingStockbotbrk,JobPartyPendingStockbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: JobPartyPendingStockConfigure
+
+      [part: JobPartyPendingStockbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: JobPartyPendingStockbotopbrk]
+        use: dspacctitles
+  add: part: JobPartyPendingStockTitlePart
+
+      [part: JobPartyPendingStockTitlePart]
+       line: LnJobPartyPendingStockTitle
+       
+      [line: LnJobPartyPendingStockCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0JobPartyPendingStock]
+      line : LnJobPartyPendingStockCurrPeriod
+      
+      [Part: PrtJobPartyPendingStock]
+       Line: LnJobPartyPendingStockTitle,LnJobPartyPendingStock
+bottom Line: LnJobPartyPendingStockTotals
+     repeat: LnJobPartyPendingStock: ColJobPartyPendingStock
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,Qtyf2,Qtyf3
+
+; Main Collection
+
+[Collection: ColJobPartyPendingStock]
+source collection:srcColJobPartyPendingStock
+ walk:inventoryentriesout,BatchAllocations
+by:godownname:$VoucherDestinationGodown ;;$godownname
+by:stockitemname:$stockitemname
+by:partyledgername:$partyledgername
+by:batchname:$batchname
+compute:BasicPurchaseOrderNo1x:$BasicPurchaseOrderNo1
+aggr compute:cwUpdateSubQtydo1:sum:$cwUpdateSubQtydo
+aggr compute:billedqty:sum:$billedqty
+;; {16.Sep.24 12:42} fatch:cwUpdateSubQtydo
+sort : @@default : $BasicPurchaseOrderNo1x
+
+;;fetch:Reference
+[Collection: srcColJobPartyPendingStock]
+Type    : Vouchers: VoucherType
+Childof : $$VchTypeJobMaterialIssue
+BelongsTo : Yes
+compute:BasicPurchaseOrderNo1:$BasicPurchaseOrderNo
+filter:ColJobPartyPendingStockFilter
+
+;; {16.Sep.24 12:03} Parm Var: SVFromDate	: Date	: $StartingFrom:Company:##SVCurrentCompany
+;; {16.Sep.24 12:03} Parm Var: SVToDate	: Date	:$LastVoucherDate:Company:##SVCurrentCompany
+
+
+/*        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColJobPartyPendingStockFilter,IsNonOptionalCancelledVchs*/
+
+    [system: Formula]
+ColJobPartyPendingStockFilter: $cwAllowToMatReceive:vouchertype:$voucherTypeName ; $$isSales:$voucherTypeName
+
+      [Line: LnJobPartyPendingStockTitle]
+        use: LnJobPartyPendingStock
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Party Name"
+local:field: fwf: set as: "Item Name"
+local:field: snf: set as: "Godown"
+local:field: snf2: set as: "Ord No"
+local:field: snf3: set as: "Batch"
+local:field: qtyf: set as: "Consumed Qty."
+local:field: qtyf2: set as: "Before Consumed Qty."
+local:field: qtyf3: set as: "Balance Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+;; {17.Sep.24 12:27}       local: field: default : style: normal bold
+      
+Local: field:snf2 : Align: centre
+Local: field:snf3 : Align: centre
+Local: field:nf : Align: centre
+Local: field:snf : Align: centre
+Local: field:qtyf : Align: centre
+Local: field:qtyf2 : Align: centre
+Local: field:qtyf3 : Align: centre
+local:field:fwf:indent:12
+Local : field :qtyf2 : Lines : 0
+
+local: field: snf : style: style1y
+local: field: snf2 : style: style1y
+local: field: snf3 : style: style1y
+local: field: qtyf : style: style1y
+local: field: qtyf2 : style: style1y
+local: field: qtyf3 : style: style1y
+local: field: nf : style: style1y
+local: field: fwf : style: style1y
+
+; Main Line
+      [Line: LnJobPartyPendingStock]
+     Fields: JobPartyPendingStockmastid,snf2,snf3,nf,fwf
+Right Field: snf,Qtyf2,Qtyf,qtyf3 ;;Amtf
+
+     Option: Alter on Enter
+        key: JobPartyPendingStockDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf2: Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf3: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: nf: set as: $partyledgername ;;"Party Name"
+local:field: fwf: set as: $stockitemname;;"Item"
+local:field: snf: set as: $godownname;;"Godown"
+local:field: snf2: set as: $BasicPurchaseOrderNo1x ;;$OrderNo ;;"Ord No"
+local:field: snf3: set as: $batchname ;;"Ord No"
+local:field: qtyf: set as: $$asqty:$cwUpdateSubQtydo1 ;;"Consumed Qty."
+local:field: qtyf2: set as: $billedqty ;;"Balance Qty."
+local:field: qtyf3: set as: #qtyf2-#qtyf
+Local: Field: default: Border: thin left
+
+;; {16.Sep.24 13:01} local: field: Qtyf2: Invisible: yes
+
+Local: field:snf2 : Width:8
+Local: field:snf3 : Width:18
+Local: field:snf : Width:20
+Local: field:qtyf : Width:12
+Local: field:qtyf2 : Width:12
+Local: field:qtyf3 : Width:12
+Local: field:nf : Width:28
+
+Local: field:snf2 : Align: centre
+Local: field:snf3 : Align: centre
+Local: field:nf : Align: centre
+Local: field:snf : Align: centre
+Local: field:qtyf : Align: centre
+Local: field:qtyf2 : Align: centre
+Local: field:qtyf3 : Align: centre
+
+local: field: default: style: style2y
+
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: JobPartyPendingStockDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: JobPartyPendingStockDisplayVoucher
+
+ 	
+     [Report: JobPartyPendingStockDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #JobPartyPendingStockmastid
+	
+
+        [Field: JobPartyPendingStockmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnJobPartyPendingStockTotals]
+        use: LnJobPartyPendingStock
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: qtyf2: set as: $$total:qtyf2
+      local: field: qtyf3: set as: $$total:qtyf3
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

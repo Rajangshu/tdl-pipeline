@@ -1,0 +1,109 @@
+; Created By: Anil on 2024-01-23 17:35, ID: 
+
+[System: Formula]
+ cwPurchaseReturnYes:$cwPurReturnAdditional:vouchertype:$vouchertypename="yes"
+
+[#Line: VCHBATCH ColumnOne]
+ add:option:VCHBATCHColumnOnepurrtnopt:@@cwPurchaseReturnYes ;;and @@cwRawMaterialDetailsyes
+
+ [!line:VCHBATCHColumnOnepurrtnopt]
+
+ add:right field:after:VCH BatchNameTitle:suppnof,suppdtf
+ add:right field:after:VCH BatchNameTitle:snf1,snf,snf2,sdf,snf4,snf5,suppnof,suppdtf  ;;,snf7,snf8,snf9,snf10,snf11,snf12,snf13,snf14,snf15
+ add:right field:before:VCH QtyTitle:cwPurRetQtyf
+ Local: Field: snf: INFO:"No of Bales"  ;;IF @@cwRawMaterialyes THEN @cwRMCaptionsName1  ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName1 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName1 else ""
+ Local: Field: snf1: INFO:"Type" ;;IF @@cwRawMaterialyes THEN @cwRMCaptionsName1  ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName1 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName1 else ""
+ Local: Field: snf2: INFO:"LR Number" ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName2 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName2 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName2 else ""
+ Local: Field: sdf: INFO:"LR Date" ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName3 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName3 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName3 else ""
+ Local: Field: snf4: INFO:"Supplier Name" ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName4 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName4 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName4 else ""
+ Local: Field: snf5: INFO:"Transporter Name" ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName5 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName5 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName5 else ""
+ Local: Field: cwPurRetQtyf: info: "Receive Qty"
+  Local: Field: DEFAULT: Style:Style2
+  Local: Field: VCH BatchNameTitle: Style:Style1
+  Local: Field: VCH QtyTitle: Style:Style1
+  Local: Field: VCH RateTitle: Style:Style1
+  Local: Field: VCH AmtTitle: Style:Style1
+
+
+ [System: Formula]
+;; {01.Dec.23 14:18} cwjooroptFilter:$$IsJobMaterialIssue:$vouchertypename
+ cwjooroptFilter:$$IsJobOrderOut:$vouchertypename
+
+[field:cwPurRetQtyf]
+ use:qtyf ;;numf
+ Set As:$$table:VCHBATCHName:$ClosingBalance
+ storage:cwPurRetQty
+;; {03.Jan.25 15:41}   Invisible: yes
+  format:"decimals:2"
+
+ [#line:STKVCH Batch2]
+
+ add:option:STKVCHBatch2purrtnopt:@@cwPurchaseReturnYes ;;and @@cwRawMaterialDetailsyes
+
+
+
+ [!line:STKVCHBatch2purrtnopt]
+
+ add:right Field:after:VCHBATCH Name:snf1,snf,snf2,sdf,snf4,snf5,suppnof2,suppdtf2
+  add:right field:before:VCHBATCH BilledQty:cwRecedQtyf,cwPurRetQtyf
+
+ Local: Field: snf: storage:cwNoofBalespurc
+ Local: Field: snf1: storage:cwTypepurc
+ Local: Field: snf2:storage:cwLRNumberpurc
+ Local: Field: sdf:storage:cwLRDatepurc
+ Local: Field: snf4:storage:cwSupplierNamepurc
+ Local: Field: snf5:storage:cwTransporterNamepurc
+ Local: Field: SNF1: Set As:@@cwTypevchtype
+
+ Local: Field: snf4: set as :$$table:VCHBATCHName:$cwSupplierNamepurc ;;$$ReptField:Name:2:ledger:$partyledgername
+ Local: Field: snf5: set as :$$table:VCHBATCHName:$cwTransporterNamepurc ;;$$ReptField:Name:2:ledger:$$owner:$$owner:$cwTransporterpurc ;;$cwTransporterpurc
+ Local: Field: snf: set as :$$table:VCHBATCHName:$cwNoofBalespurc ;;$BILLOFLADINGNO
+ Local: Field: snf1: set as :$$table:VCHBATCHName:$cwTypepurc ;;$BILLOFLADINGNO
+ Local: Field: snf2: set as :$$table:VCHBATCHName:$cwLRNumberpurc ;;$BILLOFLADINGNO
+ Local: Field: sdf: set as :$$table:VCHBATCHName:$cwLRDatepurc ;;$BILLOFLADINGNO
+ Local: Field: VCHBATCH BilledQty: set as :#cwPurRetQtyf ;;$$table:VCHBATCHName:$ClosingBalance ;;$BILLOFLADINGNO
+
+ Local: Field: DEFAULT: Style:Style2
+  Local: Field: snf1: Skip: Yes
+  Local: Field: snf2: Skip: Yes
+  Local: Field: snf3: Skip: Yes
+  Local: Field: snf4: Skip: Yes
+  Local: Field: snf5: Skip: Yes
+  Local: Field: sdf: Skip: Yes
+  Local: Field: VCHBATCH BilledQty: Skip: Yes
+
+ Local: Field: snf: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf1: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf2: INACTIVE :@@BatchAllocBreak
+ Local: Field: sdf: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf4: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf5: INACTIVE :@@BatchAllocBreak
+
+ ;;==========================================
+
+
+
+[#Collection: Active Batches VchExtract]
+add:option:cwActiveBatchesVchExtractopt:@@cwPurchaseReturnYes ;; @@cwFectoryReceiveYes ;;cwRawMaterialDetailsyes
+
+[!Collection: cwActiveBatchesVchExtractopt]
+
+Title       		: $$LocaleString:"List of Active Batches"
+delete:SubTitle            : $$LocaleString:"Name", @@ExpirySubTitle, $$LocaleString:"Balance"
+add:SubTitle            : $$LocaleString:"Name",$$LocaleString:"Balance",$$LocaleString:"",$$LocaleString:"Supplier Name",$$LocaleString:"Transporter Name",$$LocaleString:"No of Bales",$$LocaleString:"Type",$$LocaleString:"LR Number",$$LocaleString:"LR Date",$$LocaleString:"Balance"
+delete:Fetch				: Name, Parent, ExpiryPeriod, ActualQty, ClosingBalance, GodownName, ClosingAsondate, MfdOn
+add:Fetch				: Name,cwNoofBalespurc,cwTypepurc,cwLRNumberpurc,cwLRDatepurc,cwSupplierNamepurc,cwTransporterNamepurc, Parent, ExpiryPeriod, ActualQty, ClosingBalance, GodownName, ClosingAsondate, MfdOn
+
+add:Format      		: $Name,10
+add:format:$cwSupplierNamepurc,10
+add:format:$cwTransporterNamepurc,10
+add:format:$cwNoofBalespurc,10
+add:format:$cwTypepurc,10
+add:format:$cwLRNumberpurc,10
+add:format:$cwLRDatepurc,10
+delete:Format : $ClosingBalance,10
+add:Format : $ClosingBalance,10
+
+
+
+

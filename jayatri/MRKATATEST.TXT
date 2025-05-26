@@ -1,0 +1,172 @@
+; Created By: Anil on 2024-06-21 17:31, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+;; {10.Jul.24 16:31}         add: Option: mrkatatestLock ;; : @@mrkatatestDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@mrkatatestReport: Display: Repmrkatatest
+  */
+
+
+     [!menu: mrkatatestLock]
+        add: Item: before: @@locQuit: @@mrkatatestReport: Display: Repmrkatatest
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   mrkatatestReport: "mrkatatest"
+;; mrkatatestDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: Repmrkatatest]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@mrkatatestReport
+   Printset: Report Title: @@mrkatatestReport
+
+       Form: Frmmrkatatest
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: Frmmrkatatest]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0mrkatatest,Prtmrkatatest
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: mrkatatestbotbrk,mrkatatestbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: mrkatatestConfigure
+
+      [part: mrkatatestbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: mrkatatestbotopbrk]
+        use: dspacctitles
+  add: part: mrkatatestTitlePart
+
+      [part: mrkatatestTitlePart]
+       line: LnmrkatatestTitle
+       
+      [line: LnmrkatatestCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0mrkatatest]
+      line : LnmrkatatestCurrPeriod
+      
+      [Part: Prtmrkatatest]
+       Line: LnmrkatatestTitle,Lnmrkatatest
+bottom Line: LnmrkatatestTotals
+     repeat: Lnmrkatatest: Colmrkatatest
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: Colmrkatatest]
+source collection:sourcecallmrkataexplode2
+walk:INVENTORYENTRIESIN,BATCHALLOCATIONS,cwcollConsumption
+by:date:$date
+by:BATCHNAME:$BATCHNAME
+by:stockitemname:$stockitemname
+by:partyledgername:$partyledgername
+compute:cwLRNumberpurc1:$cwLRNumberpurc
+
+
+[collection:sourcecallmrkataexplode2]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColmrkatatestFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColmrkatatestFilter: $cwHouseMaterialIn:vouchertype:$vouchertypename ; $$isSales:$voucherTypeName
+
+      [Line: LnmrkatatestTitle]
+        use: Lnmrkatatest
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "lr no"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: Lnmrkatatest]
+     Fields: mrkatatestmastid,snf,sdf,nf,nf1,fwf
+Right Field: ratepf,Qtyf,Amtf,numf
+
+     Option: Alter on Enter
+        key: mrkatatestDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: sdf : set as : $date
+local:field: nf: set as: $BATCHNAME ;;"Name"
+local:field: nf1: set as: $stockitemname ;;"Name"
+local:field: fwf: set as: $partyledgername ;;"Description"
+local:field: snf: set as: $cwLRNumberpurc1 ;;"Description"
+local:field: qtyf: set as: $cwConsumQty1 ;;"Description"
+local:field: numf: set as: $cwConsumQty1 ;;"Description"
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: mrkatatestDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: mrkatatestDisplayVoucher
+
+ 	
+     [Report: mrkatatestDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #mrkatatestmastid
+	
+
+        [Field: mrkatatestmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnmrkatatestTotals]
+        use: Lnmrkatatest
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

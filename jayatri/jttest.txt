@@ -1,0 +1,680 @@
+; Created By: Anil on 2024-08-02 12:23, ID: 
+
+; Created By: Neha on 2024-08-01 13:51, ID:
+
+
+     [#menu: Gateway of Tally]
+        add: Option: BillWiseCreditorsAgeingReportLock;;:@@cwtlbienblberdockopt ;; : @@BillWiseCreditorsAgeingReportDemoLock
+
+  /*
+     [#menu : cw_Debug_menu]
+        add: Item: before: @@locQuit: @@BillWiseCreditorsAgeingReportReport: Display: RepBillWiseCreditorsAgeingReport
+  */
+
+
+     [!menu: BillWiseCreditorsAgeingReportLock]
+        add: Item: before: @@locQuit: @@BillWiseCreditorsAgeingReportReport: Display: RepBillWiseCreditorsAgeingReport
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   BillWiseCreditorsAgeingReportReport: "Bill Wise Creditors Ageing Report"
+;; BillWiseCreditorsAgeingReportDemoLock: $$MachineDate < $$Date:"01/12/2023"
+
+    [Report: RepBillWiseCreditorsAgeingReport]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+
+      Title: @@BillWiseCreditorsAgeingReportReport
+   Printset: Report Title: @@BillWiseCreditorsAgeingReportReport
+
+       Form: FrmBillWiseCreditorsAgeingReport
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+
+   set : num1 : 15
+    set : num2 : 35
+    set : num3 : 90
+    set : num4 :180
+    set : num5 : 365
+      variable:str1
+    set : str1 : ""
+     variable : DSPAgeByDueDate,ShowBillRange
+    set : DSPAgeByDueDate : yes
+    set : ShowBillRange : $$sysname:OverdueBills
+
+
+      [Form: FrmBillWiseCreditorsAgeingReport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0BillWiseCreditorsAgeingReport,PrtBillWiseCreditorsAgeingReport
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: BillWiseCreditorsAgeingReportbotbrk,BillWiseCreditorsAgeingReportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+     ADD: Button:PartyNamebotton ;;cwreportfilterbutton
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: BillWiseCreditorsAgeingReportConfigure
+
+
+
+   [button:cwreportfilterbutton]
+ key:f4
+ title:"Filter"
+ Action : Modify Variables:bottonnewrep
+
+ [report:bottonnewrep]
+ form:bottonnewrep
+
+ [form:bottonnewrep]
+ part:bottonnewrep
+ WIDTH:30% PAGE
+
+ [part:bottonnewrep]
+ line:titlelinexy, cwitemwisefilter
+
+  [line:titlelinexy]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: Normal Bold
+ space bottom:0.5
+ Local: Field:fwfc: Style:cwstyles2
+ [Line:cwitemwisefilter]
+ field:sp,nf
+Local: Field: nf:modifies:str1
+local:field: sp : set as: "Item Name"
+Local: field: sp: Width:20
+
+Local: Field: nf: table:ListofStockItems,Not Applicable
+Local: Field: nf: Show table: Always
+Local: Field:default: Style:cwstyles2
+
+      [part: BillWiseCreditorsAgeingReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: BillWiseCreditorsAgeingReportbotopbrk]
+        use: dspacctitles
+  add: part: BillWiseCreditorsAgeingReportTitlePart
+
+      [part: BillWiseCreditorsAgeingReportTitlePart]
+       line: LnBillWiseCreditorsAgeingReportTitle
+
+      [line: LnBillWiseCreditorsAgeingReportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0BillWiseCreditorsAgeingReport]
+      line : LnBillWiseCreditorsAgeingReportCurrPeriod
+
+      [Part: PrtBillWiseCreditorsAgeingReport]
+       Line: LnBillWiseCreditorsAgeingReportTitle,LnBillWiseCreditorsAgeingReport
+bottom Line: LnBillWiseCreditorsAgeingReportTotals
+     repeat: LnBillWiseCreditorsAgeingReport: ColBillWiseCreditorsAgeingReport
+     scroll:both  ; Vertical
+ Common Border: YEs
+    Total: Qtyf,amtf,amtf1,amtf2,amtf3,amtf4,amtf5,amtf6,amtf7,amtf8,amtf9,amtf10,amtf11,amtf12
+
+; Main Collection
+
+[Collection: ColBillWiseCreditorsAgeingReport]
+        type :bills
+
+  fetch : billcreditperiod
+
+  COMPUTE : cwcmpdepcd1 : $cwcmpdepcd:vouchertype:$vouchertypename
+
+ ; aggr compute : cwF2 : sum :@@cwval1
+  filter:ColBillWiseCreditorsAgeingReportFilter
+  compute:cwopeningbalancenew:$openingbalance ;;if $isadvance then $openingbalance else "1111"
+compute var : myonaccount : amount : $onaccountvalue
+compute var : crbal : logical : not $$isdr:$closingbalance ;;
+
+
+compute var : clbalance : amount :  $closingbalance
+
+compute var : onacc : amount : $$InitValue:"Amount"
+
+
+compute var: d0_10  : amount : $$BillValue:Yes:no:@@mycwfromageing:@@mycwtoageing:no ;;##DSPAgeByDueDate ;;sum : $d0_10a
+compute var: d10_20 : amount : $$BillValue:Yes:no:@@mycwfromageing2:@@mycwtoageing2:no ;;sum : $d10_20
+compute var: d20_30 : amount : $$BillValue:Yes:no:@@mycwfromageing3:@@mycwtoageing3:no ;;sum : $d20_30
+compute var: d30_40 : amount : $$BillValue:Yes:no:@@mycwfromageing4:@@mycwtoageing4:no ;; {04.Sep.21 12:53} aggr compute : d30_40 : sum : $d30_40
+compute var: d40_50 : amount : $$BillValue:Yes:no:@@mycwfromageing5:@@mycwtoageing5:no ;; sum : $d40_50
+compute var: d50_60 : amount : $$BillValue:Yes:no:@@mycwfromageing6:@@mycwtoageing6:no ;; sum : $d50_60
+compute var: d60_0  : amount : $$BillValue:Yes:no:@@mycwfromageing7:@@mycwtoageing7:no ;; sum : $d60_0
+compute var: onacc  : amount : $onaccountvalue
+
+compute var: cwdummy : amount : if @@cwnotcloingbalance then $$callUpdate else $$InitValue:"Amount"
+
+
+compute : d0_10  : ##d0_10
+compute : d10_20 : ##d10_20
+compute : d20_30 : ##d20_30
+compute : d30_40 : ##d30_40
+compute : d40_50 : ##d40_50
+compute : d50_60 : ##d50_60
+compute : d60_0  : ##d60_0
+compute : onacc  : ##onacc
+
+
+ compute var: cwdummy : amount : if @@cwnotcloingbalance then $$callUpdate else $$InitValue:"Amount"
+filter:cwsalesperfilteritem;;ColsalesmanWiseAgeingReportFilter
+
+
+    [system: Formula]
+ColsalesmanWiseAgeingReportFilter:$$isdr:$closingbalance and ##ledgername=$cwSalesPersonled ;;cwcaption2item
+;; {20.Jul.24 11:57} ColsalesmanWiseAgeingReportFilter:##ledgername=$cwSalesPersonled ;;cwcaption2item
+
+
+    [system: Formula]
+ColBillWiseCreditorsAgeingReportFilter:$$isobjectbelongsto:group:($parent:ledger:$parent):$$GroupSundryDebtors;;$$Groupsundrycreditors
+;; {02.Aug.24 12:41} cwsalesperfilteritem:if $$issysname:##str1 then yes else $parent=##str1
+cwsalesperfilteritem:if $$isempty:$closingbalance then no else if $$issysname:##str1 then yes else $parent =##str1
+
+
+      [Line: LnBillWiseCreditorsAgeingReportTitle]
+        use: LnBillWiseCreditorsAgeingReport
+     option: titleopt
+
+ local:field: nf: set as: "Deport Name"
+Local: Field:snf: Set As:"Deport Code"
+local:field: fwf: set as: "Ledger Name"
+Local: Field: nf: Set As:"Bill No"
+Local: Field: sdf: Set As:"Bill Date"
+
+local:field: amtf: set as: "Amount"
+
+local:field: amtf2: set as:"0<15 Days"  ;; "<15 Days"
+local:field: amtf3: set as:$$string:@@mycwfromageing+$$string:"-" +$$string:@@mycwtoageing;;"15-35 Days" ;; "15-20 Days"
+local:field: amtf4: set as: $$string:@@mycwfromageing2+$$string:"-"+$$string:@@mycwtoageing2;;;"35-90 Days"
+local:field: amtf5: set as: $$string:@@mycwfromageing3+$$string:"-"+$$string:@@mycwtoageing3;;"90-180 Days"
+local:field: amtf6: set as:$$string:@@mycwfromageing4+$$string:"-"+$$string:@@mycwtoageing4;;"180-365 Days"
+
+local:field: amtf7: set as:$$string:@@mycwfromageing5+$$string:"-"+$$string:@@mycwtoageing5;;"34-35 Days"
+local:field: amtf8: set as:$$string:@@mycwfromageing6+$$string:"-"+$$string:@@mycwtoageing6;;"35-60 Days"
+local:field: amtf9: set as:$$string:"Over"+$$string:" "+$$string:@@mycwfromageing7;;"60-90 Days"
+local:field: amtf10: set as:"90-180 Days"
+
+local:field: amtf11: set as:"above 365 Days"
+Local: Field: snf5: Set As:"Sales Person"
+Local: Field: amtf15: Set As:"On Account"
+
+
+local: field: amtf: type: String
+local: field: amtf2: type: String
+local: field: amtf3: type: String
+local: field: amtf4: type: String
+local: field: amtf5: type: String
+local: field: amtf6: type: String
+local: field: amtf7: type: String
+local: field: amtf15: type: String
+
+local: field: amtf8: type: String
+local: field: amtf9: type: String
+local: field: amtf10: type: String
+local: field: amtf11: type: String
+local: field: amtf12: type: String
+local: field: amtf15: type: String
+
+local: field: default : style: normal bold
+
+
+; Main Line
+
+[Line: LnBillWiseCreditorsAgeingReport]
+json tag :"BillWiseAgeingReport"
+;; {02.Aug.24 11:03}  Fields:snf,d1,fwf,d2,nf,d3,sdf,d4,amtf,d5,amtf2,d6,amtf3,d7,amtf4,d8,amtf5,d9,amtf6,d10,amtf11,d11,amtf12,d12,sdf5,d13,snf5,d14,amtf15,d15,nf2,d16,snf15,d17,amtf16,d18,nf10,d19,cwdebugfield2
+ Fields:snf,d1,fwf,d2,nf10,D20,nf,d3,sdf,d4,amtf,d5,amtf2,d6,amtf3,d7,amtf4,d8,amtf5,d9,amtf6,d10,amtf11,d11,amtf12,d12,sdf5,d13,snf5,d14,amtf15,d15,nf2,d16,snf15,d17,amtf16,d18,nf10,d19,cwdebugfield2
+
+  Local: Field: nf5: Set As:$$RemoveExcelNoiseCharacter:$$GetMyParentnews:$parent:ledger:$parent
+  local : field : nf : set as : ""
+ local : field : snf : set as :if not @@cwmultibranchstrgopt then $$RemoveExcelNoiseCharacter:$cwcmpdepcd:COMPANY:##SVCURRENTCOMPANY else $$RemoveExcelNoiseCharacter:$$stringpart:$name:0:4
+ local : field : fwf : set as :$$RemoveExcelNoiseCharacter:$parent  ;;$name
+ Local: Field: nf: Set As:$$RemoveExcelNoiseCharacter:$name
+ Local: Field: nf10: Set As:$parent:ledger:$parent
+
+ local: field: SDF: type: String
+ Local: Field: sdf: Set As:$$RemoveExcelNoiseCharacter:$$cwYYMMDD:$billdate
+ local : field : amtf : set as : if $$isdr:$closingbalance then $$abs:$closingbalance else  -1 * $$abs:$closingbalance
+;; {18.Apr.19 13:00}  local : field : amtf2 : set as :if @@forperiod < 15 then $closingbalance else $$initvalue:"Amount"
+Local: Field: snf5: Set As:$$RemoveExcelNoiseCharacter:$cwbroker:ledger:#fwf
+
+
+ Local: Field: amtf2: type: number   ;; if $$isdr:@@cwval1clonewx then $$abs:@@cwval1clonewx else  -1 * $$abs:@@cwval1clonewx
+ Local: Field: amtf2: Set As:if $$isdr:@@cwval1 then $$abs:@@cwval1 else  -1 * $$abs:@@cwval1 ;;$cwf2  ;;if $$isdr:$grossf0 then $$abs:$grossf0 else  -1 * $$abs:$grossf0   ;; @@cwF2
+ Local: Field: amtf3: type :number ;;if $$isdr:@@cwval2clonewx then $$abs:@@cwval2clonewx else  -1 * $$abs:@@cwval2clonewx
+ Local: Field: amtf3: set as :if $$isdr:@@cwval2 then $$abs:@@cwval2 else  -1 * $$abs:@@cwval2   ;;$cwf3  ;;if $$isdr:$grossf1 then $$abs:$grossf1 else  -1 * $$abs:$grossf1  ;; $cwf3
+ Local: Field: amtf4: type : number ;;Set As:if $$isdr:@@cwval3clonewx then $$abs:@@cwval3clonewx else  -1 * $$abs:@@cwval3clonewx
+ Local: Field: amtf4: set as :if $$isdr:@@cwval3 then $$abs:@@cwval3 else  -1 * $$abs:@@cwval3   ;;$cwF4  ;;if $$isdr:$grossf2 then $$abs:$grossf2 else  -1 * $$abs:$grossf2  ;; $cwF4
+ Local: field: amtf5: type : number ;;set as: if $$isdr:@@cwval4clonewx then $$abs:@@cwval4clonewx else  -1 * $$abs:@@cwval4clonewx
+ Local: field: amtf5: set as:if $$isdr:@@cwval4 then $$abs:@@cwval4 else  -1 * $$abs:@@cwval4   ;;$cwF5  ;;if $$isdr:$grossf3 then $$abs:$grossf3 else  -1 * $$abs:$grossf3  ;; $cwF5 ;; $$nettamount:($$BillValue:Yes:no:##num3:##num4:yes):($$BillValue:No:no:##num3:##num4:yes)
+ Local: Field: amtf6: type : number ;;Set As:if $$isdr:@@cwval5clonewx then $$abs:@@cwval5clonewx else  -1 * $$abs:@@cwval5clonewx
+ Local: Field: amtf6: set as :if $$isdr:@@cwval5 then $$abs:@@cwval5 else  -1 * $$abs:@@cwval5   ;;$cwF6  ;;if $$isdr:$grossf4 then $$abs:$grossf4 else  -1 * $$abs:$grossf4  ;; $cwF6 ;;$$nettamount:($$BillValue:Yes:no:##num4:##num5:yes):($$BillValue:No:no:##num4:##num5:yes)
+
+ Local: Field: amtf7: type : number ;;Set As:if $$isdr:@@cwval6clonewx then $$abs:@@cwval6clonewx else  -1 * $$abs:@@cwval6clonewx
+ Local: Field: amtf7: setas : $CwF7 ;;$$nettamount:($$BillValue:Yes:no:##num5:##num6:yes):($$BillValue:No:no:##num5:##num6:yes)
+ Local: Field: amtf8: type: number ;;Set As:if $$isdr:@@cwval7clonewx then $$abs:@@cwval7clonewx else  -1 * $$abs:@@cwval7clonewx
+ Local: Field: amtf8: Set As: $cwF8 ;;$$nettamount:($$BillValue:Yes:no:##num6:##num7:yes):($$BillValue:No:no:##num6:##num7:yes)
+ Local: Field: amtf9: type : number ;;Set As:if $$isdr:@@cwval8clonewx then $$abs:@@cwval8clonewx else  -1 * $$abs:@@cwval8clonewx
+ Local: Field: amtf9: set as : $cwF9 ;;$$nettamount:($$BillValue:Yes:no:##num7:##num8:yes):($$BillValue:No:no:##num7:##num8:yes)
+ Local: Field: amtf10: type : number ;;Set As:if $$isdr:@@cwval9clonewx then $$abs:@@cwval9clonewx else  -1 * $$abs:@@cwval9clonewx
+ Local: Field: amtf10: set as : $cwF10 ;;$$nettamount:($$BillValue:Yes:no:##num8:##num9:yes):($$BillValue:No:no:##num8:##num9:yes)
+;; {02.Jul.24 16:24}  Local: Field: amtf11: type : number ;;Set As:if $$isdr:@@cwval10clonewx then $$abs:@@cwval10clonewx else  -1 * $$abs:@@cwval10clonewx
+
+ Local: Field: amtf11: set as :if $$isdr:@@newcwval11 then $$abs:@@newcwval11 else  -1 * $$abs:@@newcwval11   ;;$cwF11 ;;if $$isdr:$grossf7 then $$abs:$grossf7 else  -1 * $$abs:$grossf7  ;; $cwF11 ;;$$nettamount:($$BillValue:Yes:no:##num9:0:yes):($$BillValue:No:no:##num9:0:yes)
+ Local: Field: snf15: set as :$$RemoveExcelNoiseCharacter:$BillCreditPeriod1
+ Local: Field: amtf16: set as :$$RemoveExcelNoiseCharacter:$CreditLimit1
+;; {01.Jul.24 18:22}  Local: Field: amtf11: Border: thin box ;;left right
+
+/*  Local: Field:  amtf3: Set As:  $d0_10
+Local: Field:  amtf4: Set As:  $d10_20
+Local: Field:  amtf5: Set As:  $d20_30
+Local: Field:  amtf6: Set As:  $d30_40
+Local: Field:  amtf7: Set As:  $d40_50
+Local: Field:  amtf8: Set As:  $d50_60
+Local: Field:  amtf9: Set As:  $d60_0
+Local: Field:  amtf10: Set As: $onacc*/
+
+Local: Field: sdf5: Set As: ""; $billdate+21
+
+Local: Field: amtf15: Set As: if not $$isempty:$onaccountvalue:ledger:$parent then (if $$line = 1 or $$prevobj:$parent <> $parent then $onaccountvalue:ledger:$parent else $$InitValue:"Amount")   else $$InitValue:"Amount" ;;   if $$isdr:$OnAccountVALUE1 then $$abs:$OnAccountVALUE1 else  -1 * $$abs:$OnAccountVALUE1 ;;if $$isdr:$OnAccountVALUE then $$abs:$grossf7 else  -1 * $$abs:$OnAccountVALUE  ;; $$InitValue:"Amount" ;; if $$line = 1 or $$prevobj:$parent <> $parent then  if $$isdr:$OnAccountValue:ledger:$parent then $$abs:$OnAccountValue:ledger:$parent else -1*$$abs:$OnAccountValue:ledger:$parent else $$initvalue:"Amount"
+
+
+
+ Local: field: amtf: Format: "decimal:2"
+ Local: field: amtf2: Format: "decimal:2"
+ Local: field: amtf3: Format: "decimal:2"
+ Local: field: amtf4: Format: "decimal:2"
+ Local: field: amtf5: Format: "decimal:2"
+ Local: field: amtf6: Format: "decimal:2"
+ Local: field: amtf7: Format: "decimal:2"
+ Local: field: amtf8: Format: "decimal:2"
+ Local: field: amtf9: Format: "decimal:2"
+ Local: field: amtf10: Format: "decimal:2"
+ Local: field: amtf11: Format: "decimal:2"
+ Local: field: amtf12: Format: "decimal:2"
+ Local: field: amtf15: Format: "decimal:2"
+
+/* local:field: nf: jsontag: "Deport Name"
+Local: Field: snf: jsontag:"Deport Code"
+local:field: fwf: jsontag: "Ledger Name"
+Local: Field: nf: jsontag:"Bill No"
+Local: Field: sdf: jsontag:"Bill Date"
+
+local:field: amtf: jsontag: "Amount"
+local:field: amtf2: jsontag:"0<15 Days"  ;; "<15 Days"
+local:field: amtf3: jsontag:"15-20 Days" ;; "15-20 Days"
+local:field: amtf4: jsontag: "20-21 Days"
+local:field: amtf5: jsontag: "21-30 Days"
+local:field: amtf6: jsontag:"30-34 Days"
+local:field: amtf7: jsontag:"34-35 Days"
+local:field: amtf8: jsontag:"35-60 Days"
+local:field: amtf9: jsontag:"60-90 Days"
+local:field: amtf10: jsontag:"90-180 Days"
+;; {24.Jun.24 17:17} local:field: amtf11: jsontag:">181 Days"
+local:field: amtf11: jsontag:"180-365 Days"
+local:field: amtf12: jsontag:">365 Days"
+Local: Field: snf5: jsontag:"Sales Person"
+                                             */
+
+Local: field:fwf: width:100
+Local: field:fwf: max:100
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: BillWiseCreditorsAgeingReportDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: BillWiseCreditorsAgeingReportDisplayVoucher
+
+ 	
+     [Report: BillWiseCreditorsAgeingReportDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #BillWiseCreditorsAgeingReportmastid
+	
+
+        [Field: BillWiseCreditorsAgeingReportmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+[line: LnBillWiseCreditorsAgeingReportTotals]
+use: LnBillWiseCreditorsAgeingReport
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total"
+local: field: fwf: set as: ""
+Local: Field: nf: Set As:""
+Local: Field: snf: Set As:""
+Local: Field: sdf: Set As:""
+local: field: amtf : set as :  $$total:amtf
+local: field: amtf2 : set as :  $$total:amtf2
+local: field: amtf3 : set as :  $$total:amtf3
+local: field: amtf4 : set as :  $$total:amtf4
+local: field: amtf5 : set as :  $$total:amtf5
+local: field: amtf6 : set as :  $$total:amtf6
+local: field: amtf7 : set as :  $$total:amtf7
+local: field: amtf8 : set as :  $$total:amtf8
+local: field: amtf9 : set as :  $$total:amtf9
+local: field: amtf10 : set as :  $$total:amtf10
+local: field: amtf11 : set as :  $$total:amtf11
+local: field: amtf12 : set as :  $$total:amtf12
+
+
+
+
+    [Report: RepBillWiseCreditorsAgeingReportExp]
+    form : RepBillWiseCreditorsAgeingReportExp
+
+    [form : RepBillWiseCreditorsAgeingReportExp]
+    part : RepBillWiseCreditorsAgeingReportExp
+
+    [part : RepBillWiseCreditorsAgeingReportExp]
+    line : RepBillWiseCreditorsAgeingReportExp
+    set : 1
+    repeat : RepBillWiseCreditorsAgeingReportExp
+
+    [line : RepBillWiseCreditorsAgeingReportExp]
+    field : nf
+    Local: Field: nf: Set As: $$RepBillWiseCreditorsAgeingReportExp
+
+    [function : RepBillWiseCreditorsAgeingReportExp]
+    variable: myfilename : string : ##str1
+    10 : do if : ##myfilename = "" : set : myfilename : "e:\RepBillWiseCreditorsAgeingReport.json"
+    20 : Set   :SVExportFormat  : $$SysName:UTF8JSON
+
+    30 : Set   :SVExportLanguage: $$SysName:UTF8JSON
+    40 : Set   :SVPrintFileName :##myfilename
+    50 : set: SVOpenFileAfterExport : no
+
+    60 : export : RepBillWiseCreditorsAgeingReport : yes : yes
+    70 : return : "Done"
+   ;;====================================
+
+    [System: Formula]
+
+ cwBillDatePlus1 : $billdate+21
+
+
+  cwval1:if not $$isempty:$closingbalance then if @@dsptodate - $billdate <=##num1 then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+  cwval2:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num1) and (@@dsptodate - $billdate <=##num2) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+
+   cwval3:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num2) and (@@dsptodate - $billdate <=##num3) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+   cwval4:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num3) and (@@dsptodate - $billdate <=##num4) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+   cwval5:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num4) and (@@dsptodate - $billdate <=##num5) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+   cwval6:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num5) and (@@dsptodate - $billdate <=##num6) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+   cwval7:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num6) and (@@dsptodate - $billdate <=##num7) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+   cwval8:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num7) and (@@dsptodate - $billdate <=##num8) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+   cwval9:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num8) and (@@dsptodate - $billdate <=##num9) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+
+;; {27.Nov.19 17:35}    cwval10:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num9) and (@@dsptodate - $billdate <=##num10) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+;; {24.Jun.24 17:12}      cwval10:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num9) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+
+     cwval10:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num9) and (@@dsptodate - $billdate <=##num10) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+
+      cwval10newbill:if (@@dsptodate - $billdate >##num9) and (@@dsptodate - $billdate <=##num10) then $closingbalance else $$InitValue:"Amount"
+
+
+
+     cwval11:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num10) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+
+
+
+
+;; {27.Nov.19 17:32}    cwval11:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num10) and (@@dsptodate - $billdate <=##num11) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+;; {27.Nov.19 17:32}    cwval12:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num11) and (@@dsptodate - $billdate <=##num12) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+;; {27.Nov.19 17:32}     cwval13:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num12) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+;; {27.Nov.19 17:15}     cwval7:if not $$isempty:$closingbalance then if (@@dsptodate - $billdate >##num6) then $closingbalance else $$InitValue:"Amount"  else $$InitValue:"Amount"
+;;=========================================================================================
+
+ [System: Formula]
+mycwfromageing:$cwfromageing:COMPANY:##SVCURRENTCOMPANY
+mycwfromageingx:@@mycwfromageing+1
+
+mycwfromageing2:$cwfromageing2:COMPANY:##SVCURRENTCOMPANY
+mycwfromageing2x:@@mycwfromageing2+
+
+mycwfromageing3:$cwfromageing3:COMPANY:##SVCURRENTCOMPANY
+mycwfromageing3x:@@mycwfromageing3+1
+
+mycwfromageing4:$cwfromageing4:COMPANY:##SVCURRENTCOMPANY
+mycwfromageing4x:@@mycwfromageing4
+
+mycwfromageing5:$cwfromageing5:COMPANY:##SVCURRENTCOMPANY
+mycwfromageing5x:@@mycwfromageing5+1
+
+mycwfromageing6:$cwfromageing6:COMPANY:##SVCURRENTCOMPANY
+mycwfromageing6x:@@mycwfromageing6+1
+
+mycwfromageing7:  $cwfromageing7:COMPANY:##SVCURRENTCOMPANY
+mycwfromageing7x: @@mycwfromageing7+1
+
+mycwtoageing:$cwtoageing:COMPANY:##SVCURRENTCOMPANY
+mycwtoageing2:$cwtoageing2:COMPANY:##SVCURRENTCOMPANY
+mycwtoageing3:$cwtoageing3:COMPANY:##SVCURRENTCOMPANY
+mycwtoageing4:$cwtoageing4:COMPANY:##SVCURRENTCOMPANY
+mycwtoageing5:$cwtoageing5:COMPANY:##SVCURRENTCOMPANY
+mycwtoageing6:$cwtoageing6:COMPANY:##SVCURRENTCOMPANY
+mycwtoageing7:$cwtoageing7:COMPANY:##SVCURRENTCOMPANY
+
+
+/*[function : checklastnonzero]
+returns: number
+
+10 : do if : $cwfromageing7:COMPANY:##SVCURRENTCOMPANY <> 0 : return : $cwfromageing7:COMPANY:##SVCURRENTCOMPANY
+20 : do if : @@mycwfromageing6 <> 0 : return : @@mycwfromageing6
+30 : do if : @@mycwfromageing5 <> 0 : return : @@mycwfromageing5
+40 : do if : @@mycwfromageing4 <> 0 : return : @@mycwfromageing4
+50 : do if : @@mycwfromageing3 <> 0 : return : @@mycwfromageing3
+60 : do if : @@mycwfromageing2 <> 0 : return : @@mycwfromageing2
+70 : do if : @@mycwfromageing  <> 0 : return : @@mycwfromageing
+
+
+[function : cwLogDetails2]
+parameter : title : string
+parameter : value1 : number
+parameter : value2 : number
+
+05 : log : "Value"+##title+" : "+$$string:##value1 + " - " + $$string:##value2
+10 : log : ##title+": " + $$string:(@@dsptodate-##value1)+ " " + $$string:(@@dsptodate-##value2)
+
+
+[function : cwlogDetailsx]
+
+0001 : log :  @@mycwfromageing
+0002 : log :  @@mycwfromageing2
+0003 : log :  @@mycwfromageing3
+0004 : log :  @@mycwfromageing4
+0005 : log :  @@mycwfromageing5
+0006 : log :  @@mycwfromageing6
+0007 : log :  @@mycwfromageing7
+0007a:log:"---- to --"
+0008 : log :  @@mycwtoageing
+0009 : log :  @@mycwtoageing2
+0011 : log : @@mycwtoageing3
+0012 : log : @@mycwtoageing4
+0013 : log : @@mycwtoageing5
+0014 : log : @@mycwtoageing6
+0015 : log : @@mycwtoageing7
+
+;;======================================addon
+
+[line:AgeingWiseline1]
+field:sp,cwlogical
+Local: Field: sp: Set As:"Ageing Analysis"
+Local: Field: sp: Style: Normal Bold
+Local: field: sp: Width:20
+local: field:default: inactive:not $NewFoglaTelecomEnabled
+Local: Field : cwlogical : SubForm :AgeingAnalysisrep
+
+[report:AgeingAnalysisrep]
+form:AgeingAnalysisrep
+
+[form:AgeingAnalysisrep]
+part:AgeingAnalysisrep
+width:20% Screen ;;page
+height:30% Screen ;;page
+[part:AgeingAnalysisrep]
+line:AgeingWiselinetitle,cwblankline,AgeingWiseline,AgeingWiseline2,AgeingWiseline3,AgeingWiseline4,AgeingWiseline5,AgeingWiseline6,AgeingWiseline7 ;;,AgeingWiseline8
+
+[line:AgeingWiselinetitle]
+field:fwfc
+Local: Field: fwfc: info:"Ageing Analysis"
+Local: Field: fwfc: Style: Normal Bold
+Local: Field: fwfc: Border: thin bottom
+
+[line:AgeingWiseline]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing
+Local: Field: numf2: storage:cwtoageing
+Local: Field: numf: Set As:0
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: numf: Skip: Yes
+Local: field: numf: Format: "zero"
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+[line:AgeingWiseline2]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing2
+Local: Field: numf2: storage:cwtoageing2
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: snfx: Skip: Yes
+Local: Field: numf: Set As:$cwtoageing
+Local: Field: numf: Skip: Yes
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+[line:AgeingWiseline3]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing3
+Local: Field: numf2: storage:cwtoageing3
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: numf: Skip: Yes
+Local: Field: numf: Set As:$cwtoageing2
+Local: Field: numf: Skip: Yes
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+[line:AgeingWiseline4]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing4
+Local: Field: numf2: storage:cwtoageing4
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: numf: Skip: Yes
+Local: Field: numf: Set As:$cwtoageing3
+Local: Field: numf: Skip: Yes
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+[line:AgeingWiseline5]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing5
+Local: Field: numf2: storage:cwtoageing5
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: numf: Skip: Yes
+Local: Field: numf: Set As:$cwtoageing4
+Local: Field: numf: Skip: Yes
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+[line:AgeingWiseline6]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing6
+Local: Field: numf2: storage:cwtoageing6
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: numf: Skip: Yes
+Local: Field: numf: Set As:$cwtoageing5
+Local: Field: numf: Skip: Yes
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+[line:AgeingWiseline7]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing7
+Local: Field: numf2: storage:cwtoageing7
+Local: Field: numf: Set As:$cwtoageing6
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: numf: Skip: Yes
+Local: Field: numf: Skip: Yes
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+
+[line:AgeingWiseline8]
+field:sp,numf,sp2,numf2
+Local: Field: sp: Set As:"From:"
+Local: Field: sp2: Set As:"To:"
+Local: Field: numf: storage:cwfromageing8
+Local: Field: numf2: storage:cwtoageing8
+Local: Field: numf: Set As:$cwtoageing7
+Local: field: sp: Width:6
+Local: field: sp2: Width:4
+Local: Field: numf: Skip: Yes
+Local: Field: numf: Skip: Yes
+Local: field: numf: Align:left
+Local: field: numf2: Align:left   */
+
+
+
+
+[System: UDF]
+cwfromageing:number:1200
+cwtoageing:number:1201
+cwfromageing2:number:1202
+cwtoageing2:number:1203
+cwfromageing3:number:1204
+cwtoageing3:number:1205
+cwfromageing4:number:1206
+cwtoageing4:number:1207
+cwfromageing5:number:1208
+cwtoageing5:number:1209
+cwfromageing6:number:1210
+cwtoageing6:number:1211
+cwfromageing7:number:1212
+cwtoageing7:number:1213
+cwfromageing8:number:1214
+cwtoageing8:number:1215
+
+
+

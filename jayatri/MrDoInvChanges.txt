@@ -1,0 +1,34 @@
+; Created By: Anil on 2024-09-07 17:51, ID: 
+
+
+[#Line: EXPINV InvDetails]
+add:option:cwmrdoEXPINVInvDetailsopt:@@cwFGMaterialInOPT
+[!Line: cwmrdoEXPINVInvDetailsopt]
+
+add:field:after:EXPINV Desc:snf
+;; {11.Sep.24 15:40} add:right field:after:EXPINV Qty:numf
+
+Local: Field: snf: Set As:@@RejectionGodownEnable ;;$batchname
+Local: Field: numf: Set As:$billedqty
+local: field: snf: Invisible: yes
+
+Remove If:@@RejectionGodownEnable="yes"
+
+
+[#Line: EXPINV Totals]
+add:option:cwmrdoEXPINVTotalsopt:@@cwFGMaterialInOPT
+
+[!Line: cwmrdoEXPINVTotalsopt]
+add:right field:after:EXPINV BilledQtyTotal:numf
+
+Local: Field: numf: Set As:#EXPINVQty
+local: field: EXPINV BilledQtyTotal: Invisible: yes
+Local: Field: numf: Border: thin left ;;left right
+Local: Field: numf: Style: Normal Bold
+
+
+
+[System: Formula]
+RejectionGodownEnable:$cwEnableRejection:godown:$godownname
+
+

@@ -1,0 +1,36 @@
+; Created By: Anil on 2024-10-24 13:39, ID: 
+
+[#Field: EI Consignee]
+add:option:cwEIConsigneeopt:@@issales and @@JayatriTestEnabled
+
+[!Field: cwEIConsigneeopt]
+ delete:Table;;       : Party Cash Ledgers Extract
+ add:table:cwpartcashledgercoll
+
+
+ [collection:cwpartcashledgercoll]
+ type:ledger
+
+  Title       		: $$LocaleString:"List of Ledger Accounts"
+  add:SubTitle            : $$LocaleString:"Name"
+	Fetch				: Name,cwpartyDormate
+	Align        	: Right
+	FullHeight  	: Yes
+	Format       	: $Name, 35
+	Format       	: $cwpartyDormate, 10
+	filter:cwpartyDormateyesfilter
+
+
+[System: Formula]
+cwpartyDormateyesfilter:not $cwpartyDormate="yes"
+
+
+;;====================================
+
+[#Field: EI ValueTotal]
+add:option:cwEIValueTotaloptnew :@@EnableNegetiveStockLoc and @@JayatriTestEnabled ;;and @@JVRockEnabled
+[!Field:cwEIValueTotaloptnew]
+add:control:cwjvvouchercontrolmsgs:if $$increatemode then yes else no
+[System: Formula]
+cwjvvouchercontrolmsgs:"Nagetive Stock"
+EnableNegetiveStockLoc:$cwNegetiveStockLoc:company:##svcurrentcompany="yes"

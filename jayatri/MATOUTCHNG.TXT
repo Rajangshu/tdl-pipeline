@@ -1,0 +1,155 @@
+; Created By: Anil on 2024-03-11 10:38, ID: 
+
+[#Line: VCH BATCH ComponentList]
+ADD:OPTION:CWVCHBATCHComponentListKATAOPT;;:@@cwKataCheckingvch or @@cwForProcessvch
+[!Line: CWVCHBATCHComponentListKATAOPT]
+add:field:At Beginning:numf42
+Local: Field: numf42: set as: ""
+Local: Field:numf42 : Skip: Yes
+Local: field:numf42 : Width: 4
+Local: Field: numf42: Border: thin box ;;left right
+
+[#Line: VCHBATCH Component ColumnOne]
+ADD:OPTION:CWVCHBATCHComponentColumnOneKATAOPT;;:@@cwKataCheckingvch or @@cwForProcessvch
+[!Line: CWVCHBATCHComponentColumnOneKATAOPT]
+add:field:At Beginning:numf42
+Local: Field: numf42: info: "SL NO"
+Local: field:numf42 : Width: 4
+Local: Field: numf42: Border: thin box ;;left right
+
+[#Line: VCHBATCH Component ColumnTwo]
+ADD:OPTION:CWVCHBATCHComponentColumnTwoKATAOPT;;:@@cwKataCheckingvch or @@cwForProcessvch
+[!Line: CWVCHBATCHComponentColumnTwoKATAOPT]
+add:field:At Beginning:numf42
+Local: Field: numf42: info: ""
+Local: field:numf42 : Width: 4
+Local: Field: numf42: Border: thin box ;;left right
+
+[System: Formula]
+cwKatacheckingmatEnableyes:$cwKatacheckingmatEnable:vouchertype:$vouchertypename
+cwForStitchingEnableyes:$cwForStitchingEnable:vouchertype:$vouchertypename
+
+[#Line: VCH STKBatch Component Batch]
+add:option:cwVCHSTKBatchComponentBatchoptmokata ;;:@@cwKataCheckingvch or @@cwForProcessvch
+[!Line: cwVCHSTKBatchComponentBatchoptmokata]
+add:field:At Beginning:numf42
+
+ Local: Field: numf42: Set As:$$line
+  Local: Field: numf42: storage:cwpplinenomo
+;; {30.Jul.24 15:02}   Local: Field: numf42: storage:cwpplineno
+  Local: Field: numf42: Border: thin box ;;left right
+;; {13.Jun.24 11:35}    Local: Field: numf40: storage:cwUpdateSubQtydo ;;cwUpdateSubQty
+Local: field:numf42 : Width: 4
+Local: Field: numf42: Skip: Yes
+
+Local: Field: numf42: INACTIVE :$$IsEmpty:$OrderDueDate
+
+[#Line: EI ColumnOne]
+add:option:cwEIColumnOnemokataopt:@@cwKatacheckingmatEnableyes or @@cwForStitchingEnableyes
+[!Line: cwEIColumnOnemokataopt]
+add:field:At Beginning:numf42 ;;numf39
+ADD:RIGHT FIELD:AFTER:VCH QtyTitle:numf40
+
+Local: Field: numf42: info:"SL NO"
+Local: Field: numf40: info:"Close Qty"
+Local: field:numf42 : Width: 4
+Local: Field:numf42 : Style: Normal Bold
+
+
+[#Line: EI InvInfo]
+add:option:cwEIInvInfooptmokata :@@cwKatacheckingmatEnableyes or @@cwForStitchingEnableyes
+[!Line: cwEIInvInfooptmokata]
+add:field:At Beginning:numf42 ;;numf39
+ADD:RIGHT FIELD:AFTER:VCH BilledQty:numf40
+;; {26.Jun.24 19:01}  Local: Field: numf39: Set As:$$line
+ Local: Field: numf42: Set As:$$line
+;; {30.Jul.24 12:56}   Local: Field: numf42: storage:cwpplineno
+  Local: Field: numf42: storage:cwpplineno
+;; {26.Jun.24 19:01}   Local: Field: numf39: Border: thin box ;;left right
+  Local: Field: numf42: Border: thin box ;;left right
+  Local: Field: numf40: storage:cwUpdateSubQtydo ;;cwUpdateSubQty
+;; {13.Jun.24 11:40}   local: field: numf39: Invisible: yes
+;; {13.Jun.24 11:40}   local: field: numf40: Invisible: yes
+Local: Field: numf39: INACTIVE :$$IsEnd:$StockItemName OR @@NoBaseUnits
+Local: Field: numf42: INACTIVE :$$IsEnd:$StockItemName OR @@NoBaseUnits
+Local: Field: numf40: INACTIVE :$$IsEnd:$StockItemName OR @@NoBaseUnits
+
+Local: field:numf42 : Width: 4
+;; {26.Jun.24 19:00} Local: field:numf39 : Width: 4
+
+
+[#Line: VCHBATCH ColumnOne]
+add:option:cwVCHBATCHColumnOneMatOutopt:@@cwKatacheckingmatEnableyes
+[!Line:cwVCHBATCHColumnOneMatOutopt]
+add:right field:after:VCH BatchNameTitle:snf,snf2,sdf,snf4,snf11,snf12,snf15,snf5,suppnof,suppdtf  ;;,snf7,snf8,snf9,snf10,snf11,snf12,snf13,snf14,snf15
+;; {13.Jun.24 11:50} add:right field:numf
+
+;; {11.Mar.24 10:48}  Local: Field: snf10: INFO:"Bale" ;;@@cwRMCaptionsName1   ;;IF @@cwRawMaterialyes THEN @cwRMCaptionsName1  ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName1 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName1 else ""
+ Local: Field: snf: INFO:"No of Bales" ;;@@cwRMCaptionsName1   ;;IF @@cwRawMaterialyes THEN @cwRMCaptionsName1  ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName1 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName1 else ""
+ Local: Field: snf2: INFO:"LR Number" ;;@@cwRMCaptionsName2  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName2 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName2 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName2 else ""
+ Local: Field: sdf: INFO:"LR Date" ;;@@cwRMCaptionsName3   ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName3 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName3 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName3 else ""
+ Local: Field: snf4: INFO:"Supplier Name" ;;@@cwRMCaptionsName4  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName4 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName4 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName4 else ""
+ Local: Field: snf11: INFO:"House" ;;@@cwRMCaptionsName4  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName4 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName4 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName4 else ""
+ Local: Field: snf5: INFO:"Transporter Name" ;;@@cwRMCaptionsName5  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName5 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName5 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName5 else ""
+ Local: Field: snf12: INFO:"Sup/Inv" ;;@@cwRMCaptionsName5  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName5 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName5 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName5 else ""
+ Local: Field: snf15: INFO:"Sup/Inv (Dir)" ;;@@cwRMCaptionsName5  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName5 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName5 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName5 else ""
+ Local: Field:numf: info:"Close Qty"  ;;Min Qty"
+;; {26.Dec.23 10:54}  Local: Field: VCH BatchNameTitle: Set As:if @@cwKataCheckingvch then $$LocaleString:"Bales Number" else $$LocaleString:"Batch/Lot No."
+  Local: Field: DEFAULT: Style:Style2
+  Local: Field: VCH BatchNameTitle: Style:Style1
+  Local: Field: VCH QtyTitle: Style:Style1
+  Local: Field: VCH RateTitle: Style:Style1
+  Local: Field: VCH AmtTitle: Style:Style1
+
+  Local: field:snf4 : Align: centre
+  Local: field:snf5 : Align: centre
+  Local: field:snf11 : Align: centre
+  Local: field:snf12 : Align: centre
+
+;; {18.Apr.24 15:43}   local: field: snf12: Invisible: if @@cwDirectPurchaseBatchfld then no else yes
+;; {18.Apr.24 15:43}   local: field: snf15: Invisible: if @@cwDirectPurchaseBatchfld then yes else no
+  
+  
+  [#line:STKVCH Batch2]
+  add:option:cwSTKVCHBatch2Matoutopt:@@cwKatacheckingmatEnableyes
+  [!line:cwSTKVCHBatch2Matoutopt]
+  add:right field:after:VCHBATCH Name:snf,snf2,sdf,snf4,snf11,snf12,snf15,snf5,suppnof2,suppdtf2
+;; {13.Jun.24 11:49}   add:right field:numf
+;; {13.Jun.24 11:49}    add:right field:At Beginning:numf19
+  Local: Field: snf: storage:cwNoofBalespurc
+ Local: Field: snf2:storage:cwLRNumberpurc
+ Local: Field: sdf:storage:cwLRDatepurc
+ Local: Field: snf4:storage:cwSupplierNamepurc
+ Local: Field: snf5:storage:cwTransporterNamepurc
+ Local: Field: snf11: storage:cwConsigneeNamepurc
+ Local: Field: snf12: storage:cwHousesuppinvno
+ Local: Field: snf15: storage:cwDirectPurInvNo
+ Local: Field: numf: storage:cwUpdateSubQtydo ;;cwUpdateSubQty
+
+ 
+Local: Field: numf19: Set As:#numf42 ;;#numf39 ;;$$line
+  Local: Field: numf19: storage:cwpplineno
+  Local: Field: numf19: Border: thin box ;;left right
+;; {11.Jun.24 15:16}   local: field: numf19: Invisible: yes
+ 
+ Local: field:snf4 : Align: centre
+  Local: field:snf5 : Align: centre
+  Local: field:snf11 : Align: centre
+  Local: field:snf12 : Align: centre
+  
+  Local: Field: snf: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf2: INACTIVE :@@BatchAllocBreak
+ Local: Field: sdf: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf4: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf5: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf11: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf12: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf15: INACTIVE :@@BatchAllocBreak
+ Local: Field: numf: INACTIVE :@@BatchAllocBreak
+ Local: Field: numf19: INACTIVE :@@BatchAllocBreak
+;; {11.Apr.24 11:58}  Local: Field: numf31: INACTIVE :@@BatchAllocBreak
+;; {11.Apr.24 11:58}  Local: Field: numf32: INACTIVE :@@BatchAllocBreak
+
+;; {18.Apr.24 15:43} local: field: snf12: Invisible: if @@cwDirectPurchaseBatchfld then no else yes
+;; {18.Apr.24 15:43}   local: field: snf15: Invisible: if @@cwDirectPurchaseBatchfld then yes else no
+

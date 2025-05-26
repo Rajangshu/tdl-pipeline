@@ -1,0 +1,160 @@
+
+
+     [#menu: Gateway of Tally]
+;; {23.May.24 18:58}         add: Option: chiripalmrkolrepLock ;; : @@chiripalmrkolrepDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@chiripalmrkolrepReport: Display: Repchiripalmrkolrep
+  */
+
+
+     [!menu: chiripalmrkolrepLock]
+        add: Item: before: @@locQuit: @@chiripalmrkolrepReport: Display: Repchiripalmrkolrep
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   chiripalmrkolrepReport: "chiripalmrkolrep"
+;; chiripalmrkolrepDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: Repchiripalmrkolrep]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@chiripalmrkolrepReport
+   Printset: Report Title: @@chiripalmrkolrepReport
+
+       Form: Frmchiripalmrkolrep
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: Frmchiripalmrkolrep]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0chiripalmrkolrep,Prtchiripalmrkolrep
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: chiripalmrkolrepbotbrk,chiripalmrkolrepbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: chiripalmrkolrepConfigure
+
+      [part: chiripalmrkolrepbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: chiripalmrkolrepbotopbrk]
+        use: dspacctitles
+  add: part: chiripalmrkolrepTitlePart
+
+      [part: chiripalmrkolrepTitlePart]
+       line: LnchiripalmrkolrepTitle
+       
+      [line: LnchiripalmrkolrepCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0chiripalmrkolrep]
+      line : LnchiripalmrkolrepCurrPeriod
+      
+      [Part: Prtchiripalmrkolrep]
+       Line: LnchiripalmrkolrepTitle,Lnchiripalmrkolrep
+bottom Line: LnchiripalmrkolrepTotals
+     repeat: Lnchiripalmrkolrep: Colchiripalmrkolrep
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: Colchiripalmrkolrep]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColchiripalmrkolrepFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColchiripalmrkolrepFilter: $cwFectoryReceive:vouchertype:$vouchertypename ; $$isSales:$voucherTypeName
+
+      [Line: LnchiripalmrkolrepTitle]
+        use: Lnchiripalmrkolrep
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: snf: set as: "Vch Type"
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Party Name"
+local:field: fwf: set as: "Item"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: Lnchiripalmrkolrep]
+     Fields: chiripalmrkolrepmastid,snf,sdf,nf,fwf
+Right Field: ratepf,Qtyf,Amtf
+
+     Option: Alter on Enter
+        key: chiripalmrkolrepDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: snf: set as:$vouchertypename ;; "Date"
+local:field: sdf: set as:$date ;; "Date"
+local:field: nf: set as: $partyledgername ;;"Party Name"
+local:field: fwf: set as: $stockitemname ;;"Item"
+local:field: qtyf: set as: "" ;;"Qty."
+local:field: amtf: set as: "" ;;"Value"
+local:field: ratepf : set as :"" ;; "Rate"
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: chiripalmrkolrepDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: chiripalmrkolrepDisplayVoucher
+
+ 	
+     [Report: chiripalmrkolrepDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #chiripalmrkolrepmastid
+	
+
+        [Field: chiripalmrkolrepmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnchiripalmrkolrepTotals]
+        use: Lnchiripalmrkolrep
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

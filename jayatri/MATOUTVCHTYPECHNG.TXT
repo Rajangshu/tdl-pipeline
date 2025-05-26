@@ -1,0 +1,58 @@
+; Created By: Anil on 2024-03-08 13:59, ID: 
+
+[System: Formula]
+
+ newVTYPBehaviourtrchallMatOutyes:$$IsJobMaterialIssue:$parent
+
+[#Part: VTYP Behaviour]
+
+ add:option:newVTYPBehaviourtrchallMatOutopt:@@newVTYPBehaviourtrchallMatOutyes
+
+ [!part:newVTYPBehaviourtrchallMatOutopt]
+
+ add:line:cwMatOutAddFeaturesLine ;;,cwAllowToMatReceiveline,cwKatacheckingmatEnableLn
+
+ [line:cwMatOutAddFeaturesLine]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Additional Feature Allow:"
+ Local: Field: cwlogical: storage:cwMatOutAddFeatures
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ Local: Field : cwlogical : SubForm : cwMatOutAddFeaturesRep: $$value
+
+ [report:cwMatOutAddFeaturesRep]
+ form:cwMatOutAddFeaturesRep
+
+ [form:cwMatOutAddFeaturesRep]
+ part:cwMatOutAddFeaturesRep
+
+ [part:cwMatOutAddFeaturesRep]
+ width:35% page
+ line:cwAllowToMatReceiveline,cwKatacheckingmatEnableLn,cwforstotchingLine
+
+ [line:cwAllowToMatReceiveline]
+
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"For Do Order:"
+ Local: Field: cwlogical: storage:cwAllowToMatReceive
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ 
+ [line:cwKatacheckingmatEnableLn]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"For Kata Checking:"
+ Local: Field: cwlogical: storage:cwKatacheckingmatEnable
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ 
+ [line:cwforstotchingLine]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"For Process:"
+ Local: Field: cwlogical: storage:cwForStitchingEnable
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ 

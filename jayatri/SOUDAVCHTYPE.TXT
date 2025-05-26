@@ -1,0 +1,58 @@
+; Created By: Anil on 2024-01-18 13:50, ID: 
+
+[System: Formula]
+isPurchOrderVType:$$IsPurcOrder:$parent
+
+[#Part: VTYP Behaviour]
+;; {09.Feb.22 17:52} add:option:cwVTYPBehaviourPOopt:(@@isPurchOrderVType or @@isPurchVType )and @@cwsaudamanagement
+add:option:cwVTYPBehaviourPOsoudaopt:@@isPurchOrderVType  ;;and @@cwsaudamanagement
+
+
+[!part:cwVTYPBehaviourPOsoudaopt]
+line:cwadditionalfeatuSoudaline
+[line:cwadditionalfeatuSoudaline]
+
+  field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Additional Feature Allow:"
+ Local: Field: cwlogical: storage:cwAdditionalFeatureAllowSouda
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ Local: Field : cwlogical : SubForm : cwAdditionalFeatureAllowSoudarep: $$value
+
+ [report:cwAdditionalFeatureAllowSoudarep]
+ form:cwAdditionalFeatureAllowSoudarep
+
+ [form:cwAdditionalFeatureAllowSoudarep]
+ part:cwAdditionalFeatureAllowSoudarep
+
+ [part:cwAdditionalFeatureAllowSoudarep]
+ width:35% page
+add:line:cwisUseForIndentLn,cwrmcaptionline,CwMargineQtyLine,cwInTrPendingforExpBookingLine  ;;,cwisUseForTagIndentLn
+
+
+[line:cwisUseForIndentLn]
+field:long Prompt,cwlogical
+Local: Field:long Prompt: Set As:"Is Use for Sauda"
+Local: Field: cwlogical: storage:cwisUseforIndentPO
+Local: Field: default: Style:Style2
+Local: Field: default: Color : blue
+
+[line:CwMargineQtyLine]
+field:long Prompt,numf
+Local: Field:long Prompt: Set As:"Margine Qty"
+Local: Field: numf: storage:cwMargineQty
+Local: Field: default: Style:Style2
+Local: Field: default: Color : blue
+Local: field: numf: Align: left ;;centre
+
+
+[line:cwInTrPendingforExpBookingLine]
+field:long Prompt,cwlogical
+Local: Field:long Prompt: Set As:" In - Transit - Pending for Expense Booking"
+Local: Field: cwlogical: storage:cwInTrPendingforExpBooking
+Local: Field: default: Style:Style2
+Local: Field: default: Color : blue
+
+

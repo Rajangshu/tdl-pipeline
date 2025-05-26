@@ -1,0 +1,167 @@
+; Created By: Anil on 2024-05-04 10:37, ID: 
+
+
+     [#menu: Gateway of Tally]
+;; {08.May.24 17:41}         add: Option: voucherimportLock: @@JayatriTestEnabled ;;voucherimportDemoLock
+
+     [!menu: voucherimportLock]
+        add: Item: before: @@locQuit: @@voucherimportReport: Display: Repvoucherimport
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   voucherimportReport: "voucher Import"
+;; voucherimportDemoLock: $$MachineDate < $$Date:"02/04/2013"
+
+    [Report: Repvoucherimport]
+        use: Dsp Template
+      Title: @@voucherimportReport
+   Printset: Report Title: @@voucherimportReport
+       Form: Frmvoucherimport
+       variable:str1,str2
+     Export: Yes
+;; {31.Mar.13 16:40}      set  : svfromdate : ##svcurrentdate
+;; {31.Mar.13 16:40}      set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+;; {09.Aug.21 16:28}     set:str2:"PACKING SLIP"
+;; {09.Aug.21 16:28}     set : str1 : "RC/444/21-22"
+
+      [Form: Frmvoucherimport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0voucherimport,Prtvoucherimport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: voucherimportbotbrk,voucherimportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: voucherimportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: voucherimportbotopbrk]
+        use: dspacctitles
+  add: part: voucherimportTitlePart
+
+      [part: voucherimportTitlePart]
+       line: LnvoucherimportTitle
+
+      [line: LnvoucherimportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0voucherimport]
+      line : LnvoucherimportCurrPeriod
+
+      [Part: Prtvoucherimport]
+       Line: LnvoucherimportTitle,Lnvoucherimport
+bottom Line: LnvoucherimportTotals
+     repeat: Lnvoucherimport: Colvoucherimport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: Colvoucherimport]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColvoucherimportFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColvoucherimportFilter:$vouchertypename =##str2 and $vouchernumber = ##str1 ;;
+
+      [Line: LnvoucherimportTitle]
+        use: Lnvoucherimport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: nf: set as: "Party Name"
+Local: Field: sdf: Set As:"Date"
+Local: Field: snf: Set As:"Voucher No."
+Local: Field: nf2: Set As:"Item Name"
+Local: Field: snf2: Set As:"Part No"
+Local: Field: snf3: Set As:"Alise"
+Local: Field: nf3: Set As:"Image Path"
+
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+Local: Field: nf10: Set As:"Company Name"
+Local: Field: nf11: Set As:"Company Address"
+      local: field: default : style: normal bold
+
+      [Line: Lnvoucherimport]
+     Fields:snfx,d1,sdf,d2,snf,d3,nf,d4,nf2,d5,snf2,d6,snf3,d7,nf3
+right field: d8,ratepf,d9,Qtyf,d10,Amtf,d11,nf4,d12,nf10,d13,nf11,d14   ;;,nf12,d15   ;;,nf13,d16
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : nf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+
+Local: Field: snfx: Set As:$$explodelevel
+Local: Field: sdf: Set As:$date
+Local: Field: snf: Set As:$vouchernumber
+Local: Field: nf: Set As:$partyledgername
+Local: Field: amtf: Set As:$amount
+Local: Field: qtyf: Set As:$billedqty
+Local: Field: nf10: Set As:@@cmpmailname
+Local: Field: nf11: Set As:@@cwCMPFullAddress
+
+
+
+Local: field: nf: Width:100
+Local: field: nf3: Width:300
+Local: field: nf2: Width:100
+Local: field: nf10: Width:100
+Local: field: nf11: Width:100
+Local: field: nf12: Width:100
+Local: field: nf13: Width:100
+
+Local: field: nf11: MAX:100
+Local: field: nf10: MAX:100
+Local: field: nf12: MAX:100
+Local: field: nf13: MAX:100
+Local: field: snf2: Width:50
+Local: field: snf3: Width:50
+
+add :explode:prtinventory
+
+[Part: prtinventory]
+line:lnprtinventory
+repeat:lnprtinventory:inventory entries
+
+
+[line:lnprtinventory]
+use:Lnvoucherimport
+Local: Field: nf2: Set As:$stockitemname
+Local: Field: snf2: Set As:$partno:stockitem:$stockitemname
+Local: Field: snf3: Set As:$cwpartycodex:stockitem:$stockitemname   ;; $$ReptField:$alias:stockitem:$stockitemname
+Local: Field: nf3: Set As:$cwimagepath:company:##svcurrentcompany+$cwimagefilename:STOCKITEM:#nf2   ;;$NAME:stockitem:$stockitemname
+Local: Field: nf4: Set As: $baseunits:stockitem:$stockitemname
+
+
+
+
+delete:explode
+
+
+
+      [line: LnvoucherimportTotals]
+        use: Lnvoucherimport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: amtf : set as :  $$total:amtf
+
+

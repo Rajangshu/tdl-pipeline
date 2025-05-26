@@ -1,0 +1,144 @@
+; Created By: Anil on 2024-05-11 17:49, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: JTAllItemwiesoutstandingLock ;; : @@JTAllItemwiesoutstandingDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@JTAllItemwiesoutstandingReport: Display: RepJTAllItemwiesoutstanding
+
+
+
+     [!menu: JTAllItemwiesoutstandingLock]
+        add: Item: before: @@locQuit: @@JTAllItemwiesoutstandingReport: Display: RepJTAllItemwiesoutstanding
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   JTAllItemwiesoutstandingReport: "AllItemwiesoutstanding"
+;; JTAllItemwiesoutstandingDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepJTAllItemwiesoutstanding]
+        use: Dsp Template
+;; Use				: Range Value Template
+        Use				: Range  Template
+        
+      Title: @@JTAllItemwiesoutstandingReport
+   Printset: Report Title: @@JTAllItemwiesoutstandingReport
+       Form: FrmJTAllItemwiesoutstanding
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmJTAllItemwiesoutstanding]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0JTAllItemwiesoutstanding,PrtJTAllItemwiesoutstanding
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: JTAllItemwiesoutstandingbotbrk,JTAllItemwiesoutstandingbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+  add:button:Save View,change view
+ ;;    local : button : report config : action :modify variable: JTAllItemwiesoutstandingConfigure
+        option : enable Range filters
+        
+      [part: JTAllItemwiesoutstandingbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: JTAllItemwiesoutstandingbotopbrk]
+        use: dspacctitles
+  add: part: JTAllItemwiesoutstandingTitlePart
+
+      [part: JTAllItemwiesoutstandingTitlePart]
+       line: LnJTAllItemwiesoutstandingTitle
+       
+      [line: LnJTAllItemwiesoutstandingCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0JTAllItemwiesoutstanding]
+      line : LnJTAllItemwiesoutstandingCurrPeriod
+      
+      [Part: PrtJTAllItemwiesoutstanding]
+       Line: LnJTAllItemwiesoutstandingTitle,LnJTAllItemwiesoutstanding
+bottom Line: LnJTAllItemwiesoutstandingTotals
+     repeat: LnJTAllItemwiesoutstanding: ColJTAllItemwiesoutstanding
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColJTAllItemwiesoutstanding]
+type:bills
+
+/*        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColJTAllItemwiesoutstandingFilter,IsNonOptionalCancelledVchs  */
+
+    [system: Formula]
+ColJTAllItemwiesoutstandingFilter: Yes
+
+      [Line: LnJTAllItemwiesoutstandingTitle]
+        use: LnJTAllItemwiesoutstanding
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Bill No"
+local:field: fwf: set as: "Party Name"
+local:field: amtf: set as: "Dr. Amount"
+Local: field: DEFAULT: Align:centre
+Local: field: FWF: Align:LEFT
+local:field: numf: set as:"Due Days"
+local: field: numf : style:styleCalisto2
+
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: snf : style:styleCalisto2
+
+      [Line: LnJTAllItemwiesoutstanding]
+      Fields: sdf,snf,fwf
+right field:numf, Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$billdate;; "Date"
+local:field: snf: set as:@@cwnetsales2 ;; "Date"
+
+local:field: snf: set as:$name ;;+"   "+@@cwnetsales3  ;; "Vch No"
+local:field: fwf: set as:$parent+"   "+@@cwnetsales3  ;; "Vch No"
+local:field: amtf: set as:$closingbalance;; "Dr. Amount"
+;; {06.Jul.21 19:16} local:field: snf: set as:@@CreditPeriod ;; "Dr. Amount"
+local:field: numf: set as:@@DSPToDate - $BillDate ;; "Dr. Amount"
+
+Local: Field:DEFAULT: Border: thin right
+Local: Field:sdf: Border: thin left right
+
+local: field: DEFAULT : style:styleCalisto
+Local: field: snf: Width:10
+Local: field:numf: Width:12
+;; {27.Aug.21 10:56} local: field: snf: Invisible: yes
+border:thin bottom
+
+      [line: LnJTAllItemwiesoutstandingTotals]
+        use: LnJTAllItemwiesoutstanding
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

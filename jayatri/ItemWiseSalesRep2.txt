@@ -1,0 +1,307 @@
+
+
+     [#menu: Gateway of Tally]
+;; {05.Aug.24 12:48}         add: Option: salesrepnewLock ;; : @@salesrepnewDemoLock
+
+  /*
+     [#menu : cw_Debug_menu]
+        add: Item: before: @@locQuit: @@salesrepnewReport: Display: Repsalesrepnew
+  */
+
+
+     [!menu: salesrepnewLock]
+        add: Item: before: @@locQuit: @@salesrepnewReport: Display collection:collRepstockitemGrouprep   ;;Display: Repsalesrepnew
+        add: Item: before: @@locQuit: Blank
+
+[collection:collRepstockitemGrouprep]
+Use: Extract Alias Collection
+Source Collection	:List of StockGroups
+Title       		: $$LocaleString:"List of Stock Groups"
+Collection  		: Primary
+Variable    		: SStockGroup ;;Group Name
+Report      		:Repsalesrepnew
+Trigger     		: SStockGroupnew ;;SStockGroupx
+Fetch				: Name, ReserveName, Parent
+
+	
+[Report: SStockGroupnew]
+
+            Use     : Collection Variable
+			Title	: $$LocaleString:"Select Stock Group"
+            Local   : Line : Collection Variable : Field : SStockGroupnew ;;SStockGroupx
+            Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Group"
+
+
+
+;; {05.Aug.24 12:30} [Field: SStockGroupx]
+[Field: SStockGroupnew]
+
+                Use         : Name Field
+                delete:Table       : List of ExtractStockGroups
+                add:Table       : collStockGroupSummaryNew
+                Show Table  : Always
+                Key         : Create StockGroup
+                Modifies    : SStockGroup
+
+
+[Collection: collStockGroupSummaryNew]	
+type	: Stock Group
+title:"List of Groups"
+belongs to:yes
+
+
+    [System: formula]
+   salesrepnewReport: "NK Fabrics Stock & Sales With Image Report"
+;; salesrepnewDemoLock: $$MachineDate < $$Date:"01/12/2023"
+
+    [Report: Repsalesrepnew]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+
+      Title: @@salesrepnewReport
+   Printset: Report Title: @@salesrepnewReport
+
+       Form: Frmsalesrepnew
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+        variable:str1
+    set:str1:""
+
+Local:Button:RelReports: Inactive: Yes
+
+      [Form: Frmsalesrepnew]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0salesrepnew,Prtsalesrepnew
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: salesrepnewbotbrk,salesrepnewbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+add:button:cwitemfilterbtn
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: salesrepnewConfigure
+
+      [part: salesrepnewbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: salesrepnewbotopbrk]
+        use: dspacctitles
+  add: part: salesrepnewTitlePart
+
+      [part: salesrepnewTitlePart]
+       line: LnsalesrepnewTitle
+
+      [line: LnsalesrepnewCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf: Set As: ##SStockGroup
+  Local: Field: fwf2:invisible: $$inprintmode
+
+      [part: PrtTitle0salesrepnew]
+      line : LnsalesrepnewCurrPeriod
+
+      [Part: Prtsalesrepnew]
+       Line: LnsalesrepnewTitle,Lnsalesrepnew
+bottom Line: LnsalesrepnewTotals
+     repeat: Lnsalesrepnew: ColItemWiseClg ;;Colsalesrepnew
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,Qtyf2,amtf,amtf2
+
+; Main Collection
+[Collection: ColItemWiseClg]
+type: stock item
+filter:cwItemnamefilter5
+filter:ColstockGroupFilter
+
+[Collection: Colsalesrepnew]
+source collection: srcColsalesrepnew
+walk:inventoryentries
+;; {05.Aug.24 11:32} by:vouchernumber:$vouchernumber
+by:stockitemname:$stockitemname
+aggr compute:billedqty:sum:$billedqty
+compute:rate:$rate
+compute:cwItemPathnew1:@@cwItemPathnew
+aggr compute:amount:sum:$amount
+ sort : @@default : $stockitemname
+ 
+ search key:$stockitemname
+
+;; {07.Aug.24 16:15} filter:ColstockGroupFilter
+
+[Collection: srcColsalesrepnew]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColsalesrepnewFilter ;;,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColsalesrepnewFilter: $$isSales:$voucherTypeName ;;OR $$IsDebitNote:$voucherTypeName
+ColstockGroupFilter:$parent=##SStockGroup
+;; {07.Aug.24 16:36} ColstockGroupFilter:$$isobjectbelongsto:stockgroup:($parent:stockitem:$stockitemname):##SStockGroup
+
+      [Line: LnsalesrepnewTitle]
+        use: Lnsalesrepnew
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: nf: set as: "Item Group"
+local:field: nf2: set as: "Item Name"
+local:field: fwf: set as: "Image Path"
+local:field: snf: set as: "Alias"
+local:field: qtyf: set as: "Sales Qty."
+local:field: qtyf2: set as: "Clg Qty."
+local:field: amtf: set as: "Value"
+local:field: amtf2: set as: "Clg Value"
+local:field: ratepf : set as : "Rate"
+local:field: ratepf2 : set as : "Clg Rate"
+      local: field: default : style: normal bold
+
+local: field: snf : style: style1y ;;normal bold
+local: field: fwf : style: style1y ;;normal bold
+local: field: nf2 : style: style1y ;;normal bold
+local: field: Qtyf : style: style1y ;;normal bold
+local: field: Qtyf2 : style: style1y ;;normal bold
+local: field: ratepf : style: style1y ;;normal bold
+local: field: ratepf2 : style: style1y ;;normal bold
+local: field: Amtf : style: style1y ;;normal bold
+local: field: Amtf2 : style: style1y ;;normal bold
+
+Local: field:snf : Align: centre
+Local: field:nf2 : Align: centre
+Local: field:Qtyf : Align: centre
+Local: field:Qtyf2 : Align: centre
+Local: field:ratepf : Align: centre
+Local: field:ratepf2 : Align: centre
+Local: field:Amtf : Align: centre
+Local: field:Amtf2 : Align: centre
+local:field:fwf:indent:15
+
+; Main Line
+      [Line: Lnsalesrepnew]
+     Fields: salesrepnewmastid,nf2,nf,fwf
+Right Field: Qtyf,ratepf,Amtf,Qtyf2,ratepf2,Amtf2
+
+     Option: Alter on Enter
+        key: salesrepnewDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+local:field: ratepf2: setas  : #amtf2/#qtyf2
+
+local:field:snf2 : set as : $vouchernumber
+;; {07.Aug.24 10:49} local:field:fwf : set as :$cwimagepath:company:##svcurrentcompany+$cwimagefilename:stockitem:$stockitemname
+local:field:fwf : set as :$cwItemImagePath ;;:stockitem:#nf2
+local:field:nf : set as : $parent ;;:stockitem:$stockitemname
+local:field:snf : set as : $$ReptField:Name:2:stockitem:$stockitemname
+Local:Field:qtyf: Set As: $$reportobject:$$collectionfieldbykey:$billedqty:#nf2:Colsalesrepnew
+Local:Field:qtyf2: Set As:$StkClBalance
+;; {05.Aug.24 11:50} Local:Field:ratepf: Set As:$rate
+Local:Field:amtf: Set As:$$reportobject:$$collectionfieldbykey:$amount:#nf2:Colsalesrepnew
+Local:Field:amtf2: Set As:$TBalClosing ;;$$reportobject:$$collectionfieldbykey:$TBalClosing:#nf2:ColItemWiseClg
+local:field: nf2: set as:$name ;;$stockitemname ;;"Image Path"
+Local: Field: default: Border: thin right
+local: field: default : style: style2y ;;normal bold
+
+local: field: amtf : Invisible: yes
+local: field: amtf2: Invisible: yes
+
+Local: field: nf2: Width:40
+
+
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: salesrepnewDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: salesrepnewDisplayVoucher
+
+ 	
+     [Report: salesrepnewDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #salesrepnewmastid
+	
+
+        [Field: salesrepnewmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+
+      [line: LnsalesrepnewTotals]
+        use: Lnsalesrepnew
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: qtyf2: set as: $$total:qtyf2
+      local: field: fwf: set as: "Total"
+      local: field: ratepf: set as: ""
+      local: field: ratepf2: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      local: field: amtf2 : set as :  $$total:amtf2
+
+
+
+[button:cwitemfilterbtn]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:cwitemfilterrep
+
+ [report:cwitemfilterrep]
+ form:cwitemfilterrep
+
+ [form:cwitemfilterrep]
+ part:cwitemfilterrep
+
+ HEIGHT:20% Screen ;;PAGE
+ WIDTH:30% Screen ;;PAGE
+
+ [part:cwitemfilterrep]
+ line:cwitemfiltertitleLn,cwitemfilterLn
+
+ [line:cwitemfiltertitleLn]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: Normal Bold
+ space bottom:0.5
+ local: field: fwfc : style: style2y ;;normal bold
+
+ [line:cwitemfilterLn]
+ field:sp,nf
+ Local: Field: sp: Set As:"Cloth Quality"
+ Local: Field: nf:modifies:str1
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:collItemtable,Not Applicable
+ Local: Field: nf: Show table: Always
+ local: field: sp : style: style2y ;;normal bold
+local: field: nf : style: style2y ;;normal bold
+
+[collection:collItemtable]
+type:stock item
+
+[System: Formula]
+cwItemnamefilter5:if $$issysname:##str1 then yes else $name =##str1
+

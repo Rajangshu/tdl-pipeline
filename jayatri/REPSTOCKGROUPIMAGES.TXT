@@ -1,0 +1,142 @@
+; Created By: Anil on 2024-05-03 18:55, ID: 
+
+; Created By: Pg on 2013-04-19 20:55, ID:
+
+;------------
+
+[#form : stock summary]
+add : bottom button : at beginning : cwItmImages
+
+[key : cwItmImages]
+title : "Images"
+key: alt + I
+action : call : myf
+
+
+
+
+
+;---------------------
+
+     [#menu: Gateway of Tally]
+;; {26.Jul.24 17:52}         add: Option: StockGroupImagesLock ;; : @@StockGroupImagesDemoLock
+
+     [!menu: StockGroupImagesLock]
+        add: Item: before: @@locQuit: @@StockGroupImagesReport: Display: RepStockGroupImages
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   StockGroupImagesReport: "StockGroupImages"
+;; StockGroupImagesDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: RepStockGroupImages]
+        use: Dsp Template
+      Title: @@StockGroupImagesReport
+   Printset: Report Title: @@StockGroupImagesReport
+       Form: FrmStockGroupImages
+     Export: Yes
+;; {19.Apr.13 20:55}      set  : svfromdate : ##svcurrentdate
+;; {19.Apr.13 20:55}      set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable : stockgroupname
+
+      [Form: FrmStockGroupImages]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0StockGroupImages,PrtStockGroupImages
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: StockGroupImagesbotbrk,StockGroupImagesbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: StockGroupImagesbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: StockGroupImagesbotopbrk]
+        use: dspacctitles
+  add: part: StockGroupImagesTitlePart
+
+      [part: StockGroupImagesTitlePart]
+       line: LnStockGroupImagesTitle
+
+      [line: LnStockGroupImagesCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0StockGroupImages]
+      line : LnStockGroupImagesCurrPeriod
+
+      [Part: PrtStockGroupImages]
+       Line: LnStockGroupImagesTitle,LnStockGroupImages
+bottom Line: LnStockGroupImagesTotals
+     repeat: LnStockGroupImages: ColStockGroupImages
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColStockGroupImages]
+        Use: stockitem
+  child of : ##stockgroupname
+belongs to : yes
+     Filter: ColStockGroupImagesFilter
+
+    [system: Formula]
+ColStockGroupImagesFilter: $closingbalance > 0
+
+
+      [Line: LnStockGroupImagesTitle]
+        use: LnStockGroupImages
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LnStockGroupImages]
+use : lnprtinventory
+Local: Field: nf2: Set As:$name
+Local: Field: snf2: Set As:$partno
+Local: Field: snf3: Set As:$cwpartycodex
+Local: Field: nf3: Set As:$cwimagepath:company:##svcurrentcompany+$cwimagefilename
+Local: Field: nf4: Set As: $baseunits
+Local: Field: nf10: Set As:@@cmpmailname
+Local: Field: nf11: Set As:@@cwCMPFullAddress
+Local: Field: sdf: Set As:$$machinedate
+
+
+Local: Field: amtf: Set As:$closingvalue
+Local: Field: qtyf: Set As:$closingbalance
+Local: Field: ratepf: Set As: $$CurrentValue:$StandardPrice:StockItem:$name
+
+;; {06.Aug.13 11:21} Local: Field: ratepf: Border: thin box ;;left right
+Local: field: ratepf: Width: 100
+;; {03.Jul.24 12:41} Local: field: sdf: Width: 100
+option  : alter on enter
+local : field : nf2 : alter : stockitem : $$isstockitem
+
+;; {07.Dec.18 16:57} Local: Field: qtyf: Border: thin box ;;left right
+
+      [line: LnStockGroupImagesTotals]
+        use: LnStockGroupImages
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

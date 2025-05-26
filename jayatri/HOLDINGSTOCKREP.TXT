@@ -1,0 +1,316 @@
+; Created By: Anil on 2024-06-21 15:33, ID: 
+
+     [#menu: Gateway of Tally]
+;; {23.Jul.24 17:19}         add: Option: HoldingStockLock ;; : @@HoldingStockDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@HoldingStockReport: Display: RepHoldingStock
+  */
+
+
+     [!menu: HoldingStockLock]
+        add: Item: before: @@locQuit: @@HoldingStockReport: Display: RepHoldingStock
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   HoldingStockReport: "Holding Stock Rep"
+;; HoldingStockDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepHoldingStock]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@HoldingStockReport
+   Printset: Report Title: @@HoldingStockReport
+
+       Form: FrmHoldingStock
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+        variable:str1,str2,str3
+    set:str1:""
+    set:str2:""
+    set:str3:""
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmHoldingStock]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0HoldingStock,PrtHoldingStock
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: HoldingStockbotbrk,HoldingStockbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+add:button:LrNofilterbutton
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: HoldingStockConfigure
+
+      [part: HoldingStockbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: HoldingStockbotopbrk]
+        use: dspacctitles
+  add: part: HoldingStockTitlePart
+
+      [part: HoldingStockTitlePart]
+       line: LnHoldingStockTitle
+       
+      [line: LnHoldingStockCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0HoldingStock]
+      line : LnHoldingStockCurrPeriod
+      
+      [Part: PrtHoldingStock]
+       Line: LnHoldingStockTitle,LnHoldingStock
+bottom Line: LnHoldingStockTotals
+     repeat: LnHoldingStock: ColHoldingStockmain
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: ColHoldingStockmain]
+source collection:ColHoldingStock
+walk:INVENTORYENTRIESIN,BatchAllocations
+by:date:$date
+by:vouchernumber:$vouchernumber
+by:partyledgername:$partyledgername
+by:stockitemname:$stockitemname
+;; {18.Jul.24 13:08} by:BILLOFLADINGNO1:$BILLOFLADINGNO
+compute:BILLOFLADINGNO1:$BILLOFLADINGNO
+aggr compute:billedqty1:sum:$billedqty
+filter:cwLrnofilter,cwMrPartyfilter,cwMrQualityfilter
+search key:$BILLOFLADINGNO1+$stockitemname
+
+[Collection: ColHoldingStock]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+;; {21.Jun.24 16:16}      compute:BILLOFLADINGNO1:$BILLOFLADINGNO
+     Filter: ColHoldingStockFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColHoldingStockFilter: $cwFectoryReceive:vouchertype:$vouchertypename or $cwDirectPurchasevchtype:vouchertype:$vouchertypename
+
+[field:cwlrnofld]
+use:snf
+Invisible: yes
+
+      [Line: LnHoldingStockTitle]
+        use: LnHoldingStock
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Recv Date "
+local:field: snf: set as: "LR NO"
+local:field: Qtyf2: set as: "MEASUREMENT IN PROCESS"
+local:field: snf2: set as: "TOTAL DGN"
+local:field: nf: set as: "QUALITY"
+local:field: fwf: set as: "PARTY NAME"
+local:field: qtyf: set as: "HOLD MTR."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+      
+local:field:fwf:indent:15
+
+local: field: sdf : style: style1y ;;normal bold
+local: field: nf : style: style1y ;;normal bold
+local: field: snf : style: style1y ;;normal bold
+local: field: fwf : style: style1y ;;normal bold
+local: field: Qtyf : style: style1y ;;normal bold
+local: field: Qtyf2 : style: style1y ;;normal bold
+local: field: snf2 : style: style1y ;;normal bold
+
+; Main Line
+      [Line: LnHoldingStock]
+     Fields: HoldingStockmastid,cwlrnofld,snf,fwf,nf
+Right Field: Qtyf,Qtyf2,snf2,sdf ;;Amtf
+
+     Option: Alter on Enter
+        key: HoldingStockDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: Qtyf2: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: sdf: set as: $date ;;"Recv Date "
+local:field: snf: set as:$BILLOFLADINGNO1 ;;"LR NO"
+local:field: snf10: set as:$vouchernumber ;;"LR NO"
+local:field: cwlrnofld: set as:$BILLOFLADINGNO1 ;;"LR NO"
+local:field: Qtyf2: set as: $billedqty1 ;;"MEASUREMENT IN PROCESS"
+local:field: snf2: set as: "" ;;"TOTAL DGN"
+local:field: nf: set as:$stockitemname ;;"QUALITY"
+local:field: fwf: set as:$partyledgername ;;"PARTY NAME"
+local:field: qtyf: set as: $billedqty1 ;;"Qty."
+Local: Field: default: Border: thin box ;;left right
+Local: field: snf2: Width:28
+Local: field: Qtyf2: Width:18
+
+Local: field:snf : Align: centre
+Local: field:nf : Align: centre
+Local: field:Qtyf : Align: centre
+Local: field:Qtyf2 : Align: centre
+Local: field:snf2 : Align: centre
+Local: field:sdf : Align: centre
+local: field: default : style: style2y ;;normal bold
+
+/*add:explode:cwmrkataexplode
+
+[part:cwmrkataexplode]
+line:cwmrkataexplode
+;; {22.Jun.24 13:30} repeat: cwmrkataexplode: callmrkataexplode
+
+[collection:callmrkataexplode]
+source collection:sourcecallmrkataexplode
+walk:INVENTORYENTRIESIN,BATCHALLOCATIONS
+;; {21.Jun.24 17:41} by:date:$date
+by:BATCHNAME:$BATCHNAME
+by:stockitemname:$stockitemname
+compute:cwLRNumberpurc1:$cwLRNumberpurc
+;; {21.Jun.24 17:43} by:partyledgername:$partyledgername
+filter:cwlrnoflter
+
+[collection:sourcecallmrkataexplode]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColHoldingStockFilter2,IsNonOptionalCancelledVchs
+     Parm Var: SVFromDate	: Date	: $StartingFrom:Company:##SVCurrentCompany
+Parm Var: SVToDate	: Date	:$LastVoucherDate:Company:##SVCurrentCompany ;;$EndingAt:Company:##SVCurrentCompany
+
+[System: Formula]
+ColHoldingStockFilter2:$cwHouseMaterialIn:vouchertype:$vouchertypename
+cwlrnoflter: $cwLRNumberpurc1=#cwlrnofld
+
+[line:cwmrkataexplode]
+use:LnHoldingStock
+delete:explode
+local:field: snf: set as: "" ;;"TOTAL DGN"
+local:field: snf2: set as: $$fulllist:callmrkataexplode:$BATCHNAME ;;"TOTAL DGN"
+local:field: nf: set as: "";;$stockitemname ;;"TOTAL DGN"
+local:field: fwf: set as:"" ;;$partyledgername
+local:field: qtyf: set as:"" ;;$partyledgername
+local:field: Qtyf2: set as:"" ;;$partyledgername
+local:field: sdf: set as:"" ;;$date
+Local: Field: cwlrnofld: Set As:$$prevlinefield
+Local : field : snf2: Lines : 0  */
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: HoldingStockDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: HoldingStockDisplayVoucher
+
+ 	
+     [Report: HoldingStockDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #HoldingStockmastid
+	
+
+        [Field: HoldingStockmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnHoldingStockTotals]
+        use: LnHoldingStock
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      
+;;=============================
+[button:LrNofilterbutton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:LrNofilterbutton
+
+ [report:LrNofilterbutton]
+ form:LrNofilterbutton
+
+ [form:LrNofilterbutton]
+ part:LrNofilterbutton
+
+ HEIGHT:20% Screen ;;PAGE
+ WIDTH:30% Screen ;;PAGE
+
+ [part:LrNofilterbutton]
+ line:cwLrfltrtitleline,CwHsLrNoline,CwHsPartyLine,CwHsQualityLine
+
+ [line:cwLrfltrtitleline]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: Normal Bold
+ space bottom:0.5
+ local: field: fwfc : style: style2y ;;normal bold
+ 
+ [line:CwHsLrNoline]
+ field:sp,nf
+ Local: Field: sp: Set As:"LR. No"
+ Local: Field: nf:modifies:str1
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+local: field: sp : style: style2y ;;normal bold
+local: field: nf : style: style2y ;;normal bold
+
+[line:CwHsPartyLine]
+field:sp,nf
+ Local: Field: sp: Set As:"Party Name"
+ Local: Field: nf:modifies:str2
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:collmrParty,Not Applicable
+ Local: Field: nf: Show table: Always
+local: field: sp : style: style2y ;;normal bold
+local: field: nf : style: style2y ;;normal bold
+
+  [Collection: collmrParty]
+ type:ledger
+ title:"List of Party"
+ 
+[line:CwHsQualityLine]
+field:sp,nf
+ Local: Field: sp: Set As:"Quality"
+ Local: Field: nf:modifies:str3
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:collQuality,Not Applicable
+ Local: Field: nf: Show table: Always
+ local: field: sp : style: style2y ;;normal bold
+local: field: nf : style: style2y ;;normal bold
+
+[System: Formula]
+cwLrnofilter:if $$isempty:##str1 then yes else $BILLOFLADINGNO1 =##str1
+cwMrPartyfilter:if $$issysname:##str2 then yes else $partyledgername =##str2
+cwMrQualityfilter:if $$issysname:##str3 then yes else $STOCKITEMNAME =##str3

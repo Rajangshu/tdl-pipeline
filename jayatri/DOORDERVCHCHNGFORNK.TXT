@@ -1,0 +1,263 @@
+; Created By: Anil on 2024-07-11 13:45, ID: 
+
+[line:cwNkdodetailsLn]
+right field:mp,cwlogical
+
+Local: Field: mp: info: "NK Do Details"
+Local: Field: cwlogical: storage:cwNKvchDoDetails
+Local: field: mp: Width:14
+Local: field: cwlogical: Width:22
+Local: Field: default: Color : blue
+Local: Field: default: Style:Style2
+Local: Field: cwlogical: Skip:if $cwvchDoDetails="yes" then Yes else no
+
+Local: Field : cwlogical : SubForm :cwNKDoDetailsRep:$$value
+
+[report:cwNKDoDetailsRep]
+form:cwNKDoDetailsfrm
+
+[form:cwNKDoDetailsfrm]
+part:cwNKDoDetailspart1
+part:cwNKDoDetailspart2
+
+[part:cwNKDoDetailspart1]
+;; {11.Jul.24 15:23} width:50% page
+line:cwFectoryNameLn
+
+[part:cwNKDoDetailspart2]
+part:cwNKDoDetailspart2A
+part:cwNKDoDetailspart2B
+part:cwNKDoDetailspart2C
+part:cwNKDoDetailspart2D
+
+[part:cwNKDoDetailspart2A]
+line:cwVendorQualityLn,cwOurQualityNameLn,CwDoDescriptionLn,cwNkDoCutLine,cwNkDoSizeLine,cwNkDoTagLine,cwNkDoFitLine,cwNkBoxPlittingLn,cwPackingLn,cwStichingLn,cwSalvageLn,CWMARKALINE ;;cwNkPackingInstLine
+border:thin right
+
+[line:CwDoDescriptionLn]
+field:sp,fwf
+
+Local: Field: sp: info: "Description"
+Local: Field: fwf: storage:cwDoDescription
+
+Local: Field: default: Style: Style1
+Local: Field: default: Color : blue
+Local: field: sp: Width:16 ;;20
+space bottom:0.20
+
+[line:cwNkDoCutLine]
+field:sp,numf
+
+Local: Field: sp: Set As:"Cut"
+Local: Field: numf: storage:cwNkDoCut
+
+Local: Field: default: Style: Style1
+Local: field: sp: Width:16 ;;20
+Local: Field: default: Color : blue
+Local: field: numf: Align: left ;;centre
+space bottom:0.20
+
+[line:cwNkDoSizeLine]
+use: CwDoDescriptionLn
+
+Local: Field: sp: info: " Size"
+Local: Field: fwf: storage:cwNkDoSize
+
+[line:cwNkDoTagLine]
+use: CwDoDescriptionLn
+
+Local: Field: sp: info: " Tag"
+Local: Field: fwf: storage:cwNkDoTag
+
+[line:cwNkDoFitLine]
+use: CwDoDescriptionLn
+
+Local: Field: sp: info: " Fit"
+Local: Field: fwf: storage:cwNkDoFit
+
+[line:cwNkBoxPlittingLn]
+field:sp,cwlogical
+
+Local: Field: sp: info: "Box Plitting Required"
+Local: Field:cwlogical : storage:cwNkBoxPlitting
+Local: Field: default: Style: Style1
+Local: Field: default: Color : blue
+Local: field: sp: Width:16
+
+;;==============================
+
+[part:cwNKDoDetailspart2B]
+line:cwVendorQualityLn2,cwOurQualityNameLn2,CwDoDescriptionLn2,cwNkDoCutLine2,cwNkDoSizeLine2,cwNkDoTagLine2,cwNkDoFitLine2,cwNkBoxPlittingLn2,cwPackingLn2,cwStichingLn2,cwSalvageLn2,CWMARKALINE2 ;;cwNkPackingInstLine
+border:thin right
+
+[line:CwDoDescriptionLn2]
+field:sp,fwf
+
+Local: Field: sp: info: "Description"
+Local: Field: fwf: storage:cwDoDescription2
+
+Local: Field: default: Style: Style1
+Local: Field: default: Color : blue
+Local: field: sp: Width:16 ;;20
+space bottom:0.20
+
+[line:cwNkDoCutLine2]
+field:sp,numf
+
+Local: Field: sp: Set As:"Cut"
+Local: Field: numf: storage:cwNkDoCut2
+
+Local: Field: default: Style: Style1
+Local: field: sp: Width:16 ;;20
+Local: Field: default: Color : blue
+Local: field: numf: Align: left ;;centre
+space bottom:0.20
+
+[line:cwNkDoSizeLine2]
+use: CwDoDescriptionLn2
+
+Local: Field: sp: info: " Size"
+Local: Field: fwf: storage:cwNkDoSize2
+
+[line:cwNkDoTagLine2]
+use: CwDoDescriptionLn2
+
+Local: Field: sp: info: " Tag"
+Local: Field: fwf: storage:cwNkDoTag2
+
+[line:cwNkDoFitLine2]
+use: CwDoDescriptionLn2
+
+Local: Field: sp: info: " Fit"
+Local: Field: fwf: storage:cwNkDoFit2
+
+[line:cwNkBoxPlittingLn2]
+field:sp,cwlogical
+
+Local: Field: sp: info: "Box Plitting Required"
+Local: Field:cwlogical : storage:cwNkBoxPlitting2
+Local: Field: default: Style: Style1
+Local: Field: default: Color : blue
+Local: field: sp: Width:16
+
+;;==============================
+
+[part:cwNKDoDetailspart2C]
+line:cwVendorQualityLn3,cwOurQualityNameLn3,CwDoDescriptionLn3,cwNkDoCutLine3,cwNkDoSizeLine3,cwNkDoTagLine3,cwNkDoFitLine3,cwNkBoxPlittingLn3,cwPackingLn3,cwStichingLn3,cwSalvageLn3,CWMARKALINE3 ;;cwNkPackingInstLine
+border:thin right
+
+[line:CwDoDescriptionLn3]
+field:sp,fwf
+
+Local: Field: sp: info: "Description"
+Local: Field: fwf: storage:cwDoDescription3
+
+Local: Field: default: Style: Style1
+Local: Field: default: Color : blue
+Local: field: sp: Width:16 ;;20
+space bottom:0.20
+
+[line:cwNkDoCutLine3]
+field:sp,numf
+
+Local: Field: sp: Set As:"Cut"
+Local: Field: numf: storage:cwNkDoCut3
+
+Local: Field: default: Style: Style1
+Local: field: sp: Width:16 ;;20
+Local: Field: default: Color : blue
+Local: field: numf: Align: left ;;centre
+space bottom:0.20
+
+[line:cwNkDoSizeLine3]
+use: CwDoDescriptionLn3
+
+Local: Field: sp: info: " Size"
+Local: Field: fwf: storage:cwNkDoSize3
+
+[line:cwNkDoTagLine3]
+use: CwDoDescriptionLn3
+
+Local: Field: sp: info: " Tag"
+Local: Field: fwf: storage:cwNkDoTag3
+
+[line:cwNkDoFitLine3]
+use: CwDoDescriptionLn3
+
+Local: Field: sp: info: " Fit"
+Local: Field: fwf: storage:cwNkDoFit3
+
+[line:cwNkBoxPlittingLn3]
+field:sp,cwlogical
+
+Local: Field: sp: info: "Box Plitting Required"
+Local: Field:cwlogical : storage:cwNkBoxPlitting3
+Local: Field: default: Style: Style1
+Local: Field: default: Color : blue
+Local: field: sp: Width:16
+
+;;================================
+
+[part:cwNKDoDetailspart2D]
+line:cwVendorQualityLn4,cwOurQualityNameLn4,CwDoDescriptionLn4,cwNkDoCutLine4,cwNkDoSizeLine4,cwNkDoTagLine4,cwNkDoFitLine4,cwNkBoxPlittingLn4,cwPackingLn4,cwStichingLn4,cwSalvageLn4,CWMARKALINE4 ;;cwNkPackingInstLine
+border:thin right
+
+[line:CwDoDescriptionLn4]
+field:sp,fwf
+
+Local: Field: sp: info: "Description"
+Local: Field: fwf: storage:cwDoDescription4
+
+Local: Field: default: Style: Style1
+Local: Field: default: Color : blue
+Local: field: sp: Width:16 ;;20
+space bottom:0.20
+
+[line:cwNkDoCutLine4]
+field:sp,numf
+
+Local: Field: sp: Set As:"Cut"
+Local: Field: numf: storage:cwNkDoCut4
+
+Local: Field: default: Style: Style1
+Local: field: sp: Width:16 ;;20
+Local: Field: default: Color : blue
+Local: field: numf: Align: left ;;centre
+space bottom:0.20
+
+[line:cwNkDoSizeLine4]
+use: CwDoDescriptionLn4
+
+Local: Field: sp: info: " Size"
+Local: Field: fwf: storage:cwNkDoSize4
+
+[line:cwNkDoTagLine4]
+use: CwDoDescriptionLn4
+
+Local: Field: sp: info: " Tag"
+Local: Field: fwf: storage:cwNkDoTag4
+
+[line:cwNkDoFitLine4]
+use: CwDoDescriptionLn4
+
+Local: Field: sp: info: " Fit"
+Local: Field: fwf: storage:cwNkDoFit4
+
+[line:cwNkBoxPlittingLn4]
+field:sp,cwlogical
+
+Local: Field: sp: info: "Box Plitting Required"
+Local: Field:cwlogical : storage:cwNkBoxPlitting4
+Local: Field: default: Style: Style1
+Local: Field: default: Color : blue
+Local: field: sp: Width:16
+
+
+/*[line:cwNkPackingInstLine]
+use: CwDoDescriptionLn
+
+Local: Field: sp: info: "Packing Instruction"
+Local: Field: fwf: storage:cwNkPackingInst  */
+
+
+

@@ -1,0 +1,307 @@
+; Created By: Anil on 2024-01-17 16:45, ID: 
+
+[System: Formula]
+cwAdditionalFeatureAllowYes:$cwAdditionalFeatureAllow:vouchertype:$vouchertypename="yes"
+;; {19.Feb.24 16:35} cwInTransiteAdditionalFeatureAllowYes:$cwInTransiteAdditionalFeatureAllow:vouchertype:$vouchertypename="yes"
+cwBalesPurchasevchtypeYES:$cwBalesPurchasevchtype:vouchertype:$vouchertypename="yes"
+cwEnablePurchaseYes:$cwEnablePurchase:vouchertype:$vouchertypename="yes"
+
+;;=============================
+[#Part: VCHTitleLeft]
+add:option:cwPurVCHTitleLeftopt:@@ispurchase ;;(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@JayatriTestEnabled and @@cwnewEnableInvoiceCostopt
+
+[!Part: cwPurVCHTitleLeftopt]
+add:line:after:VCH Type:CWnetPurline
+
+[line:CWnetPurline]
+field:sp,cwlogical
+
+Local: Field: sp: Set As:"Direct Purchase"
+ Local: Field:cwlogical: storage:cwDirectPurchase
+ Local: field: sp: Width:16
+ Local: Field: sp: Style: style2x
+ Local: Field: cwlogical: Style: style1y
+ space TOP:0.5
+;;=======================================
+
+[#Part: EI DelNoteInfo]
+;; {21.Feb.24 16:28} add:option:purcEIDelNoteInfoopt:@@cwAdditionalFeatureAllowYes or @@cwAddfeTransportChallanYes
+add:option:purcEIDelNoteInfoopt:@@cwEnablePurchaseYes or @@cwAddfeTransportChallanYes
+[!part:purcEIDelNoteInfoopt]
+
+add:Line: cwEITransporter
+
+[Line: cwEITransporter]
+Fields : Medium Prompt, nf
+Local  : Field : Medium Prompt : Info : $$LocaleString:"Transporter"
+
+Local: Field: nf: storage:cwTransporterpurc
+;; {22.Dec.23 17:13} Local: Field: nf: Set As:$PartyLedgerName
+
+Local: Field: nf: table:collcwTransporter,Not Applicable
+Local: Field: nf: Show table: Always
+Local: field: nf: Width:30
+Local: Field:Medium Prompt : Style: small
+Local: Field:nf : Style: small Bold
+
+
+[Collection: collcwTransporter]
+title:"List of Transporter"
+type:ledger
+filter:cwLedIsTransporterfilt
+
+
+fetch:LedIsTRansporter
+
+[System: Formula]
+cwLedIsTransporterfilt:@@cwIsTransporterval="yes"
+
+ cwIsTransporterval:$LedGSTRegDetails[Last].IsTransporter
+
+;;========================================
+
+ [field:suppnof]
+ use:snf
+ info:"Supplier No"
+ Style:Style1
+ Invisible: yes
+
+ [field:suppnof2]
+ use:snf
+ storage:cwSupplierNopurc
+ skip:yes
+ setas:#VCHRef
+ Style:Style2
+  Invisible: yes
+
+ [field:suppdtf]
+ use:sdf
+ info:"Supplier Date"
+ type: String
+
+ Style:Style1
+ Invisible: yes
+
+ [field:suppdtf2]
+ use:sdf
+ storage:cwSupplierdtpurc
+ set as:#VCHINARef
+ skip:yes
+ Style:Style2
+ Invisible: yes
+
+ [field:suppnof3]
+ use:snf
+ storage:cwSupplierNopurc
+ skip:yes
+  Invisible: yes
+
+ [field:suppdtf3]
+ use:sdf
+ storage:cwSupplierdtpurc
+  skip:yes
+  Invisible: yes
+;;================================
+
+[System: Formula]
+cwTypevchtype:$cwTypevchtype:vouchertype:$vouchertypename
+cwrmcaptionnew:$cwrmcaption:vouchertype:$vouchertypename
+
+[#Field: VCH BatchNameTitle]
+  add:option:VCHBatchNameTitlejeopt:@@cwEnablePurchaseYes and @@JayatriTestEnabled
+
+ [!field:VCHBatchNameTitlejeopt]
+    Setas :@@cwrmcaptionnew
+
+
+ [#Line: VCHBATCH ColumnOne]
+;; {21.Feb.24 16:28}  add:option:cwVCHBATCHColumnOneopt :@@cwAdditionalFeatureAllowYes or @@cwInTransiteAdditionalFeatureAllowYes
+ add:option:cwVCHBATCHColumnOneopt :@@cwEnablePurchaseYes ;;or @@cwInTransiteAdditionalFeatureAllowYes
+ [!Line: cwVCHBATCHColumnOneopt]
+
+ add:right field:after:VCH BatchNameTitle:suppnof,suppdtf
+ add:right field:after:VCH BatchNameTitle:snf1,snf,snf2,sdf,snf10,snf4,snf5,suppnof,suppdtf  ;;,snf7,snf8,snf9,snf10,snf11,snf12,snf13,snf14,snf15
+  add:right field:numf30,numf35,numf31,numf32
+  add:right field:before:VCH BatchNameTitle:snf36
+  
+ Local: Field: snf36: INFO:"Bale No"
+ Local: Field: snf: INFO:"No of Bales"
+ Local: Field: snf1: INFO:"Type"
+ Local: Field: snf2: INFO:"LR Number"
+ Local: Field: sdf: INFO:"LR Date"
+ Local: Field: snf10: INFO:"House"
+ Local: Field: snf4: INFO:"Supplier Name"
+ Local: Field: snf5: INFO:"Trans Name"
+ Local: Field: numf30: INFO:"Trans Rate"
+ Local: Field: numf35: INFO:"Trans Value"
+ Local: Field: numf31: INFO:"Additional Rate"
+ Local: Field: numf32: INFO:"Add Amount"
+ 
+  Local: Field: DEFAULT: Style:Style2
+  Local: Field: VCH BatchNameTitle: Style:Style1
+  Local: Field: VCH QtyTitle: Style:Style1
+  Local: Field: VCH RateTitle: Style:Style1
+  Local: Field: VCH AmtTitle: Style:Style1
+  local: field: numf7: type: String
+  local: field: numf8: type: String
+  local: field: numf9: type: String
+  local: field: snf36: Invisible: if @@cwDirectPurchaseyes2="yes" then no else yes
+  
+   Local: field: snf10: Align: centre
+   
+   Local: field: snf: Width: 8
+ Local: field: snf1: Width: 8
+
+
+ [System: Formula]
+;; {01.Dec.23 14:18} cwjooroptFilter:$$IsJobMaterialIssue:$vouchertypename
+ cwjooroptFilter:$$IsJobOrderOut:$vouchertypename
+ cwVchTypeSelectedGodown:$cwVchTypeSelectedGodown:vouchertype:$vouchertypename
+
+
+  [field:cwRecedQtyf]
+ use:qtyf ;;numf
+ Set As:$billedqty
+ storage:cwRecedQty
+;; {08.May.24 13:33}   Invisible: yes
+  format:"decimals:2"
+  border:thin box
+;; {13.Jan.24 17:58} Skip: Yes
+
+
+ [#line:STKVCH Batch2]
+;; {21.Feb.24 16:28}  add:option:cwSTKVCHBatch2opt :@@cwAdditionalFeatureAllowYes or @@cwInTransiteAdditionalFeatureAllowYes
+ add:option:cwSTKVCHBatch2opt:@@cwEnablePurchaseYes ;;or @@cwInTransiteAdditionalFeatureAllowYes
+ [!Line: cwSTKVCHBatch2opt]
+
+ add:right Field:after:VCHBATCH Name:SNF38,snf1,snf,snf2,sdf,snf10,snf4,snf5,suppnof2,suppdtf2
+ add:right field:numf30,numf35,numf31,numf32
+ add:right field:before:VCHBATCH Name:snf36
+ add:right field:before:VCHBATCH BilledQty:cwRecedQtyf
+ 
+  Local: Field: VCHBATCH Godown: SET AS:$cwVchTypeSelectedGodown:vouchertype:$vouchertypename
+  Local: Field: VCHBATCH Godown: Skip: Yes
+
+
+  Local: Field: SNF38: Border: thin box ;;left right
+  local: field: SNF38: Invisible: yes
+;; {13.Jan.24 17:56}   add:right field:after:VCHBATCH BilledQty:cwRecedQtyf
+;; {15.Apr.24 16:02} Local: Field: : storage:
+Local: Field: SNF38: Set As:$$OWNER:$$OWNER:$cwPartyandDate2 ;;if @@cwDirectPurchaseyes="yes" then @@cwvchpartyanddate else @@cwvchsupinvanddate
+
+Local: Field: snf36: storage:cwpurBaleNo
+ Local: Field: snf: storage:cwNoofBalespurc
+ Local: Field: snf1: storage:cwTypepurc
+ Local: Field: snf2:storage:cwLRNumberpurc
+ Local: Field: sdf:storage:cwLRDatepurc
+ Local: Field: snf4:storage:cwSupplierNamepurc
+ Local: Field: snf10:storage:cwConsigneeNamepurc
+ Local: Field: snf5:storage:cwTransporterNamepurc
+ Local: Field: numf30: storage:cwpurTransRate
+ Local: Field: numf31: storage:cwpurAdditionalRate
+ Local: Field: numf32: storage:cwpurTrnsamt
+ Local: Field: SNF1: Set As:@@cwTypevchtype
+;; {28.Mar.24 16:52}  Local: Field: numf35: Set As:cwTrnsvalue ;;"Trans Value"
+ Local: Field: numf35: storage:cwTrnsvalue ;;"Trans Value"
+
+ Local: Field: snf4: set as :$$ReptField:Name:2:ledger:$partyledgername
+ Local: Field: snf10: set as :$$ReptField:Name:2:ledger:$CONSIGNEEMAILINGNAME ;;$$ReptField:Name:2:$BasicBuyerName ;;ledger:$partyledgername
+ Local: Field: snf5: set as :$$ReptField:Name:2:ledger:$$owner:$$owner:$cwTransporterpurc ;;$cwTransporterpurc
+ Local: Field: snf2: set as :$BILLOFLADINGNO
+
+ Local: Field: sdf: set as :$BillofLadingDate
+ Local: Field: numf30: Set As:#numf35/$$number:#VCHBATCHBilledQty
+ Local: Field: numf31: Set As:$$number:#VCHBATCHRate+#numf30
+ Local: Field: numf32: Set As:$$number:#VCHBATCHBilledQty*#numf31
+ 
+ Local: field:numf30 : Align: centre
+ Local: field:numf31 : Align: centre
+ Local: field:numf32 : Align: centre
+ 
+;; {12.Apr.24 18:39}  Local: Field: VCHBATCH Name: Set As:$$owner:$$owner:$cwSupInvandDate ;;$Reference
+;; {15.Apr.24 16:03}  Local: Field: VCHBATCH Name: Set As:if @@cwDirectPurchaseyes="yes" then @@cwvchpartyanddate else @@cwvchsupinvanddate
+;; {15.Apr.24 16:03}  Local: Field: VCHBATCH Name: Skip: if @@cwDirectPurchaseyes="yes" then no else Yes
+ Local: Field: numf30: Skip: Yes
+ 
+  Local: Field: VCHBATCH Name:DELETE: TABLE
+ Local: Field: VCHBATCH Name:DELETE: Set As
+ Local: Field: VCHBATCH Name:ADD: Set As:IF $$ISEMPTY:#SNF36 THEN #SNF38 ELSE #SNF38+"/"+#SNF36
+
+ 
+ local: field: snf36: Invisible: if @@cwDirectPurchaseyes2="yes" then no else yes
+
+ Local: Field: DEFAULT: Style:Style2
+  Local: Field: snf1: Skip: Yes
+  Local: Field: snf2: Skip: Yes
+  Local: Field: snf3: Skip: Yes
+  Local: Field: snf4: Skip: Yes
+  Local: Field: snf5: Skip: Yes
+  Local: Field: snf10: Skip: Yes
+  Local: Field: sdf: Skip: Yes
+
+ Local: Field: snf: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf1: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf2: INACTIVE :@@BatchAllocBreak
+ Local: Field: sdf: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf4: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf5: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf10: INACTIVE :@@BatchAllocBreak
+ Local: Field: numf30: INACTIVE :@@BatchAllocBreak
+ Local: Field: numf31: INACTIVE :@@BatchAllocBreak
+ Local: Field: numf32: INACTIVE :@@BatchAllocBreak
+ 
+ Local: field: snf10: Align: centre
+ 
+ Local: field: snf: Width: 8
+ Local: field: snf1: Width: 8
+ 
+ [System: Formula]
+ cwDirectPurchaseyes2:$$owner:$$owner:$cwDirectPurchase
+ cwDirectPurchaseyes:$cwDirectPurchase
+ cwvchsupinvanddate:$$owner:$$owner:$cwSupInvandDate
+ cwvchpartyanddate:$$owner:$$owner:$cwPartyandDate ;;+"/"+$cwpurBaleNo
+/* [#Field: VCHBATCH Name]
+ add:option:cwpurVCHBATCHNameopt:$cwDirectPurchase="yes"
+ [!Field: cwpurVCHBATCHNameopt]
+
+    Use         : Batch Name Field
+	Use			: NewNumberTemplate
+    Style       : Small Bold
+;; {12.Apr.24 17:43}     delete:skip:yes */
+ 
+ ;;===========================
+[#Part: VCHTitle2Left]
+ADD:OPTION:CWVCHTitle2LeftOPT:@@cwEnablePurchaseYes
+
+[!Part: CWVCHTitle2LeftOPT]
+add:line:cwSupInvDateLine
+
+[line:cwSupInvDateLine]
+field:sp,nf,nf1,NF2
+
+Local: Field: sp: info: "Sup/Inv and Date"
+Local: Field: nf: Set As:@@cwshortvch+$Reference
+Local: Field: nf1: Set As:@@cwpartyaliasName+"/"+@@cwshortvch
+Local: Field: nf: storage:cwSupInvandDate
+Local: Field: nf1: storage:cwPartyandDate
+Local: Field: nf2: Border: thin box ;;left right
+Local: Field: NF2: storage:cwPartyandDate2
+Local: Field: NF2: Set As:if @@cwDirectPurchaseyes="yes" then $cwPartyandDate ELSE $cwSupInvandDate
+Local: Field:nf : Skip: Yes
+Local: Field:nf1 : Skip: Yes
+Local: Field:nf2 : Skip: Yes
+;; {13.Apr.24 10:31} local: field: nf: Invisible: if @@cwDirectPurchaseyes="yes" then yes else no
+;; {15.Apr.24 15:48} local: field: nf1: Invisible: yes ;;if @@cwDirectPurchaseyes="yes" then no else yes
+
+[System: Formula]
+cwpartyaliasName:$$ReptField:Name:2:ledger:$partyledgername
+
+    [system : formula]
+ cwshortvch : if not $$isempty:$ReferenceDate then @@cwshvchdays +""+ @@CWSHvchMON + ""+ @@CWSHvchYR else "" ;; +  else ""
+cwshvchDays : if @@cwshvchDays1 < 10 then "0" + $$string:@@cwshvchDays1 else $$string:@@cwshvchDays1
+CWSHvchMON  : if @@CWSHvchMON1 < 10 then "0"+$$string:@@CWSHvchMON1 else $$string:@@CWSHvchMON1
+ CWSHvchYR  : if @@CWSHvchYR1 < 10 then "0"+$$string:@@CWSHvchYR1 else $$string:@@CWSHvchYR1
+
+cwshvchDays1: $$DAYOFDATE:$ReferenceDate
+CWSHvchMON1 : $$MONTHOFDATE:$ReferenceDate
+ CWSHvchYR1 : $$YEAROFDATE:$ReferenceDate -  2000

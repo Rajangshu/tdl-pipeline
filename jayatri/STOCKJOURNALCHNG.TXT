@@ -1,0 +1,267 @@
+; Created By: Khokan on 2024-02-28 17:28, ID: 
+
+[System: Formula]
+cwEnableCustomisationYes:$cwEnableCustomisation:vouchertype:$vouchertypename
+
+/*[#Field: VCH BatchNameTitle]
+  add:option:StkBatchNameTitlejeopt:@@JayatriTestEnabled
+
+ [!field:StkBatchNameTitlejeopt]
+    Setas :@@cwrmcaptionnew */
+    
+[#Line: VCHBATCH ColumnOne]
+add:option:cwstkVCHBATCHColumnOneopt:@@cwEnableCustomisationYes
+
+[!Line: cwstkVCHBATCHColumnOneopt]
+add:right field:before:VCH BatchNameTitle:snf20
+
+Local: Field: snf20: info: "Godown33"
+ local: field: VCH GodownTitle: Invisible: yes
+ Local: field: snf20: Align: centre
+ Local: Field: snf20: Style:Style2
+    
+
+ [#Form: NRML StkJrnl]
+;; {08.Mar.24 11:12}   add:option:cwNRMLStkJrnlopt:@@IsStockJrnl and @@JayatriTestEnabled
+  add:option:cwNRMLStkJrnlopt:@@cwEnableCustomisationYes and @@JayatriTestEnabled
+ [!form:cwNRMLStkJrnlopt]
+
+  Add  :Part  :before:SJ MainTitle:cwSJMainTitle
+
+
+ [part:cwSJMainTitle]
+ line:Brandline,cwBarcodeNoline
+
+ [line:Brandline]
+ field:sp,newnf
+ Local: Field: sp: Set As:"FG Product"
+ Local: Field: newnf: storage:cwFGProductsj
+ Local: Field: newnf: table:collcwFGProductsj ,Not Applicable
+ Local: Field: newnf: Show table: Always
+
+ Local: Field: sp:style:small
+ Local: Field: newnf:style:small bold
+ 
+ [field:newnf]
+ use:nf
+ 
+ [Collection: collcwFGProductsj]
+ type:stockitem
+ title:"List of Item"
+ filter:cwFGProductitemsjfil
+ 
+ [System: Formula]
+ cwFGProductitemsjfil:$cwFGProductitem="yes"
+ 
+ [line:cwBarcodeNoline]
+ field:sp,barcodef,cwbatchnum,cwbatchnum2,sp2,cwbatchnum3,snfx,cwqtynum,snfx2,cwgodownn
+ Local: Field: sp: Set As:"Barcode No"
+ Local: Field: sp2: Set As:" Nos Of Bales"
+ Local: Field: snfx: INFO:" Qty:"
+ Local: Field: snfx2: INFO:" Godown:"
+ Local: field: SNFX2: Width:10
+ 
+  [field:cwqtynum]
+  use:qtyf
+ setas:$$table:barcodef:$ClosingBalance
+ SKIP:YES
+ Align:LEFT
+ storage:cwqtyjourl
+ 
+ [field:cwgodownn]
+  use:snf
+ setas:$$table:barcodef:$GodownName
+ SKIP:YES
+  Align:LEFT
+   storage:cwgodownjourl
+ 
+ [field:cwbatchnum]
+ use:numf
+ setas:$$stringwordex:#barcodef:"-":1
+ Invisible: yes
+  Align:LEFT
+ storage:cwbatchjourl
+ 
+  [field:cwbatchnum2]
+ use:numf
+ setas:$$stringwordex:#barcodef:"-":2
+  Invisible: yes
+   Align:LEFT
+  storage:cwbatchjourl2
+  
+ [field:cwbatchnum3]
+ use:numf
+ setas:(#cwbatchnum2-#cwbatchnum)+1
+   SKIP:YES
+  Align:LEFT
+ storage:cwbatchjourl3
+ 
+ [field:barcodef]
+ use:nf
+ storage:cwbarcodefsj
+
+ table:collcwbrandsjbatchitemx ,Not Applicable
+ Show table: Always
+ style:small bold
+ dynamic:""
+ Align:LEFT
+ style:small bold
+ 
+ 
+ [Collection: collcwbrandsjbatchitem]
+
+ source Collection: collcwbrandsjbatchitemx
+
+ TITLE:""
+ sub title:"Barcode No"
+
+ by:name:$name
+
+ by:GodownName:$GodownName
+
+ aggr compute:closingbalance:sum:$closingbalance
+
+ add:format:$name,10
+
+
+ [Collection: collcwbrandsjbatchitemx]
+
+  TITLE:""
+  sub title:"Barcode No","Godown","Quaility"
+
+
+ source Collection: collcwbrandsjbatchitem2
+
+ by:parent:$parent
+ by:name:$name
+
+ by:GodownName:$GodownName
+ 
+ aggr compute:closingbalance:sum:$closingbalance
+
+ compute:cwname1:$$stringwordex:$name:"-":2
+
+ add:format:$name,10
+ add:format:$GodownName,10
+ ;;add:format:$cwname1,10
+ add:format:$closingbalance,10
+  filter:cwname1filter
+
+ [System: Formula]
+ cwClosingBalanceBal:$$string:$ClosingBalance:"Secondary,shortform,compact"
+  cwname1filter:not $$isempty:$cwname1
+
+ [Collection: collcwbrandsjbatchitem2]
+
+ Collection:collcwbrandsjbatch: collcwbrandsjstockitem
+
+ [Collection: collcwbrandsjstockitem]
+ type:stockitem
+
+ [Collection: collcwbrandsjbatch]
+ type:batch
+ child of:$$LoopCollObj:$Name
+
+ Fetch	:name, Parent,ClosingBalance,GodownName,Closingvalue,Closingrate,cwmatinTypevchtype
+  filter:cwsjsgfilter,cwClosingBalancesj
+
+ [System: Formula]
+
+ cwsjsgfilter:$Parent=#newnf
+ cwClosingBalancesj:not $$isempty:$ClosingBalance
+ 
+
+
+ [#Line: SJDetailsA]
+;; {08.Mar.24 11:12}  add:option:SJDetailsAnopt:@@IsStockJrnl and @@JayatriTestEnabled
+ add:option:SJDetailsAnopt:@@cwEnableCustomisationYes and @@JayatriTestEnabled
+
+ [!line:SJDetailsAnopt]
+
+ Local: Field: VCH StockItem: Set as: If $$line=1 then #newnf Else $$SysName:EndOfList
+ Local: Field: VCH Godown: Set as: If $$line=1 then #cwgodownn Else $$SysName:EndOfList
+
+ 
+ 
+ [#Line: STKVCH Batch2]
+;; {08.Mar.24 11:12}  add:option :STKVCHBatch2notedpsjourl:@@IsStockJrnl and not $IsDeemedPositive and @@JayatriTestEnabled
+ add:option :STKVCHBatch2notedpsjourl:@@cwEnableCustomisationYes and not $IsDeemedPositive and @@JayatriTestEnabled
+ [!Line: STKVCHBatch2notedpsjourl]
+
+;; {08.Mar.24 16:30}  local : field : VCHBATCH Name : delete :TABLE
+;; {08.Mar.24 16:30}  local : field : VCHBATCH Name : add :TABLE:New Number,Any
+ local : field : VCHBATCH Name :setas :if $$line=1 then #barcodef else " End of List"
+;; {08.Mar.24 16:31}  local : field : VCHBATCH Name :read only:yes
+
+ Local: Field:VCHBATCH BilledQty : Set As:#cwqtynum
+
+ [#Line: SJDetailsC]
+;; {08.Mar.24 11:13}  add:option:SJDetailsCopt:@@IsStockJrnl and @@JayatriTestEnabled
+ add:option:SJDetailsCopt:@@cwEnableCustomisationYes and @@JayatriTestEnabled
+
+ [!line:SJDetailsCopt]
+
+ Local: Field: VCH StockItem: Set as: If $$line=1 then #newnf Else $$SysName:EndOfList
+ Local: Field: VCH Godown: Set as: If $$line=1 then #cwgodownn Else $$SysName:EndOfList
+
+;;================================================
+
+ [#Line: STKVCH Batch2]
+;; {08.Mar.24 11:13}  add:option :STKVCHBatch2sjourl:@@IsStockJrnl and $IsDeemedPositive and @@JayatriTestEnabled
+ add:option :STKVCHBatch2sjourl:@@cwEnableCustomisationYes and $IsDeemedPositive and @@JayatriTestEnabled
+ [!Line: STKVCHBatch2sjourl]
+ add:right field:cwbatchnumprev
+
+ local : field : VCHBATCH Name : delete :TABLE
+ local : field : VCHBATCH Name : add :TABLE:New Number,Any
+ local : field : VCHBATCH Name :setas :if $$isempty:#cwbatchnumprev then " End of List" else (#cwbatchnum+#cwbatchnumprev)-1
+ local : field : VCHBATCH Name :read only:yes
+;; {08.Mar.24 16:47}  Local: Field:VCHBATCH BilledQty : Set As:if $$line=1 then $$value else $$prevlinefield
+ Local: Field:VCHBATCH BilledQty : Set As:if $$IsFieldEdited then $$value else $$prevlinefield
+
+;; {10.Jul.24 18:10}   Local: Field:VCHBATCH Rate : delete:Set by Condition
+  
+;; {10.Jul.24 18:10}   Local: Field:VCHBATCH Rate : Set As:$$CollectionField:($$CollectionField:$rate:First:batchallocations):First:inventoryentriesout
+
+
+ [field:cwbatchnumprev]
+ use:numf
+ setas:if #cwbatchnum3 >= $$line then $$line else $$value
+ 
+  Invisible: yes
+
+
+;;==============================================================================
+
+
+ [#Field: VCHBATCH ValueTotal]
+
+  add:option :VCHBATCHBValueTotaljourl:@@cwEnableCustomisationYes and $IsDeemedPositive="yes" and @@JayatriTestEnabled
+ [!field: VCHBATCHBValueTotaljourl]
+
+ delete:skip
+ add:control:msgamandatory:if $$InCreateMode then (if #numfmtrfil2 = #VCHBATCHBQtyTotal then no else yes) ELSE NO
+ read only:yes
+
+ [#Line: STKVCH BatchTotal]
+  add:option :VCHBATCHBBatchTotaljourl:@@cwEnableCustomisationYes and $IsDeemedPositive="yes" and @@JayatriTestEnabled
+
+ [!line: VCHBATCHBBatchTotaljourl]
+ add:right field:before:VCHBATCHBQtyTotal:sp,numfmtrfil2
+ Local: Field: sp: Set As:"Total Production Qty"
+ Local: field: sp: Width:20
+ Local: Field: snf: Set As:$ISDEEMEDPOSITIVE
+
+   [Field: numfmtrfil2]
+
+    Use         : qtyf
+  set as:#cwqtynum
+  ;;invisible:yes
+  skip:yes
+  border:totals
+  
+  
+  [System: Formula]
+ msgamandatory:"Quantity not match !"
+
+

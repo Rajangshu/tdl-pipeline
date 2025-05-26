@@ -1,0 +1,35 @@
+; Created By: Anil on 2024-01-23 17:08, ID: 
+
+[System: Formula]
+cwpurcReturnVoucher:$$IsDebitNote:$parent
+
+[#Part: VTYP Behaviour]
+add:option:cwVTYPBehaviouropt:@@cwpurcReturnVoucher
+
+[!Part: cwVTYPBehaviouropt]
+add:line:cwPurReturnAddLine
+
+[line:cwPurReturnAddLine]
+field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Additional Feature Allow:"
+ Local: Field: cwlogical: storage:cwPurReturnAdditional
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ Local: Field : cwlogical : SubForm : cwPurReturnAdditionalrep: $$value
+
+ [report:cwPurReturnAdditionalrep]
+ form:cwPurReturnAdditionalrep
+
+ [form:cwPurReturnAdditionalrep]
+ part:cwPurReturnAdditionalrep
+
+ [part:cwPurReturnAdditionalrep]
+ line:cwPurReturnBatchCapLine
+ 
+ [line:cwPurReturnBatchCapLine]
+ field:long prompt,snf
+ Local: Field: long prompt: Set As:"Batch Caption"
+ Local: Field: snf: storage:cwrmcaption
+ Local: Field:default: Style:style2

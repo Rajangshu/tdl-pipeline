@@ -1,0 +1,253 @@
+; Created By: Anil on 2024-05-03 18:12, ID: 
+
+  [#Part: STKI Batch]
+   add:option:cwstkibatch:@@JayatriTestEnabled
+
+   [!part:cwstkibatch]
+    add:line:after:STKI Batchable:cwimagepathline,imagefilenameline
+
+
+  [line:cwimagepathline]
+    field:medium prompt,nf
+    Local: Field: medium prompt: Set As:"Image Path:"
+    Local: Field: nf: Set As:$cwimagepath:company:##svcurrentcompany
+    Local: Field: nf: Skip: Yes
+
+   [line:imagefilenameline]
+     field:medium prompt,snf,sp,cwlogical
+     Local: Field:medium prompt: Set As:"Image File Name:"
+     Local: Field: snf: storage:cwimagefilename
+     Local: Field: sp: Set As:"Show Image:"
+     Local: Field: cwlogical: Subform:showimage:$$value
+     local : field : snf : notify : cwFileNotExists : @@cwFileExists
+     
+      [report:showimage]
+       form:showimageform
+       title : "Image"
+
+     [form:showimageform]
+       part:showimagepart,backgroundpart
+      background : ThinLineClr
+     height:80% page
+       width:50% page
+
+
+
+     [part:showimagepart]
+       line:showimageline2,showimageline2x,showimageline3
+
+       [Line: showimageline2]
+       field:snf,fwf,snfx
+       Local: Field: fwf: set as:@@myItemfilename
+       Local: Field: fwf: skip forward : yes
+       Local: Field: fwf: read only : yes
+
+       Local: field: snf: Width:4
+       Local: Field: snf: info: "File:"
+       Local: Field: default: Style: Normal Bold
+       Local: field: fwf: Align: left
+       Local: Field: fwf: Color : if not $$IsFileExists:@@myItemfilename then "Red" else "Black"
+       Local: field: snfx: Width:2
+
+
+        space bottom : 0.25
+
+
+        [line : showimageline2x]
+        field : snf,snf3,snf2
+        Local: Field: default: skip forward : yes
+        Local: Field: snf: set as : "Print"
+        Local: Field: snf2: set as : "Explore"
+        Local: Field: default: Color : blue
+        local: field : snf : readonly : yes
+        local: field : snf2 : readonly : yes
+
+        Local: Field: snf: Border: thin bottom ;;left right
+        Local: Field: snf2: Border: thin bottom ;;left right
+        Local: field: snf: Width:5
+        Local: field: snf2: Width:5
+        Local: field: snf3: Width:5
+        space bottom : 0.25
+        invisible :yes
+
+
+       [line : showimageline3]
+       field : fwf
+       Local: Field: fwf: Style: tiny
+       Local: Field: fwf: align : centre
+       Local: Field: fwf: info: "(Press Enter Key to Exit)"
+          Border: thick bottom ;;left right
+          
+          
+        [part:backgroundpart]
+       line:backgroundline
+       graphtype : @@myItemfilename
+       border : thick box
+
+
+     [line:backgroundline]
+       field:fwf
+       Local: Field: fwf: info:@@myItemfilename
+
+
+   [System: Formula]
+     cwFileExists : if $$isempty:#snf then no else not $$IsFileExists:@@myItemfilename
+     myItemfilename :@@newcwimagepart + $cwimagefilename
+     cwFileNotExists : "File: " + @@myItemfilename + "\n does not exists."
+        newcwimagepart:$cwimagepath:company:##svcurrentcompany
+        
+;;====================================
+[System: Formula]
+cwItemPathnew:$$CollectionField:$cwdoc:First:colcwdoc
+
+[#Part: STKI Batch]
+add:option:cwSTKIBatchImageopt:@@cwDocitemEnable
+
+[!Part:cwSTKIBatchImageopt]
+add:line:after:STKIBatchable:itemdocumentline,itemdocumentline2
+
+[line:itemdocumentline2]
+field:nf
+Local: Field: nf: Set As:@@cwItemPathnew
+Local: Field: nf: storage:cwItemImagePath
+Invisible: yes
+
+ [line:itemdocumentline]
+field:sp,cwlogical ;;,sp2,snf
+   Local: Field: sp2: Set As:"Remarks"
+   Local: Field: snf: Set As:if $$isempty:$$CollectionField:$cwdoc:First:colcwdoc then "" else "Document Loaded"
+   ;;$$fulllist:colcwdoc:$cwdoc;;$$CollectionField:$cwdoc:First:colcwdoc
+   Local: Field: snf: Skip: Yes
+   Local: Field: snf: storage:cwdocnew
+
+   local: Field: sp: Set As:"Item Image Path"
+
+;; {06.Aug.24 17:40}    invisible:not @@cwUseDocManagement
+   ;; {06.Aug.24 17:40}  invisible:not @@cwDocitemEnable
+
+   local: field: sp: Width:28
+
+   local : field : cwlogical : subform : docreport :$$value
+
+   Local: Field: default: Color : blue
+   Local: Field: cwlogical: Style: Normal Bold
+
+  [Line:cwdocdaybookline]
+  field:snf1
+  Local: Field:snf1 : Set As: $cwdoc
+  Local: Field: snf1: storage:cwdocnewinv
+
+[report : docreport]
+Title :""
+use : dsp template
+form : docform
+
+[form : docform]
+use : dsp template
+part :docpart,docpart2
+option : small size form
+height:2 inch
+
+
+on : form Accept : yes : Call :funOnAssignment
+
+[part:docpart]
+
+line:cwdoclinenew
+
+[line:cwdoclinenew]
+border:totals
+
+field:nf,snf
+Local: Field: nf:info:$cwBasePath:COMPANY:##SVCURRENTCOMPANY
+
+Local: Field: snf:info:"View"
+Local: Field: default: Style: Normal Bold
+Local: Field: nf:width:55
+
+
+[part:docpart2]
+
+line:cwdocline2x
+
+REPEAT: cwdocline2x:colcwdoc
+break on : $$issysname:$cwdoc
+ scroll :vertical
+
+[line:cwdocline2x]
+
+field:nf,cwlogical,numf
+
+Local: Field: nf:storage:cwdoc
+
+Local: Field: cwlogical: storage:cwview
+Local: Field:  numf: set as : if #cwlogical and $$isfieldedited:cwlogical then $$cwshowDoc:#nf else 0
+Local: Field: numf: Skip: Yes
+Local: Field: nf:width:55
+;; {06.Aug.24 18:28} local: field:numf: inactive:$$isempty:$cwdoc
+;; {06.Aug.24 18:37} local: field:cwlogical: inactive:$$isempty:$cwdoc
+
+local: field:cwlogical : inactive: $$issysname:#nf
+
+
+
+
+[Collection: colcwdoc]
+ type    : colcwdoc :ledger
+child of :$name
+
+fetch:cwdocnewinv
+
+[function : cwShowDoc]
+parameter : filename : string
+variable : mypath : string
+05 : set : mypath : @@cwBasePath +##FileName
+
+;;06 : log : ##mypath
+10 : exec command : ##mypath
+
+100 : return : 1
+
+
+
+;;========================
+[function :funOnAssignment]
+
+;; {04.Sep.20 12:34} parameter : filename : string
+variable : mypath : string
+variable : mycopy : string  : @@cwOnAssignment
+variable : frompath : string
+variable : topath : string
+
+variable : mymove : string  ;;:@@cwUNCpathwithfilename
+
+
+;;0000 : log: "in funcation"
+
+001:walk collection:colcwdoc
+
+002: set : frompath : @@cwfrompath+$cwdoc
+
+
+
+;; {04.Sep.20 16:44} 003: log : ##frompath   + " " +  ##mycopy
+
+004 : set : topath : @@cwBasePath+$cwdoc
+
+
+
+ 100 : if : ##mycopy = "Copy"
+;;105: log : "copying " +  ##frompath + " to " + ##topath
+110 : copy file :##topath :##frompath
+110a: exec command :@@cwUNCpathwithfilename:##frompath+" "+##topath
+120: else
+
+;; {04.Sep.20 13:18} 130: exec command :@@cwUNCpathwithfilename  :  ##topath :##frompath
+122: set : frompath '"'+ @@cwfrompath+$cwdoc  +'"'
+;; {19.Sep.22 14:27} 125 : set : topath : '"'+ @@cwBasePath +'"'
+;;128: log : "moving " +  ##frompath + " to " + ##topath
+;; {19.Sep.22 14:27} 130: exec command :@@cwUNCpathwithfilename:##frompath+" "+##topath
+140:end if
+
+300:end walk
+

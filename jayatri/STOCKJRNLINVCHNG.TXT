@@ -1,0 +1,568 @@
+; Created By: Anil on 2024-03-21 18:48, ID: 
+
+/*[#Part: SJN OutDetails]
+
+        Lines   : SJN DetTitle, SJN Details, SJN Totals
+        Repeat  : SJN Details : Inventory Entries Out
+        Local   : Field : SJN DetTitle : Set as     : If ##SJNWithInGdwn AND @@IsGodownTransfer Then $$LocaleString:"Source Godown" Else $$LocaleString:"Source (Consumption)2222 "
+        Local   : Field : SJN DetTitle : Inactive   : $$IsEmpty:$$NumFilledItems:InventoryEntriesOut
+        Local   : Field : SJN QtyTotal : Inactive   : $$IsEmpty:$$NumFilledItems:InventoryEntriesOut
+                          */
+
+;; {22.Mar.24 10:44} [#form : Simple Printed Invoice]
+[#Form: NormalSJPrint]
+;;   add : option : StockJrnlInvOpt : @@StockJrnlInvSales
+
+;; {22.Mar.24 10:44} [#form : ComprehensiveInvoice]
+[#Form: NormalSJPrint]
+   add : option : StockJrnlInvOpt: @@IsStockJrnl and @@JayatriTestEnabled;;@@StockJrnlInvSales
+
+[!form : StockJrnlInvOpt]
+Delete : Part
+Delete : Bottom Part
+Delete : Page Break
+   add : Top part : StockJrnlInvTopPart,StockJrnlInvTopPart2
+   add : Part : StockJrnlInvInvACCPart
+   Add : bottom Part :  StockJrnlInvBottomPart,StockJrnlInvBottomPart2x,StockJrnlInvBottomPart2
+   add : page Break : StockJrnlInvCLBreak, StockJrnlInvOPBreak
+
+ [Part : StockJrnlInvCLBreak]
+   use : StockJrnlInvBottomPart
+
+ [Part : StockJrnlInvOpBreak]
+  part : StockJrnlInvTopPart
+
+ [part : StockJrnlInvTopPart]
+line : stkcmpnameLine,stkcmpaddLine,stkcmpgstLine,stkcmpStktransferLine
+;; {20.Apr.24 16:42} repeat:stkcmpaddLine:CwcmpAddress ;;cwCompanyMultiAddressPrint ;;CwcmpAddress
+border:thin box
+/*add:Option		: cwPPRCMACompanyAddress	: not ($$IsSysNameEqual:Primary:##SVAddressToPrint OR $$IsEmpty:##SVAddressToPrint)
+;; {18.Apr.24 15:16} Option		: PPR CompanyTitleGSTTIN	: (@@IsReceipt OR @@IsPayment) AND (##IsGSTAdvReceipt or ##IsGSTRecptTaxInvoice)
+
+[!Part: cwPPRCMACompanyAddress]
+		
+Delete	: Repeat
+Add		: Repeat	: stkcmpaddLine	: cwCompanyMultiAddressPrint ;;Company Multi Address Print
+  */
+
+[line : stkcmpnameLine]
+field:fwfc
+
+Local: Field: fwfc: Set As:@@cmpmailname
+Local: Field: fwfc: Style: style1x
+border:thin bottom
+SPACE BOTTOM:0.25
+  
+[line:stkcmpaddLine]
+field:fwfc
+
+;; {20.Apr.24 16:42} Local: Field: fwfc: Set As:$address
+Local: Field: fwfc: Set As:$cwstkjrnlgodownaddstrg
+Local: Field: fwfc: Style: style2x
+Local : field : fwfc: Lines : 0
+border:thin bottom
+SPACE BOTTOM:0.25
+
+[System: Formula]
+cwgodownadd:$$CollectionField:$Address:First:Address
+  
+;;===============================
+ [Collection: CwGdAddress]
+	
+    Type        : Address   : godownname
+    Child of    : $godownname
+    
+    
+ [Collection: CwcmpAddress]
+	
+    Type        : Address   : Company
+    Child of    : ##SVCurrentCompany
+	Compute		: IsNumber	  	: No
+	Compute		: FixedDirection: No
+	
+;; {23.Mar.22 18:12}     Object      : Company State
+;; {23.Mar.22 18:12} 	Object  	: Company CINumber
+;; {23.Mar.22 18:45} 	Object      : Company Contacts
+;; {21.Feb.22 15:26} 	Object		: Company FaxNo
+	Object      : Company Email
+
+;;====================
+[Collection: cwCompanyMultiAddressPrint]
+
+	Collection	: Company Multi Address PrnExtract
+    Object      : Company Multi Address PrnState
+	Object  	: Company CINumber
+	Object		: Company Multi Address TINTRN
+	Object      : Company Multi Address PrnContacts
+	Object		: Company Multi Address PrnFaxNo
+	Filter		: IsNotBlankAddr
+	Fetch		: Address
+	Option		: Company Multi Address GSTIN			: (##IsVoucher OR ##IsMultiVchReport) AND @@IsGSTOnAppl
+	Option		: Company Multi Address PrintInVch		: ##IsVoucher
+	Option		: Company Multi Address PrnWebsiteName	: Yes
+	
+[Collection: cwCompanyMultiAddressPrnSrcColl]
+
+    Title       : $$LocaleString:"List of Companies"
+    Type        : MultiAddressList	: Company
+	Child of	: ##SVCurrentCompany
+	Fetch		: Address.*, AddressName
+	Filter		: IsSameCmpAddrType
+	
+;;=====================
+
+[line:stkcmpgstLine]
+field:fwfc
+
+Local: Field: fwfc: Set As:"GSTN :"+@@VATCMPGSTNumber
+Local: Field: fwfc: Style: style2x
+SPACE BOTTOM:0.25
+border:thin bottom
+
+[line:stkcmpStktransferLine]
+field:fwfc
+
+Local: Field: fwfc: Set As:##Reporttitle
+Local: Field: fwfc: Style: style1x
+SPACE BOTTOM:0.25
+
+[part:StockJrnlInvTopPart2]
+part:StockJrnlInvTopPart2X
+part:StockJrnlInvTopPart2Y
+VERTICAL:YES
+
+[part:StockJrnlInvTopPart2X]
+LINE:cwbilltoLine
+BORDER:THIN LEFT RIGHT
+[line:cwbilltoLine]
+field:fwf
+
+Local: Field: fwf: Set As:"To:"
+Local: Field: FWF: Style: style2x
+SPACE BOTTOM:0.25
+border:thin bottom
+
+[part:StockJrnlInvTopPart2Y]
+part:StockJrnlInvTopPart2A
+part:StockJrnlInvTopPart2B
+border:thin left right
+
+[part:StockJrnlInvTopPart2A]
+line:cwpartyLine,cwpartyaddline,cwpartyGstLine,cwpartyStateName
+;; {27.Mar.24 13:21} repeat:cwpartyaddline:address
+;; {27.Mar.24 18:12} common border:yes
+
+[line:cwpartyLine]
+field:sp,fwf
+
+Local: Field: sp: Set As:"Party Name"
+Local: Field: fwf: Set As:$cwpstkjrnlparty
+border:thin bottom
+;; {27.Mar.24 18:13} Local: Field: sp: Border: thin right
+Local: Field: sp: Style: style2x
+Local: Field: fwf: Style: style7
+Local: field: SP: Width:12
+space bottom:0.25
+
+[line:cwpartyaddline]
+field:fwf
+
+;; {27.Mar.24 13:46} Local: Field: sp: Set As:"Address" ;;if $$line=1 then "Address :" else ""
+Local: Field: fwf: Set As:"Address         :"+"  "+$CWVCHLEDGERADDRESS ;;$address
+Local : field : FWF: Lines : 0
+Local: Field: fwf: Style: style2x
+border:thin bottom
+space bottom:0.25
+
+[line:cwpartyGstLine]
+field:sp,fwf
+
+Local: Field: sp: Set As:"Gst No"
+Local: Field: fwf: Set As:$CWVCHLEDGERGSTNMBR ;;$CWLEDGERGSTNMBR:#fwf ;;:Ledger:#fwf ;;$GSTIN:LEDGER:#FWF
+Local: Field: DEFAULT: Style: style2x
+Local: field: SP: Width:12
+border:thin bottom
+space bottom:0.25
+
+[line:cwpartyStateName]
+use: cwpartyGstLine
+
+Local: Field: sp: Set As:"State"
+Local: Field: fwf: Set As:$CWVCHLEDGERstare
+Local: Field: DEFAULT: Style: style2x
+delete:border:thin bottom
+
+[part:StockJrnlInvTopPart2B]
+line:cwChallanNoLine,cwchalandateLine,cwTransportLine,cwVehicleLine2,cwStateCodeLine
+border:thin left
+
+[line:cwChallanNoLine]
+field:sp,snf
+
+Local: Field: sp: Set As:"Challan No"
+Local: Field: snf: Set As:$cwchallanno
+Local: Field: DEFAULT: Style: style2x
+Local: field: SP: Width:10
+Local: field: snf: Width:26
+border:thin bottom
+space bottom:0.25
+
+[line:cwchalandateLine]
+field:sp,sdf
+
+Local: Field: sp: Set As:"Date"
+Local: Field: sdf: Set As:$cwchallandate
+Local: Field: DEFAULT: Style: style2x
+Local: field: SP: Width:10
+;; {28.Mar.24 11:14} Local: field: snf: Width:2
+border:thin bottom
+space bottom:0.25
+
+[line:cwTransportLine]
+use:cwChallanNoLine
+
+Local: Field: sp: Set As:"Transport"
+Local: Field: snf: Set As:$cwtransporte
+
+[line:cwVehicleLine2]
+use:cwChallanNoLine
+
+Local: Field: sp: Set As:"Vehicles No"
+Local: Field: snf: Set As:$cwvehiclesno
+
+[line:cwStateCodeLine]
+use:cwChallanNoLine
+
+Local: Field: sp: Set As:"State Code"
+Local: Field: snf: Set As:$$getgststatecode:@@cwcompanyStateName
+DELETE:border:thin bottom
+[System: Formula]
+cwcompanyStateName: $statename:COMPANY:##SVCURRENTCOMPANY
+
+[part : StockJrnlInvINVACCPart]
+Parts       : StockJrnlInvInvPart ;;,StockJrnlInvAccPart
+CommonBorder: Yes
+Vertical    : Yes
+Scroll      : Vertical
+Float       : No
+border:thin left right
+Total       : qtyf,AMTF
+
+;;==========================
+[Function:cwGetHSNCodeFor]
+parameter : myitemname : string
+returns : string
+;; {10.Sep.20 22:11} object:stockitem:##myitemname
+
+10 : return: $$GetNonEmptyValFromHierarchy:"GST":@@dsptodate:"":"sales":$StockItemName:"Main location":"":"HSNCode"
+;;==============================
+
+ [part : StockJrnlInvInvPart]
+  line : StockJrnlInvInvLineTitle,StockJrnlInvInvLine,StockJrnlInvInvLineTotal
+repeat : StockJrnlInvInvLine : InventoryEntriesin
+Scroll : vertical
+Common border : yes
+ float : no
+
+
+ [Line : StockJrnlInvInvLine]
+ field : snf,fwf,snf1,snf2,
+right field : qtyf,snfx,ratef,amtf
+local : field : fwf : set as : @@invitemname
+local : field: snf :set as : $$linenumber-1
+local : field: snf1 :set as : $$cwGetHSNCodeFor:$STOCKITEMNAME
+local : field: snf2 :set as : $batchname
+Local: Field: SNFX: Set As:$baseunits:stockitem:$stockitemname
+local : field : qtyf : set as : $billedqty
+local : field : ratef : set as : $rate
+local : field : amtf : set as : $amount
+;; {27.Mar.24 17:03} explode : StockJrnlInvBUDPart : $basicuserdescription != ''
+;; {27.Mar.24 17:03} explode : StockJrnlInvBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : snf : align : CENTRE
+local : field : snf1 : align : CENTRE
+local : field : snf2 : align : CENTRE
+local : field : snfx : align : CENTRE
+local : field : qtyf : align : CENTRE
+local : field : ratef : format :"Decimals:2,NoZero"
+Local: field:qtyf : Format: "NoSymbol"
+
+Local: Field: SNF: Border: thin right
+Local: Field: SNF1: Border: thin right
+Local: Field: SNF2: Border: thin right
+Local: Field: FWF: Border: thin right
+Local: Field: qtyf: Border: thin right
+Local: Field: snfx: Border: thin right
+Local: Field: qtyf2: Border: thin right
+Local: Field: ratef: Border: thin right
+
+Local: Field: DEFAULT: Style: style2x
+ 
+Local: field: snf: Width:8
+Local: field: snf1: Width:10
+SPACE BOTTOM:0.25
+BORDER:THIN TOP
+
+[line:StockJrnlInvInvLineTitle2]
+use:StockJrnlInvInvLine
+;; {27.Mar.24 16:08} FIELD:FWF
+delete : explode
+   local : field: default : type : string
+
+   local : field : SNFX: set as :"" ;; "SL"
+   local : field : snf: set as :"" ;; "SL"
+   local : field : snf1: set as :"" ;; "SL"
+ local: field: fwf : set as : "" ;;"Description"
+ local : field : qtyf : set as : "" ;;"Qty."
+ local: field : ratef : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+
+ local : field : qtyf : align : right
+ local: field : ratef : align : right
+ local : field : amtf : align : right
+ BORDER:THIN TOP
+
+[line: StockJrnlInvInvLineTitle]
+ use : StockJrnlInvInvLine
+delete : explode
+border:thin top bottom
+   local : field: default : type : string
+   
+   local : field : snf: set as : "SL"
+   local : field : snf1: set as : "HSN"
+   local : field : snf2: set as : "BALE NO"
+   local : field : snfX: set as : "Per"
+ local: field: fwf : set as : "QUALITY"
+ local : field : qtyf : set as : "Qty"
+;; {27.Mar.24 10:34}  local : field : qtyf2 : set as : "PCS"
+ local: field : ratef : set as : "Rate"
+ local : field : amtf : set as :"Amount"
+ 
+ local : field : snf : align : CENTRE
+ local : field : snf1 : align : CENTRE
+ local : field : snf2 : align : CENTRE
+ local : field : snfX : align : CENTRE
+ local : field : qtyf : align : CENTRE
+ local: field : ratef : align : CENTRE
+ local : field : amtf : align : right
+ LOCAL:FIELD:FWF:INDENT:10
+ 
+ Local: Field: DEFAULT: Style: style2x
+
+ local: field:ratef : type: String
+ 
+[part : StockJrnlInvBatchPart]
+line : StockJrnlInvBatchLine
+repeat : StockJrnlInvBatchLine : BatchAllocations
+
+[line : StockJrnlInvBatchLine]
+  use : StockJrnlInvBUDLine
+local : field : fwf : set as : "" ;;$batchname
+local : field : snf2 : set as : "" ;;$batchname
+local : field : SNFX : set as : "" ;;$batchname
+
+[part : StockJrnlInvBUDPart]
+line: StockJrnlInvBUDLine
+repeat : StockJrnlInvbudline : basicuserdescription
+
+[line : StockJrnlInvBudLine]
+ use  : StockJrnlInvINVLINE
+delete : explode
+local : field : SNFX : set as : ""
+local : field : snf : set as : ""
+local : field : snf1 : set as : ""
+local : field : fwf : set as : $basicuserdescription
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : ""
+
+[line : StockJrnlInvInvLineTotal]
+ use  : StockJrnlInvINVLINE
+delete : explode
+local : field : SNFX : set as : ""
+local : field : snf : set as : ""
+local : field : snf1 : set as : ""
+local : field : fwf : set as : ""
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : "" ;;$$collamttotal:inventoryentries:$amount
+;; {27.Mar.24 11:02} local : field : amtf : border :thin top
+space bottom : 0.05
+
+
+ [part : StockJrnlInvACCPart]
+  line : StockJrnlInvACCLine
+repeat : StockJrnlInvACCLine : Ledger Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+ [Line : StockJrnlInvACCLine]
+   use : StockJrnlInvINVLine
+empty : $ledgername = $partyledgername or $$issysname:$ledgername or $$isempty:$amount
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"NoZero,Percentage"
+local : field : ratef  : set as : $basicrateofinvoicetax
+local : field : snf : set as : ""
+local : field : fwf : set as : $ledgername
+local : field : qtyf : set as : ""
+delete : explode
+
+  [part : StockJrnlInvBottomPart]
+   line : StockJrnlInvTotLine ;;,cwblankline
+  
+  [line : StockJrnlInvTotLine]
+    use : StockJrnlInvACCLine
+ delete : empty
+  local : field : qtyf  : set as :""
+  local : field : ratef  : set as :""
+  local : field : SNFx  : set as :$baseunits:stockitem:$stockitemname
+  local : field : SNF1  : set as :""
+  local : field : fwf : set as : "Total:"
+  local : field : fwf : align : right
+  local : field : amtf : format : "ShowBaseSymbol" 
+  Local: Field: amtf: Set As:$$TOTAL:amtf
+  Local: Field: qtyf: Set As:$$TOTAL:qtyf
+    SPACE BOTTOM:0.20
+  BORDER:THIN BOX
+  
+  [part:StockJrnlInvBottomPart2x]
+  line:cwstkjrnlgstTitleline,cwstkjrnlgstTitleline2,cwstkjrnlgstline3,cwstkjrnlgstline4
+   border:thin left right bottom
+   common border:yes
+   
+   [line:cwstkjrnlgstTitleline]
+   field:fwfc
+   
+   Local: Field: fwfc: Set As:"GST DETAILS"
+   space bottom:0.20
+    Local: Field: fwfc: Style: style2x
+   
+   [line:cwstkjrnlgstTitleline2]
+   field:fwf,numf,snfx,amtf
+   
+   Local: Field: fwf: Set As:"Ledger Name"
+   Local: Field: numf: Set As:"Rate"
+   Local: Field: amtf: Set As:"Amount"
+   local: field: numf: type: String
+   local: field: amtf: type: String
+   space bottom:0.20
+   border:thin top bottom
+  local:field:fwf:indent:10
+   Local: Field: default: Style: style2x
+   Local: Field:numf : Border: thin left
+   Local: Field:amtf : Border: thin left
+   
+  [line:cwstkjrnlgstline3]
+  field:fwf,numf,snfx,amtf
+  
+  Local: Field: fwf: Set As:$cwStkLedger
+  Local: Field: numf: Set As:$cwStkLedgerRate
+  Local: Field: amtf: Set As:$cwStkLedgeramt
+   space bottom:0.20
+   Local: Field: default: Style: style2x
+   Local: Field:numf : Border: thin left
+   Local: Field:amtf : Border: thin left
+   local : field : numf : format :"Decimals:1,NoZero"
+   Local: Field: snfx: Set As:"%"
+   
+  [line:cwstkjrnlgstline4]
+  field:fwf,numf,snfx,amtf
+
+  Local: Field: fwf: Set As:$cwStkLedger2
+  Local: Field: numf: Set As:$cwStkLedgerRate2
+  Local: Field: amtf: Set As:$cwStkLedgeramt2
+   space bottom:0.20
+   Local: Field: default: Style: style2x
+   Local: Field:numf : Border: thin left
+   Local: Field:amtf : Border: thin left
+   local : field : numf : format :"Decimals:1,NoZero"
+   Local: Field: snfx: Set As:"%"
+   
+  [PART:StockJrnlInvBottomPart2]
+  LINE:CWAMTINWORDLINE,cwblanklineA1,CWPREPAREDBYLINE,cwblanklineA2,CWSUNJECTLINE,CWREMARKSLINE
+;; {22.Mar.24 17:30}   COMMON BORDER : YES
+  
+  [LINE:CWAMTINWORDLINE]
+  FIELD:FWF
+  
+  Local: Field: FWF: Set As:"Amount In Words  :"+@@amtwordonlynox
+  Local: Field: FWF: Style: style2x
+    SPACE BOTTOM:0.25
+  BORDER:THIN LEFT RIGHT BOTTOM
+  
+  [System: Formula]
+  amtwordonlynox : $$inwords:#amtf:"NoSymbol" + " only."
+  
+  [LINE:cwblanklineA1]
+  USE:CWPREPAREDBYLINE
+   BORDER:THIN LEFT RIGHT
+   Local: Field: SP: Set As:""
+  Local: Field: NF: Set As:""
+
+  Local: Field: SP1: Set As:""
+  Local: Field: NF1: Set As:""
+
+  Local: Field: SP2: Set As:""
+  Local: Field: NF2: Set As:""
+  
+  [LINE:CWPREPAREDBYLINE]
+  FIELD:SP,NF,SP1,NF1
+  RIGHT FIELD:SP2,NF2
+  BORDER:THIN LEFT RIGHT ;;BOTTOM
+  
+  Local: Field: SP: Set As:"PREPARED BY"
+  Local: Field: NF: Set As:@@cwcmpusername
+  
+  Local: Field: SP1: Set As:"CHECKED BY"
+  Local: Field: NF1: Set As:""
+  
+  Local: Field: SP2: Set As:""
+  Local: Field: NF2: Set As:""
+  
+  Local: field: sp: Width:14
+  Local: field: sp1: Width:14
+  
+  Local: Field: SP: Style: style2x
+  Local: Field: SP1: Style: style2x
+  
+  Local: Field:NF : Border: thin right
+  Local: Field:NF1 : Border: thin right
+
+  [LINE:cwblanklineA2]
+  USE:CWPREPAREDBYLINE
+   BORDER:THIN LEFT RIGHT
+   Local: Field: SP: Set As:""
+  Local: Field: NF: Set As:""
+
+  Local: Field: SP1: Set As:""
+  Local: Field: NF1: Set As:""
+
+  Local: Field: SP2: Set As:""
+  Local: Field: NF2: Set As:""
+  BORDER:THIN LEFT RIGHT BOTTOM
+  
+  [LINE:CWSUNJECTLINE]
+  FIELD:FWF
+  
+  Local: Field: FWF: Set As:if $$isempty:@@cwInvJurisdiction then "" else "Subject to "+@@cwInvJurisdiction+" Jurisdiction"
+  BORDER:THIN LEFT RIGHT
+  Local: Field: FWF: Style: style2x
+  
+  [LINE:CWREMARKSLINE]
+  FIELD:SP,FWF
+  
+  Local: Field: SP: Set As:"REMARKS"
+  Local: Field: FWF: Set As:$narration
+   Local: Field: DEFAULT: Style: style2x
+   SPACE BOTTOM:0.25
+  BORDER:THIN LEFT RIGHT BOTTOM
+
+;;========================
+
+[System: Formula]
+cwcmpusername:$OwnerName:COMPANY:##SVCURRENTCOMPANY
+  

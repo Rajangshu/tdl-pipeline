@@ -1,0 +1,331 @@
+; Created By: Anil on 2024-07-08 14:15, ID: 
+
+;; {08.Jul.24 15:56} [#Form : NRM StkGrpSummary]
+;; {08.Jul.24 15:56}  Local: Field: default: Border: thin box ;;left right
+
+     [#menu: Gateway of Tally]
+        add: Option: GodownWiseRepLock ;; : @@GodownWiseRepDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@GodownWiseRepReport: Display: RepGodownWiseRep
+  */
+
+
+     [!menu: GodownWiseRepLock]
+        add: Item: before: @@locQuit: @@GodownWiseRepReport: Display: RepGodownWiseRep
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   GodownWiseRepReport: "GodownWiseRep"
+;; GodownWiseRepDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepGodownWiseRep]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@GodownWiseRepReport
+   Printset: Report Title: @@GodownWiseRepReport
+
+       Form: FrmGodownWiseRep
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+ variable:gdstr1,gdstr2
+;; {08.Jul.24 15:10}     set:str1:""
+
+     
+      [Form: FrmGodownWiseRep]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0GodownWiseRep,PrtGodownWiseRep
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: GodownWiseRepbotbrk,GodownWiseRepbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: GodownWiseRepConfigure
+add:button: GodownNamebotton
+
+      [part: GodownWiseRepbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: GodownWiseRepbotopbrk]
+        use: dspacctitles
+  add: part: GodownWiseRepTitlePart
+
+      [part: GodownWiseRepTitlePart]
+       line: LnGodownWiseRepTitle
+       
+      [line: LnGodownWiseRepCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0GodownWiseRep]
+      line : LnGodownWiseRepCurrPeriod
+      
+      [Part: PrtGodownWiseRep]
+       Line: LnGodownWiseRepTitle,LnGodownWiseRepTitle2,LnGodownWiseRep
+bottom Line: LnGodownWiseRepTotals
+     repeat: LnGodownWiseRep: ColGodownWiseRep
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: ColGodownWiseRep]
+/*collection:ColGodownWisebatchRep:ColGodownWiseitemRep
+;; {08.Jul.24 16:04} filter:cwGodownnamefilter
+
+[Collection: ColGodownWiseitemRep]
+type:stock item
+
+[Collection: ColGodownWisebatchRep]
+	type:batch
+Child of:$$LoopCollObj:$name
+	
+;; {23.May.24 11:30} 	Type		: Godown
+
+;; {23.May.24 11:34} 	Child of	:$$LoopCollObj:$Name
+;; {09.Dec.21 15:08} 	Childof		: "Banhooghly Godown"
+;; {23.May.24 11:32} 	BelongsTo	: Yes
+
+aggr compute: cwCount : godownname : 1
+;; {08.Jul.24 16:22} aggr compute:godownname:sum:1
+Fetch		: Name, OpeningBalance, ClosingBalance,parent,godownname,StkClBalance,count
+;; {23.May.24 11:34} 	Keep Source : ().
+filter:cwGodownnamefilter,cwGodownnamefilter2 */
+
+/*        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColGodownWiseRepFilter,IsNonOptionalCancelledVchs */
+
+    [system: Formula]
+ColGodownWiseRepFilter: Yes ; $$isSales:$voucherTypeName
+cwGodownnamefilter:if $$issysname:##gdstr1 then yes else $godownname =##gdstr1
+cwGodownnamefilter2:if $$issysname:##gdstr2 then yes else $parent =##gdstr2
+
+      [Line: LnGodownWiseRepTitle]
+        use: LnGodownWiseRep
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+;; {08.Jul.24 16:51} local:field: nf: set as:##gdstr1 ;;str1 ;; "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+      
+local:field:godownfield1:delete :field
+local:field:godownfield1:set as:##gdstr1 ;;"Opening Balance"
+local:field:godownfield1: type : string
+local:field:godownfield1:align :centre
+local:field:godownfield1:sub title:yes
+local:field:godownfield1:border:thin bottom
+local:field:godownfield1:Style: style2
+
+local:field:godownfield2:delete :field
+local:field:godownfield2:set as:##gdstr2 ;;"Opening Balance"
+local:field:godownfield2: type : string
+local:field:godownfield2:align :centre
+local:field:godownfield2:sub title:yes
+local:field:godownfield2:border:thin bottom
+local:field:godownfield2:Style: style2
+      
+[line:LnGodownWiseRepTitle2]
+        use: LnGodownWiseRep
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+;; {08.Jul.24 16:51} local:field: nf: set as:##gdstr1 ;;str1 ;; "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+local:field: snf : set as : "Bale"
+      local: field: default : style: normal bold
+
+[field:godownfield1]
+field:snf,qtyf
+
+[field:godownfield2]
+field:snf2,qtyf2
+
+; Main Line
+
+      [Line: LnGodownWiseRep]
+     Fields: GodownWiseRepmastid,fwf,nf ;;snf,nf,nf1,nf2
+Right Field: godownfield1,godownfield2 ;;ratepf,Qtyf,Amtf
+
+     Option: Alter on Enter
+        key: GodownWiseRepDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: snf : set as : $name ;;$cwCount
+local:field: snf2 : set as : $name ;;$cwCount
+local:field: fwf : set as : $parent ;;$name
+local:field: nf : set as : $godownname
+local:field: nf2 : set as : $name
+local:field: qtyf : set as : $StkClBalance
+local:field: qtyf2 : set as : $StkClBalance
+
+;; {08.Jul.24 16:52} Local: Field: nf: Border: thin left
+Local: Field: godownfield1: Border: thin left
+
+
+add:explode:LnGodownreportexp:$$line=$$numitems or $parent<>$$nextobj:$parent
+
+[part:LnGodownreportexp]
+line:LnGodownreportexp
+
+[line:LnGodownreportexp]
+ use: LnGodownWiseRep
+delete:explode
+border:totals
+;; {08.Jul.24 13:09} local: field: fwf: align: right
+local: field: default : style: normal bold
+
+local: field: qtyf: set as: ""
+local: field: fwf: set as: " Sub-Total"
+
+local:field: sdf: set as:"" ;; "Date"
+local:field: nf: set as:"" ;; "Vch Name"
+
+local:field: nf2: set as: "" ;;"Item"
+local:field: snf: set as:"" ;; "Batch Name"
+local:field: snf1: set as:"" ;; "Batch Name"
+local:field: snf3: set as:"" ;; "Batch Name"
+local:field: qtyf: set as:$$total:qtyf;;#qtyf2 ;;"Qty."
+local:field: qtyf6: set as:$$total:qtyf6;;#qtyf2 ;;"Qty."
+local:field: qtyf10: set as:#qtyf6-#qtyf ;;"Qty."
+local:field: numf: set as:$$total:NUMF;;$$prevlinefield ;;"Qty."
+;; {29.Jun.24 16:33} local:field: numf3: set as:$$total:NUMF3;;$$prevlinefield ;;"Qty."
+local:field: qtyf5: set as:$$total:qtyf5;;$$prevlinefield ;;"Qty."
+local: field: qtyf10 : style: style7
+local: field: qtyf : style: style7
+local: field: numf5 : style: style7
+local: field: fwf : style: style7
+
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: GodownWiseRepDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: GodownWiseRepDisplayVoucher
+
+ 	
+     [Report: GodownWiseRepDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #GodownWiseRepmastid
+	
+
+        [Field: GodownWiseRepmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnGodownWiseRepTotals]
+        use: LnGodownWiseRep
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+;;=======================
+
+ [button:GodownNamebotton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:GodownNamerep
+
+ [report:GodownNamerep]
+ form:GodownNamerep
+
+ [form:GodownNamerep]
+ part:GodownNamerep
+
+ HEIGHT:20% PAGE
+ WIDTH:30% PAGE
+
+ [part:GodownNamerep]
+ line:Godowntitlelinex,GodownNameline,GodownNameline2
+
+ [line:Godowntitlelinex]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: Normal Bold
+ space bottom:0.5
+
+ [line:GodownNameline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Godown Name"
+ Local: Field: nf:modifies:gdstr1 ;;str1
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:collcwgodown,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ [line:GodownNameline2]
+ field:sp,nf
+ Local: Field: sp: Set As:"Item Name"
+ Local: Field: nf:modifies:gdstr2 ;;str1
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:collcwItem,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ [collection:collcwgodown]
+ type:godown
+ 
+ [collection:collcwItem]
+ type:stock item
+ 
+;;=========================
+[variable : gdstr1]
+     type : string
+;; {08.Jul.24 15:14}   default : ""
+persistent: yes ;;no
+
+[system : variable]
+;; {08.Jul.24 15:15} gdstr1 : ""
+;;========
+
+[variable : gdstr2]
+     type : string
+;; {08.Jul.24 15:14}   default : ""
+persistent: yes ;;no
+
+[system : variable]
+;; {08.Jul.24 15:15} gdstr1 : ""

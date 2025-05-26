@@ -1,0 +1,183 @@
+; Created By: Anil on 2024-07-26 18:53, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+;; {27.Jul.24 15:38}         add: Option: ItemWiseSalesLock ;; : @@ItemWiseSalesDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ItemWiseSalesReport: Display: RepItemWiseSales
+  */
+
+
+     [!menu: ItemWiseSalesLock]
+        add: Item: before: @@locQuit: @@ItemWiseSalesReport: Display: RepItemWiseSales
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ItemWiseSalesReport: "ItemWiseSales"
+;; ItemWiseSalesDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepItemWiseSales]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@ItemWiseSalesReport
+   Printset: Report Title: @@ItemWiseSalesReport
+
+       Form: FrmItemWiseSales
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+        variable:str1,str2,str3
+        
+Local:Button:RelReports: Inactive: Yes
+;; {27.Jul.24 13:05}     set : str1 : "MADRID SHIRT-M2002E-S-38"
+;; {27.Jul.24 13:05}     set : str2 : "222"
+;; {27.Jul.24 15:38}     set : str3 : "READY SHIRTS"
+     
+      [Form: FrmItemWiseSales]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0ItemWiseSales,PrtItemWiseSales
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: ItemWiseSalesbotbrk,ItemWiseSalesbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: ItemWiseSalesConfigure
+
+      [part: ItemWiseSalesbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ItemWiseSalesbotopbrk]
+        use: dspacctitles
+  add: part: ItemWiseSalesTitlePart
+
+      [part: ItemWiseSalesTitlePart]
+       line: LnItemWiseSalesTitle
+       
+      [line: LnItemWiseSalesCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0ItemWiseSales]
+      line : LnItemWiseSalesCurrPeriod
+      
+      [Part: PrtItemWiseSales]
+       Line: LnItemWiseSalesTitle,LnItemWiseSales
+bottom Line: LnItemWiseSalesTotals
+     repeat: LnItemWiseSales: ColItemWiseSales
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: ColItemWiseSales]
+source collection: ColItemWiseSalesSrc
+walk:inventoryentries
+;; {27.Jul.24 10:38} by:vouchernumber:$vouchernumber
+by:stockitemname:$stockitemname
+aggr compute:billedqty:sum:$billedqty
+compute:rate:$rate
+aggr compute:amount:sum:$amount
+by:closingbalance:$closingbalance
+filter:ColStockitemimportFilter
+
+[Collection: ColItemWiseSalesSrc]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColItemWiseSalesFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColItemWiseSalesFilter: $$isSales:$voucherTypeName OR $$IsDebitNote:$voucherTypeName ;;##VoucherTypeName
+ColStockitemimportFilter:$parent:stockitem:$stockitemname=##str3 ;;and $stockitemname =##str1 and $$ReptField:Name:2:stockitem:$stockitemname = ##str2
+
+      [Line: LnItemWiseSalesTitle]
+        use: LnItemWiseSales
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Item Group"
+local:field: nf2: set as: "Image Path"
+local:field: fwf: set as: "Description"
+local:field: snf: set as: "Alias"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: LnItemWiseSales]
+     Fields: ItemWiseSalesmastid,d1,snf,d2,fwf,d3,nf,d4,nf2,d5
+Right Field: Qtyf,d6,ratepf,d7,Amtf,d7
+
+     Option: Alter on Enter
+        key: ItemWiseSalesDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field:fwf : set as : $stockitemname
+local:field:nf : set as : $parent:stockitem:$stockitemname
+local:field:snf : set as : $$ReptField:Name:2:stockitem:$stockitemname
+Local:Field:qtyf: Set As:$billedqty
+Local:Field:ratepf: Set As:$rate
+Local:Field:amtf: Set As:$amount
+local:field: nf2: set as:$cwimagepath:company:##svcurrentcompany+$cwimagefilename:stockitem:$stockitemname  ;;"Image Path"
+
+ Local: field: fwf: Width:100
+Local: field: snf: Width:100
+Local: field: nf : Width:100
+Local: field: nf2: Width:100
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: ItemWiseSalesDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: ItemWiseSalesDisplayVoucher
+
+ 	
+     [Report: ItemWiseSalesDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #ItemWiseSalesmastid
+	
+
+        [Field: ItemWiseSalesmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnItemWiseSalesTotals]
+        use: LnItemWiseSales
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

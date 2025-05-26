@@ -1,0 +1,804 @@
+; Created By: Anil on 2024-02-16 13:50, ID: 
+
+;; {16.Feb.24 13:51}  [System: Formula]
+;; {16.Feb.24 13:51}   cwUseforDoOrderDetailsYES:$cwDoOrder:vouchertype:$vouchertypename="yes"
+
+[#form : Simple Printed Invoice]
+;;   add : option : DoOrderInvChngOpt : @@DoOrderInvChngSales
+
+[#form : ComprehensiveInvoice]
+   add : option : DoOrderInvChngOpt : @@cwUseforDoOrderDetailsYES and @@JayatriTestEnabled;;@@DoOrderInvChngSales
+
+[!form : DoOrderInvChngOpt]
+Delete : Part
+Delete : Bottom Part
+Delete : Page Break
+   add : Top part : DoOrderInvChngTopPart,DoOrderInvChngTopPart2
+   add : Part : DoOrderInvChngInvACCPart
+   Add : bottom Part :  DoOrderInvChngBottomPart2,DoOrderInvChngBottomPart3,DoOrderInvChngBottomPart4
+;; {12.Jan.24 18:25}    Add : bottom Part :  DoOrderInvChngBottomPart,DoOrderInvChngBottomPart2,DoOrderInvChngBottomPart3,DoOrderInvChngBottomPart4
+   add : page Break : DoOrderInvChngCLBreak, DoOrderInvChngOPBreak
+
+ [Part : DoOrderInvChngCLBreak]
+   use : DoOrderInvChngBottomPart
+
+ [Part : DoOrderInvChngOpBreak]
+  part : DoOrderInvChngTopPart
+
+ [part : DoOrderInvChngTopPart]
+ line:cwInvnumberLn,cwCmpNameLine,cwCmpGstNoline
+
+ [line:cwInvnumberLn]
+ field:sp,nf
+ right field:sp1,sdf
+
+ Local: Field: sp: Set As:"Inv No"
+ Local: Field: nf: Set As:$vouchernumber
+
+ Local: Field: sp1: Set As:"Dated"
+ Local: Field: sdf: Set As:$date
+ Local: Field: default: Style:Style1
+
+ [line:cwCmpNameLine]
+ field:fwfc
+
+ Local: Field: fwfc: Set As:@@cmpmailname
+ Local: Field: default: Style:Style1
+
+ [line:cwCmpGstNoline]
+ right field:sp,nf
+
+ Local: Field: sp: Set As:"GSTIN"
+ Local: Field: nf: Set As:@@VATCMPGSTNumber
+ space bottom:0.25
+ Local: Field: default: Style:Style1
+
+ [part:DoOrderInvChngTopPart2]
+ line:cwInvFectoryNameLn,cwInvVendorQualityLn,cwInvOurQualityNameLn,cwInvBedsheetSizeLn,cwInvPillowSizeLn,cwInvSidePillowLn,cwbedsheetcutLn2,cwpillowCutLine2,cwSidePillowCutLn2,cwInvTotalCutLn,cwInvPackingLn,cwInvStichingLn,cwInvSalvageLn,cwremarkLine
+
+ [line:cwInvFectoryNameLn]
+ field:sp,fwf
+
+ Local: Field: sp: Set As:"Fectory Name"
+ Local: Field: fwf: Set As: $cwFectoryName
+
+ Local: field: sp: Width:30
+ Local: Field: default: Style:Style1
+ space bottom:0.10
+
+ [line:cwInvVendorQualityLn]
+ use:cwInvFectoryNameLn
+
+ Local: Field: sp: Set As:"Vendor Quality"
+ Local: Field: fwf: Set As: $cwVendorQuality
+
+ [line:cwInvOurQualityNameLn]
+ use:cwInvFectoryNameLn
+
+ Local: Field: sp: Set As:"Our Quality Name"
+ Local: Field: fwf: Set As: $cwOurQualityName
+
+ [line:cwInvBedsheetSizeLn]
+ use:cwInvFectoryNameLn
+
+ Local: Field: sp: Set As:"Bedsheet Size"
+ Local: Field: fwf: Set As: $cwBedsheetSize
+
+ [line:cwInvPillowSizeLn]
+ use:cwInvFectoryNameLn
+
+ Local: Field: sp: Set As:"Pillow Size"
+ Local: Field: fwf: Set As: $cwPillowSize
+
+ [line:cwInvSidePillowLn]
+ use:cwInvFectoryNameLn
+
+ Local: Field: sp: Set As:"Side Pillow"
+ Local: Field: fwf: Set As: $cwSidePillow
+ 
+ [line:cwbedsheetcutLn2]
+ field:sp,numf
+ 
+ Local: Field: sp: Set As:"Bedsheet Cut"
+ Local: Field: numf: Set As: $cwBedSheetCut
+ 
+ Local: field: sp: Width:30
+ Local: Field: default: Style:Style1
+ space bottom:0.10
+ Local: field: numf: Align: left ;;centre
+ 
+ [line:cwpillowCutLine2]
+ use:cwbedsheetcutLn2
+ 
+ Local: Field: sp: Set As:"Pillow Cut"
+ Local: Field: numf: Set As: $cwPillowCut
+ 
+ [line:cwSidePillowCutLn2]
+ use:cwbedsheetcutLn2
+
+ Local: Field: sp: Set As:"Side Pillow Cut"
+ Local: Field: numf: Set As: $cwSidePillowCut
+
+ [line:cwInvTotalCutLn]
+ use:cwbedsheetcutLn2 ;;cwInvFectoryNameLn
+
+ Local: Field: sp: Set As:"Total Cut"
+ Local: Field: numf: Set As: $cwTotalCut
+
+ [line:cwInvPackingLn]
+ use:cwInvFectoryNameLn
+
+ Local: Field: sp: Set As:"Packing"
+ Local: Field: fwf: Set As: $cwPacking
+
+ [line:cwInvStichingLn]
+ use:cwInvFectoryNameLn
+
+ Local: Field: sp: Set As:"Stiching"
+ Local: Field: fwf: Set As: $cwStiching
+
+  [line:cwInvSalvageLn]
+ use:cwInvFectoryNameLn
+
+ Local: Field: sp: Set As:"Salvage"
+ Local: Field: fwf: Set As: $cwSalvage
+
+ [line:cwremarkLine]
+ use:cwInvFectoryNameLn
+
+ Local: Field: sp: Set As:"Marka"
+ Local: Field: fwf: Set As: $cwMARKA
+
+
+ [part : DoOrderInvChngINVACCPart]
+;; {09.Mar.24 10:40} Parts       : DoOrderInvChngInvPart,DoOrderInvChngInvPart1,DoOrderInvChngInvPart2 ;;, DoOrderInvChngAccPart
+Parts       : DoOrderInvChngInvPart,DoOrderInvChngInvPart2 ;;, DoOrderInvChngAccPart
+;; {12.Jan.24 18:26} CommonBorder: Yes
+Vertical    : Yes
+;; {12.Jan.24 18:25} Scroll      : Vertical
+Float       : No
+border:thin box
+;;Total       :
+
+ [part : DoOrderInvChngInvPart]
+  line : DoOrderInvChngInvLineTitle,DoOrderInvChngInvLine,DoOrderInvChngInvLine1,DoOrderInvChngInvLine2,DoOrderInvChngInvLine3,DoOrderInvChngInvLine4,DoOrderInvChngInvLine5
+;; {12.Jan.24 16:53} repeat : DoOrderInvChngInvLine : Inventory Entries
+;; {12.Jan.24 18:25} Scroll : vertical
+Common border : yes
+ float : no
+
+
+ [Line : DoOrderInvChngInvLine]
+;; {12.Jan.24 17:00}  field : snf,fwf
+;; {12.Jan.24 17:00} right field : qtyf,ratef,amtf
+use:DoOrderInvChngInvLineTitle
+border:thin box
+
+local : field : snf: set as : "" ;;"L.R Date"
+   local : field : snf1: set as : "" ;;"L.R No"
+   local : field : nf: set as : "" ;;"Transport"
+   local : field : snf3: set as : "" ;;"Bale No"
+   local : field : snf4: set as : "" ;;"Metre"
+   local : field : nf2: set as : "" ;;"Party Name"
+   local : field : snf6: set as : "" ;;"Quantity"
+   local : field : snf7: set as : "" ;;"Design No"
+   local : field : snf8: set as : "" ;;"Col.Mat."
+ local: field: fwf : set as : "" ;;"Description"
+ local : field : qtyf : set as : "" ;;"Qty."
+ local: field : ratef : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBUDPart : $basicuserdescription != ''
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+border:thin bottom
+Local: Field: DEFAULT: Style: Style2
+Local: Field: DEFAULT: Border: thin LEFT ;;left right
+
+[Line : DoOrderInvChngInvLine1]
+;; {12.Jan.24 17:00}  field : snf,fwf
+;; {12.Jan.24 17:00} right field : qtyf,ratef,amtf
+use:DoOrderInvChngInvLineTitle
+;; {13.Jan.24 10:56} border:thin box
+
+local : field : snf: set as : "" ;;"L.R Date"
+   local : field : snf1: set as : "" ;;"L.R No"
+   local : field : nf: set as : "" ;;"Transport"
+   local : field : snf3: set as : "" ;;"Bale No"
+   local : field : snf4: set as : "" ;;"Metre"
+   local : field : nf2: set as : "" ;;"Party Name"
+   local : field : snf6: set as : "" ;;"Quantity"
+   local : field : snf7: set as : "" ;;"Design No"
+   local : field : snf8: set as : "" ;;"Col.Mat."
+ local: field: fwf : set as : "" ;;"Description"
+ local : field : qtyf : set as : "" ;;"Qty."
+ local: field : ratef : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBUDPart : $basicuserdescription != ''
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+;; {13.Jan.24 10:56} border:thin bottom
+Local: Field: DEFAULT: Style: Style2
+Local: Field: DEFAULT: Border: thin LEFT ;;left right
+
+[Line : DoOrderInvChngInvLine2]
+;; {12.Jan.24 17:00}  field : snf,fwf
+;; {12.Jan.24 17:00} right field : qtyf,ratef,amtf
+use:DoOrderInvChngInvLineTitle
+;; {13.Jan.24 10:56} border:thin box
+
+local : field : snf: set as : "" ;;"L.R Date"
+   local : field : snf1: set as : "" ;;"L.R No"
+   local : field : nf: set as : "" ;;"Transport"
+   local : field : snf3: set as : "" ;;"Bale No"
+   local : field : snf4: set as : "" ;;"Metre"
+   local : field : nf2: set as : "" ;;"Party Name"
+   local : field : snf6: set as : "" ;;"Quantity"
+   local : field : snf7: set as : "" ;;"Design No"
+   local : field : snf8: set as : "" ;;"Col.Mat."
+ local: field: fwf : set as : "" ;;"Description"
+ local : field : qtyf : set as : "" ;;"Qty."
+ local: field : ratef : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBUDPart : $basicuserdescription != ''
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+;; {13.Jan.24 10:56} border:thin bottom
+Local: Field: DEFAULT: Style: Style2
+Local: Field: DEFAULT: Border: thin LEFT ;;left right
+
+[Line : DoOrderInvChngInvLine3]
+;; {12.Jan.24 17:00}  field : snf,fwf
+;; {12.Jan.24 17:00} right field : qtyf,ratef,amtf
+use:DoOrderInvChngInvLineTitle
+;; {13.Jan.24 10:56} border:thin box
+
+local : field : snf: set as : "" ;;"L.R Date"
+   local : field : snf1: set as : "" ;;"L.R No"
+   local : field : nf: set as : "" ;;"Transport"
+   local : field : snf3: set as : "" ;;"Bale No"
+   local : field : snf4: set as : "" ;;"Metre"
+   local : field : nf2: set as : "" ;;"Party Name"
+   local : field : snf6: set as : "" ;;"Quantity"
+   local : field : snf7: set as : "" ;;"Design No"
+   local : field : snf8: set as : "" ;;"Col.Mat."
+ local: field: fwf : set as : "" ;;"Description"
+ local : field : qtyf : set as : "" ;;"Qty."
+ local: field : ratef : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBUDPart : $basicuserdescription != ''
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+;; {13.Jan.24 10:56} border:thin bottom
+Local: Field: DEFAULT: Style: Style2
+Local: Field: DEFAULT: Border: thin LEFT ;;left right
+
+[Line : DoOrderInvChngInvLine4]
+;; {12.Jan.24 17:00}  field : snf,fwf
+;; {12.Jan.24 17:00} right field : qtyf,ratef,amtf
+use:DoOrderInvChngInvLineTitle
+;; {13.Jan.24 10:56} border:thin box
+
+local : field : snf: set as : "" ;;"L.R Date"
+   local : field : snf1: set as : "" ;;"L.R No"
+   local : field : nf: set as : "" ;;"Transport"
+   local : field : snf3: set as : "" ;;"Bale No"
+   local : field : snf4: set as : "" ;;"Metre"
+   local : field : nf2: set as : "" ;;"Party Name"
+   local : field : snf6: set as : "" ;;"Quantity"
+   local : field : snf7: set as : "" ;;"Design No"
+   local : field : snf8: set as : "" ;;"Col.Mat."
+ local: field: fwf : set as : "" ;;"Description"
+ local : field : qtyf : set as : "" ;;"Qty."
+ local: field : ratef : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBUDPart : $basicuserdescription != ''
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+;; {13.Jan.24 10:56} border:thin bottom
+Local: Field: DEFAULT: Style: Style2
+Local: Field: DEFAULT: Border: thin LEFT ;;left right
+
+[Line : DoOrderInvChngInvLine5]
+;; {12.Jan.24 17:00}  field : snf,fwf
+;; {12.Jan.24 17:00} right field : qtyf,ratef,amtf
+use:DoOrderInvChngInvLineTitle
+;; {13.Jan.24 10:55} border:thin box
+
+local : field : snf: set as : "" ;;"L.R Date"
+   local : field : snf1: set as : "" ;;"L.R No"
+   local : field : nf: set as : "" ;;"Transport"
+   local : field : snf3: set as : "" ;;"Bale No"
+   local : field : snf4: set as : "" ;;"Metre"
+   local : field : nf2: set as : "" ;;"Party Name"
+   local : field : snf6: set as : "" ;;"Quantity"
+   local : field : snf7: set as : "" ;;"Design No"
+   local : field : snf8: set as : "" ;;"Col.Mat."
+ local: field: fwf : set as : "" ;;"Description"
+ local : field : qtyf : set as : "" ;;"Qty."
+ local: field : ratef : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBUDPart : $basicuserdescription != ''
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+;; {13.Jan.24 10:56} border:thin bottom
+Local: Field: DEFAULT: Style: Style2
+Local: Field: DEFAULT: Border: thin LEFT ;;left right
+
+[line: DoOrderInvChngInvLineTitle]
+field:snf,snf1,nf,snf3,snf4,nf2,snf6,snf7,snf8
+;; {12.Jan.24 16:53}  use : DoOrderInvChngInvLine
+;; {12.Jan.24 16:53} delete : explode
+   local : field: default : type : string
+   local : field: ratef : type : string
+
+   local : field : snf: set as : "L.R Date"
+   local : field : snf1: set as : "L.R No"
+   local : field : nf: set as : "Transport"
+   local : field : snf3: set as : "Bale No"
+   local : field : snf4: set as : "Metre"
+   local : field : nf2: set as : "Party Name"
+   local : field : snf6: set as : "Quality"
+   local : field : snf7: set as : "Design No"
+   local : field : snf8: set as : "Col.Mat."
+ local: field: fwf : set as : "Description"
+ local : field : qtyf : set as : "Qty."
+ local: field : ratef : set as : "Rate"
+ local : field : amtf : set as :"Amount"
+
+ local : field : qtyf : align : right
+ local: field : ratef : align : right
+ local : field : amtf : align : right
+ Local: field: snf8: Align: right ;;centre
+
+ Local: Field: DEFAULT: Style: Style1
+ Local: field: default: Align: centre
+ Local: field: nf2: Width:30
+ Local: field: snf7: Width:20
+ Local: field: snf8: Width:20
+ space bottom:0.25
+ space top:0.50
+ border:thin top
+
+[part:DoOrderInvChngInvPart1]
+line:DoOrderInvChngInvLine6
+
+[Line : DoOrderInvChngInvLine6]
+ field : fwfc
+;; {12.Jan.24 17:00} right field : qtyf,ratef,amtf
+;; {12.Jan.24 18:17} use:DoOrderInvChngInvLineTitle
+Local: Field: fwfc: Set As:"DETAILS OF BALES TO BE GIVEN LATER ON BY DEVDASVA"
+border:thin top ;;bottom
+Local: Field: DEFAULT: Style: Style1
+;; {12.Jan.24 18:22} Local: Field: DEFAULT: Border: thin LEFT ;;left right
+space bottom:0.50
+space top:0.50
+
+
+
+[part:DoOrderInvChngInvPart2]
+line:DoOrderInvChngInvLine7,DoOrderInvChngInvLine8,DoOrderInvChngInvLine9,DoOrderInvChngInvLine10,DoOrderInvChngInvLine11,DoOrderInvChngInvLine12
+;; {12.Jan.24 18:25} Scroll : vertical
+Common border : yes
+ float : no
+
+[Line : DoOrderInvChngInvLine7]
+field:snf,snf1,nf,snf3,snf4,nf2,snf6,snf7,snf8
+
+local : field : snf: set as : "" ;;"L.R Date"
+   local : field : snf1: set as : "" ;;"L.R No"
+   local : field : snf2: set as : "" ;;"Transport"
+   local : field : nf: set as : "" ;;"Bale No"
+   local : field : snf4: set as : "" ;;"Metre"
+   local : field : nf2: set as : "" ;;"Party Name"
+   local : field : snf6: set as : "" ;;"Quantity"
+   local : field : snf7: set as : "" ;;"Design No"
+   local : field : snf8: set as : "" ;;"Col.Mat."
+ local: field: fwf : set as : "" ;;"Description"
+ local : field : qtyf : set as : "" ;;"Qty."
+ local: field : ratef : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBUDPart : $basicuserdescription != ''
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+border:thin top ;;bottom
+Local: Field: DEFAULT: Style: Style2
+Local: Field: DEFAULT: Border: thin LEFT ;;left right
+space bottom:0.50
+Local: field: nf2: Width:30
+Local: field: snf7: Width:20
+ Local: field: snf8: Width:20
+
+
+[Line : DoOrderInvChngInvLine8]
+;; {12.Jan.24 17:00}  field : snf,fwf
+;; {12.Jan.24 17:00} right field : qtyf,ratef,amtf
+use:DoOrderInvChngInvLine7
+
+local : field : snf: set as : "" ;;"L.R Date"
+   local : field : snf1: set as : "" ;;"L.R No"
+   local : field : snf2: set as : "" ;;"Transport"
+   local : field : nf: set as : "" ;;"Bale No"
+   local : field : snf4: set as : "" ;;"Metre"
+   local : field : nf2: set as : "" ;;"Party Name"
+   local : field : snf6: set as : "" ;;"Quantity"
+   local : field : snf7: set as : "" ;;"Design No"
+   local : field : snf8: set as : "" ;;"Col.Mat."
+ local: field: fwf : set as : "" ;;"Description"
+ local : field : qtyf : set as : "" ;;"Qty."
+ local: field : ratef : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBUDPart : $basicuserdescription != ''
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+;; {13.Jan.24 10:48} border:thin bottom
+Local: Field: DEFAULT: Style: Style2
+Local: Field: DEFAULT: Border: thin LEFT ;;left right
+
+[Line : DoOrderInvChngInvLine9]
+;; {12.Jan.24 17:00}  field : snf,fwf
+;; {12.Jan.24 17:00} right field : qtyf,ratef,amtf
+use:DoOrderInvChngInvLine7
+
+local : field : snf: set as : "" ;;"L.R Date"
+   local : field : snf1: set as : "" ;;"L.R No"
+   local : field : snf2: set as : "" ;;"Transport"
+   local : field : nf: set as : "" ;;"Bale No"
+   local : field : snf4: set as : "" ;;"Metre"
+   local : field : nf2: set as : "" ;;"Party Name"
+   local : field : snf6: set as : "" ;;"Quantity"
+   local : field : snf7: set as : "" ;;"Design No"
+   local : field : snf8: set as : "" ;;"Col.Mat."
+ local: field: fwf : set as : "" ;;"Description"
+ local : field : qtyf : set as : "" ;;"Qty."
+ local: field : ratef : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBUDPart : $basicuserdescription != ''
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+;; {13.Jan.24 10:49} border:thin bottom
+Local: Field: DEFAULT: Style: Style2
+Local: Field: DEFAULT: Border: thin LEFT ;;left right
+
+[Line : DoOrderInvChngInvLine10]
+;; {12.Jan.24 17:00}  field : snf,fwf
+;; {12.Jan.24 17:00} right field : qtyf,ratef,amtf
+use:DoOrderInvChngInvLine7
+
+local : field : snf: set as : "" ;;"L.R Date"
+   local : field : snf1: set as : "" ;;"L.R No"
+   local : field : snf2: set as : "" ;;"Transport"
+   local : field : nf: set as : "" ;;"Bale No"
+   local : field : snf4: set as : "" ;;"Metre"
+   local : field : nf2: set as : "" ;;"Party Name"
+   local : field : snf6: set as : "" ;;"Quantity"
+   local : field : snf7: set as : "" ;;"Design No"
+   local : field : snf8: set as : "" ;;"Col.Mat."
+ local: field: fwf : set as : "" ;;"Description"
+ local : field : qtyf : set as : "" ;;"Qty."
+ local: field : ratef : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBUDPart : $basicuserdescription != ''
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+;; {13.Jan.24 10:49} border:thin bottom
+Local: Field: DEFAULT: Style: Style2
+Local: Field: DEFAULT: Border: thin LEFT ;;left right
+
+[Line : DoOrderInvChngInvLine11]
+;; {12.Jan.24 17:00}  field : snf,fwf
+;; {12.Jan.24 17:00} right field : qtyf,ratef,amtf
+use:DoOrderInvChngInvLine7
+
+local : field : snf: set as : "" ;;"L.R Date"
+   local : field : snf1: set as : "" ;;"L.R No"
+   local : field : snf2: set as : "" ;;"Transport"
+   local : field : nf: set as : "" ;;"Bale No"
+   local : field : snf4: set as : "" ;;"Metre"
+   local : field : nf2: set as : "" ;;"Party Name"
+   local : field : snf6: set as : "" ;;"Quantity"
+   local : field : snf7: set as : "" ;;"Design No"
+   local : field : snf8: set as : "" ;;"Col.Mat."
+ local: field: fwf : set as : "" ;;"Description"
+ local : field : qtyf : set as : "" ;;"Qty."
+ local: field : ratef : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBUDPart : $basicuserdescription != ''
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+;; {13.Jan.24 10:49} border:thin bottom
+Local: Field: DEFAULT: Style: Style2
+Local: Field: DEFAULT: Border: thin LEFT ;;left right
+
+[Line : DoOrderInvChngInvLine12]
+;; {12.Jan.24 17:00}  field : snf,fwf
+;; {12.Jan.24 17:00} right field : qtyf,ratef,amtf
+use:DoOrderInvChngInvLine7
+
+local : field : snf: set as : "" ;;"L.R Date"
+   local : field : snf1: set as : "" ;;"L.R No"
+   local : field : snf2: set as : "" ;;"Transport"
+   local : field : nf: set as : "" ;;"Bale No"
+   local : field : snf4: set as : "" ;;"Metre"
+   local : field : nf2: set as : "" ;;"Party Name"
+   local : field : snf6: set as : "" ;;"Quantity"
+   local : field : snf7: set as : "" ;;"Design No"
+   local : field : snf8: set as : "" ;;"Col.Mat."
+ local: field: fwf : set as : "" ;;"Description"
+ local : field : qtyf : set as : "" ;;"Qty."
+ local: field : ratef : set as : "" ;;"Rate"
+ local : field : amtf : set as :"" ;;"Amount"
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBUDPart : $basicuserdescription != ''
+;; {12.Jan.24 17:00} explode : DoOrderInvChngBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+;; {13.Jan.24 10:49} border:thin bottom
+Local: Field: DEFAULT: Style: Style2
+Local: Field: DEFAULT: Border: thin LEFT ;;left right
+
+
+
+[part : DoOrderInvChngBatchPart]
+line : DoOrderInvChngBatchLine
+repeat : DoOrderInvChngBatchLine : BatchAllocations
+
+[line : DoOrderInvChngBatchLine]
+  use : DoOrderInvChngBUDLine
+local : field : fwf : set as : $batchname
+
+[part : DoOrderInvChngBUDPart]
+line: DoOrderInvChngBUDLine
+repeat : DoOrderInvChngbudline : basicuserdescription
+
+[line : DoOrderInvChngBudLine]
+ use  : DoOrderInvChngINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : $basicuserdescription
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : ""
+
+[line : DoOrderInvChngInvLineTotal]
+ use  : DoOrderInvChngINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : ""
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : $$collamttotal:inventoryentries:$amount
+local : field : amtf : border :thin top
+space bottom : 0.05
+
+
+ [part : DoOrderInvChngACCPart]
+  line : DoOrderInvChngACCLine
+repeat : DoOrderInvChngACCLine : Ledger Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+ [Line : DoOrderInvChngACCLine]
+   use : DoOrderInvChngINVLine
+empty : $ledgername = $partyledgername or $$issysname:$ledgername or $$isempty:$amount
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"NoZero,Percentage"
+local : field : ratef  : set as : $basicrateofinvoicetax
+local : field : snf : set as : ""
+local : field : fwf : set as : $ledgername
+local : field : qtyf : set as : ""
+delete : explode
+
+  [part : DoOrderInvChngBottomPart]
+   line : DoOrderInvChngTotLine,cwblankline
+
+  [line : DoOrderInvChngTotLine]
+    use : DoOrderInvChngACCLine
+ delete : empty
+  local : field : ratef  : set as :""
+  local : field : fwf : set as : "Total:"
+  local : field : fwf : align : right
+  local : field : amtf : format : "ShowBaseSymbol"
+  border:thin left right bottom
+
+  [part:DoOrderInvChngBottomPart2]
+  part:DoOrderInvChngBottomPart2A
+  part:DoOrderInvChngBottomPart2B
+
+  [part:DoOrderInvChngBottomPart2A]
+;; {04.Apr.24 16:19}   line:cwSummaryLine,cwTotalDegineLn,cwblankLineA,cwonesetline,cwonebaleLn
+  line:cwSummaryLine,cwTotalDegineLn,cwonesetline,cwonebaleLn,cwTicketsLn,cwBoppLine,cwInplayLine
+
+  [line:cwSummaryLine]
+  field:fwf
+  Local: Field: fwf: Set As: "Summary"
+  Local: Field: DEFAULT: Style: Style1
+
+  [line:cwTotalDegineLn]
+  field:sp,fwf
+  Local: Field: sp: Set As:"Total Designs"
+  Local: Field: fwf: Set As:$cwtotaldesigns
+  Local: field: SP: Width:18 ;;12
+  Local: Field: DEFAULT: Style: style2
+
+  [line:cwblankLineA]
+  field:sp
+
+  [line:cwonesetline]
+;; {06.Jan.24 11:25}   field:sp,snf
+  USE:cwTotalDegineLn
+  Local: Field: sp: Set As:"One Set"
+  Local: Field: FWF: Set As:$cwoneset
+  Local: field: SP: Width:18 ;;12
+  Local: Field: DEFAULT: Style: style2
+
+  [line:cwonebaleLn]
+;; {06.Jan.24 11:26}   field:sp,snf
+  USE:cwTotalDegineLn
+  Local: Field: sp: Set As:"One Bale"
+  Local: Field: FWF: Set As:$cwTwoset
+  Local: field: SP: Width:18
+  Local: Field: DEFAULT: Style: style2
+  
+  [line:cwTicketsLn]
+  USE:cwTotalDegineLn  ;;field:sp,FWF
+
+  Local: Field: sp: Set As:"Tickets"
+  Local: Field: FWF: Set As:$cwTickets
+  Local: Field: DEFAULT: Style: style2
+
+  [line:cwBoppLine]
+  USE:cwTotalDegineLn ;;cwTicketsLn
+
+  Local: Field: sp: Set As:"BOPP"
+  Local: Field: FWF: Set As:$CWBOPP
+
+  [line:cwInplayLine]
+  USE:cwTotalDegineLn ;;cwTicketsLn
+
+  Local: Field: sp: Set As:"IN LAY"
+  Local: Field: FWF: Set As:$CWINPLAY
+
+  [part:DoOrderInvChngBottomPart2B]
+;; {04.Apr.24 16:19}   line:cwSummaryLine2,cwTicketsLn,cwBoppLine,cwInplayLine,cwstifnerLn,cwPhotoLine
+  line:cwSummaryLine2,cwstifnerLn,cwPhotoLine,cwbagline2,cwbalepvcline2,cwCartoonLine2,cwPattiLine2,cwClipLine2
+
+  [LINE:cwSummaryLine2]
+  FIELD:FWF
+
+  Local: Field: FWF: Set As:""
+
+
+  [line:cwstifnerLn]
+  field:sp,FWF ;;USE:cwTicketsLn
+
+  Local: Field: sp: Set As:"STIFNER"
+  Local: Field: FWF: Set As:$CWSTIFNER
+  Local: field: SP: Width:18 ;;12
+  Local: Field: DEFAULT: Style: style2
+
+  [line:cwPhotoLine]
+  USE:cwstifnerLn ;;cwTicketsLn
+
+  Local: Field: sp: Set As:"PHOTO"
+  Local: Field: FWF: Set As:$CWPHOTO
+  
+  [line:cwbagline2]
+  USE:cwstifnerLn ;;cwTicketsLn
+
+  Local: Field: sp: Set As:"Bag (Chat)"
+  Local: Field: FWF: Set As:$CWbagchatstrg
+  
+  [line:cwbalepvcline2]
+  USE:cwstifnerLn ;;cwTicketsLn
+
+  Local: Field: sp: Set As:"Bale PVC"
+  Local: Field: FWF: Set As:$CWBalePVCstrg
+  
+  [line:cwCartoonLine2]
+  USE:cwstifnerLn ;;cwTicketsLn
+
+  Local: Field: sp: Set As:"Cartoon"
+  Local: Field: FWF: Set As:$CWCartoonstrg
+  
+  [line:cwPattiLine2]
+  USE:cwstifnerLn ;;cwTicketsLn
+
+  Local: Field: sp: Set As:"Patti"
+  Local: Field: FWF: Set As:$CWPattistrg
+  
+  [line:cwClipLine2]
+  USE:cwstifnerLn ;;cwTicketsLn
+
+  Local: Field: sp: Set As:"Clip"
+  Local: Field: FWF: Set As:$CWClipstrg
+
+
+[PART:DoOrderInvChngBottomPart3]
+LINE:CWNOTELINE,cwthisDoOnlyLn
+
+[LINE:CWNOTELINE]
+FIELD:SP,FWF
+
+Local: Field: SP: Set As:"Note"
+Local: Field: fwf: Set As:@@cwnoteinv
+Local: field: SP: Width:12
+Local: Field: SP: Style: Style1
+Local: Field: fwf: Style: style2
+SPACE BOTTOM:0.50
+
+[LINE:cwthisDoOnlyLn]
+FIELD:FWFC
+
+Local: Field: FWFC: Set As:$CWREMARKS ;; "THIS D.O.ONLY FOR VINTAGE 50 BALE=1800 PCS=5940 MTR"
+Local: Field: FWFC: Style: Style1
+SPACE BOTTOM:0.50
+
+[PART:DoOrderInvChngBottomPart4]
+line:cwPreparedLine,cwChekedbyLine,cwapprovedbyLn,cwFinalapprovalLn
+
+[line:cwPreparedLine]
+FIELD:SP,FWF
+
+Local: Field: SP: Set As:"Prepared By"
+Local: Field: fwf: Set As: @@cwOwnername
+Local: field: SP: Width:17
+Local: Field: DEFAULT: Style: Style1
+space bottom:1
+
+[line:cwChekedbyLine]
+use:cwPreparedLine
+
+Local: Field: SP: Set As:"Checked By"
+Local: Field: fwf: Set As: ""
+
+[line:cwapprovedbyLn]
+use:cwPreparedLine
+
+Local: Field: SP: Set As:"Approved By"
+Local: Field: fwf: Set As: ""
+
+[line:cwFinalapprovalLn]
+use:cwPreparedLine
+
+Local: Field: SP: Set As:"FINAL APPROVAL"
+Local: Field: fwf: Set As: ""
+
+
+[System: Formula]
+cwOwnername : $ownername:company:##svcurrentcompany

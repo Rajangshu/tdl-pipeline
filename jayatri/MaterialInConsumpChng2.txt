@@ -1,0 +1,169 @@
+; Created By: Anil on 2024-07-29 16:24, ID: 
+
+; Created By: Anil on 2024-01-30 11:16, ID:
+
+[#Form: VCHStkCons BatchAllocations]
+add:option:cwVCHStkConsBatchAllocationsopt :@@cwHouseMaterialOutYes or @@cwFGMaterialInOPT ;;@@IsJobMaterialReceiveopt
+ [!Form: cwVCHStkConsBatchAllocationsopt]
+
+    Height          : 85% Screen
+    FullWidth       : NO
+
+    delete:Parts           : ALLOC Title, VCHBATCH Column, VCHStkCons Allocation
+    add:Parts           : ALLOC Title, cwVCHBATCHColumn, VCHStkCons Allocation
+
+[part:cwVCHBATCHColumn]
+line:cwVCHBATCHColumnone
+
+[line:cwVCHBATCHColumnone]
+ Right Fields: VCH GodownTitle, VCH BatchNameTitle, VCH QtyTitle, VCH ClosureQtyTitle, +
+								  VCH InclRateTitle, VCH RateTitle, VCH RateUnitsTitle, VCH DiscTitle, VCH AmtTitle
+add:right field:At Beginning:snf
+Local       : Field : VCH GodownTitle     : Invisible : @@IsStockJrnl OR NOT $$IsMultiGodownOn
+Local       : Field : VCH BatchNameTitle  : Inactive  : NOT @@HasBatchWise
+Local: Field: snf: info: "Component of1"
+
+Add		: Option	: VCHBATCH ExciseSI ColumnOne 	  : @@IsExciseSupplementaryInv
+border:thin top bottom					
+
+;;=========================================
+ [Collection:collcwcollConsumption2]
+source collection:default
+
+walk:inventoryentries,batchallocations,cwcollConsumption
+
+by:vouchernumber1:$vouchernumber
+by:cwConsBatchName1:$cwConsBatchName
+;; {08.May.24 17:01} compute:cwConsBatchName1:$cwConsBatchName
+compute:cwConsumProduct1:$cwConsumProduct
+compute:cwBomQty1:$cwBomQty
+compute:cwConsRate1:$cwConsRate
+compute:cwConsumQty1:$cwConsumQty
+compute:cwmasteridConsump1:$cwmasteridConsump
+compute:cwUpdateSubQtyConsump1:$cwUpdateSubQtyConsump
+compute:cwlineMOVCH1:$cwlineMOVCH
+
+format:$cwConsumProduct1,10
+format:$cwBomQty1,10
+format:$cwConsRate1,10
+format:$cwConsumQty1,10
+format:$cwConsBatchName1,10
+format:$cwmasteridConsump1,10
+format:$cwUpdateSubQtyConsump1,10
+format:$cwlineMOVCH1,10
+
+;;=================================
+[#Line: VCH BoMComp Details]
+add:option:VCHBoMCompDetails1minopt:@@cwHouseMaterialOutYes or @@cwFGMaterialInYesOnly and @@JayatriTestEnabled
+;; {26.Jul.24 11:21} add:option:VCHBoMCompDetails1minopt:@@cwHouseMaterialOutYes and @@JayatriTestEnabled
+[!line:VCHBoMCompDetails1minopt]
+add:field:before:VCHBoMComp StockItem:newnumf41,newsnf41,newqty1,newbatch1,newRate1,newlinenum1
+;; {23.Jul.24 11:49} border:thin box
+
+ [field:newnumf41yy]
+ use:snf ;;numf
+;; {24.Jul.24 14:29}  table: collcwcollConsumption2,Not Applicable
+ table: collminout,Not Applicable
+  Show table: Always
+
+ [field:newnumf41]
+ use:numf
+ Set As:$$CollectionField:$cwUpdateSubQtyConsump1:$$line:collcwcollConsumption2
+ Invisible: yes
+
+
+ [field:newsnf41]
+ use:snf
+
+ Set As:$$CollectionField:$cwmasteridConsump1:$$line:collcwcollConsumption2
+ Invisible: yes
+
+ [field:newqty1]
+ use:numf
+ Set As:$$CollectionField:$cwBomQty1:$$line:collcwcollConsumption2
+;; {31.Mar.24 13:51}  Set As:$$CollectionField:$cwConsumQty1:$$line:collcwcollConsumption2
+Invisible: yes
+
+ [field:newqty2]
+ use:qtyf
+ Invisible: yes
+
+[field:newRate1]
+ use:numf
+ Set As:$$CollectionField:$cwConsRate1:$$line:collcwcollConsumption2
+Invisible: yes
+
+[field:newrate2]
+ use:ratepf
+ Invisible: yes
+
+[field:newbatch1]
+ use:snf
+ Set As:$$CollectionField:$cwConsBatchName1:$$line:collcwcollConsumption2
+ Invisible: yes
+
+ [field:newbatch2]
+ use:snf
+ Set As:#newbatch1
+ Invisible: yes
+
+ [field:newlinenum1]
+ use:numf
+ Set As:$$CollectionField:$cwlineMOVCH1:$$line:collcwcollConsumption2
+ type : number : forced
+ storage:cwlineMOVCH2
+   Invisible: yes
+;; {29.Jul.24 16:26} border:thin box
+
+
+
+
+[#Field: VCHBoMComp StockItem]
+;; {24.Jul.24 11:52}  add:option:VCHBoMCompStockItemminopt:@@cwHouseMaterialOutYes and @@JayatriTestEnabled
+ add:option:VCHBoMCompStockItemminopt:@@cwHouseMaterialOutYes or @@cwFGMaterialInYesOnly and @@JayatriTestEnabled
+ [!field:VCHBoMCompStockItemminopt]
+ delete:setas
+add:Set As:$$CollectionField:$cwConsumProduct1:$$line:collcwcollConsumption2
+;; {08.May.24 17:02} add:Set As:if $$line=1 then $$CollectionField:$cwConsumProduct1:1:collcwcollConsumption2 else endoflist
+border:thin box
+
+;;====================================================
+[#Line: ALLOC Title]
+  add:option:ALLOCTitle1minopt :@@cwHouseMaterialOutYes or @@cwFGMaterialInYesOnly and @@JayatriTestEnabled
+ [!line:ALLOCTitle1minopt]
+
+ add:field:newqty2,newbatch2,newrate2
+;; {24.Jan.24 10:17}  Local: Field: newqty2: Set As:#newqty1
+ Local: Field: newqty2: Set As:$$asqty:#newqty1
+ Local: Field: newrate2: Set As:$$asrate:#newrate1
+
+[#Field: VCHStkCons Parent ItemName]
+ add:option: VCHStkConsParentItemNameminopt:@@cwHouseMaterialOutYes or @@cwFGMaterialInYesOnly and @@JayatriTestEnabled
+ [!field:VCHStkConsParentItemNameminopt]
+ delete:setas
+ delete:table
+ add:set as:if $$line=1 then $$CollectionField:$stockitemname:$$line:inventoryentries else $$SysName:NotApplicable
+
+
+ [#Field: VCHStkCons BatchName]
+;; {24.Jul.24 11:54}  add:option:VCHBoMCompBatchNameminopt :@@cwHouseMaterialOutYes or @@cwFGMaterialInOPT and @@JayatriTestEnabled
+ add:option:VCHBoMCompBatchNameminopt :@@cwHouseMaterialOutYes or @@cwFGMaterialInYesOnly and @@JayatriTestEnabled
+
+ [!field:VCHBoMCompBatchNameminopt]
+
+ add:Set As:#newbatch2
+
+[#field:VCHStkCons ActualQty]
+ add:option:VCHStkConsActualQtyminopt :@@cwHouseMaterialOutYes or @@cwFGMaterialInYesOnly and @@JayatriTestEnabled
+ [!field:VCHStkConsActualQtyminopt]
+
+ set as:#newqty2
+
+[#Field: VCHStkCons Rate]
+add:option:cwVCHStkConsRateopt :@@cwHouseMaterialOutYes or @@cwFGMaterialInYesOnly and @@JayatriTestEnabled
+[!Field: cwVCHStkConsRateopt]
+delete:setas
+delete:Set by Condition
+add:Set by Condition:yes:$$asrate:#newrate2
+
+

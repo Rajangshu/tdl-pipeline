@@ -1,0 +1,169 @@
+; Created By: Anil on 2024-06-21 11:35, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: ProcesstestLock ;; : @@ProcesstestDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ProcesstestReport: Display: RepProcesstest
+  */
+
+
+     [!menu: ProcesstestLock]
+        add: Item: before: @@locQuit: @@ProcesstestReport: Display: RepProcesstest
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ProcesstestReport: "Processtest"
+;; ProcesstestDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepProcesstest]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@ProcesstestReport
+   Printset: Report Title: @@ProcesstestReport
+
+       Form: FrmProcesstest
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmProcesstest]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0Processtest,PrtProcesstest
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: Processtestbotbrk,ProcesstestbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: ProcesstestConfigure
+
+      [part: ProcesstestbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: Processtestbotopbrk]
+        use: dspacctitles
+  add: part: ProcesstestTitlePart
+
+      [part: ProcesstestTitlePart]
+       line: LnProcesstestTitle
+       
+      [line: LnProcesstestCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0Processtest]
+      line : LnProcesstestCurrPeriod
+      
+      [Part: PrtProcesstest]
+       Line: LnProcesstestTitle,LnProcesstest
+bottom Line: LnProcesstestTotals
+     repeat: LnProcesstest: ColProcesstestmain
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: ColProcesstestmain]
+SOURCE COLLECTION:ColProcesstest
+walk:allinventoryentries,BATCHALLOCATIONS,VOUCHERCOMPONENTLIST,BATCHALLOCATIONS
+by: date:            $date
+by: Reference: $Reference
+by: partyledgername:   $partyledgername
+by:stockitemname2:$stockitemname
+
+[Collection: ColProcesstest]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColProcesstestFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColProcesstestFilter: Yes ; $$isSales:$voucherTypeName
+
+      [Line: LnProcesstestTitle]
+        use: LnProcesstest
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: sdf2: set as: "Date22"
+local:field: nf: set as: "Do NO"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: LnProcesstest]
+     Fields: Processtestmastid,sdf,sdf2,nf,fwf
+Right Field: ratepf,Qtyf,Amtf
+
+     Option: Alter on Enter
+        key: ProcesstestDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: sdf : set as : $date
+local:field: fwf : set as : $stockitemname2
+local:field: nf: set as:$Reference  ;;"Do NO"
+Local: Field: sdf2: Set As:$$reportobject:$$collectionfieldbykey:$date1:@@keycrnotedemo:Colmodotestmain2
+
+[System: Formula]
+keycrnotedemo:#nf+#fwf
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: ProcesstestDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: ProcesstestDisplayVoucher
+
+ 	
+     [Report: ProcesstestDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #Processtestmastid
+	
+
+        [Field: Processtestmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnProcesstestTotals]
+        use: LnProcesstest
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

@@ -1,0 +1,151 @@
+; Created By: Khokan on 2024-08-10 13:01, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: erferLock ;; : @@erferDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@erferReport: Display: Reperfer
+  */
+
+
+     [!menu: erferLock]
+        add: Item: before: @@locQuit: @@erferReport: Display: Reperfer
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   erferReport: "erfer"
+;; erferDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: Reperfer]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@erferReport
+   Printset: Report Title: @@erferReport
+
+       Form: Frmerfer
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: Frmerfer]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0erfer,Prterfer
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: erferbotbrk,erferbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: erferConfigure
+
+      [part: erferbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: erferbotopbrk]
+        use: dspacctitles
+  add: part: erferTitlePart
+
+      [part: erferTitlePart]
+       line: LnerferTitle
+       
+      [line: LnerferCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0erfer]
+      line : LnerferCurrPeriod
+      
+      [Part: Prterfer]
+       Line: LnerferTitle,Lnerfer
+bottom Line: LnerferTotals
+     repeat: Lnerfer: collMODOg ;;Colerfer
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+
+
+      [Line: LnerferTitle]
+        use: Lnerfer
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: Lnerfer]
+     Fields: erfermastid,sdf,nf,nf2,fwf
+Right Field: ratepf,Qtyf,Amtf
+
+     Option: Alter on Enter
+        key: erferDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: sdf : set as : $date
+local:field: fwf : set as : $name
+local:field: nf : set as : $godownname
+local:field: nf2 : set as : $cwLRNumberpurc
+local:field: qtyf : set as : $closingbalance
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: erferDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: erferDisplayVoucher
+
+ 	
+     [Report: erferDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #erfermastid
+	
+
+        [Field: erfermastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnerferTotals]
+        use: Lnerfer
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

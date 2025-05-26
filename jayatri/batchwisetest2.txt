@@ -1,0 +1,171 @@
+; Created By: Khokan on 2024-07-31 09:50, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: batchwisetest2Lock ;; : @@batchwisetest2DemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@batchwisetest2Report: Display: Repbatchwisetest2
+  */
+
+
+     [!menu: batchwisetest2Lock]
+        add: Item: before: @@locQuit: @@batchwisetest2Report: Display: Repbatchwisetest2
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   batchwisetest2Report: "batchwisetest2"
+;; batchwisetest2DemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: Repbatchwisetest2]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@batchwisetest2Report
+   Printset: Report Title: @@batchwisetest2Report
+
+       Form: Frmbatchwisetest2
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: Frmbatchwisetest2]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0batchwisetest2,Prtbatchwisetest2
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: batchwisetest2botbrk,batchwisetest2botOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: batchwisetest2Configure
+
+      [part: batchwisetest2botBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: batchwisetest2botopbrk]
+        use: dspacctitles
+  add: part: batchwisetest2TitlePart
+
+      [part: batchwisetest2TitlePart]
+       line: Lnbatchwisetest2Title
+       
+      [line: Lnbatchwisetest2CurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0batchwisetest2]
+      line : Lnbatchwisetest2CurrPeriod
+      
+      [Part: Prtbatchwisetest2]
+       Line: Lnbatchwisetest2Title,Lnbatchwisetest2
+bottom Line: Lnbatchwisetest2Totals
+     repeat: Lnbatchwisetest2:Colbatchwisetest2
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: Colbatchwisetest2]
+  	Source Collection	: sourccwStkVchStockItems
+	Walk				: BatchAllocations
+	By					: StockItemName : $$Owner:$Name
+	By				 	: BatchName		: $BatchName
+	By					: GodownName    : $GodownName
+	Aggr Compute		: closingbalance	: Sum : $closingbalance ;;$OpeningValue
+	Search Key			: $StockItemName +  $GodownName + $BatchName
+	
+;; {31.Jul.24 10:30} filter:cwStockItemNamexfilter
+	
+[Collection: sourccwStkVchStockItems]
+type:stock item
+;; {31.Jul.24 09:55} filter:cwStockItemNamexfilter
+
+[System: Formula]
+;; {31.Jul.24 09:55} cwStockItemNamexfilter:$StockItemName="PRINTED BEDSHEET CLOTH (48X52)"
+cwStockItemNamexfilter:$BatchName="1501"  ;;$$Owner:$Name="PRINTED BEDSHEET CLOTH (48X52)"
+
+    [system: Formula]
+Colbatchwisetest2Filter: Yes ; $$isSales:$voucherTypeName
+
+      [Line: Lnbatchwisetest2Title]
+        use: Lnbatchwisetest2
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: Lnbatchwisetest2]
+     Fields: batchwisetest2mastid,snf,nf,fwf
+Right Field: ratepf,Qtyf,Amtf
+
+     Option: Alter on Enter
+        key: batchwisetest2DisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: sdf : set as : $date
+local:field: fwf : set as : $StockItemName
+local:field: nf : set as : $BatchName
+local:field: snf : set as : $GodownName
+local:field: qtyf : set as : $closingbalance
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: batchwisetest2DisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: batchwisetest2DisplayVoucher
+
+ 	
+     [Report: batchwisetest2DisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #batchwisetest2mastid
+	
+
+        [Field: batchwisetest2mastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: Lnbatchwisetest2Totals]
+        use: Lnbatchwisetest2
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

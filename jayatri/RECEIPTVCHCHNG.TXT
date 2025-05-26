@@ -1,0 +1,243 @@
+; Created By: Anil on 2024-04-13 12:28, ID: 
+
+[#line : VCHBILL CTLineOne]
+;; {15.Apr.24 10:20} add:option:CTLineOneopt:@@isreceipt
+add:option:CTLineOneopt:(@@isreceipt or @@IsCreditNote or @@isJournal) and @@JayatriTestEnabled
+[!line:CTLineOneopt]
+
+add : fields : after : VCH ShortTitle : snf,snf2,snf3,snf4,snf5,snf6,snf7
+
+Local: Field: snf: Set As:"Sales Person" ;;$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf2: Set As:"ASM" ;;$cwcaption2:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf3: Set As:"RSM" ;;$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf4: Set As:"Agent" ;;$cwcaption4:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf5: Set As:"City" ;;$cwcaption5:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf6: Set As:"Area" ;;$cwcaption6:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf7: Set As:"Zone" ;;$cwcaption6:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf: Skip: Yes
+Local: Field: snf2: Skip: Yes
+Local: Field: snf3: Skip: Yes
+Local: Field: snf4: Skip: Yes
+Local: Field: snf5: Skip: Yes
+Local: Field: snf6: Skip: Yes
+Local: Field: snf7: Skip: Yes
+
+[#line : VCHBILL CTLineTwo]
+add:option:CTLineOneopt2:(@@isreceipt or @@IsCreditNote or @@isJournal) and @@JayatriTestEnabled
+[!line:CTLineOneopt2]
+
+
+add : fields : after : VCH ShortTitle : snf,snf2, snf3, snf4, snf5, snf6,snf7
+Local: Field: snf : info:""
+Local: Field: snf1 : info:""
+Local: Field: snf2 : info:""
+Local: Field: snf3 : info:""
+Local: Field: snf4 : info:""
+Local: Field: snf5 : info:""
+Local: Field: snf6 : info:""
+Local: Field: snf7 : info:""
+
+
+[#line : VCHBILL CTLineThree]
+add:option:CTLineOneopt3:(@@isreceipt or @@IsCreditNote or @@isJournal) and @@JayatriTestEnabled
+[!line:CTLineOneopt3]
+
+add : fields : after : VCH ShortTitle : snf, snf2, snf3, snf4, snf5, snf6,snf7
+Local: Field: snf : info:""
+Local: Field: snf1 : info:""
+Local: Field: snf2 : info:""
+Local: Field: snf3 : info:""
+Local: Field: snf4 : info:""
+Local: Field: snf5 : info:""
+Local: Field: snf6 : info:""
+Local: Field: snf7 : info:""
+
+[#Line: VCHBILL MainLine]
+add:option:CTLineOneopt4:(@@isreceipt or @@IsCreditNote or @@isJournal) and @@JayatriTestEnabled
+[!line:CTLineOneopt4]
+
+add : fields : after : VCHBILLName :snf,snf2,snf3, snf4, snf5, snf6,snf7
+
+Local: Field: snf: storage:cwcaption1vch   ;;Sales Person
+Local: Field: snf2: storage:cwcaption2vch  ;;ASM
+Local: Field: snf3: storage:cwcaption3vch  ;;RSM
+
+
+Local: Field: snf4: storage:cwcaption4vch  ;;AGENT
+Local: Field: snf5: storage:cwcaption5vch  ;;CITY
+Local: Field: snf6: storage:cwcaption6vch  ;;AREA
+Local: Field: snf7: storage:cwcaption7vch  ;;Zone
+
+
+Local: Field: nf : set as:#allocname ;;$cwcaption1vch:ledger:$ledgername
+Local: Field: snf : set as:$cwSalesPersonled:ledger:#allocname
+Local: Field: snf2: set as:$cwAsmled:ledger:#allocname
+Local: Field: snf3: set as:$cwRsmled:ledger:#allocname
+
+
+Local: Field: snf4:set as:$cwAgentled:ledger:#allocname
+Local: Field: snf5:set as:$cwCityled:ledger:#allocname
+Local: Field: snf6:set as:$cwArealed:ledger:#allocname
+Local: Field: snf7:set as:$cwZoneled:ledger:#allocname
+
+local: field: snf: type: String:forced
+local: field: snf2: type: String:forced
+local: field: snf3: type: String:forced
+local: field: snf4: type: String:forced
+local: field: snf5: type: String:forced
+local: field: snf6: type: String:forced
+local: field: snf7: type: String:forced
+
+
+/*local: field: snf: skip:if $$isempty:($cwcaption1:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf2: skip:if $$isempty:($cwcaption2:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf3: skip:if $$isempty:($cwcaption3:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf4: skip:if $$isempty:($cwcaption4:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf5: skip:if $$isempty:($cwcaption5:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf6: skip:if $$isempty:($cwcaption6:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no" */
+
+
+local: field: snf:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf1:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf2:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf3:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf4:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf5:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf6:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf7:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+
+Local:Field:snf:table:collcwSalesPersonled,Not Applicable ;;:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf:Show table: Always
+Local: Field: snf: Style: Normal Bold
+
+
+Local:Field:snf2:table:collcwAsmled,Not Applicable ;;:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf2:Show table: Always
+
+Local:Field:snf3:table:collcwRsmled,Not Applicable ;;:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf3:Show table: Always
+
+Local: Field: snf3: Style: Normal Bold
+
+Local:Field:snf4:table:collcwAgentled,Not Applicable ;;:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf4:Show table: Always
+
+Local:Field:snf5:table:collcwCityledX,Not Applicable ;;:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf5:Show table: Always
+
+
+Local:Field:snf6:table:collcwArealed,Not Applicable ;;:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf6:Show table: Always
+Local: Field: snf6: Style: Normal Bold
+
+Local:Field:snf7:table:collcwZoneled,Not Applicable ;;:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf7:Show table: Always
+Local: Field: snf7: Style: Normal Bold
+
+;;==========================================
+
+[#Line: VCHBILL ExplLine]
+add:option:CTLineOneopt5:(@@isreceipt or @@IsCreditNote or @@isJournal) and @@JayatriTestEnabled
+[!line:CTLineOneopt5]
+
+
+;; {13.Apr.24 21:45} add : fields : after : VCHBILLName :snfx,snf,snf9,snf2,snf10,snf3, snf4, snf5, snf6
+add : fields : after : VCHBILLName :snfx,snf,snf9,snf2,snf10,snf3,snf11,snf4,snf12,snf5,snf13,snf6,snf14,snf7
+
+Local: Field: snfx: Set As:"Sales Person :" ;;$cwcaption1:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf: Set As: $cwcaption1vch   ;;Sales Person
+
+Local: Field: snf9: Set As:"ASM :";;"Agent" ;;$cwcaption4:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf2: Set As:$cwcaption2vch ;;ASM
+Local: Field: snf10: Set As:"RSM :" ;;"ASM" ;;$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf3: Set As:$cwcaption3vch ;;RSM   ;;$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf11: Set As:"Agent :" ;;"RSM" ;;$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf4: Set As:$cwcaption4vch  ;;AGENT    ;;$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf12: Set As:"City :" ;;$cwcaption3:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf5: Set As:$cwcaption5vch  ;;CITY     ;;;;$cwcaption5:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf13: Set As:"Area:"
+Local: Field: snf6: Set As:$cwcaption6vch  ;;AREA    ;;$cwcaption6:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf14: Set As:"Zone:"
+Local: Field: snf7: Set As:$cwcaption7vch
+
+Local: Field: snfx: Skip: Yes
+Local: Field: snf9: Skip: Yes
+Local: Field: snf10: Skip: Yes
+Local: Field: snf11: Skip: Yes
+Local: Field: snf12: Skip: Yes
+Local: Field: snf13: Skip: Yes
+Local: Field: snf14: Skip: Yes
+Local: field: snf: Width:25
+Local: field: snf6: Width:25
+Local: field: snf9: Width:7
+Local: field: snf10: Width:7
+Local: field: snf11: Width:8
+Local: field: snf12: Width:8
+Local: field: snf13: Width:8
+Local: field: snf14: Width:8
+
+Local: Field: snf: storage:cwcaption1vch
+Local: Field: snf2: storage:cwcaption2vch
+Local: Field: snf3: storage:cwcaption3vch
+Local: Field: snf4: storage:cwcaption4vch
+Local: Field: snf5: storage:cwcaption5vch
+Local: Field: snf6: storage:cwcaption6vch
+Local: Field: snf7: storage:cwcaption7vch
+
+Local: Field: nf9 : set as:$ledgername
+
+local: field: snf: type: String:forced
+local: field: snf2: type: String:forced
+local: field: snf3: type: String:forced
+local: field: snf4: type: String:forced
+local: field: snf5: type: String:forced
+local: field: snf6: type: String:forced
+local: field: snf7: type: String:forced
+
+/*local: field: snf: skip:if $$isempty:($cwcaption1:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf2: skip:if $$isempty:($cwcaption2:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf3: skip:if $$isempty:($cwcaption3:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf4: skip:if $$isempty:($cwcaption4:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf5: skip:if $$isempty:($cwcaption5:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no"
+local: field: snf6: skip:if $$isempty:($cwcaption6:COMPANY:##SVCURRENTCOMPANY) then "yes" else "no" */
+
+
+local: field: snf:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf1:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf2:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf3:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf4:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf5:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf6:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf7:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+
+Local:Field:snf:table:collcwSalesPersonled,Not Applicable ;;:$cwcaption1table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf:Show table: Always
+
+Local:Field:snf2:table:collcwAsmled,Not Applicable ;;:$cwcaption2table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf2:Show table: Always
+
+Local:Field:snf3:table:collcwRsmled,Not Applicable ;;:$cwcaption3table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf3:Show table: Always
+
+Local: Field: snf: Style: Normal Bold
+Local: Field: snf2: Style: Normal Bold
+Local: Field: snf3: Style: Normal Bold
+Local: Field: snf4: Style: Normal Bold
+Local: Field: snf5: Style: Normal Bold
+Local: Field: snf6: Style: Normal Bold
+Local: Field: snf7: Style: Normal Bold
+
+Local:Field:snf4:table:collcwAgentled,Not Applicable ;;:$cwcaption4table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf4:Show table: Always
+
+Local:Field:snf5:table:collcwCityledX,Not Applicable ;;:$cwcaption5table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf5:Show table: Always
+
+Local:Field:snf6:table:collcwArealed,Not Applicable ;;:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf6:Show table: Always
+
+Local:Field:snf7:table:collcwZoneled,Not Applicable ;;:$cwcaption6table:COMPANY:##SVCURRENTCOMPANY="Cost Centre"
+Local:Field:snf7:Show table: Always
+
+

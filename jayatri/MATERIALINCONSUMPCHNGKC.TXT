@@ -1,0 +1,219 @@
+; Created By: Anil on 2024-02-23 18:52, ID: 
+
+[System: Formula]
+cwHouseMaterialInkcyes:$cwHouseMaterialIn:vouchertype:$vouchertypename OR $cwForprocessmaterial:VOUCHERTYPE:$VOUCHERTYPENAME="YES" ;;or $cwFGMaterialIn:vouchertype:$vouchertypename="yes"
+cwHouseMaterialInkcyes2xx:$cwHouseMaterialIn:vouchertype:$vouchertypename OR $cwForprocessmaterial:VOUCHERTYPE:$VOUCHERTYPENAME="YES"
+
+[#Form: VCHStkCons BatchAllocations]
+add:option:cwVCHStkConsBatchAllocationsoptKc:@@cwHouseMaterialInkcyes2xx ;;@@cwHouseMaterialInkcyes ;;@@IsJobMaterialReceiveopt
+ [!Form: cwVCHStkConsBatchAllocationsoptKc]
+
+    Height          : 85% Screen
+    FullWidth       : NO
+
+    delete:Parts           : ALLOC Title, VCHBATCH Column, VCHStkCons Allocation
+    add:Parts           : ALLOC Title, cwVCHBATCHColumnKc, VCHStkCons Allocation
+
+[part:cwVCHBATCHColumnKc]
+line:cwVCHBATCHColumnoneKc
+
+[line:cwVCHBATCHColumnoneKc]
+ Right Fields: VCH GodownTitle, VCH BatchNameTitle, VCH QtyTitle, VCH ClosureQtyTitle, +
+								  VCH InclRateTitle, VCH RateTitle, VCH RateUnitsTitle, VCH DiscTitle, VCH AmtTitle
+add:right field:At Beginning:snf
+Local       : Field : VCH GodownTitle     : Invisible : @@IsStockJrnl OR NOT $$IsMultiGodownOn
+Local       : Field : VCH BatchNameTitle  : Inactive  : NOT @@HasBatchWise
+Local: Field: snf: info: "Component of2"
+
+Add		: Option	: VCHBATCH ExciseSI ColumnOne 	  : @@IsExciseSupplementaryInv
+border:thin top bottom					
+
+;;=========================================
+
+ [Collection:collcwcollConsumption2x]
+source collection:default
+walk:inventoryentries,batchallocations,cwcollConsumption
+
+by:vouchernumber1:$vouchernumber
+;; {25.Jun.24 19:00} by:cwConsumProduct1:$cwConsumProduct
+by:cwConsBatchName1:$cwConsBatchName
+by:cwmasteridConsump1:$cwmasteridConsump
+by:cwConsumProduct1:$cwConsumProduct
+;; {09.Sep.24 17:05} compute:cwConsumProduct1:$cwConsumProduct
+compute:cwBomQty1:$cwBomQty
+compute:cwConsRate1:$cwConsRate ;;$..cwJWRateclculation ;;$batchrate  ;;$cwConsRate
+compute:cwConsumQty1:$cwConsumQty
+compute:cwUpdateSubQtyConsump1:$cwUpdateSubQtyConsump
+compute:cwlineMOVCH1:$cwlineMOVCH
+compute:cwlineMOVCHkataord1:$cwlineMOVCHkataord
+
+format:$cwConsumProduct1,10
+format:$cwBomQty1,10
+format:$cwConsBatchName1,10
+;; {25.Jun.24 16:03} format:$cwBomQty1,10
+format:$cwConsRate1,10
+format:$cwConsumQty1,10
+format:$cwConsumQty1,10
+format:$cwmasteridConsump1,10
+format:$cwlineMOVCH1,10
+format:$cwlineMOVCHkataord1,10
+
+;;=================================
+[#Line: VCH BoMComp Details]
+   add:option:VCHBoMCompDetails1minoptKc :@@cwHouseMaterialInkcyes and @@JayatriTestEnabled
+ [!line:VCHBoMCompDetails1minoptKc]
+
+ add:field:before:VCHBoMComp StockItem:newsnf41KcXX,newnumf41Kc,newsnf41Kc,newqty1Kc,newbatch1Kc,newRate1Kc,newlinenumkc ;;,newlinenum2kcfld
+
+ [field:newsnf41KcXX]
+ use:snf
+ table: collcwcollConsumption2x,Not Applicable
+;; {09.Sep.24 13:03}  table: collminoutmrkata,Not Applicable
+ Show table: Always
+ BORDER :THIN BOX
+  Invisible: yes
+ 
+ [field:newnumf41Kc]
+ use:numf
+ Set As:$$CollectionField:$cwUpdateSubQtyConsump1:$$line:collcwcollConsumption2x ;;collcwcollConsumption2
+ Invisible: yes
+
+
+ [field:newsnf41Kc]
+ use:snf
+
+ Set As:$$CollectionField:$cwmasteridConsump1:$$line:collcwcollConsumption2x ;;collcwcollConsumption2
+ Invisible: yes
+ 
+  [field:newlinenumkc]
+ use:numf
+ Set As:$$CollectionField:$cwlineMOVCH1:$$line:collcwcollConsumption2x
+ type : number : forced
+ storage:cwlineMOVCH2
+   Invisible: yes
+border:thin box
+
+[field:newlinenum2kcfld]
+ use:numf
+ Set As:$$CollectionField:$cwlineMOVCHkataord1:$$line:collcwcollConsumption2x
+ type : number : forced
+;; {09.Sep.24 16:03}    Invisible: yes
+border:thin box
+
+ [field:newqty1Kc]
+ use:numf
+;; {16.Apr.24 15:09}  Set As:$$CollectionField:$billedqty:$$line:ColtestrepMatOutmain
+;; {05.Jun.24 16:31}  Set As:$$CollectionField:$cwConsumQty1:$$line:collcwcollConsumption2x
+
+Set As:$$CollectionField:$cwBomQty1:$$line:collcwcollConsumption2x
+Invisible: yes
+BORDER:THIN BOX
+
+ [field:newqty2Kc]
+ use:qtyf
+ Invisible: yes
+
+
+[field:newRate1Kc]
+ use:numf
+;; {16.Apr.24 15:09}  Set As:$$CollectionField:$rate:$$line:ColtestrepMatOutmain
+;; {03.Feb.25 19:34}  Set As:$$CollectionField:$cwConsRate1:$$line:collcwcollConsumption2x
+ Set As:$$CollectionField:$cwConsRate1:$$line:collcwcollConsumption2x
+Invisible: yes
+
+[field:newrate2Kc]
+ use:ratepf
+ Invisible: yes
+
+[field:newbatch1Kc]
+ use:snf
+ Set As:$$CollectionField:$cwConsBatchName1:$$line:collcwcollConsumption2x ;;ColtestrepMatOutmain
+ Invisible: yes
+
+ [field:newbatch2Kc]
+ use:snf
+ Set As:#newbatch1Kc
+ Invisible: yes
+
+[#Field: VCHBoMComp StockItem]
+ add:option:VCHBoMCompStockItemminoptKc :@@cwHouseMaterialInkcyes and @@JayatriTestEnabled
+ [!field:VCHBoMCompStockItemminoptKc]
+ delete:setas
+;; {16.Apr.24 15:00} add:Set As:$$CollectionField:$stockitemname:$$line:ColtestrepMatOutmain
+add:Set As:$$CollectionField:$cwConsumProduct1:$$line:collcwcollConsumption2x
+
+;;====================================================
+[#Line: ALLOC Title]
+  add:option:ALLOCTitle1minoptKc:@@cwHouseMaterialInkcyes and @@JayatriTestEnabled
+ [!line:ALLOCTitle1minoptKc]
+
+ add:field:newqty2Kc,newbatch2Kc,newrate2Kc
+;; {24.Jan.24 10:17}  Local: Field: newqty2: Set As:#newqty1
+ Local: Field: newqty2Kc: Set As:$$asqty:#newqty1Kc
+ Local: Field: newrate2Kc: Set As:$$asrate:#newrate1Kc
+ 
+
+[#Field: VCHStkCons Parent ItemName]            ;; For Mr Kata
+ add:option: VCHStkConsParentItemNameminoptKc:@@cwHouseMaterialInYesOnly and @@JayatriTestEnabled
+;; {02.Jul.24 11:57}  add:option: VCHStkConsParentItemNameminoptKc:@@cwHouseMaterialInkcyes and @@JayatriTestEnabled
+ [!field:VCHStkConsParentItemNameminoptKc]
+ delete:setas
+ delete:table
+ ;add:set as:if $$line=1 then $$CollectionField:$ParentItem:$$line:ColKataCheckingMatOutRep else $$SysName:NotApplicable
+add:set as:if $$line=1 then $$ReportObject:$$CollectionField:$ParentItem:$$line:ColKataCheckingMatOutRep else $$SysName:NotApplicable 
+
+
+;; {26.Jun.24 10:43}  add:set as:if $$line=1 then $$CollectionField:$stockitemname:$$line:inventoryentries else $$SysName:NotApplicable
+;; {25.Jun.24 18:54}  add:set as:$$CollectionField:$stockitemname:$$line:inventoryentries ;;if $$line=1 then $$CollectionField:$stockitemname:$$line:inventoryentries else $$SysName:NotApplicable
+
+
+[#Field: VCHStkCons Parent ItemName]           ;; For Mr Do
+ add:option: VCHStkConsParentItemNameminoptMrdo2:@@cwForprocessmaterialYesOnly or @@cwFGMaterialInYesOnly and @@JayatriTestEnabled
+;; {02.Jul.24 11:57}  add:option: VCHStkConsParentItemNameminoptKc:@@cwHouseMaterialInkcyes and @@JayatriTestEnabled
+[!field:VCHStkConsParentItemNameminoptMrdo2]
+ delete:setas
+ delete:table
+;; {16.Nov.24 14:24}  add:set as:if $$line=1 then $$CollectionField:$ParentItem:$$line:ColdoMatOutNewmain else $$SysName:NotApplicable
+ add:set as:if $$line=1 then $$CollectionField:$stockitemname:$$line:inventoryentriesin else $$SysName:NotApplicable
+;; {25.Jun.24 18:54}  add:set as:$$CollectionField:$stockitemname:$$line:inventoryentries ;;if $$line=1 then $$CollectionField:$stockitemname:$$line:inventoryentries else $$SysName:NotApplicable
+border:thin box
+;;=============================
+[#Field: VCHStkCons Parent ItemName]                          ;; For Process
+ add:option: VCHStkConsParentItemNameminoptstitching :@@cwForprocessmaterialyes and @@JayatriTestEnabled
+ [!field:VCHStkConsParentItemNameminoptstitching]
+ delete:setas
+ delete:table
+ add:set as:if $$line=1 then $$CollectionField:$ParentItem:$$line:ColKataCheckingMatOutRep else $$SysName:NotApplicable
+;; {16.Nov.24 14:24}  add:set as:$$CollectionField:$stockitemname:$$line:inventoryentries ;;if $$line=1 then $$CollectionField:$stockitemname:$$line:inventoryentries else $$SysName:NotApplicable
+border:thin box
+;;====================================
+
+ [#Field: VCHStkCons BatchName]
+ add:option:VCHBoMCompBatchNameminoptKc:@@cwHouseMaterialInkcyes and @@JayatriTestEnabled
+
+ [!field:VCHBoMCompBatchNameminoptKc]
+
+ add:Set As:#newbatch2Kc
+
+[#field:VCHStkCons ActualQty]
+ add:option:VCHStkConsActualQtyminoptKc:@@cwHouseMaterialInkcyes and @@JayatriTestEnabled
+ [!field:VCHStkConsActualQtyminoptKc]
+delete:setas
+  delete:Set By Condition
+  add:Set By Condition:yes:#newqty2Kc
+  
+;; {26.Jun.24 10:46}  set as:$$asqty:#newnumf2Kc ;;#newqty2Kc
+ border:thin box
+
+[#Field: VCHStkCons Rate]
+add:option:cwVCHStkConsRateoptKc:@@cwHouseMaterialInkcyes and @@JayatriTestEnabled
+[!Field: cwVCHStkConsRateoptKc]
+;; {05.Feb.25 13:55} set as:$$asrate:#newrate2Kc   ;;cwJWRateclculation
+delete:setas
+delete:Set by Condition
+add:Set by Condition:yes:$$asrate:#newrate2Kc
+
+
+;;====================================
+
+

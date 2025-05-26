@@ -1,0 +1,485 @@
+
+
+
+     [#menu: Gateway of Tally]
+;; {03.Jul.24 16:46}         add: Option: StockAgeingReportLock  ;;: @@StockAgeingReportDemoLock
+
+     [!menu: StockAgeingReportLock]
+        add: Item: before: @@locQuit: @@StockAgeingReportReport: Display collection: cwcollListofBrandName  ;;: RepStockAgeingReport
+;; {03.Jul.24 15:35}         add: Item: before: @@locQuit: @@StockAgeingReportReport: Display collection: callListofExtractGodowns ;;and cwcollListofBrandName  ;;: RepStockAgeingReport
+        add: Item: before: @@locQuit: Blank
+        
+
+    [System: formula]
+   StockAgeingReportReport: "Stock Ageing Report"
+ StockAgeingReportDemoLock: yes ;; $$MachineDate < $$Date:"02/12/2011"
+
+
+[Field: cwSGodown]
+
+	Use         : Name Field
+	Use			: Create Godown
+	Table       : List of ExtractGodowns,not applicable ;;Create Master
+	Show Table  : Always
+	Key         : Create Godown
+	Modifies    : cwSGodown
+	
+[Variable: cwSGodown]
+Use	: Master Variable
+
+[system : variable]
+cwSGodown: ""
+	
+ ;;==========================================
+  [collection:cwcollListofBrandName]
+ Use: Extract Alias Collection
+ Use                 : Extract Alias Collection
+ Source Collection	: List of StockGroups
+ Title               : $$LocaleString:"List of Brands"
+ Collection  		: Primary
+ Variable    		: StockGroupName
+ Report      		: RepStockAgeingReport
+ Trigger     		: StockGroupNamex ;;StockGroupName
+;; {03.Jul.24 15:53}   Variable    		: cwSGodown
+ Fetch			: Name
+
+[Report: StockGroupNamex]  ;;Auto Report
+Use     : Collection Variable
+Local   : Line : Collection Variable : Field :snfx,StockGroupNamex
+Local   : Line : Collection Variable : Field : snfx2,cwSGodown
+Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Brands"
+Local   : Line : Collection Variable :Local: Field: snfx: info:"Group:"
+Local   : Line : Collection Variable :Local: Field: snfx2: info:"Godown:"
+Variable    		: cwSGodown
+
+/*[Line: StockGroupNamex]
+
+Fields      : Medium Prompt, StockGroupNamex
+Local       : Field : Medium Prompt : Info : $$LocaleString:"Name of Brands" */
+
+[Field: StockGroupNamex]
+
+Use         : Name Field
+delete:Table       : StockGroupSummary
+add:Table       : StockGroupSummaryx,Primary
+Show Table  : Always
+Key         : Create Stock Group
+Set as      : if ##StockGroupName = "" then $$SysName:Primary else ##StockGroupName
+Modifies    : StockGroupName
+CommonTable : No
+
+
+[Collection: StockGroupSummaryx]
+  type:stockgroup
+ title:"Name of Brands"
+ Format      : $$Name, 25
+ Align       : Right
+ FullHeight  : Yes
+;; {29.Dec.21 13:03}  belongs to:yes
+
+ ;;==========================================
+
+    [Report: RepStockAgeingReport]
+        use: Dsp Template
+      Title: @@StockAgeingReportReport
+   Printset: Report Title: @@StockAgeingReportReport
+       Form: FrmStockAgeingReport
+     Export: Yes
+
+ Set : DoSetAutoColumn : Yes ;; this is must
+ Set         : DSPRepeatCollection:"Company Stock Ageing" ;;"Agewise Analysis"
+ Variable:  StockAgeFrom, StockAgeTo,StockItemName
+;; {29.Dec.21 11:30}  Variable:  MyStockAgeingReport
+    Delete      : Repeat : SVFromDate
+    Delete      : Repeat : SVToDate
+
+ Repeat			:StockAgeFrom,StockAgeTo
+;; {28.Dec.21 16:47}  ColumnVar	: StockAgeFrom, StockAgeTo
+ Local       : Button   : RelReports        : Inactive : Yes
+ local : field : snf : invisible : yes
+ set : DSPAgeByDueDate : no
+      variable:str1,str2,str3,str4,ZeroValueLogi
+          set:str1:""
+          set:str2:""
+          set:str3:""
+          set:str4:""
+          set:ZeroValueLogi:no
+
+
+      [Form: FrmStockAgeingReport]
+        use: DSP Template
+;; {28.Dec.21 15:22}        Part: DspAccTitles,autoTitlePart1,PrtStockAgeingReport ;;,PrtStockAgeingReport2
+       Part: DspAccTitles,autoTitlePart1,PrtStockAgeingReport ;;,PrtStockAgeingReport2
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: StockAgeingReportbotbrk,StockAgeingReportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;; {28.Dec.21 17:07}   option: setautovchoption : ##Dosetautocolumn AND $$SetAutoColumns:MyStockAgeingReport ;; this is must
+  option: setautovchoption : ##Dosetautocolumn AND $$SetAutoColumns:MyStockAgeingReport ;; this is must
+   add:button:StockAgeWiseAnalysis
+   add:button:cwStkRepfillBtn
+
+
+
+
+
+ [System : Variable]
+MyStockAgeingReport : ""
+
+
+[Variable : MyStockAgeingReport]
+repeat :##DspRepeatCollection
+Default : ""
+Set always : yes
+
+
+
+      [part: StockAgeingReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: StockAgeingReportbotopbrk]
+        use: dspacctitles
+  add: part: StockAgeingReportTitlePart
+
+
+
+      [part: autoTitlePart1]
+       line: LnautoTitle1
+
+      [line: LnautoTitle1]
+      field:sp,fwf,sp1,nf,fwf2
+;; {29.Dec.21 12:34}       field:fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: sp: Set As:"Items Group:"
+      Local: Field: sp1: Set As:"Godown Name:"
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf: Set As:##StockGroupName
+      Local: Field: nf: Set As:##cwSGodown
+       Local: Field: fwf2: Set As: @@dspDateStr
+       Local: Field: fwf2:invisible: $$inprintmode
+      Local: Field: fwf: Style: style1y ;;Normal Bold
+      Local: Field: nf: Style: style1y ;;Normal Bold
+;; {03.Jul.24 16:37}       Local: Field: nf: Border: thin box ;;left right
+       height:1.5
+
+      [part: StockAgeingReportTitlePart]
+       line: LnStockAgeingReportTitle
+
+      [line: LnStockAgeingReportCurrPeriod]
+     field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+
+      [Part: PrtStockAgeingReport]
+       Line: LnStockAgeingReportTitle,LnStockAgeingReportTitle2,LnStockAgeingReport
+       bottom Line: LnStockAgeingReportTotals
+     repeat: LnStockAgeingReport: cwExciseMfgrDSRItemInGodownNamex
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,qtyf2,qtyf3,qtyf4,qtyf5,amtf
+      float:no
+;;      vertical:yes
+
+
+[Collection: cwExciseMfgrDSRItemInGodownNamex]
+
+;; {23.May.24 11:39} 	Collection 	: cwExciseMfgrDSRItemOpBalInGodownx:cwExciseMfgrListofERSubGodownx
+	Collection 	: cwExciseMfgrListofERSubGodownx:cwExciseMfgrDSRItemOpBalInGodownx
+	/*
+	Fetch		: Name, OpeningBalance, ClosingBalance, ExciseGdwnName,,batchname
+
+	Compute		: Name	: $Name
+	Compute		: ClBalQty: $ClBalQty
+	Compute		: BatchName : $BatchName
+	Compute		: ExciseGdwnName: $ExciseGdwnName	
+	Parm VAR	: SV From Date	: Date	: ##SVFromDate
+	Parm VAR	: SV To Date	: Date	: @@EndingDate
+	Search Key	: $Name
+	Keep Source : ().
+	sort:@@default:$name
+	        */
+	[Collection: cwExciseMfgrDSRItemOpBalInGodownx]
+	
+;; {23.May.24 11:32} 	Type        : Stock Items in Godown
+   type:stockitem
+
+
+/*	ParmVAR		: pvGodownName	: String : $$LoopCollObj:$Name
+	Compute		: ExciseGdwnName : $$LoopCollObj:$Name
+	Compute		: BatchName : $$LoopCollObj:$BatchName
+	Fetch		: Name, OpeningBalance, ClosingBalance
+	Compute		: ClBalQty		: If $$IsEmpty:$$AsSignedQty:$$GodownItemValue:($$LoopCollObj:$Name):$Name:$ClosingBalance Then 0 Else $$AsSignedQty:$$GodownItemValue:($$LoopCollObj:$Name):$Name:$ClosingBalance
+	
+        Parm VAR	: SV From Date	: Date	: ##SVFromDate
+	Parm VAR	: SV To Date	: Date	: @@EndingDate
+;; {23.May.24 09:39} 	add:filter:cwStkRepfillBrand,cwStkRepfillstkGrp,cwStkRepfillItem
+;; {23.May.24 11:33}         add:filter:CwSameGroup
+	 */
+	
+[Collection: cwExciseMfgrListofERSubGodownx]
+	type:batch
+Child of:$$LoopCollObj:$name
+	
+;; {23.May.24 11:30} 	Type		: Godown
+
+;; {23.May.24 11:34} 	Child of	:$$LoopCollObj:$Name
+;; {09.Dec.21 15:08} 	Childof		: "Banhooghly Godown"
+;; {23.May.24 11:32} 	BelongsTo	: Yes
+
+add:filter:CwSameGroup,CwSameGodown
+Fetch		: Name, OpeningBalance, ClosingBalance,parent,godownname
+;; {23.May.24 11:34} 	Keep Source : ().
+filter:cwStkRepfillItem,cwStkRepfillgdn
+
+[system: Formula]
+cwStkRepfillBrand:if $$issysname:##str1 then yes else $PARENT:stockitem:$name = ##str1
+cwStkRepfillstkGrp:if $$issysname:##str2 then yes else $cwproduct:stockitem:$name = ##str2
+cwStkRepfillItem:if $$issysname:##str3 then yes else $parent= ##str3
+cwStkRepfillgdn:if $$issysname:##str4 then yes else $godownname = ##str4
+;; {23.May.24 11:56} cwZeroValueFill: if ##ZeroValueLogi then no else $$isempty:$ClBalQty
+cwZeroValueFill: if ##ZeroValueLogi then no else $$isempty:$ClosingBalance
+CwSameGroup:if ##StockGroupName = $$SysName:Primary then yes else ##StockGroupName = $parent:stockitem:$parent
+CwSameGodown:##cwSGodown = $godownname ;;if ##cwSGodown = $$SysName:Primary then yes else ##cwSGodown = $godownname
+
+/*
+
+   [line:closingstockline]
+     use: LnStockAgeingReport
+local:field: sdf: set as:""
+local:field: snf: set as:""
+local:field: nf: set as: "Opening Stock"
+local:field: numf : set as:$openingbalance:stockitem:##myStockAgeingReport
+local:field:default:style:normal bold
+*/
+
+
+[Line: LnStockAgeingReportTitle]
+use: LnStockAgeingReport
+option: titleopt4
+
+local:field: snf1: set as:"Stock Group"
+local:field: nf1: set as: "Stock Item Name"
+local:field: snf3: set as: "Godown Name"
+local:field: snf4: set as: "Batch Name"
+
+local:field: QTYF: set as: "Total"
+local : field : numfnew1 : delete : field
+Local: Field:numfnew1: Sub title : Yes
+local:field: numfnew1 : set as :@@StockAgeTitle  ;;@@AgeWiselessThanFormat  ;;if ($$NumSets = 1) OR ($$Column = 1) then "Dues" else @@AgeTitle  ;;##myStockAgeingReport
+;; {03.Jul.24 17:13} local:field: numfnew1 : set as :@@cwStockAgeTitle  ;;@@AgeWiselessThanFormat  ;;if ($$NumSets = 1) OR ($$Column = 1) then "Dues" else @@AgeTitle  ;;##myStockAgeingReport
+local: field: numfnew1: type: String
+local: field: snf1 : style: style1y ;;small bold
+local: field: nf1 : style: style1y ;;small bold
+local: field: snf3 : style: style1y ;;small bold
+local: field: snf4 : style: style1y ;;small bold
+local: field: numfnew1 : style: style1y ;;small bold
+Local: Field: numfnew1: Border: thin bottom
+Local: field:numfnew1: Align:centre
+Local: field:default: Align:centre
+local:field:numfnew1:line:0
+
+
+[Line: LnStockAgeingReportTitle2]
+use: LnStockAgeingReport
+option: titleopt3
+
+local:field: nf5: set as: ""
+local:field: nf6: set as: ""
+local:field: nf7: set as: ""
+local:field: nf1: set as: ""
+local:field: snf1: set as:""
+local:field: snf2: set as: ""
+local:field: snf3: set as: ""
+local:field: QTYF: set as: "QTY"
+local : field : qtyf2 : set as :"Quantity"
+local : field : amtf :set as :"Value"
+local: field: qtyf2: type: String
+local: field: amtf: type: String
+local: field: default : style: style1y ;;small bold
+local: field: default : style: style1y ;;small bold
+Local: field:qtyf2: style: style1y ;;small bold
+local:field:numfnew1:line:0
+
+[Collection: cwitembatch]
+type : batch
+child of : #nf1
+
+
+[System: Formula]
+cwgetqty : $$StockAge:no:##StockAgeFrom:##StockAgeTo:##SAGEAgeingStyle:($$SysName:Internal)
+cwgetamt : $$StockAgeValue:no:##StockAgeFrom:##StockAgeTo:##SAGEAgeingStyle:($$SysName:Internal)
+cwitembatch : $godownname = #snf3 and $name=#snf4
+
+
+ [field:numfnew1]
+ field:qtyf2 ;;,amtf ;;,snfx,snfx2  ;,SAGEAge
+
+;; {29.Dec.21 13:22}  Display         : Item Monthly Summary  ;;: $$IsStockItem AND ((##StockAgeFrom = 0 AND ##StockAgeTo = 0) OR (##StockAgeFrom < 0))
+;; {29.Dec.21 13:22}  Display         : Item Inward Details   ;;: $$IsStockItem
+;; {29.Dec.21 10:57} On: Focus: Yes	: Set	: ColumnIndex	: $$Column
+
+[Line: LnStockAgeingReport] ;; main line
+;; {28.Dec.21 14:29} Fields:nf1,snf1,snf2,snf3,numfnew,DSP SAGEName
+Fields:snf1,nf1,snf3,snf4,numfnew1;;,DSPSAGEName
+;; {11.Jul.24 00:16} right fields:snf4,numfnew1;;,DSPSAGEName
+
+local:field: nf1: set as:$parent ;;if $$line=1 then $parent else if $parent <> $$prevobj:$parent then $parent else "" ;; "Particulars"
+local:field: snf1: set as:$parent:stockitem:$parent  ;; "Stock Group"
+
+local:field: snf3: set as:$godownname ;;$ExciseGdwnName ;;$Godownname;; "Stock Category"
+local:field: snf4: set as:$name
+Local: Field: QTYF: Set As:$ClBalQty ;;$closingbalance
+
+Local: Field: qtyf2: Set As:$$FilterqtyTotal:cwitembatch:cwitembatch:@@cwgetqty ;;$$FilterValue:@@cwgetqty:cwitembatch:1:cwitembatch   ;;$StockAgeQty
+Local: Field: amtf: Set As:$$FilteramtTotal:cwitembatch:cwitembatch:@@cwgetamt
+
+empty:@@cwZeroValueFill
+repeat:numfnew1 ;; The Field to Repeat ;; Only Left Field is repeated
+
+Local: field: snf1: Width:18
+Local: field: snf3: Width:18
+;; {11.Jul.24 00:19} Local: field: snf4: Width:10
+Local: field: nf1: Width:40 ;;35
+Local: field: nf5: Width:25
+Local: field: nf6: Width:15
+Local: field: nf7: Width:12
+local:field: qtyf : Format : " Short Form, No Compact,NoZero"
+local:field: qtyf2 : Format : " Short Form, No Compact,NoZero"
+local:field: qtyf3 : Format : "Short Form, No Compact,NoZero"
+;; {23.May.24 12:41} local:field: nf1:Variable        : StockItemName
+;; {23.May.24 12:41} local:field: nf1:Display         : Item Monthly Summary
+local: field: default : style: style2y ;;small
+local:field:default:border:thin left
+local: field: snf1: Invisible: yes
+local: field: snf3: Invisible: yes
+Local: field: snf4: Align: centre
+;; {11.Jul.24 00:11} local: field: snf4: Invisible: yes
+;; {03.Jul.24 16:32} local: field: qtyf2: Invisible: yes
+
+;; ##myStockAgeingReport will hold the current column value.
+
+[System: Formula]
+;;myitemsame : $stockitemname = ##myStockAgeingReport
+
+
+
+
+ [field:numfnew2]
+ field:qtyf5 ;;,amtf2
+
+[line:lnStockAgeingReporttotals]
+use:LnStockAgeingReport
+option: totalOpt
+Local: Field: nf5: Set As:""
+Local: Field: nf6: Set As:""
+Local: Field: nf7: Set As:""
+Local: Field: nf1: Set As:  " Total :"
+local: field: numf : set as : $$total:numf
+delete : repeat
+replace : field : numfnew1 : numfnew2
+add : repeat : numfnew2
+local: field:qtyf: set as:$$total:qtyf
+local: field:qtyf5: set as:$$total:qtyf2
+local: field:amtf2: set as:$$total:amtf
+local: field: snf1 : style: style1y ;;small bold
+local: field: nf1 : style: style1y ;;small bold
+local: field: snf3 : style: style1y ;;small bold
+local: field: snf4 : style: style1y ;;small bold
+local: field: numfnew2 : style: style1y ;;small bold
+
+;;;========================================
+
+    [button:cwStkRepfillBtn]
+    title:"Filter"
+    key:f7
+    action : modify variable :cwStkRepfillBtn
+
+
+        [Report: cwStkRepfillBtn]
+        form   : cwStkRepfillBtn
+        [form  :cwStkRepfillBtn]
+         part   :cwStkRepfillBtn
+        ; height:30% page
+        width:45% page
+       ;  Background  :Very Light Blue ;;@@SV_UNYELLOW
+
+        [part  :cwStkRepfillBtn]
+        line:cwStkRepfillTit,cwRepFillitemLn,cwRepFillGdnNameLn,cwRepFillZeroValueLn
+
+
+        [line:cwStkRepfillTit]
+        field:fwfc
+        Local: Field: fwfc: info: "Filter"
+        Local: Field: fwfc: Style: Normal Bold
+
+          [line:cwRepFillBrandLn]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"Brand"
+     Local: Field: nf:modifies:str1
+     Local: Field: Medium Prompt: Style: Normal Bold
+     Local: Field: nf: table:stockGroup,Not Applicable
+     Local: Field: nf: Show table: Always
+      space top:0.3
+
+           [line:cwRepFillStkGrpLn]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"Stock Group"
+     Local: Field: nf:modifies:str2
+     Local: Field: Medium Prompt: Style: Normal Bold
+     Local: Field: nf: table : prod,notapplicable : not $showProductcc:COMPANY:##SVCURRENTCOMPANY
+     Local: Field: nf:table : collprod,notapplicable : $showProductcc:COMPANY:##SVCURRENTCOMPANY
+
+     Local: Field: nf: Show table: Always
+      space top:0.3
+
+           [line:cwRepFillitemLn]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"Item Name"
+     Local: Field: nf:modifies:str3
+     Local: Field: Medium Prompt: Style: Normal Bold
+     Local: Field: nf: table:stockitem,Not Applicable
+     Local: Field: nf: Show table: Always
+      space top:0.3
+
+     [line:cwRepFillGdnNameLn]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"Godown Name"
+     Local: Field: nf:modifies:str4
+     Local: Field: Medium Prompt: Style: Normal Bold
+     Local: Field: nf: table:cwCollGodown1,Not Applicable
+     Local: Field: nf: Show table: Always
+      space top:0.3
+
+   [line:cwRepFillZeroValueLn]
+     field:Medium Prompt,cwZeroValuefld
+     Local: Field: Medium Prompt: Set As:"Zero Value"
+;; {09.Dec.21 16:31}      Local: Field: cwZeroValuefld:modifies:logi2
+     Local: Field: Medium Prompt: Style : Normal Bold
+
+     [Field: cwZeroValuefld]
+      Use         : Logical Field
+      Modifies    : ZeroValueLogi
+      Set always  : Yes
+
+      	[Variable:ZeroValueLogi]
+
+        Type        : Logical
+        Persistent  : Yes
+
+        [System: Variables]
+         ZeroValueLogi:no
+
+ [Collection:cwCollGodown1]
+ Title    : @@GodownTitle
+ Type     : Godown
+ align:right
+ full height:yes
+
+ ;;====================================

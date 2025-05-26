@@ -1,0 +1,221 @@
+; Created By: Anil on 2024-05-23 11:02, ID:
+
+
+
+     [#menu: Gateway of Tally]
+;; {23.May.24 17:51}         add: Option: cwNormalandfastpaymentLock ;; : @@cwNormalandfastpaymentDemoLock
+
+  /*
+     [#menu : cw_Debug_menu]
+        add: Item: before: @@locQuit: @@cwNormalandfastpaymentReport: Display: RepcwNormalandfastpayment
+  */
+
+
+     [!menu: cwNormalandfastpaymentLock]
+        add: Item: before: @@locQuit: @@cwNormalandfastpaymentReport: Display: RepcwNormalandfastpayment
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   cwNormalandfastpaymentReport: "Normal and Fast Payment"
+;; cwNormalandfastpaymentDemoLock: $$MachineDate < $$Date:"01/12/2023"
+
+    [Report: RepcwNormalandfastpayment]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+
+      Title: @@cwNormalandfastpaymentReport
+   Printset: Report Title: @@cwNormalandfastpaymentReport
+
+       Form: FrmcwNormalandfastpayment
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+ Variable: str1
+          set :str1:""
+
+      [Form: FrmcwNormalandfastpayment]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0cwNormalandfastpayment,PrtcwNormalandfastpayment
+      Width: 100% Page
+     Height: 100% Page
+     Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: cwNormalandfastpaymentbotbrk,cwNormalandfastpaymentbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: cwNormalandfastpaymentConfigure
+ADD: Button:cwfilterbuttonnew
+
+      [part: cwNormalandfastpaymentbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: cwNormalandfastpaymentbotopbrk]
+        use: dspacctitles
+  add: part: cwNormalandfastpaymentTitlePart
+
+      [part: cwNormalandfastpaymentTitlePart]
+       line: LncwNormalandfastpaymentTitle
+
+      [line: LncwNormalandfastpaymentCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0cwNormalandfastpayment]
+      line : LncwNormalandfastpaymentCurrPeriod
+
+      [Part: PrtcwNormalandfastpayment]
+       Line: LncwNormalandfastpaymentTitle,LncwNormalandfastpayment
+bottom Line: LncwNormalandfastpaymentTotals
+     repeat: LncwNormalandfastpayment: ColcwNormalandfastpayment
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: ColcwNormalandfastpayment]
+type:bills
+ Filter: ColcwNormalandfastpaymentFilter ;;,IsNonOptionalCancelledVchs
+filter:cwbilltypefilter
+
+    [system: Formula]
+ColcwNormalandfastpaymentFilter: not $$isempty:$closingbalance ; $$isSales:$voucherTypeName
+ [System: Formula]
+cwbilltypefilter:if $$issysname:##str1 then yes else $cwvchBilltype =##str1
+
+      [Line: LncwNormalandfastpaymentTitle]
+        use: LncwNormalandfastpayment
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Invoice No"
+local:field: snf1: set as: "Item Name"
+local:field: snf3: set as: "Salesman"
+local:field: snf4: set as: "Area"
+local:field: numf2: set as: "Rate"
+local:field: fwf: set as: "Party Name"
+local:field: amtf: set as: "Dr. Amount"
+Local: field: DEFAULT: Align:centre
+Local: field: FWF: Align:LEFT
+local:field: numf: set as:"Due Days"
+local: field: numf : style:styleCalisto2
+local: field: numf2 : style:styleCalisto2
+
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: snf : style:styleCalisto2
+local: field: snf1 : style:styleCalisto2
+local: field: snf3 : style:styleCalisto2
+local: field: snf4 : style:styleCalisto2
+
+; Main Line
+      [Line: LncwNormalandfastpayment]
+     Fields: cwNormalandfastpaymentmastid,sdf,snf,fwf,snf11,snf3,snf4,snf1,numf2
+right field:numf, Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$billdate ;;$date;; "Date"
+local:field: snf: set as:$name ;;@@cwnetsales2 ;; "Date"
+Local: Field: snf3: Set As:$cwcaption1vch
+Local: Field: snf4: Set As:$cwcaption6vch
+local:field: snf1: set as:"" ;;$$reportobject:$$collectionfieldbykey:$stockitemname:#fwf:ColJTAllItemwiesoutstandingreportnewmain ;;$stockitemname  ;;+"   "+@@cwnetsales3  ;; "Vch No"
+local:field: numf2: set as:"" ;;$$reportobject:$$collectionfieldbykey:$stockitemname:#fwf:ColJTAllItemwiesoutstandingreportnewmain ;;$stockitemname  ;;+"   "+@@cwnetsales3  ;; "Vch No"
+local:field: fwf: set as:$parent+"   "+@@cwnetsales3  ;; "Vch No"
+local:field: amtf: set as:$closingbalance;; "Dr. Amount"
+;; {06.Jul.21 19:16} local:field: snf: set as:@@CreditPeriod ;; "Dr. Amount"
+local:field: numf: set as:@@DSPToDate - $BillDate ;; "Dr. Amount"
+
+Local: Field:DEFAULT: Border: thin right
+Local: Field:sdf: Border: thin left right
+
+local: field: DEFAULT : style:styleCalisto
+Local: field: snf: Width:10
+Local: field: snf1: Width:30
+Local: field: snf4: Width:24
+Local: field:numf: Width:12
+;; {27.Aug.21 10:56} local: field: snf: Invisible: yes
+Local: Field: snf11: Set As:$cwvchBilltype
+local: field: snf11: Invisible: yes
+border:thin bottom
+
+add:explode:cwexpledpart   ;;:$$line=$$numitems or $ledgername<>$$nextobj:$ledgername
+
+[part:cwexpledpart]
+line:cwexpledpart
+repeat: cwexpledpart: ledgerentries
+
+[line:cwexpledpart]
+use: LncwNormalandfastpayment
+
+Local: Field: fwf: Set As:"" ;;$$CollectionField:$partyledgername:@@linep1ex:ledgerentries ;;$ledgername
+Local: Field: snf3: Set As:"" ;;$cwcaption1vch
+Local: Field: snf4: Set As:"" ;;$cwcaption6vch
+delete:explode
+add:explode:cwexpitempart
+
+[part:cwexpitempart]
+line:cwexpitempart
+repeat: cwexpitempart: inventoryentries
+
+[line:cwexpitempart]
+use:LncwNormalandfastpayment
+
+Local: Field: snf1: Set As:$stockitemname
+Local: Field: numf2: Set As:$rate
+;; {15.May.24 16:27} local:field: sdf: set as: $$CollectionField:$billdate:First:ColJTAllItemwiesoutstandingreportnewmain2
+delete:explode
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: cwNormalandfastpaymentDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: cwNormalandfastpaymentDisplayVoucher
+
+ 	
+     [Report: cwNormalandfastpaymentDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #cwNormalandfastpaymentmastid
+	
+
+        [Field: cwNormalandfastpaymentmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LncwNormalandfastpaymentTotals]
+        use: LncwNormalandfastpayment
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

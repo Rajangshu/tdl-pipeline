@@ -1,0 +1,172 @@
+; Created By: Anil on 2024-02-08 15:49, ID: 
+
+
+[#Field: EI VchDestinationGodown]
+
+add:option:EIVchDestinationGodownopt:@@JayatriTestEnabled
+[!field:EIVchDestinationGodownopt]
+
+set as:$cwGodownvch:ledger:$partyledgerNAME
+
+[#Field: EI VchSourceGodown]
+add:option:EIVchSourceGodownopt:@@JayatriTestEnabled
+
+[!field:EIVchSourceGodownopt]
+
+set as:$cwGodownvch:ledger:$partyledgerNAME
+
+;;==============================================
+
+[System: Formula]
+;; {08.Feb.24 16:03} cwKataCheckingChallanvch:$cwKataCheckingChallanvch:vouchertype:$vouchertypename="yes"
+cwHouseMaterialInYes:$cwHouseMaterialIn:vouchertype:$vouchertypename="yes" OR $cwFGMaterialIn:vouchertype:$vouchertypename="yes"
+
+
+[#Form: JobMatVchs STKVCH BatchAllocations]
+ADD:OPTION:JobMatVchsSTKVCHBatchAllocationsOPT:@@cwHouseMaterialInYes and @@JayatriTestEnabled
+[!form:JobMatVchsSTKVCHBatchAllocationsOPT]
+Local	: Part	: Alloc Title	: Add : Line : cwlinepart
+
+[line:cwlinepart]
+field:slnofieldnew
+
+[field:slnofieldnew]
+use:numf
+;;set as:#cwlineno2  ;;$$FilterValue:$cwlinenovch:inventoryentries:1:cwlineFilter   ;;$$CollectionField:$cwlinenovch:First:inventoryentries
+set as:if $$isempty:#slnofield3xxx2 then #cwlineno2 else #slnofield3xxx2+#cwlineno2  ;;$$FilterValue:$cwlinenovch:inventoryentries:1:cwlineFilter   ;;$$CollectionField:$cwlinenovch:First:inventoryentries
+ skip:yes
+;; {09.Dec.23 12:29} set as:$$CollectionField:$cwlinenovch:$$Column:inventoryentries
+
+/*[#Line: STKVCH Batch2]
+ADD:OPTION:cwSTKVCHBatch2inOPT:@@cwHouseMaterialInYes ;;cwKataCheckingChallanvch
+[!line:cwSTKVCHBatch2inOPT]
+
+add:right field:before:VCHBATCH Name:slnofield ,fldstno,fldstno4,fldstno5
+
+local : field : VCHBATCH Name : delete :TABLE
+local : field : VCHBATCH Name :setas :$$string:#fldstno5
+Local: Field: VCHBATCH Name:Skip: Yes
+
+[System: Formula]
+cwlineFilter:yes
+
+[field:slnofield]
+use:numf
+set always :yes
+storage:cwbatchslno
+setas:$$line
+Invisible: yes
+Border: thin box ;;left right
+
+ [function : cwxxq]
+parameter : a : number ;;: #numf9
+;; {03.Dec.18 15:48} 000 : log : ##a
+;; {03.Dec.18 15:48} 01: log : $$zerofill:($$number:$$COLLECTIONFIELD:$partno1x:1:newItemColl + 1):##a
+20 : return : $$zerofill:(@@cwgdStartingno + 1):##a
+
+[field:slnofield2]
+use:numf
+set always :yes
+storage:cwbatchslno2
+set as:#slnofield3
+Invisible: yes
+
+
+
+
+[System: Formula]
+cwnumbatch1 : $$numitems:batchallocations
+cwgdprefix:$cwgdprefix:vouchertype:$vouchertypename
+cwgdStartingno:$cwgdStartingno:vouchertype:$vouchertypename
+
+ [#Line: EI Consignee]
+add:option : EIConsigneepurc:@@cwHouseMaterialInYes and @@JayatriTestEnabled
+[!Line: EIConsigneepurc]
+add:field:slnofield3xxx,slnofield3xxx2
+
+
+
+[Collection: collbatchx]
+Type : Vouchers:VoucherType
+Child Of:$$VchTypeJobMaterialReceive
+BelongsTo: Yes
+fetch:cwtotalbatch,vouchernumber
+
+
+compute:cwtotalbatch1:$cwtotalbatch
+add:format:$cwtotalbatch1,10
+
+[field:slnofield3xxx2]
+use:numf
+set always :yes
+set as:$$CollNumTotal:collbatchx:$cwtotalbatch1
+Invisible: yes
+
+[field:slnofield3xxx]
+use:numf
+set always :yes
+set as:$$collnumtotal:Inventoryentries:@@cwnumbatch1
+Invisible: yes
+storage:cwtotalbatch
+
+ [field:fldstno]
+ use : numf
+;; {09.Dec.23 16:26}   setas :1 ;;if $$line=1 then 1 else $$number:$$prevlinefield+$$number:1 ;;($$ZeroFill:@@cwgdStartingno:@@cwgdprefix)  ;;@@cwgdStartingno:4 ;;:@@cwgdprefix ;; if not $$isempty:$$value then $$value else if #fldslno = 1 then 1 else #fldslno + 1
+  setas :if $$isempty:#slnofieldnew then 1 else #slnofieldnew+1 ;;($$ZeroFill:@@cwgdStartingno:@@cwgdprefix)  ;;@@cwgdStartingno:4 ;;:@@cwgdprefix ;; if not $$isempty:$$value then $$value else if #fldslno = 1 then 1 else #fldslno + 1
+Invisible: yes
+
+[field:fldstno4]
+use:numf
+
+ setas:#slnofieldnew+#slnofield  ;;+1
+Invisible: yes
+ Border: thin box ;;left right
+
+ [field:fldstno5]
+ use:snf
+ setas:$$ZeroFill:#fldstno4:@@cwgdprefix
+ Invisible: yes
+
+ [field:cwlineno2]
+ use:numf
+ setas:if $$line=1 then #cwlineno  else $$prevlinefield+#cwlineno
+
+;; {11.Dec.23 15:18}   Invisible: yes
+ skip:yes
+ width:4
+ Align:left
+;; type : number : forced
+
+
+ [field:cwlineno]
+ use:numf
+
+ Set As:$$CollectionField:$cwbatchslno:(-1):batchallocations  ;;;;;$$CollNumTotal:batchallocations:$cwbatchslno
+;; Invisible: yes
+ storage:cwlinenovch
+ skip:yes
+
+ [#Line: EI ColumnOne]
+ ADD:OPTION:EIColumnOneOPTx:@@cwHouseMaterialInYes and @@JayatriTestEnabled
+ [!LINE:EIColumnOneOPTx]
+ add:field:at Beginning:numf1
+ Local: field: numf1: Width:4
+ Local: Field: numf1: info: ""
+
+
+ [#Line: CI InvInfo]
+ ADD:OPTION:EIInvInfoColumnOneOPTx:@@cwHouseMaterialInYes and @@JayatriTestEnabled
+
+ [#Line: EI InvInfo]
+  ADD:OPTION:EIInvInfoColumnOneOPTx:@@cwHouseMaterialInYes and @@JayatriTestEnabled
+
+ [!LINE:EIInvInfoColumnOneOPTx]
+ add:field:At Beginning:cwlineno2 ;,snf7
+ add:field:cwlineno
+
+ Local: Field: snf7: Set As:#cwlineno2
+ Local: Field: snf7: Skip: Yes
+                                            */
+;;==============================================================================
+
+

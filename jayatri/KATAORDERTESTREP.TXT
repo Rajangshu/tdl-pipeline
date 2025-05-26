@@ -1,0 +1,176 @@
+; Created By: Anil on 2024-07-06 12:03, ID:
+
+ 
+
+     [#menu: Gateway of Tally]
+;; {23.Jul.24 18:31}         add: Option: KataOrderTestLock ;; : @@KataOrderTestDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@KataOrderTestReport: Display: RepKataOrderTest
+  */
+
+
+     [!menu: KataOrderTestLock]
+        add: Item: before: @@locQuit: @@KataOrderTestReport: Display: RepKataOrderTest
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   KataOrderTestReport: "KataOrderTest"
+;; KataOrderTestDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepKataOrderTest]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@KataOrderTestReport
+   Printset: Report Title: @@KataOrderTestReport
+
+       Form: FrmKataOrderTest
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmKataOrderTest]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0KataOrderTest,PrtKataOrderTest
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: KataOrderTestbotbrk,KataOrderTestbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: KataOrderTestConfigure
+
+      [part: KataOrderTestbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: KataOrderTestbotopbrk]
+        use: dspacctitles
+  add: part: KataOrderTestTitlePart
+
+      [part: KataOrderTestTitlePart]
+       line: LnKataOrderTestTitle
+       
+      [line: LnKataOrderTestCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0KataOrderTest]
+      line : LnKataOrderTestCurrPeriod
+      
+      [Part: PrtKataOrderTest]
+       Line: LnKataOrderTestTitle,LnKataOrderTest
+bottom Line: LnKataOrderTestTotals
+     repeat: LnKataOrderTest: ColKataOrderTest
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: ColKataOrderTest]
+SOURCE COLLECTION:sourceColKataOrderTest
+walk:allinventoryentries,BATCHALLOCATIONS,VOUCHERCOMPONENTLIST,BATCHALLOCATIONS
+;; {19.Jun.24 18:09} by:batchname :$batchname
+by:ParentItem:$ParentItem
+by: date:            $date
+by: vouchernumber:   $vouchernumber
+by: partyledgername:   $partyledgername
+by:stockitemname1:$....stockitemname
+by:stockitemname2:$stockitemname
+compute:cwLRNumberpurc1:$cwLRNumberpurc
+aggr compute:billedqty:sum:$billedqty
+;; {06.Jul.24 18:05}  compute:billedqty2:$...billedqty
+filter:cwlrnoflter2
+
+[Collection: sourceColKataOrderTest]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColKataOrderTestFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColKataOrderTestFilter: $cwKataCheckingvch:vouchertype:$vouchertypename ; $$isSales:$voucherTypeName
+ cwlrnoflter2: $cwLRNumberpurc1=#cwlrnofld2
+;; {08.Jul.24 10:51}  cwlrnoflter2: $cwLRNumberpurc2=#cwlrnofld2
+      [Line: LnKataOrderTestTitle]
+        use: LnKataOrderTest
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Lr No"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: LnKataOrderTest]
+     Fields: KataOrderTestmastid,snf,sdf,nf,fwf
+Right Field: ratepf,Qtyf,qtyf2,Amtf
+
+     Option: Alter on Enter
+        key: KataOrderTestDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: sdf : set as : $date
+local:field: snf : set as : $partyledgername ;;$voucherNumber
+local:field: fwf : set as : $stockitemname2
+local:field: nf : set as : $cwLRNumberpurc1
+local:field: qtyf : set as : $billedqty
+local:field: qtyf2 : set as : $billedqty2
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: KataOrderTestDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: KataOrderTestDisplayVoucher
+
+ 	
+     [Report: KataOrderTestDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #KataOrderTestmastid
+	
+
+        [Field: KataOrderTestmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnKataOrderTestTotals]
+        use: LnKataOrderTest
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

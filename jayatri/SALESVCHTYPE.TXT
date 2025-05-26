@@ -1,0 +1,99 @@
+; Created By: Anil on 2024-04-09 10:47, ID: 
+
+
+ [#Part: VTYP Behaviour]
+
+ add:option:newVTYPBehaviourmsopt:@@JayatriTestEnabled
+ [!part:newVTYPBehaviourmsopt]
+
+ add:line:cwSystemdateline
+
+ [line:cwSystemdateline]
+ field:long prompt,cwlogical
+
+ Local: Field: long prompt: Set As:"System date?"
+ Local: Field: cwlogical: storage:cwSystemdatems
+ Local: Field: default: Style: Normal Bold
+
+
+ [System: Formula]
+ cwSystemdatemsopt:$cwSystemdatems:vouchertype:$vouchertypename
+  issaletop:$$IsCreditNote:$parent or $$issales:$parent
+
+
+ [#Part: VTYP Behaviour]
+
+ add:option:cwEnableInvoiceCostopt:@@issaletop and @@JayatriTestEnabled
+ [!part:cwEnableInvoiceCostopt]
+ line:cwsalesadditionalfeatuline
+ 
+ [line:cwsalesadditionalfeatuline]
+
+  field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Additional Feature Allow:"
+ Local: Field: cwlogical: storage:cwsaleAdditionalFeatureAllow
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ Local: Field : cwlogical : SubForm : cwsaleAdditionalFeatureAllowrep: $$value
+
+ [report:cwsaleAdditionalFeatureAllowrep]
+ form:cwsaleAdditionalFeatureAllowrep
+
+ [form:cwsaleAdditionalFeatureAllowrep]
+ part:cwsaleAdditionalFeatureAllowrep
+
+ [part:cwsaleAdditionalFeatureAllowrep]
+ width:35% page
+
+ add:line:cwEnableInvoiceCost,cwEnableCostnw,cwEnableNetSalesReport,cwSalesReturnEnableCostnw
+
+ [line:cwEnableInvoiceCost]
+ field:long prompt,cwlogical
+
+ Local: Field: long prompt: Set As:"Enable Invoice Customisation:"
+ Local: Field: cwlogical: storage:cwEnableInvoiceCost
+ Local: Field: default: Style: Normal Bold
+
+ [line:cwEnableCostnw]
+ field:long prompt,cwlogical
+
+ Local: Field: long prompt: Set As:"Enable Customisation:"
+ Local: Field: cwlogical: storage:cwEnableCostnw
+ Local: Field: default: Style: Normal Bold
+ 
+ [line:cwEnableNetSalesReport]
+ field:long prompt,cwlogical
+
+ Local: Field: long prompt: Set As:"Enable Net Sales Report"
+ Local: Field: cwlogical: storage:cwEnableNetSalesReport
+ Local: Field: default: Style: Normal Bold
+ 
+ [line:cwSalesReturnEnableCostnw]
+ field:long prompt,cwlogical
+
+ Local: Field: long prompt: Set As:"Enable Sales Return Report:"
+ Local: Field: cwlogical: storage:cwEnableSalesReturn
+ Local: Field: default: Style: Normal Bold
+
+ ;;========================================
+
+/*[System: Formula]
+ cwcrnotePostVoucher:$$IsCreditNote:$parent
+
+ [#Part: VTYP Behaviour]
+
+ add:option:cwEnableCostnwSalesReturnopt:@@cwcrnotePostVoucher and @@JayatriTestEnabled
+ [!part:cwEnableCostnwSalesReturnopt]
+
+ add:line:cwSalesReturnEnableCostnw
+
+ [line:cwSalesReturnEnableCostnw]
+ field:long prompt,cwlogical
+
+ Local: Field: long prompt: Set As:"Enable Sales Return Report?"
+ Local: Field: cwlogical: storage:cwEnableSalesReturn
+ Local: Field: default: Style: Normal Bold   */
+
+

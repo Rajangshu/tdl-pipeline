@@ -1,0 +1,19 @@
+; Created By: Anil on 2024-09-09 13:57, ID: 
+
+[#Line: EI ColumnOne]
+add:option:cwkataordEIColumnOneopt:@@cwKataCheckingvch
+[!Line: cwkataordEIColumnOneopt]
+add:field:At Beginning:numf45
+
+Local: Field: numf45: info:"SL NO55"
+local: field:numf45 : type: String
+
+[#Line: EI InvInfo]
+add:option:cwkataordEIInvInfoopt:@@cwKataCheckingvch
+[!Line: cwkataordEIInvInfoopt]
+add:field:At Beginning:numf45
+
+Local: Field: numf45: Set As:$$line
+;; {30.Jul.24 12:56}   Local: Field: numf42: storage:cwpplineno
+  Local: Field: numf45: storage:cwpplineno ;;cwpplinenokataord
+

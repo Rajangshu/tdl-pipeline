@@ -1,0 +1,364 @@
+
+; Auto Column Repeat
+/*
+Criteria :
+1 Collection which will be repeated eg : stock item (for stock item name)
+1 Variable which will be repeated (which will store the value of repeated collection)
+1 left field to be repeated (at line level)
+if you want to have multiple repeated fields, then repeat one field and in that field add all the required fields
+eg : repeat : snfNew
+[field : snfnew]
+field : snf,amtf,qtyf etc whatever is required
+
+*/
+
+; Created By: suman on 2011-11-22 15:26
+
+
+
+
+     [#menu: Gateway of Tally]
+;; {09.Jul.24 16:06}         add: Option: DailyBaleAndPcsLock: @@DailyBaleAndPcsDemoLock
+
+     [!menu: DailyBaleAndPcsLock]
+        add: Item: before: @@locQuit: @@DailyBaleAndPcsReport: Display collection:collRepstockitemrep3 ;;Display: RepDailyBaleAndPcs
+        add: Item: before: @@locQuit: Blank
+        
+;;===============================
+
+[collection:collRepstockitemrep3]
+Use: Extract Alias Collection
+Source Collection	:List of StockGroups
+Title       		: $$LocaleString:"List of Stock Groups"
+Collection  		: Primary
+Variable    		: SStockGroup ;;Group Name
+Report      		:RepDailyBaleAndPcs
+Trigger     		: SStockGroupx ;;GroupNamex
+Fetch				: Name, ReserveName, Parent
+
+	
+[Report: SStockGroupx]
+
+            Use     : Collection Variable
+			Title	: $$LocaleString:"Select Stock Group"
+            Local   : Line : Collection Variable : Field : SStockGroupx
+            Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Group"
+
+
+
+[Field: SStockGroupx]
+
+                Use         : Name Field
+                delete:Table       : List of ExtractStockGroups
+                add:Table       : collStockGroupSummary
+                Show Table  : Always
+                Key         : Create StockGroup
+                Modifies    : SStockGroup
+
+
+[Collection: collStockGroupSummary]	
+type	: Stock Group
+title:"List of Groups"
+belongs to:yes
+;; {10.Sep.22 11:19} filter:cwStockGroupSummaryfilt
+
+[System: Formula]
+cwStockGroupSummaryfilt:$name="Raw Material"
+;; {10.Sep.22 10:36} cwStockGroupSummaryfilt:$$isobjectbelongsto:group:($parent:group:$name):$name;;:$$Groupsundrydebtors
+	
+;;===============================
+
+    [System: formula]
+   DailyBaleAndPcsReport: "Daily Bale and Pcs Report"
+ DailyBaleAndPcsDemoLock: yes ;; $$MachineDate < $$Date:"02/12/2011"
+
+
+
+    [Report: RepDailyBaleAndPcs]
+        use: Dsp Template
+      Title: @@DailyBaleAndPcsReport
+   Printset: Report Title: @@DailyBaleAndPcsReport
+       Form: FrmDailyBaleAndPcs
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+      Repeat : MyDailyBaleAndPcs
+          Variable: DoSetAutoColumn ;; this is must
+         Set : DoSetAutoColumn : Yes ;; this is must
+          Set : DspRepeatCollection : "MyDailyBaleAndPcs" ;;
+          Variable : SVFromDate, SVToDate
+          Variable: MyDailyBaleAndPcs
+          Variable: str1
+          set:str1:""
+
+      [Form: FrmDailyBaleAndPcs]
+        use: DSP Template
+       Part: DspAccTitles,PrtDailyBaleAndPcs ;;,PrtDailyBaleAndPcs2
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: DailyBaleAndPcsbotbrk,DailyBaleAndPcsbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+  option: setautovchoption : ##Dosetautocolumn AND $$SetAutoColumns:MyDailyBaleAndPcs ;; this is must
+add:button: ItemNamebotton
+
+ [System : Variable]
+MyDailyBaleAndPcs : ""
+
+
+[Variable : MyDailyBaleAndPcs]
+repeat : ##DspRepeatCollection
+Default : ""
+Set always : yes
+
+
+
+[Collection: MyDailyBaleAndPcs]    ;; this collection is for Repeated Columns
+
+Type : godown ;; set required object here.
+fetch : *
+Filter : DailyBaleAndPcsFormula
+keep source : ().
+
+[System : Formula]
+DailyBaleAndPcsFormula : $cwShowInReport:godown:$name="yes"
+
+  ;; Now, set the object to actual repeat object (in this case it is stock item so we are
+  ;; modifying Stock ITem
+
+[#Object : godown]
+    MyDailyBaleAndPcs : $nAME
+
+
+      [part: DailyBaleAndPcsbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: DailyBaleAndPcsbotopbrk]
+        use: dspacctitles
+  add: part: DailyBaleAndPcsTitlePart
+
+      [part: DailyBaleAndPcsTitlePart]
+       line: LnDailyBaleAndPcsTitle
+
+      [line: LnDailyBaleAndPcsCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+
+      [Part: PrtDailyBaleAndPcs]
+       Line: LnDailyBaleAndPcsTitle,LnDailyBaleAndPcsTitle2,LnDailyBaleAndPcs
+       bottom Line: LnDailyBaleAndPcsTotals
+     repeat: LnDailyBaleAndPcs: ColDailyBaleAndPcsVertical
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,numf,numf2,numf5,numf6
+      float:no
+;;      vertical:yes
+
+
+[Collection: ColDailyBaleAndPcsVertical]  ;; this collection is normal (going down)
+use:stock item
+
+filter:cwItemnamefilter,Colstockregister3Filter ;;,ColDailyBaleVFilter2
+;; {09.Jul.24 16:48} filter:collDailystockitemfilter
+
+    [system: Formula]
+;; {09.Jul.24 12:17} ColDailyBaleVFilter: if $$issysname:##gdstr1 then yes else $godownname =##gdstr1
+;; {09.Jul.24 12:17} ColDailyBaleVFilter2: if $$issysname:##gdstr2 then yes else $name =##gdstr2
+collDailystockitemfilter: not $$isempty:$closingBalance
+Colstockregister3Filter:$$isobjectbelongsto:stockgroup:($parent:stockitem:$stockitemname):##SStockGroup
+
+
+[field:godownfld]
+field:numf2,numf
+;; {09.Jul.24 14:16} local:field:numf:border:thin left
+/*
+
+   [line:closingstockline]
+     use: LnDailyBaleAndPcs
+local:field: sdf: set as:""
+local:field: snf: set as:""
+local:field: nf: set as: "Opening Stock"
+local:field: numf : set as:$openingbalance:stockitem:##myDailyBaleAndPcs
+local:field:default:style:normal bold
+*/
+
+
+      [Line: LnDailyBaleAndPcsTitle]
+        use: LnDailyBaleAndPcs
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as:"Date"
+local:field: snf: set as: "Bill No."
+local:field: nf: set as: "BedSheet Products"
+local:field: numf : set as :"" ;;##myDailyBaleAndPcs
+local:field: numf2 : set as :"" ;;##myDailyBaleAndPcs
+;; {09.Jul.24 12:24} local: field: default : style: normal bold
+ local:field:godownfld:delete :field
+local:field:godownfld:set as:##myDailyBaleAndPcs ;;"Opening Balance"
+local:field:godownfld: type : string
+local:field:godownfld:align :centre
+;; {09.Jul.24 11:45} local:field:godownfld:sub title:yes
+;; {09.Jul.24 12:57} local:field:godownfld:border:thin bottom
+local:field:nf:Style: style1y
+local:field:godownfld:Style: style1y
+ local:field:default:align:centre
+
+ 
+     [Line: LnDailyBaleAndPcsTitle2]
+        use: LnDailyBaleAndPcs
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as:"Date"
+local:field: snf: set as: "Bill No."
+local:field: nf: set as: ""
+;; {09.Jul.24 12:39} local:field: numf : set as :"Pcs" ;;##myDailyBaleAndPcs
+local:field: numf2 : set as :"Bale" ;;##myDailyBaleAndPcs
+local: field : godownfld : Local: Field: numf: Set As:"Qty"
+local: field : godownfld : Local: Field: numf2: Set As:"Bale"
+local: field : godownfld : Local: Field: numf2:delete: color : blue
+      local: field: default : style: normal bold
+      local: field: numf: type: String
+      local: field: numf2: type: String
+ local:field:default:align:centre
+;; {09.Jul.24 13:53}  local: field : godownfld : Local: Field:numf:delete:border:thin left
+ local:field:nf:Style: style1y
+local:field:godownfld:Style: style1y
+;; {09.Jul.24 11:35}  local:field:numf:line:0
+ 
+
+      [Line: LnDailyBaleAndPcs] ;; main line
+     Fields: nf,godownfld
+;;right field: snf2
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field :sdf : alter : voucher : $$isvoucher
+;; {09.Jul.24 11:29} Local: Field: sdf: Set As:$date
+;; {09.Jul.24 11:29} Local: Field: snf: Set As:$vouchernumber
+Local: Field: nf: Set As:$name
+
+repeat:godownfld ;; The Field to Repeat ;; Only Left Field is repeated
+;; {09.Jul.24 11:29} repeat:numf ;; The Field to Repeat ;; Only Left Field is repeated
+;; {09.Jul.24 12:50} local:field:default:border:thin left
+local:field:godownfld:border:thin left
+;; {09.Jul.24 13:52} local:field:numf:border:thin left
+;; ##myDailyBaleAndPcs will hold the current column value.
+
+local: field : godownfld : Local: Field: numf: Set As: $$godownItemValue:##myDailyBaleAndPcs:#nf:$closingBalance
+local: field : godownfld : Local: Field: numf2: Set As: $$filterCount:cwDailyitemBatches:cwDailyGodownNameSame
+local: field : godownfld : Local: Field: numf2: color : blue
+local: field: default : style: style2y ;;normal bold
+Local: field: nf: Width:32
+;; {09.Jul.24 14:18} border:thin top
+Local: field: numf: Align: centre
+Local: field: numf2: Align: centre
+
+[System: Formula]
+cwDailyGodownNameSame : $godownName = ##myDailyBaleAndPcs
+
+
+[collection : cwDailyitemBatches]
+type : batch
+child of : #nf
+filter:collDailystockitemfilter
+
+
+[System: Formula]
+collDailystockitemfilter: not $$isempty:$closingBalance
+
+[System: Formula]
+;;myitemsame : $stockitemname = ##myDailyBaleAndPcs
+
+[field:godownfld2]
+field:numf5,numf6
+
+;; {09.Jul.24 15:58} Local: field: numf5: Width:6
+;; {09.Jul.24 15:58} Local: field: numf6: Width:6
+
+[line:lnDailyBaleAndPcstotals]
+  use:LnDailyBaleAndPcs
+  option: totalOpt
+  Local: Field: nf: Set As:  " Total"
+  local: field: numf : set as : $$total:numf
+  local: field: numf2 : set as : $$total:numf2
+      delete : repeat
+      replace : field : godownfld : godownfld2
+;; {09.Jul.24 15:30}       replace : field : godownfld : numf5
+;; {09.Jul.24 15:30}       replace : field : godownfld : numf6
+      add : repeat : godownfld2
+;; {09.Jul.24 13:21}       add : repeat : numf6
+      local: field:numf5: set as:$$total:numf2 ;;godownfld
+      local: field:numf6: set as:$$total:numf
+      Local: Field: default: Style: style1y ;;Normal Bold
+      Local: field: numf5: Align: centre
+      Local: field: numf6: Align: centre
+
+/*[line:lnDailyBaleAndPcstotals]
+  use:LnDailyBaleAndPcs
+  option: totalOpt
+  Local: Field: nf: Set As:  " Total"
+  local: field: numf : set as : $$total:numf
+  local: field: numf2 : set as : $$total:numf2
+      delete : repeat
+;; {09.Jul.24 11:33}       replace : field : numf : numf5
+      replace : field : godownfld : numf5
+;; {09.Jul.24 14:43}       replace : field : godownfld : numf6
+      add : repeat : numf5
+;; {09.Jul.24 13:21}       add : repeat : numf6
+      local: field:numf5: set as:$$total:numf
+      local: field:numf6: set as:$$total:numf2
+      Local: Field: default: Style: style1y ;;Normal Bold */
+
+;;===========================
+
+[button:ItemNamebotton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:ItemNamerep
+
+ [report:ItemNamerep]
+ form:ItemNamerep
+
+ [form:ItemNamerep]
+ part:ItemNamerep
+
+ HEIGHT:20% PAGE
+ WIDTH:30% PAGE
+
+ [part:ItemNamerep]
+ line:Itemtitlelinex,ItemNameline
+
+ [line:Itemtitlelinex]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: style1y ;;Normal Bold
+ space bottom:0.5
+
+
+ [line:ItemNameline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Item Name"
+ Local: Field: nf:modifies:str1 ;;str1
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: style1y ;;Normal Bold
+ Local: Field: nf: table:collcwItemx,Not Applicable
+ Local: Field: nf: Show table: Always
+
+
+ [collection:collcwItemx]
+ type:stock item
+
+[System: Formula]
+cwItemnamefilter:if $$issysname:##str1 then yes else $name =##str1

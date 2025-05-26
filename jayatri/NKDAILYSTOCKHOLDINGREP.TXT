@@ -1,0 +1,155 @@
+; Created By: Anil on 2024-07-03 18:07, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: NKDailyStockHoldingLock ;; : @@NKDailyStockHoldingDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@NKDailyStockHoldingReport: Display: RepNKDailyStockHolding
+  */
+
+
+     [!menu: NKDailyStockHoldingLock]
+        add: Item: before: @@locQuit: @@NKDailyStockHoldingReport: Display: RepNKDailyStockHolding
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   NKDailyStockHoldingReport: "NK Daily Stock Holding Report"
+;; NKDailyStockHoldingDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepNKDailyStockHolding]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@NKDailyStockHoldingReport
+   Printset: Report Title: @@NKDailyStockHoldingReport
+
+       Form: FrmNKDailyStockHolding
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmNKDailyStockHolding]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0NKDailyStockHolding,PrtNKDailyStockHolding
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: NKDailyStockHoldingbotbrk,NKDailyStockHoldingbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: NKDailyStockHoldingConfigure
+
+      [part: NKDailyStockHoldingbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: NKDailyStockHoldingbotopbrk]
+        use: dspacctitles
+  add: part: NKDailyStockHoldingTitlePart
+
+      [part: NKDailyStockHoldingTitlePart]
+       line: LnNKDailyStockHoldingTitle
+       
+      [line: LnNKDailyStockHoldingCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0NKDailyStockHolding]
+      line : LnNKDailyStockHoldingCurrPeriod
+      
+      [Part: PrtNKDailyStockHolding]
+       Line: LnNKDailyStockHoldingTitle,LnNKDailyStockHolding
+bottom Line: LnNKDailyStockHoldingTotals
+     repeat: LnNKDailyStockHolding: ColNKDailyStockHolding
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: ColNKDailyStockHolding]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColNKDailyStockHoldingFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColNKDailyStockHoldingFilter: Yes ; $$isSales:$voucherTypeName
+
+      [Line: LnNKDailyStockHoldingTitle]
+        use: LnNKDailyStockHolding
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: LnNKDailyStockHolding]
+     Fields: NKDailyStockHoldingmastid,fwf
+Right Field: ratepf,Qtyf,Amtf
+
+     Option: Alter on Enter
+        key: NKDailyStockHoldingDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: sdf : set as : $date
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: NKDailyStockHoldingDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: NKDailyStockHoldingDisplayVoucher
+
+ 	
+     [Report: NKDailyStockHoldingDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #NKDailyStockHoldingmastid
+	
+
+        [Field: NKDailyStockHoldingmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnNKDailyStockHoldingTotals]
+        use: LnNKDailyStockHolding
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

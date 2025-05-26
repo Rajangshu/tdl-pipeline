@@ -1,0 +1,670 @@
+; Created By: Anil on 2024-02-20 12:36, ID: 
+
+;;=========================================
+[System: Formula]
+cwEnableAllowAutopostingYes:$cwEnableAllowAutoposting:vouchertype:$vouchertypename
+
+[#Part: DBLLINE Narration]
+  add:option:minDBLLINENarrationX :@@cwEnableAllowAutopostingYes  ;;and @@mycwUseforjobWorkin
+ [!part:minDBLLINENarrationX]
+
+ add:line:after:VCH ICFGBoMCompDetails:expensesbookline
+
+
+ [line:expensesbookline]
+ field:Medium Prompt,cwlogical ;;,numf,snfx,sp,numf3,sp2,numf4,sp3,numf5
+
+ Local: Field: Medium Prompt: Set As:"Expenses Booking"
+ Local: Field: sp: Set As:"RM Amount:"
+ Local: Field: sp2: Set As:"Consumption Amount:"
+ Local: Field: sp3: Set As:"Difference:"
+
+ Local: Field: numf3: Set As:$$CollNumTotal:inventoryentriesin:$cwminrmJWamtnewx
+ Local: Field: numf4: Set As:$$CollNumTotal:inventoryentriesout:($$CollNumTotal:BatchAllocations:$amount)
+ Local: Field: numf5: Set As:#numf4-#numf3
+ Local: Field: CWLOGICAL: storage:cwExpensesbooking
+
+ Local: Field: numf3: storage:cwmintotalrmamt
+ Local: Field: numf4: storage:cwmintotalConsamt
+ Local: Field: numf5: storage:cwmintotalDiffamt
+
+ Local: Field : cwlogical : SubForm : cwExpensesbookingrep: $$value
+ Local: Field	: Medium Prompt	: Width     : @@MediumWidth + 5
+ Local: Field	: Medium Prompt	:Style:small
+;; {21.Feb.24 11:42}  Local: Field	: cwlogical:Style:small
+ Local: Field: numf: Set As:@@cwminJWChargesnewxminnew
+ Local: Field: numf: storage:cwminJWChargesnewxmindb
+ Local: Field: numf: Skip: Yes
+ Local: field: sp: Width:15
+ Local: field: sp1: Width:15
+ Local: field: sp2: Width:25
+ Local: field: sp3: Width:13
+ Local: field: numf3: Width:15
+ Local: field: numf4: Width:15
+ Local: Field: numf3: Skip: Yes
+ Local: Field: numf4: Skip: Yes
+ Local: Field: numf5: Skip: Yes
+ Local: Field: snfx: info: ""
+ Local: field: numf3: Format: "decimals:2"
+ Local: field: numf4: Format: "decimals:2"
+ Local: field: numf5: Format: "decimals:2"
+ 
+ Local: Field: DEFAULT: Style:Style2
+ Local: Field: default: Color : blue
+
+ [System: Formula]
+cwminJWChargesnewxminnew:$$CollNumTotal:inventoryentriesin:$cwminJWChargesnewxmin
+
+
+ [report:cwExpensesbookingrep]
+ form:cwExpensesbookingrep
+  title:"Expenses Booking"
+
+ [form:cwExpensesbookingrep]
+ part:cwExpensesbookingrep
+;; {20.Feb.24 12:43}   width:100%page
+
+ [part:cwExpensesbookingrep]
+;; {20.Feb.24 12:39}  line:jwpannoline,vchtypeline,cwblankline,productine,productine2,cwblankline1,cwblankline2,expledline,wastageline,mincgstline2,minsgstline2,minIgstline2,minTDSline2,minroundline2,cwTotalAmountnewline
+ line:jwpannoline,vchtypeline,cwblankline,productine,productine2,cwblankline1,cwblankline2,expledline,mincgstline2,minsgstline2,minIgstline2,minroundline2,cwTotalAmountnewline
+
+
+
+ [line:jwpannoline]
+ field:sp,nf,sp2,nf2,sp3,snf
+
+ Local: Field:sp: Set As:"Job Worker PAN No"
+ Local: Field:sp2: Set As:"Job Worker GST No"
+ Local: Field:sp3: Set As:"State"
+ Local: Field: nf: storage:cwJobWorkerPANNo
+ Local: Field: nf2: storage:cwJobWorkerGSTNo
+ Local: Field: Snf: storage:cwJobWorkerstate
+ Local: Field: nf: Set As:$IncomeTaxNumber:ledger:$partyledgername
+
+ Local: Field: nf2: Set As:$PartyGSTIN:ledger:$partyledgername
+;; {20.Feb.24 17:28}  Local: Field: nf2: Set As:$GSTIN:ledger:$partyledgername
+ Local: Field: snf: Set As:$LedStateName:ledger:$partyledgername
+
+
+ Local: Field: nf: Skip: Yes
+ Local: Field: nf2: Skip: Yes
+ Local: Field: snf: Skip: Yes
+
+ Local: field: nf: Width:30
+ Local: field: sp: Width:25
+ Local: field: sp2: Width:20
+
+ Local: Field: DEFAULT: Style:Style2
+
+
+ [line:vchtypeline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Voucher Type"
+ Local: Field: nf: storage:cwAutopostminVchTypemin
+ Local: Field: nf: table: cwVouchertypes,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: Field: nf: Style: small Bold
+;; {22.Feb.22 11:10}  Local: Field: NF: Set As:$cwAutopostminVchType:VOUCHERTYPE:$VOUCHERTYPENAME
+ Local: Field: NF: Set As:$cwAutopostminVchTypemin:VOUCHERTYPE:$VOUCHERTYPENAME
+ Local: field: sp: Width:25
+ Local: field: nf: Width:30
+ Local: Field: nf: Skip: Yes
+
+ Local: Field: DEFAULT: Style:Style2
+
+ border:thin bottom
+
+ [line:productine]
+;; {12.Mar.22 14:42}  field:sp,nf9,SP2,qtyf,sp3,numf,sp6,amtf1,sp5,numf2,amtf3
+ field:fwf  ;;,qtyf,numf,amtf1,numf2,amtf3
+;; {12.Mar.22 14:42}  right field:sp4,amtf
+ right field:qtyf,numf,amtf4,amtf1,numf2,amtf3,amtf
+
+ Local: Field: fwf: info:"Product"
+ Local: Field: qtyf: info:"Qty"
+ Local: Field: numf: info:"GST Rate"
+ Local: Field: amtf1: info:"Amount"
+ Local: Field: numf2: info:"Disc.%"
+ Local: Field: amtf4: info:"Rate"
+ Local: Field: amtf3: info:"Rate"
+ Local: Field: amtf: info:"Amount"
+ local: field: AMTF3: Invisible: yes
+ local: field: amtf1: Invisible: yes
+ local: field: numf2: Invisible: yes
+ Local: Field: default: Border: thin box ;;left right
+ Local: field: default: Align: centre
+ Local: Field: default: Style: Normal Bold
+
+ Local: Field: DEFAULT: Style:Style2
+
+ [line:productine2]
+ field:fwf
+ right field:qtyf,numf,amtf4,amtf1,numf2,amtf3,amtf,numf9
+ Local: Field: default: Border: thin box ;;left right
+
+ Local: Field: fwf: storage:cwproductminLedgermin
+ Local: Field:qtyf: storage:cwminqtymin
+ Local: Field:numf: storage:cwmingstratemin
+ Local: Field:numf2: storage:cwmindisratemin
+ Local: Field:amtf: storage:cwmingstamtmin
+ Local: Field:amtf4: storage:cwminexpratemin
+ Local: Field:amtf1: storage:cwmingstamt2min
+;; {08.Jan.24 13:10}  Local: Field: numf: Set As:$$cwGetGSTRateFor:#fwf  ;;$cwproductminLedger
+
+  Local: Field: numf: Set As:$$GetInfoFromHierarchy:$cwproductminLedgermin:"StockItem":"GSTRate":@@VchDate:"GST":0:@@IGSTDutyHead
+
+
+;; {30.Mar.22 15:18}  Local: Field:qtyf: Set As:$$CollNumTotal:inventoryentriesin:$billedqty
+
+;; {24.Jan.22 10:28}  Local: Field: numf: Set As:if not $$issysname:$cwproductminLedger then $$GetGSTRateForInclusive:$Date:"":$cwproductminLedger:"" ELSE 0
+;; {24.Jan.22 10:52}  Local: Field: numf: Set As:$$GetGSTRateForInclusive:$Date:"":$cwproductminLedger:No:@@InclusiveTaxRate
+;; {15.Feb.22 12:08}  Local: Field: amtf: Set As:@@mycwminJWCharges-(($cwmindisrate*@@mycwminJWCharges)/100)
+
+ Local: Field: amtf4: Set As:@@mycwminJWCharges
+;; {30.Mar.22 15:17}  Local: Field: amtf4: Set As:$$round:#numf9:1
+ Local: Field: amtf1: Set As:#amtf4*$$asamount:#qtyf
+
+;; {16.Feb.22 15:25}  Local: Field: amtf: Set As:@@mycwminJWCharges-((@@mycwmindiscJWCharges*$cwmindisrate)/100)
+;; {18.Feb.22 18:05}  Local: Field: amtf: Set As:$cwmingstamt2-((@@mycwmindiscJWCharges*$cwmindisrate)/100)
+ Local: Field: amtf: Set As:#amtf1 ;;(#amtf1*$$asamount:#numf2)/100 ;;$cwmingstamt2min-(($cwmingstamt2min*$cwmindisratemin)/100)
+ Local: Field: amtf3: Set As:(($cwmingstamt2min*$cwmindisratemin)/100)
+ Local: Field: amtf3: storage:cwDiscamtmin
+ 
+ local: field: AMTF3: Invisible: yes
+ local: field: amtf1: Invisible: yes
+ local: field: numf2: Invisible: yes
+ local: field: numf9: Invisible: yes
+
+ Local: Field: numf9: Set As:@@mycwminJWChargesrate
+
+ Local: field: numf: Align:left
+ Local: field: numf2: Align:left
+ Local: field: amtf1: Align:left
+ Local: field: numf: Format: "percentage"
+ Local: field: numf2: Format: "percentage"
+
+ Local: field: numf: Align:left
+ Local: field: qtyf: Align:left
+ Local: Field: numf: Skip: Yes
+
+ Local: Field: fwf: table:collSTOCKITEM,Not Applicable
+ Local: Field: fwf: Show table: Always
+;; {21.Feb.24 11:46}  Local: Field: nf9: Style: small Bold
+ Local: field: sp: Width:25
+ Local: field: sp1: Width:25
+ Local: field: sp2: Width:5
+
+ Local: field: sp6: Width:5
+ Local: field: sp5: Width:8
+ Local: field: nf9: Width:30
+ 
+ Local: Field: DEFAULT: Style:Style2
+
+  [System: Formula]
+  mycwminJWCharges:$$CollNumTotal:inventoryentriesin:$cwminJWChargesnewxmin  ;;$cwminJWChargesmin
+;; {16.Feb.22 15:29}   mycwmindiscJWCharges:$$asamount:$cwmindisrate*$$asamount:@@mycwminJWCharges
+  mycwmindiscJWCharges:$$asamount:$cwmindisratemin*$$asamount:$cwmingstamt2min
+
+  mycwminJWChargesrate:@@mycwminamt/@@mycwminbilledqty
+
+;; {30.Mar.22 12:05}   mycwminJWCharges:@@mycwminamt/@@mycwminbilledqty
+
+  mycwminbilledqty:$$CollqtyTotal:inventoryentriesin:$billedqty
+  mycwminamt:$$CollamtTotal:inventoryentriesin:$amount
+
+ ;;================================================
+
+
+
+[Function: cwGetGSTRateFor]
+parameter : myitemname : string
+variable : mygroupname : string
+variable : myGrandgroupname : string
+variable : myGrandParentGrpname : string
+variable : myrate : number
+returns : number
+;; {01.Sep.20 15:09} 00 : log : "In fn " + ##myitemname
+01 : if : ##myitemname = ""
+02 : return : 0
+03 : end if
+
+10: if: $$numitems:cwte1j>0
+20: return:$$collectionfield:@@cwGSTDETAILSj:(-1):cwte1j
+30: end if
+
+
+
+111: set : mygroupname : $parent:stockitem:##myitemname
+;; {01.Sep.20 15:09} 111a : log :"A - "+##mygroupname
+112 : set : myrate : $$cwGetGroupRate:##mygroupname
+;; {01.Sep.20 15:09} 1113 : log :##myrate
+114 : do if : ##myrate <> 0 : return : ##myrate
+
+50 : if : $$issysname:$parent:stockgroup:##mygroupname
+55 : return : 0
+60 : endif
+
+211: set : mygroupname : $parent:stockgroup:##mygroupname
+;; {01.Sep.20 15:09} 2323 : log : "B - "+##mygroupname
+2112 : set : myrate : $$cwGetGroupRate:##mygroupname
+;; {01.Sep.20 15:09} 2113 : log :##myrate
+2214 : do if : ##myrate <> 0 : return : ##myrate
+ ;;==================
+50a : if : $$issysname:$parent:stockgroup:##mygroupname
+55b : return : 0
+60c : endif
+
+211d: set : myGrandgroupname : $parent:stockgroup:##mygroupname
+;; {01.Sep.20 15:09} 2323e : log : "C - "+##myGrandgroupname
+2112f : set : myrate : $$cwGetGroupRate:##myGrandgroupname
+;; {01.Sep.20 15:09} 2113g : log :##myrate
+2214h : do if : ##myrate <> 0 : return : ##myrate
+;;======================
+10ab : if : $$issysname:$grandparent:stockgroup:##mygroupname
+20bb : return : 0
+30cb : endif
+
+40db: set : myGrandgroupname : $grandparent:stockgroup:##mygroupname
+;; {01.Sep.20 15:09} 50eb : log : "D - "+##myGrandgroupname
+60fb : set : myrate : $$cwGetGroupRate:##myGrandgroupname
+;; {01.Sep.20 15:09} 70gb : log :##myrate
+80hb : do if : ##myrate <> 0 : return : ##myrate
+;;======================
+10abc : if : $$issysname:$parent:stockgroup:##myGrandgroupname
+20bbc : return : 0
+30cbc : endif
+
+40dbc: set : myGrandParentGrpname : $parent:stockgroup:##myGrandgroupname
+;; {01.Sep.20 15:09} 50ebc : log : "E - "+##myGrandgroupname
+60fbc : set : myrate : $$cwGetGroupRate:##myGrandParentGrpname
+;; {01.Sep.20 15:09} 70gbc : log :##myrate
+80hbc : do if : ##myrate <> 0 : return : ##myrate
+;;======================
+10abcd : if : $$issysname:$grandparent:stockgroup:##myGrandgroupname
+20bbcd : return : 0
+30cbcd : endif
+
+40dbcd: set : myGrandParentGrpname : $grandparent:stockgroup:##myGrandgroupname
+;; {01.Sep.20 15:09} 50ebcd : log : "E - "+##myGrandgroupname
+60fbcd : set : myrate : $$cwGetGroupRate:##myGrandParentGrpname
+;; {01.Sep.20 15:09} 70gbcd : log :##myrate
+80hbcd : do if : ##myrate <> 0 : return : ##myrate
+;;======================
+500 : return : 0
+
+
+ [function: cwGetGroupRate]
+ parameter :mygroupname : string
+ object : stock group :##mygroupname
+
+;; {19.Jul.19 13:55}  20 : log : "in Group " + ##mygroupname
+;; {19.Jul.19 13:55}  21 : log : $$numitems:gstdetails
+
+ 35 : if : $$numitems:gstdetails > 0
+
+40: return:$$collectionfield:@@cwGSTDETAILSj:(-1):gstdetails ;;cwcollgstrateItmGrp
+45: end if
+50 : return :0
+
+[System: Formula]
+cwGSTDETAILSj : $$CollectionField:@@cwSTATEWISEDETAILSj:(-1):STATEWISEDETAILS
+cwSTATEWISEDETAILSj: $$FilterValue:$gstrate:RATEDETAILS:last:cwdutyheaditaxj
+cwdutyheaditaxj : $GSTRATEDUTYHEAD = "Integrated Tax"
+
+[Collection: cwte1j]
+type : GSTDETAILS :stockitem
+child of : ##myitemname
+fetch : *.*
+
+
+[Collection: cwcollgstrateItmGrp]
+type : GSTDETAILS :stockgroup
+child of :##mygroupname
+fetch : *.*
+
+
+ ;;================================================
+
+
+ [Collection: collSTOCKITEM]
+ type:stockitem
+ title:"List of Stock Item"
+ filter:cwAllowforJobWorkx
+
+  ;;Align:centre
+
+ [System: Formula]
+ cwAllowforJobWorkx:$cwAllowforJobWorkitem="yes"
+
+ [line:expledline]
+  field:sp,nf
+  right field:amtf
+
+ Local: Field:sp: Set As:"Expense Ledger"
+ Local: Field: nf: storage:cwexpenesminledgermin  ;;cwexpenesminledger
+
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf: Show table: Always
+;; {21.Feb.24 11:49}  Local: Field: nf: Style: small Bold
+ Local: Field: NF: Set As:$cwexpenesminledgermin:VOUCHERTYPE:$VOUCHERTYPENAME
+ Local: Field:amtf: Set As:$$value
+ Local: Field: amtf: storage:cwExpenseLedgeramtmin
+ Local: Field: amtf: Set As:$cwmingstamtmin  ;;$cwmingstamt  ;; $$CollNumTotal:inventoryentriesin:$cwminJWCharges
+
+  Local: Field: nf:Key      :Create Ledger, Alter Ledger
+  Local: Field: nf:Variable :SV Ledger
+
+
+ Local: field: sp: Width:25
+ Local: field: nf: Width:30
+
+ Local: Field: DEFAULT: Style:Style2
+
+ [line:wastageline]
+  field:sp,nf
+   right field:amtf,amtf9
+
+ Local: Field: sp: Set As:"Wastage/Shortage Ledger"
+ Local: Field: nf: Set As:""
+ Local: Field: nf: storage:cwWastageShortageminLedger
+;; {29.Jan.22 15:59}  Local: Field: nf: storage:cwWastageShortageminLedger2
+ Local: Field: nf: table: collcwexpenesledger,Not Applicable
+ Local: Field: nf: Show table: Always
+;; {21.Feb.24 11:50}  Local: Field: nf: Style: small Bold
+ Local: Field: NF: Set As:$cwWastageShortageminLedgermin:VOUCHERTYPE:$VOUCHERTYPENAME
+ Local: Field:amtf: Set As:$$value
+ Local: Field:amtf9: Set As:$$value
+ Local: Field: amtf: storage:cwWastageShortageamtmin
+;; {29.Jan.22 15:59}   Local: Field: amtf: storage:cwWastageShortageamt2x
+  Local: Field: amtf9: storage:cwWastageShortageamt2min
+  Local: Field: AMTF9: Set As:$cwExpenseLedgeramtmin+$cwWastageShortageamtmin
+ Local: field: sp: Width:25
+ Local: field: nf: Width:30
+ local: field:amtf9: Invisible: yes
+
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+  Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: DEFAULT: Style:Style2
+
+   [line:mincgstline2]
+ field:sp,nf
+  right field:amtf
+;; {24.Jan.22 11:07}   Local: Field: SNF1: Set As:@@GSTDealerTypecw
+
+ Local: Field:sp: Set As:"CGST"
+ Local: Field: nf: storage:cwCGSTminledger
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf: Show table: Always
+;; {21.Feb.24 11:50}  Local: Field: nf: Style: small Bold
+ Local: Field: NF: Set As:$cwCGSTminledgermin:VOUCHERTYPE:$VOUCHERTYPENAME
+ Local: Field:amtf: Set As:$$value
+ Local: Field: amtf: storage:cwminCGSTAMTmin
+;; {24.Jan.22 11:44}  Local: Field: amtf: Set As:if $LedStateName:ledger:$partyledgername= $statename:COMPANY:##SVCURRENTCOMPANY then (($cwWastageShortageamt2*$cwmingstrate)/100)/2 else $$value
+ Local: Field: amtf: Set As:if @@GSTDealerTypecw="Regular" then @@cwmincgstval else $$value
+ Local: field: sp: Width:25
+ Local: field: nf: Width:30
+
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+  Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: DEFAULT: Style:Style2
+
+ [System: Formula]
+;; {20.Feb.24 16:52}  GSTDealerTypecw:$GSTRegistrationType:ledger:$partyledgername
+ GSTDealerTypecw:$VATDEALERTYPE:ledger:$partyledgername
+
+;; {20.Feb.24 17:12}  cwmincgstval:if $LedStateName:ledger:$partyledgername= $statename:COMPANY:##SVCURRENTCOMPANY then (($cwWastageShortageamt2min*$cwmingstratemin)/100)/2 else $$value
+ cwmincgstval:if $LedStateName:ledger:$partyledgername= $statename:COMPANY:##SVCURRENTCOMPANY then ($cwmingstamtmin*$$asamount:$cwmingstratemin/100)/2 else $$value
+
+ [line:minsgstline2]
+  field:sp,nf
+   right field:amtf
+ Local: Field:sp: Set As:"SGST"
+ Local: Field: nf: storage:cwSGSTminledger
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf: Show table: Always
+;; {21.Feb.24 11:51}  Local: Field: nf: Style: small Bold
+ Local: Field: NF: Set As:$cwSGSTminledgermin:VOUCHERTYPE:$VOUCHERTYPENAME
+ Local: Field:amtf: Set As:$$value
+;; {24.Jan.22 11:44} Local: Field: amtf: Set As:if $LedStateName:ledger:$partyledgername= $statename:COMPANY:##SVCURRENTCOMPANY then (($cwWastageShortageamt2*$cwmingstrate)/100)/2 else $$value
+Local: Field: amtf: Set As:if @@GSTDealerTypecw="Regular" then @@cwmincgstval else $$value
+ Local: field: sp: Width:25
+ Local: field: nf: Width:30
+Local: Field: amtf: storage:cwminsGSTAMTmin
+
+Local: Field: nf:Key      :Create Ledger, Alter Ledger
+  Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: DEFAULT: Style:Style2
+
+ [line:minIgstline2]
+  field:sp,nf,nf1
+   right field:amtf
+ Local: Field: sp: Set As:"IGST"
+ Local: Field: nf: storage:cwIGSTminledger
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf: Show table: Always
+;; {21.Feb.24 11:57}  Local: Field: nf: Style: small Bold
+ Local: Field: NF: Set As:$cwIGSTminledgermin:VOUCHERTYPE:$VOUCHERTYPENAME
+;; {20.Feb.24 17:09}   Local: Field:amtf: Set As:$$value
+ Local: field: sp: Width:25
+ Local: field: nf: Width:30
+ Local: Field: amtf: storage:cwminIGSTAMTmin
+
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+  Local: Field: nf:Variable :SV Ledger
+
+;; {20.Feb.24 17:09}  Local: Field:amtf: Set As:$$value
+;; {24.Jan.22 11:46}  Local: Field: amtf: Set As:if $LedStateName:ledger:$partyledgername= $statename:COMPANY:##SVCURRENTCOMPANY then  $$value else ($cwWastageShortageamt2*$cwmingstrate)/100
+ Local: Field: amtf: Set As:if @@GSTDealerTypecw="Regular" then @@cwminIgstval else $$value
+;; {20.Feb.24 16:48}  Local: Field: amtf: Set As:$cwmingstamtmin*$$asamount:$cwmingstratemin/100
+
+ Local: Field: nf1: Set As: @@GSTDealerTypecw
+ Local: Field: nf1: Border: thin box ;;left right
+ Local: Field: DEFAULT: Style:Style2
+
+[System: Formula]
+cwminIgstval:if $LedStateName:ledger:$partyledgername= $statename:COMPANY:##SVCURRENTCOMPANY then  $$value else $cwmingstamtmin*$$asamount:$cwmingstratemin/100 ;;($cwWastageShortageamt2min*$cwmingstratemin)/100
+
+
+[field:nfnwef]
+use:nf1
+storage:cwTDSMINledger
+table:collcwexpenesledger,Not Applicable
+Show table: Always
+
+ [line:minTDSline2]
+ field:sp,nf   ;;,nfnwef
+  right field:numf,amtf   ;;,numf3,numf5
+
+ Local: Field: nf1: Set As:$TDSRateName:ledger:$cwTDSMINledger
+ Local: Field: sp: Set As:"TDS"
+ Local: Field: nf: storage:cwTDSMINledger
+ Local: Field:numf: storage:cwTDSMINratemin
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf: Show table: Always
+;; {21.Feb.24 11:58}  Local: Field: nf: Style: small Bold
+ Local: Field: NF: Set As:$cwTDSMINledgermin:VOUCHERTYPE:$VOUCHERTYPENAME
+;; Local: Field: amtf: storage:cwminTDS
+ Local: Field: numf3: Set As:@@cwIndividualhuf  ;;$$cwgettdsratepanno2:#nf
+ Local: Field: numf5: Set As:@@cwIndividualhufnot  ;;$$cwgettdsratepanno2x:#nf
+ Local: Field: nf10: Set As:$TDSDeducteeType:ledger:$partyledgername
+
+
+;; {03.Feb.22 17:32}  Local: Field: numf: Set As:$$cwgettdsratepanno:#nf
+;; {04.Feb.22 10:32}  Local: Field:numf: Set As:if @@cwTDSDeducteeType2 then (if $$isempty:$cwJobWorkerPANNo then $$cwgettdsnonpanno:#nf else $$cwgettdsratepanno:#nf) else (if $$isempty:$cwJobWorkerPANNo then $$cwgettdsratepanno2:#nf else $$cwgettdsratepanno2x:#nf)
+;; {07.Apr.22 18:38}  Local: Field:numf: Set As:if @@cwTDSDeducteeType2 then @@cwIndividualhuf else @@cwIndividualhufnot
+ Local: Field:numf: Set As:if $$issysname:$cwTDSMINledger then "" else (if @@cwTDSDeducteeType2 then @@cwIndividualhuf else @@cwIndividualhufnot)
+local : field : numf : type : number : forced
+
+;; {01.Feb.22 13:31}  Local: Field:amtf: Set As:(($cwWastageShortageamt2*$cwTDSMINrate)/100)*-1
+ Local: Field:amtf: Set As:@@cwminTDSAMTnalue2*-1
+;; {02.Feb.22 14:59}  Local: Field: numf: Skip: Yes
+ Local: field: sp: Width:25
+ Local: field: nf: Width:30
+ Local: Field: amtf: storage:cwminTDSAMTmin
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+  Local: field: numf: Format: "percentage"
+
+ Local: Field: DEFAULT: Style:Style2
+
+   [System: Formula]
+
+   cwIndividualhuf:if $$isempty:$cwJobWorkerPANNo then $$cwgettdsnonpanno:#nf else $$cwgettdsratepanno:#nf
+
+   cwIndividualhufnot:if $$isempty:$cwJobWorkerPANNo then $$cwgettdsratepanno2x:#nf else $$cwgettdsratepanno2:#nf
+
+   cwTDSDeducteeType:$TDSDeducteeType:ledger:$partyledgername
+   cwTDSDeducteeType2:@@cwTDSDeducteeType contains "Individual/HUF"
+
+   cwminTDSAMTnalue:(($cwWastageShortageamt2min*$cwTDSMINratemin)/100)
+   cwminTDSAMTnalue2:$$round:@@cwminTDSAMTnalue:1
+
+ ;;=============================================================================================================================
+
+
+;; {29.Jan.22 11:01}   right field:snf1,snf2
+
+;; {29.Jan.22 11:01}     Local: Field: snf1: Set As:$$cwgettdscategory:$cwTDSMINledger  ;;#nf
+;; {29.Jan.22 11:01}     Local: Field: snf1: Set As:$$cwgettdsrate:#nf  ;;$$FilterValue:($$CollectionField:$RATEOFTAX:First:TDSRATEDEDUCTEETYPE):CATEGORYDETAILS:1:cwistdsledger
+;; {29.Jan.22 11:01}     Local: Field: snf2: Set As:$$cwgettdsotherrate:#nf  ;;$$FilterValue:($$CollectionField:$RATEOFTAX:First:TDSRATEDEDUCTEETYPE):CATEGORYDETAILS:1:cwistdsledger
+
+    [System: Formula]
+    cwistdsledger: $taxtype:ledger:$cwTDSMINledger = "TDS"
+
+ [Function: cwgettdsratepanno]
+ parameter : strx : string
+ RETURNS : STRING
+;; {29.Jan.22 10:52} 5456 : return :"t"
+ 200 : walk collection:cwTCSSrcRateExNotApp ;; TDS Category Outstandings
+
+;; {03.Feb.22 12:40}  211 : log OBJECT
+ ;;222:log:"aaaaaaaaaaaaaaaa"
+ ;;211x : log :##strx
+
+ ;; 111:log:"bbbbbbbbbbbbb"
+ ;;211xx : log :$name
+;; {03.Feb.22 17:35}      211 : log OBJECT
+
+;; {03.Feb.22 12:43}  210 : if : ##strx = $name
+ 211A  : RETURN  :$CATEGORYDETAILS[-1].RATEOFTAX  ;;otherrate ;;RateofTax
+;; {03.Feb.22 17:32}  211A  : RETURN  :$CATEGORYDETAILS[-1].TROtherRate  ;;otherrate ;;RateofTax
+
+;; {03.Feb.22 12:43}  217 : end if
+ 220 : end walk
+
+
+
+ [Function: cwgettdsnonpanno]
+ parameter : strx : string
+ RETURNS : STRING
+;; {29.Jan.22 10:52} 5456 : return :"t"
+ 200 : walk collection:cwTCSSrcRateExNotApp ;; TDS Category Outstandings
+;; {03.Feb.22 17:35}  211 : log OBJECT
+;; 210 : if : ##strx = $name
+ 211A  : RETURN  :$CATEGORYDETAILS[-1].NOPANRATEOFTAX ;;RateofTax
+;; {03.Feb.22 17:28}  211A  : RETURN  :$CATEGORYDETAILS[-1].TRNoPanOtherRate ;;RateofTax
+
+;; 217 : end if
+ 220 : end walk
+
+
+ [Collection: cwTCSSrcRateExNotApp]
+Parm Var: VchDate	: Date	: $Date
+Type   : TDS Rate
+Fetch	: Name, ApplicableFrom, Tds Rate Section
+Compute	: Tds Rate Section Code	: $CategoryDetails[-1, @@TDSRateApplDate].TdsRateSection
+Compute	: TRRateofTax	: $CategoryDetails[-1, @@TDSRateApplDate].TRRateofTax
+
+;;==================================================
+
+[Function: cwgettdsratepanno2]
+ parameter : strx : string
+ RETURNS : STRING
+;; {29.Jan.22 10:52} 5456 : return :"t"
+ 200 : walk collection:cwTCSSrcRateExNotApp2 ;; TDS Category Outstandings
+
+
+;; {13.Apr.22 13:29}      211 : log OBJECT
+
+
+;; {03.Feb.22 17:33}  211A  : RETURN  :$CATEGORYDETAILS[-1].RATEOFTAX  ;;otherrate ;;RateofTax
+ 211A  : RETURN  :$CATEGORYDETAILS[-1].otherrate  ;;TROtherRate  ;;otherrate ;;RateofTax
+
+;; {03.Feb.22 12:43}  217 : end if
+ 220 : end walk
+
+
+ [Function: cwgettdsratepanno2x]
+ parameter : strx : string
+ RETURNS : STRING
+;; {29.Jan.22 10:52} 5456 : return :"t"
+ 200 : walk collection:cwTCSSrcRateExNotApp2 ;; TDS Category Outstandings
+
+
+;; {13.Apr.22 13:29}      211 : log OBJECT
+
+
+;; {03.Feb.22 17:33}  211A  : RETURN  :$CATEGORYDETAILS[-1].RATEOFTAX  ;;otherrate ;;RateofTax
+ 211A  : RETURN  :$CATEGORYDETAILS[-1].NOPANOTHERRATE  ;;TROtherRate  ;;otherrate ;;RateofTax
+
+;; {03.Feb.22 12:43}  217 : end if
+ 220 : end walk
+
+ [Collection: cwTCSSrcRateExNotApp2]
+Parm Var: VchDate	: Date	: $Date
+Type   : TDS Rate
+Fetch	: Name, ApplicableFrom, Tds Rate Section
+Compute	: Tds Rate Section Code	: $CategoryDetails[-1, @@TDSRateApplDate].TdsRateSection
+;; {03.Feb.22 17:41} Compute	: TROtherRate	: $CategoryDetails[-1, @@TDSRateApplDate].TROtherRate
+Compute	: otherrate	: $CategoryDetails[-1, @@TDSRateApplDate].otherrate
+
+
+
+
+[#object : ledger]
+myCat : $$CollectionField:$CATEGORYNAME:First:TDSCATEGORYDETAILS
+
+
+ ;;=================================================================================================
+
+
+
+ [line:minroundline2]
+ field:sp,nf
+  right field:amtf
+ Local: Field:sp: Set As:"Round Off"
+ Local: Field: nf: storage:cwroundoffminledger
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf: Show table: Always
+;; {21.Feb.24 11:59}  Local: Field: nf: Style: small Bold
+
+ Local: Field: NF: Set As:$cwroundoffminledgermin:VOUCHERTYPE:$VOUCHERTYPENAME
+
+  Local: Field:amtf: Set As:$$value
+ Local: field: sp: Width:25
+ Local: field: nf: Width:30
+Local: Field: amtf: storage:cwminROUNDOFFAMTmin
+
+Local: Field: nf:Key      :Create Ledger, Alter Ledger
+Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: DEFAULT: Style:Style2
+
+[line:cwTotalAmountnewline]
+right field:sp,amtf
+Local: Field: sp: Set As:"Total"
+
+Local: Field: amtf: storage:cwTotalAmountnewmin
+
+Local: Field: amtf: Set As:$$nettamount:$cwExpenseLedgeramtmin:$$nettamount:$cwWastageShortageamtmin:$$nettamount:$cwminCGSTAMTmin:$$nettamount:$cwminsGSTAMTmin:$$nettamount:$cwminIGSTAMTmin:$$nettamount:$cwminTDSAMTmin:$cwminROUNDOFFAMTmin
+Local: Field: amtf: Border:totals
+Local: Field: default: Style: Normal Bold
+Local: Field: amtf: read only:yes
+local : field : amtf : type : amount : forced
+
+Local: Field: DEFAULT: Style:Style2
+

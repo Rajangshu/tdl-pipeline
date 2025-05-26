@@ -1,0 +1,133 @@
+; Created By: Anil on 2024-04-10 14:27, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+;; {15.Jun.24 16:58}         add: Option: TestDoOrderRepLock ;; : @@TestDoOrderRepDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@TestDoOrderRepReport: Display: RepTestDoOrderRep
+
+
+
+     [!menu: TestDoOrderRepLock]
+        add: Item: before: @@locQuit: @@TestDoOrderRepReport: Display: RepTestDoOrderRep
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   TestDoOrderRepReport: "TestDoOrderRep"
+;; TestDoOrderRepDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepTestDoOrderRep]
+        use: Dsp Template
+;; Use				: Range Value Template
+        Use				: Range  Template
+        
+      Title: @@TestDoOrderRepReport
+   Printset: Report Title: @@TestDoOrderRepReport
+       Form: FrmTestDoOrderRep
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmTestDoOrderRep]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0TestDoOrderRep,PrtTestDoOrderRep
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: TestDoOrderRepbotbrk,TestDoOrderRepbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+  add:button:Save View,change view
+ ;;    local : button : report config : action :modify variable: TestDoOrderRepConfigure
+        option : enable Range filters
+        
+      [part: TestDoOrderRepbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: TestDoOrderRepbotopbrk]
+        use: dspacctitles
+  add: part: TestDoOrderRepTitlePart
+
+      [part: TestDoOrderRepTitlePart]
+       line: LnTestDoOrderRepTitle
+       
+      [line: LnTestDoOrderRepCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0TestDoOrderRep]
+      line : LnTestDoOrderRepCurrPeriod
+      
+      [Part: PrtTestDoOrderRep]
+       Line: LnTestDoOrderRepTitle,LnTestDoOrderRep
+bottom Line: LnTestDoOrderRepTotals
+     repeat: LnTestDoOrderRep: ColCompleteBOQDetails2 ;;ColTestDoOrderRep
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+/*[Collection: ColTestDoOrderRep]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColTestDoOrderRepFilter,IsNonOptionalCancelledVchs  */
+     
+[Collection: ColCompleteBOQDetails2]
+source Collection: sourColCompleteBOQDetails2
+walk:inventoryentries,BATCHALLOCATIONS,VOUCHERCOMPONENTLIST,BATCHALLOCATIONS
+by:batchname :$batchname
+
+[Collection: sourColCompleteBOQDetails2]
+Type	  : Vouchers: VoucherType
+Child Of  : $$VchTypeJobOrderOut
+Belongs To: Yes
+
+
+    [system: Formula]
+ColTestDoOrderRepFilter: Yes
+
+      [Line: LnTestDoOrderRepTitle]
+        use: LnTestDoOrderRep
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Batch Name"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LnTestDoOrderRep]
+     Fields: snf,nf,fwf
+right field: ratepf,Qtyf,Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local : field : snf : set as : $batchname
+
+
+      [line: LnTestDoOrderRepTotals]
+        use: LnTestDoOrderRep
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

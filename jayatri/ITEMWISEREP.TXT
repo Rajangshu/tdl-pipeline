@@ -1,0 +1,174 @@
+; Created By: Anil on 2024-07-26 16:20, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: ItemWiseRepLock ;; : @@ItemWiseRepDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ItemWiseRepReport: Display: RepItemWiseRep
+  */
+
+
+     [!menu: ItemWiseRepLock]
+        add: Item: before: @@locQuit: @@ItemWiseRepReport: Display: RepItemWiseRep
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ItemWiseRepReport: "ItemWiseRep"
+;; ItemWiseRepDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepItemWiseRep]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@ItemWiseRepReport
+   Printset: Report Title: @@ItemWiseRepReport
+
+       Form: FrmItemWiseRep
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmItemWiseRep]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0ItemWiseRep,PrtItemWiseRep
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: ItemWiseRepbotbrk,ItemWiseRepbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: ItemWiseRepConfigure
+
+      [part: ItemWiseRepbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ItemWiseRepbotopbrk]
+        use: dspacctitles
+  add: part: ItemWiseRepTitlePart
+
+      [part: ItemWiseRepTitlePart]
+       line: LnItemWiseRepTitle
+       
+      [line: LnItemWiseRepCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0ItemWiseRep]
+      line : LnItemWiseRepCurrPeriod
+      
+      [Part: PrtItemWiseRep]
+       Line: LnItemWiseRepTitle,LnItemWiseRep
+bottom Line: LnItemWiseRepTotals
+     repeat: LnItemWiseRep: ColItemWiseRep
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: ColItemWiseRep]
+type : stock item
+sort:@@default:$name
+filter:ColStockrepFilter
+
+[System: Formula]
+ColStockrepFilter:not $$isempty:$$AsOutQty:$StkOutQty
+
+/*        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColItemWiseRepFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColItemWiseRepFilter: Yes ; $$isSales:$voucherTypeName*/
+
+      [Line: LnItemWiseRepTitle]
+        use: LnItemWiseRep
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+;; {26.Jul.24 16:22} local:field: sdf: set as: "Date"
+local:field: nf: set as: "Image Path"
+local:field: fwf: set as: "Item Name"
+local:field: qtyf: set as: "Qty."
+local:field: qtyf2: set as: "Closing Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+local:field: ratepf2 : set as : "Closing Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: LnItemWiseRep]
+     Fields: ItemWiseRepmastid,fwf,nf
+Right Field: Qtyf,ratepf,Qtyf2,ratepf2,Amtf,amtf2
+
+     Option: Alter on Enter
+        key: ItemWiseRepDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+;; {26.Jul.24 16:27} local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: fwf: set as: $name ;;"Item Name"
+local:field: qtyf: set as: $$AsOutQty:$StkOutQty ;;$StkClBalance ;;$$AsOutQty:$StkOutQty ;;"Qty."
+local:field: qtyf2: set as: $StkClBalance ;;$$AsOutQty:$StkOutQty ;;"Qty."
+local:field: amtf: set as: $TBalClosing ;;"Value"
+local:field: amtf2: set as: $TBalCredits ;;"Value"
+local:field: ratepf : set as :$CurrentStdPriceMethod:StockItem:$StockItemName ;;$$BaseValue:$TBalCredits/$StkOutQty
+local:field: ratepf2 : set as : $$BaseValue:$TBalClosing/$StkClBalance
+Local: Field: nf: Set As:$cwimagepath:company:##svcurrentcompany+$cwimagefilename
+
+;; {26.Jul.24 18:23} local: field: amtf: Invisible: yes
+;; {26.Jul.24 18:23} local: field: amtf2: Invisible: yes
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: ItemWiseRepDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: ItemWiseRepDisplayVoucher
+
+ 	
+     [Report: ItemWiseRepDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #ItemWiseRepmastid
+	
+
+        [Field: ItemWiseRepmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnItemWiseRepTotals]
+        use: LnItemWiseRep
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

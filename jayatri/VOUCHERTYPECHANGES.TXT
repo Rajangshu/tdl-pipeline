@@ -1,0 +1,347 @@
+; Created By: Anil on 2024-01-17 16:22, ID: 
+
+ [System: Formula]
+
+ cwjobordVoucher:$$IsJobOrderOut:$parent
+ isPurchVType:$$IsPurchase:$parent
+
+  [#Part: VTYP Behaviour]
+
+  add:option:newVTYPBehaviourjworopt:@@isPurchVType ;;or @@cwjobordVoucher
+
+  [!part:newVTYPBehaviourjworopt]
+
+  add:line:cwadditionalfeatuline ;;,cwcwUseforInTransitPurchaseline
+  
+  
+ /* [line: cwcwUseforInTransitPurchaseline]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Bales Purchase" ;;"Use for In Transit (Purchase):"
+ Local: Field: cwlogical: storage:cwUseforInTransitPurchase
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue    */
+
+  [line:cwadditionalfeatuline]
+
+  field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Additional Feature Allow:"
+ Local: Field: cwlogical: storage:cwAdditionalFeatureAllow
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ Local: Field : cwlogical : SubForm : cwAdditionalFeatureAllowrep: $$value
+
+ [report:cwAdditionalFeatureAllowrep]
+ form:cwAdditionalFeatureAllowrep
+
+ [form:cwAdditionalFeatureAllowrep]
+ part:cwAdditionalFeatureAllowrep
+
+ [part:cwAdditionalFeatureAllowrep]
+ width:35% page
+ 
+ line:EnablePurchaseLine,cwrmcaptionline,enablAllowAutopostingline,EnableDirectPurchaseLine ;;,cwEnablrHouseLine
+ 
+[line:cwEnablrHouseLine]
+field:long Prompt,cwlogical
+Local: Field:long Prompt: Set As:"Enable House"
+Local: Field: cwlogical: storage:cwEnableHouse
+Local: Field: default: Style:Style2
+Local: Field: default: Color : blue
+ 
+
+ [line:cwrmcaptionline]
+ field:long prompt,snf
+ Local: Field: long prompt: Set As:"Batch Caption"
+ Local: Field: snf: storage:cwrmcaption
+ Local: Field:default: Style:style2
+;; {19.Jan.24 16:38}  Local: Field: default: Color : blue
+ 
+ [line:EnablePurchaseLine]
+ field:Long Prompt,cwlogical
+
+ Local: Field: Long Prompt: Set As:"Enable Purchase (Pur)"
+ Local: Field: cwlogical: storage:cwEnablePurchase
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+
+  Local: Field : cwlogical : SubForm : cwEnablePurchaseRep: $$value
+
+ [report:cwEnablePurchaseRep]
+ form:cwEnablePurchaseRep
+
+ [form:cwEnablePurchaseRep]
+ part:cwEnablePurchaseRep
+
+ [part:cwEnablePurchaseRep]
+ width:35% page
+ line:cwisUseForTagIndentLn,cwPurchaseTypeline,cwVchTypeSelectedGodownline,cwcwUseforInTransitline,cwcwVchTypepostline,CWautoPostDirectLn,CWautoPostInDirectLn
+ 
+ 
+[line:cwisUseForTagIndentLn]
+field:Long Prompt,cwlogical
+Local: Field:long Prompt: Set As:"Is Use for tag Sauda Number"
+Local: Field: cwlogical: storage:cwisUsefortagIndentPO
+Local: Field: default: Style:Style2
+Local: Field: default: Color : blue
+
+ [line:cwPurchaseTypeline]
+field:Long Prompt,snf
+ Local: Field: Long Prompt: Set As:"Type"
+ Local: Field: snf: storage:cwTypevchtype
+
+ Local: Field: snf: table:cwcolltype,Not Applicable
+ Local: Field: snf: Show table: Always
+ local:field:snf:variable:svcost centre
+ local:field:SNF:key:Create Cost Centre, Alter CstCtr
+  Local: Field: default: Style:Style2
+  Local: Field: default: Color : blue
+
+ [Collection:cwcolltype]
+ Type: Cost Centre
+ title:"List of Type"
+ child of:"Type"
+ 
+ [line: cwVchTypeSelectedGodownline]
+ field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Purchase Godown:"
+ Local: Field: nf: storage:cwVchTypeSelectedGodown
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: Field: default: Color : blue
+ 
+ [Collection: cwVoucherGodown]
+ type:godown
+ title:"List of Godown"
+
+ 
+ [line: cwcwUseforInTransitline]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Use In Transit:"
+ Local: Field: cwlogical: storage:cwUseforInTransit
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ 
+ [line: cwcwVchTypepostline]
+ field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Vch Type:"
+ Local: Field: nf: storage:cwVchTypeautopost
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+
+ Local: Field: nf: table: cwVouchertypes,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ [line:CWautoPostDirectLn]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Auto Post Direct:"
+ Local: Field: cwlogical: storage:cwAutoPostDirect
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ 
+ [line:CWautoPostInDirectLn]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Auto Post In Direct:"
+ Local: Field: cwlogical: storage:cwAutoPostInDirect
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+ 
+;;===============================
+
+ [line:enablAllowAutopostingline]
+ field:long prompt,cwlogical
+
+ Local: Field: long prompt: Set As:"Use for Expenses Booking" ;;"Allow Autoposting?"
+ Local: Field: cwlogical: storage:cwEnableAllowAutoposting
+;; {19.Feb.24 18:43}  Local: Field: default: Style: Normal Bold
+ Local: Field : cwlogical : SubForm : allowautop: $$value
+;; {21.Feb.24 18:01}  Local: Field: long prompt: Style: small
+ Local: Field: default: Style:Style2
+Local: Field: default: Color : blue
+
+
+ [report:allowautop]
+ form:allowautop
+
+ [form:allowautop]
+ part:allowautop
+
+ [part:allowautop]
+;; {09.May.24 16:07}  line:mienablAutopostvchtype,expenseledline,wastageline2,mincgstline,minsgstline,minIgstline,minTDSline,minroundline
+ line:mienablAutopostvchtype,expenseledline,wastageline2,mincgstline,minsgstline,minIgstline,minTDSline,minroundline
+
+
+ [line:mienablAutopostvchtype]
+ field:long prompt,nf
+ Local: Field: long prompt: Set As:"Voucher Type"
+ Local: Field: nf: storage:cwAutopostminVchTypemin
+ Local: Field: nf: table: cwVouchertypes,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ Local: Field: nf: Keys     : Create VoucherType, Alter VchType
+ Local: Field: nf: Modifies : SVVoucherType
+ Local: field: nf: Width:30
+
+
+  Local: Field: default: Style:Style2
+
+
+ [line:expenseledline]
+ field:long prompt,nf
+ Local: Field: long prompt: Set As:"Expense Ledger"
+ Local: Field: nf: storage:cwexpenesminledgermin
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: nf: Style: small Bold
+ Local: field: nf: Width:30
+
+ Local: Field: default: Style:Style2
+
+
+ [Collection:collcwexpenesledger]
+ type:ledger
+ title:"Title"
+
+
+ [line:wastageline2]
+  field:long prompt,nf
+ Local: Field: long prompt: Set As:"Wastage/Shortage Ledger"
+ Local: Field: nf: Set As:""
+ Local: Field: nf: storage:cwWastageShortageminLedgermin
+ Local: Field: nf: table: collcwexpenesledger,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: nf: Style: small Bold
+ Local: field: nf: Width:30
+
+ Local: Field: long prompt: Style: small
+ Local: Field: nf: Style: small bold
+
+
+ [line:mincgstline]
+ field:long prompt,nf
+ Local: Field: long prompt: Set As:"CGST"
+ Local: Field: nf: storage:cwCGSTminledgermin
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: nf: Show table: Always
+ Local: Field: nf: Style: small Bold
+ Local: field: nf: Width:30
+
+ Local: Field: default: Style:Style2
+
+ [line:minsgstline]
+ field:long prompt,nf
+ Local: Field: long prompt: Set As:"SGST"
+ Local: Field: nf: storage:cwSGSTminledgermin
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: nf: Show table: Always
+ Local: Field: nf: Style: small Bold
+ Local: field: nf: Width:30
+
+ Local: Field: default: Style:Style2
+
+ [line:minIgstline]
+ field:long prompt,nf
+ Local: Field: long prompt: Set As:"IGST"
+ Local: Field: nf: storage:cwIGSTminledgermin
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: nf: Show table: Always
+ Local: Field: nf: Style: small Bold
+ Local: field: nf: Width:30
+
+ Local: Field: default: Style:Style2
+
+ [line:minTDSline]
+ field:long prompt,nf
+ Local: Field: long prompt: Set As:"TDS"
+ Local: Field: nf: storage:cwTDSMINledgermin
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: nf: Show table: Always
+ Local: Field: nf: Style: small Bold
+ Local: field: nf: Width:30
+
+ Local: Field: default: Style:Style2
+
+ [line:minroundline]
+ field:long prompt,nf
+ Local: Field: long prompt: Set As:"Round Off"
+ Local: Field: nf: storage:cwroundoffminledgermin
+ Local: Field: nf: table:collcwexpenesledger,Not Applicable
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+ Local: Field: nf: Show table: Always
+ ;;Local: Field: nf: Style: small Bold
+ Local: field: nf: Width:30
+
+ Local: Field: default: Style:Style2
+
+
+;;===============================
+[line:EnableDirectPurchaseLine]
+field:Long Prompt,cwlogical
+
+ Local: Field: Long Prompt: Set As:"Enable Direct Purchase (Pur)"
+ Local: Field: cwlogical: storage:cwEnableDirectPurchase
+
+ Local: Field: default: Style:Style2
+
+ Local: Field: default: Color : blue
+
+  Local: Field : cwlogical : SubForm : cwEnableDirectPurchaseRep: $$value
+
+ [report:cwEnableDirectPurchaseRep]
+ form:cwEnableDirectPurchaseRep
+
+ [form:cwEnableDirectPurchaseRep]
+ part:cwEnableDirectPurchaseRep
+
+ [part:cwEnableDirectPurchaseRep]
+ width:35% page
+ line:cwisUseForTagIndentLn,cwPurchaseTypeline,cwVchTypeSelectedGodownline,cwcwUseforInTransitline,cwcwVchTypepostline,CWautoPostDirectLn,CWautoPostInDirectLn,cwIntransitDodownLn
+
+ [line:cwIntransitDodownLn]
+ field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"InTransit Godown:"
+ Local: Field: nf: storage:cwdirectInTransitGodown
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: Field: default: Color : blue
+

@@ -1,0 +1,157 @@
+; Created By: Anil on 2024-05-04 17:55, ID: 
+
+; Created By: khokan on 2016-03-17 11:23, ID:
+
+
+     [#menu: Gateway of Tally]
+;; {04.May.24 17:57}         add: Option: companyDetailsReportLock ;; : @@companyDetailsReportDemoLock
+
+     [!menu: companyDetailsReportLock]
+        add: Item: before: @@locQuit: @@companyDetailsReportReport: Display: RepcompanyDetailsReport
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   companyDetailsReportReport: "Company Details Report"
+;; companyDetailsReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: RepcompanyDetailsReport]
+      ;;  use: Dsp Template
+      Title: @@companyDetailsReportReport
+   Printset: Report Title: @@companyDetailsReportReport
+       Form: FrmcompanyDetailsReport
+     Export: Yes
+  ;;   set  : svfromdate : ##svcurrentdate
+    ;; set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports : Inactive : Yes
+
+      [Form: FrmcompanyDetailsReport]
+        use: DSP Template
+;; {17.Mar.16 12:01}        Part: DspAccTitles,PrtTitle0companyDetailsReport,PrtcompanyDetailsReport
+       Part: PrtTitle0companyDetailsReport,PrtcompanyDetailsReport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: companyDetailsReportbotbrk,companyDetailsReportbotOpbrk
+Bottom Toolbar Buttons : BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: companyDetailsReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: companyDetailsReportbotopbrk]
+        use: dspacctitles
+  add: part: companyDetailsReportTitlePart
+
+      [part: companyDetailsReportTitlePart]
+       line: LncompanyDetailsReportTitle
+
+      [line: LncompanyDetailsReportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+     invisible: $$inprintmode
+
+      [part: PrtTitle0companyDetailsReport]
+      line : LncompanyDetailsReportCurrPeriod
+
+      [Part: PrtcompanyDetailsReport]
+       Line: LncompanyDetailsReportTitle,LncompanyDetailsReport
+       set :1
+     repeat: LncompanyDetailsReport  ;;: ColcompanyDetailsReport
+     scroll: Vertical
+     Common Border: YEs
+      Total: Qtyf,amtf
+
+
+[Line: LncompanyDetailsReportTitle]
+        use: LncompanyDetailsReport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+ local : field : fwf : set as : "NAME"
+
+ local : field:nf:SET AS:"Address"
+ local: field: default : style: normal bold
+
+
+  [Line: LncompanyDetailsReport]
+  Fields:fwf,d1,numf
+  local : field:fwf:SET AS: @@cmpmailname ;;$name:COMPANY:##SVCURRENTCOMPANY
+  Local: field: fwf: Width:100
+  Local: field: fwf: max:100
+
+;; {19.Mar.16 17:05}   Local: Field: numf: Set As:
+
+   add:explode:mycmpaddline
+
+   [part:mycmpaddline]
+   line:mycmpaddline,LncompanyDetailsReportTitle3,pincodline,Phoneline,emailmobline,vatline,cstline
+
+   repeat: mycmpaddline: ColcompanyDetailsReport
+
+
+   [Collection: ColcompanyDetailsReport]
+   use:companyaddress
+
+
+
+   [line:mycmpaddline]
+    Fields:fwf,d1,numf
+  local : field:fwf:SET AS:$address
+  Local: field: fwf: Width:100
+  Local: field: fwf: max:100
+  delete:explode
+
+  Local: Field: numf: Set As: 1
+
+
+
+
+ [line:LncompanyDetailsReportTitle3]
+  use:LncompanyDetailsReport
+  delete:explode
+  Local: Field: fwf: Set As:$Statename:COMPANY:##SVCURRENTCOMPANY
+  Local: Field: numf: Set As: 2
+
+ [line:pincodline]
+ Fields:fwf,d1,numf
+ Local: Field: fwf: Set As:$pincode:COMPANY:##SVCURRENTCOMPANY
+  Local: Field: numf: Set As: 3
+  delete:explode
+
+  [line:Phoneline]
+ use:pincodline
+ Local: Field: fwf: Set As:@@cwCmpPhno+" "+@@cwCmpmobno2
+  Local: Field: numf: Set As: 4
+ [System: Formula]
+ cwCmpPhno:$phonenumber:COMPANY:##SVCURRENTCOMPANY
+ cwCmpmobno:$MobileNumbers:COMPANY:##SVCURRENTCOMPANY
+ cwCmpmobno2:if $$isempty:@@cwCmpmobno then "" else ", "+@@cwCmpmobno + " "
+
+  [line:mobline]
+ use:pincodline
+ Local: Field: fwf: Set As:$MobileNumbers:COMPANY:##SVCURRENTCOMPANY
+  Local: Field: numf: Set As: 5
+ [line:emailmobline]
+ use:pincodline
+
+ Local: Field: fwf: Set As:$EMail:company:##svcurrentcompany
+  Local: Field: numf: Set As: 6
+ [line:vatline]
+  use:pincodline
+
+ Local: Field: fwf: Set As:$VATTINNumber:company:##svcurrentcompany
+  Local: Field: numf: Set As: 7
+ [line:cstline]
+  use:pincodline
+
+ Local: Field: fwf: Set As:$InterstateSTNumber:company:##svcurrentcompany
+  Local: Field: numf: Set As: 8
+
+
+

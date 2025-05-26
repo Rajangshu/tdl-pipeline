@@ -1,0 +1,116 @@
+; Created By: Anil on 2024-03-16 13:45, ID: 
+
+[System: Formula]
+cwAllowToMatReceiveYes:$cwAllowToMatReceive:vouchertype:$vouchertypename
+
+[#Collection: Active Batches VchExtract]
+add:option:cwActiveBatchesVchExtractMatRecopt:@@cwAllowToMatReceiveYes
+
+[!Collection: cwActiveBatchesVchExtractMatRecopt]
+ Title       		: $$LocaleString:"List of Active Batches"
+delete:SubTitle            : $$LocaleString:"Name", @@ExpirySubTitle, $$LocaleString:"Balance"
+add:SubTitle            : $$LocaleString:"Name",@@ExpirySubTitle,$$LocaleString:"Balance",$$LocaleString:"No of Bales",$$LocaleString:"Sup/Inv",$$LocaleString:"Type",$$LocaleString:"Supplier Name",$$LocaleString:"House",$$LocaleString:"Transporter Name",$$LocaleString:"LR Number",$$LocaleString:"Sup/Inv(Dir)" ;;$$LocaleString:"LR Date",$$LocaleString:"Fent Qty",$$LocaleString:"Scrp Qty",$$LocaleString:"Balance"
+
+
+add:format:$cwNoofBalespurc,10
+add:format:$cwHousesuppinvno,10
+add:format:$cwTypepurc,10
+add:format:$cwSupplierNamepurc,10
+add:format:$cwConsigneeNamepurc,10
+add:format:$cwTransporterNamepurc,10
+add:format:$cwLRNumberpurc,10
+add:format:$cwDirectPurInvNo,10
+
+/*add:format:$cwNoofBalesNameMatIn,10
+add:format:$cwConsInvNo,10
+add:format:$cwConsInvNoMatIn,10
+add:format:$cwConsSuplNameMatIn,10
+add:format:$cwConsHouseNameMatIn,10
+add:format:$cwConsTransNameMatIn,10
+add:format:$cwLRNumberNameMatIn,10
+add:format:$cwDirectPurInvNo,10
+;; {04.Apr.24 15:30} delete:Format : $ClosingBalance,10
+;; {04.Apr.24 15:30} add:Format : $ClosingBalance,10 */
+
+FETCH:cwNoofBalespurc,cwHousesuppinvno,cwTypepurc,cwSupplierNamepurc,cwConsigneeNamepurc,cwTransporterNamepurc,cwLRNumberpurc,cwDirectPurInvNo
+;; {02.May.24 23:21} FETCH:cwNoofBalesNameMatIn,cwConsInvNo,cwConsInvNoMatIn,cwConsSuplNameMatIn,cwConsHouseNameMatIn,cwConsTransNameMatIn,cwLRNumberNameMatIn,cwDirectPurInvNo
+
+[#Line: EI ColumnOne]
+add:option:cwEIColumnOnemodoopt:@@cwAllowToMatReceiveYes
+[!Line: cwEIColumnOnemodoopt]
+add:field:At Beginning:numf42
+
+Local: Field: numf42: info:"SL NO"
+
+[#Line: EI InvInfo]
+add:option:cwEIInvInfomodoopt:@@cwAllowToMatReceiveYes
+[!Line: cwEIInvInfomodoopt]
+add:field:At Beginning:numf42
+Local: Field: numf42: Set As:$$line
+  Local: Field: numf42: storage:cwmodolineno
+  Local: Field: numf42: Skip: Yes
+
+[#Line: VCHBATCH ColumnOne]
+add:option:cwVCHBATCHColumnOneDoOutopt:@@cwAllowToMatReceiveYes
+[!Line: cwVCHBATCHColumnOneDoOutopt]
+;; {08.Jun.24 15:31} add:right field:after:VCH BatchNameTitle:snf12,snf18
+add:right field:after:VCH BatchNameTitle:snf12,snf18
+add:right field:numf ;;,numf21 ;;,numf19
+ add:field:numf19
+
+Local: Field: snf12: info: "Sup/Inv"
+Local: Field: snf18: info: "Sup/Inv (Dir)"
+ Local: Field:numf: info:"Close Qty"  ;;Min Qty"
+ Local: Field:numf19: info:"SL NO"  ;;Min Qty"
+
+local: field: snf12: Invisible: yes
+local: field: snf13: Invisible: yes
+local: field: snf18: Invisible: yes
+Local: field: numf19: Width: 4
+Local: Field: numf: Style: Normal Bold
+Local: Field: numf19: Style: Normal Bold
+
+
+[#line:STKVCH Batch2]
+add:option:cwSTKVCHBatch2DoOutopt:@@cwAllowToMatReceiveYes
+[!Line: cwSTKVCHBatch2DoOutopt]
+ add:field:numf19
+;; {08.Jun.24 15:31} add:right field:after:VCHBATCH Name:snf12,snf18,snf13
+add:right field:after:VCHBATCH Name:snf12,snf18,snf13,snf14
+add:right field:numf ;;,numf21 ;;,numf19
+
+;; {06.Apr.24 13:03} Local: Field: snf12: Set As: $$CollectionField:$cwConsInvNoMatIn:First:ActiveBatchesVchExtract;;$$table:ActiveBatchesVchExtract:$cwConsInvNoMatIn
+;; {02.May.24 17:51} Local: Field: snf12: Set As: $$CollectionField:$cwHousesuppinvno:First:ColKataCheckingMatOutRep;;$$table:ActiveBatchesVchExtract:$cwConsInvNoMatIn
+Local: Field: snf12: Set As:$$table:VCHBATCHName:$cwHousesuppinvno
+Local: Field: snf12: storage: cwConsInvNoMatOut
+Local: Field: snf13: Set As:$$table:VCHBATCHName:$ClosingBalance
+Local: Field: snf14: Set As:$$table:VCHBATCHName:$cwLRNumberpurc
+Local: Field: snf13: storage:cwdoqtystrg
+Local: Field: snf14: storage:cwLRNumberpurc
+Local: Field: numf: storage:cwUpdateSubQtydo ;;cwUpdateSubQty
+
+Local: Field: numf19: Set As:$$line
+;; {30.Jul.24 13:55} Local: Field: numf19: Set As:#numf42 ;;$$line
+Local: Field: numf19: storage:cwpplineno
+Local: Field: numf9: Skip: Yes
+local: field: snf12: Invisible: yes
+local: field: snf13: Invisible: yes
+local: field: snf14: Invisible: yes
+local: field: snf18: Invisible: yes
+
+Local: Field: snf18: set as:$$table:VCHBATCHName:$cwDirectPurInvNo ;; "Sup/Inv (Dir)"
+Local: Field: snf18: storage: cwDirectPurInvNo
+
+Local: Field: NUMF: INACTIVE :@@BatchAllocBreak
+Local: Field: NUMF19: INACTIVE :@@BatchAllocBreak
+Local: field: numf19: Width: 4
+Local: field: numf19: Align: LEFT ;;centre
+
+/*Local: Field:VCHBATCH BilledQty:delete:Set as
+Local: Field:VCHBATCH BilledQty:delete:Set by Condition
+Local: Field:VCHBATCH BilledQty:add:Set by Condition:yes:$$number:#snf13 */
+
+;;====================================
+
+
+

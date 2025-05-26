@@ -1,0 +1,187 @@
+; Created By: Anil on 2024-05-13 11:37, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: JTAllItemwiesoutstandingreportnewLock ;; : @@JTAllItemwiesoutstandingreportnewDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@JTAllItemwiesoutstandingreportnewReport: Display: RepJTAllItemwiesoutstandingreportnew
+
+
+
+     [!menu: JTAllItemwiesoutstandingreportnewLock]
+        add: Item: before: @@locQuit: @@JTAllItemwiesoutstandingreportnewReport: Display: RepJTAllItemwiesoutstandingreportnew
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   JTAllItemwiesoutstandingreportnewReport: "Normal and Fast Payment Report"
+;; JTAllItemwiesoutstandingreportnewDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepJTAllItemwiesoutstandingreportnew]
+        use: Dsp Template
+;; Use				: Range Value Template
+        Use				: Range  Template
+        
+      Title: @@JTAllItemwiesoutstandingreportnewReport
+   Printset: Report Title: @@JTAllItemwiesoutstandingreportnewReport
+       Form: FrmJTAllItemwiesoutstandingreportnew
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmJTAllItemwiesoutstandingreportnew]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0JTAllItemwiesoutstandingreportnew,PrtJTAllItemwiesoutstandingreportnew
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: JTAllItemwiesoutstandingreportnewbotbrk,JTAllItemwiesoutstandingreportnewbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+  add:button:Save View,change view
+ ;;    local : button : report config : action :modify variable: JTAllItemwiesoutstandingreportnewConfigure
+        option : enable Range filters
+        
+      [part: JTAllItemwiesoutstandingreportnewbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: JTAllItemwiesoutstandingreportnewbotopbrk]
+        use: dspacctitles
+  add: part: JTAllItemwiesoutstandingreportnewTitlePart
+
+      [part: JTAllItemwiesoutstandingreportnewTitlePart]
+       line: LnJTAllItemwiesoutstandingreportnewTitle
+       
+      [line: LnJTAllItemwiesoutstandingreportnewCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0JTAllItemwiesoutstandingreportnew]
+      line : LnJTAllItemwiesoutstandingreportnewCurrPeriod
+      
+      [Part: PrtJTAllItemwiesoutstandingreportnew]
+       Line: LnJTAllItemwiesoutstandingreportnewTitle,LnJTAllItemwiesoutstandingreportnew
+bottom Line: LnJTAllItemwiesoutstandingreportnewTotals
+     repeat: LnJTAllItemwiesoutstandingreportnew: ColJTAllItemwiesoutstandingreportnewmain2
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColJTAllItemwiesoutstandingreportnewmain2]
+type:bills
+;; {15.May.24 18:09}  filter:cwitemfilterx
+ 
+[System: Formula]
+cwitemfilterx:not $$isempty:$closingbalance
+
+/*[Collection: ColJTAllItemwiesoutstandingreportnewmain]
+source collection: ColJTAllItemwiesoutstandingreportnew
+walk:inventoryentries
+by:date:$date
+by:vouchernumber:$vouchernumber
+by:partyledgername:$partyledgername
+by:stockitemname:$stockitemname
+compute:cwclbalance1:$cwclbalance
+
+search key:$partyledgername
+
+[Collection: ColJTAllItemwiesoutstandingreportnew]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     compute:cwclbalance: $$CollectionField:$closingbalance:First:ColJTAllItemwiesoutstanding
+     Filter: ColJTAllItemwiesoutstandingreportnewFilter,IsNonOptionalCancelledVchs   */
+
+    [system: Formula]
+ColJTAllItemwiesoutstandingreportnewFilter: Yes
+
+      [Line: LnJTAllItemwiesoutstandingreportnewTitle]
+        use: LnJTAllItemwiesoutstandingreportnew
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Invoice No"
+local:field: snf1: set as: "Item Name"
+local:field: fwf: set as: "Party Name"
+local:field: amtf: set as: "Dr. Amount"
+Local: field: DEFAULT: Align:centre
+Local: field: FWF: Align:LEFT
+local:field: numf: set as:"Due Days"
+local: field: numf : style:styleCalisto2
+
+local: field: sdf : style:styleCalisto2
+local: field: fwf : style:styleCalisto2
+local: field: amtf : style:styleCalisto2
+local: field: snf : style:styleCalisto2
+
+      [Line: LnJTAllItemwiesoutstandingreportnew]
+      Fields: sdf,snf,fwf,snf1
+right field:numf, Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: sdf: set as:$billdate ;;$date;; "Date"
+local:field: snf: set as:$name ;;@@cwnetsales2 ;; "Date"
+
+local:field: snf1: set as:"" ;;$$reportobject:$$collectionfieldbykey:$stockitemname:#fwf:ColJTAllItemwiesoutstandingreportnewmain ;;$stockitemname  ;;+"   "+@@cwnetsales3  ;; "Vch No"
+local:field: fwf: set as:$parent+"   "+@@cwnetsales3  ;; "Vch No"
+local:field: amtf: set as:$closingbalance;; "Dr. Amount"
+;; {06.Jul.21 19:16} local:field: snf: set as:@@CreditPeriod ;; "Dr. Amount"
+local:field: numf: set as:@@DSPToDate - $BillDate ;; "Dr. Amount"
+
+Local: Field:DEFAULT: Border: thin right
+Local: Field:sdf: Border: thin left right
+
+local: field: DEFAULT : style:styleCalisto
+Local: field: snf: Width:10
+Local: field: snf1: Width:30
+Local: field:numf: Width:12
+;; {27.Aug.21 10:56} local: field: snf: Invisible: yes
+border:thin bottom
+
+add:explode:cwexpledpart   ;;:$$line=$$numitems or $ledgername<>$$nextobj:$ledgername
+
+[part:cwexpledpart]
+line:cwexpledpart
+repeat: cwexpledpart: ledgerentries
+
+[line:cwexpledpart]
+use: LnJTAllItemwiesoutstandingreportnew
+
+Local: Field: fwf: Set As:"" ;;$$CollectionField:$partyledgername:@@linep1ex:ledgerentries ;;$ledgername
+delete:explode
+add:explode:cwexpitempart
+
+[part:cwexpitempart]
+line:cwexpitempart
+repeat: cwexpitempart: inventoryentries
+
+[line:cwexpitempart]
+use:LnJTAllItemwiesoutstandingreportnew
+
+Local: Field: snf1: Set As:$stockitemname
+;; {15.May.24 16:27} local:field: sdf: set as: $$CollectionField:$billdate:First:ColJTAllItemwiesoutstandingreportnewmain2
+delete:explode
+
+      [line: LnJTAllItemwiesoutstandingreportnewTotals]
+        use: LnJTAllItemwiesoutstandingreportnew
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

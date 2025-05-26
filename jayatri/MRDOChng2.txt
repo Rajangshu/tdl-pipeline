@@ -1,0 +1,90 @@
+; Created By: Anil on 2024-09-05 11:54, ID: 
+
+ 
+ [#Part: DBLLINE Narration]
+ add:line:after:VCH ICFGBoMCompDetails:cwEnterConsumptionDetailsLn
+ 
+ [line:cwEnterConsumptionDetailsLn]
+ field:lp,cwlogical
+ 
+ Local: Field: lp: info:"Enter Consumption Details 2"
+ Local: Field: cwlogical: storage:cwEnterConsumptionDetails
+ 
+ Local: Field : cwlogical : SubForm :repcwEnterConsumptionDetails:$$value
+
+[report:repcwEnterConsumptionDetails]
+form:repcwEnterConsumptionDetails
+
+[form:repcwEnterConsumptionDetails]
+part:repcwEnterConsumptionDetails
+
+[part:repcwEnterConsumptionDetails]
+width:40% page
+height:60% page
+line:cwConsumptionitemName1do,cwStkDetailsLine,stkItemnameTitleline,stkItemnameline
+repeat:stkItemnameline:myMrDOCOLLStockItem ;;InventoryEntries
+break on  : $$issysname:$cwstkItemname
+border:thin box
+;; {05.Sep.24 13:51} common border:yes
+
+[Collection: myMrDOCOLLStockItem]
+ type : myMrDOCOLLStockItem :voucher
+ child of : $name
+
+[line:cwStkDetailsLine]
+field:fwfc
+
+Local: Field: fwfc: info: "Item Details"
+Local: Field: fwfc: Style: Normal Bold
+border:thin bottom
+
+[line:stkItemnameTitleline]
+use:stkItemnameline
+
+Local: Field: fwf: info: "Name Of Item"
+Local: Field: snf: info: "Batch Name"
+Local: Field: qtyf: info: "Qty"
+local: field: fwf: delete : storage
+local: field: snf : delete : storage
+local: field: qtyf : delete : storage
+Local: Field: fwf: Style: Normal Bold
+Local: Field: snf: Style: Normal Bold
+Local: Field: qtyf: Style: Normal Bold
+border:thin bottom
+
+[line:stkItemnameline]
+field:fwf,snf,qtyf
+
+Local: Field: fwf: table: MrDoItemname,Not Applicable
+Local: Field: fwf: Show table: Always
+Local: Field: fwf: storage:cwstkItemname ;; "Batch Name"
+
+Local: Field: snf: storage:cwstkItemBatchname ;; "Batch Name"
+Local: Field: snf: table: MrDoBatchname,Not Applicable
+Local: Field: snf: Show table: Always
+
+Local: Field:qtyf : storage:""
+local: field: snf: inactive: $$issysname:$StockItemName
+Local: Field: snf: Border: thin left
+Local: Field: qtyf: Border: thin left
+
+[Collection:cwcollstkItem]
+ Type: Stock Item
+ title:"List of Stock Item"
+ 
+[Collection: cwActiveBatchesVchExtract]
+
+    Title       		: $$LocaleString:"List of Active Batches"
+	SubTitle            : $$LocaleString:"Name", @@ExpirySubTitle, $$LocaleString:"Balance"
+	
+	Parm Var			: pvStockItemName	: String : $StockItemName
+	Source Collection	: Batches VchSrc
+  	Fetch				: Name, Parent, ExpiryPeriod, ActualQty, ClosingBalance, GodownName, ClosingAsondate, MfdOn
+    Format      		: $Name, 10
+    Format      		: $ExpiryPeriod, 8 : Month Ending
+	Format				: $ClosingAsondate,8   : "Base"
+	Column Align		: Left, Right, Right
+	Filter      		: BelongsToSVGodown
+	Client Only			: Yes
+    Keep Source         : ....
+ 

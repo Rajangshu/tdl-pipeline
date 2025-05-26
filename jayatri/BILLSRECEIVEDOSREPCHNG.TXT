@@ -1,0 +1,79 @@
+; Created By: Anil on 2024-05-22 11:48, ID: 
+
+[#Line: BILL Detail]
+add:option:cwBILLDetailopt:@@JayatriTestEnabled
+[!Line: cwBILLDetailopt]
+add:field:after:BILLFixed:snf
+
+Local: Field: snf: Set As:$cwvchBilltype
+local: field: snf: Invisible: yes
+
+;;==============================
+[#Collection: Company Receivables]
+add:option:cwCompanyReceivablesopt:@@JayatriTestEnabled
+[!Collection: cwCompanyReceivablesopt]
+add:filter:cwbilltypefilter
+
+[#Report: Bills Receivable]
+add:option:cwBillsReceivableopt:@@JayatriTestEnabled
+[!Report: cwBillsReceivableopt]
+          Variable: str1
+          set :str1:""
+
+[#Form: Bills Outstanding]
+add:option:cwBillsOutstandingopt:@@JayatriTestEnabled
+[!Form: cwBillsOutstandingopt]
+ADD: Button:cwfilterbuttonnew
+
+[button:cwfilterbuttonnew]
+ Key     : Ctrl + k
+ title:"Filter"
+ Action : Modify Variables:ledbilltyperep
+
+ [report:ledbilltyperep]
+ form:ledbilltyperep
+
+ [form:ledbilltyperep]
+ part:ledbilltyperep
+
+ HEIGHT:20% PAGE
+ WIDTH:30% PAGE
+
+ [part:ledbilltyperep]
+ line:cwbilltypetitleline,cwbilltypeline
+
+ [line:cwbilltypetitleline]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: Normal Bold
+ space bottom:0.5
+ 
+ [line:cwbilltypeline]
+ field:sp,snf
+ 
+ Local: Field: sp: info: "Bill Type"
+ Local: Field: snf: Modifies :str1
+ Local: Field: snf: table: cwbilltypetable,Not Applicable
+Local: Field: snf: Show table: Always
+
+ [System: Formula]
+cwbilltypefilter:if $$issysname:##str1 then yes else $cwvchBilltype =##str1
+
+;;==========================================
+
+[#Report: Ledger Outstandings]
+add:option:cwLedgerOutstandingsopt:@@JayatriTestEnabled
+[!Report: cwLedgerOutstandingsopt]
+Variable: str1
+set :str1:""
+
+[#Form: Ledger Outstandings]
+add:option:cwLedgerOutstandingsopt:@@JayatriTestEnabled
+[!Form: cwLedgerOutstandingsopt]
+ADD: Button:cwfilterbuttonnew
+
+[#Collection: Ledger Bills]
+add:option:cwLedgerBillsopt:@@JayatriTestEnabled
+[!Collection: cwLedgerBillsopt]
+add:filter:cwbilltypefilter

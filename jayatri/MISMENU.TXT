@@ -1,0 +1,61 @@
+; Created By: Anil on 2024-01-23 11:56, ID: 
+
+[#menu: Gateway of Tally]
+add:item :before:@@locquit:"0. MIS":menu:mismenu1
+
+
+[menu:mismenu1]
+title:"Mis Menu"
+
+add : key item :"1. Sauda Report" : S: menu : Sauda Report :@@cwsaudamanagement
+add: Item: Blank
+add : key item :"2. In - Transit" : I: menu : In Transit
+add: Item: Blank
+add : Item:"3 ."+@@BEDSHEETSPECIALLOTMILANReport: Display: RepBEDSHEETSPECIALLOTMILAN
+add: Item: Blank
+add : Item:"4 ."+ @@ProcessDetailsReport: Display Collection: collRepunitWiseSalesRep
+add: Item: Blank
+;; {05.Aug.24 10:34} add : Item:"5 ."+@@HoldingstockrepReport: Display: RepHoldingstockrep
+add : Item:"5 ."+@@HoldingReportReport: Display: RepHoldingReport
+add: Item: Blank
+add : Item:"6 ."+@@DoStatusReport: Display: RepDoStatus
+add: Item: Blank
+add : Item:"7 ."+@@ChiripalFileTestReport: Display: RepChiripalFileTest
+add: Item: Blank
+add : Item:"8 ."+@@StockAgeingReportReport: Display collection: cwcollListofBrandName
+add: Item: Blank
+add : Item:"9 ."+@@DailyBaleAndPcsReport: Display collection:collRepstockitemrep3
+add: Item: Blank
+
+add : Item:"10 ."+@@salesrepnewReport: Display collection:collRepstockitemGrouprep
+add: Item: Blank
+
+add : Item:"11 ."+@@DoOrderTestosRepReport: Display: RepDoOrderTestosRep
+add: Item: Blank
+
+add : Item:"12 ."+@@DoOrderUnclearedReport: Display: RepDoOrderUncleared
+add: Item: Blank
+
+add : Item:"13 ."+@@JobPartyPendingStockReport: Display: RepJobPartyPendingStock
+add: Item: Blank
+
+
+[menu:Sauda Report]
+add: Item:@@SaudaReportReport: Display: RepSaudaReport
+add: Item: Blank
+add: Item: @@SaudapendingReportReport: Display: RepSaudapendingReport
+add: Item: Blank
+add: Item: @@BrokerWiseSaudaReportReport:Display Collection: collRepBrokerWiseSaudaReport
+add: Item: Blank
+add: Item: @@ProductWiseSaudaReportReport:Display Collection: collRepProductWiseSaudaReport
+add: Item: Blank
+add: Item:@@SaudaPedningReportDetailReport: Display: RepSaudaPedningReportDetail
+add: Item: Blank
+add: Item:@@SummaryofSaudaPendingReportReport: Display: RepSummaryofSaudaPendingReport
+add: Item: Blank
+
+[menu : In Transit]
+ADD:Item:"1 . "+@@InTransitPendingforReceivedReport: Display: RepInTransitPendingforReceived
+add: Item: Blank
+add: Item:"2 . "+@@InTransitPendingforExpenseBookingReport: Display: RepInTransitPendingforExpenseBooking
+add: Item: Blank

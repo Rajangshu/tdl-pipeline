@@ -1,0 +1,303 @@
+; Created By: Anil on 2024-07-17 17:19, ID: 
+
+
+[#Form: VchSuppl DespatchOrderDetails]
+add:option:cwMrdoVchSupplDespatchOrderDetailsopt:@@cwFGMaterialInyesxx
+[!Form: cwMrdoVchSupplDespatchOrderDetailsopt]
+on : form accept : yes : form accept
+on : form accept : yes : call : fillMrdoname
+;; {18.Jul.24 17:19} Local: Field: default: Border: thin box ;;left right
+
+[System: Formula]
+cwFGMaterialInyesxx:$cwFGMaterialIn:vouchertype:$vouchertypename
+
+;;1 in Report, add
+[#Report: Voucher]
+list Variable: MrDoname
+	
+
+;;2 in Form, add
+;; {16.Jul.24 18:51} [#Form: Voucher]
+;; {16.Jul.24 18:51} set: logi1 : $$fillMrkataname
+		
+;;3 variable definition
+
+
+[variable : MrDoname]
+variable :uniqueElementNamedo : string
+variable: mymasterid1do:string
+variable: cwitemnamedo:string
+variable: cwbatchnamedo:string
+variable:cwgodownnamedo:string
+variable:mycwNoofBalespurc:string
+variable:mycwLRNumberpurc:string
+variable:mycwLRDatepurc:date
+;; {17.Jul.24 12:26} variable:myBasicPurchaseOrderNo:string
+variable:mycwConsigneeNamepurc:string
+variable:mycwSupplierNamepurc:string
+variable:mycwTransporterNamepurc:string
+variable:mycwHousesuppinvno:string
+variable:mycwDirectPurInvNo:string
+variable:mycwUpdateSubQtydo:number ;;Quantity
+variable:mycwpplinenodo:string
+variable:mycwmodolineno:string
+variable:myClosingBalancedo:Quantity
+variable:myClosingratedo:rate
+;; {18.Jul.24 11:11} variable:mycwUpdateSubQtydo:Quantity
+;; {17.Jul.24 10:29} variable:$Closingrate,10
+variable:myClosingValue:Amount
+
+
+;;4		
+
+     [collection : cwMRDoOrdermain]
+     source collection:cwMRdoOrdersrc
+     walk:inventoryentriesout,BatchAllocations ;;,VOUCHERCOMPONENTLIST,BATCHALLOCATIONS
+by:ParentItem:$ParentItem  ;;$...stockItemname
+by:masterid1:$masterid
+by:godownname:$VoucherDestinationGodown ;;$godownname
+by:stockitemname1:$stockitemname
+by:partyledgername:$partyledgername
+by:batchname:$batchname
+compute:cwConsInvNoMatOut1:$cwConsInvNoMatOut
+compute:cwHousesuppinvnokcDoOrder1:$cwHousesuppinvnokcDoOrder
+;; {29.Jul.24 13:52} compute:cwHousesuppinvnoDirectDoOrder1:$cwDirectPurInvNo ;;$cwHousesuppinvnoDirectDoOrder
+compute:cwHousesuppinvnoDirectDoOrder1:$cwHousesuppinvnoDirectDoOrder
+;; {08.Jun.24 16:03} compute:cwUpdateSubQty1:$cwUpdateSubQty
+;; {06.Sep.24 16:19} compute:cwUpdateSubQtydo1:$billedqty-$cwUpdateSubQtydo
+compute:cwUpdateSubQtydo1:$cwUpdateSubQtydo
+compute:cwUpdateSubQtyminnewfil2x:@@cwUpdateSubQtyminnewfil2
+;; {08.Jun.24 15:57} compute:billedqty1:$billedqty-$cwUpdateSubQty
+compute:cwpplineno1:$cwpplineno ;;$cwpplinenomo ;;$cwpplineno
+compute:cwmodolineno1:$..cwmodolineno ;;$cwpplinenomo ;;$cwpplineno
+compute:rate:$rate
+;; {06.Sep.24 16:30} aggr compute:billedqty1:sum:$billedqty
+compute:billedqty1:$billedqty-$cwUpdateSubQtydo
+aggr compute:amount:sum:$amount
+
+     [collection : cwMRdoOrdersrc]
+     
+Type    : Vouchers: VoucherType
+Childof : $$VchTypeJobMaterialIssue
+
+
+Parm Var: SVFromDate	: Date	: $StartingFrom:Company:##SVCurrentCompany
+Parm Var: SVToDate	: Date	:$LastVoucherDate:Company:##SVCurrentCompany
+BelongsTo : Yes
+fetch:Reference
+filter:cwMRdoOrderfilter2,cwMRdoOrderfilter
+     
+
+[System: Formula]
+ColMODoFilternew:$$IsJobMaterialIssue:$vouchertypename
+cwMRdoOrderfilter:$cwAllowToMatReceive:vouchertype:$vouchertypename
+cwMRdoOrderfilter2:$Reference=##cworderNo
+
+
+[system : variable]
+list variable : Mrdoname
+
+;;5
+;; {17.Jul.24 17:39} 		[function: fillMrkataname]
+		[function: fillMrdoname]
+;; {17.Jul.24 18:04} 		variable: MrkatanameIndexVar : string
+		variable: MrdonameIndexVar : string
+;; {18.Jul.24 10:41} 		variable : loopIndexVar : string
+		variable : loopIndexVardo : string
+;; {17.Jul.24 17:44}                 variable: MrkatanameId : number
+                variable: MrdonameId : number
+		variable : cworderNo  : string
+		variable : cwOrderDate : date
+	
+	/* 01 : walk collection :  INVOICEORDERLIST
+	 02 :logobject
+	 03 :endwalk */
+	 
+         10 : LIST DELETE	: Mrdoname
+	
+         11 : walk collection :  INVOICEORDERLIST ;;MrkataTMainCollection
+	 12 : set : cwOrderNo : $basicPurchaseOrderNo
+	 13 : set : cwOrderDate : $basicOrderDate
+	 
+;; {19.Oct.24 18:03} 	 414ss:log:"aa"+##cwOrderNo
+
+         14: walk collection : cwMRdoOrdermain
+;; {19.Oct.24 18:03}          15 : log object
+;; {17.Jul.24 12:11}          16 : end walk
+
+
+         20 : set : loopIndexVardo : $$loopIndex
+
+         25 : set :MrdonameIndexVar:  ##loopIndexVardo + $masterId1 + $stockItemName1 + $batchName ;;+ $godownname
+;; {30.Jul.24 12:11}          26: log: ##MrdonameIndexVar
+ 	30 : if : not $$listfind:Mrdoname:##MrdonameIndexVar
+	
+        40 : list add : Mrdoname : ##MrdonameIndexVar
+	
+        41 : set : MrdonameId : $$listIndex:Mrdoname:##MrdonameIndexVar
+	
+	
+        50 : set : Mrdoname[##MrdonameId].uniqueElementNamedo : ##MrdonameIndexVar
+	
+        60 : else
+	
+        70 : set : MrdonameId : $$listIndex:Mrdoname:##MrdonameIndexVar	
+	
+        80 : end if
+	
+        81 : set : Mrdoname[##MrdonameId].cwitemnamedo : $stockitemname1
+	82 : set : Mrdoname[##MrdonameId].cwbatchnamedo : $batchname
+	83 : set : Mrdoname[##MrdonameId].cwgodownnamedo : $godownname
+	
+	89d : set : Mrdoname[##MrdonameId].myClosingBalancedo : $billedqty1
+	89h : set : Mrdoname[##MrdonameId].myClosingratedo : $rate
+	84 : set : Mrdoname[##MrdonameId].mycwNoofBalespurc : $cwNoofBalespurc1
+	85 : set : Mrdoname[##MrdonameId].mycwLRNumberpurc : $cwLRNumberpurc1
+	86 : set : Mrdoname[##MrdonameId].mycwLRDatepurc : $cwLRDatepurc1
+	87 : set : Mrdoname[##MrdonameId].mycwConsigneeNamepurc : $cwConsigneeNamepurc1
+	88 : set : Mrdoname[##MrdonameId].mycwSupplierNamepurc : $cwSupplierNamepurc1
+	89 : set : Mrdoname[##MrdonameId].mycwTransporterNamepurc : $cwTransporterNamepurc1
+	89a : set : Mrdoname[##MrdonameId].mycwHousesuppinvno : $cwHousesuppinvnokcDoOrder1
+	89b : set : Mrdoname[##MrdonameId].mycwDirectPurInvNo : $cwHousesuppinvnoDirectDoOrder1
+	89c : set : Mrdoname[##MrdonameId].mycwpplinenodo : $cwpplineno1
+	89e : set : Mrdoname[##MrdonameId].myClosingValue : $amount
+	89f : set : Mrdoname[##MrdonameId].mymasterid1do : $masterid1
+	89g : set : Mrdoname[##MrdonameId].mycwUpdateSubQtydo : $cwUpdateSubQtydo1
+	89i : set : Mrdoname[##MrdonameId].mycwmodolineno : $cwmodolineno1
+	
+	
+;; {17.Jul.24 12:49}         90 : set : Mrkataname[##MrkatanameId].lvQuantity : $qty
+
+       2220 : end walk
+
+        2222 : end walk
+
+	
+	;;6 collection
+	
+	
+	
+	[collection : MrDoItemname]
+   data source: variable : Mrdoname
+
+         by : cwitemnamedo : $cwitemnamedo
+         format : $cwitemnamedo,10
+
+
+	[collection : MrDoBatchname]
+	Title       		: $$LocaleString:"List of Active Batches"
+;; {25.Jul.24 15:22} add:SubTitle            : $$LocaleString:"Batch",$$LocaleString:"Godown",$$LocaleString:"Item Name",$$LocaleString:"No of Bale",$$LocaleString:"Lr No",$$LocaleString:"Lr Date",$$LocaleString:"House",$$LocaleString:"Transporter",$$LocaleString:"Sup Name",$$LocaleString:"Sup Inv",$$LocaleString:"Sup Inv(Dir)",$$LocaleString:"Line No",$$LocaleString:"Mast Id",$$LocaleString:"Sub Qty",$$LocaleString:"Rate",$$LocaleString:"Balance"
+add:SubTitle            : $$LocaleString:"Batch",$$LocaleString:"Godown",$$LocaleString:"Item Name",$$LocaleString:"House",$$LocaleString:"Transporter",$$LocaleString:"Sup Name",$$LocaleString:"Sup Inv",$$LocaleString:"Sup Inv(Dir)",$$LocaleString:"Line No",$$LocaleString:"Line No2",$$LocaleString:"Mast Id",$$LocaleString:"Sub Qty",$$LocaleString:"Rate",$$LocaleString:"Balance"
+
+     data source: variable : Mrdoname
+;; {19.Oct.24 18:02}      format : $uniqueElementNamedo,40
+;; {15.Jul.24 18:22}          format : $element,10
+;; {16.Jul.24 12:25}          format : $lvStockItemName,10
+         format : $cwbatchnamedo,10
+         format : $cwgodownnamedo,10
+         format : $cwitemnamedo,10
+         format : $mycwConsigneeNamepurc,10
+         format : $mycwTransporterNamepurc,10
+         format : $mycwSupplierNamepurc,10
+         format : $mycwHousesuppinvno,10
+         format : $mycwDirectPurInvNo,10
+         format : $mycwpplinenodo,10
+         format : $mycwmodolineno,10
+         format : $mymasterid1do,10
+         format : $mycwUpdateSubQtydo,10
+         format : $myClosingratedo,10
+         format : $myClosingBalancedo,10
+
+         filter : cwmrDoGodownfilter ;;,cwMrDOUpdateSubQtyfilternew
+         filter : cwMrDOUpdateSubQtyfilternew
+
+         [System: Formula]
+         cwmrDoGodownfilter:#cwconsgodownf=$cwgodownnamedo
+         cwMrDOUpdateSubQtyfilternew:not $$isempty:$myClosingBalancedo
+         cwUpdateSubQtyminnewfil2:$myClosingBalance-$mycwUpdateSubQtydo
+         cwUpdateSubQtyminnewfil2xx:$myClosingBalancedo-$mycwUpdateSubQtydo
+
+       /*  [collection: MrkataTMainCollection]
+          source collection:default;;ColKataCheckingMatOutRepx
+          walk:inventoryentriesout,BatchAllocations
+          by:stockitemname1:$stockitemname
+          format: $stockitemname1,10
+          format: $collBatchName,10
+          format: $qty,10
+
+          fetch:stockitemname */
+
+         ;- ---------- Example
+
+
+/*
+1 in Report, add
+	list Variable: lvTest
+	
+
+
+2 in Form, add
+		set: logi1 : $$fillLvTest
+		
+3 variable definition
+
+[variable : lvTest]
+variable : uniqueElementName : string
+variable : lvStockItemName : string
+variable: lvBatchName : string
+variable: lvQuantity : quantity
+
+
+4		
+
+[system : variable]
+list variable : lvTest
+
+5
+		[function: fillLvTest]
+	 	 variable: lvTestIndexVar : string
+		 variable: lvTextId : number
+
+	10 : LIST DELETE	: lvTest
+
+	20 : walk collection :  lvTestMainCollection
+
+	25 : set :lvTestIndexVar :  $stockItemName +  $batchName
+	
+	30 : if : not $$listfind:lvTest:##lvTestIndexVar
+	
+        40 : list add : lvTest : ##lvTestIndexVar
+	
+	41 : set : lvTextId : $$listIndex:lvTest:##lvTestIndexVar
+	
+        50 : set : lvTest[##lvTextId].uniqueElementName : ##lvTestIndexVar
+	
+        52 : set : lvTest[##lvTextId].lvStockItemName : $collStockItemName
+	54 : set : lvTest[##lvTextId].lvBatchName : $collBatchName
+	
+        60 : else
+	
+        70 : set : lvTextId : $$listIndex:lvTest:##lvTestIndexVar	
+	
+        80 : end if
+	
+        90 : set : lvTest[##lvTextId].lvQuantity : $qty
+	
+        2222 : end walk
+	
+	6 collection
+	
+     [collection: lvTest]
+     data source: variable : lvTest
+         format : $lvStockItemName,10
+         format : $lvBatchName,10
+         format : $lvQuantity,10
+
+     [collection: lvTestMainCollection]
+           ; has following collection attributes
+          format: $collStockItemName,10
+          format: $collBatchName,10
+          format: $qty,10  */
+
+
+

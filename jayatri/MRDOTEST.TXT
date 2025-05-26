@@ -1,0 +1,271 @@
+; Created By: Anil on 2024-06-17 17:33, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: mrdotestLock ;; : @@mrdotestDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@mrdotestReport: Display: Repmrdotest
+  */
+
+
+     [!menu: mrdotestLock]
+        add: Item: before: @@locQuit: @@mrdotestReport: Display: Repmrdotest
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   mrdotestReport: "mrdotest"
+;; mrdotestDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: Repmrdotest]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@mrdotestReport
+   Printset: Report Title: @@mrdotestReport
+
+       Form: Frmmrdotest
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: Frmmrdotest]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0mrdotest,Prtmrdotest
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: mrdotestbotbrk,mrdotestbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: mrdotestConfigure
+
+      [part: mrdotestbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: mrdotestbotopbrk]
+        use: dspacctitles
+  add: part: mrdotestTitlePart
+
+      [part: mrdotestTitlePart]
+       line: LnmrdotestTitle
+       
+      [line: LnmrdotestCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0mrdotest]
+      line : LnmrdotestCurrPeriod
+      
+      [Part: Prtmrdotest]
+       Line: Lnmrdotest
+       Line: LnmrdotestTitle,Lnmrdotest
+;; {14.Jul.24 15:03} bottom Line: LnmrdotestTotals
+     repeat: Lnmrdotest:Colmrdotestmainx ;;Colmrdotest ;; Colmrdotestmain
+     scroll: Vertical
+ Common Border: YEs
+Total: Qtyf,amtf,numf,numf2,numf3,numf7
+
+; Main Collection
+
+[Collection: Colmrdotestmainx]
+source collection:Colmrdotestx
+walk:INVENTORYENTRIESIN,batchallocations,cwcollConsumption
+by:date:$date
+by:Reference:$Reference
+by:stockitemname:$stockitemname
+by:cwConsBatchName1:$cwConsBatchName
+;; {12.Jul.24 13:09} aggr compute:billedqty:sum:$billedqty
+by:cwConsumProduct1:$cwConsumProduct
+compute:cwBomQty1:$cwBomQty
+aggr compute:cwConsumQty1:sum:$cwConsumQty
+compute:BasicShipDeliveryNote1x:$BasicShipDeliveryNote1
+compute:BasicPurchaseOrderNo1x:$BasicPurchaseOrderNo1
+;; {15.Jul.24 12:14} filter:cwvouchernoflter5
+
+[Collection: Colmrdotestx]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColmrdotestFilterx,IsNonOptionalCancelledVchs
+     compute:BasicShipDeliveryNote1:$BasicShipDeliveryNote
+     compute:BasicPurchaseOrderNo1:$BasicPurchaseOrderNo
+
+    [system: Formula]
+ColmrdotestFilterx: $cwFGMaterialIn:vouchertype:$vouchertypename="yes"
+;; {19.Jun.24 13:08} ColmrdotestFilter: $$IsJobMaterialReceive:$vouchertypename
+cwvouchernoflter5: $BasicPurchaseOrderNo1x=#cwvchnofld
+      [Line: LnmrdotestTitle]
+        use: Lnmrdotest
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: SNF: set as: "SL.NO"
+local:field: cwvchnofld: set as: "D.O.NO"
+local:field: snf1: set as: "D.O.NO"
+local:field: Qtyf: set as: "TOTAL (MTR)" ;;"D.O  MTR"
+local:field: nf: set as: "QUALITY"
+local:field: sdf: set as: "Date"
+local:field: sdf2: set as: "Mr Do Date"
+local:field: fwf: set as: "QUALITY"
+local:field: SNF2: set as: "CHALLN NO"
+local:field: SNF3: set as: "BALE NO"
+local:field: NUMF3: set as: "TOTAL (PCS)"
+local:field: numf: set as: "TOTAL (MTR)"
+local:field: NUMF2: set as: "PERCENTAGE"
+;; {19.Jun.24 14:24}       local: field: default : style: style7 ;;normal bold
+
+Local: field:snf1 : Align: centre
+Local: field:sdf : Align: centre
+Local: field:nf : Align: centre
+Local: field:Qtyf : Align: centre
+Local: field:sdf2 : Align: centre
+Local: field:SNF2 : Align: centre
+Local: field:SNF3 : Align: centre
+Local: field:NUMF3 : Align: centre
+Local: field:numf : Align: centre
+Local: field:NUMF2 : Align: centre
+local:field:fwf:indent:10
+local: field: SNF1 : style: style1y ;;normal bold
+local: field: SDF : style: style1y ;;normal bold
+local: field: NF : style: style1y ;;normal bold
+local: field: FWF : style: style1y ;;normal bold
+local: field: Qtyf : style: style1y ;;normal bold
+local: field: SNF2 : style: style1y ;;normal bold
+local: field: SNF3 : style: style1y ;;normal bold
+local: field: NUMF : style: style1y ;;normal bold
+local: field: NUMF2 : style: style1y ;;normal bold
+
+/*[field:cwvchnofld]
+use:snf
+Invisible: yes */
+
+; Main Line
+      [Line: Lnmrdotest]
+     Fields: mrdotestmastid,cwvchnofld,snf1,sdf,nf,fwf,SNF2,SNF3
+Right Field: Qtyf,numf,numf7,NUMF2 ;;,Amtf
+
+     Option: Alter on Enter
+        key: mrdotestDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: SNF: set as:$$linenumber ;;"SL.NO"
+local:field: cwvchnofld: set as:$Reference ;;$VOUCHERNUMBER ;;"D.O.NO"
+local:field: snf1: set as:$BasicPurchaseOrderNo1x ;;"D.O.NO"
+local:field: Qtyf: set as: $billedqty ;;$$CollectionField:$BILLEDQTY:First:InventoryEntries ;;"D.O  MTR"
+local:field: nf: set as: $stockitemname ;;"QUALITY"
+local:field: sdf: set as: $DATE ;;"Date"
+local:field: sdf2: set as: "" ;;"Date2"
+local:field: fwf: set as: $cwConsumProduct1 ;;"QUALITY"
+local:field: SNF2: set as: $BasicShipDeliveryNote1x ;;"CHALLN NO"
+local:field: SNF3: set as: $cwConsBatchName1 ;;$batchName ;;"BALE NO"
+local:field: NUMF3: set as:$billedqty;;"TOTAL (PES)"
+local:field: NUMF2: set as: "";;"TOTAL (MTR)"
+local:field: numf: set as: $cwConsumQty1 ;;$$CollNumTotal:Colmrdotestmain:$cwConsumQty1   ;;"PERCENTAGE"
+
+Local: Field:numf7: Set As: if $$line=1 then #numf else if $BasicPurchaseOrderNo1x <> $$prevobj:$BasicPurchaseOrderNo1x then #numf else $$prevlinefield+#numf
+Local: Field: snf1: Border: thin RIGHT ;;left right
+Local: Field: sdf: Border: thin RIGHT ;;left right
+Local: Field: nf: Border: thin RIGHT ;;left right
+Local: Field: Qtyf: Border: thin RIGHT ;;left right
+Local: Field: sdf2: Border: thin RIGHT ;;left right
+Local: Field: fwf: Border: thin right ;;left right
+Local: Field: snf2: Border: thin right ;;left right
+Local: Field: snf3: Border: thin right ;;left right
+Local: Field: numf3: Border: thin right ;;left right
+Local: Field: numf: Border: thin right ;;left right
+
+local: field: numf7: Invisible: yes
+
+Local: field: SNF1: Width:10
+Local: field: NF: Width:30
+local: field: default : style: style2y ;;normal bold
+
+ add:explode:Lnmrdoreportexpxx:$$line=$$numitems or $BasicPurchaseOrderNo1x<>$$nextobj:$BasicPurchaseOrderNo1x
+
+[part:Lnmrdoreportexpxx]
+line:Lnmrdoreportexpxx
+
+[line:Lnmrdoreportexpxx]
+ use: Lnmrdotest
+delete:explode
+border:totals
+local: field: fwf: align: right
+local: field: default : style: normal bold
+
+local: field: qtyf: set as:$$total:qtyf
+local: field: fwf: set as: " Sub-Total"
+
+local:field: sdf: set as:"" ;; "Date"
+local:field: nf: set as:"" ;; "Vch Name"
+
+local:field: nf2: set as: "" ;;"Item"
+local:field: snf: set as:"" ;; "Batch Name"
+local:field: snf1: set as:"" ;; "Batch Name"
+local:field: snf3: set as:"" ;; "Batch Name"
+local:field: snf4: set as:"" ;; "Batch Name"
+local:field: qtyf: set as: "";;#qtyf2 ;;"Qty."
+;; {14.Jul.24 11:33} replace : field : numf : numf5
+local:field: numf: set as:#numf7 ;;$$total:numf;;$$prevlinefield ;;"Qty."
+;; {14.Jul.24 11:33} local:field: numf5: set as:$$total:numf5;;$$prevlinefield ;;"Qty."
+local:field: NUMF3: set as:"" ;;$$total:NUMF3;;$$prevlinefield ;;"Qty."
+local:field: amtf2: set as: "";;$$prevlinefield ;;"Qty."
+local:field: ratepf : set as :"" ;; "Rate"
+local:field: amtf: set as: #amtf2 ;; "Value"
+local:field: numf7: set as: $$prevlinefield
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: mrdotestDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: mrdotestDisplayVoucher
+
+ 	
+     [Report: mrdotestDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #mrdotestmastid
+	
+
+        [Field: mrdotestmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnmrdotestTotals]
+        use: Lnmrdotest
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

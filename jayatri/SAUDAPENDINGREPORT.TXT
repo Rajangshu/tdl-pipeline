@@ -1,0 +1,261 @@
+; Created By: Anil on 2024-01-23 10:45, ID: 
+
+; Created By: Khokan on 2022-02-11 10:36, ID:
+
+     [#menu: Gateway of Tally]
+;; {23.Jan.24 11:58}         add: Option: SaudapendingReportLock ;; : @@SaudapendingReportDemoLock
+
+
+     [#menu : cw_Debug_menu]
+        add: Item: before: @@locQuit: @@SaudapendingReportReport: Display: RepSaudapendingReport
+
+
+
+     [!menu: SaudapendingReportLock]
+        add: Item: before: @@locQuit: @@SaudapendingReportReport: Display: RepSaudapendingReport
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   SaudapendingReportReport:"Sauda Pending Report"
+;; SaudapendingReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: RepSaudapendingReport]
+        use: Dsp Template
+      Title: @@SaudapendingReportReport
+   Printset: Report Title: @@SaudapendingReportReport
+       Form: FrmSaudapendingReport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local : Button   : RelReports : Inactive : Yes
+
+     variable:str1,str2,str3,str4
+    set:str1:""
+    set:str2:""
+    set:str3:""
+      [Form: FrmSaudapendingReport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0SaudapendingReport,PrtSaudapendingReport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: SaudapendingReportbotbrk,SaudapendingReportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+     add:button:saudapendingbutton
+
+
+     [button:saudapendingbutton]
+key:alt+f7
+ title:"Filter"
+ Action : Modify Variables:saudapendingbutton
+
+ [report:saudapendingbutton]
+ form:saudapendingbutton
+
+ [form:saudapendingbutton]
+ part:saudapendingbutton
+
+ HEIGHT:20% PAGE
+ WIDTH:40% PAGE
+
+
+ [part:saudapendingbutton]
+ line:titlelinexjw,BrokerNameline,DescriptionofDispatchedMatelinex  ;;,Supplierlinex
+
+
+
+      [part: SaudapendingReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: SaudapendingReportbotopbrk]
+        use: dspacctitles
+  add: part: SaudapendingReportTitlePart
+
+      [part: SaudapendingReportTitlePart]
+       line: LnSaudapendingReportTitle
+
+      [line: LnSaudapendingReportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+      local:field: fwf:style:style1
+  invisible: $$inprintmode
+
+      [part: PrtTitle0SaudapendingReport]
+      line : LnSaudapendingReportCurrPeriod
+
+      [Part: PrtSaudapendingReport]
+       Line: LnSaudapendingReportTitle,LnSaudapendingReport
+bottom Line: LnSaudapendingReportTotals
+     repeat: LnSaudapendingReport: ColSaudapendingReport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf, Qtyf1, Qtyf2, Qtyf3, Qtyf4, Qtyf5
+
+[Collection: ColSaudapendingReport]
+source Collection: sourcColSaudaReport
+walk:inventoryentries
+by:date:$date
+by:vouchernumber:$vouchernumber
+
+by:partyledgername:$partyledgername
+by:stockitemname:$stockitemname
+aggr Compute:billedqty:sum:$billedqty
+aggr Compute:amount:sum:$amount
+Compute:cwUpdateSubQty1:$$asqty:$cwUpdateSubQty
+Compute:saudapendingqty1:$billedqty-$$asqty:$cwUpdateSubQty
+Compute:saudapendingqty1x:if $$Negative:$saudapendingqty1 then "b" else "a"
+Compute:masterid:$masterid
+Compute:rate:$rate
+filter:cwbrokernamefilter,saudaDispatchedMaterialfilter,ColSummaryofSaudaPendingReportFilter,ColSummaryofSaudaPendingReportFilter2
+
+[system: Formula]
+ColSummaryofSaudaPendingReportFilter:not $$isempty:$saudapendingqty1 ;;$cwUpdateSubQty1 > $billedqty
+ColSummaryofSaudaPendingReportFilter2:NOT $$IsNegative:$saudapendingqty1
+
+
+[system: Formula]
+ColSaudapendingReportFilter: Yes
+
+[Line: LnSaudapendingReportTitle]
+use: LnSaudapendingReport
+option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: snf: set as: "Sauda No"
+local:field: sdf: set as: "Sauda Date"
+local:field: fwf: set as: "Broker Name"
+local:field: nf: set as: "Description  of  Materials"
+local:field: nf1: set as: "Broker Group"
+local:field: qtyf: set as: "Sauda Qty."
+local:field: ratepf : set as : "Rate"
+local:field: qtyf2: set as: "GRN Qty"
+local:field: qtyf3: set as: "Sauda Pending Qty."
+local:field: qtyf5: set as: "Sauda Pending Alt. Qty."
+local:field: qtyf4: set as: "Alt.Qty."
+local:field: ratepf2: set as: "Net Rate"
+Local: field:default: Align:centre
+Local: field:fwf: Align:left
+Local : field :default: Lines : 0
+
+local: field: qtyf4: type: String
+local: field: qtyf5: type: String
+
+local:field: snf: style:style1
+local:field: sdf:style:style1
+local:field: fwf:style:style1
+local:field: nf: style:style1
+local:field: nf1: style:style1
+local:field: qtyf:style:style1
+local:field: ratepf :style:style1
+local:field: ratepf1 :style:style1
+local:field: ratepf2 :style:style1
+local:field: amtf:style:style1
+local:field: nf2:style:style1
+local:field: snf2:style:style1
+local:field: sdf2:style:style1
+local:field: qtyf2:style:style1
+local:field: ratepf2:style:style1
+local:field: amtf2:style:style1
+local:field: qtyf3:style:style1
+local:field: qtyf4:style:style1
+local:field: qtyf5:style:style1
+
+
+[Line: LnSaudapendingReport]
+Fields: snf,sdf,fwf,nf1  ;;,snf9,snf10
+right field:nf,qtyf,qtyf4,ratepf,Qtyf2,qtyf3,qtyf5 ;;,snf1,qtyf6
+
+;; {10.Feb.22 10:57}      Option: Alter on Enter
+local:field: qtyf : Format : "NoZero"
+local:field: qtyf1 : Format : "NoZero"
+local:field: qtyf2 : Format : "NoZero"
+local:field: qtyf3 : Format : "NoZero"
+local:field: qtyf5 : Format : "NoZero"
+
+local:field: snf9: set as:$vouchernumber ;; "Sauda No"
+local:field: snf: set as:$vouchernumber ;; "Sauda No"
+local:field: snf1: set as:NOT $$IsNegative:$saudapendingqty1 ;; "Sauda No"
+local:field: sdf: set as:$date ;; "Sauda Date"
+local:field: fwf: set as:$partyledgername ;; "Broker Name"
+local:field: nf1: set as:$parent:ledger:$partyledgername
+local:field: nf: set as:$stockitemname ;; "Description  of  Materials"
+local:field: snf10: set as:$stockitemname ;; "Description  of  Materials"
+
+local:field: qtyf: set as:$billedqty ;; "Qty."
+local:field: qtyf4: set as:$billedqty ;; "Qty."
+local:field: qtyf5: set as:#qtyf3 ;;$billedqty ;; "Sauda Pending Alt. Qty."
+local:field: qtyf6: set as:$saudapendingqty1
+
+
+
+local:field: ratepf : set as :$rate ;; "Rate"
+
+local:field: ratepf2 : set as :#amtf/#qtyf ;;"Net Rate"
+
+local:field: amtf: set as:$amount ;; "Amount"
+local:field: qtyf2: set as:$cwUpdateSubQty1  ;; "GRN Qty"
+local:field: qtyf3: set as:#QTYF-#QTYF2  ;; "Sauda Pending Qty."
+
+ local: field: qtyf4: type:quantity:Secondary units
+ local: field: qtyf5: type:quantity:Secondary units
+
+local:field: default: style:style2
+Local: Field: default: Border: thin right
+option : cwalterVch
+Local: field: qtyf: Width:15
+Local: field: qtyf1: Width:15
+Local: field: qtyf2: Width:15
+Local: field: qtyf3: Width:15
+
+[line: LnSaudapendingReportTotals]
+use: LnSaudapendingReport
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total"
+local:field: snf: set as:"" ;; "Sauda No"
+local:field: sdf: set as:"" ;; "Sauda Date"
+
+local:field: nf: set as:"" ;; "Description  of  Materials"
+local:field: nf1: set as:"" ;; "Description  of  Materials"
+local:field: qtyf: set as:$$total:qtyf ;; "Qty."
+local:field: ratepf : set as :"" ;; "Rate"
+local:field: amtf: set as:$$total:amtf ;; "Amount"
+local:field: nf2: set as:"" ;; "Supplier"
+local:field: snf2: set as:"" ;; "Supplier Inv No"
+local:field: sdf2: set as:"" ;; "Supplier Inv Date"
+local:field: qtyf2: set as:$$total:qtyf2  ;; "GRN Qty"
+local:field: ratepf: set as:"" ;; "Rate"
+local:field: amtf2: set as:$$total:amtf2 ;; "Amount"
+local:field: qtyf3: set as:$$total:qtyf3  ;; "Balance Pending Qty."
+local:field: qtyf4: set as:$$total:qtyf4  ;; "Balance Pending Qty."
+
+local:field: qtyf5: set as:$$total:qtyf5  ;; "Balance Pending Qty."
+
+local:field: snf: style:style1
+local:field: sdf:style:style1
+local:field: fwf:style:style1
+local:field: nf: style:style1
+local:field: qtyf:style:style1
+local:field: ratepf :style:style1
+local:field: amtf:style:style1
+local:field: nf2:style:style1
+local:field: snf2:style:style1
+local:field: sdf2:style:style1
+local:field: qtyf2:style:style1
+local:field: ratepf:style:style1
+local:field: amtf2:style:style1
+local:field: qtyf3:style:style1
+local:field: qtyf4:style:style1
+local:field: qtyf5:style:style1
+
+
+

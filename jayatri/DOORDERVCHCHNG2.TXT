@@ -1,0 +1,503 @@
+; Created By: Anil on 2024-04-15 11:12, ID: 
+
+;; {04.Jan.24 10:52} [#Line: EI GetOrderNo]
+ [System: Formula]
+  cwUseforDoOrderDetailsYES:$cwDoOrder:vouchertype:$vouchertypename="yes"
+
+ [#Field: VCH BatchNameTitle]
+  add:option:DoVCHBatchNameTitlejeopt:@@cwUseforDoOrderDetailsYES ;;JayatriTestEnabled
+
+ [!field:DoVCHBatchNameTitlejeopt]
+    Setas :@@cwrmcaptionInTransitex
+
+
+
+[#Part: EI CurrBalanceInfoRight]
+add:option:cwEICurrBalanceInfoRightopt:@@cwUseforDoOrderDetailsYES and @@JayatriTestEnabled
+
+[!Part: cwEICurrBalanceInfoRightopt]
+;; {10.Jul.24 12:08} add:line: At Beginning:cwdodetailsLn,cwunitLine
+;; {10.Jul.24 17:31} add:line: At Beginning:cwJayatridodetailsLn,cwNkdodetailsLn,cwunitLine
+add:line: At Beginning:cwJayatridodetailsLn,cwunitLine
+
+[line:cwunitLine]
+right field:mp,snf
+
+Local: Field: mp: info: "Units"
+Local: Field: snf: storage:cwmodounit
+Local: Field: snf: table:collunit,Not Applicable
+Local: Field: snf: Show table: Always
+Local: Field: mp: Style: Normal Bold
+Local: Field: Snf: Key       : Create Cost Centre, Alter CstCtr
+Local: Field: Snf: Variable  : SV Cost Centre
+Local: field: mp: Width:14
+Local: field: snf: Width:22
+Local: Field: default: Color : blue
+Local: Field: default: Style:Style2
+
+[Collection:collunit]
+type:cost centre
+child of:"Units"
+
+
+[line:cwJayatridodetailsLn]
+right field:mp,cwlogical
+
+Local: Field: mp: info: "Jayatri Do Details"
+Local: Field: cwlogical: storage:cwvchDoDetails
+Local: field: mp: Width:14
+Local: field: cwlogical: Width:22
+Local: Field: default: Color : blue
+Local: Field: default: Style:Style2
+
+Local: Field : cwlogical : SubForm :cwDoDetailsRep:$$value
+
+[report:cwDoDetailsRep]
+form:cwDoDetailsfrm
+
+[form:cwDoDetailsfrm]
+part:cwDoDetailspart
+
+[part:cwDoDetailspart]
+;; {11.Jul.24 10:41} width:50% page
+line:cwFectoryNameLn,cwVendorQualityLn,cwVendorQualityLn2,cwVendorQualityLn3,cwVendorQualityLn4,cwOurQualityNameLn,cwBedsheetSizeLn,cwPillowSizeLn,cwSidePillowLn,cwbedsheetcutLn,cwpillowCutLine,cwSidePillowCutLn,cwTotalCutLn,cwPackingLn,cwStichingLn,cwSalvageLn,CWMARKALINE
+
+[line:cwFectoryNameLn]
+field:sp,fwf ;;nf
+
+Local: Field: sp: info: "Fectory Name"
+Local: Field: fwf: storage:cwFectoryName
+
+Local: Field: default: Style: Style1
+Local: field: sp: Width:20
+Local: Field: fwf: table: ledger,Not Applicable
+Local: Field: fwf: Show table: Always
+Local: Field: default: Color : blue
+
+
+[line:cwVendorQualityLn]
+field:sp,fwf ;;nf
+
+Local: Field: sp: info: "Vendor Quality"
+Local: Field: fwf: storage:cwVendorQuality
+
+Local: Field: default: Style: Style1
+Local: Field: default: Color : blue
+Local: Field: fwf: table: stock item,Not Applicable
+Local: Field: fwf: Show table: Always
+Local: field: sp: Width:20
+
+[line:cwVendorQualityLn2]
+field:sp,fwf ;;nf
+
+Local: Field: sp: info: "Vendor Quality"
+Local: Field: fwf: storage:cwVendorQuality2
+
+Local: Field: default: Style: Style1
+Local: Field: default: Color : blue
+Local: Field: fwf: table: stock item,Not Applicable
+Local: Field: fwf: Show table: Always
+Local: field: sp: Width:20
+
+[line:cwVendorQualityLn3]
+field:sp,fwf ;;nf
+
+Local: Field: sp: info: "Vendor Quality"
+Local: Field: fwf: storage:cwVendorQuality3
+
+Local: Field: default: Style: Style1
+Local: Field: default: Color : blue
+Local: Field: fwf: table: stock item,Not Applicable
+Local: Field: fwf: Show table: Always
+Local: field: sp: Width:20
+
+[line:cwVendorQualityLn4]
+field:sp,fwf ;;nf
+
+Local: Field: sp: info: "Vendor Quality"
+Local: Field: fwf: storage:cwVendorQuality4
+
+Local: Field: default: Style: Style1
+Local: Field: default: Color : blue
+Local: Field: fwf: table: stock item,Not Applicable
+Local: Field: fwf: Show table: Always
+Local: field: sp: Width:20
+
+
+[line:cwOurQualityNameLn]
+field:sp,fwf ;;nf
+
+Local: Field: sp: info: "Our Quality Name"
+Local: Field: fwf: storage:cwOurQualityName
+
+Local: Field: default: Style: Style1
+Local: field: sp: Width:20
+Local: Field: fwf: table: Stock item,Not Applicable
+Local: Field: fwf: Show table: Always
+Local: Field: default: Color : blue
+
+[line:cwBedsheetSizeLn]
+field:sp,fwf ;;nf
+
+Local: Field: sp: info: "Bedsheet Size"
+Local: Field: fwf: storage:cwBedsheetSize
+Local: Field: default: Style: Style1
+Local: field: sp: Width:20
+Local: Field: default: Color : blue
+
+[line:cwPillowSizeLn]
+use: cwBedsheetSizeLn
+
+Local: Field: sp: info: "Pillow Size"
+Local: Field: fwf: storage:cwPillowSize
+
+[line:cwSidePillowLn]
+use: cwBedsheetSizeLn
+
+Local: Field: sp: info: "Side Pillow"
+Local: Field: fwf: storage:cwSidePillow
+
+[line:cwbedsheetcutLn]
+field:sp,numf
+
+Local: Field: sp: Set As:"BedSheet Cut"
+Local: Field: numf: storage:cwBedSheetCut
+
+Local: Field: default: Style: Style1
+Local: field: sp: Width:20
+Local: Field: default: Color : blue
+Local: field: numf: Align: left ;;centre
+
+[line:cwpillowCutLine]
+use:cwbedsheetcutLn
+
+Local: Field: sp: Set As:"Pillow Cut"
+Local: Field: numf: storage:cwPillowCut
+
+[line:cwSidePillowCutLn]
+use:cwbedsheetcutLn
+
+Local: Field: sp: Set As:"Side Pillow Cut"
+Local: Field: numf: storage:cwSidePillowCut
+
+[line:cwTotalCutLn]
+use: cwbedsheetcutLn
+
+Local: Field: sp: info: "Total Cut"
+Local: Field: numf: storage:cwTotalCut
+Local: Field: numf: Set As:$cwBedSheetCut+$cwPillowCut+$cwSidePillowCut
+
+[line:cwPackingLn]
+use: cwBedsheetSizeLn
+
+Local: Field: sp: info: "Packing"
+Local: Field: fwf: storage:cwPacking
+
+[line:cwStichingLn]
+use: cwBedsheetSizeLn
+
+Local: Field: sp: info: "Stiching"
+Local: Field: fwf: storage:cwStiching
+
+[line:cwSalvageLn]
+use: cwBedsheetSizeLn
+
+Local: Field: sp: info: "Salvage"
+Local: Field: fwf: storage:cwSalvage
+
+[line:CWMARKALINE]
+use: cwBedsheetSizeLn
+
+Local: Field: sp: info: "Marka"
+Local: Field: fwf: storage:cwMARKA
+
+;;=============================================
+[line:cwNkdodetailsLn]
+right field:mp,cwlogical
+
+Local: Field: mp: info: "NK Do Details"
+Local: Field: cwlogical: storage:cwNKvchDoDetails
+Local: field: mp: Width:14
+Local: field: cwlogical: Width:22
+Local: Field: default: Color : blue
+Local: Field: default: Style:Style2
+
+Local: Field : cwlogical : SubForm :cwNKDoDetailsRep:$$value
+
+[report:cwNKDoDetailsRep]
+form:cwNKDoDetailsfrm
+
+[form:cwNKDoDetailsfrm]
+part:cwDoDetailspart
+
+[part:cwNKDoDetailspart]
+width:50% page
+line:cwFectoryNameLn,cwVendorQualityLn,cwVendorQualityLn2,cwVendorQualityLn3,cwVendorQualityLn4,cwOurQualityNameLn,cwBedsheetSizeLn,cwPillowSizeLn,cwSidePillowLn,cwbedsheetcutLn,cwpillowCutLine,cwSidePillowCutLn,cwTotalCutLn,cwPackingLn,cwStichingLn,cwSalvageLn,CWMARKALINE
+
+
+;;==============================================
+
+[#Part: VCH Narration]
+add:option:cwVCHNarrationopt:@@cwUseforDoOrderDetailsYES and @@JayatriTestEnabled
+
+[!Part: cwVCHNarrationopt]
+add:line:PackingandassesoryLn,CWREMAKLINE
+
+[LINE:CWREMAKLINE]
+FIELD:SP,FWF
+
+Local: Field: SP: INFO :"REMARKS"
+Local: Field: FWF: storage:CWREMARKS
+
+Local: Field: default: Color : blue
+ Local: Field: default: Style:Style2
+
+[line:PackingandassesoryLn]
+field:mp,cwlogical
+
+Local: Field: mp: info: "Packing And Assesory Details"
+Local: Field: cwlogical: storage:cwPackingAndAssesoryDetails
+
+Local: Field: default: Color : blue
+ Local: Field: default: Style:Style2
+
+Local: Field : cwlogical : SubForm :PackingAndAssesoryDetailsrep:$$value
+
+[report:PackingAndAssesoryDetailsrep]
+form:PackingAndAssesoryDetailsfrm
+
+[form:PackingAndAssesoryDetailsfrm]
+part:PackingAndAssesoryDetailsprt
+
+[part:PackingAndAssesoryDetailsprt]
+width:40% page
+line:cwtotaldesignsLn,cwonesetline2,cwOneBaleline2,cwticketLine2,cwboppLine2,cwinplayLine2,cwStifnerLine2,cwPhotoLine2,cwbagline,cwbalepvcline,cwCartoonLine,cwPattiLine,cwClipLine
+
+[line:cwtotaldesignsLn]
+field:sp,fwf
+
+Local: Field: sp:info:"Total Designs"
+Local: Field: fwf: storage:cwtotaldesigns
+Local: Field: default: Style:Style2
+Local: Field: default: Color : blue
+Local: field: SP: Width: 12
+
+[line:cwonesetline2]
+;; {06.Jan.24 11:20} field:sp,nf
+use:cwtotaldesignsLn
+
+Local: Field: sp:info:"One Set"
+Local: Field: fwf: storage:cwoneset
+Local: Field: default: Style:Style2
+
+[line:cwOneBaleline2]
+use:cwtotaldesignsLn ;;cwonesetline2
+
+Local: Field: sp:info:"One Bale"
+Local: Field: fwf: storage:cwTwoset
+
+[line:cwticketLine2]
+field:sp,fwf
+
+Local: Field: sp:info:"Tickets"
+Local: Field: fwf: storage:cwTickets
+Local: Field: default: Style:Style2
+Local: Field: default: Color : blue
+Local: field: SP: Width: 12
+
+[line:cwboppLine2]
+use:cwticketLine2
+
+Local: Field: sp:info:"BOPP"
+Local: Field: fwf: storage:CWBOPP
+
+[line:cwinplayLine2]
+use:cwticketLine2
+
+Local: Field: sp:info:"IN LAY"
+Local: Field: fwf: storage:CWINPLAY
+
+[line:cwStifnerLine2]
+use:cwticketLine2
+
+Local: Field: sp:info:"STIFNER"
+Local: Field: fwf: storage:CWSTIFNER
+
+[line:cwPhotoLine2]
+use:cwticketLine2
+
+Local: Field: sp:info:"PHOTO"
+Local: Field: fwf: storage:CWPHOTO
+
+[line:cwbagline]
+use:cwticketLine2
+
+Local: Field: sp:info:"Bag (Chat)"
+Local: Field: fwf: storage:CWbagchatstrg
+
+[line:cwbalepvcline]
+use:cwticketLine2
+
+Local: Field: sp:info:"Bale PVC"
+Local: Field: fwf: storage:CWBalePVCstrg
+
+[line:cwCartoonLine]
+use:cwticketLine2
+
+Local: Field: sp:info:"Cartoon"
+Local: Field: fwf: storage:CWCartoonstrg
+
+[line:cwPattiLine]
+use:cwticketLine2
+
+Local: Field: sp:info:"Patti"
+Local: Field: fwf: storage:CWPattistrg
+
+[line:cwClipLine]
+use:cwticketLine2
+
+Local: Field: sp:info:"Clip"
+Local: Field: fwf: storage:CWClipstrg
+
+;;============================================
+[#Line: VCHBATCH Component ColumnOne]
+add:option:cwDoorderVCHBATCHComponentColumnOneopt:@@cwUseforDoOrderDetailsYES
+[!Line: cwDoorderVCHBATCHComponentColumnOneopt]
+/*add:right field:after:VCH BatchNameTitle:cwVCHBatchNameTitle
+Local		: Field	: cwVCHBatchNameTitle	: Delete	: Border
+Local		: Field	: cwVCHBatchNameTitle	: Add		: Border      : Double Sub Column Titles  : ($$IsPerishableOn OR $$IsBatchWiseOn)
+Local		: Field	: cwVCHBatchNameTitle	: Width		: If ($$IsPerishableOn OR $$IsBatchWiseOn) Then 18 Else @@VCHBatchNameWidth
+
+;; {10.Apr.24 12:29} local: field: VCH BatchNameTitle: Invisible: if @@cwKataCheckingvch then yes else no
+;; {10.Apr.24 12:29} local: field: cwVCHBatchNameTitle: Invisible: if @@cwKataCheckingvch then no else yes  */
+add:right field:before:VCH BoMQtyTitle:snf5,snf6,sdf,snf,snf1,snf2,snf3,snf18
+
+Local: Field: snf5: info: "No of Bales"
+Local: Field: snf6: info: "Lr No"
+Local: Field: sdf: info: "Lr Date"
+Local: Field: snf: info: "Suply Name"
+Local: Field: snf1: info: "House"
+Local: Field: snf2: info: "Trns Name"
+Local: Field: snf3: info: "Sup/Inv"
+Local: Field: snf18: info: "Sup/Inv(Dir)"
+
+local: field: snf: Invisible: yes
+local: field: snf1: Invisible: yes
+local: field: snf2: Invisible: yes
+local: field: snf3: Invisible: yes
+local: field: snf5: Invisible: yes
+local: field: snf6: Invisible: yes
+local: field: sdf: Invisible: yes
+local: field: snf18: Invisible: yes
+
+/*[Field: cwVCHBatchNameTitle]
+
+	Width		: if @@HasMfgDateSet OR @@HasExpiryDate then 19 else @@VCHBatchNameWidth
+    Setas       : $$LocaleString:"Bales Number"
+    Style       : Small Bold
+    Align       : Centre
+    SubTitle    : Yes
+    Border      : Double Sub Column Titles  : @@HasMfgDateSet OR @@HasExpiryDate
+    Invisible   : NOT @@IsPhysStock AND NOT @@HasBatchWise
+    Skip        : Yes
+    Fixed       : Yes    */
+
+[#Line: VCHBATCH Component ColumnTwo]
+add:option:cwDoordVCHBATCHComponentColumnTwoopt:@@cwUseforDoOrderDetailsYES
+[!Line: cwDoordVCHBATCHComponentColumnTwoopt]
+add:right field:before:VCH ActualQtyTitle:snf5,snf6,sdf,snf,snf1,snf2,snf3,snf18
+
+Local: Field: snf5: info: ""
+Local: Field: snf6: info: ""
+Local: Field: sdf: info: "" ;;"Lr Date"
+Local: Field: snf: info: ""
+Local: Field: snf1: info: ""
+Local: Field: snf2: info: ""
+Local: Field: snf3: info: ""
+Local: Field: snf18: info: "" ;;"Sup/Inv(Dir)"
+
+local: field: snf: Invisible: yes
+local: field: snf1: Invisible: yes
+local: field: snf2: Invisible: yes
+local: field: snf3: Invisible: yes
+local: field: snf5: Invisible: yes
+local: field: snf6: Invisible: yes
+local: field: sdf: Invisible: yes
+local: field: snf18: Invisible: yes
+
+[#field:VCHBATCH BoMBilledQty]
+add:option:cwDoorderVCHBATCHBoMBilledQtyopt:@@cwUseforDoOrderDetailsYES and @@JayatriTestEnabled
+[!field:cwDoorderVCHBATCHBoMBilledQtyopt]
+
+delete:set as
+delete:Set By Condition
+add:Set By Condition:yes:$$table:VCHBATCHBoMBatchName:$ClosingBalance
+
+[#Line: VCH STKBatch Component Batch]
+add:option:cwDoordVCHSTKBatchComponentBatchopt:@@cwUseforDoOrderDetailsYES
+[!Line: cwDoordVCHSTKBatchComponentBatchopt]
+add:right field:before:VCHBATCH BoMBilledQty:snf5,snf6,sdf,snf,snf1,snf2,snf3,snf18
+
+Local: Field: snf: Set As:$$table:VCHBATCHBoMBatchName:$cwSupplierNamepurc ;;$cwConsSuplNameMatIn ;;$cwHouseSupplierNamepurc
+Local: Field: snf1: Set As:$$table:VCHBATCHBoMBatchName:$cwConsigneeNamepurc ;;$cwConsHouseNameMatIn ;;$cwHouseConsigneeNamepurc
+Local: Field: snf2: Set As:$$table:VCHBATCHBoMBatchName:$cwTransporterNamepurc  ;;$cwConsTransNameMatIn ;;$cwHouseTransporterNamepurc
+Local: Field: snf3: Set As:$$table:VCHBATCHBoMBatchName:$cwHousesuppinvno ;;$cwConsInvNoMatIn ;;$cwHousesuppinvno
+Local: Field: snf5: Set As:$$table:VCHBATCHBoMBatchName:$cwNoofBalespurc ;;$cwNoofBalesNameMatIn ;;$cwHouseNoofBalespurc
+Local: Field: snf6: Set As:$$table:VCHBATCHBoMBatchName:$cwLRNumberpurc ;;$cwLRNumberNameMatIn
+Local: Field: sdf: Set As:$$table:VCHBATCHBoMBatchName:$cwLRDatepurc ;;$cwLRDatenameMatIn
+Local: Field: snf18: Set As:$$table:VCHBATCHBoMBatchName:$cwDirectPurInvNo
+;; {19.Apr.24 16:47} Local: Field: snf20: Set As:$$table:VCHBATCHBoMBatchName:$name
+
+Local: Field: snf: storage:cwHouseSupplierNamepurcDoOrder
+Local: Field: snf1: storage:cwHouseConsigneeNamepurckcDoOrder
+Local: Field: snf2: storage:cwHouseTransporterNamepurckcDoOrder
+Local: Field: snf3: storage:cwHousesuppinvnokcDoOrder
+Local: Field: snf5: storage:cwHouseNoofBalespurckcDoOrder
+Local: Field: snf6: storage:cwHouseLRNumberpurckcDoOrder
+Local: Field: sdf: storage:cwHouseLRdatepurckcDoOrder
+Local: Field: snf18: storage:cwHousesuppinvnoDirectDoOrder
+
+local: field: snf: Invisible: yes
+local: field: snf1: Invisible: yes
+local: field: snf2: Invisible: yes
+local: field: snf3: Invisible: yes
+local: field: snf5: Invisible: yes
+local: field: snf6: Invisible: yes
+local: field: sdf: Invisible: yes
+local: field: snf18: Invisible: yes
+
+;;============================================
+
+[#Collection: Batches VchCompnentBatches]
+add:option:cwBatchesVchCompnentBatchesDoOrderopt:@@cwUseforDoOrderDetailsYES
+[!Collection: cwBatchesVchCompnentBatchesDoOrderopt]
+ Title       		: $$LocaleString:"List of Active Batches"
+ DELETE:SubTitle
+  ADD:SubTitle              : $$LocaleString:"Name", @@ExpirySubTitle, $$LocaleString:"Balance",$$LocaleString:"No of Bales",$$LocaleString:"Supplier Name",$$LocaleString:"Sup/Inv",$$LocaleString:"House",$$LocaleString:"Transporter Name",$$LocaleString:"Lr No",$$LocaleString:"Lr Date",$$LocaleString:"Sup/Inv(Dir)"
+
+
+;; {16.Mar.24 13:34} add:format:$cwLEDGSTINopt1,10
+add:format:$cwNoofBalespurc,10
+add:format:$cwSupplierNamepurc,10 ;;$cwSupplierNamepurc,10
+add:format:$cwHousesuppinvno,10
+add:format:$cwConsigneeNamepurc,10
+add:format:$cwTransporterNamepurc,10 ;;$cwTransporterNamepurc,10
+;; {29.Apr.24 16:12} add:format:$cwHouseTypepurc,10 ;;$cwTypepurc,10
+add:format:$cwLRNumberpurc,10 ;;$cwLRNumberpurc,10     cwLRNumberpurc
+add:format:$cwLRDatepurc,10 ;;$cwLRDatepurc,10
+add:format:$cwDirectPurInvNo,10
+
+/*add:format:$cwNoofBalesNameMatIn,10
+add:format:$cwConsInvNoMatIn,10
+add:format:$cwConsSuplNameMatIn,10
+add:format:$cwConsHouseNameMatIn,10
+add:format:$cwConsTransNameMatIn,10
+add:format:$cwLRNumberNameMatIn,10
+add:format:$cwLRDatenameMatIn,10
+add:format:$cwDirectPurInvNo,10  */
+
+
+;; {29.Apr.24 15:55} FETCH:cwNoofBalesNameMatIn,cwConsInvNoMatIn,cwConsSuplNameMatIn,cwConsHouseNameMatIn,cwConsTransNameMatIn,cwLRNumberNameMatIn,cwLRDatenameMatIn,cwDirectPurInvNo
+FETCH:cwNoofBalespurc,cwSupplierNamepurc,cwConsigneeNamepurc,cwHousesuppinvno,cwTransporterNamepurc,cwLRNumberpurc,cwLRDatepurc,cwDirectPurInvNo ;;cwConsInvNoMatIn
+
+

@@ -1,0 +1,287 @@
+; Created By: Anil on 2024-01-23 11:01, ID: 
+
+; Created By: Khokan on 2022-02-11 11:02, ID:
+
+[#menu: Gateway of Tally]
+;; {23.Jan.24 11:59} add: Option: BrokerWiseSaudaReportLock ;; : @@BrokerWiseSaudaReportDemoLock
+
+
+[#menu : cw_Debug_menu]
+add: Item: before: @@locQuit: @@BrokerWiseSaudaReportReport: Display Collection: collRepBrokerWiseSaudaReport ;;: RepBrokerWiseSaudaReport
+
+
+
+[!menu: BrokerWiseSaudaReportLock]
+add: Item: before: @@locQuit: @@BrokerWiseSaudaReportReport: Display Collection: collRepBrokerWiseSaudaReport ;;: RepBrokerWiseSaudaReport
+;; {11.Feb.22 11:49} add: Item: before: @@locQuit: @@BrokerWiseSaudaReportReport: Display : RepBrokerWiseSaudaReport
+add: Item: before: @@locQuit: Blank
+
+
+[Collection: collRepBrokerWiseSaudaReport]
+
+Use         : Extract Alias Collection
+Source Collection	: List of Ledgers
+Variable    : Ledger Name
+Report      :RepBrokerWiseSaudaReport
+Trigger     : LedgerNamexx
+Fetch       : Name
+
+[Report: LedgerNamexx]   ;;Auto Report
+
+Use     : Collection Variable
+Local   : Line : Collection Variable : Field : LedgerNamexx
+Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Ledger"
+
+
+[Field: LedgerNamexx]
+
+Use         : Name Field
+Key         : Create Ledger
+Modifies    : LedgerName
+Table       :collbrokerx  ;; List of ExtractLedgers
+Show Table  : Always
+CommonTable : No
+
+	
+	
+   [Collection: collbrokerx]
+   type:ledger
+
+   TITLE:"List of Ledger Name"
+  ;; add:filter:mycwshowinledstate
+  ;; fetch:cwshowinledstate
+
+
+
+
+
+    [System: formula]
+   BrokerWiseSaudaReportReport: "Broker Wise Sauda Report"
+;; BrokerWiseSaudaReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: RepBrokerWiseSaudaReport]
+        use: Dsp Template
+      Title: @@BrokerWiseSaudaReportReport
+   Printset: Report Title: @@BrokerWiseSaudaReportReport
+       Form: FrmBrokerWiseSaudaReport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+
+   variable:str1,str2,str3,str4
+    set:str1:""
+    set:str2:""
+    set:str3:""
+
+      [Form: FrmBrokerWiseSaudaReport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0BrokerWiseSaudaReport,PrtBrokerWiseSaudaReport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: BrokerWiseSaudaReportbotbrk,BrokerWiseSaudaReportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+    add:button:Brokersaudapendingbutton
+
+
+     [button:Brokersaudapendingbutton]
+key:alt+f7
+ title:"Filter"
+ Action : Modify Variables:Brokersaudapendingbutton
+
+ [report:Brokersaudapendingbutton]
+ form:Brokersaudapendingbutton
+
+ [form:Brokersaudapendingbutton]
+ part:Brokersaudapendingbutton
+
+ HEIGHT:20% PAGE
+ WIDTH:40% PAGE
+
+
+ [part:Brokersaudapendingbutton]
+ line:titlelinexjw,DescriptionofDispatchedMatelinex  ;;,Supplierlinex
+
+
+      [part: BrokerWiseSaudaReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: BrokerWiseSaudaReportbotopbrk]
+        use: dspacctitles
+  add: part: BrokerWiseSaudaReportTitlePart
+
+      [part: BrokerWiseSaudaReportTitlePart]
+       line: LnBrokerWiseSaudaReportTitle
+
+      [line: LnBrokerWiseSaudaReportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf: Set As:##LedgerName
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf2:invisible: $$inprintmode
+      local:field: fwf: style:style1
+
+      [part: PrtTitle0BrokerWiseSaudaReport]
+      line : LnBrokerWiseSaudaReportCurrPeriod
+
+      [Part: PrtBrokerWiseSaudaReport]
+       Line: LnBrokerWiseSaudaReportTitle,LnBrokerWiseSaudaReport
+bottom Line: LnBrokerWiseSaudaReportTotals
+     repeat: LnBrokerWiseSaudaReport: ColBrokerWiseSaudaReport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf, Qtyf1, Qtyf2, Qtyf3, Qtyf4, Qtyf5
+
+[Collection: ColBrokerWiseSaudaReport]
+source Collection: sourcColSaudaReport
+walk:inventoryentries
+by:date:$date
+;; {11.Feb.22 15:14} by:vouchernumber:$vouchernumber
+
+by:partyledgername:$partyledgername
+by:stockitemname:$stockitemname
+aggr Compute:billedqty:sum:$billedqty
+aggr Compute:amount:sum:$amount
+Compute:cwUpdateSubQty1:$$asqty:$cwUpdateSubQty
+Compute:masterid:$masterid
+filter:cwbrokernamefilter,saudaDispatchedMaterialfilter,ColBrokerWiseSaudaReportFilter
+
+    [system: Formula]
+ColBrokerWiseSaudaReportFilter:$partyledgername=##LedgerName
+
+      [Line: LnBrokerWiseSaudaReportTitle]
+        use: LnBrokerWiseSaudaReport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: snf: set as: "Sauda No"
+local:field: sdf: set as: "Sauda Date"
+local:field: fwf: set as: "Description  of  Materials"
+local:field: nf: set as: "Description  of  Materials"
+local:field: qtyf: set as: "Sauda Qty."
+local:field: ratepf : set as : "Rate"
+local:field: qtyf2: set as: "GRN Qty"
+local:field: qtyf3: set as: "Sauda Pending Qty."
+
+local:field: qtyf4: set as: "Alt.Qty."
+local:field: qtyf5: set as: "Sauda Pending Alt. Qty."
+
+local: field: qtyf4: type: String
+local: field: qtyf5: type: String
+Local: field:default: Align:centre
+Local: field:fwf: Align:left
+Local : field :default: Lines : 0
+
+local:field: snf: style:style1
+local:field: sdf:style:style1
+local:field: fwf:style:style1
+local:field: nf: style:style1
+local:field: qtyf:style:style1
+local:field: ratepf :style:style1
+local:field: amtf:style:style1
+local:field: nf2:style:style1
+local:field: snf2:style:style1
+local:field: sdf2:style:style1
+local:field: qtyf2:style:style1
+local:field: ratepf2:style:style1
+local:field: amtf2:style:style1
+local:field: qtyf3:style:style1
+local:field: qtyf4:style:style1
+local:field: qtyf5:style:style1
+
+      [Line: LnBrokerWiseSaudaReport]
+ Fields:fwf,nf
+right field:qtyf,qtyf4,Qtyf2,qtyf3,qtyf5
+
+;; {10.Feb.22 10:57}      Option: Alter on Enter
+local:field: qtyf : Format : "NoZero"
+local:field: qtyf1 : Format : "NoZero"
+local:field: qtyf2 : Format : "NoZero"
+local:field: qtyf3 : Format : "NoZero"
+local:field: qtyf4 : Format : "NoZero"
+local:field: qtyf5 : Format : "NoZero"
+
+
+local:field: snf9: set as:$vouchernumber ;; "Sauda No"
+local:field: snf: set as:$vouchernumber ;; "Sauda No"
+local:field: sdf: set as:$date ;; "Sauda Date"
+local:field: fwf: set as:$stockitemname ;; "Broker Name"
+local:field: nf: set as:$partyledgername ;; "Description  of  Materials"
+local:field: snf10: set as:$stockitemname ;; "Description  of  Materials"
+
+local:field: qtyf: set as:$billedqty ;; "Qty."
+local:field: qtyf4: set as:$billedqty ;; "Qty."
+local:field: qtyf5: set as:#qtyf3 ;; "Qty."
+local:field: ratepf : set as :#amtf/#qtyf ;; "Rate"
+local:field: amtf: set as:$amount ;; "Amount"
+local:field: qtyf2: set as:$cwUpdateSubQty1  ;; "GRN Qty"
+local:field: qtyf3: set as:#QTYF-#QTYF2  ;; "Sauda Pending Qty."
+
+local:field: default: style:style2
+Local: Field: default: Border: thin right
+local: field: qtyf4: type:quantity:Secondary units
+local: field: qtyf5: type:quantity:Secondary units
+option:display on enter
+
+local:field: nf:modifies:ledgername
+local:field: nf:variable:ledgername
+local:field: fwf:modifies:SStockItem
+local:field: fwf:variable:SStockItem
+local:field: fwf:display:RepBrokerWiseSaudaReport2
+local: field: nf: Invisible: yes
+
+option : cwalterVch
+
+Local: field: qtyf: Width:15
+Local: field: qtyf1: Width:15
+Local: field: qtyf2: Width:15
+Local: field: qtyf3: Width:15
+
+[line: LnBrokerWiseSaudaReportTotals]
+use: LnBrokerWiseSaudaReport
+option: totalOpt
+ local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total"
+local:field: snf: set as:"" ;; "Sauda No"
+local:field: sdf: set as:"" ;; "Sauda Date"
+
+local:field: nf: set as:"" ;; "Description  of  Materials"
+local:field: qtyf: set as:$$total:qtyf ;; "Qty."
+local:field: ratepf : set as :"" ;; "Rate"
+local:field: amtf: set as:$$total:amtf ;; "Amount"
+local:field: nf2: set as:"" ;; "Supplier"
+local:field: snf2: set as:"" ;; "Supplier Inv No"
+local:field: sdf2: set as:"" ;; "Supplier Inv Date"
+local:field: qtyf2: set as:$$total:qtyf2  ;; "GRN Qty"
+local:field: ratepf: set as:"" ;; "Rate"
+local:field: amtf2: set as:$$total:amtf2 ;; "Amount"
+local:field: qtyf3: set as:$$total:qtyf3  ;; "Balance Pending Qty."
+local:field: qtyf4: set as:$$total:qtyf4  ;; "Balance Pending Qty."
+local:field: qtyf5: set as:$$total:qtyf5  ;; "Balance Pending Qty."
+
+local:field: snf: style:style1
+local:field: sdf:style:style1
+local:field: fwf:style:style1
+local:field: nf: style:style1
+local:field: qtyf:style:style1
+local:field: ratepf :style:style1
+local:field: amtf:style:style1
+local:field: nf2:style:style1
+local:field: snf2:style:style1
+local:field: sdf2:style:style1
+local:field: qtyf2:style:style1
+local:field: ratepf:style:style1
+local:field: amtf2:style:style1
+local:field: qtyf3:style:style1
+local:field: qtyf4:style:style1
+local:field: qtyf5:style:style1
+

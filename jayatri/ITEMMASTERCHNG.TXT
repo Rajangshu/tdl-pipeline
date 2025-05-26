@@ -1,0 +1,241 @@
+; Created By: Anil on 2024-01-24 11:02, ID: 
+
+
+[#form:stock group]
+ add:option:cwstockgroupopt:@@JayatriTestEnabled
+
+[!form:cwstockgroupopt]
+
+add:part:JWItemgrouppart
+
+[part:JWItemgrouppart]
+line:CwscrapeLine,CwFentLine
+
+[line:CwscrapeLine]
+field:Long Prompt,cwlogical
+
+Local: Field:Long Prompt : info: "Use as Scrap"
+Local: Field: cwlogical: storage:cwUseasScrap
+Local: Field: default: Color : blue
+
+
+[line:CwFentLine]
+field:Long Prompt,cwlogical
+
+Local: Field:Long Prompt : info: "Use as Fent"
+Local: Field: cwlogical: storage:cwUseasFent
+Local: Field: default: Color : blue
+
+
+;;=====================================
+
+[#Part: STKI Basic Features]
+add:option:stkiFeaturesopt;;:@@JobWorkModuleEnabled
+
+ [!part:stkiFeaturesopt]
+add:part:allowjwpart
+
+[part:allowjwpart]
+line:allowjwpart,fgitemline ;;,cwRawmaterialLine ;;,cwpackofline
+
+[line:allowjwpart]
+field:long prompt,cwlogical
+Local: Field: longprompt: Set As:"Allow for Job Work:"
+;; {22.Feb.22 11:24} Local: Field: cwlogical: storage:cwAllowforJobWork
+Local: Field: cwlogical: storage:cwAllowforJobWorkitem
+ Local: Field: default: Style:small
+ 
+ [line:fgitemline]
+ field:long prompt,cwlogical ;;,nf
+ 
+ Local: Field: longprompt: Set As:"FG Product:"
+
+Local: Field: cwlogical: storage:cwFGProductitem
+ Local: Field: default: Style:small
+;; {14.Jun.24 10:58}  Local: Field: nf: Set As:$cwUseasFent:stockgroup:$parent:stockitem:$stockitemname
+;; {14.Jun.24 10:58}  Local: Field: nf: Border: thin box ;;left right
+ 
+ Local: Field : cwlogical : SubForm : cwFGProductitemrep: $$value
+
+ 
+   [report:cwFGProductitemrep]
+   form:cwFGProductitemrep
+   
+   [form:cwFGProductitemrep]
+   part:cwFGProductitemrep
+   
+   [part:cwFGProductitemrep]
+   line:cwFGtype1,cwFGtype2
+
+   [line:cwFGtype1]
+   field:sp,snf
+   Local: Field: sp: Set As:"Type-1"
+   Local: Field: snf: storage:cwtypeitem1
+   
+    Local: Field: snf: table:cwcolltype,Not Applicable
+ Local: Field: snf: Show table: Always
+ local:field:snf:variable:svcost centre
+ local:field:SNF:key:Create Cost Centre, Alter CstCtr
+
+   
+   [line:cwFGtype2]
+   field:sp,snf
+   Local: Field: sp: Set As:"Type-2"
+   Local: Field: snf: storage:cwtypeitem2
+   
+       Local: Field: snf: table:cwcolltype,Not Applicable
+ Local: Field: snf: Show table: Always
+ local:field:snf:variable:svcost centre
+ local:field:SNF:key:Create Cost Centre, Alter CstCtr
+ 
+ 
+;; {09.Mar.24 12:11}  [line:cwpackofline]
+ [line:cwpackofline]
+field:longprompt,numf
+Local: Field: longprompt: Set As:"Pack of:"
+Local: Field: numf: storage:cwpackof
+Local: field: numf: Align:left
+ Local: Field: default: Style:small
+
+ [line:cwRawmaterialLine]
+ field:mp,cwlogical
+ 
+ Local: Field: mp: info: "Raw Material"
+ Local: Field: cwlogical: storage: cwItemRawMaterial
+ Local: field: mp: Width:28
+ 
+ [System: Formula]
+ cwItemRawMaterialYes:$$owner:$cwItemRawMaterial="Yes"
+ 
+ [#Line: EI PortDestination]
+ Local: Field: EI PortDestination: Set As:$cwCityled:ledger:$partyledgername
+ 
+/* [#Part: EI DelNoteInfo]
+;; {21.Feb.24 16:28} add:option:purcEIDelNoteInfoopt:@@cwAdditionalFeatureAllowYes or @@cwAddfeTransportChallanYes
+;; {11.Apr.24 18:57} add:option:purcEIDelNoteInfoopt:@@cwEnablePurchaseYes or @@issales or @@cwAddfeTransportChallanYes
+;; {11.Apr.24 18:57} [!part:purcEIDelNoteInfoopt]
+
+add:Line: cwEITransporter
+
+[Line: cwEITransporter]
+Fields : Medium Prompt, nf
+Local  : Field : Medium Prompt : Info : $$LocaleString:"Transporter"
+
+Local: Field: nf: storage:cwTransporterpurc
+;; {22.Dec.23 17:13} Local: Field: nf: Set As:$PartyLedgerName
+
+Local: Field: nf: table:collcwTransporter,Not Applicable
+Local: Field: nf: Show table: Always
+Local: field: nf: Width:30
+Local: Field:Medium Prompt : Style: small
+Local: Field:nf : Style: small Bold  */
+ 
+ ;;===========================================
+[#Line: STKALLOC Column]
+add:option:cwSTKALLOCColumnopt:@@JayatriTestEnabled ;;@@cwItemRawMaterialYes
+[!Line: cwSTKALLOCColumnopt]
+add:field:before:STKALLOC NameTitle:snf1
+add:right field:before:STKALLOC QtyTitle:snf40,snf,snf2,sdf,snf10,snf4,snf5
+
+ Local: Field: snf40: INFO:"SupInv No(Dir)"
+ Local: Field: snf: INFO:"No of Bales"
+ Local: Field: snf1: INFO:"Type"
+ Local: Field: snf2: INFO:"LR Number"
+ Local: Field: sdf: INFO:"LR Date"
+ Local: Field: snf10: INFO:"House"
+ Local: Field: snf4: INFO:"Supplier Name"
+ Local: Field: snf5: INFO:"Trans Name"
+;; {24.Apr.24 13:36}  Local: Field: cwmatfld: Set As:$cwItemRawMaterial ;;@@cwItemRawMaterialYes
+ 
+ Local: Field:STKALLOC NameTitle :Info        : $$LocaleString:"SupInv/Bale No"
+ 
+ Local: field:snf : Align: centre
+ Local: field:snf1 : Align: centre
+ Local: field:snf2 : Align: centre
+ Local: field:sdf : Align: centre
+ Local: field:snf4 : Align: centre
+ Local: field:snf5 : Align: centre
+ Local: field:snf10 : Align: centre
+ 
+
+ 
+ /*local: field:snf : Invisible:if @@cwItemRawMaterialYes then no else yes
+ local: field:snf1 : Invisible:if @@cwItemRawMaterialYes then no else yes
+ local: field:snf2 : Invisible:if @@cwItemRawMaterialYes then no else yes
+ local: field:snf3 : Invisible:if @@cwItemRawMaterialYes then no else yes
+ local: field:snf4 : Invisible:if @@cwItemRawMaterialYes then no else yes
+ local: field:sdf : Invisible:if @@cwItemRawMaterialYes then no else yes
+ local: field:snf10 : Invisible:if @@cwItemRawMaterialYes then no else yes*/
+ 
+ [#Line: STKALLOC MainLine]
+ add:option:cwSTKALLOCMainLineopt:@@JayatriTestEnabled ;;@@cwItemRawMaterialYes
+ [!Line: cwSTKALLOCMainLineopt]
+ add:field:before:STKALLOCName:snf1
+ add:right field:before:STKALLOCQty:snf40,snf,snf2,sdf,snf10,snf4,snf5
+
+ Local: Field: snf40: storage:cwDirectPurInvNo;;"SupInv No(Dir)"
+ Local: Field: snf: storage:cwNoofBalespurc ;;cwopNoofBales ;;"No of Bales"
+ Local: Field: snf1: table:cwcolltype,Not Applicable
+ Local: Field: snf1: Show table: Always
+ local:field:snf1:variable:svcost centre
+ local:field:snf1:key:Create Cost Centre, Alter CstCtr
+ Local: Field: snf1: storage:cwTypepurc ;;cwopbatchtype ;;"Type"
+ Local: Field: snf2: storage:cwLRNumberpurc ;;cwopLRNumber ;;"LR Number"
+ Local: Field: sdf: storage:cwLRDatepurc ;;cwopLRDate ;;"LR Date"
+ Local: Field: snf10: storage:cwConsigneeNamepurc ;;cwopHouse ;;"House"
+ Local: Field: snf4: storage:cwSupplierNamepurc ;;cwopSupplierName ;;"Supplier Name"
+ Local: Field: snf5: storage:cwTransporterNamepurc ;;cwopTransName ;;"Trans Name"
+;; {11.Apr.24 18:34}  Local: Field: snf20: storage:cwitemrmstrg
+;; {11.Apr.24 18:31}  Local: Field: snf20: Set As:#cwmatfld ;;@@cwItemRawMaterialYes
+ Local: Field: snf20: Set As:$$owner:@@cwItemRawMaterialYes
+ 
+ Local: Field: snf10: table: collLedgerTable,Not Applicable
+ Local: Field: snf10: Show table: Always
+;; {11.Apr.24 17:47}  Local: Field: snf10: Set As:@@cwLedgerAlias
+
+Local: Field: snf4: table: collLedgerTable,Not Applicable
+ Local: Field: snf4: Show table: Always
+ 
+ Local: Field: snf5: table: collLedgerTable,Not Applicable
+ Local: Field: snf5: Show table: Always
+ 
+ Local: Field: snf40: INACTIVE :$$IsSysName:$BaseUnits
+ Local: Field: snf: INACTIVE :$$IsSysName:$BaseUnits
+ Local: Field: snf1: INACTIVE :$$IsSysName:$BaseUnits
+ Local: Field: snf2: INACTIVE :$$IsSysName:$BaseUnits
+ Local: Field: sdf: INACTIVE :$$IsSysName:$BaseUnits
+ Local: Field: snf4: INACTIVE :$$IsSysName:$BaseUnits
+ Local: Field: snf5: INACTIVE :$$IsSysName:$BaseUnits
+ 
+ 
+ Local: field:snf : Align: centre
+ Local: field:snf1 : Align: centre
+ Local: field:snf2 : Align: centre
+ Local: field:sdf : Align: centre
+ Local: field:snf4 : Align: centre
+ Local: field:snf5 : Align: centre
+ Local: field:snf10 : Align: centre
+ 
+ /*local: field:snf : Invisible:if @@cwItemRawMaterialYes then no else yes
+ local: field:snf1 : Invisible:if @@cwItemRawMaterialYes then no else yes
+ local: field:snf2 : Invisible:if @@cwItemRawMaterialYes then no else yes
+ local: field:snf3 : Invisible:if @@cwItemRawMaterialYes then no else yes
+ local: field:snf4 : Invisible:if @@cwItemRawMaterialYes then no else yes
+ local: field:snf5 : Invisible:if @@cwItemRawMaterialYes then no else yes
+ local: field:sdf : Invisible:if @@cwItemRawMaterialYes then no else yes
+ local: field:snf10 : Invisible:if @@cwItemRawMaterialYes then no else yes*/
+ 
+ [Collection: collLedgerTable]
+ type:ledger
+ Title       		: $$LocaleString:"List of Ledger Accounts"
+  add:SubTitle            : $$LocaleString:"Alias",$$LocaleString:"Name" ;;,$$LocaleString:"Phone Number"
+	Fetch				: cwLedgerAlias,Name
+	Align        	: Right
+	FullHeight  	: Yes
+	Format       	: $cwLedgerAlias , 35
+	Format       	: $Name, 35
+;; {11.Apr.24 17:38} 	Format       	: $LedGSTRegDetails[Last].GSTIN , 30
+;; {11.Apr.24 17:38} 	Format       	: $LedgerMobile , 30
+ 
+  [System: Formula]
+cwLedgerAlias:$$ReptField:Name:2:ledger:$name

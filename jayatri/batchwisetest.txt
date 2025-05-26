@@ -1,0 +1,361 @@
+; Created By: Anil on 2024-07-30 16:15, ID: 
+
+
+; Auto Column Repeat
+/*
+Criteria :
+1 Collection which will be repeated eg : stock item (for stock item name)
+1 Variable which will be repeated (which will store the value of repeated collection)
+1 left field to be repeated (at line level)
+if you want to have multiple repeated fields, then repeat one field and in that field add all the required fields
+eg : repeat : snfNew
+[field : snfnew]
+field : snf,amtf,qtyf etc whatever is required
+
+*/
+
+; Created By: suman on 2011-11-22 15:26
+
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: BatchWisetestLock: @@BatchWisetestDemoLock
+
+     [!menu: BatchWisetestLock]
+        add: Item: before: @@locQuit: @@BatchWisetestReport: Display: RepBatchWisetest
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   BatchWisetestReport: "BatchWisetest Report"
+ BatchWisetestDemoLock: yes ;; $$MachineDate < $$Date:"02/12/2011"
+
+
+
+    [Report: RepBatchWisetest]
+        use: Dsp Template
+      Title: @@BatchWisetestReport
+   Printset: Report Title: @@BatchWisetestReport
+       Form: FrmBatchWisetest
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+      Repeat : MyBatchWisetest
+          Variable: DoSetAutoColumn ;; this is must
+         Set : DoSetAutoColumn : Yes ;; this is must
+          Set : DspRepeatCollection : "MyBatchWisetest" ;;
+          Variable : SVFromDate, SVToDate
+          Variable: MyBatchWisetest
+          variable:str1,str2,str3
+          set:str1:""
+          set:str2:""
+          set:str3:""
+
+
+      [Form: FrmBatchWisetest]
+        use: DSP Template
+       Part: DspAccTitles,PrtBatchWisetest ;;,PrtBatchWisetest2
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: BatchWisetestbotbrk,BatchWisetestbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+  option: setautovchoption : ##Dosetautocolumn AND $$SetAutoColumns:MyBatchWisetest ;; this is must
+add:button:cwStkRepItemfillBtn
+
+ [System : Variable]
+MyBatchWisetest : ""
+
+
+[Variable : MyBatchWisetest]
+repeat : ##DspRepeatCollection
+Default : ""
+Set always : yes
+
+
+
+[Collection: MyBatchWisetest]    ;; this collection is for Repeated Columns
+
+Type : godown ;; set required object here.
+fetch : *
+Filter : BatchWisetestFormula
+keep source : ().
+
+
+[System : Formula]
+BatchWisetestFormula :  $cwShowInReport="yes"
+
+  ;; Now, set the object to actual repeat object (in this case it is stock item so we are
+  ;; modifying Stock ITem
+
+[#Object : Godown]
+    MyBatchWisetest : $nAME
+
+
+      [part: BatchWisetestbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: BatchWisetestbotopbrk]
+        use: dspacctitles
+  add: part: BatchWisetestTitlePart
+
+      [part: BatchWisetestTitlePart]
+       line: LnBatchWisetestTitle
+
+      [line: LnBatchWisetestCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+
+      [Part: PrtBatchWisetest]
+       Line: LnBatchWisetestTitle,LnBatchWisetest
+;; {30.Jul.24 17:15}        bottom Line: LnBatchWisetestTotals
+     repeat: LnBatchWisetest: ColBatchWisetestVerticalmain
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,numf
+      float:no
+;;      vertical:yes
+
+[Collection: ColBatchWisetestVerticalmain]
+source collection:ColBatchWisetestVertical
+walk:allinventoryentries,BatchAllocations
+by:date:$date
+by:vouchernumber:$vouchernumber
+by:vouchertypename:$vouchertypename
+by:batchname:$batchname
+by:GODOWNNAME:$GODOWNNAME
+by:cwLRNumberpurc1:$cwLRNumberpurc
+by:Stockitemname:$Stockitemname
+AGGR COMPUTE:BILLEDQTY:SUM:$BILLEDQTY
+filter:ColItemWiseBatchWiseFilter  ;;,cwStockItemNamexfilter
+;; {31.Jul.24 10:52} filter:cwStockItemNamexfilter
+filter:cwStkItemfillItemxx,cwStkItemfillItemxx2,cwStkitembatchfltxx
+
+
+[Collection: ColBatchWisetestVertical]  ;; this collection is normal (going down)
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColBatchWisetestVFilter,IsNonOptionalCancelledVchs
+     sort : @@default : $vouchertypename
+keep source : ().
+
+    [system: Formula]
+ColBatchWisetestVFilter: $$IsJobMaterialReceive:$VoucherTypeName or $$IsJobMaterialIssue:$VoucherTypeName and @@cwMrkolOpt or @@cwmrkolDirOpt or @@cwMoKataOpt or @@cwMrKataOpt or @@cwMoDoOpt or @@cwMrdoOpt ;;$cwFectoryReceive:vouchertype:$vouchertypename or $cwDirectPurchasevchtype:vouchertype:$vouchertypename
+;; {31.Jul.24 14:25} ColBatchWisetestVFilter: $$IsJobMaterialReceive:$VoucherTypeName and $cwFectoryReceive:vouchertype:$vouchertypename="yes" or $cwDirectPurchasevchtype:vouchertype:$vouchertypename="yes" or @@cwMrKataOpt or @@cwMrdoOpt
+ColItemWiseBatchWiseFilter: $godownnAME="Factory Unfinished (Paikpara)" OR $godownnAME="NAV JIWAN (Job Worker)"
+
+
+
+/*
+
+   [line:closingstockline]
+     use: LnBatchWisetest
+local:field: sdf: set as:""
+local:field: snf: set as:""
+local:field: nf: set as: "Opening Stock"
+local:field: numf : set as:$openingbalance:stockitem:##myBatchWisetest
+local:field:default:style:normal bold
+*/
+
+
+      [Line: LnBatchWisetestTitle]
+        use: LnBatchWisetest
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as:"Date"
+local:field: snf: set as: "Vch No."
+local:field: snf1: set as: "Vch Type"
+local:field: snf2: set as: "Batch"
+local:field: snf3: set as: "LR NO"
+;; {30.Jul.24 17:08} local:field: snf0: set as: "LR NO"
+local:field: nf: set as: "Name of Item"
+;; {30.Jul.24 17:20} local : field : NEWSNFX : delete : FIELD
+local:field: NUMF : set as :##myBatchWisetest
+      local: field: default : style: normal bold
+      local: field: NUMF: type: String
+ local:field:default:align:centre
+ local:field:numf:line:0
+ 
+ [FIELD:NEWSNFX]
+ FIELD:NUMF,SNF20
+ local:field: SNF20 : set as :##myBatchWisetest
+ local: field:snf20: Invisible: yes
+
+      [Line: LnBatchWisetest] ;; main line
+     Fields: sdf,snf,snf1,snf2,snf3,nf,SNF10,NUMF2,NEWSNFX;;numf
+;;right field: snf2
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field :sdf : alter : voucher : $$isvoucher
+Local: Field: sdf: Set As:$date
+Local: Field: snf: Set As:$vouchernumber
+local:field: snf1: set as:$vouchertypename ;;"Vch Type"
+local:field: snf2: set as: $batchname ;;"Batch"
+local:field: snf3: set as: $cwLRNumberpurc1 ;;"LR NO"
+local:field: nf: set as: $Stockitemname ;;"Name of Item"
+Local: Field: SNF10: Set As: $GODOWNNAME
+Local: Field: NUMF2: Set As: $BILLEDQTY
+;; {30.Jul.24 17:13} local:field: NUMF: set as: $$FilterqtyTotal:ColItemWiseBatchWisemain:cwitembatch:$CLOSINGBALANCE ;;"Name of Item"
+local:field: NUMF: set as:$$collectionfieldbykey:$closingbalance:@@cwmramtfltrXX:ColItemWiseBatchWisemainnew ;;of Item"
+;; {31.Jul.24 10:05} local:field: NUMF: set as:$$number:$$AsSignedQty:$$GodownItemValue:#SNF20:#nf:$ClosingBalance
+                                                                                        ;; "godown":Itemname
+repeat:NEWSNFX ;;numf ;; The Field to Repeat ;; Only Left Field is repeated
+local:field:default:border:thin left
+
+local: field: numf2: Invisible: yes
+local: field: snf10: Invisible: yes
+;; ##myBatchWisetest will hold the current column value.
+
+[System: Formula]
+;; {30.Jul.24 17:00} cwmramtfltrXX : $stockitemname = ##myBatchWisetest
+cwmramtfltrXX : #nf+#SNF20+#snf2 ;;##myBatchWisetest ;;+#snf3
+;; {30.Jul.24 17:02} SEARCH KEY:$PARENT+$BATCHNAME+$GODOWNNAME+$cwLRNumberpurc
+
+
+
+;;==========================
+
+
+[Collection: ColItemWiseBatchWisemainnew]
+
+;; {30.Jul.24 17:25} source Collection: souColItemWiseBatchWisemain
+source Collection: souColItemWiseBatchWisemain
+by:name:$name
+by:PARENT:$PARENT
+by:GODOWNNAME:$GODOWNNAME
+ aggr compute:closingbalance:sum:$$number:$closingbalance
+ SEARCH KEY:$PARENT+$GODOWNNAME+$name ;;+$cwLRNumberpurc
+
+[Collection: souColItemWiseBatchWisemain]
+
+collection:ColBatchWise:ColItemWise
+
+;;==========================
+
+[Collection: cwStkVchGdwnBatchOPBal]
+
+	Source Collection	: cwStkVchStockItems
+	Walk				: BatchAllocations
+	By					: StockItemName : $$Owner:$Name
+	By				 	: BatchName		: $BatchName
+	By					: GodownName    : $GodownName
+	Aggr Compute		: closingbalance	: Sum : $closingbalance ;;$OpeningValue
+	Search Key			: $StockItemName +  $GodownName + $BatchName
+;; {31.Jul.24 10:06} filter:cwStockItemNamexfilter	
+[Collection: cwStkVchStockItems]
+type:stock item
+;; {31.Jul.24 09:55} filter:cwStockItemNamexfilter
+
+[System: Formula]
+;; {31.Jul.24 09:55} cwStockItemNamexfilter:$StockItemName="PRINTED BEDSHEET CLOTH (48X52)"
+cwStockItemNamexfilter:$$Owner:$Name="PRINTED BEDSHEET CLOTH (48X52)"
+
+;;===========================
+[Collection: ColBatchWisetestVerticalmain2]
+source collection:ColBatchWisetestVertical
+walk:allinventoryentries,BatchAllocations
+by:date:$date
+by:vouchernumber:$vouchernumber
+by:vouchertypename:$vouchertypename
+by:batchname:$batchname
+by:GODOWNNAME:$GODOWNNAME
+by:cwLRNumberpurc1:$cwLRNumberpurc
+by:Stockitemname:$Stockitemname
+AGGR COMPUTE:BILLEDQTY:SUM:$BILLEDQTY
+ SEARCH KEY:$Stockitemname+$GODOWNNAME
+
+[line:lnBatchWisetesttotals]
+  use:LnBatchWisetest
+  Local: Field: nf: Set As:  " Total"
+  local: field: numf : set as : $$total:numf
+      delete : repeat
+      replace : field : numf : numf5
+      add : repeat : numf5
+      local: field:numf5: set as:$$total:numf
+      Local: Field: default: Style: Normal Bold
+
+
+
+;;====================================
+ [button:cwStkRepItemfillBtn]
+    title:"Filter"
+    key:f7
+    action : modify variable :cwStkRepItemfillBtn
+
+
+        [Report: cwStkRepItemfillBtn]
+        form   : cwStkRepItemfillBtn
+        [form  :cwStkRepItemfillBtn]
+         part   :cwStkRepItemfillBtn
+        ; height:30% page
+        width:45% page
+       ;  Background  :Very Light Blue ;;@@SV_UNYELLOW
+
+        [part  :cwStkRepItemfillBtn]
+        line:cwStkRepfillTitx,cwItembatchnameFiltLn,cwItembatchnameFiltLn2,cwItembatchnameFiltLn3 ;;,cwItembatchnameFiltLn4 ;;,cwbatchnameFiltLn5
+
+
+        [line:cwStkRepfillTitx]
+        field:fwfc
+        Local: Field: fwfc: info: "Filter"
+        Local: Field: fwfc: Style: Normal Bold
+
+          [line:cwItembatchnameFiltLn]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"Item"
+     Local: Field: nf:modifies:str1
+     Local: Field: Medium Prompt: Style: Normal Bold
+     Local: Field: nf: table:collstkitemxx2,Not Applicable
+     Local: Field: nf: Show table: Always
+     space top:0.3
+
+     [Collection: collstkitemxx2]
+     type:stock item
+
+
+      [line:cwItembatchnameFiltLn2]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"LR No."
+     Local: Field: nf:modifies:str2
+     Local: Field: Medium Prompt: Style: Normal Bold
+     
+     [line:cwItembatchnameFiltLn3]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"Batch"
+     Local: Field: nf:modifies:str3
+     Local: Field: Medium Prompt: Style: Normal Bold
+
+
+/* [line:cwItembatchnameFiltLn3]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"Godown"
+     Local: Field: nf:modifies:str3
+     Local: Field: Medium Prompt: Style: Normal Bold
+     Local: Field: nf: table:collstkgodownxx,Not Applicable
+     Local: Field: nf: Show table: Always
+
+ [line:cwItembatchnameFiltLn4]
+     field:Medium Prompt,nf
+     Local: Field: Medium Prompt: Set As:"Godown2"
+     Local: Field: nf:modifies:str4
+     Local: Field: Medium Prompt: Style: Normal Bold
+     Local: Field: nf: table:collstkgodownxx,Not Applicable
+     Local: Field: nf: Show table: Always     */
+
+
+
+     [System: Formula]
+     cwStkItemfillItemxx:if $$issysname:##str1 then yes else $Stockitemname= ##str1
+     cwStkItemfillItemxx2:if $$issysname:##str2 then yes else $cwLRNumberpurc1= ##str2
+     cwStkitembatchfltxx:if $$issysname:##str3 then yes else $batchname= ##str3

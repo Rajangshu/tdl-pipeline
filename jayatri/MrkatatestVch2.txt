@@ -1,0 +1,288 @@
+; Created By: Anil on 2024-07-15 17:51, ID:
+
+[#Form: VchSuppl DespatchOrderDetails]
+add:option:cwVchSupplDespatchOrderDetailsopt:@@cwHouseMaterialInyesxx
+[!Form: cwVchSupplDespatchOrderDetailsopt]
+on : form accept : yes : form accept
+on : form accept : yes : call : fillMrkataname
+;; {16.Jul.24 17:50} Local: Field: default: Border: thin box ;;left right
+
+[System: Formula]
+cwHouseMaterialInyesxx:$cwHouseMaterialIn:vouchertype:$vouchertypename
+
+;;1 in Report, add
+[#Report: Voucher]
+list Variable: Mrkataname
+	
+
+;;2 in Form, add
+;; {16.Jul.24 18:51} [#Form: Voucher]
+;; {16.Jul.24 18:51} set: logi1 : $$fillMrkataname
+		
+;;3 variable definition
+
+
+[variable : Mrkataname]
+variable :uniqueElementName : string
+variable: mymasterid1:string
+variable: cwitemname:string
+variable: cwbatchname:string
+variable:cwgodownname:string
+variable:mycwNoofBalespurc:string
+variable:mycwLRNumberpurc:string
+variable:mycwLRDatepurc:date
+;; {17.Jul.24 12:26} variable:myBasicPurchaseOrderNo:string
+variable:mycwConsigneeNamepurc:string
+variable:mycwSupplierNamepurc:string
+variable:mycwTransporterNamepurc:string
+variable:mycwHousesuppinvno:string
+variable:mycwDirectPurInvNo:string
+variable:mycwUpdateSubQtydo:Quantity
+variable:mycwpplineno:string
+variable:mycwpplinenokataord:string
+variable:myClosingBalance:Quantity
+variable:mycwUpdateSubQtydo:Quantity
+;; {17.Jul.24 10:29} variable:$Closingrate,10
+variable:myClosingValue:Amount
+
+
+;;4		
+
+     [collection : cwMRKATAOrdermain]
+     source collection:cwMRKATAOrdersrc
+     walk:inventoryentries,BatchAllocations
+      by:ParentItem:$ParentItem  ;;$...stockItemname
+by:masterid1:$masterid
+by:godownname:$godownname
+by:stockitemname1:$stockitemname
+by:partyledgername:$partyledgername
+by:batchname:$batchname
+by:vouchernumber1:$vouchernumber
+compute:cwNoofBalespurc1:$cwNoofBalespurc
+compute:cwLRNumberpurc1:$cwLRNumberpurc
+compute:cwLRDatepurc1:$cwLRDatepurc
+compute:cwSupplierNamepurc1:$cwSupplierNamepurc
+compute:cwConsigneeNamepurc1:$cwConsigneeNamepurc
+compute:cwTransporterNamepurc1:$cwTransporterNamepurc
+compute:cwHousesuppinvno1:$cwHousesuppinvno
+compute:cwDirectPurInvNo1:$cwDirectPurInvNo
+compute:cwUpdateSubQtydo1:$cwUpdateSubQtydo
+;; {10.Sep.24 11:28} compute:cwUpdateSubQtydo1:$billedqty-$..cwUpdateSubQtydo
+;; {17.Jul.24 12:29} compute:cwUpdateSubQtyminnewfil2x:@@cwUpdateSubQtyminnewfil2
+compute:cwpplineno1:$..cwpplineno
+compute:cwpplinenokataord1:$..cwpplinenokataord
+compute:rate:$rate
+;; {10.Sep.24 11:59} aggr compute:billedqty1:sum:$billedqty
+compute:billedqty1:$billedqty ;;-$..cwUpdateSubQtydo
+aggr compute:amount:sum:$amount
+
+     [collection : cwMRKATAOrdersrc]
+     Use: Vouchers of Company
+     delete: filter : daybookfilter
+     parmvar : svfromdate : date : ##cwOrderDate
+     parmvar : svtodate : date : ##cwOrderDate
+     filter:cwMRKATAOrderfilter
+
+[System: Formula]
+cwMRKATAOrderfilter:$Reference=##cworderNo
+
+
+[system : variable]
+list variable : Mrkataname
+
+[#report : voucher]
+list variable : Mrkataname
+
+;;5
+		[function: fillMrkataname]
+		variable: MrkatanameIndexVar : string
+		variable : loopIndexVar : string
+                variable: MrkatanameId : number
+		variable : cworderNo  : string
+		variable : cwOrderDate : date
+	00:log:"infunction"
+         10 : LIST DELETE	: Mrkataname
+	
+         11 : walk collection :  INVOICEORDERLIST ;;MrkataTMainCollection
+	 12 : set : cwOrderNo : $basicPurchaseOrderNo
+	 13 : set : cwOrderDate : $basicOrderDate
+
+         14: walk collection : cwMRKATAOrdermain
+         15 : log object
+;; {17.Jul.24 12:11}          16 : end walk
+
+
+         20 : set : loopIndexVar : $$loopIndex
+
+         25 : set :MrkatanameIndexVar:  ##loopIndexVar + $masterId1 + $stockItemName1 + $batchName
+
+ 	30 : if : not $$listfind:Mrkataname:##MrkatanameIndexVar
+	
+        40 : list add : Mrkataname : ##MrkatanameIndexVar
+	
+        41 : set : MrkatanameId : $$listIndex:Mrkataname:##MrkatanameIndexVar
+	
+	
+        50 : set : Mrkataname[##MrkatanameId].uniqueElementName : ##MrkatanameIndexVar
+	
+        60 : else
+	
+        70 : set : MrkatanameId : $$listIndex:Mrkataname:##MrkatanameIndexVar	
+	
+        80 : end if
+	
+        81 : set : Mrkataname[##MrkatanameId].cwitemname : $stockitemname1
+	82 : set : Mrkataname[##MrkatanameId].cwbatchname : $batchname
+	83 : set : Mrkataname[##MrkatanameId].cwgodownname : $godownname
+	84 : set : Mrkataname[##MrkatanameId].mycwNoofBalespurc : $cwNoofBalespurc1
+	85 : set : Mrkataname[##MrkatanameId].mycwLRNumberpurc : $cwLRNumberpurc1
+	86 : set : Mrkataname[##MrkatanameId].mycwLRDatepurc : $cwLRDatepurc1
+	87 : set : Mrkataname[##MrkatanameId].mycwConsigneeNamepurc : $cwConsigneeNamepurc1
+	88 : set : Mrkataname[##MrkatanameId].mycwSupplierNamepurc : $cwSupplierNamepurc1
+	89 : set : Mrkataname[##MrkatanameId].mycwTransporterNamepurc : $cwTransporterNamepurc1
+	89a : set : Mrkataname[##MrkatanameId].mycwHousesuppinvno : $cwHousesuppinvno1
+	89b : set : Mrkataname[##MrkatanameId].mycwDirectPurInvNo : $cwDirectPurInvNo1
+	89c : set : Mrkataname[##MrkatanameId].mycwpplineno : $cwpplineno1
+	89d : set : Mrkataname[##MrkatanameId].myClosingBalance : $billedqty1
+	89e : set : Mrkataname[##MrkatanameId].myClosingValue : $amount
+	89f : set : Mrkataname[##MrkatanameId].mymasterid1 : $masterid1
+	89g : set : Mrkataname[##MrkatanameId].mycwUpdateSubQtydo : $cwUpdateSubQtydo1
+	89h : set : Mrkataname[##MrkatanameId].mycwpplinenokataord : $cwpplinenokataord1
+	
+	
+;; {17.Jul.24 12:49}         90 : set : Mrkataname[##MrkatanameId].lvQuantity : $qty
+	
+
+       2220 : end walk
+
+        2222 : end walk
+	
+	;;6 collection
+	
+	
+	
+	[collection : MrkataItemname]
+   data source: variable : Mrkataname
+;; {15.Jul.24 18:22}          format : $element,10
+;; {16.Jul.24 12:25}          format : $lvStockItemName,10
+         by : cwitemname : $cwitemname
+         format : $cwitemname,10
+;; {17.Jul.24 12:41}          format : $cwbatchname,10
+;; {17.Jul.24 12:41}          format : $myClosingBalance,10
+
+
+	[collection : MrkataBatchname]
+	Title       		: $$LocaleString:"List of Active Batches"
+add:SubTitle            : $$LocaleString:"Batch",$$LocaleString:"Godown",$$LocaleString:"Item Name",$$LocaleString:"No of Bale",$$LocaleString:"Lr No",$$LocaleString:"Lr Date",$$LocaleString:"House",$$LocaleString:"Transporter",$$LocaleString:"Sup Name",$$LocaleString:"Sup Inv",$$LocaleString:"Sup Inv(Dir)",$$LocaleString:"Line No",$$LocaleString:"Mast Id",$$LocaleString:"Sub Qty",$$LocaleString:"Rate",$$LocaleString:"Balance"
+
+     data source: variable : Mrkataname
+;; {15.Jul.24 18:22}          format : $element,10
+;; {16.Jul.24 12:25}          format : $lvStockItemName,10
+         format : $cwbatchname,10
+         format : $cwgodownname,10
+         format : $cwitemname,10
+         format : $mycwNoofBalespurc,10
+         format : $mycwLRNumberpurc,10
+         format : $mycwLRDatepurc,10
+         format : $mycwConsigneeNamepurc,10
+         format : $mycwTransporterNamepurc,10
+         format : $mycwSupplierNamepurc,10
+         format : $mycwHousesuppinvno,10
+         format : $mycwDirectPurInvNo,10
+         format : $mycwpplineno,10
+;; {10.Sep.24 11:26}          format : $mycwpplinenokataord,10
+         format : $mymasterid1,10
+         format : $mycwUpdateSubQtydo,10
+         format : $myClosingBalance,10
+
+         filter : cwmrkataGodownfilter ;;,cwMrKataUpdateSubQtyfilternew
+
+         [System: Formula]
+         cwmrkataGodownfilter:#cwconsgodownfKc=$cwgodownname
+         cwMrKataUpdateSubQtyfilternew:not $$isempty:$mycwUpdateSubQtydo
+         cwUpdateSubQtyminnewfil2: $myClosingBalance-$mycwUpdateSubQtydo
+
+       /*  [collection: MrkataTMainCollection]
+          source collection:default;;ColKataCheckingMatOutRepx
+          walk:inventoryentriesout,BatchAllocations
+          by:stockitemname1:$stockitemname
+          format: $stockitemname1,10
+          format: $collBatchName,10
+          format: $qty,10
+
+          fetch:stockitemname */
+
+         ;- ---------- Example
+
+
+/*
+1 in Report, add
+	list Variable: lvTest
+	
+
+
+2 in Form, add
+		set: logi1 : $$fillLvTest
+		
+3 variable definition
+
+[variable : lvTest]
+variable : uniqueElementName : string
+variable : lvStockItemName : string
+variable: lvBatchName : string
+variable: lvQuantity : quantity
+
+
+4		
+
+[system : variable]
+list variable : lvTest
+
+5
+		[function: fillLvTest]
+	 	 variable: lvTestIndexVar : string
+		 variable: lvTextId : number
+
+	10 : LIST DELETE	: lvTest
+
+	20 : walk collection :  lvTestMainCollection
+
+	25 : set :lvTestIndexVar :  $stockItemName +  $batchName
+	
+	30 : if : not $$listfind:lvTest:##lvTestIndexVar
+	
+        40 : list add : lvTest : ##lvTestIndexVar
+	
+	41 : set : lvTextId : $$listIndex:lvTest:##lvTestIndexVar
+	
+        50 : set : lvTest[##lvTextId].uniqueElementName : ##lvTestIndexVar
+	
+        52 : set : lvTest[##lvTextId].lvStockItemName : $collStockItemName
+	54 : set : lvTest[##lvTextId].lvBatchName : $collBatchName
+	
+        60 : else
+	
+        70 : set : lvTextId : $$listIndex:lvTest:##lvTestIndexVar	
+	
+        80 : end if
+	
+        90 : set : lvTest[##lvTextId].lvQuantity : $qty
+	
+        2222 : end walk
+	
+	6 collection
+	
+     [collection: lvTest]
+     data source: variable : lvTest
+         format : $lvStockItemName,10
+         format : $lvBatchName,10
+         format : $lvQuantity,10
+
+     [collection: lvTestMainCollection]
+           ; has following collection attributes
+          format: $collStockItemName,10
+          format: $collBatchName,10
+          format: $qty,10  */
+
+
+

@@ -1,0 +1,260 @@
+; Created By: Anil on 2024-05-04 17:12, ID: 
+
+; Created By: Khokan on 2024-04-13 13:02, ID:
+
+[System: Formula]
+cwpddexportpathopt:$cwpddexportpath:company:##svcurrentcompany
+
+[line:cwpddexportpathline]
+field:sp,fwf
+
+Local: Field: sp: info: "Export Path"
+Local: Field: fwf: storage:cwpddexportpath
+Local: Field: fwf:max:400
+Local: Field: fwf: Style: Normal Bold
+Local: Field: default: Color : blue
+Local: field: sp: Width:20
+
+;;local: field: default: inactive:not $SelectedVoucherExportEnabled
+
+
+;;=================================
+;;[#line:GST VCHGSTInvPrintBody]
+;;height:1.2
+
+
+;;=============================
+
+[#form : Day Book]
+add:option:cwexppdfopt:@@JayatriTestEnabled ;;MinuSareeEnabled
+
+[!form:cwexppdfopt]
+add:button:cwexportpdf
+
+
+[button:cwexportpdf]
+title:"Export PDF"
+key:Alt+q
+action :call:cwexportpdf
+Scope  : Selected Lines
+
+[Collection: selectedvoucher]	
+Data Source: Report: Selected
+
+
+ [Function: cwexportpdf]
+variable : cwExportLocation : string : @@cwpddexportpathopt
+variable : cwExportFileName :string
+variable : CwPDfFileNameWithPath : string
+variable : ledgername  : string
+VARIABLE : isfexists : LOGICAL : NO
+variable : vchno : string
+variable : vchdate : date
+variable : vouchertypename : string
+variable : vchamt : amount
+Variable: SVPrintOrientation :string
+variable : mstid : string
+
+10:walk collection:selectedvoucher
+
+;; {18.Apr.24 12:40} 011 :set :cwExportFileName:$$cwReplaceCharacters:$vouchernumber:"/":"_"
+011 :set :cwExportFileName:$$cwReplaceCharacters:$guid:"/":"_"
+012 :set :CwPDfFileNameWithPath:##cwExportLocation + ##cwExportFileName
+013 :set :ledgername:$FirstLedger
+014 :set :vchno:$vouchernumber
+015 :set :vchdate:$date
+016 :set :vouchertypename:$vouchertypename
+017 :set :vchamt:$amount
+018 :set :mstid:$masterid
+
+
+
+100 : SET : SVExportLocation	: ##cwExportLocation
+110 : SET : SVExportFormat	: $$SysName:PDF
+120 : SET : SVPrintFileName	: ##cwExportLocation+##cwExportFileName
+
+130 : set : isfexists : $$isfileexists:##SVPrintFileName
+
+140 : SET : SVPrintFileName	: $$MakeExportName:##SVPrintFileName:##SVExportFormat
+
+150 : do if : ##isfexists : TriggerKey:Enter
+155 : set : SVOpenFileAfterExport : no
+
+160:Set : Is Ledger Report  : Yes
+170:Set : DSPWithOpening    : Yes
+180:Set : DSPShowMonthly    : No
+190:Set : DSPHasMultiLevel  : No
+200:Set : DSPNotScaleable   : Yes
+210:Set : DSPHasColumnTotal : No
+220:Set: BankRecMode       : No
+225:Set : SVPrintOrientation :$$SysName:portrait
+226:Set : SVPaperSize		: "A4"
+227:Set : SVBrowserWidth	:"210"
+228:Set : SVBrowserHeight	:"297"
+
+900	: call	:cwsentpdf: ##mstid
+
+
+1000: end walk
+
+
+ [#Collection: Vouchers of Company]
+ fetch:guid
+ [#Collection: Daybook Vouchers of Company]
+ fetch:guid
+ [#Collection: Modified Vouchers of Company]
+
+ fetch:guid
+
+ [#collection:Specific Vouchers of Company]
+ fetch:guid
+
+
+[Function: cwsentpdf]
+	Parameter : VchId2 : String
+	VARIABLE : VCHID : STRING
+	01 : SET : VCHID : $$SPrintf:"ID:%s":##VCHID2
+	05	 : SET OBJECT 	: (Voucher, ##VchId).
+        70  : export  :Mypdfinvoice : true
+
+ [report: Mypdfinvoice]
+
+ use : Printed Invoice
+ TITLE :"Invoice"
+OBJECT : VOUCHER :##VCHID
+fetch object : voucher : ##VCHID : *.*
+print set : report title :"Invoice"
+Print Set: PrintFileName  :"Invoice"
+
+Local: part:EXPINV Company:add:bottom lines:cwexpcmpgstinline,cwexpcmpstatepart
+
+[line:cwexpcmpgstinline]
+ field:fwf
+ Local: Field: fwf: Set As:"GSTIN/UIN : "+@@VATCMPGSTNumber
+
+
+[line:cwexpcmpstatepart]
+ field:fwf
+ Local: Field: fwf: Set As:"State Name : "+@@cwexpcmpStateNameAndCode
+
+ space bottom:1
+
+
+ [System: Formula]
+ cwexpcmpStateName:$statename:COMPANY:##SVCURRENTCOMPANY
+cwexpcmpStateCode: If $$IsEmpty:$$getgststatecode:@@cwexpcmpStateName Then "" else $$getgststatecode:@@cwexpcmpStateName
+
+cwexpcmpStateNameAndCode : If $$IsEmpty:$$getgststatecode:@@cwexpcmpStateName Then @@cwexpcmpStateName Else +
+     @@cwexpcmpStateName + ", Code : " + $$getgststatecode:@@cwexpcmpStateName
+
+
+;;==============================================================================
+[#form :sales color]
+
+[System: Formula]
+cwsalescrdrpdf:$$isSales:$voucherTypeName or $$IsCreditNote:$voucherTypeName or $$isdebitnote:$voucherTypeName
+
+[#form :voucher]
+;; {13.Apr.24 15:02} [#form :sales color]
+add:option:cwexppdfslclropt:@@JayatriTestEnabled
+
+[!form:cwexppdfslclropt]
+
+ on : form Accept : @@cwsalescrdrpdf : Form Accept
+ on : form Accept : @@cwsalescrdrpdf : Call : cwexportslclrpdf
+
+
+[button:cwexportslclrpdf]
+title:"Export PDF"
+key:Alt+q
+action :call:cwexportslclrpdf
+
+
+
+[Function: cwexportslclrpdf]
+variable : cwExportLocation : string : @@cwpddexportpathopt
+variable : cwExportFileName :string
+variable : CwPDfFileNameWithPath : string
+variable : ledgername  : string
+VARIABLE : isfexists : LOGICAL : NO
+variable : vchno : string
+variable : vchdate : date
+variable : vouchertypename : string
+variable : vchamt : amount
+Variable: SVPrintOrientation :string
+variable : mstid : string
+
+
+;; {18.Apr.24 12:40} 011 :set :cwExportFileName:$$cwReplaceCharacters:$vouchernumber:"/":"_"
+011 :set :cwExportFileName:$$cwReplaceCharacters:$guid:"/":"_"
+012 :set :CwPDfFileNameWithPath:##cwExportLocation + ##cwExportFileName
+013 :set :ledgername:$partyledgername
+014 :set :vchno:$vouchernumber
+015 :set :vchdate:$date
+016 :set :vouchertypename:$vouchertypename
+017 :set :vchamt:$amount
+018 :set :mstid:$masterid
+;;111a:log:##cwExportLocation
+
+
+
+100 : SET : SVExportLocation	: ##cwExportLocation
+110 : SET : SVExportFormat	: $$SysName:PDF
+120 : SET : SVPrintFileName	: ##cwExportLocation+##cwExportFileName
+
+130 : set : isfexists : $$isfileexists:##SVPrintFileName
+
+140 : SET : SVPrintFileName	: $$MakeExportName:##SVPrintFileName:##SVExportFormat
+
+150 : do if : ##isfexists : TriggerKey:Enter
+155 : set : SVOpenFileAfterExport : no
+
+170:Set : DSPWithOpening    : Yes
+180:Set : DSPShowMonthly    : No
+225:Set : SVPrintOrientation :$$SysName:portrait
+226:Set : SVPaperSize		: "A4"
+227:Set : SVBrowserWidth	:"210"
+228:Set : SVBrowserHeight	:"297"
+
+900	: call	:cwsentpdfqq: ##mstid
+
+
+[Function: cwsentpdfqq]
+	Parameter : VchId2 : String
+	VARIABLE : VCHID : STRING
+	01 : SET : VCHID : $$SPrintf:"ID:%s":##VCHID2
+	05	 : SET OBJECT 	: (Voucher, ##VchId).
+        70  : export  :Mypdfinvoicex : true
+
+ [report: Mypdfinvoiceqq]
+
+ use : Printed Invoice
+ TITLE :"Invoice"
+OBJECT : VOUCHER :##VCHID
+fetch object : voucher : ##VCHID : *.*
+print set : report title :"Invoice"
+Print Set: PrintFileName  :"Invoice"
+
+
+ [report: Mypdfinvoicex]
+Form     :cwTallyinvoicex
+OBJECT : VOUCHER :##VCHID
+
+fetch object : voucher : ##VCHID : *.*
+TITLE :"Tax Invoice"
+print set : report title :"Tax Invoice"
+Variable: SVPrintOrientation
+Set: SVPrintOrientation :$$SysName:portrait
+
+
+[form : cwTallyinvoicex]
+use:ComprehensiveInvoice
+;; {13.Apr.24 14:52} Parts       : STDInvoiceTop, EXPINV OpPageBreak, EXPINV Details
+;; {13.Apr.24 15:00} Parts       :  EXPINV Details
+
+ Width       : @@InvWidth Inch  ;;8.5 inch  ;;@@InvWidth Inch
+ Height      : @@InvHeight Inch ;;12 inch  ;;@@InvHeight Inch
+ Space Top   : @@InvSpace inch
+ Space Right : 0.5 inch
+ Space Left  : 0.5 inch
+

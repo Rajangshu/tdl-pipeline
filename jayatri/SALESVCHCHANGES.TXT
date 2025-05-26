@@ -1,0 +1,802 @@
+; Created By: Anil on 2024-04-08 13:17, ID: 
+
+
+;;========================================================
+ [#Field: Plain VCH Date]
+ ADd : Option : Plain VCH Date Control Field :@@cwSystemdatemsopt
+
+
+ [!Field : Plain VCH Date Control Field]
+ Skip : Yes
+ Setas:$$MachineDate
+
+ [#Field: Plain VCH EffDate]
+ Add :OPtion : Plain VCH EffDate Control Field : @@cwSystemdatemsopt
+
+ [!Field : Plain VCH EffDate Control Field]
+ Skip : Yes
+ Setas:$$MachineDate
+ 
+ ;;===========================
+[#Part: EI Consignee]
+add:option:cwEIConsigneesalevchopt:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@JayatriTestEnabled and @@cwnewEnableInvoiceCostopt
+[!Part: cwEIConsigneesalevchopt]
+width:50% Screen
+
+[#Line: EI Consignee]
+add:option:cwEIConsigneesalevchopt2:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@JayatriTestEnabled and @@cwnewEnableInvoiceCostopt
+[!Line: cwEIConsigneesalevchopt2]
+Local 		: Field : EI Consignee: full Width :yes	
+
+[#Part: VCHTitleLeft]
+add:option:cwVCHTitleLeftopt:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@JayatriTestEnabled and @@cwnewEnableInvoiceCostopt
+
+[!Part: cwVCHTitleLeftopt]
+add:line:after:VCH Type:CWnetsalesline
+
+[line:CWnetsalesline]
+field:sp,cwlogical
+
+Local: Field: sp: Set As:"Net Sales"
+ Local: Field:cwlogical: storage:cwnetsales
+ Local: field: sp: Width:16
+ Local: Field: sp: Style: style2x
+ Local: Field: cwlogical: Style: style1y
+ space TOP:0.5
+ 
+ [#Part: EI PartyInfo]
+ add:option:cwEIPartyInfosalevchopt:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@JayatriTestEnabled and @@cwnewEnableInvoiceCostopt
+ 
+ [!Part: cwEIPartyInfosalevchopt]
+ add:right part:cwNoofbalepart
+        
+[part:cwNoofbalepart]
+line:cwnoofbaleLine,cwVchsalespersonline,cwVchAreaLine
+;; {09.Apr.24 14:14} border:thin box
+
+[System: Formula]
+cwnewEnableInvoiceCostopt:$cwEnableCostnw:vouchertype:$vouchertypename="yes"
+
+[line:cwnoofbaleLine]
+field:sp,snf,sp1,snf1,sp2,snf2 ;;,sp3,snf3
+
+Local: Field: sp: info : "No Of Bales"
+Local: Field: sp1: info: "Sales Person"
+Local: Field: sp2: info: "ASM"
+Local: Field: snf: storage:cwnofobales
+Local: Field: snf1: storage:cwcaption1vch ;;Sales Person
+Local: Field: snf2: storage:cwcaption2vch  ;;ASM
+Local: Field: snf1: set as:$cwSalesPersonled:ledger:$partyledgername
+Local: Field: snf2: set as:$cwAsmled:ledger:$partyledgername
+
+Local: Field: snf1: table:collcwSalesPersonled,Not Applicable
+Local: Field: snf1: Show table: Always
+Local: Field: snf1:Key      :Create Ledger, Alter Ledger
+Local: Field: snf1:Variable :SV Ledger
+
+Local: Field: snf2: table:collcwAsmled ,Not Applicable
+Local: Field: snf2: Show table: Always
+
+local:field:snf2:variable:svcost centre
+local:field:snf2:key:Create Cost Centre, Alter CstCtr
+
+Local: field: sp: Width:18 ;;14
+Local: field: sp1: Width:18 ;;14
+Local: field: snf: Width:20
+Local: field: snf1: Width:50
+Local: field: snf2: Width:30
+space bottom : 0.10
+
+ Local: Field: default: Style: style2y
+
+[line:cwVchsalespersonline]
+field:sp,snf,sp1,snf1,sp2,snf2;;,sp3,snf3
+
+Local: Field: sp: info:"RSM"
+Local: Field: sp1: info: "Agent Name"
+Local: Field: sp2: info: "Area"
+Local: Field: snf: storage:cwcaption3vch  ;;RSM
+Local: Field: snf1: storage:cwcaption4vch ;;Agent Name
+Local: Field: snf2: storage:cwcaption6vch ;;Area  cwcaption5vch
+Local: Field: snf: set as:$cwRsmled:ledger:$partyledgername
+Local: Field: snf1: set as:$cwAgentled:ledger:$partyledgername
+Local: Field: snf2: set as:$cwArealed:ledger:$partyledgername
+
+Local: Field: snf: table:collcwRsmled ,Not Applicable
+Local: Field: snf: Show table: Always
+local:field:snf:variable:svcost centre
+local:field:snf:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: snf1: table:collcwAgentled ,Not Applicable
+Local: Field: snf1: Show table: Always
+Local: Field: snf1:Key      :Create Ledger, Alter Ledger
+Local: Field: snf1:Variable :SV Ledger
+
+Local: Field: snf2: table:collcwArealed ,Not Applicable
+Local: Field: snf2: Show table: Always
+local:field:snf2:variable:svcost centre
+local:field:snf2:key:Create Cost Centre, Alter CstCtr
+
+Local: field: sp: Width:18 ;;14
+Local: field: sp1: Width:18 ;;14
+Local: field: snf: Width:20
+Local: field: snf1: Width:50
+Local: field: snf2: Width:30
+space bottom : 0.10
+
+Local: Field: default: Style: style2y
+
+[line:cwVchAreaLine]
+field:sp,snf,sp1,snf1,sp2,cwlogical
+
+Local: Field: sp: info:"City"
+Local: Field: sp1: info: "Zone"
+
+Local: Field: snf: storage:cwcaption5vch  ;;City    cwcaption6vch
+Local: Field: snf1: storage:cwcaption7vch  ;;Zone
+
+Local: Field: snf: set as:$cwCityled:ledger:$partyledgername
+Local: Field: snf1: set as:$cwZoneled:ledger:$partyledgername
+
+Local: Field: snf: table:collcwCityledX ,Not Applicable
+Local: Field: snf: Show table: Always
+local:field:snf:variable:svcost centre
+local:field:snf:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: snf1: table:collcwZoneled ,Not Applicable
+Local: Field: snf1: Show table: Always
+local:field:snf1:variable:svcost centre
+local:field:snf1:key:Create Cost Centre, Alter CstCtr
+
+Local: Field: sp2: info: "Is Cash Discount"
+Local: Field: cwlogical: storage:cwIsCashDiscount
+
+Local: field: sp2: Width:24
+Local: field: sp: Width:18 ;;14
+Local: field: sp1: Width:18 ;;14
+Local: field: snf: Width:20
+Local: field: snf1: Width:50 ;;30
+
+Local: Field: default: Style: style2y
+
+;;========================================
+
+[#line : VCHBILL CTLineOne]
+ add:option:VCHBILLCTLineOneopt:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@JayatriTestEnabled and @@cwnewEnableInvoiceCostopt
+ [!line:VCHBILLCTLineOneopt]
+
+add : fields : after : VCH ShortTitle : snf10,snf,snf2, snf3, snf4, snf5, snf6
+
+Local: Field: snf10: Set As:"Bill Type"
+Local: Field: snf: Set As:"Sales Person"
+Local: Field: snf2: Set As:"ASM"
+Local: Field: snf3: Set As:"RSM"
+Local: Field: snf4: Set As:"Agent" ;;$cwcaption4:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf5: Set As:"City" ;;$cwcaption5:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf6: Set As:"Area" ;;$cwcaption6:COMPANY:##SVCURRENTCOMPANY
+Local: Field: snf10: Skip: Yes
+Local: Field: snf: Skip: Yes
+Local: Field: snf2: Skip: Yes
+Local: Field: snf3: Skip: Yes
+Local: Field: snf4: Skip: Yes
+Local: Field: snf5: Skip: Yes
+Local: Field: snf6: Skip: Yes
+
+Local: Field: default: Style: style2y
+                            /*
+local: field: snf: Invisible:if $$isempty:$cwcaption1item:ledger:$partyledgername then "yes" else "no"
+local: field: snf2: Invisible:if $$isempty:$cwcaption2item:ledger:$partyledgername then "yes" else "no"
+local: field: snf3: Invisible:if $$isempty:$cwcaption3item:ledger:$partyledgername then "yes" else "no"
+local: field: snf4: Invisible:if $$isempty:$cwcaption4item:ledger:$partyledgername then "yes" else "no"
+local: field: snf5: Invisible:if $$isempty:$cwcaption5item:ledger:$partyledgername then "yes" else "no"
+local: field: snf6: Invisible:if $$isempty:$cwcaption6item:ledger:$partyledgername then "yes" else "no"
+                          */
+
+
+
+[#line : VCHBILL CTLineTwo]
+ add:option:VCHBILLCTLineOneopt2:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@JayatriTestEnabled and @@cwnewEnableInvoiceCostopt
+ [!line:VCHBILLCTLineOneopt2]
+
+
+add : fields : after : VCH ShortTitle : snf10,snf,snf2, snf3, snf4, snf5, snf6
+Local: Field: snf10 : info:""
+Local: Field: snf : info:""
+Local: Field: snf1 : info:""
+Local: Field: snf2 : info:""
+Local: Field: snf3 : info:""
+Local: Field: snf4 : info:""
+Local: Field: snf5 : info:""
+Local: Field: snf6 : info:""
+Local: Field: snf7 : info:""
+                                   /*
+local: field: snf: Invisible:if $$isempty:$cwcaption1item:ledger:$partyledgername then "yes" else "no"
+local: field: snf2: Invisible:if $$isempty:$cwcaption2item:ledger:$partyledgername then "yes" else "no"
+local: field: snf3: Invisible:if $$isempty:$cwcaption3item:ledger:$partyledgername then "yes" else "no"
+local: field: snf4: Invisible:if $$isempty:$cwcaption4item:ledger:$partyledgername then "yes" else "no"
+local: field: snf5: Invisible:if $$isempty:$cwcaption5item:ledger:$partyledgername then "yes" else "no"
+local: field: snf6: Invisible:if $$isempty:$cwcaption6item:ledger:$partyledgername then "yes" else "no"
+                                 */
+
+
+ [#line : VCHBILL CTLineThree]
+ add:option:VCHBILLCTLineOneopt3:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@JayatriTestEnabled and @@cwnewEnableInvoiceCostopt
+ [!line:VCHBILLCTLineOneopt3]
+
+add : fields : after : VCH ShortTitle : snf10,snf, snf2, snf3, snf4, snf5, snf6
+Local: Field: snf10 : info:""
+Local: Field: snf : info:""
+Local: Field: snf1 : info:""
+Local: Field: snf2 : info:""
+Local: Field: snf3 : info:""
+Local: Field: snf4 : info:""
+Local: Field: snf5 : info:""
+Local: Field: snf6 : info:""
+Local: Field: snf7 : info:""
+
+                               /*
+local: field: snf: Invisible:if $$isempty:$cwcaption1item:ledger:$partyledgername then "yes" else "no"
+local: field: snf2: Invisible:if $$isempty:$cwcaption2item:ledger:$partyledgername then "yes" else "no"
+local: field: snf3: Invisible:if $$isempty:$cwcaption3item:ledger:$partyledgername then "yes" else "no"
+local: field: snf4: Invisible:if $$isempty:$cwcaption4item:ledger:$partyledgername then "yes" else "no"
+local: field: snf5: Invisible:if $$isempty:$cwcaption5item:ledger:$partyledgername then "yes" else "no"
+local: field: snf6: Invisible:if $$isempty:$cwcaption6item:ledger:$partyledgername then "yes" else "no"
+
+                             */
+
+[#Line: VCHBILL MainLine]
+ add:option:VCHBILLMainLineopt:(@@issales or @@ispurchase or @@IsCreditNote or @@IsDebitNote) and @@JayatriTestEnabled and @@cwnewEnableInvoiceCostopt
+ [!line:VCHBILLMainLineopt]
+
+add : fields : after : VCHBILLName :snf10,snf,snf2, snf3, snf4, snf5, snf6
+
+Local: Field: snf10: storage:cwvchBilltype
+Local: Field: snf: storage:cwcaption1vch
+Local: Field: snf2: storage:cwcaption2vch
+Local: Field: snf3: storage:cwcaption3vch
+
+Local: Field: snf4: storage:cwcaption4vch
+Local: Field: snf5: storage:cwcaption5vch
+Local: Field: snf6: storage:cwcaption6vch
+
+Local: Field: snf : set as:$$owner:$$owner:$cwcaption1vch
+Local: Field: snf2: set as:$$owner:$$owner:$cwcaption2vch
+Local: Field: snf3: set as:$$owner:$$owner:$cwcaption3vch
+
+Local: Field: snf4:set as:$$owner:$$owner:$cwcaption4vch
+Local: Field: snf5:set as:$$owner:$$owner:$cwcaption5vch
+Local: Field: snf6:set as:$$owner:$$owner:$cwcaption6vch
+
+Local: Field: snf10: table: cwbilltypetable,Not Applicable
+Local: Field: snf10: Show table: Always
+
+local: field: snf: type: String:forced
+local: field: snf2: type: String:forced
+local: field: snf3: type: String:forced
+local: field: snf4: type: String:forced
+local: field: snf5: type: String:forced
+local: field: snf6: type: String:forced
+
+local: field: snf:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf1:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf2:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf3:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf4:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf5:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+local: field: snf6:Inactive    : $$IsEmpty:$BillDate OR $$IsEmpty:$Name
+
+local: field: snf: skip:if $$isempty:($cwcaption1:LEDGER:$PARTYLEDGERNAME) then "yes" else "no"
+local: field: snf2: skip:if $$isempty:($cwcaption2:LEDGER:$PARTYLEDGERNAME) then "yes" else "no"
+local: field: snf3: skip:if $$isempty:($cwcaption3:LEDGER:$PARTYLEDGERNAME) then "yes" else "no"
+local: field: snf4: skip:if $$isempty:($cwcaption4:LEDGER:$PARTYLEDGERNAME) then "yes" else "no"
+local: field: snf5: skip:if $$isempty:($cwcaption5:LEDGER:$PARTYLEDGERNAME) then "yes" else "no"
+local: field: snf6: skip:if $$isempty:($cwcaption6:LEDGER:$PARTYLEDGERNAME) then "yes" else "no"
+
+Local: Field: default: Style: style2y
+
+[collection:cwbilltypetable]
+list:"Fast"
+list:"Normal"
+
+;;=====================================
+[#Line: VCHBATCH ColumnOne]
+ ADD:OPTION:cwsaleVCHBATCHColumnOneopt:(@@issales or @@isCreditNote )and @@JayatriTestEnabled
+ [!LINE:cwsaleVCHBATCHColumnOneopt]
+ add:right field:before:vchAmtTitle:snfx2,numf2
+
+
+ Local: Field: numf2: info: "Disc."
+ local: field: NUMF2: type: String
+ Local: Field: SNFX2: info: ""
+  Local: field: numf2: Align:left
+  Local: Field: default: Style: style2y
+
+[#Line: VCHBATCH Columntwo]
+ ADD:OPTION:cwVCHBATCHColumntwoopt:(@@issales or @@isCreditNote )and @@JayatriTestEnabled
+ [!LINE:cwVCHBATCHColumntwoopt]
+ add:right field:before:vchAmtTitle:snfx2,numf2
+ Local: Field: numf2: info: ""
+Local: Field: SNFX2: info: ""
+
+
+ [#Line : STKVCHBatch2]
+ add:option:newSTKVCHBatch2:(@@issales or @@isCreditNote )and @@JayatriTestEnabled
+ [!line:newSTKVCHBatch2]
+
+
+ add:right fields:before:VCHBATCHValue:snfx2,numf2
+ Local: Field: SNFX2: info: ""
+ Local: Field: numf2: storage:cwminudisc
+ Local: Field: numf2:skip:if $$owner:$$owner:$cwnetsales="yes" then "yes" else "no"
+  Local: field: numf2: Align:left
+  local: field: numf2: inactive:@@NoBaseUnits OR @@BatchAllocBreak
+  Local: field: numf2: Format: "nozero,decimals:2"
+;;==============================================================
+
+ [#Line: EI ColumnOne]
+ add:option:cweiColumnOneopt:@@issales and @@JayatriTestEnabled
+ [!line:cweiColumnOneopt]
+ add:right field: At Beginning:nf,numf3,SNF1,snf,numf5,SNFX
+add:right field:before:VCH AmtTitle:snfx2,numf2
+ Local: Field: nf: info: "Additional Description"
+
+ Local       : Field :nf    : Width    : @@LongWidth+25
+ Local: field:VCH ItemTitle : Width : 30
+
+
+  Local: Field: snf: info: "HSN/SAC"
+  Local: Field: snf1: info: ""
+Local: Field: numf5: info: "Tax%"
+Local: Field: numf2: info: "Disc."
+Local: Field: SNFX: info: ""
+Local: Field: SNFX2: info: ""
+Local: Field: numf3: info: "Selling Rate"
+ Local: field: numf5: Align: centre
+ Local: field: numf2: Align:left
+ local: field: numf5: type: String
+ 
+ Local: field: VCH QtyTitle: Width: 14
+ Local: field: numf3: Width: 14
+
+  [#Line: EI ColumnTwo]
+ add:option:cweiColumntwoopt:@@issales and @@JayatriTestEnabled
+ [!line:cweiColumntwoopt]
+;; {08.Apr.24 16:38}  add:right field: At Beginning:nf,numf3,SNF1,snf,numf,SNFX
+ add:right field: At Beginning:nf,numf3,SNF1,snf,numf5,SNFX
+  add:right field:before:VCH AmtTitle:snfx2,numf2
+ Local: Field: nf: info: ""
+
+ Local       : Field :nf    : Width    : @@LongWidth+25
+  Local: Field: SNFX2: info: ""
+  Local: Field: snf: info: ""
+Local: Field: snf1: info: ""
+Local: Field: numf5: info: ""
+Local: Field: numf2: info: ""
+Local: Field: numf3: info: ""
+Local: Field: SNFX: info: ""
+Local: Field: numf2: info: ""
+
+Local: field: VCH QtyTitle: Width: 14
+Local: field: numf3: Width: 14
+
+ [#Line: cI InvInfo]
+  add:option:cweiinvopt:@@issales and @@JayatriTestEnabled
+
+ [#Line: EI InvInfo]
+ add:option:cweiinvopt:@@issales and @@JayatriTestEnabled
+ [!line:cweiinvopt]
+
+ Local       : Field : Vch StockItem    : Width    : @@LongWidth+25
+ Local       : Field :nf    : Width    : @@LongWidth+25
+
+ add:right field: At Beginning:nf,numf3,SNF1,snf,numf5,snfx
+;; {18.Apr.22 13:24}  add:right field: At Beginning:nf,ratef,SNF1,snf,numf,snfx
+  add:right field:before:VCH Value:snfx2,numf2,amtf
+  Local: Field: SNFX2: info: ""
+
+ Local: Field: SNF1: info: ""
+ Local: Field: SNFX: info: ""
+ Local: Field: nf: storage:cwminuitemnew ;;cwminuitem
+ Local: Field: numf2: storage:cwminudisc
+ Local: Field: numf3: storage:cwSellingRates
+ Local: Field:amtf: storage:cwminudiscamt
+ Local: Field:amtf: Set As:$$asamount:#vchbilledqty*#numf2
+ local: field: amtf: Invisible: yes
+
+ Local: Field: numf2: Set As:$$CollectionField:$cwminudisc:First:batchallocations
+
+
+ Local: Field: nf: Set As:$stockitemname
+ Local: Field: nf: Style: Normal Bold
+ Local: field: numf5: Align: centre
+ Local: Field: snf: Set As:$$cwGetHSNCodeFor:$stockitemname
+ Local: Field: numf5: Set As:@@cwgstitemrate
+ Local: Field: snf: Skip: Yes
+ Local: Field: numf: Skip: Yes
+ Local: field: numf5: Format: "nozero,percentage"
+ Local: field: numf2: Format: "nozero,decimals:2"
+ Local: field: numf3: Format: "nozero,decimals:2"
+ Local: Field: snf: storage:cwhsncode
+
+ Local: Field: numf3: Set As:$$number:@@StdSellRate
+
+Local: Field: numf4: Set As:$$number:$StandardPrice:StockItem:##StockItemName
+Local: Field: numf5: storage:cwgstper
+
+ Local: Field: numf2:skip:if $$owner:$$owner:$cwnetsales="yes" then "yes" else "no"
+
+ Local: Field: snf: Skip: Yes
+ Local: Field: numf5: Skip: Yes
+ Local: field: numf2: Align:left
+
+ Local: Field: snf: Style: Normal Bold
+ Local: Field: numf5: Style: Normal Bold
+ Local: Field: numf2: Style: Normal Bold
+ Local: Field: numf5: Inactive    : $$IsEnd:$StockItemName OR @@NoBaseUnits
+ Local: Field: nf: Inactive    : $$IsEnd:$StockItemName OR @@NoBaseUnits
+
+ Local: Field: snf25: table:colstcostsales ,Not Applicable
+ Local: Field: snf25: Show table: Always
+ 
+ Local: field: VCH BilledQty: Width: 14
+ Local: field: numf3: Width: 14
+ 
+ [#Field: EI BilledQtyTotal]
+ add:option:cwEIBilledQtyTotalopt:@@issales and @@JayatriTestEnabled
+ [!Field:cwEIBilledQtyTotalopt]
+  width:14
+  
+;;=======================================
+
+ [System: Formula]
+cwmidacustrate:$$CurrentValue:$StandardPrice:StockItem:$StockItemName
+
+StandDateX     :$Date <= $$ReqObject:$Date
+StdPurCostX    :$$FilterValue:$Rate:StdPurCostX:Last:StandDateX
+StdSalesPriceX :$$FilterValue:$Rate:StdRatePriceX:Last:StandDateX
+
+[Collection: colstcostsales]
+source collection:sourcolstcostsales
+walk:StandardCostList
+
+;; {18.Apr.22 14:40} by:StockItemName:$StockItemName
+by:Name:$..Name
+compute:rate:$rate
+
+;; {18.Apr.22 14:40} add:format:$StockItemName,10
+add:format:$Name,10
+add:format:$rate,10
+fetch:*.*
+
+[collection:sourcolstcostsales]
+type:stockitem
+
+[Collection : StdRatePriceX]
+	
+    Type		: StandardPriceList	: Stock Item
+	Childof		: $StockItemName
+	
+      fetch:rate
+
+[Collection: StdPurCostX]
+
+    Type        : StandardCostList    : StockItem
+    Child of    : $StockItemName
+    fetch:rate
+
+ ;;SAREE OPARA GULAB B.P. (BOX) S.NET
+ ;;===================================================================
+
+ [#Field: cI AccRate]
+ add:option:cweiAccRateopt:@@issales and @@JayatriTestEnabled
+
+ [#Field: EI AccRate]
+ add:option:cweiAccRateopt:@@issales and @@JayatriTestEnabled
+
+ [!field:cweiAccRateopt]
+;; {22.Apr.21 12:43}  Set as	:if $cwdiscpernew:ledger:$ledgername="yes" then $cwdiscper:ledger:$partyledgername*-1 else (If ##InVchFill Then $$Value Else @SetVal)
+ Set as	:if $$owner:$$owner:$cwnetsales="yes" then (If ##InVchFill Then $$Value Else @SetVal)  else @@cwdiscpernewopt
+
+ skip:if $$owner:$$owner:$cwnetsales="yes" then "yes" else "no"
+
+ [System: Formula]
+ cwdiscpernewopt:if $cwdiscpernew:ledger:$ledgername="yes" then $cwdiscper:ledger:$partyledgername*-1 else (If ##InVchFill Then $$Value Else @SetVal)
+
+ [#Field: VCHBATCH Discount]
+ add:option:VCHBATCHDiscountopt:@@issales and @@JayatriTestEnabled
+ [!field:VCHBATCHDiscountopt]
+
+ skip:if $$owner:$$owner:$cwnetsales="yes" then "yes" else "no"
+
+ [#Field: VCHDiscount]
+  add:option:VCHDiscountopt:@@issales and @@JayatriTestEnabled
+ [!field:VCHDiscountopt]
+ skip:if $$owner:$$owner:$cwnetsales="yes" then "yes" else "no"
+
+
+;;====================================
+
+[System: Formula]
+cwminudiscamtvalue:$$CollAmtTotal:inventoryentries:$cwminudiscamt
+cwproductdiscpernewopt:$cwproductdiscpernew:ledger:$ledgername="yes"
+cwuseforvchlevdiscopt:$cwuseforvchlevdisc:ledger:$ledgername="yes"
+
+[#Line: EI AccInfo]
+add:option:newAccInfosales:@@issales
+[!LINE:newAccInfosales]
+
+add:field:nf,snfx,numf,snfx2,numf2,amtf9
+Local: Field: nf: info: ""
+Local: Field: snfx: info: if @@cwuseforvchlevdiscopt then "Qty :" else ""
+Local: Field: snfx2: info: if @@cwuseforvchlevdiscopt then "Rate :" else ""
+Local: Field: numf: Set As:if @@cwuseforvchlevdiscopt then @@cwinvBqtyN else ""
+Local: Field: numf: Skip: Yes
+Local: Field: amtf9: Set As:#numf*#numf2
+Local: Field: numf2:skip:if $$owner:$$owner:$cwnetsales="yes"  then "yes" else "no"
+local: field: amtf9: Invisible: yes
+
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+Local: Field: amtf9: storage:cwqtyrateval
+Local: Field: numf2: storage:cwledateval
+Local: field: numf: Format: "decimals:2,nozero"
+Local: field: numf2: Format: "decimals:2,nozero"
+
+Local: field: eiaccdesc: Width:60
+
+[#Line: CI AccInfo]
+add:option:newCIAccInfosales:@@issales
+[!line:newCIAccInfosales]
+
+add:field:nf,snfx,numf,snfx2,numf2,amtf9
+Local: Field: nf: info: ""
+Local: Field: snfx: info: if @@cwuseforvchlevdiscopt then "Qty :" else ""
+Local: Field: snfx2: info: if @@cwuseforvchlevdiscopt then "Rate :" else ""
+Local: Field: numf: Set As:if @@cwuseforvchlevdiscopt then @@cwinvBqtyN else ""
+Local: Field: numf: Skip: Yes
+Local: Field: amtf9: Set As:#numf*#numf2
+local: field: amtf9: Invisible: yes
+
+Local: field: numf: Align:left
+Local: field: numf2: Align:left
+Local: Field: amtf9: storage:cwqtyrateval
+Local: Field: numf2: storage:cwledateval
+Local: field: numf: Format: "decimals:2,nozero"
+Local: field: numf2: Format: "decimals:2,nozero"
+
+Local: field: ciaccdesc: Width:60
+
+
+
+[#Line: EI AccInfo]
+add:option:newAccInfo:(@@isCreditNote or @@issales) and @@JayatriTestEnabled
+[!LINE:newAccInfo]
+Local: Field:EI Value :Set as: if  @@cwuseforvchlevdiscopt then #amtf9*-1 else if  @@cwproductdiscpernewopt then @@cwminudiscamtvalue*-1 else If @@IsBangladeshVATOn AND $TaxType:Ledger:$LedgerName=@@SDTaxType Then @SDAmount Else +
+ If (@@AsRounding) then (@RoundedPrevTotal - @OnPrevTotalVal) else +
+                  If ((@@IsIndian OR @@IsMalaysia) AND @@TaxLedgerHasService) OR (@@IsIndian AND @@TaxLedgerHasTCS AND @@TCSInvoices) +
+				  Then @TaxBillAmt else +
+				  If @@TDSInVoucher then @TDSDedAmt Else @RoundedVal
+
+
+
+[#Line: CI AccInfo]
+add:option:newCIAccInfo:(@@isCreditNote or @@issales) and @@JayatriTestEnabled
+[!line:newCIAccInfo]
+
+
+Local: Field:CI Value :Set as:if @@cwuseforvchlevdiscopt then #amtf9*-1 else if  @@cwproductdiscpernewopt then @@cwminudiscamtvalue*-1 else If @@IsBangladeshVATOn AND $TaxType:Ledger:$LedgerName=@@SDTaxType Then @SDAmount Else +
+ If (@@AsRounding) then (@RoundedPrevTotal - @OnPrevTotalVal) else +
+                  If ((@@IsIndian OR @@IsMalaysia) AND @@TaxLedgerHasService) OR (@@IsIndian AND @@TaxLedgerHasTCS AND @@TCSInvoices) +
+				  Then @TaxBillAmt else +
+				  If @@TDSInVoucher then @TDSDedAmt Else @RoundedVal
+
+;;===============================================
+ [#Part: EI DelNoteInfo]
+ add:option:saleEIDelNoteInfoopt2:@@issales
+ 
+ [!Part: saleEIDelNoteInfoopt2]
+ add:line:cwdelieveredfromline
+ 
+ [Line:cwdelieveredfromline]
+				
+ Field	: Medium Prompt,nf
+ Local   : Field : Medium Prompt     : Set as	: $$LocaleString:"Delivered From"
+ Local: Field: nf: storage:cwDelieveredFrom
+ Local: field: NF: Width:40
+ Local: field: NF:Max     	: @@MaxNarrWidth * 2
+ Local: field: NF:Lines   	: 2
+ 
+ [#Part: EI DelNoteInfo]
+add:option:saleEIDelNoteInfoopt:@@issales
+[!part:saleEIDelNoteInfoopt]
+
+add:Line: cwsalesEITransporter
+
+[Line: cwsalesEITransporter]
+Fields : Medium Prompt, nf
+Local  : Field : Medium Prompt : Info : $$LocaleString:"Transporter"
+
+Local: Field: nf: storage:cwTransportersale ;;cwTransporterpurc
+Local: Field: nf: Set As:$cwTransporterled:ledger:$PartyLedgerName
+
+Local: Field: nf: table:collcwTransporter,Not Applicable
+Local: Field: nf: Show table: Always
+Local: field: nf: Width:30
+Local: Field:Medium Prompt : Style: small
+Local: Field:nf : Style: small Bold
+
+;;=============================================
+ [#Part: GST TransAdditionalDetails]
+ add:option:newDBLLINENarrationXnew:@@issales and @@JayatriTestEnabled
+ [!part:newDBLLINENarrationXnew]	
+ add:Line:before: GST TransAdditionalDetails:fndeline
+
+ [line:fndeline]
+ field:sp,cwlogical
+ Local: Field: sp: Set As:"F/N Details"
+ Local: Field : cwlogical : SubForm : fnderep: $$value
+ Local: field: sp: Width:18
+ Local: Field: sp: Style: style2
+ Local: Field: cwlogical: Style: style1
+
+ [report:fnderep]
+ form:fnderep
+
+ [form:fnderep]
+ part:fnderep
+
+ [part:fnderep]
+ line:noofline,natureline,pmline,valuinline,spinline,trnmalline,fromtoline
+
+ [line:noofline]
+  field:sp,nf
+ Local: Field: sp: Set As:"No of Packages"
+ Local: Field: nf: storage:cwnofobales
+ Local: field: sp: Width:20
+
+ Local: Field: nf: Set As:$cwnofobales  ;;$$owner:$$owner:$cwNoofPackages
+ space bottom:0.5
+ Local: Field: sp: Style: style2
+ Local: Field: nf: Style: style1
+
+   [line:natureline]
+    field:sp,nf
+ Local: Field: sp: Set As:"Nature Of Goods"
+ Local: Field: nf: storage:cwNatureOfGoods ;;cwNatureOfGoods
+ Local: Field: nf: Set As:$cwNatureOfGoods:COMPANY:##SVCURRENTCOMPANY
+  Local: field: sp: Width:20
+ space bottom:0.5
+  Local: Field: sp: Style: style2
+ Local: Field: nf: Style: style1
+
+
+ [line:pmline]
+  field:sp,nf
+ Local: Field: sp: Set As:"Private Marks"
+ Local: Field: nf: storage:cwPrivateMarks
+ Local: Field: nf: Set As:$vouchernumber
+  Local: field: sp: Width:20
+ space bottom:0.5
+  Local: Field: sp: Style: style2
+ Local: Field: nf: Style: style1
+
+
+ [line:valuinline]
+  field:sp,snf
+ Local: Field: sp: Set As:"Value of Insurance"
+ Local: Field: snf: storage:cwValueofInsurance
+ Local: field: sp: Width:20
+ local : field : numf : format :"Decimals:2,NoZero"
+ space bottom:0.5
+ Local: Field: snf: Set As:$cwcmpValueofInsurance:COMPANY:##SVCURRENTCOMPANY
+  Local: Field: sp: Style: style2
+ Local: Field: snf: Style: style1
+
+ [line:spinline]
+  field:sp,nf
+ Local: Field: sp: Set As:"Special Instructions"
+ Local: Field: nf: storage:cwSpecialInstructions
+  Local: field: sp: Width:20
+;; {08.Apr.24 18:10}   Local: Field: nf: Set As:$$CollectionField:$cwminuitem:First:inventoryentries
+  Local: Field: nf: Set As:$$CollectionField:$stockitemname:First:inventoryentries
+   Local: field: nf: Width:40
+  space bottom:0.5
+Local: Field: sp: Style: style2
+ Local: Field: nf: Style: style1
+
+ [line:trnmalline]
+  field:sp,nf
+ Local   : Field : sp     : Set as	: $$LocaleString:"Transporter Name"
+ Local: Field: nf: storage:cwtempGSTewayTransporterName
+ Local: Field: NF: Set As:$cwTransporterled:LEDGER:$PARTYLEDGERNAME
+
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+ Local: Field: sp: Style: style2
+ Local: Field: nf: Style: style1
+
+ Local: Field: nf: table:collcwTransporterled,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: Field: nf:Key      :Create Ledger, Alter Ledger
+ Local: Field: nf:Variable :SV Ledger
+
+
+
+ [line:trnmaaddlline]
+  field:sp,nf
+ Local   : Field : sp     : Set as	: $$LocaleString:"Adress"
+ Local: Field: nf: storage:cwTransporteradd1
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+Local: Field: sp: Style: style2
+ Local: Field: nf: Style: style1
+
+
+ [line:trnmaaddlline1]
+  field:sp,nf
+ Local   : Field : sp     : Set as	: $$LocaleString:""
+ Local: Field: nf: storage:cwTransporteradd2
+ Local: field: sp: Width:20
+
+
+Local: Field: sp: Style: style2
+ Local: Field: nf: Style: style1
+
+  [line:trnmacontpersline1]
+  field:sp,nf
+ Local   : Field : sp     : Set as	: $$LocaleString:"Contact Person"
+ Local: Field: nf: storage:cwTransportercontperson
+ Local: field: sp: Width:20
+ space bottom:0.5
+
+ Local: Field: sp: Style: style2
+ Local: Field: nf: Style: style1
+
+  [line:trnmacontnolline1]
+  field:sp,nf
+ Local   : Field : sp     : Set as	: $$LocaleString:"Contact No."
+ Local: Field: nf: storage:cwTransportercontno
+ Local: field: sp: Width:20
+  space bottom:0.5
+
+ Local: Field: sp: Style: style2
+ Local: Field: nf: Style: style1
+
+
+ [line:fromtoline]
+ field:sp,snf,sp2,snf2
+ Local: Field: sp: Set As:"From"
+ Local: Field: sp2: Set As:"To"
+ Local: Field: snf: storage:cwfromfn
+ Local: Field: snf2: storage:cwtofn
+ Local: Field: snf: Set As:$cwcmpfromfn:COMPANY:##SVCURRENTCOMPANY
+ Local: Field: snf2: Set As:$BasicFinalDestination ;;$cwmsconsCity      ;;cwmsconsCity
+
+ Local: field: sp: Width:20
+ Local: field: sp2: Width:6
+ Local: Field: sp: Style: style2
+ Local: Field: sp2: Style: style2
+ Local: Field: snf: Style: style1
+ Local: Field: snf2: Style: style1
+ 
+ [#Line: GST TransAdditionalDetails]
+ add:option: EImewayTransporterNameopt2:@@JayatriTestEnabled
+ [!field:EImewayTransporterNameopt2]
+Local: field: Medium Prompt: Width: 40
+
+[#Field: VCH Narration]
+add:option:cwVCHNarrationopt:@@JayatriTestEnabled
+[!Field: cwVCHNarrationopt]
+
+	Use                 : Voucher Narration Field
+	Lines               : 4
+	Storage             : Narration
+	full Width               : yes ;;50% Screen
+
+ [#Field: GST ewayTransporterName]
+ add:option: EImewayTransporterNameopt:@@issales and @@JayatriTestEnabled
+ [!field:EImewayTransporterNameopt]
+ Set As:$$owner:$$owner:$cwTransportersale ;;$cwtempGSTewayTransporterName
+

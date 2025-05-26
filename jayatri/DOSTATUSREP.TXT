@@ -1,0 +1,273 @@
+; Created By: Anil on 2024-06-24 11:21, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+;; {24.Jun.24 12:51}         add: Option: DoStatusLock ;; : @@DoStatusDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@DoStatusReport: Display: RepDoStatus
+  */
+
+
+     [!menu: DoStatusLock]
+        add: Item: before: @@locQuit: @@DoStatusReport: Display: RepDoStatus
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   DoStatusReport: "Do Status Report"
+;; DoStatusDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepDoStatus]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@DoStatusReport
+   Printset: Report Title: @@DoStatusReport
+
+       Form: FrmDoStatus
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+        variable:str1,str2,str3
+    set:str1:""
+    set:str2:""
+    set:str3:""
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmDoStatus]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0DoStatus,PrtDoStatus
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: DoStatusbotbrk,DoStatusbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+add:button:Donofilterbutton
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: DoStatusConfigure
+
+      [part: DoStatusbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: DoStatusbotopbrk]
+        use: dspacctitles
+  add: part: DoStatusTitlePart
+
+      [part: DoStatusTitlePart]
+       line: LnDoStatusTitle
+       
+      [line: LnDoStatusCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0DoStatus]
+      line : LnDoStatusCurrPeriod
+      
+      [Part: PrtDoStatus]
+       Line: LnDoStatusTitle,LnDoStatus
+bottom Line: LnDoStatusTotals
+     repeat: LnDoStatus: ColDoStatus
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,qtyf2,amtf
+
+; Main Collection
+
+[Collection: ColDoStatus]
+SOURCE COLLECTION:sourceColDoStatus
+walk:allinventoryentries,BATCHALLOCATIONS,VOUCHERCOMPONENTLIST,BATCHALLOCATIONS
+;; {19.Jun.24 18:09} by:batchname :$batchname
+by:ParentItem:$ParentItem
+by: date:            $date
+by: voucherNumber:   $voucherNumber
+by:stockitemname1:$....stockitemname
+by:stockitemname2:$stockitemname
+compute:closingbalance:$closingbalance
+aggr compute:billedqty:sum:$billedqty
+aggr compute:billedqty2:sum:$...billedqty
+fetch:closingbalance
+filter:cwDoNofilter2,cwClothQualityfilter,cwOurQualityfilter
+
+[Collection: sourceColDoStatus]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColDoStatusFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColDoStatusFilter: $cwDoOrder:vouchertype:$vouchertypename="yes" ; $$isSales:$voucherTypeName
+
+      [Line: LnDoStatusTitle]
+        use: LnDoStatus
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Receive Date"
+local:field: nf: set as: "Cloth Quality"
+local:field: fwf: set as: "Our Quality"
+local:field: snf: set as: "D.O. No"
+local:field: qtyf: set as: "CLOTH REQ."
+local:field: qtyf2: set as: "Do Order Qty"
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      
+Local: field: nf: Align: centre
+local:field:fwf:indent:20
+
+local: field: sdf : style: style1y ;;normal bold
+local: field: nf : style: style1y ;;normal bold
+local: field: fwf : style: style1y ;;normal bold
+local: field: snf : style: style1y ;;normal bold
+local: field: qtyf : style: style1y ;;normal bold
+local: field: qtyf2 : style: style1y ;;normal bold
+; Main Line
+      [Line: LnDoStatus]
+     Fields: DoStatusmastid,nf,fwf,sdf,snf
+Right Field: Qtyf,qtyf2 ;;,Amtf
+
+     Option: Alter on Enter
+        key: DoStatusDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf2: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: sdf: set as: $date ;;"Receive Date"
+local:field: nf: set as: $stockitemname2 ;;$stockitemname1 ;;"Cloth Quality"
+local:field: fwf: set as: $stockitemname1 ;;$stockitemname2 ;;"Our Quality"
+local:field: snf: set as: $voucherNumber ;;"D.O. No"
+local:field: qtyf: set as: $billedqty ;;"CLOTH REQ."
+local:field: qtyf2: set as: $billedqty2 ;;"CLOTH REQ."
+
+Local: Field: DEFAULT: Border: thin RIGHT ;;left right
+
+Local: field: sdf: Width:12
+Local: field: qtyf: Width:14
+Local: field: qtyf2: Width:14
+Local: field: NF: Width:40
+
+local: field: default : style: style2y ;;normal bold
+Local: field: sdf: Align: centre
+Local: field: snf: Align: centre
+Local: field: qtyf: Align: centre
+Local: field: qtyf2: Align: centre
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: DoStatusDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: DoStatusDisplayVoucher
+
+ 	
+     [Report: DoStatusDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #DoStatusmastid
+	
+
+        [Field: DoStatusmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnDoStatusTotals]
+        use: LnDoStatus
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: qtyf2: set as: $$total:qtyf2
+      local: field: fwf: set as: "Total"
+;; {24.Jun.24 12:49}       local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+      local: field: fwf : style: style1y ;;normal bold
+      local: field: qtyf : style: style1y ;;normal bold
+      
+;;=======================
+[button:Donofilterbutton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:Donofilterbutton
+
+ [report:Donofilterbutton]
+ form:Donofilterbutton
+
+ [form:Donofilterbutton]
+ part:Donofilterbutton
+
+ HEIGHT:20% Screen ;;PAGE
+ WIDTH:30% Screen ;;PAGE
+
+ [part:Donofilterbutton]
+ line:cwDofltrtitleline,CwDoNoline2,CwDoClothQualityLine,CwDoOurQualityLine
+
+ [line:cwDofltrtitleline]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: Normal Bold
+ space bottom:0.5
+ local: field: fwfc : style: style2y ;;normal bold
+ 
+[line:CwDoNoline2]
+  field:sp,nf
+ Local: Field: sp: Set As:"Do. No"
+ Local: Field: nf:modifies:str1
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+local: field: sp : style: style2y ;;normal bold
+local: field: nf : style: style2y ;;normal bold
+
+[line:CwDoClothQualityLine]
+field:sp,nf
+ Local: Field: sp: Set As:"Cloth Quality"
+ Local: Field: nf:modifies:str2
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:collQuality,Not Applicable
+ Local: Field: nf: Show table: Always
+ local: field: sp : style: style2y ;;normal bold
+local: field: nf : style: style2y ;;normal bold
+ 
+ [line:CwDoOurQualityLine]
+field:sp,nf
+ Local: Field: sp: Set As:"Our Quality"
+ Local: Field: nf:modifies:str3
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:collQuality,Not Applicable
+ Local: Field: nf: Show table: Always
+local: field: sp : style: style2y ;;normal bold
+local: field: nf : style: style2y ;;normal bold
+ 
+  [System: Formula]
+cwDoNofilter2:if $$isempty:##str1 then yes else $voucherNumber =##str1
+cwClothQualityfilter:if $$issysname:##str2 then yes else $STOCKITEMNAME1 =##str2
+cwOurQualityfilter:if $$issysname:##str3 then yes else $STOCKITEMNAME2 =##str3
+
+

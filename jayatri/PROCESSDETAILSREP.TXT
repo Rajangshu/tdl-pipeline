@@ -1,0 +1,442 @@
+; Created By: Anil on 2024-06-20 11:26, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+;; {24.Jun.24 11:59}         add: Option: ProcessDetailsLock ;; : @@ProcessDetailsDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ProcessDetailsReport: Display: RepProcessDetails
+  */
+
+
+     [!menu: ProcessDetailsLock]
+;; {24.Jun.24 11:58}         add: Item: before: @@locQuit: @@ProcessDetailsReport: Display: RepProcessDetails
+        add: Item: before: @@locQuit: @@ProcessDetailsReport: Display Collection: collRepunitWiseSalesRep
+        add: Item: before: @@locQuit: Blank
+        
+;;==============================
+     [Collection: collRepunitWiseSalesRep]
+
+ Use         		: Extract Alias Collection
+	Source	Collection	: List of Cost Centres
+    Title       		: $$LocaleString:"List of Cost Centres"
+    Report      		: RepProcessDetails
+;; {23.Apr.24 16:58}     Variable    		: SCostCentre1 ;;SCostCentre
+    Variable    		: SCostCentreunit ;;SCostCentreArea
+    Trigger     		: SCostCentreunit ;;SCostCentreArea
+
+
+[Variable: SCostCentreunit]
+[Report: SCostCentreunit]
+
+	Use     : Collection Variable
+	Title	: $$LocaleString:"Select Scenario"
+	Local   : Line : Collection Variable : Field : SCostCentreunit ;;SCostCentreArea
+	Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Scenario"
+
+[Field: SCostCentreunit]
+
+	Use         : Name Field
+	delete:Table       : List of ExtractCostCentres
+	add:Table       : cwListofExtractCostCentresunit
+	Show Table  : Always
+	Modifies    : SCostCentreunit ;;SCostCentreArea
+	
+;; {22.Jun.24 17:52} [Collection: cwListofExtractCostCentresArea]
+[Collection: cwListofExtractCostCentresunit]
+type: Cost Centre
+Title       		: $$LocaleString:"List of Cost Centres"
+;; {06.Mar.24 17:08} by:name:$name
+format:$name,10
+fetch:name
+child of                    : "Units"
+;; {22.Jun.24 17:51} filter:CwUserWiseFilterArea
+
+;;=============================
+        
+    [System: formula]
+   ProcessDetailsReport: "Process Details"
+;; ProcessDetailsDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepProcessDetails]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@ProcessDetailsReport
+   Printset: Report Title: @@ProcessDetailsReport
+
+       Form: FrmProcessDetails
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmProcessDetails]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0ProcessDetails,PrtProcessDetails
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: ProcessDetailsbotbrk,ProcessDetailsbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: ProcessDetailsConfigure
+
+      [part: ProcessDetailsbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ProcessDetailsbotopbrk]
+        use: dspacctitles
+  add: part: ProcessDetailsTitlePart
+
+      [part: ProcessDetailsTitlePart]
+       line: LnProcessDetailsTitle
+       
+      [line: LnProcessDetailsCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0ProcessDetails]
+      line : LnProcessDetailsCurrPeriod
+      
+      [Part: PrtProcessDetails]
+       Line: LnProcessDetailsTitle,LnProcessDetails
+bottom Line: LnProcessDetailsTotals
+     repeat: LnProcessDetails: ColProcessDetailsmain
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: ColProcessDetailsmain]
+SOURCE COLLECTION:ColProcessDetails
+walk:allinventoryentries,BATCHALLOCATIONS,VOUCHERCOMPONENTLIST,BATCHALLOCATIONS       ;;COMPONENTLISTTYPE
+;; {19.Jun.24 18:09} by:batchname :$batchname
+by:ParentItem:$ParentItem
+by: date:            $date
+by: Reference: $Reference
+;; {13.Jul.24 13:28} by: batchname: $batchname
+;; {13.Jul.24 13:56} by: voucherNumber:   $voucherNumber
+by: partyledgername:   $partyledgername
+by:stockitemname1:$....stockitemname
+by:stockitemname2:$stockitemname
+compute:cwTotalCut1x:$cwTotalCut1
+compute:cwPacking1x:$cwPacking1
+compute:cwmodounit5:$cwmodounit4
+;; {21.Jun.24 12:11} compute:BasicPurchaseOrderNo3X:$BasicPurchaseOrderNo
+aggr compute:billedqty:sum:$billedqty
+ compute:billedqty2:$....billedqty
+filter:CwUnitWiseFilterArea
+
+
+[Collection: ColProcessDetails]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColProcessDetailsFilter,IsNonOptionalCancelledVchs
+     compute:cwTotalCut1:$cwTotalCut
+     compute:cwPacking1:$cwPacking
+     compute:cwmodounit4:$cwmodounit
+;; {21.Jun.24 12:11}      compute:BasicPurchaseOrderNo3:$BasicPurchaseOrderNo
+
+    [system: Formula]
+ColProcessDetailsFilter: $cwDoOrder:vouchertype:$vouchertypename="yes" ; $$isSales:$voucherTypeName
+;; {22.Jun.24 18:50} cwmodounit4:$$collectionfieldbykey:$cwmodounit1:@@keydonotextnew:Colmodotestmain2
+[System: Formula]
+CwUnitWiseFilterArea:##SCostCentreunit=$cwmodounit5
+
+[field:cwmrdovchnofld]
+use:snf
+Invisible: yes
+
+[field:cwunitfld]
+use:snf
+Set As:$cwmodounit5
+width:6
+;; {25.Jun.24 11:12} Invisible: yes
+
+[field:cwDobatchfld]
+use:snf
+Set As:$batchname
+width:6
+Invisible: yes
+
+      [Line: LnProcessDetailsTitle]
+        use: LnProcessDetails
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "RECEIVE DATE"
+local:field: cwunitfld: set as: "Unit"
+local:field: nf: set as: "D.O CLOTH QUALITY"
+local:field: snf4: set as: "CLOTH QUALITY"
+local:field: fwf: set as: "OUR QUALITY"
+local:field: snf: set as: "D.O NO"
+local:field: qtyf: set as: "D.O METER"
+local:field: numf: set as: "TOTAL CUT"
+local:field: numf2: set as: "BALE/PCS REQ"
+;; {29.Jun.24 16:31} local:field: numf3: set as: " RECEIVED Qty"
+local:field: qtyf3: set as: " RECEIVED Qty"
+local:field: numf4: set as: " USED Qty"
+local:field: numf5: set as: " BALANCE Qty"
+local:field: snf2: set as: " PACKING TYPE"
+local:field: snf10: set as: " MR DO VCH NO"
+local:field: snf20: set as: " Batch NO"
+;; {20.Jun.24 11:41} local:field: snf2: set as: "Value"
+;; {21.Jun.24 12:28} local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+      
+Local: field:sdf : Align: centre
+Local: field:nf : Align: centre
+Local: field:snf : Align: centre
+Local: field:snf4 : Align: centre
+Local: field:qtyf : Align: centre
+Local: field:numf : Align: centre
+Local: field:numf2 : Align: centre
+;; {29.Jun.24 16:31} Local: field:numf3 : Align: centre
+Local: field:qtyf3 : Align: centre
+Local: field:numf4 : Align: centre
+Local: field:numf5 : Align: centre
+Local: field:snf2 : Align: centre
+Local: field:snf10 : Align: centre
+Local: field:cwunitfld : Align: centre
+
+local:field:fwf:indent:8
+Local : field : sdf: Lines : 0
+Local : field : snf: Lines : 0
+Local : field : snf10: Lines : 0
+
+local: field: sdf : style: style1y ;;normal bold
+local: field: nf : style: style1y ;;normal bold
+local: field: snf : style: style1y ;;normal bold
+local: field: snf2 : style: style1y ;;normal bold
+local: field: snf4 : style: style1y ;;normal bold
+local: field: FWF : style: style1y ;;normal bold
+local: field: qtyf : style: style1y ;;normal bold
+local: field: numf : style: style1y ;;normal bold
+local: field: numf2 : style: style1y ;;normal bold
+;; {29.Jun.24 16:31} local: field: numf3 : style: style1y ;;normal bold
+local: field: qtyf3 : style: style1y ;;normal bold
+local: field: numf4 : style: style1y ;;normal bold
+local: field: numf5 : style: style1y ;;normal bold
+local: field: snf10 : style: style1y ;;normal bold
+
+; Main Line
+      [Line: LnProcessDetails]
+;; {13.Jul.24 13:27}      Fields: ProcessDetailsmastid,cwunitfld,cwmrdovchnofld,cwDobatchfld,snf20,snf21,nf,sdf,snf,Qtyf,Qtyf5,numf,numf2,fwf ;;,NF5
+     Fields: ProcessDetailsmastid,cwunitfld,cwmrdovchnofld,nf,sdf,snf,Qtyf,qtyf9,numf,numf2,fwf ;;,NF5
+Right Field: snf10,snf4,qtyf3,numf4,numf5,snf2 ;;Amtf
+;; {29.Jun.24 16:32} Right Field: snf10,snf4,numf3,numf4,numf5,snf2 ;;Amtf
+
+     Option: Alter on Enter
+        key: ProcessDetailsDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+;; {29.Jun.24 16:32} local:field: numf3: Format : "Symbol, Short Form, No Compact"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: snf10: set as:$cwmodounit5 ;;$$reportobject:$$collectionfieldbykey:$cwmodounit1:@@keydonotext:Colmodotestmain2 ;;"Unit"
+;; {13.Jul.24 13:30} local:field: snf20: set as:$batchname ;;$$reportobject:$$collectionfieldbykey:$cwmodounit1:@@keydonotext:Colmodotestmain2 ;;"Unit"
+;; {13.Jul.24 15:14} local:field: snf21: set as:$Reference ;;$$reportobject:$$collectionfieldbykey:$cwmodounit1:@@keydonotext:Colmodotestmain2 ;;"Unit"
+local:field: sdf: set as: $$reportobject:$$collectionfieldbykey:$date1:@@keydonotext:Colmodotestmain2
+;; {21.Jun.24 12:13} local:field: sdf2: set as: $$reportobject:$$collectionfieldbykey:$date1:@@keydonotext:Colmodotestmain2
+local:field: nf: set as: $stockitemname1 ;;"CLOTH QUALITY"
+local:field: nf5: set as: $BasicPurchaseOrderNo3X ;;$voucherNumber ;;"CLOTH QUALITY"
+local:field: fwf: set as: $stockitemname2 ;;"OUR QUALITY"
+local:field: cwmrdovchnofld: set as: $Reference ;;"D.O NO"
+local:field: snf: set as: $Reference ;;"D.O NO"
+local:field: qtyf: set as: $billedqty ;;"D.O METER"
+Local: Field: Qtyf5: Set As:#qtyf
+;; {18.Jul.24 18:57} Local: Field: Qtyf5: Set As:if $$line=1 then #Qtyf else $$nettamount:$$prevlinefield+#Qtyf
+local:field: numf: set as: $cwTotalCut1x ;;"TOTAL CUT"
+local:field: numf2: set as: $billedqty2 ;;"BALE/PCS REQ"
+;; {29.Jun.24 16:32} local:field: numf3: set as: "" ;;" RECEIVED PCS"
+local:field: qtyf3: set as: "" ;;" RECEIVED PCS"
+local:field: qtyf9: set as: "" ;;" RECEIVED PCS"
+local:field: numf4: set as: "" ;;" USED MTR"
+local:field: numf5: set as: "" ;;" BALANCE MTR"
+local:field: snf4: set as: "" ;;" BALANCE MTR"
+local:field: snf2 : set as: $cwPacking1x ;;" PACKING TYPE"
+local:field: snf10: set as: "" ;;" MR DO VCH NO"
+
+Local: Field: default: Border: thin right ;;left right
+local: field: default : style: style2y ;;normal bold
+
+Local: Field:qtyf9: Set As: if $$line=1 then #Qtyf else if $stockitemname1 <> $$prevobj:$stockitemname1 then #Qtyf else $$prevlinefield+#Qtyf
+;; {19.Jul.24 11:31} Local: Field:qtyf9: Set As: if $$line=1 then #Qtyf else $$prevlinefield+#Qtyf
+
+Local: field: sdf: Width:8
+Local: field: snf: Width:5
+Local: field: snf4: Width:22
+Local: field: numf2: Width:10
+Local: field: qtyf3: Width:10
+Local: field: numf5: Width:10
+Local: field: snf10: Width:8
+
+local: field: snf10: Invisible: yes
+local: field: Qtyf9: Invisible: yes
+
+
+add:explode:LnProcessdetailsexp:$$line=$$numitems or $Reference<>$$nextobj:$Reference
+
+
+[part:LnProcessdetailsexp]
+line:LnProcessdetailsexp
+repeat:LnProcessdetailsexp:ColProcessDetailsmainexp
+Total: Qtyf,amtf,qtyf3,numf4,numf5,qtyf5
+
+[line:LnProcessdetailsexp]
+ use: LnProcessDetails
+delete:explode
+border:thin top ;;totals
+local:field: sdf: set as: "";;$$CollectionField:$DATE:First:ColdoMatOutrocessDetails ;;"RECEIVE DATE"
+local:field: nf: set as: "" ;;$stockitemname1 ;;"CLOTH QUALITY"
+local:field: fwf: set as:"" ;; $stockitemname2 ;;"OUR QUALITY"
+local:field: snf: set as: "" ;;$Reference1 ;;$Reference ;;"D.O NO"
+local:field: snf20: set as:$BasicPurchaseOrderNo1x ;;$Reference ;;"D.O NO"
+local:field: qtyf: set as:"" ;; $billedqty ;;"D.O METER"
+local:field: numf: set as: "" ;;"TOTAL CUT"
+local:field: numf2: set as: "" ;;"BALE/PCS REQ"
+;; {29.Jun.24 16:32} local:field: numf3: set as: $billedqty ;;" RECEIVED PCS"
+local:field: qtyf3: set as: $billedqty ;;" RECEIVED PCS"
+local:field: numf4: set as: $cwConsumQty1 ;;" USED MTR"
+;; {29.Jun.24 15:13} local:field: numf5: set as:$$number:#Qtyf5-#numf4 ;;" BALANCE MTR"
+local:field: numf5: set as:"" ;;if $$line=1 then $$number:#Qtyf5-#numf4 else $$prevlinefield-#numf4 ;;" BALANCE MTR"
+local:field: snf2: set as: "" ;;" PACKING TYPE"
+local:field: snf4: set as: $stockitemname ;;" PACKING TYPE"
+Local: Field: cwmrdovchnofld: Set As:$$prevlinefield
+Local: Field: Qtyf5: Set As:if $$line=1 then $$prevlinefield else ""
+Local: Field: qtyf9: Set As:$$prevlinefield
+;; {19.Jul.24 10:52} Local: Field:qtyf9: Set As: if $$line=1 then #Qtyf5 else if $stockitemname <> $$prevobj:$stockitemname then #Qtyf5 else $$prevlinefield+#Qtyf5
+
+
+add:explode:Lnprocessreportexp:$$line=$$numitems or $BasicPurchaseOrderNo1x<>$$nextobj:$BasicPurchaseOrderNo1x
+;; {18.Jul.24 13:34} add:explode:Lnprocessreportexp:$$line=$$numitems or $stockitemname<>$$nextobj:$stockitemname
+;; {13.Jul.24 15:14} add:explode:Lnprocessreportexp:$$line=$$numitems or $vouchernumber<>$$nextobj:$vouchernumber
+
+[part:Lnprocessreportexp]
+line:Lnprocessreportexp
+
+[line:Lnprocessreportexp]
+ use: LnProcessDetails
+delete:explode
+border:totals
+local: field: nf: align: right
+;; {19.Jul.24 12:08} local: field: fwf : style: normal bold
+
+;; {18.Jul.24 17:46} local: field: qtyf: set as: ""
+local: field: nf: set as: " Total"
+
+local:field: sdf: set as:"" ;; "Date"
+local:field: fwf: set as:"" ;; "Vch Name"
+
+local:field: nf2: set as: "" ;;"Item"
+local:field: snf: set as:"" ;; "Batch Name"
+local:field: snf1: set as:"" ;; "Batch Name"
+local:field: snf3: set as:"" ;; "Batch Name"
+local:field: qtyf: set as:#qtyf9 ;;$$total:qtyf;;#qtyf2 ;;"Qty."
+local:field: qtyf5: set as:#qtyf9 ;;$$total:qtyf5;;#qtyf2 ;;"Qty."
+local:field: numf: set as:$$total:NUMF;;$$prevlinefield ;;"Qty."
+;; {29.Jun.24 16:33} local:field: numf3: set as:$$total:NUMF3;;$$prevlinefield ;;"Qty."
+local:field: qtyf3: set as:$$total:qtyf3;;$$prevlinefield ;;"Qty."
+local:field: numf4: set as:$$total:NUMF4;;$$prevlinefield ;;"Qty."
+local:field: numf5: set as:$$number:#qtyf9-#numf4 ;;$$total:NUMF5;;$$prevlinefield ;;"Qty."
+local:field: amtf2: set as: "";;$$prevlinefield ;;"Qty."
+local:field: ratepf : set as :"" ;; "Rate"
+local:field: amtf: set as: #amtf2 ;; "Value"
+/*local: field: qtyf3 : style: style7
+local: field: numf4 : style: style7
+local: field: numf5 : style: style7 */
+local: field: nf : style: style7
+local:field: qtyf9: set as:$$prevlinefield ;;"Qty."
+
+
+[System: Formula]
+keydonotext:#snf+#FWF ;;+#snf
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: ProcessDetailsDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: ProcessDetailsDisplayVoucher
+
+ 	
+     [Report: ProcessDetailsDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #ProcessDetailsmastid
+	
+
+        [Field: ProcessDetailsmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+   
+[Collection: ColProcessDetailsmainexp]
+source collection:ColProcessDetail
+walk:INVENTORYENTRIESIN,batchallocations,cwcollConsumption
+;; {20.Jun.24 14:02} by:date1:$date
+by:Reference1:$Reference
+;; {13.Jul.24 13:51} by:vouchernumber:$vouchernumber
+by:stockitemname:$stockitemname
+;; {13.Jul.24 13:28} by:cwConsBatchName1:$cwConsBatchName
+;; {28.Jun.24 23:45} aggr compute:billedqty:sum:$billedqty
+ compute:billedqty:$billedqty
+compute:cwConsumProduct1:$cwConsumProduct
+aggr compute:cwBomQty1:sum:$cwBomQty
+;; {29.Jun.24 00:15}  compute:cwConsumQty1:$cwConsumQty
+aggr compute:cwConsumQty1:sum:$cwConsumQty
+compute:BasicShipDeliveryNote1x:$BasicShipDeliveryNote1
+compute:BasicPurchaseOrderNo1x:$BasicPurchaseOrderNo1
+filter:cwProcessvouchernoflter ;;,cwProcessqtyFilter
+;; {13.Jul.24 13:28} filter:cwProcessbatchnoflter ;;,cwProcessqtyFilter
+
+
+[Collection: ColProcessDetail]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColProcesstestFilter,IsNonOptionalCancelledVchs
+     compute:BasicShipDeliveryNote1:$BasicShipDeliveryNote
+     compute:BasicPurchaseOrderNo1:$BasicPurchaseOrderNo
+
+Parm Var: SVFromDate	: Date	: $StartingFrom:Company:##SVCurrentCompany
+Parm Var: SVToDate	: Date	:$LastVoucherDate:Company:##SVCurrentCompany ;;$EndingAt:Company:##SVCurrentCompany
+
+    [system: Formula]
+ColProcesstestFilter: $cwFGMaterialIn:vouchertype:$vouchertypename="yes"
+cwProcessvouchernoflter: $BasicPurchaseOrderNo1x=#cwmrdovchnofld
+;; {13.Jul.24 13:28} cwProcessbatchnoflter: $cwConsBatchName1=#cwDobatchfld
+MrDobilledqty:$$FilterQtyTotal:inventoryentries:cwProcessqtyFilter:$billedqty
+cwProcessqtyFilter:$baseunits:stockitem:$stockitemname="pcs"
+
+
+      [line: LnProcessDetailsTotals]
+        use: LnProcessDetails
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

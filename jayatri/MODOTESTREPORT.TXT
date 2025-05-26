@@ -1,0 +1,181 @@
+; Created By: Anil on 2024-07-24 16:33, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: MoDoTestLock ;; : @@MoDoTestDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@MoDoTestReport: Display: RepMoDoTest
+  */
+
+
+     [!menu: MoDoTestLock]
+        add: Item: before: @@locQuit: @@MoDoTestReport: Display: RepMoDoTest
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   MoDoTestReport: "MoDoTest"
+;; MoDoTestDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepMoDoTest]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@MoDoTestReport
+   Printset: Report Title: @@MoDoTestReport
+
+       Form: FrmMoDoTest
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmMoDoTest]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0MoDoTest,PrtMoDoTest
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: MoDoTestbotbrk,MoDoTestbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: MoDoTestConfigure
+
+      [part: MoDoTestbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: MoDoTestbotopbrk]
+        use: dspacctitles
+  add: part: MoDoTestTitlePart
+
+      [part: MoDoTestTitlePart]
+       line: LnMoDoTestTitle
+       
+      [line: LnMoDoTestCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0MoDoTest]
+      line : LnMoDoTestCurrPeriod
+      
+      [Part: PrtMoDoTest]
+       Line: LnMoDoTestTitle,LnMoDoTest
+bottom Line: LnMoDoTestTotals
+     repeat: LnMoDoTest: ColMoDoTest
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: ColMoDoTest]
+source collection:ColMoDoTestsrc
+walk:inventoryentriesout,BatchAllocations
+;; {24.Jul.24 16:41} by:ParentItem:$ParentItem  ;;$...stockItemname
+;; {24.Jul.24 16:41} by:masterid1:$masterid
+by:date:$date
+;; {25.Jul.24 12:16} by:vouchernumber:$vouchernumber
+by:godownname:$godownname
+by:stockitemname1:$stockitemname
+by:partyledgername:$partyledgername
+;; {25.Jul.24 12:20} by:batchname:$batchname
+;; {25.Jul.24 14:08} by:Reference1:$OrderNo
+;; {25.Jul.24 14:12} by:vouchernumber1:$vouchernumber
+by:cwLRNumberpurc1:$cwLRNumberpurc
+;; {25.Jul.24 12:18} compute:cwConsInvNoMatOut1:$cwConsInvNoMatOut
+;; {25.Jul.24 12:18} compute:cwDirectPurInvNo1:$cwDirectPurInvNo
+aggr compute:billedqtydo:sum:$billedqty
+aggr compute:amount:sum:$amount
+filter:cwlrnoflter
+
+[Collection: ColMoDoTestsrc]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColMoDoTestFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColMoDoTestFilter: $cwAllowToMatReceive:vouchertype:$vouchertypename="yes" ; $$isSales:$voucherTypeName
+
+      [Line: LnMoDoTestTitle]
+        use: LnMoDoTest
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Vch No."
+local:field: nf: set as: "Lr No."
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: LnMoDoTest]
+     Fields: MoDoTestmastid,snf,sdf,fwf,nf
+Right Field: ratepf,Qtyf,Amtf
+
+     Option: Alter on Enter
+        key: MoDoTestDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: sdf : set as : $date
+local:field: fwf : set as : $stockitemname1
+local:field: nf : set as : $cwLRNumberpurc1
+local:field: snf : set as : $batchname ;;$vouchernumber
+local:field: Qtyf : set as : $billedqtydo
+local:field: Amtf : set as : $amount
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: MoDoTestDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: MoDoTestDisplayVoucher
+
+ 	
+     [Report: MoDoTestDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #MoDoTestmastid
+	
+
+        [Field: MoDoTestmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnMoDoTestTotals]
+        use: LnMoDoTest
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

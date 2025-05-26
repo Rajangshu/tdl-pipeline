@@ -1,0 +1,252 @@
+; Created By: Anil on 2024-02-28 11:23, ID: 
+
+; Created By: Anil on 2024-01-30 11:16, ID:
+
+[#Form: VCHStkCons BatchAllocations]
+add:option:cwDOVCHStkConsBatchAllocationsopt ;;:@@cwHouseMaterialOutYes ;;@@IsJobMaterialReceiveopt
+ [!Form: cwDOVCHStkConsBatchAllocationsopt]
+
+    Height          : 85% Screen
+    FullWidth       : NO
+
+    delete:Parts           : ALLOC Title, VCHBATCH Column, VCHStkCons Allocation
+    add:Parts           : ALLOC Title, cwDOVCHBATCHColumn, VCHStkCons Allocation
+
+[part:cwDOVCHBATCHColumn]
+line:cwDOVCHBATCHColumnone
+
+[line:cwDOVCHBATCHColumnone]
+ Right Fields: VCH GodownTitle, VCH BatchNameTitle, VCH QtyTitle, VCH ClosureQtyTitle, +
+								  VCH InclRateTitle, VCH RateTitle, VCH RateUnitsTitle, VCH DiscTitle, VCH AmtTitle
+add:right field:At Beginning:snf
+Local       : Field : VCH GodownTitle     : Invisible : @@IsStockJrnl OR NOT $$IsMultiGodownOn
+Local       : Field : VCH BatchNameTitle  : Inactive  : NOT @@HasBatchWise
+Local: Field: snf: info: "Component of"
+
+Add		: Option	: VCHBATCH ExciseSI ColumnOne 	  : @@IsExciseSupplementaryInv
+border:thin top bottom					
+
+;;=========================================
+/* [Collection:collcwcollConsumption2]
+source collection:default
+
+walk:inventoryentries,batchallocations,cwcollConsumption
+
+compute:cwConsumProduct1:$cwConsumProduct
+compute:cwBomQty1:$cwBomQty
+compute:cwConsRate1:$cwConsRate
+compute:cwConsumQty1:$cwConsumQty
+compute:cwConsBatchName1:$cwConsBatchName
+compute:cwmasteridConsump1:$cwmasteridConsump
+compute:cwUpdateSubQtyConsump1:$cwUpdateSubQtyConsump
+
+format:$cwConsumProduct1,10
+format:$cwBomQty1,10 */
+;;=================================
+[#Form: JobMaterial Journal Voucher]
+;; {09.May.24 18:05} Local: Field: default: Border: thin box ;;left right
+
+;; {09.May.24 18:05} [#Form: JobMaterial Journal Voucher]
+;; {16.Mar.24 16:20} add:option:cwvoucherOpt:@@cwUseforJobWork2 or @@cwReIssuebs2 and @@BabasuitMfgtestEnabled
+
+;; {10.May.24 12:03} add:option:cwvoucherOpt:@@cwUseforJobWork2 and @@BabasuitMfgtestEnabled
+
+[!Form:cwvoucherOpt]
+on: form accept : yes : form accept
+on: form accept : yes : call : UpdateSUBordvchfromMasterOrdVchmin
+
+[Function: UpdateSUBordvchfromMasterOrdVchmin]
+Variable: MasterIdVar: number
+variable: ProgressCount : number :0
+variable : MyItemname2 : string  ;;:$stockitemname
+variable : MyOrdline2 : number
+variable : MySubQty2 : number
+
+05 : start progress : ($$numitems:collminout) : "Updating" : "Please Wait..."
+10 :walk collection:collminout
+15 :set  :MasterIdVar :$cwmasteridMO1
+16 : set : MyItemname2:$stockitemname
+17 : set : MyOrdline2:$cwlineMOVCH2x
+18 : set : MySubQty2 :$cwmomiqty2x
+
+;; {10.May.24 11:32} 18:log object
+;;20 : log :##MasterIdVar
+
+
+25: CALL	: UpdateSUBordvchfromMasterOrdVch1min:##MasterIdVar:##MyItemname2:##MyOrdline2:##MySubQty2
+30:      increment  :ProgressCount
+;; {08.Feb.22 11:28} 35:log:#ProgressCount
+40 : show progress : ##ProgressCount
+45 : continue
+50 : end walk
+55 : end progress
+
+[Function: UpdateSUBordvchfromMasterOrdVch1min]
+parameter : MyMasterid : number
+parameter : MyItemnamepar : string
+parameter : MyOrdline2par : number
+parameter : MySubQty2par : number
+
+variable : MasterVchId : number
+variable : vid : string
+variable : Mybatch : string:"Primarybatch "
+variable : MyItemname : string ;;:$stockitemname
+
+variable : MySubQty : number
+variable : MyOrdline : number
+;;variable : MyOrdPreQty : Quantity
+
+
+;; {01.Feb.22 17:37} variable : counter : number
+VARIABLE:slno:STRING
+
+30 : SET : VID	: $$SPrintf:@@VCHMasterID:##MyMasterid
+;;45 : set :slno :$cwMyLineNojwo
+
+40 : set : MyItemname :##MyItemnamepar
+46 : set : MySubQty :##MySubQty2par
+47 : set : MyOrdline :##MyOrdline2par  ;;$cwlineMOVCH2x
+     /*
+89:log:"---xxxxxx---------------------"
+100x1:log:##MyMasterid
+100x2:log:##MyItemnamepar
+100x:log:##MyOrdline
+100xx:log:##MySubQty
+150:log:"-aaaa-----------------------"
+*/
+;; {16.Feb.24 12:44} 200: modify object :(Voucher, ##VID).inventoryentriesout[1,@@sameitem].cwUpdateSubQty[1].cwUpdateSubQty:##MySubQty ;;,inventoryentries[1,@@sameitem].BatchAllocations[1,@@samebatch].cwUpdateSubQty[1].cwUpdateSubQty:##MySubQty
+
+
+200: modify object :(Voucher, ##VID).inventoryentriesout[1,@@sameitem].batchallocations[##MyOrdline].cwUpdateSubQty[1].cwUpdateSubQty:##MySubQty
+
+;;=======================================================================================================================
+
+ ;;=lot=== MO/ORD/030    MD Abid
+ ;;mi-- MO/ORD/030
+
+[Collection: collminout]
+source Collection:default
+walk:inventoryentriesout, Batch Allocations
+;; {29.Jan.24 16:00} by:stockitemname:$stockitemname
+compute:stockitemname:$stockitemname
+
+
+
+aggr compute:billedqty:sum:$$number:$billedqty
+compute:cwmasteridMO1:$cwmasteridMO
+compute:cwmomiqty2x:$cwmomiqty2
+compute:cwlineMOVCH2x:$cwlineMOVCH2
+
+format:$stockitemname,10
+format:$billedqty,10
+format:$cwmasteridMO1,10
+format:$cwmomiqty2x,10
+format:$cwlineMOVCH2x,10
+
+
+;;==================================
+
+[#Line: VCHStkCons Allocation1]
+add:right field:numf3,numf4,numf5,numf14
+
+Local: Field: numf3:storage:cwmasteridmo
+ Local: Field: numf4:storage:cwmomiqty
+ Local: Field: numf5:storage:cwmomiqty2
+ Local: Field: numf5: Set As:#numf4+$$number:$billedqty
+
+ Local: Field: numf4: Set As:#newnumf41DO
+ 
+[#Line: VCH BoMComp Details]
+   add:option:DOVCHBoMCompDetails1minopt ;;:@@cwHouseMaterialOutYes and @@JayatriTestEnabled
+ [!line:DOVCHBoMCompDetails1minopt]
+
+ add:field:before:VCHBoMComp StockItem:newnumf41,newsnf41,newqty1,newbatch1,newRate1
+
+
+
+ [field:newnumf41DO]
+ use:numf
+ Set As:$$CollectionField:$cwUpdateSubQtyConsump1:$$line:collcwcollConsumption2
+ Invisible: yes
+
+ [field:newsnf41DO]
+ use:snf
+
+ Set As:"";;$$CollectionField:$cwmasteridConsump1:$$line:collcwcollConsumption2
+ Invisible: yes
+
+ [field:newqty1DO]
+ use:numf
+;; {24.Jan.24 09:58}  Set As:$$CollectionField:$billedqty1:$$line:collMO
+ Set As:$$CollectionField:$billedqty:$$line:ColDoOrderMatOutRepMain
+Invisible: yes
+
+ [field:newqty2DO]
+ use:qtyf
+ Invisible: yes
+
+[field:newRate1DO]
+;; {24.Jan.24 10:18}  use:qtyf
+ use:numf
+;; {24.Jan.24 09:58}  Set As:$$CollectionField:$billedqty1:$$line:collMO
+ Set As:$$CollectionField:$rate:$$line:ColDoOrderMatOutRepMain
+Invisible: yes
+
+[field:newrate2DO]
+ use:ratepf
+ Invisible: yes
+
+[field:newbatch1DO]
+ use:snf
+ Set As:$$CollectionField:$batchname:$$line:ColDoOrderMatOutRepMain
+ Invisible: yes
+
+ [field:newbatch2DO]
+ use:snf
+ Set As:#newbatch1DO
+ Invisible: yes
+
+[#Field: VCHBoMComp StockItem]
+ add:option:DOVCHBoMCompStockItemminopt ;;:@@cwHouseMaterialOutYes and @@JayatriTestEnabled
+ [!field:DOVCHBoMCompStockItemminopt]
+ delete:setas
+;; {28.Feb.24 12:42} add:set as:if $$line=1 then $$CollectionField:$stockitemname:$$line:inventoryentries else $$SysName:NotApplicable
+add:Set As:$$CollectionField:$stockitemname:$$line:ColDoOrderMatOutRepMain
+border:thin box
+;;====================================================
+[#Line: ALLOC Title]
+  add:option:DOALLOCTitle1minopt ;;:@@cwHouseMaterialOutYes and @@JayatriTestEnabled
+ [!line:DOALLOCTitle1minopt]
+
+ add:field:newqty2DO,newbatch2DO,newrate2DO
+;; {24.Jan.24 10:17}  Local: Field: newqty2: Set As:#newqty1
+ Local: Field: newqty2: Set As:$$asqty:#newqty1DO
+ Local: Field: newrate2: Set As:$$asrate:#newrate1DO
+
+[#Field: VCHStkCons Parent ItemName]
+ add:option: DOVCHStkConsParentItemNameminopt ;;:@@cwHouseMaterialOutYes and @@JayatriTestEnabled
+ [!field:DOVCHStkConsParentItemNameminopt]
+ delete:setas
+ delete:table
+ add:set as:if $$line=1 then $$CollectionField:$stockitemname:$$line:inventoryentries else $$SysName:NotApplicable
+;; {28.Feb.24 12:45}  add:set as:$$CollectionField:$stockitemname:$$line:ColDoOrderMatOutRepMain
+
+ [#Field: VCHStkCons BatchName]
+ add:option:DOVCHBoMCompBatchNameminopt ;;:@@cwHouseMaterialOutYes and @@JayatriTestEnabled
+
+ [!field:DOVCHBoMCompBatchNameminopt]
+
+ add:Set As:#newbatch2DO
+
+[#field:VCHStkCons ActualQty]
+ add:option:DOVCHStkConsActualQtyminopt ;;:@@cwHouseMaterialOutYes and @@JayatriTestEnabled
+ [!field:DOVCHStkConsActualQtyminopt]
+
+ set as:#newqty2DO
+
+[#Field: VCHStkCons Rate]
+add:option:cwDOVCHStkConsRateopt ;;:@@cwHouseMaterialOutYes and @@JayatriTestEnabled
+[!Field: cwDOVCHStkConsRateopt]
+set as:#newrate2DO
+
+

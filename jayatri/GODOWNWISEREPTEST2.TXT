@@ -1,0 +1,227 @@
+; Created By: Anil on 2024-07-08 17:05, ID: 
+
+; Created By: Anil on 2022-10-15 13:03, ID:
+
+
+; Auto Column Repeat
+/*
+Criteria :
+1 Collection which will be repeated eg : stock item (for stock item name)
+1 Variable which will be repeated (which will store the value of repeated collection)
+1 left field to be repeated (at line level)
+if you want to have multiple repeated fields, then repeat one field and in that field add all the required fields
+eg : repeat : snfNew
+[field : snfnew]
+field : snf,amtf,qtyf etc whatever is required
+
+*/
+
+; Created By: suman on 2011-11-22 15:26
+
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: testnewLock: @@testnewDemoLock
+
+     [!menu: testnewLock]
+        add: Item: before: @@locQuit: @@testnewReport: Display: Reptestnew
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   testnewReport: "testnew Report"
+ testnewDemoLock: yes ;; $$MachineDate < $$Date:"02/12/2011"
+
+
+
+    [Report: Reptestnew]
+        use: Dsp Template
+      Title: @@testnewReport
+   Printset: Report Title: @@testnewReport
+       Form: Frmtestnew
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+      Repeat : Mytestnew
+          Variable: DoSetAutoColumn ;; this is must
+         Set : DoSetAutoColumn : Yes ;; this is must
+          Set : DspRepeatCollection : "Mytestnew" ;;
+          Variable : SVFromDate, SVToDate
+          Variable: Mytestnew
+          variable:gdstr1,gdstr2
+
+      [Form: Frmtestnew]
+        use: DSP Template
+       Part: DspAccTitles,Prttestnew ;;,Prttestnew2
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: testnewbotbrk,testnewbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+  option: setautovchoption : ##Dosetautocolumn AND $$SetAutoColumns:Mytestnew ;; this is must
+add:button: GodownNamebotton
+
+ [System : Variable]
+Mytestnew : ""
+
+
+[Variable : Mytestnew]
+repeat : ##DspRepeatCollection
+Default : ""
+Set always : yes
+
+
+
+[Collection: Mytestnew]    ;; this collection is for Repeated Columns
+
+Type : godown ;; set required object here.
+fetch : *
+Filter : testnewFormula
+keep source : ().
+
+[System : Formula]
+testnewFormula : $cwShowInReport:godown:$name="yes"
+
+  ;; Now, set the object to actual repeat object (in this case it is stock item so we are
+  ;; modifying Stock ITem
+
+[#Object :godown]
+    Mytestnew : $nAME
+
+
+      [part: testnewbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: testnewbotopbrk]
+        use: dspacctitles
+  add: part: testnewTitlePart
+
+      [part: testnewTitlePart]
+       line: LntestnewTitle
+
+      [line: LntestnewCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+
+      [Part: Prttestnew]
+       Line: LntestnewTitle,Lntestnew
+       bottom Line: LntestnewTotals
+     repeat: Lntestnew: ColGodownWiseitemRep ;;ColtestnewVertical
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,numf
+      float:no
+;;      vertical:yes
+
+  
+[Collection: ColGodownWiseitemRep]
+use:stock item
+
+filter:ColtestnewVFilter,ColtestnewVFilter2
+filter:collstockitemfilter
+
+    [system: Formula]
+ColtestnewVFilter: if $$issysname:##gdstr1 then yes else $godownname =##gdstr1
+ColtestnewVFilter2: if $$issysname:##gdstr2 then yes else $name =##gdstr2
+collstockitemfilter: not $$isempty:$closingBalance
+;; {08.Jul.24 17:26} cwGodownnamefilter:if $$issysname:##gdstr1 then yes else $godownname =##gdstr1
+
+/*
+
+   [line:closingstockline]
+     use: Lntestnew
+local:field: sdf: set as:""
+local:field: snf: set as:""
+local:field: nf: set as: "Opening Stock"
+local:field: numf : set as:$openingbalance:stockitem:##mytestnew
+local:field:default:style:normal bold
+*/
+
+[field:godownfield5]
+field:numf2,numf
+
+      [Line: LntestnewTitle]
+        use: Lntestnew
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: snf: set as: "Batch"
+local:field: snf1: set as: "Godown"
+local:field: nf: set as: "Item Name "
+;; {08.Jul.24 19:04} local:field: numf : set as :##mytestnew
+      local: field: default : style: normal bold
+      local: field: numf: type: String
+ local:field:default:align:centre
+ local:field:numf:line:0
+ 
+ local:field:godownfield5:delete :field
+local:field:godownfield5:set as:##mytestnew ;;"Opening Balance"
+local:field:godownfield5: type : string
+local:field:godownfield5:align :centre
+local:field:godownfield5:sub title:yes
+local:field:godownfield5:border:thin bottom
+local:field:godownfield5:Style: style2
+ 
+
+
+      [Line: Lntestnew] ;; main line
+     Fields:nf,godownfield5 ;;numf
+;;right field: snf2
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field :sdf : alter : voucher : $$isvoucher
+Local: Field: sdf: Set As:$date
+Local: Field: snf: Set As:$name
+Local: Field: snf1: Set As:$godownname
+Local: Field: nf: Set As:$name ;;$parent
+;; {08.Jul.24 18:19} Local: Field: numf: Set As:$$reportobject:$$collectionfieldbykey:$ClosingBalance:@@myitemsame:Coltestnewgodownmain
+;; {08.Jul.24 19:00} Local: Field: numf: Set As:$$GodownItemValue:##mytestnew:$parent:$ClosingBalance ;;$StkClBalance
+
+;; {08.Jul.24 19:05} repeat:numf ;; The Field to Repeat ;; Only Left Field is repeated
+repeat:godownfield5 ;; The Field to Repeat ;; Only Left Field is repeated
+local:field:default:border:thin left
+;; ##mytestnew will hold the current column value.
+
+local: field : godownfield5 : Local: Field: numf: Set As: $$godownItemValue:##Mytestnew:#nf:$closingBalance
+local: field : godownfield5 : Local: Field: numf2: Set As: $$filterCount:cwitemBatches:cwGodownNameSame
+local: field : godownfield5 : Local: Field: numf2: color : blue
+
+
+[System: Formula]
+cwGodownNameSame : $godownName = ##Mytestnew
+
+
+[collection : cwitemBatches]
+type : batch
+child of : #nf
+filter:collstockitemfilter5
+
+
+[System: Formula]
+myitemsame :#snf+#nf ;; $stockitemname = ##mytestnew
+collstockitemfilter5: not $$isempty:$closingBalance
+
+[line:lntestnewtotals]
+  use:Lntestnew
+  Local: Field: nf: Set As:  " Total"
+;; {08.Jul.24 19:05}   local: field: numf : set as : $$total:numf
+  local: field: numf : set as : $$total:numf
+      delete : repeat
+;; {08.Jul.24 19:05}       replace : field : numf : numf5
+      replace : field : godownfield5 : numf5
+      add : repeat : numf5
+      local: field:numf5: set as:$$total:numf
+      Local: Field: default: Style: Normal Bold
+
+

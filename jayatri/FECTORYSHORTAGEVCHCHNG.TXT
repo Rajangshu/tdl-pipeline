@@ -1,0 +1,269 @@
+; Created By: Anil on 2024-02-06 17:27, ID: 
+
+[System: Formula]
+cwFectoryShortageYes:$cwFectoryShortage:vouchertype:$vouchertypename="yes"
+cwcwFectoryReceiveYes:$cwFectoryReceive:vouchertype:$vouchertypename="yes"
+
+ [#Line: VCHBATCH ColumnOne]
+ add:option:cwFectoryVCHBATCHColumnOneopt2 :@@cwFectoryShortageYes ;;@@cwFectoryReceiveYes and @@cwStkbatchEnable
+ [!Line: cwFectoryVCHBATCHColumnOneopt2]
+
+ add:right field:after:VCH BatchNameTitle:suppnofA,suppdtfA
+ add:right field:after:VCH BatchNameTitle:snf1,snf,snf2,sdf,snf10,snf4,snf5,suppnof,suppdtf  ;;,snf7,snf8,snf9,snf10,snf11,snf12,snf13,snf14,snf15
+add:right field:before:VCH QtyTitle:numf9,numf10
+
+ Local: Field: snf: INFO:"No of Bales" ;;@@cwRMCaptionsName1   ;;IF @@cwRawMaterialyes THEN @cwRMCaptionsName1  ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName1 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName1 else ""
+ Local: Field: snf1: INFO:"Type" ;;@@cwRMCaptionsName1   ;;IF @@cwRawMaterialyes THEN @cwRMCaptionsName1  ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName1 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName1 else ""
+ Local: Field: snf2: INFO:"LR No" ;;@@cwRMCaptionsName2  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName2 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName2 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName2 else ""
+ Local: Field: sdf: INFO:"LR Date" ;;@@cwRMCaptionsName3   ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName3 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName3 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName3 else ""
+ Local: Field: snf10: INFO:"House" ;;@@cwRMCaptionsName4  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName4 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName4 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName4 else ""
+ Local: Field: snf4: INFO:"Supp Name" ;;@@cwRMCaptionsName4  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName4 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName4 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName4 else ""
+ Local: Field: snf5: INFO:"Trans Name" ;;@@cwRMCaptionsName5  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName5 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName5 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName5 else ""
+ Local: Field: numf9: info: "Fent Qty"
+ Local: Field: numf10: info: "Scrp Qty"
+ Local: Field: numf5: info: "JW Rate"
+ Local: Field: numf6: info: "Trns Rate"
+ Local: Field: numf7: info: "Rate"
+
+ local: field: numf5: Invisible:if @@cwHouseMatJWrateEnble then no else yes
+ local: field: numf6: Invisible:if @@cwHouseMatTransportRateEnble then no else yes
+
+ Local: field: snf: Width:10
+ Local: field: snf1: Width:8
+ Local: field: snf2: Width:10
+ Local: field: snf4: Width:10
+ Local: field: snf5: Width:10
+ Local: field: sdf: Width:10
+ Local: field: snf10: Width:10
+
+
+  Local: Field: DEFAULT: Style:Style2
+  Local: Field: VCH BatchNameTitle: Style:Style1
+  Local: Field: VCH QtyTitle: Style:Style1
+  Local: Field: VCH RateTitle: Style:Style1
+  Local: Field: VCH AmtTitle: Style:Style1
+
+   Local: field: snf2: Align: centre
+   Local: field: snf10: Align: centre
+   Local: field: numf5: Align: centre
+   Local: field: numf6: Align: centre
+   Local: field: numf7: Align: centre
+   local: field: numf5: type: String
+
+
+ [System: Formula]
+ cwjooroptFilter:$$IsJobOrderOut:$vouchertypename
+ cwVchTypeSelectedGodown:$cwVchTypeSelectedGodown:vouchertype:$vouchertypename
+ cwHouseMattype:$cwHouseMattype:vouchertype:$vouchertypename
+
+
+
+[System: Formula]
+cwUseasScrapfilter2:$cwUseasScrap:stockgroup:$parent:stockitem:#allocname="no"
+cwHouseMatTransportRateEnble:$cwHouseMatTransportRate:vouchertype:$vouchertypename="yes"
+cwHouseMatJWrateEnble:$cwHouseMatJWrate:vouchertype:$vouchertypename="yes"
+
+ [#line:STKVCH Batch2]
+ add:option:cwFectorySTKVCHBatch2opt2:@@cwFectoryShortageYes ;;@@cwFectoryReceiveYes and @@cwStkbatchEnable
+ [!Line: cwFectorySTKVCHBatch2opt2]
+
+add:right Field:after:VCHBATCH Name:snf1,snf,snf2,sdf,snf10,snf4,snf5,snf20,numf,numf2,suppnof2A,suppdtf2A
+add:right field:before:VCHBATCH BilledQty:numf9,numf10
+Local: Field: numf: Set As:$cwEffectiverateofPrimaryItem
+Local: Field: numf2: Set As:$cwFGQty
+Local: Field: snf20: Set As:$$table:VCHBATCHName:$cwVCHFGQty2
+
+Local: Field:VCHBATCH BilledQty:delete:Set as
+Local: Field:VCHBATCH BilledQty:delete:Set by Condition
+Local: Field:VCHBATCH BilledQty:add:Set by Condition:yes:$$number:#snf20
+
+
+Local: Field:VCHBATCH Value:delete:Set as
+Local: Field:VCHBATCH Value:delete:Set by Condition
+Local: Field:VCHBATCH Value:add:Set by Condition:yes:$$number:#numf8
+
+Local: Field: numf5: STORAGE: CWJWVCHRate ;;"JW Rate"
+Local: Field: numf6: STORAGE: CWTRNSRate ;;"JW Rate"
+Local: Field: numf7: STORAGE: CWJWFINALRate ;;"JW Rate"
+Local: Field: numf9: storage:cwFentQtystrg
+ Local: Field: numf10: storage:cwScrpQtystrg
+ Local: Field: numf7: set AS:$$NUMBER:#VCHBATCHRate+#numf5+#numf6 ;;"Rate"
+ Local: Field: NUMF8: Set As:$$NUMBER:#VCHBATCHBilledQty*#numf7
+ Local: Field: numf9: set as:$$table:VCHBATCHName:$cwFentQtystrg ;;$$CollNumTotal:collcwproNamefent:$cwfentqtyn ;;"Fent Qty"
+ Local: Field: numf10: set as:$$table:VCHBATCHName:$cwScrpQtystrg ;;$$CollNumTotal:collcwproNamefent:$cwfentqtyn ;;"Fent Qty"
+
+ local: field: numf9: type: String
+ local: field: numf10: type: String
+ Local: field: numf7: Format : "Decimal:2,NoZero"
+
+local: field: snf20: Invisible: yes
+Local: Field: snf20: Skip: Yes
+local: field: numf: Invisible: yes
+local: field: numf2: Invisible: yes
+local: field: numf8: Invisible: yes
+  add:right field:before:VCHBATCH BilledQty:cwRecedQtyf
+
+ Local: Field: snf: storage:cwHouseNoofBalespurc ;;cwNoofBalespurc
+ Local: Field: snf1: storage:cwHouseTypepurc ;;cwTypepurc
+ Local: Field: snf2:storage:cwHouseLRNumberpurc ;;cwLRNumberpurc
+ Local: Field: sdf:storage:cwHouseLRDatepurc ;;cwLRDatepurc
+ Local: Field: snf4:storage:cwHouseSupplierNamepurc ;;cwSupplierNamepurc
+ Local: Field: snf10:storage:cwHouseConsigneeNamepurc ;;cwConsigneeNamepurc
+ Local: Field: snf5:storage:cwHouseTransporterNamepurc ;;cwTransporterNamepurc
+ Local: Field: numf5: storage:cwjwrate
+ Local: Field: SNF1: Set As:@@cwHouseMattype
+
+ Local: Field: snf4: set as : $$CollectionField:$cwConsSuplName:First:cwcollConsumption ;;$$ReptField:Name:2:ledger:$partyledgername
+ Local: Field: snf10: set as :$$CollectionField:$cwConsHouseName:First:cwcollConsumption ;;$$ReptField:Name:2:ledger:$CONSIGNEEMAILINGNAME ;;$$ReptField:Name:2:$BasicBuyerName ;;ledger:$partyledgername
+ Local: Field: snf5: set as :$$CollectionField:$cwConsTransName:First:cwcollConsumption ;;$$ReptField:Name:2:ledger:$$owner:$$owner:$cwTransporterpurc ;;$cwTransporterpurc
+ Local: Field: snf2: set as :$BILLOFLADINGNO
+
+ Local: Field: sdf: set as :$BillofLadingDate
+
+ Local: Field: snf4: set as :$$table:VCHBATCHName:$cwHouseSupplierNamepurc ;;$$ReptField:Name:2:ledger:$partyledgername
+ Local: Field: snf5: set as :$$table:VCHBATCHName:$cwHouseTransporterNamepurc ;;$$ReptField:Name:2:ledger:$$owner:$$owner:$cwTransporterpurc ;;$cwTransporterpurc
+ Local: Field: snf: set as :$$table:VCHBATCHName:$cwHouseNoofBalespurc ;;$BILLOFLADINGNO
+ Local: Field: snf1: set as :$$table:VCHBATCHName:$cwHouseTypepurc ;;$BILLOFLADINGNO
+ Local: Field: snf2: set as :$$table:VCHBATCHName:$cwHouseLRNumberpurc ;;$BILLOFLADINGNO
+ Local: Field: snf10: set as :$$table:VCHBATCHName:$cwHouseConsigneeNamepurc ;;$BILLOFLADINGNO
+ Local: Field: sdf: set as :$$table:VCHBATCHName:$cwHouseLRDatepurc ;;$BILLOFLADINGNO
+ Local: Field: VCHBATCH BilledQty: set as :$$table:VCHBATCHName:$ClosingBalance ;;$BILLOFLADINGNO
+
+ Local: Field: DEFAULT: Style:Style2
+  Local: Field: snf1: Skip: Yes
+  Local: Field: snf2: Skip: Yes
+  Local: Field: snf3: Skip: Yes
+  Local: Field: snf4: Skip: Yes
+  Local: Field: snf5: Skip: Yes
+  Local: Field: snf10: Skip: Yes
+  Local: Field: numf9: Skip: Yes
+  Local: Field: numf10: Skip: Yes
+  Local: Field: sdf: Skip: Yes
+
+  Local: field: numf5: Align: centre
+   Local: field: numf6: Align: centre
+   Local: field: numf7: Align: centre
+   Local: field: numf9: Align: centre
+   Local: field: numf10: Align: centre
+
+   local: field: numf5: Invisible:if @@cwHouseMatJWrateEnble then no else yes
+   local: field: numf6: Invisible:if @@cwHouseMatTransportRateEnble then no else yes
+
+
+ Local: Field: snf: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf1: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf2: INACTIVE :@@BatchAllocBreak
+ Local: Field: sdf: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf4: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf5: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf10: INACTIVE :@@BatchAllocBreak
+ Local: Field: numf5: INACTIVE :@@BatchAllocBreak
+ Local: Field: numf6: INACTIVE :@@BatchAllocBreak
+ Local: Field: numf7: INACTIVE :@@BatchAllocBreak
+
+ Local: field: snf: Width:10
+ Local: field: snf1: Width:8
+ Local: field: snf2: Width:10
+ Local: field: sdf: Width:10
+ Local: field: snf10: Width:10
+ Local: field: snf4: Width:10
+ Local: field: snf5: Width:10
+ Local: field: snf20: Width:6
+
+ Local: field: snf: Align: centre
+ Local: field: snf2: Align: centre
+ Local: field: snf10: Align: centre
+ 
+ ;;==================================
+ 
+/* [#Line: VCHBATCH ColumnOne]
+ add:option:VCHBATCHColumnOnejeminopt2:@@cwcwFectoryReceiveYes and @@cwStkbatchEnable ;;@@JayatriTestEnabled
+
+ [!line:VCHBATCHColumnOnejeminopt2]
+
+ add:right field:after:VCH BatchNameTitle:cwminvch2,cwmindt2
+ add:right field:before:VCH QtyTitle:numf,qtyf2
+
+ Local: Field:numf: info:"Accept Qty" ;;"Purc Qty"
+
+ Local: Field:qtyf2: info:"Short Qty"
+ Local: Field:VCH QtyTitle: info:"Purc Qty" ;;"Accept Qty"
+ local: field:qtyf2 : Invisible: yes
+
+
+;;=============================
+
+[field:cwRecedQtyfx]
+ use:qtyf ;;numf
+ Set As:$billedqty
+ storage:cwRecedQtyx ;;cwRecedQty
+  Invisible: yes
+  format:"decimals:2"
+Skip: Yes
+ ;;===========================
+
+ [#line:STKVCH Batch2]
+
+ add:option:STKVCHBatch2jeminopt2:@@cwcwFectoryReceiveYes and @@cwStkbatchEnable ;;@@JayatriTestEnabled
+
+ [!line:STKVCHBatch2jeminopt2]
+;; {07.Feb.24 11:20}   add:right field:before:VCHBATCH BilledQty:qtyf2
+  add:right field:before:VCHBATCH BilledQty:cwRecedQtyfx,qtyf2
+  
+  Local: Field:qtyf2: storage:cwShortQty
+   Local: Field: qtyf2: Set As:$$asqty:#VCHBATCHBilledQty-$$asqty:$cwRecedQtyx ;;$cwRecedQty
+;; {07.Feb.24 11:34}    Local: Field: qtyf2: Set As:$$asqty:$cwRecedQty
+
+ Local: Field: qtyf2: Skip: Yes
+ Local: Field: qtyf2: Invisible: Yes
+
+;; {07.Feb.24 12:02}  Local: Field: VCHBATCH BilledQty: Skip: Yes
+   
+   local: field: cwRecedQtyfx:delete: Invisible: yes
+                                                           */
+                                                           
+[#Line: VCHBATCH ColumnOne]
+ add:option:VCHBATCHColumnOnejeminopt2:@@cwcwFectoryReceiveYes and @@cwStkbatchEnable ;;@@JayatriTestEnabled
+
+ [!line:VCHBATCHColumnOnejeminopt2]
+
+ add:right field:after:VCH BatchNameTitle:cwminvch2,cwmindt2
+ add:right field:before:VCH QtyTitle:numf,qtyf2
+
+ Local: Field:numf: info:"Accept Qty" ;;"Purc Qty"
+
+ Local: Field:qtyf2: info:"Short Qty"
+ Local: Field:VCH QtyTitle: info:"Purc Qty" ;;"Accept Qty"
+ local: field:qtyf2 : Invisible: yes
+
+
+;;=============================
+
+[field:cwRecedQtyfx]
+ use:qtyf ;;numf
+ Set As:$billedqty
+ storage:cwRecedQtyx ;;cwRecedQty
+  Invisible: yes
+  format:"decimals:2"
+Skip: Yes
+ ;;===========================
+
+ [#line:STKVCH Batch2]
+
+ add:option:STKVCHBatch2jeminopt2:@@cwcwFectoryReceiveYes and @@cwStkbatchEnable ;;@@JayatriTestEnabled
+
+ [!line:STKVCHBatch2jeminopt2]
+;; {07.Feb.24 11:20}   add:right field:before:VCHBATCH BilledQty:qtyf2
+  add:right field:before:VCHBATCH BilledQty:cwRecedQtyfx,qtyf2
+
+  Local: Field:qtyf2: storage:cwShortQty
+   Local: Field: qtyf2: Set As:$$asqty:#VCHBATCHBilledQty-$$asqty:$cwRecedQtyx ;;$cwRecedQty
+;; {07.Feb.24 11:34}    Local: Field: qtyf2: Set As:$$asqty:$cwRecedQty
+
+ Local: Field: qtyf2: Skip: Yes
+ Local: Field: qtyf2: Invisible: Yes
+
+;; {07.Feb.24 12:02}  Local: Field: VCHBATCH BilledQty: Skip: Yes
+
+   local: field: cwRecedQtyfx:delete: Invisible: yes
+

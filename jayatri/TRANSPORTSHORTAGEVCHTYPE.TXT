@@ -1,0 +1,120 @@
+; Created By: Anil on 2024-01-19 14:00, ID: 
+
+[System: Formula]
+cwstkjrnlVoucher:$$IsStockJrnl:$parent
+
+
+ [#Part: VTYP Behaviour]
+ add:option:cwstkjrnlVTYPBehaviouropt:@@cwstkjrnlVoucher
+ [!Part: cwstkjrnlVTYPBehaviouropt]
+ add:line:cwadditionalfeatures
+
+ [line:cwadditionalfeatures]
+  field:long prompt,cwlogical
+ Local: Field: long prompt: Set As:"Use as a Additional Feature"
+ Local: Field: cwlogical: storage:cwShortAdditionalFeature
+ Local: Field:default: Style:style1
+ Local: Field: default: Color : blue
+
+ Local: Field : cwlogical : SubForm :repAdditionalFeature:$$value
+
+ [report:repAdditionalFeature]
+form:FrmAdditionalFeature
+
+[form:FrmAdditionalFeature]
+part:partAdditionalFeature
+
+[part:partAdditionalFeature]
+width:40% page
+line:cwtransportshortageLn,cwFectoryShortageLn,cwCustomisationLine,cwStkJrnlEnableLine ;;,cwTransportgodownLn,cwrmcaptionline
+
+ [line:cwtransportshortageLn]
+ field:long prompt,cwlogical
+ Local: Field: long prompt: Set As:"Use as a House Shortage (Pur)"
+ Local: Field: cwlogical: storage:cwTransportShortage
+ Local: Field:default: Style:style2
+ Local: Field: default: Color : blue
+ 
+ Local: Field : cwlogical : SubForm :TransportShortagerep:$$value
+
+ [report:TransportShortagerep]
+form:TransportShortagerep
+
+[form:TransportShortagerep]
+part:TransportShortagerep
+
+[part:TransportShortagerep]
+width:40% page
+line:cwTransportgodownLn,cwrmcaptionline
+
+ [line:cwTransportgodownLn]
+ field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Shortage Godown:"
+ Local: Field: nf: storage:cwVchTypestkTransportGodown
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+
+;;========================================
+
+[line:cwFectoryShortageLn]
+field:long prompt,cwlogical
+ Local: Field: long prompt: Set As:"Use as a Fectory Shortage "
+ Local: Field: cwlogical: storage:cwFectoryShortage
+ Local: Field:default: Style:style2
+ Local: Field: default: Color : blue
+
+ Local: Field : cwlogical : SubForm :FectoryShortagerep:$$value
+
+ [report:FectoryShortagerep]
+form:FectoryShortagerep
+
+[form:FectoryShortagerep]
+part:FectoryShortagerep
+
+[part:FectoryShortagerep]
+width:40% page
+line:cwFectorygodownLn,cwrmcaptionline
+
+[line:cwFectorygodownLn]
+field:Long Prompt,nf
+ Local: Field: Long Prompt: Set As:"Fectory Shortage Godown:"
+ Local: Field: nf: storage:cwVchTypestkFectoryGodown
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+
+ Local: Field: nf: table: cwVoucherGodown,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+[line:cwCustomisationLine]
+ field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Enable Customisation:"
+ Local: Field: cwlogical: storage:cwEnableCustomisation
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+ 
+Local: Field : cwlogical : SubForm :cwEnableCustomisationRep:$$value
+
+ [report:cwEnableCustomisationRep]
+form:cwEnableCustomisationRep
+
+[form:cwEnableCustomisationRep]
+part:cwEnableCustomisationRep
+
+[part:cwEnableCustomisationRep]
+width:40% page
+line:cwrmcaptionline
+
+[line:cwStkJrnlEnableLine]
+field:Long Prompt,cwlogical
+ Local: Field: Long Prompt: Set As:"Enable Stock Transfer:"
+ Local: Field: cwlogical: storage:cwEnableStockJournal
+
+ Local: Field: default: Style:Style2
+ Local: Field: default: Color : blue
+

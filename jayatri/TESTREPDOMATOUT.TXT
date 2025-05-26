@@ -1,0 +1,187 @@
+; Created By: Anil on 2024-03-08 12:23, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+;; {18.Mar.24 13:08}         add: Option: trstrepDoMatOutLock ;; : @@trstrepDoMatOutDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@trstrepDoMatOutReport: Display: ReptrstrepDoMatOut
+
+
+
+     [!menu: trstrepDoMatOutLock]
+        add: Item: before: @@locQuit: @@trstrepDoMatOutReport: Display: ReptrstrepDoMatOut
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   trstrepDoMatOutReport: "trstrepDoMatOut"
+;; trstrepDoMatOutDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: ReptrstrepDoMatOut]
+        use: Dsp Template
+;; Use				: Range Value Template
+        Use				: Range  Template
+        
+      Title: @@trstrepDoMatOutReport
+   Printset: Report Title: @@trstrepDoMatOutReport
+       Form: FrmtrstrepDoMatOut
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmtrstrepDoMatOut]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0trstrepDoMatOut,PrttrstrepDoMatOut
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: trstrepDoMatOutbotbrk,trstrepDoMatOutbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+  add:button:Save View,change view
+ ;;    local : button : report config : action :modify variable: trstrepDoMatOutConfigure
+        option : enable Range filters
+        
+      [part: trstrepDoMatOutbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: trstrepDoMatOutbotopbrk]
+        use: dspacctitles
+  add: part: trstrepDoMatOutTitlePart
+
+      [part: trstrepDoMatOutTitlePart]
+       line: LntrstrepDoMatOutTitle
+       
+      [line: LntrstrepDoMatOutCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0trstrepDoMatOut]
+      line : LntrstrepDoMatOutCurrPeriod
+      
+      [Part: PrttrstrepDoMatOut]
+       Line: LntrstrepDoMatOutTitle,LntrstrepDoMatOut
+bottom Line: LntrstrepDoMatOutTotals
+     repeat: LntrstrepDoMatOut: ColtrstrepDoMatOutMain ;;ColtrstrepDoMatOut
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColtrstrepDoMatOutMain]
+source Collection:ColtrstrepDoMatOut
+  Title       		: $$LocaleString:"List of Active Batches"
+  add:SubTitle            : $$LocaleString:"Batch",$$LocaleString:"Godown",$$LocaleString:"Sup/Inv",$$LocaleString:"No of Bale",$$LocaleString:"Lr No",$$LocaleString:"House",$$LocaleString:"Transporter",$$LocaleString:"Sup Name",$$LocaleString:"Qty",$$LocaleString:"Rate",$$LocaleString:"Balance"
+ walk:inventoryentriesout,BatchAllocations
+;; {24.Jan.24 18:08}  Walk : MultiComponentList,MultiComponentItemList
+;; {24.Jan.24 17:33} Walk : inventoryentries,BatchAllocations
+ by:ParentItem:$ParentItem  ;;$...stockItemname
+;; {24.Jan.24 17:52} by:vouchernumber1:$vouchernumber
+by:masterid1:$masterid
+by:stockitemname1:$stockitemname
+by:godownname:$godownname
+by:batchname:$batchname
+by:orderno1:$orderno
+compute:cwConsInvNoMatOut1:$cwConsInvNoMatIn
+/*compute:cwNoofBalespurc1:$cwNoofBalespurc
+compute:cwLRNumberpurc1:$cwLRNumberpurc
+compute:cwConsigneeNamepurc1:$cwConsigneeNamepurc
+compute:cwSupplierNamepurc1:$cwSupplierNamepurc
+compute:cwTransporterNamepurc1:$cwTransporterNamepurc   */
+compute:clrate:$$number:$batchrate
+;; {08.Mar.24 12:58} compute:ClosingValue:$$number:$amount
+;; {30.Jan.24 17:54} COMPUTE:cwRecedQty1:$$NUMBER:$cwRecedQty
+aggr compute:billedqty:sum:$billedqty
+aggr compute:ClosingValue:sum:$amount
+
+
+;; {24.Jan.24 18:11} add:format:$Name1,10
+;; {27.Jan.24 16:20} add:format:$StockItemName1,10
+add:format:$batchname,10
+add:format:$godownname,10
+add:format:$cwConsInvNoMatOut1,10
+;; {12.Mar.24 18:33} add:format:$cwLRNumberpurc1,10
+;; {12.Mar.24 18:33} add:format:$cwConsigneeNamepurc1,10
+;; {12.Mar.24 18:33} add:format:$cwSupplierNamepurc1,10
+;; {12.Mar.24 18:34} add:format:$cwTransporterNamepurc1,10
+add:format:$billedqty,10
+add:format:$clrate,10
+add:format:$ClosingValue,10
+;; {30.Jan.24 16:03} add:format:"$ParentItem,10"
+;; {30.Jan.24 16:03} add:format:$masterid1,10
+
+fetch:ParentItem,stockitemname,batchname,cwNoofBalespurc,cwLRNumberpurc,masterid1,cwConsInvNoMatIn,cwConsInvNoMatOut
+;; {16.Mar.24 18:21} filter:cwAllowToMatReceivefilter ;;ParentItemflter
+
+[Collection: ColtrstrepDoMatOut]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+;; {16.Mar.24 18:23}      Filter: ColtrstrepDoMatOutFilter,IsNonOptionalCancelledVchs
+     filter:cwAllowToMatReceivefilter
+
+    [system: Formula]
+ColtrstrepDoMatOutFilter: $$IsJobMaterialIssue:$vouchertypename
+ParentItemflterdo:$$isempty:$ParentItem
+cwAllowToMatReceivefilter:$cwAllowToMatReceive:vouchertype:$vouchertypename="yes"
+
+      [Line: LntrstrepDoMatOutTitle]
+        use: LntrstrepDoMatOut
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Batch" ;;"Sup/inv"
+local:field: snf1: set as: "Sup/inv" ;;"No of Bale"
+local:field: snf2: set as: "Lr NO"
+local:field: snf3: set as: "House"
+local:field: snf4: set as: "Sup Name"
+local:field: snf5: set as: "Transporter"
+local:field: nf: set as: "Item Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LntrstrepDoMatOut]
+     Fields: snf10,snf11,nf,snf,snf1 ;;,snf2,snf3,snf4,snf5 ;;,numf5
+right field: ratepf,Qtyf,Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local:field: snf: set as: $batchname ;;"Sup/inv"
+local:field: snf1: set as: $cwConsInvNoMatOut1 ;;$cwHousesuppinvno1 ;;$cwNoofBalespurc1 ;;"No of Bale"
+local:field: snf2: set as: $cwLRNumberpurc1 ;;"Lr NO"
+local:field: snf3: set as: $cwConsigneeNamepurc1 ;;"House"
+local:field: snf4: set as: $cwSupplierNamepurc1 ;;"Sup Name"
+local:field: snf5: set as: $cwTransporterNamepurc1 ;;"Transporter"
+local:field: nf: set as: $stockitemname1 ;;"Item Name"
+Local: Field: qtyf: Set As:$billedqty ;;$closingbalance
+Local: Field: amtf: Set As:$ClosingValue
+Local: Field: numf5: Set As:$clrate
+Local: Field: snf10: Set As:$ParentItem
+Local: Field: snf11: Set As:$masterid1
+;; {30.Jan.24 12:36} Local: Field: snf11: Border: thin box ;;left right
+
+
+      [line: LntrstrepDoMatOutTotals]
+        use: LntrstrepDoMatOut
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

@@ -1,0 +1,498 @@
+; Created By: Anil on 2024-06-12 17:47, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+;; {19.Jun.24 18:52}         add: Option: BEDSHEETSPECIALLOTMILANLock ;; : @@BEDSHEETSPECIALLOTMILANDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@BEDSHEETSPECIALLOTMILANReport: Display: RepBEDSHEETSPECIALLOTMILAN
+  */
+
+
+     [!menu: BEDSHEETSPECIALLOTMILANLock]
+        add: Item: before: @@locQuit: @@BEDSHEETSPECIALLOTMILANReport: Display: RepBEDSHEETSPECIALLOTMILAN
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+;; {18.Jun.24 16:21}    BEDSHEETSPECIALLOTMILANReport: "BEDSHEET SPECIAL LOT MILAN"
+   BEDSHEETSPECIALLOTMILANReport: "Bedsheet Special LOT Milan"
+;; BEDSHEETSPECIALLOTMILANDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepBEDSHEETSPECIALLOTMILAN]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@BEDSHEETSPECIALLOTMILANReport
+   Printset: Report Title: @@BEDSHEETSPECIALLOTMILANReport
+
+       Form: FrmBEDSHEETSPECIALLOTMILAN
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+        variable:str1,str2
+    set:str1:""
+    set:str2:""
+    
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmBEDSHEETSPECIALLOTMILAN]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0BEDSHEETSPECIALLOTMILAN,PrtBEDSHEETSPECIALLOTMILAN
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: BEDSHEETSPECIALLOTMILANbotbrk,BEDSHEETSPECIALLOTMILANbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+add:button:Itemfilterbutton
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: BEDSHEETSPECIALLOTMILANConfigure
+
+      [part: BEDSHEETSPECIALLOTMILANbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: BEDSHEETSPECIALLOTMILANbotopbrk]
+        use: dspacctitles
+  add: part: BEDSHEETSPECIALLOTMILANTitlePart
+
+      [part: BEDSHEETSPECIALLOTMILANTitlePart]
+       line: LnBEDSHEETSPECIALLOTMILANTitle
+       
+      [line: LnBEDSHEETSPECIALLOTMILANCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0BEDSHEETSPECIALLOTMILAN]
+      line : LnBEDSHEETSPECIALLOTMILANCurrPeriod
+      
+      [Part: PrtBEDSHEETSPECIALLOTMILAN]
+       Line: LnBEDSHEETSPECIALLOTMILANTitle,LnBEDSHEETSPECIALLOTMILAN
+bottom Line: LnBEDSHEETSPECIALLOTMILANTotals
+     repeat: LnBEDSHEETSPECIALLOTMILAN: ColBEDSHEETSPECIALLOTMILANMAIN ;;ColBEDSHEETSPECIALLOTMILAN
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,numf,numf2
+
+; Main Collection
+
+[Collection: ColBEDSHEETSPECIALLOTMILANMAIN]
+SOURCE COLLECTION:ColBEDSHEETSPECIALLOTMILAN
+walk:allinventoryentries,BATCHALLOCATIONS,VOUCHERCOMPONENTLIST,BATCHALLOCATIONS
+by:ParentItem:$ParentItem
+by: date:            $date
+by: Reference: $Reference
+;; {13.Jul.24 16:53} by: batchName1:   $batchName
+by: partyledgername:   $partyledgername
+by: stockitemname2:   $stockitemname
+compute:stockitemname1:$....stockitemname
+aggr compute:billedqty:sum:$billedqty
+filter:cwDoNofilter,cwQualityfilter
+
+[Collection: ColBEDSHEETSPECIALLOTMILAN]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColBEDSHEETSPECIALLOTMILANFilter,IsNonOptionalCancelledVchs
+;; {12.Jul.24 12:06}      compute: mySortOrdermodo: if $$IsJobOrderIn:$vouchertypename then 1 else if $$IsJobMaterialReceive:$voucherTypename then 2 else 3
+;; {19.Jun.24 17:25}       Parm Var: SVFromDate	: Date	: $StartingFrom:Company:##SVCurrentCompany
+;; {19.Jun.24 17:25} Parm Var: SVToDate	: Date	:$LastVoucherDate:Company:##SVCurrentCompany ;;$EndingAt:Company:##SVCurrentCompany
+
+    [system: Formula]
+ColBEDSHEETSPECIALLOTMILANFilter:$cwDoOrder:vouchertype:$vouchertypename="yes" ;;or $cwFGMaterialIn:vouchertype:$vouchertypename="yes";; $$isSales:$voucherTypeName
+
+      [Line: LnBEDSHEETSPECIALLOTMILANTitle]
+        use: LnBEDSHEETSPECIALLOTMILAN
+     option: titleopt
+local:field: SNF: set as: "SL.NO"
+local:field: cwvchnofld: set as: "D.O.NO"
+local:field: snf1: set as: "D.O. NO"
+local:field: Qtyf: set as: "D.O  MTR"
+local:field: nf: set as: "QUALITY"
+local:field: sdf: set as: "Date"
+local:field: sdf2: set as: "MR DO Date"
+local:field: fwf: set as: "MR DO QUALITY"
+local:field: SNF2: set as: "CHALLN NO"
+local:field: SNF3: set as: "BALE NO"
+local:field: SNF4: set as: "BALE NO"
+local:field: NUMF3: set as: "TOTAL Qty"
+local:field: NUMF: set as: "Used (MTR)"
+local:field: NUMF5: set as: "Balance"
+local:field: NUMF6: set as: "Balance"
+local:field: NUMF2: set as: "PERCENTAGE"
+;; {15.Jul.24 13:31} local: field: default : style: normal bold
+      
+Local: field:snf1 : Align: centre
+Local: field:sdf : Align: centre
+Local: field:nf : Align: centre
+Local: field:Qtyf : Align: centre
+Local: field:sdf2 : Align: centre
+Local: field:SNF2 : Align: centre
+Local: field:SNF3 : Align: centre
+Local: field:SNF4 : Align: centre
+Local: field:NUMF3 : Align: centre
+Local: field:NUMF : Align: centre
+Local: field:NUMF5 : Align: centre
+Local: field:NUMF6 : Align: centre
+Local: field:NUMF2 : Align: centre
+local: field :fwf:indent:5
+
+local: field: SNF1 : style: style1y ;;normal bold
+local: field: SDF : style: style1y ;;normal bold
+local: field: NF : style: style1y ;;normal bold
+local: field: FWF : style: style1y ;;normal bold
+local: field: Qtyf : style: style1y ;;normal bold
+local: field: SNF2 : style: style1y ;;normal bold
+local: field: SNF3 : style: style1y ;;normal bold
+local: field: SNF4 : style: style1y ;;normal bold
+local: field: NUMF : style: style1y ;;normal bold
+local: field: NUMF5 : style: style1y ;;normal bold
+local: field: NUMF6 : style: style1y ;;normal bold
+local: field: NUMF2 : style: style1y ;;normal bold
+
+
+[field:cwvchnofld]
+use:snf
+Invisible: yes
+
+[field:cwvchbatchfld]
+use:snf
+;; {12.Jul.24 19:00} Invisible: yes
+Lines : 0
+
+; Main Line
+      [Line: LnBEDSHEETSPECIALLOTMILAN]
+;; {14.Jul.24 21:56}      Fields: BEDSHEETSPECIALLOTMILANmastid,cwvchnofld,cwvchbatchfld,snf1,snf11,sdf,nf,Qtyf,SNF10,NUMF,numf7,Qtyf2,sdf2,fwf,SNF2,SNF3
+     Fields: BEDSHEETSPECIALLOTMILANmastid,cwvchnofld,snf1,snf11,sdf,nf,Qtyf,NUMF,numf6,Qtyf2,sdf2,fwf,SNF2 ;;,SNF3
+Right Field: NUMF3,NUMF2 ;;,Amtf
+
+     Option: Alter on Enter
+        key: BEDSHEETSPECIALLOTMILANDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: SNF: set as:$$linenumber ;;"SL.NO"
+local:field: cwvchnofld: set as:$Reference ;;$VOUCHERNUMBER ;;"D.O.NO"
+local:field: cwvchbatchfld: set as:$batchName1 ;;$$fulllist:ColBEDSHEETSPECIALLOTMILANMAIN:$batchName1 ;;$batchName1 ;;$VOUCHERNUMBER ;;"D.O.NO"
+local:field: snf1: set as:$Reference ;;$VOUCHERNUMBER ;;"D.O.NO"
+local:field: Qtyf: set as: $BILLEDQTY ;;$$CollectionField:$BILLEDQTY:First:VOUCHERCOMPONENTLIST ;;InventoryEntries ;;"D.O  MTR"
+Local: Field: Qtyf2: Set As: #Qtyf
+local:field: nf: set as: $stockitemname2 ;;$STOCKITEMNAME1 ;;"QUALITY"
+local:field: sdf: set as: $DATE ;;"Date"
+local:field: sdf2: set as: "" ;;"Date2"
+local:field: fwf: set as: "" ;;"QUALITY"
+local:field: SNF2: set as: "" ;;"CHALLN NO"
+local:field: SNF10: set as: $batchName1 ;;"BALE NO"
+local:field: NUMF3: set as: "" ;;"TOTAL (PES)"
+local:field: NUMF2: set as: "" ;;"TOTAL (MTR)"
+local:field: NUMF: set as: "" ;;$$CollectionField:$cwConsumQty1:First:ColmrdotestmainConsumption ;;"PERCENTAGE"
+Local: Field: NUMF5: Set As:$$number:#Qtyf-#NUMF
+Local: Field: snf1: Border: thin RIGHT ;;left right
+Local: Field: sdf: Border: thin RIGHT ;;left right
+Local: Field: nf: Border: thin RIGHT ;;left right
+Local: Field: Qtyf: Border: thin RIGHT ;;left right
+Local: Field: sdf2: Border: thin RIGHT ;;left right
+Local: Field: fwf: Border: thin right ;;left right
+Local: Field: snf2: Border: thin right ;;left right
+Local: Field: snf3: Border: thin right ;;left right
+Local: Field: snf4: Border: thin right ;;left right
+Local: Field: numf3: Border: thin right ;;left right
+Local: Field: numf: Border: thin right ;;left right
+Local: Field: numf5: Border: thin right ;;left right
+Local: Field: numf6: Border: thin right ;;left right
+
+Local: field: SNF1: Width:10
+Local: field: NF: Width:30
+local: field: default : style: style2y ;;normal bold
+local: field: qtyf2: Invisible: yes
+local: field: snf3: Invisible: yes
+local: field: snf11: Invisible: yes
+      
+;; {13.Jul.24 17:15} add:explode:Lnsalesreportexp:$$line=$$numitems or $stockitemname2<>$$nextobj:$stockitemname2
+add:explode:Lnsalesreportexp:$$line=$$numitems or $Reference<>$$nextobj:$Reference
+
+
+[part:Lnsalesreportexp]
+line:Lnsalesreportexp
+repeat:Lnsalesreportexp:Colmrdotestmain
+Total: Qtyf,amtf,numf,numf2,numf3
+
+[line:Lnsalesreportexp]
+ use: LnBEDSHEETSPECIALLOTMILAN
+delete:explode
+border:thin bottom ;;totals
+ Local: Field: fwf: Set As:$stockitemname ;;$cwConsumProduct1  ;;$stockitemname1
+ Local: Field: snf3: Set As:$batchname ;;$cwConsBatchName1 ;;$batchname
+ Local: Field: snf4: Set As:$cwConsBatchName1 ;;$batchname
+ Local: Field: sdf2: Set As:$date1 ;;$batchname
+ Local: Field: SNF2: Set As:$BasicShipDeliveryNote1x
+ Local: Field: SNF1: Set As:"" ;;$BasicPurchaseOrderNo1x
+ Local: Field: snf11: Set As:$BasicPurchaseOrderNo1x
+ Local: Field: sdf: Set As:"" ;;$BasicPurchaseOrderNo1x
+ Local: Field: NUMF: Set As:$cwConsumQty1 ;;$$CollectionField:$cwConsumQty1:First:ColmrdotestmainConsumption ;;$cwConsumQty1
+ Local: Field: NUMF5: Set As: "" ;;$$CollectionField:$cwConsumQty1:First:ColmrdotestmainConsumption ;;$cwConsumQty1
+ Local: Field: NUMF2: Set As:#NUMF/#qtyf2*100
+ Local: Field: NUMF3: Set As:$billedqty ;;$$CollNumTotal:Colmrdotestmain:$cwConsumQty1
+ Local: Field: cwvchnofld: Set As:$$prevlinefield
+ Local: Field: cwvchbatchfld: Set As:$$prevlinefield
+ Local: Field: Qtyf2: Set As:$$prevlinefield
+ Local: Field: numf5: Set As:"" ;;#NUMF
+ Local: Field: Qtyf: Set As:""
+ local:field: SNF10: set as:""
+ 
+  add:explode:LnmrdoreportexpTotalxx:$$line=$$numitems or $stockitemname2<>$$nextobj:$stockitemname2
+
+[part:LnmrdoreportexpTotalxx]
+line:LnmrdoreportexpTotalxx
+
+[line:LnmrdoreportexpTotalxx]
+ use: LnBEDSHEETSPECIALLOTMILAN
+delete:explode
+border:totals
+local: field: nf: align: right
+local: field: nf : style: style1y
+local: field: numf : style: style1y
+local: field: numf6 : style: style1y
+
+local: field: qtyf: set as:$$total:qtyf
+local: field: fwf: set as: ""
+
+local:field: sdf: set as:"" ;; "Date"
+local:field: nf: set as:" Sub-Total" ;; "Vch Name"
+
+local:field: nf2: set as: "" ;;"Item"
+local:field: snf: set as:"" ;; "Batch Name"
+local:field: snf1: set as:"" ;; "Batch Name"
+local:field: snf3: set as:"" ;; "Batch Name"
+local:field: snf4: set as:"" ;; "Batch Name"
+local:field: qtyf: set as: "";;#qtyf2 ;;"Qty."
+;; {15.Jul.24 12:47} local:field: qtyf2: set as:$$total:#qtyf2 ;;"Qty."
+;; {14.Jul.24 11:33} replace : field : numf : numf5
+local:field: numf: set as:$$total:numf;;$$prevlinefield ;;"Qty."
+;; {14.Jul.24 11:33} local:field: numf5: set as:$$total:numf5;;$$prevlinefield ;;"Qty."
+local:field: NUMF3: set as:"" ;;$$total:NUMF3;;$$prevlinefield ;;"Qty."
+local:field: amtf2: set as: "";;$$prevlinefield ;;"Qty."
+local:field: ratepf : set as :"" ;; "Rate"
+local:field: amtf: set as: #amtf2 ;; "Value"
+Local: Field: numf6: Set As:$$number:#Qtyf2-#numf
+local:field: numf7: set as: $$prevlinefield
+Local: Field: Qtyf2: Set As:$$prevlinefield
+ 
+/*;; {14.Jul.24 21:11}  add:explode:Lnmrdoreportexp:$$line=$$numitems or $BasicShipDeliveryNote1x<>$$nextobj:$BasicShipDeliveryNote1x
+
+[part:Lnmrdoreportexp]
+line:Lnmrdoreportexp
+repeat:Lnmrdoreportexp:Colmrdotestmainx
+
+[line:Lnmrdoreportexp]
+ use: LnBEDSHEETSPECIALLOTMILAN
+delete:explode
+border:totals
+
+local:field: SNF: set as:$$linenumber ;;"SL.NO"
+local:field: cwvchnofld: set as:$Reference ;;$VOUCHERNUMBER ;;"D.O.NO"
+local:field: snf1: set as:$BasicPurchaseOrderNo1x ;;"D.O.NO"
+local:field: Qtyf: set as: $billedqty ;;$$CollectionField:$BILLEDQTY:First:InventoryEntries ;;"D.O  MTR"
+local:field: nf: set as: $stockitemname ;;"QUALITY"
+local:field: sdf: set as: $DATE ;;"Date"
+local:field: sdf2: set as: "" ;;"Date2"
+local:field: fwf: set as: $cwConsumProduct1 ;;"QUALITY"
+local:field: SNF2: set as: $BasicShipDeliveryNote1x ;;"CHALLN NO"
+local:field: SNF3: set as: $cwConsBatchName1 ;;$batchName ;;"BALE NO"
+local:field: NUMF3: set as:$billedqty;;"TOTAL (PES)"
+local:field: NUMF2: set as: "";;"TOTAL (MTR)"
+local:field: numf: set as: $cwConsumQty1 ;;$$CollNumTotal:Colmrdotestmain:$cwConsumQty1   ;;"PERCENTAGE"
+Local: Field: cwvchnofld: Set As:$$prevlinefield
+ Local: Field: cwvchbatchfld: Set As:$$prevlinefield
+ Local: Field: Qtyf2: Set As:$$prevlinefield
+ Local: Field:numf7: Set As: if $$line=1 then #numf else if $BasicPurchaseOrderNo1x <> $$prevobj:$BasicPurchaseOrderNo1x then #numf else $$prevlinefield+#numf
+
+local: field: fwf: align: right
+local: field: default : style: normal bold
+
+local: field: qtyf: set as:$$total:qtyf
+local: field: fwf: set as: " Sub-Total"
+
+local:field: sdf: set as:"" ;; "Date"
+local:field: nf: set as:"" ;; "Vch Name"
+
+local:field: nf2: set as: "" ;;"Item"
+local:field: snf: set as:"" ;; "Batch Name"
+local:field: snf1: set as:"" ;; "Batch Name"
+local:field: snf3: set as:"" ;; "Batch Name"
+local:field: snf4: set as:"" ;; "Batch Name"
+local:field: qtyf: set as: "";;#qtyf2 ;;"Qty."
+local:field: numf: set as:$$total:NUMF;;$$prevlinefield ;;"Qty."
+local:field: NUMF3: set as:"" ;;$$total:NUMF3;;$$prevlinefield ;;"Qty."
+local:field: amtf2: set as: "";;$$prevlinefield ;;"Qty."
+local:field: ratepf : set as :"" ;; "Rate"
+local:field: amtf: set as: #amtf2 ;; "Value"
+                                              */
+ 
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: BEDSHEETSPECIALLOTMILANDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: BEDSHEETSPECIALLOTMILANDisplayVoucher
+
+ 	
+     [Report: BEDSHEETSPECIALLOTMILANDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #BEDSHEETSPECIALLOTMILANmastid
+	
+
+        [Field: BEDSHEETSPECIALLOTMILANmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+ 
+[Collection: Colmrdotestmain]
+source collection:Colmrdotest
+walk:INVENTORYENTRIESIN,batchallocations,cwcollConsumption
+by:date1:$date
+;; {13.Jul.24 16:52} by:Reference:$Reference
+by:stockitemname:$stockitemname
+;; {13.Jul.24 16:21} by:batchname :$batchname
+;; {14.Jul.24 21:11} by:cwConsBatchName1:$cwConsBatchName
+;; {14.Jul.24 21:44} aggr compute:billedqty:sum:$billedqty
+ compute:billedqty:$billedqty
+compute:cwConsumProduct1:$cwConsumProduct
+compute:cwBomQty1:$cwBomQty
+;; {13.Jul.24 16:21} compute:cwConsumQty1:$cwConsumQty
+aggr compute:cwConsumQty1:sum:$cwConsumQty
+compute:BasicShipDeliveryNote1x:$BasicShipDeliveryNote1
+compute:BasicPurchaseOrderNo1x:$BasicPurchaseOrderNo1
+filter:cwvouchernoflter
+;; {14.Jul.24 21:18} filter:cwvouchernoflter2
+
+[Collection: Colmrdotest]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColmrdotestFilter,IsNonOptionalCancelledVchs
+     compute:BasicShipDeliveryNote1:$BasicShipDeliveryNote
+     compute:BasicPurchaseOrderNo1:$BasicPurchaseOrderNo
+     
+;; {11.Jul.24 18:47} Parm Var: SVFromDate	: Date	: $StartingFrom:Company:##SVCurrentCompany
+;; {11.Jul.24 18:47} Parm Var: SVToDate	: Date	:$LastVoucherDate:Company:##SVCurrentCompany ;;$EndingAt:Company:##SVCurrentCompany
+
+    [system: Formula]
+ColmrdotestFilter: $cwFGMaterialIn:vouchertype:$vouchertypename="yes"
+cwvouchernoflter: $BasicPurchaseOrderNo1x=#cwvchnofld
+;; {15.Jul.24 12:13} cwvouchernoflter2: $cwConsBatchName1=#cwvchbatchfld
+
+
+/*[Collection: ColmrdotestmainConsumption]
+source collection:Colmrdotest
+walk:INVENTORYENTRIESIN,batchallocations,cwcollConsumption
+by:date:$date
+by:Reference:$Reference
+;; {12.Jul.24 13:10} by:stockitemname:$stockitemname
+;; {12.Jul.24 13:07} by:cwConsBatchName1:$cwConsBatchName
+;; {12.Jul.24 13:09} aggr compute:billedqty:sum:$billedqty
+by:cwConsumProduct1:$cwConsumProduct
+compute:cwBomQty1:$cwBomQty
+aggr compute:cwConsumQty1:sum:$cwConsumQty
+compute:BasicShipDeliveryNote1x:$BasicShipDeliveryNote1
+compute:BasicPurchaseOrderNo1x:$BasicPurchaseOrderNo1
+filter:cwvouchernoflter
+
+[Collection: Colmrdotest]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColmrdotestFilter,IsNonOptionalCancelledVchs
+     compute:BasicShipDeliveryNote1:$BasicShipDeliveryNote
+     compute:BasicPurchaseOrderNo1:$BasicPurchaseOrderNo
+
+    [system: Formula]
+ColmrdotestFilter: $cwFGMaterialIn:vouchertype:$vouchertypename="yes"  */
+
+
+      [line: LnBEDSHEETSPECIALLOTMILANTotals]
+        use: LnBEDSHEETSPECIALLOTMILAN
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: NUMF : set as :  $$total:NUMF
+      local: field: NUMF2 : set as :  $$total:NUMF2
+      
+;;====================
+[button:Itemfilterbutton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:Itemfilterbutton
+
+ [report:Itemfilterbutton]
+ form:Itemfilterbutton
+
+ [form:Itemfilterbutton]
+ part:Itemfilterbutton
+
+ HEIGHT:20% Screen ;;PAGE
+ WIDTH:30% Screen ;;PAGE
+
+ [part:Itemfilterbutton]
+ line:cwfltrtitleline,Cwdonoline,CwqualityLine
+
+ [line:cwfltrtitleline]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: Normal Bold
+ space bottom:0.5
+ local: field: fwfc : style: style2y
+ 
+ [line:Cwdonoline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Do. No"
+ Local: Field: nf:modifies:str1
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+local: field: sp : style: style2y
+ local: field: nf : style: style2y
+
+[line:CwqualityLine]
+field:sp,nf
+ Local: Field: sp: Set As:"Quality"
+ Local: Field: nf:modifies:str2
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:collQuality,Not Applicable
+ Local: Field: nf: Show table: Always
+ local: field: sp : style: style2y
+ local: field: nf : style: style2y
+ 
+  [Collection: collQuality]
+ type:Stock item
+ title:"List of Quality"
+
+ 
+ [System: Formula]
+cwDoNofilter:if $$isempty:##str1 then yes else $Reference =##str1
+cwQualityfilter:if $$issysname:##str2 then yes else $STOCKITEMNAME1 =##str2
+
+

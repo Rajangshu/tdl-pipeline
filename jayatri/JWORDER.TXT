@@ -1,0 +1,17 @@
+; Created By: Khokan on 2024-03-01 16:00, ID: 
+
+[#Part: EI JWDisPatchLeft]
+add:option:cwEIJWDisPatchLeftopt:@@JayatriTestEnabled
+[!part:cwEIJWDisPatchLeftopt]
+add:Line: cwEITransporterjw2
+
+[Line: cwEITransporterjw2]
+Fields : Medium Prompt, nf
+Local  : Field : Medium Prompt : Info : $$LocaleString:"Transporter"
+
+Local: Field: nf: storage:cwTransporterpurc
+Local: Field: nf: table:collcwTransporter,Not Applicable
+Local: Field: nf: Show table: Always
+Local: field: nf: Width:30
+Local: Field:Medium Prompt : Style: small
+Local: Field:nf : Style: small Bold

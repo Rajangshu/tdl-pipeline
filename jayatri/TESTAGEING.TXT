@@ -1,0 +1,259 @@
+; Created By: Anil on 2024-06-17 14:04, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: testageingLock ;; : @@testageingDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@testageingReport: Display: Reptestageing
+  */
+
+
+     [!menu: testageingLock]
+        add: Item: before: @@locQuit: @@testageingReport: Display: Reptestageing
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   testageingReport: "testageing"
+;; testageingDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: Reptestageing]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@testageingReport
+   Printset: Report Title: @@testageingReport
+
+       Form: Frmtestageing
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: Frmtestageing]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0testageing,Prttestageing
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: testageingbotbrk,testageingbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: testageingConfigure
+
+      [part: testageingbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: testageingbotopbrk]
+        use: dspacctitles
+  add: part: testageingTitlePart
+
+      [part: testageingTitlePart]
+       line: LntestageingTitle
+       
+      [line: LntestageingCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0testageing]
+      line : LntestageingCurrPeriod
+      
+      [Part: Prttestageing]
+       Line: LntestageingTitle,Lntestageing
+bottom Line: LntestageingTotals
+     repeat: Lntestageing: Coltestageing
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: Coltestageing]
+Type    	: Bills
+sort:default:$parent
+
+compute var : myonaccount : amount : $onaccountvalue
+compute var : crbal : logical : not $$isdr:$closingbalance ;;
+
+
+compute var : clbalance : amount :  $closingbalance
+
+compute var : onacc : amount : $$InitValue:"Amount"
+
+
+compute var: d0_10  : amount : $$BillValue:Yes:no:@@mycwfromageing:@@mycwtoageing:no ;;##DSPAgeByDueDate ;;sum : $d0_10a
+compute var: d10_20 : amount : $$BillValue:Yes:no:@@mycwfromageing2:@@mycwtoageing2:no ;;sum : $d10_20
+compute var: d20_30 : amount : $$BillValue:Yes:no:@@mycwfromageing3:@@mycwtoageing3:no ;;sum : $d20_30
+compute var: d30_40 : amount : $$BillValue:Yes:no:@@mycwfromageing4:@@mycwtoageing4:no ;; {04.Sep.21 12:53} aggr compute : d30_40 : sum : $d30_40
+compute var: d40_50 : amount : $$BillValue:Yes:no:@@mycwfromageing5:@@mycwtoageing5:no ;; sum : $d40_50
+compute var: d50_60 : amount : $$BillValue:Yes:no:@@mycwfromageing6:@@mycwtoageing6:no ;; sum : $d50_60
+compute var: d60_0  : amount : $$BillValue:Yes:no:@@mycwfromageing7:@@mycwtoageing7:no ;; sum : $d60_0
+compute var: onacc  : amount : $onaccountvalue
+
+compute var: cwdummy : amount : if @@cwnotcloingbalance then $$callUpdate else $$InitValue:"Amount"
+
+
+compute : d0_10  : ##d0_10
+compute : d10_20 : ##d10_20
+compute : d20_30 : ##d20_30
+compute : d30_40 : ##d30_40
+compute : d40_50 : ##d40_50
+compute : d50_60 : ##d50_60
+compute : d60_0  : ##d60_0
+compute : onacc  : ##onacc
+
+
+ compute var: cwdummy : amount : if @@cwnotcloingbalance then $$callUpdate else $$InitValue:"Amount"
+
+    [system: Formula]
+ColtestageingFilter: Yes ; $$isSales:$voucherTypeName
+
+      [Line: LntestageingTitle]
+        use: Lntestageing
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "SalesPerson"
+local:field: snf1: set as: "Agent"
+local:field: snf1: set as: "Area"
+local:field: fwf: set as: "Party Name"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+
+local:field: amtf3: set as:$$string:@@mycwfromageing+$$string:"-" +$$string:@@mycwtoageing  ;;+ "0-10"
+local:field: amtf4: set as:$$string:@@mycwfromageing2+$$string:"-"+$$string:@@mycwtoageing2  ;; "11-21"
+local:field: amtf5: set as:$$string:@@mycwfromageing3+$$string:"-"+$$string:@@mycwtoageing3  ;; "22-31"
+local:field: amtf6: set as:$$string:@@mycwfromageing4+$$string:"-"+$$string:@@mycwtoageing4  ;; "32-60"
+local:field: amtf7: set as:$$string:@@mycwfromageing5+$$string:"-"+$$string:@@mycwtoageing5  ;; "61-100"
+local:field: amtf8: set as:$$string:@@mycwfromageing6+$$string:"-"+$$string:@@mycwtoageing6  ;; "101-119"
+;; {04.Sep.21 14:04} local:field: amtf9: set as:$$string:@@mycwfromageing7+$$string:" "+$$string:"And Above"  ;; "120 And Above"
+local:field: amtf9: set as:$$string:"Over"+$$string:" "+$$string:@@mycwfromageing7
+local:field: amtf10: set as:"On Account"
+Local: field: DEFAULT: Align:centre
+Local: field: newUnAdjusted: Align:centre
+Local: field: FWF: Align:LEFT
+local: field: default : style: normal bold
+local: field:amtf3: type: String
+local: field:amtf4: type: String
+local: field:amtf5: type: String
+local: field:amtf6: type: String
+local: field:amtf7: type: String
+local: field:amtf8: type: String
+local: field:amtf9: type: String
+local: field:newUnAdjusted: type: String
+Local: Field: newUnAdjusted: Style:style1
+
+
+Local: Field: newUnAdjusted: Style:styleCalistox2
+Local: Field: snf1: Style:styleCalistox2
+Local: Field: snf2: Style:styleCalistox2
+Local: Field: snf3: Style:styleCalistox2
+Local: Field: fwf: Style:styleCalistox2
+Local: Field: nf: Style:styleCalistox2
+Local: Field:amtf: Style:styleCalistox2
+Local: Field:amtf1: Style:styleCalistox2
+Local: Field:amtf2: Style:styleCalistox2
+Local: Field:amtf3: Style:styleCalistox2
+Local: Field:amtf4: Style:styleCalistox2
+Local: Field:amtf5: Style:styleCalistox2
+Local: Field:amtf6: Style:styleCalistox2
+Local: Field:amtf7: Style:styleCalistox2
+Local: Field:amtf8: Style:styleCalistox2
+Local: Field:amtf9: Style:styleCalistox2
+Local: Field:amtf10: Style:styleCalistox2
+Local: Field:amtf20: Style:styleCalistox2
+Local: Field:amtf21: Style:styleCalistox2
+Local: Field:amtf22: Style:styleCalistox2
+Local: Field:amtf23: Style:styleCalistox2
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: Lntestageing]
+     Fields: testageingmastid,fwf,snf,snf1,snf2
+right field:Amtf,amtf3,amtf4,amtf5,amtf6,amtf7,amtf8,amtf9,amtf43,amtf44,amtf45,amtf46,amtf47,amtf48,amtf49,amtf50,amtf10,Amtf,newUnAdjusted,amtf23  ;;,amtf33,amtf34,amtf35,amtf36,amtf37,amtf38,amtf39,amtf40
+
+
+     Option: Alter on Enter
+        key: testageingDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: snf: set as: $cwSalesPersonled:ledger:$Parent ;;"SalesPerson"
+local:field: snf1: set as: $cwAgentled:ledger:$Parent ;;"SalesPerson"
+local:field: snf2: set as: $cwArealed:ledger:$Parent ;;"SalesPerson"
+local:field: fwf: set as: $Parent ;;"Party Name"
+local:field: amtf: set as: $closingbalance ;;"Value"
+Local: Field:  amtf3: Set As:  $d0_10
+Local: Field:  amtf4: Set As:  $d10_20
+Local: Field:  amtf5: Set As:  $d20_30
+Local: Field:  amtf6: Set As:  $d30_40
+Local: Field:  amtf7: Set As:  $d40_50
+Local: Field:  amtf8: Set As:  $d50_60
+Local: Field:  amtf9: Set As:  $d60_0
+Local: Field:  amtf10: Set As: $onacc
+
+local: field:amtf41: Invisible: yes
+local: field:amtf42: Invisible: yes
+local: field:amtf43: Invisible: yes
+local: field:amtf44: Invisible: yes
+local: field:amtf45: Invisible: yes
+local: field:amtf46: Invisible: yes
+local: field:amtf47: Invisible: yes
+local: field:amtf48: Invisible: yes
+local: field:amtf49: Invisible: yes
+local: field:amtf50: Invisible: yes
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: testageingDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: testageingDisplayVoucher
+
+ 	
+     [Report: testageingDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #testageingmastid
+	
+
+        [Field: testageingmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LntestageingTotals]
+        use: Lntestageing
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

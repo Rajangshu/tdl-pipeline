@@ -1,0 +1,194 @@
+; Created By: Anil on 2024-04-19 14:16, ID: 
+
+/*[System: Formula]
+cwInTransiteAdditionalFeatureAllowYes:$cwInTransiteAdditionalFeatureAllow:vouchertype:$vouchertypename="yes"
+;; {19.Jan.24 11:41} cwAddfeTransportChallanYes:$cwAddfeTransportChallan:vouchertype:$vouchertypename="yes"
+cwBalesPurchasevchtypeYES:$cwBalesPurchasevchtype:vouchertype:$vouchertypename="yes"
+
+
+[#Part: EI DelNoteInfo]
+add:option:purcEIDelNoteInfoopt:@@cwInTransiteAdditionalFeatureAllowYes ;;or @@cwAddfeTransportChallanYes
+[!part:purcEIDelNoteInfoopt]
+
+add:Line: cwEITransporter
+
+[Line: cwEITransporter]
+Fields : Medium Prompt, nf
+Local  : Field : Medium Prompt : Info : $$LocaleString:"Transporter"
+
+Local: Field: nf: storage:cwTransporterpurc
+;; {22.Dec.23 17:13} Local: Field: nf: Set As:$PartyLedgerName
+
+Local: Field: nf: table:collcwTransporter,Not Applicable
+Local: Field: nf: Show table: Always
+Local: field: nf: Width:30
+Local: Field:Medium Prompt : Style: small
+Local: Field:nf : Style: small Bold
+
+[Collection: collcwTransporter]
+title:"List of Transporter"
+type:ledger
+filter:cwLedIsTransporterfilt
+
+
+fetch:LedIsTRansporter
+
+[System: Formula]
+cwLedIsTransporterfilt:@@cwIsTransporterval="yes"
+
+ cwIsTransporterval:$LedGSTRegDetails[Last].IsTransporter
+
+;;========================================
+
+ [field:suppnof]
+ use:snf
+ info:"Supplier No"
+ Style:Style1
+ Invisible: yes
+
+ [field:suppnof2]
+ use:snf
+ storage:cwSupplierNopurc
+ skip:yes
+ setas:#VCHRef
+ Style:Style2
+  Invisible: yes
+
+ [field:suppdtf]
+ use:sdf
+ info:"Supplier Date"
+ type: String
+
+ Style:Style1
+ Invisible: yes
+
+ [field:suppdtf2]
+ use:sdf
+ storage:cwSupplierdtpurc
+ set as:#VCHINARef
+ skip:yes
+ Style:Style2
+ Invisible: yes
+
+ [field:suppnof3]
+ use:snf
+ storage:cwSupplierNopurc
+ skip:yes
+  Invisible: yes
+
+ [field:suppdtf3]
+ use:sdf
+ storage:cwSupplierdtpurc
+  skip:yes
+  Invisible: yes      */
+;;================================
+
+[System: Formula]
+cwTypevchtypedo:$cwTypevchtype:vouchertype:$vouchertypename
+;; {29.Mar.24 11:20} cwrmcaptionnew:$cwrmcaption:vouchertype:$vouchertypename
+cwrmcaptionnewInTrnsdo:$cwrmcaptionInTransite:vouchertype:$vouchertypename
+
+[#Field: VCH BatchNameTitle]
+  add:option:VCHBatchNameTitleInTransitejeoptdo:@@cwUseforDoOrderDetailsYES ;;JayatriTestEnabled
+
+ [!field:VCHBatchNameTitleInTransitejeoptdo]
+    Setas :@@cwrmcaptionnewInTrnsdo ;;cwrmcaptionnew  ;;if @@cwRawMaterialyes then @@cwrmcaptionnew else $$value   ;;if @@cwSemiFinisedyes then @@cwsfcaption else if @@cwFinishedProductyes then @@cwfpcaption else $$LocaleString:"Batch/Lot No."
+
+
+ [#Line: VCHBATCH ColumnOne]
+ add:option:cwVCHBATCHColumnOneInTransiteoptdo :@@cwUseforDoOrderDetailsYES ;;or @@cwPurchaseReturnYes
+ [!Line: cwVCHBATCHColumnOneInTransiteoptdo]
+
+ add:right field:after:VCH BatchNameTitle:suppnof,suppdtf
+ add:right field:after:VCH BatchNameTitle:snf40,snf1,snf,snf2,sdf,snf10,snf4,snf5,suppnof,suppdtf  ;;,snf7,snf8,snf9,snf10,snf11,snf12,snf13,snf14,snf15
+
+ Local: Field: snf40: INFO:"Sup.Inv No"
+ Local: Field: snf: INFO:"No of Bales" ;;@@cwRMCaptionsName1   ;;IF @@cwRawMaterialyes THEN @cwRMCaptionsName1  ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName1 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName1 else ""
+ Local: Field: snf1: INFO:"Type" ;;@@cwRMCaptionsName1   ;;IF @@cwRawMaterialyes THEN @cwRMCaptionsName1  ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName1 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName1 else ""
+ Local: Field: snf2: INFO:"LR Number" ;;@@cwRMCaptionsName2  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName2 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName2 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName2 else ""
+ Local: Field: sdf: INFO:"LR Date" ;;@@cwRMCaptionsName3   ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName3 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName3 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName3 else ""
+ Local: Field: snf10: INFO:"House" ;;@@cwRMCaptionsName4  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName4 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName4 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName4 else ""
+ Local: Field: snf4: INFO:"Supplier Name666" ;;@@cwRMCaptionsName4  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName4 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName4 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName4 else ""
+ Local: Field: snf5: INFO:"Transporter Name" ;;@@cwRMCaptionsName5  ;;IF @@cwRawMaterialyes THEN @@cwRMCaptionsName5 ELSE IF @@cwSemiFinisedyes THEN @@cwSFCaptionsName5 ELSE IF @@cwFinishedProductyes THEN @@cwFPCaptionsName5 else ""
+
+  Local: Field: DEFAULT: Style:Style2
+  Local: Field: VCH BatchNameTitle: Style:Style1
+  Local: Field: VCH QtyTitle: Style:Style1
+  Local: Field: VCH RateTitle: Style:Style1
+  Local: Field: VCH AmtTitle: Style:Style1
+
+   Local: field: snf10: Align: centre
+   
+  local: field:snf : Invisible: yes
+  local: field:snf1 : Invisible: yes
+  local: field:snf2 : Invisible: yes
+  local: field:sdf : Invisible: yes
+  local: field:snf10 : Invisible: yes
+  local: field:snf4 : Invisible: yes
+  local: field:snf5 : Invisible: yes
+  local: field:snf40 : Invisible: yes
+
+
+ [System: Formula]
+ cwjooroptFilter:$$IsJobOrderOut:$vouchertypename
+ cwVchTypeSelectedGodown:$cwVchTypeSelectedGodown:vouchertype:$vouchertypename
+
+
+ /* [field:cwRecedQtyf]
+ use:qtyf ;;numf
+ Set As:$billedqty
+ storage:cwRecedQty
+  Invisible: yes
+  format:"decimals:2"
+;; {13.Jan.24 17:58} Skip: Yes */
+
+ [#line:STKVCH Batch2]
+ add:option:cwSTKVCHBatch2InTransiteoptdo :@@cwUseforDoOrderDetailsYES ;;or @@cwPurchaseReturnYes
+ [!Line: cwSTKVCHBatch2InTransiteoptdo]
+ add:right Field:after:VCHBATCH Name:snf40,snf1,snf,snf2,sdf,snf10,snf4,snf5,suppnof2,suppdtf2
+  add:right field:before:VCHBATCH BilledQty:cwRecedQtyf
+
+ Local: Field: snf40: storage:cwDirectPurInvNo
+ Local: Field: snf: storage:cwNoofBalespurc
+ Local: Field: snf1: storage:cwTypepurc
+ Local: Field: snf2:storage:cwLRNumberpurc
+ Local: Field: sdf:storage:cwLRDatepurc
+ Local: Field: snf4:storage:cwSupplierNamepurc
+ Local: Field: snf10:storage:cwConsigneeNamepurc
+ Local: Field: snf5:storage:cwTransporterNamepurc
+ Local: Field: SNF1: Set As:@@cwTypevchtypedo ;;cwTypevchtype
+ 
+ Local: Field: snf: Set As:$$collectionfield:($$CollectionField:$cwHouseNoofBalespurckcDoOrder:First:BatchAllocations):1:VOUCHERCOMPONENTLIST
+ Local: Field: snf2: Set As:$$collectionfield:($$CollectionField:$cwHouseLRNumberpurckcDoOrder:First:BatchAllocations):1:VOUCHERCOMPONENTLIST
+ Local: Field: snf4: Set As:$$collectionfield:($$CollectionField:$cwHouseSupplierNamepurcDoOrder:First:BatchAllocations):1:VOUCHERCOMPONENTLIST
+ Local: Field: snf5: Set As:$$collectionfield:($$CollectionField:$cwHouseTransporterNamepurckcDoOrder:First:BatchAllocations):1:VOUCHERCOMPONENTLIST
+ Local: Field: snf10: Set As:$$collectionfield:($$CollectionField:$cwHouseConsigneeNamepurckcDoOrder:First:BatchAllocations):1:VOUCHERCOMPONENTLIST
+ Local: Field: sdf: Set As:$$collectionfield:($$CollectionField:$cwHouseLRdatepurckcDoOrder:First:BatchAllocations):1:VOUCHERCOMPONENTLIST
+
+ Local: Field: DEFAULT: Style:Style2
+  Local: Field: snf1: Skip: Yes
+  Local: Field: snf2: Skip: Yes
+  Local: Field: snf3: Skip: Yes
+  Local: Field: snf4: Skip: Yes
+  Local: Field: snf5: Skip: Yes
+  Local: Field: snf10: Skip: Yes
+  Local: Field: sdf: Skip: Yes
+  
+  local: field:snf : Invisible: yes
+  local: field:snf1 : Invisible: yes
+  local: field:snf2 : Invisible: yes
+  local: field:sdf : Invisible: yes
+  local: field:snf10 : Invisible: yes
+  local: field:snf4 : Invisible: yes
+  local: field:snf5 : Invisible: yes
+  local: field:snf40 : Invisible: yes
+
+ Local: Field: snf: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf1: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf2: INACTIVE :@@BatchAllocBreak
+ Local: Field: sdf: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf4: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf5: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf10: INACTIVE :@@BatchAllocBreak
+
+ Local: field: snf10: Align: centre

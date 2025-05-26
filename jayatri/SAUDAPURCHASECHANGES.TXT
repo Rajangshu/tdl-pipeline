@@ -1,0 +1,794 @@
+; Created By: Anil on 2024-01-18 11:45, ID: 
+
+[System: Formula]
+;; {09.Feb.22 17:16} JobWorkModuleEnbPurcOrdOpt:(@@ispurchase or @@ispurcOrder) and @@cwsaudamanagement
+
+JobWorkModuleEnbPurcOrdOpt:@@ispurchase and @@cwsaudamanagement
+
+;; {09.Feb.22 17:22} JobWorkModuleEnbPurcOrdOpt:@@ispurcOrder and @@cwsaudamanagement
+cwisIndentPurcOrd:$cwisUseforIndentPO:Vouchertype:$vouchertypename
+cwisTagIndentPurcOrd:$cwisUsefortagIndentPO:Vouchertype:$vouchertypename
+cwsoudavchtypeyes:$cwAdditionalFeatureAllowSouda:Vouchertype:$vouchertypename
+
+[#form : voucher]
+;; {21.Apr.22 10:51} add:option:cwPurcOrderColorOpt:@@JobWorkModuleEnbPurcOrdOpt and @@cwisTagIndentPurcOrd
+;; {21.Apr.22 10:51} [!Form:cwPurcOrderColorOpt]
+;; {15.Mar.22 16:12} on: form accept : yes : form accept
+;; {15.Mar.22 16:12} on: form accept : yes : call : UpdateSUBordvchfromMasterOrdVch
+
+;;====================================================
+/*[#Field: EI Consignee]
+
+ add:option:cwtrEIConsigneeinopt2:@@cwsoudavchtypeyes ;;@@JobWorkModuleEnbPurcOrdOpt  ;and @@JayatriEnterpriseEnabled
+
+ [!Field:cwtrEIConsigneeinopt2]
+ delete:table
+
+ add:table:collJobWorker
+ Show table: Always
+ 
+ 
+ [Collection: collJobWorker]
+title:"List of Ledger Accounts"
+type:ledger
+   format:$name,30
+  Align        	: Right
+  FullHeight  	: Yes
+filter:fillIsIndent ;;cwLedIsUseasJobWorker
+
+
+
+[System: Formula]
+cwLedIsUseasJobWorker:$cwUseasJobWorker ;;@@UseasJobWorkerflt="yes"
+
+ UseasJobWorkerflt:$cwUseasJobWorker:ledger:$partyledgername */
+;;=======================================================
+on: form accept : $cwIsTagindentNo="yes" and @@JobWorkModuleEnbPurcOrdOpt and @@cwisTagIndentPurcOrd : form accept
+on: form accept : $cwIsTagindentNo="yes" and @@JobWorkModuleEnbPurcOrdOpt and @@cwisTagIndentPurcOrd  : call : UpdateSUBordvchfromMasterOrdVch
+
+
+[#Form: VCHBasic InvoiceMode]
+add:option:cwVCHBasicInvoiceModePOOpt:@@JobWorkModuleEnbPurcOrdOpt and @@cwisTagIndentPurcOrd ;;not @@cwisIndentPurcOrd
+[!form:cwVCHBasicInvoiceModePOOpt]
+add:part:after: EI PartyInfo:cwUseIndentOrdPart
+
+[part:cwUseIndentOrdPart]
+line:cwTagIndentNoLn
+
+[line:cwTagIndentNoLn]
+field:sp,cwIndentParty,sp2,cwlogical
+ Local: Field:sp: Set As:"Sauda Party Name"
+ Local: field: sp: Width:14
+
+Local: Field: sp2: Set As:"Is Tag Sauda No."
+Local: Field: cwlogical: storage:cwIsTagindentNo
+Local: Field : cwlogical : SubForm :cwindentNoDtls: $$value
+Local: field: sp2: Width:18
+
+Local: Field: sp:style:style4
+Local: Field: sp2:style:style4
+Local: Field: cwlogical:style:style4
+
+[report:cwindentNoDtls]
+form:cwindentNoDtls
+TITLE:"Sauda"
+
+[form:cwindentNoDtls]
+part:cwindentNoDtls
+[part:cwindentNoDtls]
+line:cwindentNoDtls
+bottom lines:cwindentNoDtlsBottom
+Repeat:cwindentNoDtls:cwCollIndentNoDtls
+ Break On: $$Issysname:$cwTagindentNo
+ height:50% Page
+ Width:40% Page
+
+ [Collection: cwCollIndentNoDtls]
+    type:cwCollIndentNoDtls:voucher
+    child of:$name
+
+   [Collection:cwCollIndentParty]
+   Title:"List of Sauda Party"
+   type:ledger
+   format:$name,30
+  Align        	: Right
+  FullHeight  	: Yes
+   filter:fillIsIndent
+
+  [System: Formula]
+  fillIsIndent:$cwLedIsuseforIndent
+
+ [field:cwIndentParty]
+  use:nf
+  storage:cwIndentParty
+  table:cwCollIndentParty ,Not Applicable
+  Show table: Always
+  Style: Normal Bold
+  width:35
+
+ [field:fldIndentNo]
+ use:nf
+   width:35
+
+;; {08.Feb.22 11:09}  [line:cwIndentPartyLn]
+;; {08.Feb.22 11:09}  field:sp,cwIndentParty
+;; {08.Feb.22 11:09}  Local: Field:sp: Set As:"Indent Party Name"
+;; {08.Feb.22 11:09}  Local: field: sp: Width:20
+
+
+
+[#line : VCHBILL CTLineOne]
+;; {18.Jan.24 11:57} add:option:cwVCHBILLCTLineOnepurOpt:@@ispurchase and @@JobWorkModuleEnabled
+;; {18.Jan.24 11:57} [!line:cwVCHBILLCTLineOnepurOpt]
+
+add : fields : after : VCH ShortTitle : nf
+Local: Field: nf : info:"Sauda Party Name"
+
+
+[#line : VCHBILL CTLineTwo]
+;; {18.Jan.24 11:57} add:option:cwVCHBILLCTLineTwopurOpt:@@ispurchase and @@JobWorkModuleEnabled
+;; {18.Jan.24 11:57} [!line:cwVCHBILLCTLineTwopurOpt]
+
+add : fields : after : VCH ShortTitle : nf
+Local: Field: nf : info:""
+
+
+[#line : VCHBILL CTLineThree]
+;; {18.Jan.24 11:57} add:option:cwVCHBILLCTLineThreeOpt:@@ispurchase and @@JobWorkModuleEnabled
+;; {18.Jan.24 11:57} [!line:cwVCHBILLCTLineThreeOpt]
+
+add : fields : after : VCH ShortTitle : nf
+Local: Field: nf: info:""
+
+
+[#Line: VCHBILL MainLine]
+;; {18.Jan.24 11:56} add:option:cwVCHBILLMainLinepurOpt:@@ispurchase and @@JobWorkModuleEnabled
+;; {18.Jan.24 11:56} [!line:cwVCHBILLMainLinepurOpt]
+
+add : fields : after : VCHBILLName : nf
+Local: Field: nf : storage:cwIndentParty
+Local: Field: nf : set as:#cwIndentParty
+Local: Field: nf :table:cwCollIndentParty ,Not Applicable
+Local: Field: nf :Show table: Always
+
+
+
+
+[line:cwindentNoDtls]
+field:sp,fldIndentNo
+Local: Field: sp: Set As:if $$line = 1 then "Tag Sauda Number" else ""
+Local: Field: fldIndentNo: storage:cwTagindentNo
+Local: Field:fldIndentNo: table:CwCollIndentOrderno,Not Applicable
+Local: Field:fldIndentNo: Show table: Always
+Local: field: sp: Width:20
+Local: Field: sp:style:style4
+Local: Field: fldIndentNo:style:style3
+
+[line:cwindentNoDtlsBottom]
+field:sp,cwlogical
+Local: Field: sp: Set As:"Fill Items"
+Local: Field : cwlogical : SubForm : RepSubOrdDtls: $$value
+Local: Field:cwlogical:validate:$$fillIndentOrdItems ;;:##MyRefNo
+Local: field: sp: Width:20
+Local: Field: sp:style:style4
+Local: Field: cwlogical:style:style3
+
+[System: Formula]
+cwTagindentNo:$$FilterValue:$cwTagindentNo:cwCollIndentNoDtls:1:cwTagindentNoFill
+cwTagindentNoFill:yes
+
+;;==============================================================================
+[Function: fillIndentOrdItems]
+;; {02.Feb.22 15:51}   parameter:Post:logical
+;; {07.Feb.22 16:40}   parameter:MyRefNo:string
+  variable:MyRefNo:string
+  variable:Stockname:string
+  variable:Stockqty:number
+  variable:MasterOrdBalQty:number
+  variable:myBatchNAme:string
+  variable:mygodownname:string
+  variable:itemrate   :number
+  variable :myamount :number
+  variable : isFirst : logical : true
+  variable:myIssueNo:string
+  variable:myvchno:string
+  variable:MyBalance:number
+ returns:logical
+;; {26.Jun.20 11:16} 0x : log : "infn"
+;; {09.Feb.22 11:33} 0xx : log :##MyRefNo
+
+0y : if : $$tgtobject:$$numitems:cwcollMasterOrderDtls  > 0
+0z : return : yes
+0a : endif
+
+ 05:  while : $$tgtobject:$$numitems:cwcollMasterOrderDtls > 0
+10: delete collection object : cwcollMasterOrderDtls: 1 : yes
+15: end while
+;; {25.Jun.20 13:28}  01 : log :##post
+
+;; {31.Jan.22 15:37} 16A:walk collection:cwcollMasterOrderDtls
+;; {31.Jan.22 15:37}  16B:set:myIssueNo:$cwIssueNo
+
+16:walk collection:cwCollIndentNoDtls
+17:set:MyRefNo:$cwTagindentNo
+ 20 : walk COLLECTION :cwcollTagIndentOrdNo
+
+ 30 :set :stockname:$stockitemname1
+ 40 :set :stockqty:$billedqty1
+ 41 :set :MasterOrdBalQty:$cwUpdateSubQty1
+ 50:set :itemrate:$rate1
+ 60:set :myamount:$amount1
+;; {31.Jan.22 16:29}  70 :set : myBatchNAme :$batchname1 ;;"Primarybatch "
+;; {31.Jan.22 16:29}  80 :set : mygodownname :$godownname1 ;;"Main Location"
+;; {31.Jan.22 17:25}  25a:log :##stockname
+;; {31.Jan.22 17:25}  25b:log :##stockqty
+;; {02.Feb.22 13:01}  25c:log :##MasterOrdBalQty
+
+;; {25.Jun.20 13:22}  35 : if :##post="yes"
+ 90 :Insert Collection Object : cwcollMasterOrderDtls
+
+;; {01.Feb.22 10:56} 37 : do if : ##isfirst : set target :  cwcollMasterOrderDtls[1]	
+;; {03.Feb.22 12:48} 91 :do if : not @@cwEmptyBal: INSERT COLLECTION OBJECT	: cwcollMasterOrderDtls
+;; {03.Feb.22 12:31} 38 :do if :not ##isFirst : INSERT COLLECTION OBJECT	: cwcollMasterOrderDtls
+;; {01.Feb.22 10:56} 39 : set : isFirst : no
+
+ 93  : Set Value : cwMasterOrdRef: $Reference
+ 94  : Set Value : cwMasterOrdDate: $date
+ 100  : Set Value : cwMasterOrdItem: ##stockname
+
+;; {31.Jan.22 16:03}  110 : start block
+;; {31.Jan.22 16:03}  120 : set object
+
+130 : set value : cwMasterOrdQty :##stockqty
+135 : set value : cwMasterOrdRate :##itemrate
+136 : set value : cwMasterOrdBalQty :##stockqty - ##MasterOrdBalQty
+140 : set value : cwMasterOrdAmt :##myamount
+
+
+205:set target:..
+;; {31.Jan.22 16:43} 21C: end if
+ 210 :end walk
+ 215:end walk
+
+
+;; {31.Jan.22 16:36}  211:log target
+ 220 :return: yes
+
+ ;;=========
+
+  [Collection: cwcollTagIndentOrdNo]
+source collection:cwcollTagIndentOrdNoSrc
+walk:inventoryentries
+compute :vouchernumber:$vouchernumber
+compute :Reference:$Reference
+compute :cwVchSiteName1:$cwVchSiteName
+by :date:$date
+by :masterid:$masterid
+by :stockitemname1:$stockitemname
+compute:vouchertypename1:$vouchertypename
+compute :batchname1:$batchname
+compute :cwMasterOrdRate1:$cwMasterOrdRate
+compute:Rate1:$rate
+aggr compute :billedqty1:sum:$billedqty
+aggr compute:cwUpdateSubQty1:sum:$cwUpdateSubQty
+aggr compute :amount1:sum:$amount
+
+
+[Collection: cwcollTagIndentOrdNoSrc]
+     Use: Vouchers of Company
+     delete: filter
+ add:filter :cwPurcOrdFill
+  add:filter :cwSameRefNo
+
+[System: Formula]
+;; {09.Feb.22 13:32} cwPurcOrdFill:$$isPurcOrder:$vouchertypename and @@cwisIndentPurcOrd
+cwPurcOrdFill:($$ispurcorder:$vouchertypename or $$ispurchase:$vouchertypename) and @@cwisIndentPurcOrd
+cwSameRefNo:$Reference = ##MyRefNo
+
+
+;;====================================================
+
+[Collection:CwCollIndentOrderno]
+title:"List of Sauda Number"
+subtitle:" Sauda Number","Sauda Date","Balance","Uom","Site Name"
+source collection:CwCollIndentOrdernoSrc
+;; {07.Feb.22 14:57} walk:inventoryentries
+by :Reference:$Reference ;;$vouchernumber
+by :masterid:$masterid
+compute :date:$date
+compute :baseunits1:$baseunits:stockitem:$stockitemname
+compute :cwVchSiteName1:$cwVchSiteName
+aggr compute:billedqty1:sum:$billedqty2
+aggr compute:cwUpdateSubQty1:sum:$cwUpdateSubQty2
+
+format:$Reference,20
+format:$date,10
+format:@@cwSubOrdBal,10
+format:$baseunits1,10
+format:$cwVchSiteName1,10
+;; {23.Apr.22 11:32} format:$stockitemname,10
+
+filter:cwClearBills
+;; {07.Feb.22 17:13} format:$masterid,10
+fetch:cwVchSiteName
+
+
+[Collection: CwCollIndentOrdernoSrc]
+     Use: Vouchers of Company
+     delete: filter
+     add:Filter: CwCollIndentOrdernoSrc
+     add:Filter: cwisIndentPurcOrd
+     compute:cwUpdateSubQty2:$$CollNumTotal:inventoryentries:$cwUpdateSubQty
+     compute:billedqty2:$$CollNumTotal:inventoryentries:$$number:$billedqty
+     fetch:cwUpdateSubQty
+
+      [System: Formula]
+;; {09.Feb.22 17:23}  CwCollIndentOrdernoSrc:($$ispurcorder:$vouchertypename or $$ispurchase:$vouchertypename) and $partyledgername = #cwIndentParty
+ CwCollIndentOrdernoSrc:$$ispurcorder:$vouchertypename and $partyledgername = #cwIndentParty
+
+
+;;======================
+[#Part: DBLLINE Narration]
+add:option:cwDBLLINENarrTagIndentPoopt:@@JobWorkModuleEnbPurcOrdOpt and @@cwisTagIndentPurcOrd
+[!part:cwDBLLINENarrTagIndentPoopt]
+
+ Add : Line : before : VCH NarrPrompt :cwfullListIndentNo
+
+ [line:cwfullListIndentNo]
+ field:sp,nf
+ Local: Field: sp: Set As:"Sauda No."
+ Local: Field: nf: Set As: $$fulllist:cwCollIndentNoDtls:$cwTagindentNo
+ Local : field : nf: Lines :2
+ Local: field: nf: Width:70
+ Local: Field: nf: Skip: Yes
+ local: field: default: Invisible: yes
+ Local: Field: sp:style:style4
+ Local: Field: nf:style:style3
+
+
+ ;;;;;==========================================================================
+ [Report:RepSubOrdDtls]
+form:cwSubOrdDtls
+
+[form:cwSubOrdDtls]
+part:cwSubOrdDtls
+width:90% page
+height:80% page
+
+
+on: form accept : yes : form accept
+on: form accept : yes : call : cwFillInvItems
+
+
+
+[part:cwSubOrdDtls]
+line:cwSubOrdDtlsTit,cwSubOrdDtlsMain
+repeat:cwSubOrdDtlsMain:cwcollMasterOrderDtls
+Scroll : vertical
+Common border : yes
+break on : $$isempty:$cwMasterOrdRef
+float : no
+
+ [Collection: cwcollMasterOrderDtls]
+    type:cwcollMasterOrderDtls:voucher
+    child of:$name
+
+[line:cwSubOrdDtlsTit]
+option: titleopt
+use:cwSubOrdDtlsMain
+Local: Field: numf6:info:"Sl No."
+Local: Field: nf:info:"Sauda Number"
+Local: Field: sdf:info:"Sauda Date"
+Local: Field:nf2 :info:"Product"
+Local: Field:numf :info:"Qty"
+Local: Field:numf10 :info:"Alt. Qty"
+Local: Field:snfx :info:"UOM"
+Local: Field:numf1 :info:"Rate"
+Local: Field:numf2 :info:"Amount"
+Local: Field:numf3 :info:"Balance Qty."
+Local: Field:numf4 :info:"Use Qty."
+Local: Field: nf:delete:storage
+Local: Field: sdf:delete:storage
+Local: Field: nf2:delete:storage
+Local: Field:numf:delete:storage
+Local: Field:numf1:delete:storage
+Local: Field:numf2:delete:storage
+Local: Field:numf3:delete:storage
+Local: Field:numf4:delete:storage
+Local: Field:numf5:delete:storage
+Local: Field:numf6:delete:storage
+Local: Field:numf10:delete:storage
+Local: field:default: Align:centre
+
+Local: Field: default: Style:Style3
+
+Local: Field: numf6:Style:Style3
+Local: Field: nf:Style:Style3
+Local: Field: sdf:Style:Style3
+Local: Field:nf2 :Style:Style3
+Local: Field:numf :Style:Style3
+Local: Field:numf10 :Style:Style3
+Local: Field:snfx :Style:Style3
+Local: Field:numf1 :Style:Style3
+Local: Field:numf2 :Style:Style3
+Local: Field:numf3 :Style:Style3
+Local: Field:numf4 :Style:Style3
+
+;; {01.Feb.22 11:14} Local: Field: nf:delete:inactive
+;; {01.Feb.22 11:14} Local: Field: sdf:delete:inactive
+;; {01.Feb.22 11:14} Local: Field: nf2:delete:inactive
+;; {01.Feb.22 11:14} Local: Field:numf:delete:inactive
+;; {01.Feb.22 11:14} Local: Field:numf1:delete:inactive
+;; {01.Feb.22 11:14} Local: Field:numf2:delete:inactive
+;; {01.Feb.22 11:14} Local: Field:numf3:delete:inactive
+Local: Field:numf4:delete:inactive
+border:thin bottom
+height:1.5
+
+[System: Formula]
+ControlMsg:"(Exceeds the balance quantity)"
+CwSameRefnox:$Reference=#nf
+mycwExcethebalquantity:$cwExcethebalquantity:COMPANY:##SVCURRENTCOMPANY
+
+[line:cwSubOrdDtlsMain]
+field:numf6,nf,sdf,nf2
+right fields:numf,snfx,numf1,numf2,numf3,numf4,numf5
+
+Local: Field: numf6: storage:cwMyLineNo
+Local: Field: nf: storage:cwMasterOrdRef
+Local: Field: sdf: storage:cwMasterOrdDate
+Local: Field: nf2: storage:cwMasterOrdItem
+Local: Field:numf: storage:cwMasterOrdQty
+;;Local: Field:numf10: storage:cwMasterOrdQtyalt
+Local: Field:numf1: storage:cwMasterOrdRate
+Local: Field:numf2: storage:cwMasterOrdAmt
+Local: Field:numf3: storage:cwMasterOrdBalQty
+Local: Field:numf4: storage:cwSubOrdQty
+Local: Field:numf5: storage:cwSubOrdMasterId
+Local: Field: snfx: Set As:$baseunits:stockitems:$cwMasterOrdItem
+Local: Field: numf5: Set As:$$FilterValue:$masterid:CwCollIndentOrderno:1:CwSameRefnox
+;;Local: Field: numf10: Set As:$cwMasterOrdQty  ;;$$number:($$String:#numf:"NoSymbol,Secondary")
+Local: Field: numf6: Set As:$$line
+;; {14.Mar.22 18:18} Local: Field:numf4 :control:ControlMsg:$$value>#numf3
+Local: Field:numf4 :control:ControlMsg:if @@mycwExcethebalquantity="yes" then no else $$value>#numf3
+Local: Field:numf4 :notify:ControlMsg:if @@mycwExcethebalquantity="yes" then $$value>#numf3 else no
+
+;; {14.Mar.22 14:57} local: field: qtyf: Invisible: yes
+;; {14.Mar.22 14:58} Local: field:qtyf2: Format: "nosymbol"
+
+;;local: field: numf10: type:quantity:Secondary units
+
+remove if:$$isempty:#numf3
+
+
+Local: Field: nf: Skip: Yes
+Local: Field: sdf: Skip: Yes
+Local: Field: nf2: Skip: Yes
+Local: Field: numf: Skip: Yes
+Local: Field: numf1: Skip: Yes
+Local: Field: numf2: Skip: Yes
+Local: Field: numf3: Skip: Yes
+;; {01.Feb.22 17:23} Local: Field: numf4: Skip: Yes
+Local: Field: numf5: Skip: Yes
+Local: Field: numf6: Skip: Yes
+Local: Field: numf10: Skip: Yes
+Local: Field: snfx: Skip: Yes
+
+Local: Field: default: Style:VEPLstyle2
+
+;; {01.Feb.22 11:14}  local: field: sdf: inactive:$$isempty:#nf
+;; {01.Feb.22 11:14}  local: field: nf2: inactive:$$isempty:#nf
+;; {01.Feb.22 11:14}  local: field: numf: inactive:$$isempty:#nf
+;; {01.Feb.22 11:14}  local: field: numf1: inactive:$$isempty:#nf
+;; {01.Feb.22 11:14}  local: field: numf2: inactive:$$isempty:#nf
+;; {01.Feb.22 11:14}  local: field: numf3: inactive:$$isempty:#nf
+ local: field: numf4: inactive:$$isempty:#nf
+ Local: Field: default: Border: thin right
+;; {04.Feb.22 11:59}  Local: field: nf: Width:16
+ Local: field: sdf: Width:12
+ Local: field: nf2: Width:36
+ Local: field: numf2: Width:13
+ Local: field: numf3: Width:12
+ Local: field: numf4: Width:12
+ Local: field: numf5: Width:5
+ Local: field: numf6: Width:5
+ local: field: numf5: Invisible: yes
+
+ Local: Field:default :Style:Style4
+
+
+;;------------------------------------------------------------
+
+ [Function:cwFillInvItems]
+;; {01.Feb.22 11:44} parameter:vchno:string
+;; {01.Feb.22 11:44} parameter : MyMasterid : number
+variable : isFirst : logical : true
+variable : isbatchFirst : logical : true
+
+variable : MyItemname :string
+variable : mygodownname :string
+variable : myBatchNAme :string
+variable : MyQty :number
+variable : myRate :number
+variable : myamount :number
+
+variable : vid :string
+variable : ispost :logical
+variable : cwbillname :string
+variable : cwbillamt :amount
+variable : billparty :string
+variable :myitemname:string
+variable :myOrdNo:string
+variable :myvchno:string
+variable :Mycwsaudanonew:string
+
+
+returns:logical
+;; {10.Oct.20 11:42} 000ab: doif: $masterid<>0:return:yes
+;; {10.Oct.20 11:42} 0100ab: doif: not $$issysname:$stockitemname:return:yes
+;; {10.Oct.20 11:42} 0200ab: log: $vouchernumber
+;; {10.Oct.20 11:42} 0300ab: log: $$machinetime
+
+;; {01.Feb.22 11:47} 0002ab :set :ispost :$cwispost
+;; {01.Feb.22 11:47} 0100ab: doif: ##ispost="yes":return:yes
+;; {01.Feb.22 11:47} 0001ab :set value :cwispost:yes
+
+10 : SET : VID	: $$SPrintf:@@VCHMasterID:##MyMasterid
+;; {10.Oct.20 12:19} 20 :log :##vid
+
+;; {01.Feb.22 13:29} 0y : if : $$tgtobject:$$numitems:inventoryentries  > 0
+;; {01.Feb.22 13:29} 0z : return : yes
+;; {01.Feb.22 13:29} 0a : endif
+
+;; {03.Feb.22 15:34}  01:  while : $$tgtobject:$$numitems:inventoryentries > 0
+;; {03.Feb.22 15:34} 02: delete collection object : inventoryentries: 1 : yes
+;; {03.Feb.22 15:34} 03: end while
+
+;; {03.Feb.22 16:14} f100 : if : not $$issysname:$$collectionfield:$stockitemname:1:cwcollMasterOrderDtlsx
+f100 : if : not $$issysname:$$collectionfield:$stockitemname:1:inventoryentries
+f102 : continue
+f103 : end if
+
+30 : walk COLLECTION :cwcollMasterOrderDtlsx
+
+
+40 :set :MyItemname :$cwMasterOrdItem1
+;; {18.Jan.24 17:51} 50:set : mygodownname :"Main Location"
+50:set : mygodownname :$cwVchTypeSelectedGodown:Vouchertype:$VoucherTypename ;;"Main Location"
+60:set : myBatchName :"Primarybatch "
+70 :set  :MyQty:$cwSubOrdQty1
+150:set  :myRate:$cwMasterOrdRate1
+160:set  :myamount:(##MyQty * ##myRate)
+165:set  :Mycwsaudanonew:$cwMasterOrdRef1
+;; {01.Feb.22 12:06} 161:log:##myamount
+
+;; {01.Feb.22 12:22} 170 : INSERT COLLECTION OBJECT	: inventoryentries
+
+170 : do if : ##isfirst : set target :  inventoryentries[1]	
+180 :do if :not ##isFirst : INSERT COLLECTION OBJECT	: inventoryentries
+
+190 :set value :stockitemname:##MyItemname
+195 :set value :cwsaudanonew:##Mycwsaudanonew
+
+260 : start block
+270 : set object
+
+310 : set value : BilledQty : $$asqty:##MyQty
+320 : set value : Rate :$$asrate:##myRate ;; $amount/$$tgtobject:$billedqty   ;;$$asrate:##myRate
+330 : set value : Amount :$$asamount:##myamount
+
+340 : end block
+
+
+;; {02.Feb.22 16:16} 360 : INSERT COLLECTION OBJECT	: BatchAllocations
+;; {02.Feb.22 16:35} 350 : doif :not ##isfirst:INSERT COLLECTION OBJECT	: BatchAllocations
+;; {02.Feb.22 16:31} 360 :doif :  ##isfirst : set target : BatchAllocations[1]
+ 360:set target:batchallocations[1]
+370 : set : isFirst : no
+380 : set value : Batchname : ##myBatchName
+390 : set value : Godownname : ##mygodownname
+;; {02.Feb.22 16:03} 400 : set value :TrackingNumber:$TrackingNumber
+;; {02.Feb.22 16:03} 410 : set value :ORDERNO:" Not Applicable"   ;;##mybillno
+
+480 : start block
+490 : set object
+
+530 :set value :billedqty:$$asqty:##MyQty
+540 : set value :rate:$$asrate:##myRate
+550 : set value : Amount :$$asamount:##myamount
+560 : end block
+570 : SET TARGET	: ..
+;;----------------------------
+;; {01.Feb.22 11:46} 30aa :end if ;;level 30a
+580: END WALK
+800 :return: yes
+
+      [Collection: cwcollMasterOrderDtlsx]
+      Source collection:default
+    walk :cwcollMasterOrderDtls
+    by:cwSubOrdMasterId1:$cwSubOrdMasterId
+    by:cwMasterOrdItem1:$cwMasterOrdItem
+    by:cwMasterOrdRef1:$cwMasterOrdRef
+    compute:cwMasterOrdRate1:$cwMasterOrdRate
+    aggr compute:cwSubOrdQty1:sum:$cwSubOrdQty
+    aggr compute:cwMasterOrdAmt1:sum:$cwMasterOrdAmt
+    filter:cwEmptysubQty
+   [System: Formula]
+   cwEmptysubQty:not $$isempty:$cwSubOrdQty1
+
+
+;;------------------------------------------------------------
+
+[Function: UpdateSUBordvchfromMasterOrdVch]
+Variable: MasterIdVar: number
+variable: ProgressCount : number :0
+05 : start progress : ($$numitems:cwcollMasterOrderDtls) : "Updating" : "Please Wait..."
+10 :walk collection:cwcollMasterOrderDtls
+15 :set  :MasterIdVar :$cwSubOrdMasterId
+;; {02.Feb.22 11:14} 20 : log :##MasterIdVar
+25: CALL	: UpdateSUBordvchfromMasterOrdVch1:##MasterIdVar
+30:      increment  :ProgressCount
+;; {08.Feb.22 11:28} 35:log:#ProgressCount
+40 : show progress : ##ProgressCount
+45 : continue
+50 : end walk
+55 : end progress
+
+[Function: UpdateSUBordvchfromMasterOrdVch1]
+parameter : MyMasterid : number
+variable : MasterVchId : number
+variable : vid : string
+variable : Mybatch : string:"Primarybatch "
+variable : MyItemname : string:$cwMasterOrdItem
+variable : MySubQty : number
+variable : MyOrdPreQty : Quantity
+;; {01.Feb.22 17:37} variable : counter : number
+VARIABLE:slno:STRING
+;; {02.Feb.22 17:01} 10:log:##MySubQty
+30 : SET : VID	: $$SPrintf:@@VCHMasterID:##MyMasterid
+45 : set :slno :$cwMyLineNo
+46 : set : MySubQty :(($cwMasterOrdQty - $cwMasterOrdBalQty)+$cwSubOrdQty)
+47 : set : MyOrdPreQty :$$asqty:$cwSubOrdQty ;;(($cwMasterOrdQty - $cwMasterOrdBalQty)+$cwSubOrdQty)
+32 :log:##MyOrdPreQty
+;; {02.Feb.22 17:01} 33 :log:##MyItemname
+
+;; {03.Feb.22 11:39} 200: modify object :(Voucher, ##VID).inventoryentries[1,@@sameitem].BatchAllocations[1,@@samebatch].cwUpdateSubQty[1].cwUpdateSubQty:##MySubQty
+;; {03.Feb.22 11:53} 200: modify object :(Voucher, ##VID).inventoryentries[1,@@sameitem].BatchAllocations[1,@@samebatch].OrderPreclosureQty[1].OrderPreclosureQty:##MyOrdPreQty
+
+200: modify object :(Voucher, ##VID).inventoryentries[1,@@sameitem].cwUpdateSubQty[1].cwUpdateSubQty:##MySubQty ;;,inventoryentries[1,@@sameitem].BatchAllocations[1,@@samebatch].cwUpdateSubQty[1].cwUpdateSubQty:##MySubQty
+
+ [System: Formula]
+sameitem:$stockitemname = ##MyItemname ;; "MS SHEET 16''MM" ;;##MyItemname
+samebatch:$batchname = ##Mybatch
+
+
+;;--------------------------------------------------------------------------------------
+
+
+      [System: Formula]
+
+ cwSubOrdBal:($billedqty1 - $cwUpdateSubQty1)
+ cwClearBills:if $$increatemode then not $$isempty:@@cwSubOrdBal else yes
+
+
+;;===========================================================================
+[System: Formula]
+cwEmptyBal:$$isempty:$cwUpdateSubQty1
+
+[Function: fillMasterOrdItems]
+;; {02.Feb.22 15:51}   parameter:Post:logical
+  parameter:MyRefNo:string
+  variable:Stockname:string
+  variable:Stockqty:number
+  variable:MasterOrdBalQty:number
+  variable:myBatchNAme:string
+  variable:mygodownname:string
+  variable:itemrate   :number
+  variable :myamount :number
+  variable : isFirst : logical : true
+  variable:myIssueNo:string
+  variable:myvchno:string
+  variable:MyBalance:number
+ returns:logical
+;; {26.Jun.20 11:16} 0x : log : "infn"
+;; {01.Feb.22 13:18} 0xx : log :##MyRefNo
+
+0y : if : $$tgtobject:$$numitems:cwcollMasterOrderDtls  > 0
+0z : return : yes
+0a : endif
+
+ 05:  while : $$tgtobject:$$numitems:cwcollMasterOrderDtls > 0
+10: delete collection object : cwcollMasterOrderDtls: 1 : yes
+15: end while
+;; {25.Jun.20 13:28}  01 : log :##post
+
+;; {31.Jan.22 15:37} 16A:walk collection:cwcollMasterOrderDtls
+;; {31.Jan.22 15:37}  16B:set:myIssueNo:$cwIssueNo
+
+ 20 : walk COLLECTION :cwcollTagOrdNox
+
+ 30 :set :stockname:$stockitemname1
+ 40 :set :stockqty:$billedqty1
+ 41 :set :MasterOrdBalQty:$cwUpdateSubQty1
+ 50:set :itemrate:$rate1
+ 60:set :myamount:$amount1
+;; {31.Jan.22 16:29}  70 :set : myBatchNAme :$batchname1 ;;"Primarybatch "
+;; {31.Jan.22 16:29}  80 :set : mygodownname :$godownname1 ;;"Main Location"
+;; {31.Jan.22 17:25}  25a:log :##stockname
+;; {31.Jan.22 17:25}  25b:log :##stockqty
+;; {02.Feb.22 13:01}  25c:log :##MasterOrdBalQty
+
+;; {25.Jun.20 13:22}  35 : if :##post="yes"
+ 90 :Insert Collection Object : cwcollMasterOrderDtls
+
+;; {01.Feb.22 10:56} 37 : do if : ##isfirst : set target :  cwcollMasterOrderDtls[1]	
+;; {03.Feb.22 12:48} 91 :do if : not @@cwEmptyBal: INSERT COLLECTION OBJECT	: cwcollMasterOrderDtls
+;; {03.Feb.22 12:31} 38 :do if :not ##isFirst : INSERT COLLECTION OBJECT	: cwcollMasterOrderDtls
+;; {01.Feb.22 10:56} 39 : set : isFirst : no
+
+ 93  : Set Value : cwMasterOrdRef: $Reference
+ 94  : Set Value : cwMasterOrdDate: $date
+ 100  : Set Value : cwMasterOrdItem: ##stockname
+
+;; {31.Jan.22 16:03}  110 : start block
+;; {31.Jan.22 16:03}  120 : set object
+
+130 : set value : cwMasterOrdQty :##stockqty
+135 : set value : cwMasterOrdRate :##itemrate
+136 : set value : cwMasterOrdBalQty :##stockqty - ##MasterOrdBalQty
+140 : set value : cwMasterOrdAmt :##myamount
+
+;; {31.Jan.22 16:03} 145 : end block
+;; {31.Jan.22 15:46} 150 : Insert Collection Object : BATCHALLOCATIONS
+;; {31.Jan.22 15:47} 155 : set value : Batchname : ##myBatchNAme
+;; {31.Jan.22 15:47} 160 : set value : Godownname : ##mygodownname
+
+;; {31.Jan.22 15:47} 165 : start block
+;; {31.Jan.22 15:47} 170 : set object
+;; {31.Jan.22 15:47} 175 : set value : ActualQty :##stockqty
+;; {31.Jan.22 15:47} 180 : set value : BilledQty :##stockqty
+;; {31.Jan.22 15:47} 185 : set value : BatchRate :$$asrate:##itemrate
+;; {31.Jan.22 15:47} 190 : set value : amount :##myamount
+;; {31.Jan.22 15:47} 195 : end block
+;; {31.Jan.22 15:47} 200 :set target :..
+205:set target:..
+;; {31.Jan.22 16:43} 21C: end if
+ 210 :end walk
+;; {31.Jan.22 17:25}  16H:end walk
+
+
+;; {31.Jan.22 16:36}  211:log target
+ 220 :return: yes
+
+ [Collection: cwcollTagOrdNox]
+source collection:cwcollTagOrdNoSrcX
+walk:inventoryentries
+compute :vouchernumber:$vouchernumber
+compute :Reference:$Reference
+compute :cwVchSiteName1:$cwVchSiteName
+by :date:$date
+by :masterid:$masterid
+by :stockitemname1:$stockitemname
+compute:vouchertypename1:$vouchertypename
+compute :batchname1:$batchname
+compute :cwMasterOrdRate1:$cwMasterOrdRate
+compute:Rate1:$rate
+aggr compute :billedqty1:sum:$billedqty
+aggr compute:cwUpdateSubQty1:sum:$cwUpdateSubQty
+aggr compute :amount1:sum:$amount
+
+
+[Collection: cwcollTagOrdNoSrcX]
+     Use: Vouchers of Company
+     delete: filter
+ add:filter :cwSalesOrdFill
+  add:filter :cwSameRefNo
+
+[System: Formula]
+cwSalesOrdFill:$$issalesOrder:$vouchertypename and @@cwisMstrSalesOrd
+cwSameRefNo:$Reference = ##MyRefNo ;; #CwMasterOrderNo
+
+
+
+;;=========================================
+

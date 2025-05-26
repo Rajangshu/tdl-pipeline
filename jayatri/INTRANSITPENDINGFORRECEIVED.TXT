@@ -1,0 +1,290 @@
+; Created By: Khokan on 2024-03-01 16:09, ID: 
+
+     [#menu: Gateway of Tally]
+;; {02.Mar.24 10:32}         add: Option: InTransitPendingforReceivedLock ;; : @@InTransitPendingforReceivedDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@InTransitPendingforReceivedReport: Display: RepInTransitPendingforReceived
+
+
+
+     [!menu: InTransitPendingforReceivedLock]
+        add: Item: before: @@locQuit: @@InTransitPendingforReceivedReport: Display: RepInTransitPendingforReceived
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   InTransitPendingforReceivedReport: "In - Transit - Pending for Received"
+;; InTransitPendingforReceivedDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepInTransitPendingforReceived]
+        use: Dsp Template
+;; Use				: Range Value Template
+        Use				: Range  Template
+        
+      Title: @@InTransitPendingforReceivedReport
+   Printset: Report Title: @@InTransitPendingforReceivedReport
+       Form: FrmInTransitPendingforReceived
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable:str1,str2,str3,str4,str5
+    set:str1:""
+    set:str2:""
+    set:str3:""
+    set:str4:""
+    set:str5:""
+     
+      [Form: FrmInTransitPendingforReceived]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0InTransitPendingforReceived,PrtInTransitPendingforReceived
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: InTransitPendingforReceivedbotbrk,InTransitPendingforReceivedbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+  add:button:Save View,change view
+ ;;    local : button : report config : action :modify variable: InTransitPendingforReceivedConfigure
+        option : enable Range filters
+      add:button:InTrPendingforRecebotton
+      
+      [part: InTransitPendingforReceivedbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: InTransitPendingforReceivedbotopbrk]
+        use: dspacctitles
+  add: part: InTransitPendingforReceivedTitlePart
+
+      [part: InTransitPendingforReceivedTitlePart]
+       line: LnInTransitPendingforReceivedTitle
+       
+      [line: LnInTransitPendingforReceivedCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0InTransitPendingforReceived]
+      line : LnInTransitPendingforReceivedCurrPeriod
+      
+      [Part: PrtInTransitPendingforReceived]
+       Line: LnInTransitPendingforReceivedTitle,LnInTransitPendingforReceived
+bottom Line: LnInTransitPendingforReceivedTotals
+     repeat: LnInTransitPendingforReceived: ColInTransitPendingforReceived
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,Qtyf2,amtf
+
+[Collection: ColInTransitPendingforReceived]
+
+;; {01.Mar.24 18:21} Type		: In Sub Orders
+Type		: In  Orders
+	
+	Fetch		: Name, Parent, TrackLedger, OrderType, Date, OrderDueDate, ReceivableQty, ReceivedQty, ClosingBalance, IsJobInOrder, IsJobOutOrder, ClosingValue, Rate
+	Fetch		: BatchName, GodownName, ParentItem, OrderPreclosureQty, IsJobInMatInOrder, IsJobInMatOutOrder, IsJobOutMatInOrder, IsJobOutMatOutOrder
+	
+	Fetch		: LedgerEntries.MasterID, LedgerEntries.IsVCHOfStockJrnl, LedgerEntries.Date, LedgerEntries.CurLangVoucherTypeName
+	Fetch		: LedgerEntries.VoucherTypeName, LedgerEntries.VoucherNumber
+
+	Fetch		: LedgerEntries.JWAllocQty
+	Fetch		: LedgerEntries.BILLOFLADINGNO
+	Fetch		: LedgerEntries.BillofLadingDate
+	Fetch		: LedgerEntries.cwTransporterpurc
+	Fetch		: LedgerEntries.BASICSHIPVESSELNO
+	Fetch		: LedgerEntries.vouchertypename
+	
+   filter:ColInTransitPendingforReceivedFilter,cwLRNoinfilter,cwTransporterinfilter,cwSupplierinfilter,cwVehicleinfilter
+   
+   
+    [System: Formula]
+ cwLRNoinfilter:if $$issysname:##str1 then yes else $BILLOFLADINGNO =##str1
+ cwTransporterinfilter:if $$issysname:##str2 then yes else $cwTransporterpurc =##str2
+ cwSupplierinfilter:if $$issysname:##str3 then yes else $partyledgername =##str3
+ cwVehicleinfilter:if $$issysname:##str4 then yes else $BASICSHIPVESSELNO =##str4
+
+
+[Collection: sourColInTransitPendingforReceived]
+Type		: Vouchers	: VoucherType
+Child Of	: $$VchTypeJobOrderOut
+Belongs To	: Yes
+
+    [system: Formula]
+ColInTransitPendingforReceivedFilter:$cwInTransitPendingforRece:vouchertype:$vouchertypename
+
+
+
+[Line: LnInTransitPendingforReceivedTitle]
+use: LnInTransitPendingforReceived
+option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: snf: set as: "LR No"
+local:field: sdf: set as: "LR Date"
+local:field: fwf: set as: "Transporter"
+local:field: nf: set as: "Supplier"
+local:field: snf2: set as: "Supplier Inv No"
+local:field: sdf2: set as: "Supplier Inv Date"
+local:field: snf3: set as: "Vehicle"
+;; {28.Oct.24 16:31} local:field: qtyf: set as: "Quaility"
+local:field: snf5: set as: "Quaility"
+local:field: snf4: set as: "Bale No"
+local:field: qtyf2: set as: "Qty"
+local:field: ratepf : set as : "Rate"
+local:field: amtf : set as : "Amount"
+
+;;local: field: default : style: normal bold
+Local: field: default: Align: centre
+Local: field: fwf: Align: left
+Local : field : default: Lines : 0
+local:field: SNF4:style:style1
+
+
+local:field: snf: style:style1
+local:field: sdf:style:style1
+local:field: sdf2:style:style1
+local:field: fwf:style:style1
+local:field: nf: style:style1
+local:field: Snf2: style:style1
+local:field: Snf3: style:style1
+local:field: qtyf:style:style1
+local:field: snf5:style:style1
+local:field: qtyf2:style:style1
+local:field: ratepf :style:style1
+local:field: amtf:style:style1
+local:field: nf2:style:style1
+
+
+[Line: LnInTransitPendingforReceived]
+Fields: sdf,snf,fwf
+;; {28.Oct.24 16:30} right field: nf,snf2,sdf2,snf3,qtyf,snf4,ratepf,Qtyf2,Amtf
+right field: nf,snf2,sdf2,snf3,qtyf,snf5,snf4,ratepf,Qtyf2,Amtf
+Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf2 : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+
+local:field: snf8: set as:$vouchertypename ;; "LR No"
+local:field: snf: set as:$BILLOFLADINGNO ;; "LR No"
+local:field: sdf: set as:$BillofLadingDate ;; "LR Date"
+local:field: fwf: set as:$cwTransporterpurc ;; "Transporter"
+local:field: nf: set as:$partyledgername ;; "Supplier"
+local:field: snf2: set as:$vouchernumber ;; "Supplier Inv No"
+local:field: sdf2: set as:$date ;; "Supplier Inv Date"
+local:field: snf3: set as:$BASICSHIPVESSELNO ;; "Vehicle"
+local:field: snf5: set as:$stockitemname ;; "Quaility"
+local:field: qtyf: set as:$billedqty ;; "Quaility"
+local:field: snf4: set as:$batchname ;;$$abs:$ClosingBalance ;; "Bale No"
+local:field: qtyf2: set as:$$abs:$ClosingBalance ;; "Qty"
+local:field: ratepf : set as :#amtf/#qtyf ;; "Rate"
+local:field: amtf : set as :$$abs:$Closingvalue ;; "Amount"
+Local: Field: default: Border: thin right
+
+local: field: qtyf: Invisible: yes
+
+local:field:DEFAULT: style:style2
+
+
+[line: LnInTransitPendingforReceivedTotals]
+use: LnInTransitPendingforReceived
+option: totalOpt
+;; {19.Dec.24 16:36} replace : field : qtyf2 : qtyf5
+
+local: field: fwf: align: right
+local: field: default : style: normal bold
+
+local: field: fwf: set as: "Total"
+local:field: snf: set as:"" ;; "LR No"
+local:field: sdf: set as:"" ;; "LR Date"
+
+local:field: nf: set as:"" ;; "Supplier"
+local:field: snf2: set as:"" ;; "Supplier Inv No"
+local:field: sdf2: set as:"" ;; "Supplier Inv Date"
+local:field: snf3: set as:"" ;; "Vehicle"
+local:field: qtyf: set as:$$total:qtyf ;; "Quaility"
+local:field: snf4: set as:"" ;; "Bale No"
+local:field: qtyf2: set as:$$total:qtyf2 ;; "Qty"
+;; {19.Dec.24 16:36} local:field: qtyf5: set as:#qtyf2 ;;$$total:qtyf2 ;; "Qty"
+local:field: ratepf : set as :"" ;; "Rate"
+local:field: amtf : set as :$$total:amtf ;; "Amount"
+
+local:field: snf: style:style1
+local:field: sdf:style:style1
+local:field: sdf2:style:style1
+local:field: fwf:style:style1
+local:field: nf: style:style1
+local:field: Snf2: style:style1
+local:field: Snf3: style:style1
+local:field: qtyf:style:style1
+local:field: qtyf2:style:style1
+local:field: ratepf :style:style1
+local:field: amtf:style:style1
+local:field: nf2:style:style1
+
+;;===================================================
+
+
+ [button:InTrPendingforRecebotton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:InTrPendingforRecebotton
+
+ [report:InTrPendingforRecebotton]
+ form:InTrPendingforRecebotton
+
+ [form:InTrPendingforRecebotton]
+ part:InTrPendingforRecebotton
+
+ HEIGHT:20% PAGE
+ WIDTH:30% PAGE
+
+ [part:InTrPendingforRecebotton]
+ line:titlelinex,cwLRNoline,cwTransporterinline,cwSupplierline,cwVehicleline
+
+ [line:titlelinex]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: Normal Bold
+ space bottom:0.5
+
+ [line:cwLRNoline]
+ field:sp,nf
+ local:field: sp: set as:"LR No"
+ Local: Field: nf:modifies:str1
+
+ [line:cwTransporterinline]
+ field:sp,nf
+ local:field: sp: set as:"Transporter"
+ Local: Field: nf:modifies:str2
+ 
+ Local: Field: nf: table:collcwTransporter2,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ [line:cwSupplierline]
+ field:sp,nf
+ local:field: sp: set as:"Supplier"
+ Local: Field: nf:modifies:str3
+ 
+ Local: Field: nf: table:cwcollSupplier,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ 
+ [Collection: cwcollSupplier]
+ title:"List of Supplier"
+ type:ledger
+
+ [line:cwVehicleline]
+ field:sp,nf
+ local:field: sp: set as:"Vehicle"
+ Local: Field: nf:modifies:str4
+
+
+

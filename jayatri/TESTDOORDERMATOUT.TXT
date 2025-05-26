@@ -1,0 +1,138 @@
+; Created By: Anil on 2024-02-28 11:35, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: DoOrderMatOutRepLock ;; : @@DoOrderMatOutRepDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@DoOrderMatOutRepReport: Display: RepDoOrderMatOutRep
+
+
+
+     [!menu: DoOrderMatOutRepLock]
+        add: Item: before: @@locQuit: @@DoOrderMatOutRepReport: Display: RepDoOrderMatOutRep
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   DoOrderMatOutRepReport: "DoOrderMatOutRep"
+;; DoOrderMatOutRepDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepDoOrderMatOutRep]
+        use: Dsp Template
+;; Use				: Range Value Template
+        Use				: Range  Template
+        
+      Title: @@DoOrderMatOutRepReport
+   Printset: Report Title: @@DoOrderMatOutRepReport
+       Form: FrmDoOrderMatOutRep
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: FrmDoOrderMatOutRep]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0DoOrderMatOutRep,PrtDoOrderMatOutRep
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: DoOrderMatOutRepbotbrk,DoOrderMatOutRepbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+  add:button:Save View,change view
+ ;;    local : button : report config : action :modify variable: DoOrderMatOutRepConfigure
+        option : enable Range filters
+        
+      [part: DoOrderMatOutRepbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: DoOrderMatOutRepbotopbrk]
+        use: dspacctitles
+  add: part: DoOrderMatOutRepTitlePart
+
+      [part: DoOrderMatOutRepTitlePart]
+       line: LnDoOrderMatOutRepTitle
+       
+      [line: LnDoOrderMatOutRepCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0DoOrderMatOutRep]
+      line : LnDoOrderMatOutRepCurrPeriod
+      
+      [Part: PrtDoOrderMatOutRep]
+       Line: LnDoOrderMatOutRepTitle,LnDoOrderMatOutRep
+bottom Line: LnDoOrderMatOutRepTotals
+     repeat: LnDoOrderMatOutRep: ColDoOrderMatOutRepMain ;;ColDoOrderMatOutRep
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColDoOrderMatOutRepMain]
+source Collection:ColDoOrderMatOutRep
+walk:inventoryentriesout,BatchAllocations
+by:stockitemname:$stockitemname
+by:partyledgername:$partyledgername
+by:batchname:$batchname
+compute:rate:$rate
+aggr compute:billedqty:sum:$billedqty
+aggr compute:amount:sum:$amount
+
+[Collection: ColDoOrderMatOutRep]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColDoOrderMatOutRepFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+;; {28.Feb.24 11:46} ColDoOrderMatOutRepFilter: $$IsJobMaterialIssue:$vouchertypename
+ColDoOrderMatOutRepFilter: $cwAutoConsumption:vouchertype:$vouchertypename
+
+      [Line: LnDoOrderMatOutRepTitle]
+        use: LnDoOrderMatOutRep
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Item Name"
+local:field: nf1: set as: "batch Name"
+local:field: fwf: set as: "Party"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: LnDoOrderMatOutRep]
+  Fields: nf,fwf,nf1
+right field: ratepf,Qtyf,Amtf
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : $rate ;;#amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+;; {23.Feb.24 18:33} local:field: sdf: set as: "";;"Date"
+local:field: nf: set as: $stockitemname;;"Item Name"
+local:field: nf1: set as: $batchname;;"Item Name"
+local:field: fwf: set as: $partyledgername;;"Party"
+local:field: qtyf: set as: $billedqty;;"Qty."
+local:field: amtf: set as: $amount;;"Value"
+
+
+      [line: LnDoOrderMatOutRepTotals]
+        use: LnDoOrderMatOutRep
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

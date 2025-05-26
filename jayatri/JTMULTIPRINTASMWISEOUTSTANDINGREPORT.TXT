@@ -1,0 +1,79 @@
+; Created By: Anil on 2024-04-26 10:58, ID:
+
+; Created By: Khokan on 2021-09-06 17:37, ID:
+
+     [#menu: Gateway of Tally]
+;; {26.Apr.24 11:37}         add: Option: multiprintASMWISEOutstandingReportLock ;; : @@multiprintAREAWISEOutstandingReportDemoLock
+
+
+     [#menu : cw_Debug_menu]
+        add: Item: before: @@locQuit: @@multiprintASMWISEOutstandingReportReport: Display: RepmultiprintASMWISEOutstandingReport
+
+
+
+;; {26.Apr.24 11:21}      [!menu: multiprintAREAWISEOutstandingReportLock]
+     [!menu: multiprintASMWISEOutstandingReportLock]
+        add: Item: before: @@locQuit: @@multiprintASMWISEOutstandingReportReport: print Collection: collRepmultiprintASMWISEOutstandingReport
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   multiprintASMWISEOutstandingReportReport:"ASM wise O/S Statement"
+;; {26.Apr.24 11:20}    multiprintAREAWISEOutstandingReportReport:"Area wise O/S Statement"
+;; multiprintAREAWISEOutstandingReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+
+  [Collection: collRepmultiprintASMWISEOutstandingReport]
+
+
+   Use         		: Extract Alias Collection
+   Source	Collection	: List of Cost Centres
+    Title       		: $$LocaleString:"List of Cost Centres"
+    Format      		: $CstCatName
+    Filter      		: CostCentreFilter
+    Report      		:RepmultiprintAREAWISEOutstandingReport
+    Variable    		: SCostCentre
+    Trigger     		: SCostCentrex
+
+
+
+
+
+    [Report: RepmultiprintASMWISEOutstandingReport]
+    use:RepmultiprintAGENTWISEOutstandingReport
+
+   delete:Title: @@multiprintAGENTWISEOutstandingReportReport
+   delete:Printset: Report Title: @@multiprintAGENTWISEOutstandingReportReport
+
+   add:Title: @@multiprintASMWISEOutstandingReportReport ;;multiprintAREAWISEOutstandingReportReport
+   add:Printset: Report Title: @@multiprintASMWISEOutstandingReportReport ;;multiprintAREAWISEOutstandingReportReport
+
+
+ local:part: multiprintAGENTWISEOutstandingReportTitlePart:local:line:DSPCompanyName:Local: Field:nf:set as:@@multiprintASMWISEOutstandingReportReport ;;multiprintAREAWISEOutstandingReportReport
+ local:part: PrtTitle0multiprintAGENTWISEOutstandingReport:local:line:DSPCompanyName:Local: Field:nf:set as:@@multiprintASMWISEOutstandingReportReport ;;multiprintAREAWISEOutstandingReportReport
+
+ local:Collection: ColmultiprintAGENTWISEOutstandingReport:delete:filter:cwnotcloingbalancemultiprint
+ local:Collection: ColmultiprintAGENTWISEOutstandingReport:add:filter:cwnotcloingbalancemultiprintitem3
+
+ local:Collection: ColmultiprintAGENTWISEOutstandingReporta:delete:filter:ColmultiprintAGENTWISEOutstandingReportFilterdr
+ local:Collection: ColmultiprintAGENTWISEOutstandingReportb:delete:filter:ColmultiprintAGENTWISEOutstandingReportFiltercr
+
+ local:Collection: ColmultiprintAGENTWISEOutstandingReporta:add:filter:Colmultiprintareafiltermp
+ local:Collection: ColmultiprintAGENTWISEOutstandingReportb:add:filter:ColmultiprintAGENTWISEOutstandingReportFilterdritem3x
+
+ local:part:multiagentpart:local:line:multiprintAGENTline:Local: Field: fwf: Set As:##SCostCentre
+
+ [System: Formula]
+ cwnotcloingbalancemultiprintitem3:##SCostCentre=$cwAsmled and (not $$isempty:$OnAccountValue or not $$isempty:$closingbalance)
+
+ Colmultiprintareafiltermp:if $cwAsmled:ledger:$parent=##SCostCentre then $$isdr:$closingbalance else no
+
+ ColmultiprintAGENTWISEOutstandingReportFilterdritem3x:if $cwAsmled:ledger:$parent=##SCostCentre then not $$isdr:$closingbalance else no
+
+
+/* [System: Formula]
+ cwnotcloingbalancemultiprintitem3:##SCostCentre=$cwcaption3item and (not $$isempty:$OnAccountValue or not $$isempty:$closingbalance)
+
+ Colmultiprintareafiltermp:if $cwcaption3item:ledger:$parent=##SCostCentre then $$isdr:$closingbalance else no
+
+ ColmultiprintAGENTWISEOutstandingReportFilterdritem3x:if $cwcaption3item:ledger:$parent=##SCostCentre then not $$isdr:$closingbalance else no
+                                */

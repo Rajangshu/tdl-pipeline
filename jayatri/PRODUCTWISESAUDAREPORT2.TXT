@@ -1,0 +1,219 @@
+; Created By: Anil on 2024-01-23 11:09, ID: 
+
+; Created By: Khokan on 2022-02-11 14:55, ID:
+
+     [#menu: Gateway of Tally]
+;; {11.Feb.22 15:21}         add: Option: ProductWiseSaudaReport2Lock ;; : @@ProductWiseSaudaReport2DemoLock
+
+
+     [#menu : cw_Debug_menu]
+        add: Item: before: @@locQuit: @@ProductWiseSaudaReport2Report: Display: RepProductWiseSaudaReport2
+
+
+
+     [!menu: ProductWiseSaudaReport2Lock]
+        add: Item: before: @@locQuit: @@ProductWiseSaudaReport2Report: Display: RepProductWiseSaudaReport2
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   ProductWiseSaudaReport2Report: "Product Wise Sauda"
+;; ProductWiseSaudaReport2DemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: RepProductWiseSaudaReport2]
+        use: Dsp Template
+      Title: @@ProductWiseSaudaReport2Report
+   Printset: Report Title: @@ProductWiseSaudaReport2Report
+       Form: FrmProductWiseSaudaReport2
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+      variable:ledgername,SStockItem
+      [Form: FrmProductWiseSaudaReport2]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0ProductWiseSaudaReport2,PrtProductWiseSaudaReport2
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: ProductWiseSaudaReport2botbrk,ProductWiseSaudaReport2botOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: ProductWiseSaudaReport2botBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ProductWiseSaudaReport2botopbrk]
+        use: dspacctitles
+  add: part: ProductWiseSaudaReport2TitlePart
+
+      [part: ProductWiseSaudaReport2TitlePart]
+       line: LnProductWiseSaudaReport2Title
+
+      [line: LnProductWiseSaudaReport2CurrPeriod]
+      field: fwf,fwf2 ;;,nf
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: nf: Set As:##SStockItem
+      Local: Field: fwf: Set As:##ledgername
+      Local: Field: fwf2: Set As: @@dspDateStr
+       Local: Field: fwf: Style:Style1
+       Local: Field: fwf2: Style:Style1
+  invisible: $$inprintmode
+
+      [part: PrtTitle0ProductWiseSaudaReport2]
+      line : LnProductWiseSaudaReport2CurrPeriod
+
+      [Part: PrtProductWiseSaudaReport2]
+       Line: LnProductWiseSaudaReport2Title,LnProductWiseSaudaReport2
+bottom Line: LnProductWiseSaudaReport2Totals
+     repeat: LnProductWiseSaudaReport2: ColProductWiseSaudaReport2
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,qtyf4,qtyf5
+
+[Collection: ColProductWiseSaudaReport2]
+ ;; {11.Feb.22 14:54} source Collection: ColProductWiseSaudaReport2
+
+;; {11.Feb.22 14:54} [Collection: ColProductWiseSaudaReport2]
+   source Collection: sourcColSaudaReport
+walk:inventoryentries
+by:date:$date
+by:vouchernumber:$vouchernumber
+
+by:partyledgername:$partyledgername
+by:stockitemname:$stockitemname
+aggr Compute:billedqty:sum:$billedqty
+aggr Compute:amount:sum:$amount
+Compute:cwUpdateSubQty1:$$asqty:$cwUpdateSubQty
+Compute:masterid:$masterid
+filter:ColProductWiseSaudaReport2Filter
+
+    [system: Formula]
+ColProductWiseSaudaReport2Filter:$stockitemname=##SStockItem and $partyledgername=##ledgername
+
+[Line: LnProductWiseSaudaReport2Title]
+use: LnProductWiseSaudaReport2
+option: titleopt
+
+local:field: snf: set as: "Sauda No"
+local:field: sdf: set as: "Sauda Date"
+local:field: fwf: set as: "Broker Name"
+local:field: nf: set as: "Description  of  Materials"
+local:field: qtyf: set as: "Sauda Qty."
+local:field: ratepf : set as : "Rate"
+local:field: qtyf2: set as: "GRN Qty"
+local:field: qtyf3: set as: "Sauda Pending Qty."
+
+local:field: qtyf5: set as: "Sauda Pending Alt. Qty."
+
+local:field: qtyf4: set as: "Alt.Qty."
+
+local: field: qtyf4: type: String
+local: field: qtyf5: type: String
+
+Local: field:default: Align:centre
+Local: field:fwf: Align:left
+Local : field :default: Lines : 0
+
+local:field: snf: style:style1
+local:field: sdf:style:style1
+local:field: fwf:style:style1
+local:field: nf: style:style1
+local:field: qtyf:style:style1
+local:field: ratepf :style:style1
+local:field: amtf:style:style1
+local:field: nf2:style:style1
+local:field: snf2:style:style1
+local:field: sdf2:style:style1
+local:field: qtyf2:style:style1
+local:field: ratepf2:style:style1
+local:field: amtf2:style:style1
+local:field: qtyf3:style:style1
+local:field: qtyf4:style:style1
+local:field: qtyf5:style:style1
+
+      [Line: LnProductWiseSaudaReport2]
+  Fields:snf,sdf,fwf,nf
+right field:qtyf,qtyf4,Qtyf2,qtyf3,qtyf5
+
+;; {10.Feb.22 10:57}      Option: Alter on Enter
+local:field: qtyf : Format : "NoZero"
+local:field: qtyf1 : Format : "NoZero"
+local:field: qtyf2 : Format : "NoZero"
+local:field: qtyf3 : Format : "NoZero"
+
+local:field: snf9: set as:$vouchernumber ;; "Sauda No"
+local:field: snf: set as:$vouchernumber ;; "Sauda No"
+local:field: sdf: set as:$date ;; "Sauda Date"
+local:field: fwf: set as:$partyledgername ;; "Broker Name"
+local:field: nf: set as:$stockitemname ;; "Description  of  Materials"
+
+
+local:field: qtyf: set as:$billedqty ;; "Qty."
+local:field: qtyf4: set as:$billedqty ;; "Qty."
+local:field: qtyf5: set as:#qtyf3 ;; "Qty."
+local:field: ratepf : set as :#amtf/#qtyf ;; "Rate"
+local:field: amtf: set as:$amount ;; "Amount"
+local:field: qtyf2: set as:$cwUpdateSubQty1  ;; "GRN Qty"
+local:field: qtyf3: set as:#QTYF-#QTYF2  ;; "Sauda Pending Qty."
+
+local: field: qtyf4: type:quantity:Secondary units
+local: field: qtyf5: type:quantity:Secondary units
+
+local:field: default: style:style2
+Local: Field: default: Border: thin right
+
+option : cwalterVch
+
+Local: field: qtyf: Width:15
+Local: field: qtyf1: Width:15
+Local: field: qtyf2: Width:15
+Local: field: qtyf3: Width:15
+
+[line: LnProductWiseSaudaReport2Totals]
+use: LnProductWiseSaudaReport2
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: fwf: set as: "Total"
+local:field: snf: set as:"" ;; "Sauda No"
+local:field: sdf: set as:"" ;; "Sauda Date"
+
+local:field: nf: set as:"" ;; "Description  of  Materials"
+local:field: qtyf: set as:$$total:qtyf ;; "Qty."
+local:field: ratepf : set as :"" ;; "Rate"
+local:field: amtf: set as:$$total:amtf ;; "Amount"
+local:field: nf2: set as:"" ;; "Supplier"
+local:field: snf2: set as:"" ;; "Supplier Inv No"
+local:field: sdf2: set as:"" ;; "Supplier Inv Date"
+local:field: qtyf2: set as:$$total:qtyf2  ;; "GRN Qty"
+local:field: ratepf: set as:"" ;; "Rate"
+local:field: amtf2: set as:$$total:amtf2 ;; "Amount"
+local:field: qtyf3: set as:$$total:qtyf3  ;; "Balance Pending Qty."
+local:field: qtyf4: set as:$$total:qtyf4  ;; "Balance Pending Qty."
+local:field: qtyf5: set as:$$total:qtyf5  ;; "Balance Pending Qty."
+
+local:field: snf: style:style1
+local:field: sdf:style:style1
+local:field: fwf:style:style1
+local:field: nf: style:style1
+local:field: qtyf:style:style1
+local:field: ratepf :style:style1
+local:field: amtf:style:style1
+local:field: nf2:style:style1
+local:field: snf2:style:style1
+local:field: sdf2:style:style1
+local:field: qtyf2:style:style1
+local:field: ratepf:style:style1
+local:field: amtf2:style:style1
+local:field: qtyf3:style:style1
+local:field: qtyf4:style:style1
+local:field: qtyf5:style:style1
+
+

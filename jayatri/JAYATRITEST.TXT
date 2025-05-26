@@ -1,0 +1,456 @@
+
+;;Client:
+;;Serial:
+;;user : admin
+;;Password:abcd@1234
+; Created By: Anil on 2024-01-17 16:12, ID: 
+
+[include : e:\d7comps\tprime\RefreshTDL.txt]
+[include : e:\d7comps\tprime\cwSite.txt]
+[include : e:\d7comps\tprime\CommonFields2.txt]
+[include : e:\d7comps\tprime\CommonFormulae.txt]
+[include : e:\d7comps\tprime\ShowDemoForm.txt] ;; Demo Form
+;;[include : Changelog.txt] ;; Not Related to Tally, But For Changes we do in Project
+[include : e:\d7comps\tprime\commonfunctions.txt] ;; Demo Form
+
+
+[System : formula]
+JayatriTestDEmoMode : Yes  ;; yes to enable demo no to allow full access
+jayatritestdemodate : '2/4/2025'
+jayatritestedudate : '3/1/2025'
+
+JayatriTestDemoDt : if @@JayatriTestDEmoMode then if @@CWEdu then $date <= @@JayatriTestedudate else $date <= @@JayatriTestdemodate else yes
+JayatriTestMachDemoDate : if @@JayatriTestDEmoMode then if @@CWEdu then $$machinedate <= @@JayatriTestedudate else $$machinedate <= @@JayatriTestdemodate else yes
+JayatriTestSales : $$issales:$vouchertypename and @@JayatriTestDemoDt
+JayatriTeststkjrnl :$$isJournal:##VoucherTypeName ;;$vouchertypename
+
+[System : Formula] ;; Demo Formula
+cwShowDemoForm: @@JayatriTestDEmoMode
+cwShowDemoDate: @@JayatriTestdemodate
+cwShowDemoDate2: @@JayatriTestedudate
+
+[system : udf]
+JayatriTestEnabled : logical : 111 ;; change this value.
+cwCutofdateopt:date:112
+
+;--------------------------------------------- Company Config
+
+[#Form: Company Operations]
+                Switch   : JayatriTestLowerRel  : JayatriTestNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : JayatriTestCurrenRel : JayatriTestFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : JayatriTestNOTFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End : JayatriTestConfig
+                                
+[!Form : JayatriTestFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : JayatriTestConfig
+local : line : cwTestConfig : local : field : short name field : tool tip: "Double-Click for browsing to CircuitWorld.in"
+
+[#Part  : CMP TallyShopFeatures Left]
+Add :  Line : At End  : JayatriTestConfig,saudamanagementline,cwinvprintingline2new,AgeingWiseline1,cwinvprintingline2newKham,cwpddexportpathline,MohanDitributorConfigdate ;;,cwNegetiveStockLockLn
+
+[Line : JayatriTestConfig]
+Field : JayatriTestConfigTitle,JayatriTestConfig
+right field : Short name field
+Local: Field: short name field : info: "sales@circuitworld.in"
+Local: Field: short name field: case : normal
+Local: Field: short name field: Color : blue
+;;Local: Field: short name field: border : thin bottom
+Local: Field: short name field: width : 0
+
+
+key  : cwJayatriTestBrowse
+
+[key : cwJayatriTestBrowse]
+key : left double click
+action : browse : "www.circuitworld.in"
+
+
+[line:saudamanagementline]
+field:sp,cwlogical
+Local: Field: sp:width : 0
+Local: Field: sp: Set As:"Sauda Management"
+Local: Field:cwlogical: storage:cwsaudamanagement
+
+
+[Field: JayatriTestConfigTitle]
+Use : medium prompt
+info: "Enable JayatriTest?"
+width : 0
+
+[Field: JayatriTestConfig]
+Use: logical field
+Set As: $JayatriTestEnabled
+storage: JayatriTestEnabled
+
+   [Line:MohanDitributorConfigdate]
+ field:sp,sdf
+ Local: Field:sp: Set As:"Back Date"
+ Local: Field:sdf: storage:cwCutofdateopt
+ Local: field: sp: Width:16
+
+
+[System: Formula]
+JayatriTestEnabled :  $JayatriTestEnabled:COMPANY:##SVCURRENTCOMPANY
+cwsaudamanagement    : $cwsaudamanagement:COMPANY:##SVCURRENTCOMPANY
+;; {23.Jan.24 17:40} cwRawMaterialDetailsyes:$cwRawMaterialDetailsyes:COMPANY:##SVCURRENTCOMPANY
+[System: Formula]
+cwCutofdateoption:#PlainVCHDate > $cwCutofdateopt:COMPANY:##SVCURRENTCOMPANY
+
+;;E:\Works\JayatriTest\PDF
+;---------------------------------------------
+
+; UDF
+[include : JayatriTestUDF.txt]
+
+; Master Changes
+[include : feature.txt]
+[include:style1.txt]
+[include: ItemMasterChng.txt]
+[include: ItemMasterWithLogoChng.txt]
+[include : VoucherTypeChanges.txt]
+[include : PurchaseReturnVchType.txt]
+[include : MatInVchType.txt]
+[include : SoudaVchType.txt]
+[include : TransportShortageVchType.txt]
+[include : InTransiteVchType.txt]   ;;== Job Work Out Order
+[include : ledgermasterChanges.txt]
+[include : MatOutVchtypeChng.txt]
+[include : StockJrnlVchtype.txt]
+[include : SalesVchType.txt]
+[include :JTkhamprintConfiguration.txt]
+[include : GodownMasterChng.txt]
+
+; Transaction Changes
+;; {29.Oct.24 16:18} [include : SalesVchChng.txt]
+;; {15.Apr.24 18:09} [include : PurchaseVchChanges.txt]
+[include : PurchaseVchChanges2.txt]
+;; {27.Feb.24 12:52} [include : PurchaseExpBooking.txt]
+[include : PurchaseExpBooking2.txt]
+[include : PurchaseReturnVchChng.txt]
+[include : TransportChalan.txt]     ;;=====Mr Ph Voucher
+[include : ShortageVchChanges.txt]
+[include : FectoryShortageVchChng.txt]
+;; {20.Jan.24 13:56} [include : SaudapurchaseChanges.txt]
+[include : SaudapurchaseChanges2xx.txt]
+;; {19.Feb.24 11:55} [include : SaudapurchaseChanges2x.txt]
+[include : saudavgindentvchchg.txt]
+;; {26.Sep.24 11:05} [include : HouseMaterialOutChng.txt]
+[include : HouseMaterialOutChngx.txt]        ;;===[Batch Allocation Sub Forms]===
+;; {13.Apr.24 22:26} [include : FectoryReceiveChng.txt]
+[include : FectoryReceiveChng2.txt]
+
+[include : MaterialInConsumpChng.txt]
+[include : MaterialInConsumpChngKc.txt]
+;;============
+
+;; {28.Feb.24 12:48} [include : DoOrderMaterialIn.txt]
+[include : InTransiteVchChng.txt]
+;; {14.Apr.24 13:43} [include : MatOutKataCheckingChng.txt]
+[include : MatOutKataCheckingChng2.txt]    ;;=============kata order
+;; {03.Feb.25 19:07} [include : MatInKataChecking.txt]
+[include : MatInKataChecking5.txt]
+[include : MrkatatestVch.txt]
+;; {02.Feb.25 18:49} [include : MrkatatestVch2.txt]
+[include : MrDoVchChngs.txt]     ;;==Mr Do Sub Form
+;; {05.Sep.24 14:08} [include : MRDOChng2.txt]
+
+[include : MatInVchChng.txt]
+;; {03.Sep.24 14:12} [include : MatOutChng.txt]      ;; MR Kata old
+[include : MatOutChng2.txt]      ;; MR Kata
+[include : InDoOrdVchChng.txt]
+[include : DoOrderVchChng2x.txt]
+[include : DoOrderVchChngForNK.txt]
+;; {11.Sep.24 14:08} [include : KataOrderVoucherChanges.txt]
+;;====================
+;; {03.Sep.24 14:09} [include : DoMatInChng.txt]  ;;==old
+[include : DoMatInChng2.txt]
+;;=====================
+[include : DoMatOutChng.txt] ;;==old
+;;=======================
+[include : matinrecDOVchChng.txt]
+[include : stockjournalChng.txt]
+[include : jworder.txt]
+[include : STITCHINGVCHCHNG.txt]
+
+[include : STKJRNLVCHCHANGES.txt]
+[include : SalesVchChanges.txt]
+[include : Crnotevoucherchng.txt]
+[include : Crdaysdemo.txt]
+[include : ReceiptVchChng.txt]
+[include :JTexportpdf.txt]
+
+; Invoice Changes
+;; {11.Apr.24 10:51} [include : DoOrderInvChng.txt]
+[include : DoOrderInvChng2.txt]
+[include : StockJrnlInvChng.txt]
+[include : MrDoInvChanges.txt]
+
+[include : salesinvoiceChng.txt]
+[include : salesinvoiceChng1.txt]
+[include : Packingslipsalesinv.txt]
+[include : fnsalesinv.txt]
+[include : fnPrintingConfiguration.txt]
+
+;;========================================Test Report================
+;; {19.Jun.24 17:52} [include : DoorderTestrep.txt]
+[include :testrep.txt]       ;;Mo Ph
+[include :testrepMatOut.txt]
+[include :testrepMatOut2.txt]  ;; Mat Out Do
+;; {18.Mar.24 13:03} [include : testrepDoMatout.txt]
+[include : TestRepKataChekingOut.txt]
+;; {16.Jul.24 15:11} [include : TestRepKataChekingOut2.txt]
+[include :InTransitPendingforReceived.txt]
+[include :InTransitPendingforExpenseBooking.txt]
+[include : TestDoOrderrep.txt]
+
+; auto post Changes
+[include :autopostInTransit.txt]
+[include :autopostInTransitDirect.txt]
+;; {01.Mar.24 14:43} [include : AutoPostExpencesBooking2.txt]  ;;Pur --- purchase
+[include : AutoPostpoExpencesBooking2.txt]  ;;purchase --- purchase  order
+;; {07.Mar.24 17:55} [include : AutoPostExpencesBooking.txt]  ;;Mat In --- purchase
+[include : AutoPostExpencesBooking2x.txt]  ;;Mat In --- purchase  order    ;;purchase
+[include :autopostTransportShortage.txt]  ;;min-- stock journal
+;; {03.Apr.24 13:00} [include :autopostFectoryShortage.txt]  ;;min-- stock journal
+[include :autopostInTransitHouse.txt]
+
+;; {07.Aug.24 13:14} [include : MaterialOutDoAutoPosting.txt]
+;; {14.Apr.24 12:03} [include :autopostInTransitHouse2.txt]
+;; {11.Mar.24 11:40} [include :Materialoutautoposting.txt]   ;;Job Wrk Out Ordr ---- Material Out
+;; {14.Apr.24 13:56} [include :Materialoutautoposting2.txt]   ;;Job Wrk Out Ordr ---- Material Out
+
+;; {09.Sep.24 18:38} [include :Materialoutautoposting2X.txt]   ;;Job Wrk Out Ordr ---- Material Out
+[include :Materialoutautoposting2Xnew.txt]   ;;Job Wrk Out Ordr ---- Material Out
+
+
+;;=============================
+
+; Report Changes
+[include : mismenu.txt]
+[include : SaudaReport.txt]
+[include : SaudapendingReport.txt]
+[include : SummaryofSaudaPendingReport.txt]  ;;Sauda Pending Report
+[include : BrokerWiseSaudaReport.txt]
+[include : BrokerWiseSaudaReport2.txt]
+[include : ProductWiseSaudaReport.txt]
+[include : ProductWiseSaudaReport2.txt]
+[include : SaudaPedningReportDetail.txt]
+
+;; {25.Jul.24 14:18} [include : MoDoTestReport.txt]
+
+[include : BEDSHEETSPECIALLOTMILANREP.txt]
+[include : mrkatatest.txt]
+[include : modotest2.txt]     ;;==Related to Process details rep
+[include : ProcessDetailsRep.txt]
+
+/*[include : HoldingStockRep.txt]
+[include : HoldingStockRep3.txt] ;;==Holding Main Rep  */
+[include : DoStatusRep.txt]
+[include : ChiripalFileTestRep.txt] ;;==Chiripal Main Rep
+[include : GodownWiseGroupWiseAgeingtestRep.txt]  ;;==Ageing Main Rep
+
+;; {05.Aug.24 10:39} [include : HoldingReportNew.txt]
+;; {26.Sep.24 13:32} [include : HoldingReportNew2.txt]
+[include : HoldingReportNew2x.txt]
+;; {12.Aug.24 18:24} [include : HoldingReportNew3.txt]
+
+[include : KataOrderTestRep.txt]
+;; {09.Jul.24 12:20} [include : GodownWiseReptest.txt]
+;; {09.Jul.24 12:21} [include : GodownWiseReptest2.txt]
+;; {10.Aug.24 12:10} [include : testnew.txt]
+[include : DailyBaleAndPcsReport.txt]
+;; {18.Jun.24 15:25} [include : ChiripalFileRep.txt]
+;; {05.Jul.24 00:17} [include : ChiripalFileRep2.txt]    ;;=======Mo Ph Rep
+;; {05.Jul.24 11:12} [include : CHIRIPALFILEREPTEST5.txt]    ;;===Mr Kol Rep
+;; {05.Jul.24 12:12} [include : ChiripalfileDoOrderRep.txt]   ;;==Do Order
+
+
+[include : DoOrderAgeing.txt]
+[include : DoOrderUnclearedRep.txt]
+
+[include : JobPartyPendingStockReport.txt]
+[include : mismenums.txt]
+
+;;===============Outstanding Report====================
+[include : Partyoutstandingreport.txt]
+[include :JTAGENTWISEOutstandingReport.txt]
+[include :JTSALESMANWISEOutstandingReport.txt]
+[include :JTAREAWISEOutstandingReport.txt]
+[include :JTCitywiseoutstandingreport.txt]
+[include :JTZONEWISEOutstandingReport.txt]
+[include :JTASMWISEOutstandingReport.txt]
+[include :JTRSMWISEOutstandingReport.txt]
+
+[include :JTAllpartywiesoutstandingreport.txt]
+[include :JTallAGENTWISEOutstandingReport.txt]
+[include :JTallSALESMANWISEOutstandingReport.txt]
+[include :JTallAREAWISEOutstandingReport.txt]
+[include :JTALLZONEWISEOutstandingReport.txt]
+[include :JTALLASMWISEOutstandingReport.txt]
+[include :JTALLRSMWISEOutstandingReport.txt]
+
+;; {15.May.24 18:17} [include :JTAllItemwiesoutstandingreport.txt]
+;; {23.May.24 11:09} [include :JTAllItemwiesoutstandingreportnew.txt]
+[include : cwNormalandfastpaymentRep.txt]
+[include : cwDailySaleswiseoutstandingrep.txt]
+
+;;===============Outstanding Ageing Report=============
+[include : AllpartywiseAgeingRep.txt]
+[include : JTAgeingWiseOutstandingReport.txt]
+[include : JTsalesmanWiseAgeingReport.txt]
+;; {02.Aug.24 18:45} [include : JTsalesmanWiseAgeingReport2.txt]
+;; {02.Aug.24 13:11} [include : jttest.txt]
+
+;; {02.Aug.24 12:32} [include : TestledRep.txt]
+
+
+/*[include : AllpartywiseAgeingRep2.txt]
+;; {02.Aug.24 18:47} [include : JTAgeingWiseOutstandingReport.txt]
+[include : JTAgeingWiseOutstandingReport2.txt]
+;; {02.Aug.24 18:45} [include : JTsalesmanWiseAgeingReport.txt]
+[include : JTsalesmanWiseAgeingReport2.txt]  */
+
+;;================LR Report===========================
+[include :JTLRPendingReport.txt]
+[include :JTLRPendingupateReport.txt]
+[include :JTLRpendingUpdatereport.txt]
+;; {17.Jun.24 15:28} [include : testageing.txt]
+
+;;=========Net sales=================================
+[include :JTsalesreport.txt]
+[include : JTNetsalesreport.txt]
+[include :JTPartywisenetsalesreport.txt]
+
+[include :JTAGENTWISEnetsalesreport.txt]
+[include :JTSALESMANWISEnetsalesreport.txt]
+[include :JTAREAWISEnetsalesReport.txt]
+
+;; {15.Jun.24 17:27} [include :JTAGENTWISEnetsalesreportnew.txt]
+[include :JTAGENTWISEnetsalesreportnew2.txt]
+[include : salespersontest.txt]
+;; {15.Jun.24 16:33} [include :JTSALESMANWISEnetsalesreportnew.txt]
+;; {17.Jun.24 11:37} [include :JTAREAWISEnetsalesReportnew.txt]
+[include :JTAREAWISEnetsalesReportnew2.txt]
+[include :JTZONEWISEnetsalesReport.txt]
+[include :JTASMWISENETSALESREPORTNEW.txt]
+[include :JTRSMWISENETSALESREPORTNEW.txt]
+[include :JTCitywisenetreport.txt]
+
+[include :JTallPartywisenetsalesreport.txt]
+
+[include :JTallAREAWISEnetsalesReport.txt]
+[include :JTallSALESMANWISEnetsalesreport.txt]
+[include :JTallAGENTWISEnetsalesreport.txt]
+
+[include :JTallAREAWISEnetsalesReportnew.txt]
+[include :JTallAGENTWISEnetsalesreportnew.txt]
+[include :JTallSALESMANWISEnetsalesreportnew.txt]
+[include :JTallZONEWISEnetsalesReport.txt]
+[include :JTallASMWISEnetsalesReport.txt]
+[include :JTallRSMWISEnetsalesReport.txt]
+
+[include : JTItemwisenetsalesreport.txt]     ;; Anil
+[include :JTallItemwisenetsalesreportx.txt]    ;; Anil
+
+[include : JTMonthtomonthnetsalesreport.txt]
+
+;;==========SALESREGISTER=====================
+[include :JTPartywisesalesregisterreport.txt]
+[include :JTAGENTWISEsalesregiterreport.txt]
+[include :JTSALESMANWISEsalesregiterreport.txt]
+[include :JTCitywisesalesregisterreport.txt]
+[include :JTAREAWISEsalesregiterReport.txt]
+[include :JTDailySalesRegister.txt]
+[include :JTZONEWISEsalesregiterReport.txt]
+[include :JTASMWISEsalesregiterReport.txt]
+[include :JTRSMWISEsalesregiterReport.txt]
+
+;;=============================collctionreport======================
+[include : JTpartywisecollctionreport.txt]
+[include :JTAGENTWISEollctionreport.txt]
+[include :JTSALESMANWISEcollctionreport.txt]
+[include :JTAREAWISEcollctionreport.txt]
+[include :JTCITYWISEcollctionreport.txt]
+[include :JTZoneWISEcollctionreport.txt]
+[include :JTASMWISEcollctionreport.txt]
+[include :JTRSMWISEcollctionreport.txt]
+
+[include : JTSalesmanwisesalescollectionsummeryrep.txt]
+[include : JTagentwisesalescollectionsummaryreport.txt]
+
+;;=====================multiprint===========================
+[include :JTmultiprintAGENTWISEOutstandingReport.txt]
+[include :JTmultiprintSALESMANWISEOutstandingReport.txt]
+[include :JTmultiprintAREAWISEOutstandingReport.txt]
+[include :JTmultiprintZONEWISEOutstandingReport.txt]
+[include :JTmultiprintASMWISEOutstandingReport.txt]
+
+;;==============================Sales Return=====================================
+
+ [include :JTPartywisesalesReturnregister.txt]
+ [include :JTAGENTWISEsalesReturnregiterreport.txt]
+ [include :JTSALESMANWISEsalesReturnregiterreport.txt]
+ [include :JTAREAWISEsalesReturnregiterReport.txt]
+ [include :JTZONEWISEsalesReturnregiterReport.txt]
+ [include :JTASMWISEsalesReturnregiterReport.txt]
+ [include :JTRSMWISEsalesReturnregiterReport.txt]
+ 
+ [include :JTALLPartywisesalesReturnregister.txt]
+ [include :JTAllAGENTWISEsalesReturnregiterreport.txt]
+ [include :JTALLAREAWISEsalesReturnregiterReport.txt]
+ [include :JTALLSALSEMENWISEsalesReturnreport.txt]
+ [include :JTALLASMWISEsalesReturnreport.txt]
+ [include :JTALLRSMWISEsalesReturnreport.txt]
+ [include :JTALLZONEWISEsalesReturnreport.txt]
+ [include :JTCITYWISEsalesReturnreport.txt]
+ 
+ [include :JTSALERETURNREGISTER]
+ [include :JTSALERETURNSUMMARY]
+
+;;========================================
+[include : JTCustomerMasterreport.txt]  ;;Ledger Master
+[include :JTTopSellers.txt]
+[include :JTkhamprint.txt]
+[include :JTmultiprintkhamprint.txt]
+/*[include :JTComperativeNetsaleandCollection.txt]
+[include :JTComperativetestrep.txt]   */
+[include : voucherimport.txt]
+[include : RepStockGroupImages.txt]
+[include:companyDetailsReport.txt]
+;; {26.Jul.24 18:52} [include : ItemWiseRep.txt]
+[include : ItemWiseRep2.txt]
+
+;; {07.Aug.24 15:58} [include : ItemWiseSalesRep.txt]
+[include : ItemWiseSalesRep2.txt]
+
+[include : BillsreceivedOsRepChng.txt]
+
+;; {31.Jul.24 18:32} [include : ItemWiseBatchWiseRep.txt]
+;; {02.Aug.24 12:08} [include : batchwisetest.txt]
+;; {02.Aug.24 12:08} [include : batchwisetest2.txt]
+
+;;==================================
+
+;; {28.Feb.24 12:49} [include : TestDoOrderMatOut.txt]
+
+[include : e:\d7comps\tprime\CommonVars.txt]
+[include : e:\d7comps\tprime\tallyserial.txt]
+[include : e:\d7comps\tprime\servervouchers.txt]
+[include : e:\d7comps\tprime\commonudf.txt]
+;;[include : e:\d7comps\tprime\commonborders.txt]
+;;[include : e:\d7comps\tprime\Cwwbst.txt]
+;;[include : e:\d7comps\tprime\addwbstno.txt]
+;;[include : e:\d7comps\tprime\CMPWBSTNO.txt]
+;;[include : e:\d7comps\tprime\cwwaybills.txt]
+;;[include : e:\d7comps\tprime\cmpIECNo.txt]
+;;[include : e:\d7comps\tprime\addtableinconsignee.txt]
+;;[include : e:\d7comps\tprime\LedTANNo.txt]
+;;[include : e:\d7comps\tprime\LedCSTNo.txt]
+;;[include : e:\d7comps\tprime\batchchange.txt]
+;; {16.Mar.24 14:02} [include : e:\d7comps\tprime\broker.txt] ;; for enabling broker
+
+;;=======================
+
+

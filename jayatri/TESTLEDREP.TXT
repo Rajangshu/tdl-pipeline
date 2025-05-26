@@ -1,0 +1,164 @@
+; Created By: Anil on 2024-07-20 10:54, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: ledReportLock ;; : @@ledReportDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ledReportReport: Display: RepledReport
+  */
+
+
+     [!menu: ledReportLock]
+        add: Item: before: @@locQuit: @@ledReportReport: Display: RepledReport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ledReportReport: "led Report"
+;; ledReportDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepledReport]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@ledReportReport
+   Printset: Report Title: @@ledReportReport
+
+       Form: FrmledReport
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: FrmledReport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0ledReport,PrtledReport
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: ledReportbotbrk,ledReportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: ledReportConfigure
+
+      [part: ledReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ledReportbotopbrk]
+        use: dspacctitles
+  add: part: ledReportTitlePart
+
+      [part: ledReportTitlePart]
+       line: LnledReportTitle
+       
+      [line: LnledReportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0ledReport]
+      line : LnledReportCurrPeriod
+      
+      [Part: PrtledReport]
+       Line: LnledReportTitle,LnledReport
+bottom Line: LnledReportTotals
+     repeat: LnledReport:ColledReport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: ColledReport]
+Type :bills
+compute:OpeningBalance1x:if $isadvance then $openingbalance else ""
+filter:ColledReportFilter ;;,cwdrbalancefilter
+/*        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColledReportFilter,IsNonOptionalCancelledVchs
+                                                       */
+    [system: Formula]
+ColledReportFilter: $parent="M/S BEDDING MUSEUM,RCNEB/KOL,IR" ; $$isSales:$voucherTypeName
+cwdrbalancefilter:not $$isdr:$openingbalance
+
+      [Line: LnledReportTitle]
+        use: LnledReport
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+;; {20.Jul.24 10:55} local:field: nf: set as: "Name"
+local:field: fwf: set as: "Ledger Name"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Opening"
+local:field: amtf2: set as: "Closing"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: LnledReport]
+     Fields: ledReportmastid,sdf,fwf
+Right Field: ratepf,Qtyf,Amtf,amtf2
+
+     Option: Alter on Enter
+        key: ledReportDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: fwf : set as : $parent
+local:field: amtf: set as: $openingbalance1 ;;"Closing"
+local:field: amtf2 : set as : $OpeningBalance1x
+
+Local: field: amtf: Format: "drcr"
+Local: field: amtf2: Format: "drcr"
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: ledReportDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: ledReportDisplayVoucher
+
+ 	
+     [Report: ledReportDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #ledReportmastid
+	
+
+        [Field: ledReportmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnledReportTotals]
+        use: LnledReport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

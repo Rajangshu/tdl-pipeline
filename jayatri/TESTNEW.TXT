@@ -1,0 +1,174 @@
+; Created By: Anil on 2024-07-08 17:51, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: testnewgodownLock ;; : @@testnewgodownDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@testnewgodownReport: Display: Reptestnewgodown
+  */
+
+
+     [!menu: testnewgodownLock]
+        add: Item: before: @@locQuit: @@testnewgodownReport: Display: Reptestnewgodown
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   testnewgodownReport: "testnewgodown"
+;; testnewgodownDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: Reptestnewgodown]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@testnewgodownReport
+   Printset: Report Title: @@testnewgodownReport
+
+       Form: Frmtestnewgodown
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: Frmtestnewgodown]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0testnewgodown,Prttestnewgodown
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: testnewgodownbotbrk,testnewgodownbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: testnewgodownConfigure
+
+      [part: testnewgodownbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: testnewgodownbotopbrk]
+        use: dspacctitles
+  add: part: testnewgodownTitlePart
+
+      [part: testnewgodownTitlePart]
+       line: LntestnewgodownTitle
+       
+      [line: LntestnewgodownCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0testnewgodown]
+      line : LntestnewgodownCurrPeriod
+      
+      [Part: Prttestnewgodown]
+       Line: LntestnewgodownTitle,Lntestnewgodown
+bottom Line: LntestnewgodownTotals
+     repeat: Lntestnewgodown: Coltestnewgodownmain
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: Coltestnewgodownmain]
+collection:Coltestnewgodown:Coltestnewitemgodown
+
+[Collection: Coltestnewitemgodown]
+type:stock item
+
+[Collection: Coltestnewgodown]
+type:batch
+Child of:$$LoopCollObj:$name
+	
+;; {23.May.24 11:30} 	Type		: Godown
+
+;; {23.May.24 11:34} 	Child of	:$$LoopCollObj:$Name
+;; {09.Dec.21 15:08} 	Childof		: "Banhooghly Godown"
+;; {23.May.24 11:32} 	BelongsTo	: Yes
+
+aggr compute: cwCount : godownname : 1
+;; {08.Jul.24 16:22} aggr compute:godownname:sum:1
+Fetch		: Name, OpeningBalance, ClosingBalance,parent,godownname,StkClBalance,count
+search key:$name + $parent
+
+    [system: Formula]
+ColtestnewgodownFilter: Yes ; $$isSales:$voucherTypeName
+
+      [Line: LntestnewgodownTitle]
+        use: Lntestnewgodown
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: Lntestnewgodown]
+     Fields: testnewgodownmastid,snf,snf1,nf ;;,fwf
+Right Field: ratepf,Qtyf,Amtf
+
+     Option: Alter on Enter
+        key: testnewgodownDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+Local: Field: snf: Set As:$name
+Local: Field: snf1: Set As:$godownname
+Local: Field: nf: Set As:$parent
+Local: Field: qtyf: Set As:$ClosingBalance ;;$StkClBalance
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: testnewgodownDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: testnewgodownDisplayVoucher
+
+ 	
+     [Report: testnewgodownDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #testnewgodownmastid
+	
+
+        [Field: testnewgodownmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LntestnewgodownTotals]
+        use: Lntestnewgodown
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+
