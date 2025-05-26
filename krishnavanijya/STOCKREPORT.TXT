@@ -1,0 +1,57 @@
+; Created By: Khokan on 2023-01-30 17:51, ID: 
+
+[#Collection: Stock Item without Units PartNo]
+	
+    Title       		: $$LocaleString:"List of Stock Itemsss"
+	Source Collection	: StockItem OnlyWith Units
+	Walk         		: MailingName
+	Compute				: Name		: $MailingName
+	Compute		 		: FirstName	: $..Name
+	Align        		: Right
+	FullHeight   		: Yes
+	Set as		 		: $FirstName
+	Format       		: $Name, 25
+	
+	[#Collection: List of ExtractBatchStockItems]
+	
+    Use         		: Extract Alias Collection	
+	Source Collection	: List of Stock Items
+	Collection			: BatchStockItem With PartNo
+    Title       		: $$LocaleString:"List of Stock Items22"
+    
+    
+    [#Collection: Stock Item For Batches]
+
+    Title       : $$LocaleString:"List of Stock Items33"
+    
+    	
+[#Collection: VchCons Stock Item Extract]
+				
+Title       : $$LocaleString:"List of Stock Items44"
+
+[#Collection: List of Stock Items]
+
+    Use         : Alias Collection
+    Title       : $$LocaleString:"List of Stock Items555"
+    
+    
+    [#Collection: StockItem With PartNo]
+	
+    Title       		: $$LocaleString:"List of Stock Items666"
+    
+    
+    [#Collection: StockItem OnlyWith Units]
+	
+	Title   : $$LocaleString:"List of Stock Items77"
+	
+[#Collection: Stock Item with Units]
+
+    Title       : $$LocaleString:"List of Stock Items88"
+    
+    [#Collection: Stock Item without Units]
+    Title       : $$LocaleString:"List of Stock Items99"
+    
+    [#Collection: StockItem PartNo With Closing]
+
+    Title       		: $$LocaleString:"List of Stock Items1111"
+				

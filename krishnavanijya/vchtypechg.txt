@@ -1,0 +1,21 @@
+; Created By: Khokan on 2024-09-26 11:26, ID: 
+
+ [#Part:  VTYP Behaviour]
+ add:option:sjVTYPBehaviouroptSJ:@@KrishnavanijyaEnabled
+
+ [!part:sjVTYPBehaviouroptSJ]
+
+ ADD:line:cwvchTradingline,cwvchIsManufacturing1line
+
+
+ 
+ [line:cwvchTradingline]
+ field:long prompt,cwlogical
+ Local: Field: long prompt: Set As:"Enable Trading"
+ Local: Field:cwlogical : storage:cwIsTradingvchtype
+
+ [line:cwvchIsManufacturing1line]
+ field:long prompt,cwlogical
+ Local: Field: long prompt: Set As:"Enable Manufacturing"
+ Local: Field:cwlogical : storage:cwIsManufacturingvchtype
+

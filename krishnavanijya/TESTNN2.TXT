@@ -1,0 +1,71 @@
+; Created By: Khokan on 2023-01-25 10:30, ID: 
+
+ [#Line: LEDALLOC CTLineOne]
+ add:option:LEDALLOCCTLineOneopt
+ [!line:LEDALLOCCTLineOneopt]
+
+ add:RightField:atbeginning:snfx2
+Local: Field: snfx2 : set as:"Broker"
+Local: Field: snfx2: Skip: Yes
+
+Local: field:snfx2: Width:14
+
+[#Line: LEDALLOC CTLineTwo]
+ add:option:LEDALLOCCTLinetwoopt
+ [!line:LEDALLOCCTLinetwoopt]
+
+ add:RightField:atbeginning:snfx2
+
+
+Local: Field: snfx2 : info:""
+
+Local: field:snfx2: Width:14
+
+
+[#Line: LEDALLOC MainLine]
+ add:option:LEDALLOCCMainLineopt
+ [!line:LEDALLOCCMainLineopt]
+
+ add:RightField:atbeginning:snfx2
+
+Local: Field: SNFX2 : storage: cwBrokernew
+
+
+Local: field:snfx2: Width:14
+local: field: snfx2: type: String:forced
+
+local: field: snfx2:Table : cwBrokernew,NotApplicable
+Local: Field: snfx2: Show table: Always
+
+local:field:snfx2:variable:svcost centre
+local:field:snfx2:key:Create Cost Centre, Alter CstCtr
+
+
+
+[Collection: cwBrokernew]
+type:costcentre
+
+
+[System: UDF]
+cwBrokernew:string:7863
+
+
+[#line : VCHBILL CTLineOne]
+add : fields : after : VCH ShortTitle : snfx
+Local: Field: snfx : info:"Broker"
+;; {25.Jan.23 12:21} local : field : snfx : invisible : not @@cwBrokerYesNo
+Local: field:snfx: Width:14
+
+
+
+
+[#Line: VCHBILL MainLine]
+add : fields : after : VCHBILLName : SNFX2
+
+Local: Field: SNFX2 : storage: cwBrokernew
+
+local: field: snfx2:Table : cwBrokernew,NotApplicable
+Local: Field: snfx2: Show table: Always
+
+local:field:snfx2:variable:svcost centre
+local:field:snfx2:key:Create Cost Centre, Alter CstCtr

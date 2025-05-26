@@ -1,0 +1,172 @@
+; Created By: Khokan on 2022-11-28 13:13, ID: 
+
+     [#menu: Gateway of Tally]
+;; {09.Dec.22 16:12}         add: Option: costcentrereportLock ;; : @@costcentrereportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@costcentrereportReport: Display: Repcostcentrereport
+
+
+
+     [!menu: costcentrereportLock]
+        add: Item: before: @@locQuit: @@costcentrereportReport: Display: Repcostcentrereport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   costcentrereportReport: "costcentrereport"
+;; costcentrereportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Repcostcentrereport]
+        use: Dsp Template
+      Title: @@costcentrereportReport
+   Printset: Report Title: @@costcentrereportReport
+       Form: Frmcostcentrereport
+     Export: Yes
+;; {28.Nov.22 13:22}      set  : svfromdate : ##svcurrentdate
+;; {28.Nov.22 13:22}      set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    
+   variable:str1,str2
+
+   set:at beginning:str2:""
+
+   set:at beginning:str3:""
+   set:at beginning:str1:""
+     
+      [Form: Frmcostcentrereport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0costcentrereport,Prtcostcentrereport
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: costcentrereportbotbrk,costcentrereportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+       JSONTag: "data"
+      button : RepcwSOExportExp5
+      
+      [part: costcentrereportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: costcentrereportbotopbrk]
+        use: dspacctitles
+  add: part: costcentrereportTitlePart
+
+      [part: costcentrereportTitlePart]
+       line: LncostcentrereportTitle
+       
+      [line: LncostcentrereportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0costcentrereport]
+      line : LncostcentrereportCurrPeriod
+      
+      [Part: Prtcostcentrereport]
+       Line: LncostcentrereportTitle,Lncostcentrereport
+bottom Line: LncostcentrereportTotals
+     repeat: Lncostcentrereport: Colcostcentrereport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+ [Collection: Colcostcentrereport]
+ type:costcentre
+ fetch:name,parent,cwccGSMyes,cwccGSMyes,cwccSizeyes
+
+
+ filter:ColcostcentrereportFilter2cc
+
+ [system: Formula]
+ ColcostcentrereportFilter2cc:if $$issysname:##str2 then yes else $name =##str2
+
+[Line: LncostcentrereportTitle]
+use: Lncostcentrereport
+option: titleopt
+
+
+local:field: fwf: set as: "costcetrename"
+local:field: nf: set as: "parent"
+local:field: cwlogical: set as: "isgSM"
+local:field: cwlogical2: set as: "issize"
+
+local: field: default : style: normal bold
+
+[Line: Lncostcentrereport]
+JSONTag: "costcetre"
+Fields: fwf,nf ,cwlogical,cwlogical2
+
+
+local:field: fwf: json tag: "costcetrename"
+local:field: nf: json tag: "parent"
+local:field: cwlogical: json tag: "isgSM"
+local:field: cwlogical2: json tag: "issize"
+
+local:field: fwf: set as:$name  ;; "description"
+local:field: nf: set as:$parent ;; "parent"
+local:field: cwlogical: set as:$cwccGSMyes ;; "isgSM"
+local:field: cwlogical2: set as:$cwccSheetyes  ;; "issize"
+
+
+      [line: LncostcentrereportTotals]
+        use: Lncostcentrereport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      
+      
+      
+      
+      
+      
+
+[button : RepcwSOExportExp5]
+
+key : alt + J
+title:"JSON Export"
+action : $$RepcwSOExportExp5
+
+
+
+ [Report: RepcwSOExportExp5]
+    form : RepcwSOExportExp5
+
+    [form : RepcwSOExportExp5]
+    part : RepcwSOExportExp5
+
+    [part : RepcwSOExportExp5]
+    line : RepcwSOExportExp5
+    set : 1
+    repeat : RepcwSOExportExp5
+
+    [line : RepcwSOExportExp5]
+    field : nf
+    Local: Field: nf: Set As: $$RepcwSOExportExp5
+
+    [function : RepcwSOExportExp5]
+    variable: myfilename : string : ##str1
+    10 : do if : ##myfilename = "" : set : myfilename : "e:\Repcostcentrereport.json"
+    20 : Set   :SVExportFormat  : $$SysName:UTF8JSON
+
+    30 : Set   :SVExportLanguage: $$SysName:UTF8JSON
+    40 : Set   :SVPrintFileName :##myfilename
+    50 : set: SVOpenFileAfterExport : no
+
+    60 : export : Repcostcentrereport : yes : yes
+    70 : return : "Done"
+
+
+

@@ -1,0 +1,265 @@
+; Created By: Khokan on 2023-03-11 18:04, ID: 
+
+ ;;CARTE LUMINA ITC 230 51X76 100 8.9 = Item Name
+ ;;HI KOTE PAPER 157 20X30 250 15.2
+
+[#report: Stock Vouchers]
+add:option:StockVouchersopt:@@KrishnavanijyaEnabled
+[!report:StockVouchersopt]
+
+ local:Part: STKVCH Body:Scroll: both
+ local:Part: STKVCH Body:Float : No
+ local:Part: STKVCH Body:delete:Line: STKVCH OpeningBalance, STKVCH VchDetail, Print Empty Line
+ local:Part: STKVCH Body:add:Line :DSP VchTitle,cwSTKVCHOpeningBalance,STKVCH VchDetail, Print Empty Line
+;; {13.Mar.23 12:30}  local:Part: STKVCH Body:delete:Bottom Line: STKVCH ClosingBalance
+;; {13.Mar.23 12:30}  local:Part: STKVCH Body:add:Bottom Line: STKVCHClosingBalancenew
+ local:Part: STKVCH TitleNBody:delete:Part: DSPVchTitle
+ Local: Field: STKVCH VchDetail:Local: Field: default: Border: thin right
+
+
+  [#Field: DSP QtyDetTitle]
+  add:option:QtyDetTitleStockVouchersopt:@@KrishnavanijyaEnabled
+[!Field:QtyDetTitleStockVouchersopt]
+
+Set as          : $$LocaleString:"Qty-KGS"
+
+ [#Field: DSP AltQtyDetTitle]
+ add:option:AltQtyDetTitleStockVouchersopt:@@KrishnavanijyaEnabled
+[!Field:AltQtyDetTitleStockVouchersopt]
+
+
+Set as          : $$LocaleString:"Qty-PKT "
+
+[#Field: DSP VchItemAccount]
+add:option:VchItemAccountStockVouchersopt:@@KrishnavanijyaEnabled
+[!Field:VchItemAccountStockVouchersopt]
+
+Width  : @@ShortNameWidth+5
+
+[Line: cwSTKVCHOpeningBalance]
+;;delete:Left Fields     : DSPVchDate, DSPVchLedAccount
+;;delete:Right Fields    : DSPVchTypeTitle, DSPVchNumberTitle, DSPInBlock, DSPOutBlock, DSPClBlock
+use:STKVCH VchDetail
+
+Local	: Field	: DSPInBlock	: Delete	: Border
+	
+ Local	: Field	: DSPOutBlock	: Delete	: Border
+Local	: Field	: DSPClBlock	: Delete	: Border
+
+	Invisible       : NOT ##DSPShowOpBal OR (If (##IsItemBatchReport) Then ($$IsEmpty:@@StkBatchOpeningBalance  AND $$IsEmpty:@@StkBatchOpeningValue) Else +
+					  If ( ##IsItemBatchGdwnReport) Then ($$IsEmpty:@@StkGdwnBatchOpeningBalance AND $$IsEmpty:@@StkGdwnBatchOpeningValue) Else +
+					 ($$IsEmpty:@@OpeningVchInOutQty AND $$IsEmpty:@@OpeningVchInOutValue))
+    Space Bottom    : if $$InPrintMode then 0.25 else 0
+    Space Top       : 0.25
+
+ 	;;Start Fresh page for each balancing Method
+	Next Page       : ($$LineNumber = $$LastLineNumber) OR ##BMInNewPage
+
+    Option          : Small Size Line		 	: NOT $$InPrintMode
+	Option			: LV OpeningBalanceBM		: ##BMInNewPage AND (If (##IsItemBatchReport) Then ($$IsEmpty:@@StkBatchOpeningBalance AND $$IsEmpty:@@StkBatchOpeningValue) Else  +
+												  If ( ##IsItemBatchGdwnReport) Then ($$IsEmpty:@@StkGdwnBatchOpeningBalance AND $$IsEmpty:@@StkGdwnBatchOpeningValue) Else +
+												  $$IsEmpty:@@OpeningVchInOutQty AND $$IsEmpty:@@OpeningVchInOutValue)
+
+    Local           : Field : DSP VchTypeTitle  : Info	    : ""
+    Local           : Field : DSP VchTypeTitle  : Skip	    : No
+    Local           : Field : DSP VchNumberTitle: Info	    : ""
+    Local           : Field : DSP VchNumberTitle: Skip	    : No
+	;; width 18 is given in case of print mode as same width is given for this field in stock item description line
+	Local			: Field	: DSP VchNumberTitle: Width	 	: If $$InPrintMode Then 18 Else @@DSPNumberWidth - 2
+
+    Local           : Field : DSP VchDate       : Set as	: if $$IsVoucher OR $IsPndgTrackLine then @@BalancingStart else @@DSPFromDate
+    Local           : Field : DSP VchitemAccount : Set as	: $$LocaleString:"Opening Balance"
+
+    Local           : Field : DSP VchInQty      : Format	: "NoZero,ShortForm,NoCompact"
+    Local           : Field : DSP VchInQty      : Set as	: @@StkVchOpeningQty
+    Local           : Field : DSP VchInQty      : Inactive	: No
+    Local           : Field : DSP VchInQty      : Style 	: Normal Bold
+    Local           : Field : DSP VchInAmt      : Set as	: @@StkVchOpeningValue
+
+    Local           : Field : DSP VchOutQty     : Set as	: 0
+    Local           : Field : DSP VchOutQty     : Format	: "NoZero,ShortForm,NoCompact"
+    Local           : Field : DSP VchOutQty     : Inactive	: No
+    Local           : Field : DSP VchOutQty     : Style 	: Normal Bold
+    Local           : Field : DSP VchOutAmt     : Set as	: 0
+    Local           : Field : DSP VchNettOutAmt : Set as	: 0
+	Local           : Field : DSP VchConsAmt	: Set as    : 0
+
+
+    Local           : Field : DSP VchClQty      : Set as	: If ##IsItemBatchGdwnReport Then $$AsInQty:@@StkGdwnBatchOpeningBalance Else If (##IsItemBatchReport) Then $$AsInQty:@@StkBatchOpeningBalance Else $$AsInQty:@@OpeningVchInOutQty
+	Local           : Field : DSP VchClInvQty   : Set as    : If ##IsItemBatchGdwnReport Then $$AsInQty:@@StkGdwnBatchOpeningBalance Else If (##IsItemBatchReport) Then $$AsInQty:@@StkBatchOpeningBalance Else $$AsInQty:@@OpeningVchInOutQty
+	Local           : Field : DSP VchClInvQty   : Invisible : Yes
+    Local           : Field : DSP VchClAmt      : Set as	: If ##IsItemBatchGdwnReport Then $$AsDrAmt:@@StkGdwnBatchOpeningValue Else If (##IsItemBatchReport) Then $$AsDrAmt:@@StkBatchOpeningValue  Else $$AsDrAmt:@@OpeningVchInOutValue
+	Local           : Field : DSP VchClInvAmt   : Set as    : If ##IsItemBatchGdwnReport Then $$AsDrAmt:@@StkGdwnBatchOpeningValue Else If (##IsItemBatchReport) Then $$AsDrAmt:@@StkBatchOpeningValue  Else $$AsDrAmt:@@OpeningVchInOutValue
+	Local           : Field : DSP VchClInvAmt   : Invisible : Yes
+
+    Local           : Field : DSP VchDate       : Style 	: Normal
+    Local           : Field : DSP VchLedAccount : Style 	: Normal Bold
+
+
+  ;; CARTE LUMINA ITC 230 51X76 100 8.9
+
+  
+ [#Field: DSP InBlock]
+ add:option:DSPInBlockrsopt:@@KrishnavanijyaEnabled
+[!Field:DSPInBlockrsopt]
+
+ Fields  	: DSP VchInQty, DSP VchInAltQty, DSP VchInRate, DSP VchInAmt
+ Local  	 	: Field : DSP VchInQty  	: Width         : @@DSPVchQtyWidth+3
+ Local	   	: Field : DSP VchInAltQty	: Width         : @@DSPVchQtyWidth+3
+
+ [#Field: DSP VchInRate]
+ add:option:StockVouchersopt:@@KrishnavanijyaEnabled
+[!Field:StockVouchersopt]
+
+ Width  : @@DSPVchRateWidth+3
+
+ [#Field: DSP VchInAmt]
+ add:option:VchInAmtStockVouchersopt:@@KrishnavanijyaEnabled
+[!Field:VchInAmtStockVouchersopt]
+
+ Width : @@DSPVchAmtWidth+3
+;; Format      : "noBracketed:ForNegative"
+
+ [#Field: DSP OutBlock]
+ add:option:OutBlockStockVouchersopt:@@KrishnavanijyaEnabled
+[!Field:OutBlockStockVouchersopt]
+
+ Fields    : DSP VchOutQty, DSP VchOutAltQty, DSP VchOutRate, DSP VchNettOutAmt, DSP VchOutAmt
+ Local     : Field : DSP VchOutQty		: Width         : @@DSPVchQtyWidth+3
+ Local     : Field : DSP VchOutAltQty	: Width         : @@DSPVchQtyWidth+3
+    
+
+[#Field: DSP VchOutRate]
+add:option:VchOutRateStockVouchersopt:@@KrishnavanijyaEnabled
+[!Field:VchOutRateStockVouchersopt]
+
+Width   : @@DSPVchRateWidth+3
+
+[#Field: DSP VchNettOutAmt]
+add:option:VchNettOutAmtStockVouchersopt:@@KrishnavanijyaEnabled
+[!field:VchNettOutAmtStockVouchersopt]
+
+Width  : @@DSPVchAmtWidth+3
+;; Format      : "noBracketed:ForNegative"
+ 
+[#Field: DSP VchOutAmt]
+add:option:VchOutAmtStockVouchersopt:@@KrishnavanijyaEnabled
+[!field:VchOutAmtStockVouchersopt]
+
+;;Format      : "noBracketed:ForNegative"
+Width  : @@DSPVchAmtWidth+3
+
+
+
+
+[#Field : DSP VchClQty]
+add:option:VchClQtyStockVouchersopt:@@KrishnavanijyaEnabled
+[!field:VchClQtyStockVouchersopt]
+
+Width           : @@DSPVchQtyWidth+3
+
+;; {19.Feb.24 16:39}  Color : if @@cwqtyitemstkrep="-" then "red" else "black"
+ Color :if #snf5="aa" then "red" else "black"
+ 
+ /*[#Field : DSP VchinQty]
+add:option:VchClQtyStockVouchersopt11:@@KrishnavanijyaEnabled
+[!field:VchClQtyStockVouchersopt11]
+
+
+
+;; {19.Feb.24 16:39}  Color : if @@cwqtyitemstkrep="-" then "red" else "black"
+ Color :if #snf5="aa" then "red" else "black"
+
+  [#Field : DSP VchoutQty]
+add:option:VchClQtyStockVouchersopt12:@@KrishnavanijyaEnabled
+[!field:VchClQtyStockVouchersopt12]
+
+
+
+;; {19.Feb.24 16:39}  Color : if @@cwqtyitemstkrep="-" then "red" else "black"
+ Color :if #snf5="aa" then "red" else "black"
+                                               */
+
+/*[#line:STKVCH VchDetail]
+add:field:snfx,qtyf
+
+
+Local: Field: snfx: Set As:$$stringpart:#DSPVchClQty:1:1 ;;if $$Negative:#qtyf4 then "aaa" else "bbb"
+Local: Field: qtyf: Set As :$$AsInQty:$ItemOutAutoQty;;#dspvchclqty;;If ##IsItemBatchGdwnReport Then $$AsInQty:@@StkGdwnBatchOpeningBalance Else If (##IsItemBatchReport) Then $$AsInQty:@@StkBatchOpeningBalance Else $$AsInQty:@@OpeningVchInOutQty
+Local: Field: qtyf: Color : if $$isdr:$closingbalance then "Black" else "Red"
+Local: Field: qtyf: border:thin box
+
+local: field: snfx: Invisible: yes
+local: field: qtyf: Invisible: yes  */
+
+
+[#line:STKVCH VchDetail]
+add:field:qtyf12,qtyf3,snf5
+
+
+Local: Field: snf5: Set As:if $$isdr:$$string:@@cwqtyf then "aa" else "bb"
+Local: Field: snf5: invisible:yes
+
+
+Local: Field: qtyf12: Set As:if $$isempty:#qtyf3 then #dspvchclqty else ""
+Local: Field: qtyf3: Set As:#dspvchclqty
+Local: Field: qtyf3: border:thin box
+Local: Field: qtyf12:invisible:yes
+Local: Field: qtyf3:invisible:yes
+
+
+
+[System: Formula]
+cwqtyitemstkrep:$$stringpart:@@cwqtyf:1:1
+;; {20.Feb.24 15:21} cwqtyf:if $$isempty:#qtyf2 then #qtyf3 else #qtyf2
+cwqtyf:if $$isempty:#qtyf3 then #qtyf12 else #qtyf3
+
+ ;;CARTE LUMINA ITC 230 51X76 100 8.9
+
+ [#Field: DSP VchClInvQty]
+add:option:VchClInvQtyopt:@@KrishnavanijyaEnabled
+[!field:VchClInvQtyopt]
+
+Width           : @@DSPVchQtyWidth+3
+;;Format      : "noBracketed:ForNegative"
+
+;;Color : if not $$isdr:@@cwstockitemClInvAmt then "red" else "black"
+
+[#Field : DSP VchClAltQty]
+add:option:DSPVchClAltQtyopt:@@KrishnavanijyaEnabled
+[!field:DSPVchClAltQtyopt]
+
+Width           : @@DSPVchQtyWidth+3
+;; Format      : "noBracketed:ForNegative"
+;; {19.Feb.24 16:40} Color : if @@cwqtyitemstkrep="-" then "red" else "black"
+ Color : if #snf5="aa" then "red" else "black"
+
+ 
+[#Field  : DSP VchClRate]
+add:option:DSPVchClRateopt:@@KrishnavanijyaEnabled
+[!field:DSPVchClRateopt]
+
+ ;; Format      : "noBracketed:ForNegative"
+Width   : @@DSPVchRateWidth+3
+
+[#Field  : DSP VchClAmt]
+add:option:DSPVchClAmtopt:@@KrishnavanijyaEnabled
+[!field:DSPVchClAmtopt]
+
+Width      : @@DSPVchAmtWidth+3
+;; Format      : "noBracketed:ForNegative"
+
+;; {19.Feb.24 16:40} Color : if @@cwqtyitemstkrep="-" then "red" else "black"
+ Color : if #snf5="aa" then "red" else "black"
+
+
+
+
+[System: Formula]
+ cwstockitemClInvAmt: If $$IsNextActiveSibling AND ((NOT $$IsEmpty:$$NextActiveSibling:$Date) AND $$NextActiveSibling:$Date = $Date) Then "" Else #DSPVchClInvAmt
+
+
+
+
+;;================================================================================
+

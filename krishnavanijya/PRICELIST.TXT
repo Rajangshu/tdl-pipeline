@@ -1,0 +1,339 @@
+; Created By: Khokan on 2022-12-24 13:06, ID: 
+
+     [#menu: Gateway of Tally]
+;; {24.Dec.22 15:30}         add: Option: pricelistLock ;; : @@pricelistDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@pricelistReport: Display: Reppricelist
+
+
+
+     [!menu: pricelistLock]
+        add: Item: before: @@locQuit: @@pricelistReport: Display Collection  : collReppricelistreport2 ;;: Reppricelist
+        add: Item: before: @@locQuit: Blank
+        
+        
+        
+   [Collection  : collReppricelistreport2]
+ Collection  : All Items
+    Title       : $$LocaleString:"List of Stock Groups"
+    Type        : Stock Group
+    Trigger     : PriceListStockGroupx
+    Variable    : MStockGroup
+	Report		: Reppricelist
+    Align       : Right
+    FullHeight  : Yes
+    Format      : $Name, 25
+Fetch		: Name
+
+
+[Report: PriceListStockGroupx]      ;;Auto Report
+
+    Auto    : Yes
+    Title	: $$LocaleString:"Price List"
+	Variable: MPS Show All Items	
+	Form	: PriceListStockGroupx
+	Local   : Collection: Default          : Align          : Right
+	Variable: SVCurrentCompany
+	Local	: Collection	: Price Levels	: Delete		: Format
+	Local	: Collection	: Price Levels	: Add			: Format: $PriceLevel,25
+	Local	: Collection	: Price Levels	: Align			: Right
+	Local	: Collection	: Price Levels	: Full Height	: Yes
+	Set		: PriceLevelsIsRefresh	: No
+
+[Form: PriceListStockGroupx]
+
+    No Confirm      : Yes
+    Space Top       : 0.5
+    Space Left      : 1
+    Space Right     : 1
+    Full Width      : No
+    Full Height     : No
+    Vertical Align  : Top
+    Part	: PriceListStockGroupx
+    Bottom Button	: MPS Configure
+	
+ [Part: PriceListStockGroupx]
+ Line	:MPL Stock Group, MPL Price Livel
+local:line:MPL Stock Group:Local: Field:default  : style:style3
+local:line:MPL Price Livel:Local: Field:default  : style:style3
+
+[Collection: ColPricelist]
+     Type    : Price Level : Company
+     Childof : ##SVCurrentCompany
+        Format  : $PriceLevel,15
+        fetch:PriceLevel
+
+
+        
+        
+    [System: formula]
+   pricelistReport: "Price List"
+;; pricelistDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Reppricelist]
+        use: Dsp Template
+      Title: @@pricelistReport
+   Printset: Report Title: @@pricelistReport
+       Form: Frmpricelist
+     Export: Yes
+    ; set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     variable:str1,str2,str3,str4,str5,str6,str7,str8,str9,str10,str11
+    set:str1:""
+    set:str2:""
+    set:str3:""
+    set:str4:""
+    set:str5:""
+    set:str6:""
+    set:str7:""
+    set:str8:""
+    set:str9:""
+    set:str10:""
+    
+      [Form: Frmpricelist]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0pricelist,Prtpricelist
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: pricelistbotbrk,pricelistbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+ local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:style4
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style3
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style4
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style3
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style3  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style3
+
+    ADD:button:pricelistbotton2
+    
+    [button:pricelistbotton2]
+    key:f7
+ title:"Filter"
+ Action : Modify Variables:pricelistbotton2
+
+ [report:pricelistbotton2]
+ form:pricelistbotton2
+
+ [form:pricelistbotton2]
+ part:pricelistbotton2
+
+ HEIGHT:50% PAGE
+ WIDTH:50% PAGE
+
+ [part:pricelistbotton2]
+ line:titlelinex,SKUCodelinexx,itemlinexx,QualityGroupline,MillGroupline  ;;,Qualityline,GSMline,Sizeline,Sheetline,PackWeightline
+
+
+
+ [line:itemlinexx]
+ field:sp,nf
+ Local: Field: sp: Set As:"Item Name"
+
+ Local: Field: nf:modifies:str2
+
+
+ Local: Field: nf: table:collstockitem1,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ space bottom:0.5
+ Local: field: sp: Width:18
+ 
+ [Collection: collstockitem1]
+ type:stockitem
+ title:"List of Stock Item"
+ format:$name,30
+ format:$partno,30
+
+
+
+ [line:SKUCodelinexx]
+ field:sp,snfx,nf,snfx2,nf2
+
+ local:field: sp: set as:"SKU Code"
+ Local: Field: snfx: info: "From:"
+ Local: Field: snfx2: info: "To:"
+
+ Local: Field: nf:modifies:str1
+ Local: Field: nf2:modifies:str10
+
+ Local: Field: nf: table:collstockitem2,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ Local: Field: nf2: table:collstockitem2,Not Applicable
+ Local: Field: nf2: Show table: Always
+
+ space bottom:0.5
+
+ Local: field: sp: Width:18
+ Local: field: snfx: Width:8
+ Local: field: snfx2: Width:5
+ 
+ 
+ [Collection: collstockitem2]
+ type:stockitem
+ title:"List of Stock Item"
+ format:$partno,30
+ format:$name,30
+
+
+
+      [part: pricelistbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: pricelistbotopbrk]
+        use: dspacctitles
+  add: part: pricelistTitlePart
+
+      [part: pricelistTitlePart]
+       line: LnpricelistTitle
+       
+      [line: LnpricelistCurrPeriod]
+    field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf: Set As: "Price Level :"+" "+##SVPriceLevel
+   Local: Field: fwf2:invisible: $$inprintmode
+   Local: Field:fwf  : style:style4
+local:field : fwf2 : style:style4
+      [part: PrtTitle0pricelist]
+      line : LnpricelistCurrPeriod
+      
+      [Part: Prtpricelist]
+       Line: LnpricelistTitle,Lnpricelist
+bottom Line: LnpricelistTotals
+     repeat: Lnpricelist: Colpricelist1
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: Colpricelist1]
+ source Collection: sourColpricelistreport2
+ by : name : $name
+ by : PARENT : $PARENT
+ by:partno1:$partno1x
+ 
+ compute:date1:$$FilterValue:($$FilterValue:$date:PRICELEVELLIST:last:Colpricelistreport2Filter):FULLPRICELIST:last:Colpricelistreport2Filter
+ compute:rate1:$$FilterValue:($$FilterValue:$rate:PRICELEVELLIST:last:Colpricelistreport2Filter):FULLPRICELIST:last:Colpricelistreport2Filter
+ compute:disc1:$$FilterValue:($$FilterValue:$discount:PRICELEVELLIST:last:Colpricelistreport2Filter):FULLPRICELIST:last:Colpricelistreport2Filter
+
+
+compute:parent:$parent ;;:stockitem:$parent ;;"Quality Group"
+compute:category:$category ;;:stockitem:$parent;;"Mill Group"
+
+
+
+
+;; {28.Jan.23 14:56}  sort :@@default : $name,$partno1
+ sort :@@default : $partno1,$name
+;; {28.Dec.22 15:25} FILTER:Colpricelistreport2Filter2
+filter:cwPARENTfilter,cwitemnfilter,cwQualityGroupfilter2,cwMillGroupfilter2
+
+[Collection: sourColpricelistreport2]
+
+TYPE : stock item
+;; {24.Dec.22 13:16} filter:cwskufiltr
+ compute:partno1x:$partno
+
+[system: Formula]
+
+cwskufiltr:$cwsku:stockgroup:$parent:stockitem:$name
+Colpricelistreport2Filter:##SVPriceLevel=$pricelevel
+Colpricelistreport2Filter2:NOT $$ISEMPTY:$rate1
+
+cwPARENTfilter:if $$issysname:##str1 then yes else $partno1 >= ##str1 and $partno1 =< ##str10
+cwitemnfilter:if $$issysname:##str2 then yes else  $name = ##str2
+
+
+    [system: Formula]
+ColpricelistFilter: Yes
+
+      [Line: LnpricelistTitle]
+        use: Lnpricelist
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: nf: set as: "Part No"
+local:field: fwf: set as: "Stock Name"
+local:field: qtyf: set as: "From Qty"
+local:field: qtyf2: set as: "To Qty"
+
+Local: Field: snf3: Set As:"Quality Group"
+Local: Field: snf4: Set As:"Mill Group"
+
+
+
+local:field: ratepf : set as : "Price"
+local:field: numf : set as : "Discount"
+local:field: sdf : set as : "Applicable Date"
+
+Local: Field:nf  : style:style4
+local:field : snf : style:style4
+local:field : snf3 : style:style4
+local:field : snf4 : style:style4
+local:field : fwf :style:style4
+local:field : qtyf :style:style4
+local:field : qtyf1 :style:style4
+local:field : qtyf2 :style:style4
+local:field : ratepf :style:style4
+local:field : sdf :style:style4
+
+Local: Field: numf:style:style4
+
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+Local : field : default: Lines : 0
+
+[Line: Lnpricelist]
+Fields:nf,fwf
+right field:snf3,snf4,ratepf,Qtyf,Qtyf2,numf,sdf
+
+Option: Alter on Enter
+
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+
+local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+
+local : field : fwf : alter : voucher : $$isvoucher
+local:field: nf: set as:$partno1 ;;:stockitem:$name ;; "Part No"
+local:field: fwf: set as:$name;; "Stock Name"
+local:field: qtyf: set as:"" ;; "From Qty"
+local:field: qtyf2: set as:"" ;; "To Qty"
+
+local:field: ratepf : set as :$rate1 ;; "Price"
+local:field: numf : set as :$disc1 ;; "Discount"
+local:field: sdf : set as :$date1 ;; "Applicable Date"
+
+Local: Field: snf3: Set As:$parent  ;;:stockitem:$parent ;;"Quality Group"
+Local: Field: snf4: Set As:$category ;;:stockitem:$parent;;"Mill Group"
+
+
+Local: Field: default: Border: thin right
+Local: Field:default  : style:style3
+Local: field: nf: Width:15
+Local: field: numf: Format: "percentage"
+
+      [line: LnpricelistTotals]
+        use: Lnpricelist
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

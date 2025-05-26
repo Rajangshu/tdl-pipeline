@@ -1,0 +1,87 @@
+; Created By: Khokan on 2022-10-08 13:15, ID: 
+
+         /*Wz
+[#Form: VCHPRN Sales]
+ Add: BottomButton: At Beginning: salrep,salrep2
+
+ [KEY : salrep]
+ title:"Print Format"
+ KEY : alt+F8
+
+ TITLE :if ##logi1 then "Normal"  else "Packing List"
+ action :set : logi1:not ##logi1
+ 
+ [KEY : salrep2]
+ title:"Print Format2"
+ KEY : ctrl+F8
+
+ TITLE : "Normal2"
+ action :set : logi2:not ##logi2
+    */
+
+
+[#Report: Printed Invoice]
+
+delete:Option : GVAT Printed Invoice  : @@IsVChGVATApplicable
+
+delete:Option : GST Printed Invoice: @@VCHIsGSTRegularCompOnAndAppl
+
+delete:Form   : GST InvoiceWithItemAnalysis, GSTeWayBillDEtails
+delete:Form   : Printed Invoice
+    
+add:Option    : Comprehensive Invoice
+
+
+[#Form: VCHPRN Sales]
+ add : option : myButtons
+
+
+ [!form : mybuttons]
+  add : bottom button : at beginning : cwNormalInvoice,cwSc,cwDC
+
+ [button : cwNormalInvoice]
+ title : @@CWNORMALz
+ ;;action list : setni,unsetsc,unsetdc
+ ACTION : SET : SASimple : YES
+ action : set : Prntype : @@CWNORMALz
+
+ key : alt + 1
+
+
+ [button : cwSC]
+  title : @@cwBL1
+ ;;action list : setsc,unsetni,unsetdc
+ key : alt + 2
+ action : set  : Prntype : @@cwBL1
+
+ [button : cwDC]
+ title : @@cwBL2
+ ;;action list : setdc,unsetni,unsetsc
+ key : alt + 3
+ action : set : prntype : @@cwBL2
+
+
+
+
+ [VARIABLE : PRNTYPE]
+      TYPE : STRING
+ PERSISTENT : YES
+   DEFAULT : "Normal Invoice"
+
+   [system : variables]
+   PRNTYPE : "Normal Invoice"
+
+
+   [SYSTEM : FORMULA]
+    CWNORMALz : "Normal Invoice"
+     CWBL1 : "Packing List"
+     cwbl2 :"E-Way Print"
+
+     [System: Formula]
+     cwNormalInvoicenew:##PRNTYPE = @@CWNORMALz
+     cwcustomization:##PRNTYPE = @@CWBL1
+     cwtransport:##PRNTYPE = @@cwbl2
+
+
+
+

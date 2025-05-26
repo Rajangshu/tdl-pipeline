@@ -1,0 +1,165 @@
+; Created By: Khokan on 2023-06-28 14:15, ID: 
+[#form : Simple Printed Invoice]
+;;   add : option : salesinv1Opt : @@salesinv1Sales
+
+[#form : ComprehensiveInvoice]
+   add : option : salesinv1Opt ;;: @@salesinv1Sales
+
+[!form : salesinv1Opt]
+Delete : Part
+Delete : Bottom Part
+Delete : Page Break
+   add : Top part : salesinv1TopPart
+   add : Part : salesinv1InvACCPart
+   Add : bottom Part :  salesinv1BottomPart
+   add : page Break : salesinv1CLBreak, salesinv1OPBreak
+
+ [Part : salesinv1CLBreak]
+   use : salesinv1BottomPart
+
+ [Part : salesinv1OpBreak]
+  part : salesinv1TopPart
+
+ [part : salesinv1TopPart]
+
+
+  part:cwsalesinvoicechg4TopParta,cwsalesinvoicechg4TopPartb,cwsalesinvoicechg4TopPartc
+
+ [part:cwsalesinvoicechg4TopParta]
+ line:logoline1xx
+  add:option:logopart4xx:##SALogoPath <> ""
+
+  ;;border:thin box
+
+ [line:logoline1xx]
+ field:snf
+
+
+  [!part:logopart4xx]
+ Graph Type: ##SALogoPath
+ width:23% page
+
+ [part:cwsalesinvoicechg4TopPartb]
+
+ line:cmpnameline2,importersline
+
+;; border:thin box
+
+
+ [part:cwsalesinvoicechg4TopPartc]
+
+ line:taxinvline,cmpaddline2,cwcmpPhonePrnline2,regdoffline,cmpgstinline2
+ repeat:cmpaddline2:collCompanyAddress
+
+
+ [part : salesinv1INVACCPart]
+Parts       : salesinv1InvPart, salesinv1AccPart
+CommonBorder: Yes
+Vertical    : Yes
+Scroll      : Vertical
+Float       : No
+;;Total       :
+
+ [part : salesinv1InvPart]
+  line : salesinv1InvLineTitle,salesinv1InvLine,salesinv1InvLineTotal
+repeat : salesinv1InvLine : Inventory Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+
+ [Line : salesinv1InvLine]
+ field : snf,fwf
+right field : qtyf,ratef,amtf
+local : field : fwf : set as : @@invitemname
+local : field: snf :set as : $$linenumber
+local : field : qtyf : set as : $billedqty
+local : field : ratef : set as : $rate
+local : field : amtf : set as : $amount
+explode : salesinv1BUDPart : $basicuserdescription != ''
+explode : salesinv1BatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+
+[line: salesinv1InvLineTitle]
+ use : salesinv1InvLine
+delete : explode
+   local : field: default : type : string
+   
+   local : field : snf: set as : "SL"
+ local: field: fwf : set as : "Description"
+ local : field : qtyf : set as : "Qty."
+ local: field : ratef : set as : "Rate"
+ local : field : amtf : set as :"Amount"
+ 
+ local : field : qtyf : align : right
+ local: field : ratef : align : right
+ local : field : amtf : align : right
+
+
+[part : salesinv1BatchPart]
+line : salesinv1BatchLine
+repeat : salesinv1BatchLine : BatchAllocations
+
+[line : salesinv1BatchLine]
+  use : salesinv1BUDLine
+local : field : fwf : set as : $batchname
+
+[part : salesinv1BUDPart]
+line: salesinv1BUDLine
+repeat : salesinv1budline : basicuserdescription
+
+[line : salesinv1BudLine]
+ use  : salesinv1INVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : $basicuserdescription
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : ""
+
+[line : salesinv1InvLineTotal]
+ use  : salesinv1INVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : ""
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : $$collamttotal:inventoryentries:$amount
+local : field : amtf : border :thin top
+space bottom : 0.05
+
+
+ [part : salesinv1ACCPart]
+  line : salesinv1ACCLine
+repeat : salesinv1ACCLine : Ledger Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+ [Line : salesinv1ACCLine]
+   use : salesinv1INVLine
+empty : $ledgername = $partyledgername or $$issysname:$ledgername or $$isempty:$amount
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"NoZero,Percentage"
+local : field : ratef  : set as : $basicrateofinvoicetax
+local : field : snf : set as : ""
+local : field : fwf : set as : $ledgername
+local : field : qtyf : set as : ""
+delete : explode
+
+  [part : salesinv1BottomPart]
+   line : salesinv1TotLine,cwblankline
+  
+  [line : salesinv1TotLine]
+    use : salesinv1ACCLine
+ delete : empty
+  local : field : ratef  : set as :""
+  local : field : fwf : set as : "Total:"
+  local : field : fwf : align : right
+  local : field : amtf : format : "ShowBaseSymbol" 
+  
+  

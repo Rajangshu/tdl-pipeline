@@ -1,0 +1,499 @@
+; Created By: Khokan on 2022-10-07 17:45, ID: 
+
+     [#menu: Gateway of Tally]
+;; {08.Oct.22 15:34}         add: Option: stocksummaryLock ;; : @@stocksummaryDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@stocksummaryReport: Display: Repstocksummary
+
+
+
+     [!menu: stocksummaryLock]
+        add: Item: before: @@locQuit: @@stocksummaryReport: Display: Repstocksummary
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   stocksummaryReport: "Stock Summary"
+;; stocksummaryDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Repstocksummary]
+        use: Dsp Template
+      Title: @@stocksummaryReport
+   Printset: Report Title: @@stocksummaryReport
+       Form: Frmstocksummary
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable:str1,str2,str3,str4,str5,str6,str7,str8,str9,str10
+    set:str1:""
+    set:str10:""
+    set:str2:""
+    set:str3:""
+    set:str4:""
+    set:str5:""
+    set:str6:""
+    set:str7:""
+    set:str8:""
+    set:str9:""
+    set:str10:""
+     
+      [Form: Frmstocksummary]
+        use: DSP Template
+;; {07.Feb.23 12:18}        Part: DspAccTitles,PrtTitle0stocksummary,Prtstocksummary
+       Part:PrtTitle0stocksummary,Prtstocksummary
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: stocksummarybotbrk,stocksummarybotOpbrk
+;; {07.Feb.23 12:27}         add: page break:stocksummarybotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:style4x
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style3x
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style4x
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style3x
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style3x  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style3x
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:set as:""
+
+    ADD:button:stocksummarybotton
+    
+    add:button:showsHidebotton
+
+[button:showsHidebotton]
+ key:f12
+
+;; {30.Jan.23 10:53} Title		: If ##logi1 Then $$LocaleString:"Hide Field" Else $$LocaleString:"Show Field"
+Title		: If ##logi1 Then $$LocaleString:"Show Field" Else $$LocaleString:"Hide Field"
+Action :SET:logi1:Not ##logi1
+    
+      [part: stocksummarybotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: stocksummarybotopbrk]
+        use: dspacctitles
+  add: part: stocksummaryTitlePart
+
+      [part: stocksummaryTitlePart]
+       line: LnstocksummaryTitle
+       
+      [line: LnstocksummaryCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As:@@dspDateStr
+    invisible: $$inprintmode
+
+      [part: PrtTitle0stocksummary]
+      line : LnstocksummaryCurrPeriod
+      
+      [Part: Prtstocksummary]
+       Line: LnstocksummaryTitle,Lnstocksummary
+;; {06.Feb.23 18:40} bottom Line: LnstocksummaryTotals
+     repeat: Lnstocksummary: Colstocksummary
+     scroll: Vertical
+ Common Border: YEs
+      Total: numf, numf1, numf2, numf3, numf4,qtyf,qtyf1,qtyf2
+
+[Collection: Colstocksummary]
+       /*
+;; {04.Apr.23 15:20} [Collection: Colstocksummarymillwisechg]
+source Collection: sourColstocksummary
+by:name:$name
+by:parent:$parent
+by:cwstockcategory1:@@cwstockcategory
+aggr compute:closingbalance:sum:$closingbalance
+compute:cwSKUCode1x:@@cwSKUCode1
+ sort:@@default:$cwstockcategory1,$$number:$cwSKUCode1x
+
+FILTER:cwstockcategoryfilter,cwssmillclosingbalance
+[Collection: sourColstocksummary]
+
+Collection:collbatchnew: collstockitem
+
+sort:@@default:$$number:$cwSKUCode1x
+
+;; {15.Dec.22 15:25} sort:@@default:$cwSKUCodenewx
+
+[Collection: collstockitem]
+
+*/
+type:stockitem
+
+Fetch	: partno,cwQuality,cwBDL,cwGSM,cwSize,cwSheet,cwPacknew,name, Parent, ExpiryPeriod, ClosingBalance, GodownName, MfdOn, ClosingAsOnDate
+;; {15.Dec.22 14:52}  compute:cwSKUCode1val21:@@cwSKUCode1val2
+
+;; {15.Dec.22 15:23} compute:cwSKUCode1val2new1x:@@cwSKUCode1val2new
+Fetch	: partno,cwQuality,cwGSM,cwBDL,cwBDL2,cwSize,cwSheet,cwPacknew,name, Parent, ExpiryPeriod, ClosingBalance, GodownName, MfdOn, ClosingAsOnDate
+filter:cwSKUCodefilterx,cwstkclosingbalance,cwQualityfilterx,cwGSMfilterx,cwSizefilterx,cwSheetfilterx,cwPackWeightfilterx,cwQualityGroupfilterx,cwMillGroupfilterx
+
+
+[Collection: collbatchnew]
+
+type : batch
+
+child of:$$LoopCollObj:$Name
+
+Fetch	: partno,cwQuality,cwGSM,cwBDL,cwBDL2,cwSize,cwSheet,cwPacknew,name, Parent, ExpiryPeriod, ClosingBalance, GodownName, MfdOn, ClosingAsOnDate
+compute:cwSKUCode1x:@@cwSKUCode1
+
+compute:cwSKUCodenewx:@@cwSKUCode1val2new
+
+;;sort:@@default:$cwSKUCode1x
+
+
+
+
+
+ [System: Formula]
+ cwstkclosingbalance:not $$isempty:$closingbalance
+ cwSKUCode1newx:$$number:@@cwSKUCode1/$$number:100000 ;;$$string:@@cwSKUCode1/100000
+ 
+;; {15.Dec.22 12:20}  cwSKUCodefilter:if $$issysname:##str1 then yes else @@cwSKUCode1 =##str1
+
+ cwSKUCodefilter:if $$issysname:##str1 then yes else @@cwSKUCode1 >= ##str1 and @@cwSKUCode1 =< ##str10
+ cwQualityfilter:if $$issysname:##str2 then yes else @@cwQuality1 =##str2
+ cwGSMfilter:if $$issysname:##str3 then yes else @@cwGSM1 =##str3
+ cwSizefilter:if $$issysname:##str4 then yes else @@cwSize1 =##str4
+ cwSheetfilter:if $$issysname:##str5 then yes else @@cwSheet1 =##str5
+ cwPackWeightfilter:if $$issysname:##str6 then yes else @@cwPackWeight1 =##str6
+ cwQualityGroupfilter:if $$issysname:##str7 then yes else @@cwQualityGroup =##str7
+ cwMillGroupfilter:if $$issysname:##str8 then yes else @@cwMillGroup =##str8
+ 
+ ;;======================================================
+ 
+ 
+ cwSKUCodefilterx:if $$issysname:##str1 then yes else $partno >= ##str1 and $partno =< ##str10
+ cwQualityfilterx:if $$issysname:##str2 then yes else $cwQuality =##str2
+ cwGSMfilterx:if $$issysname:##str3 then yes else @@cwGSMcwsortno =##str3
+ cwSizefilterx:if $$issysname:##str4 then yes else $cwSize =##str4
+ cwSheetfilterx:if $$issysname:##str5 then yes else $cwSheet =##str5
+ cwPackWeightfilterx:if $$issysname:##str6 then yes else $cwPacknew =##str6
+ cwQualityGroupfilterx:if $$issysname:##str7 then yes else $parent =##str7
+ cwMillGroupfilterx:if $$issysname:##str8 then yes else $category =##str8
+ 
+  cwGSMcwsortno:if $$isempty:$cwGSM then $cwsortno else $cwGSM
+  
+ ;;======================================================
+ 
+ 
+ 
+ 
+ cwQualityGroup:$parent:stockitem:$parent ;;"Quality Group"
+
+ cwMillGroup:$category:stockitem:$parent;;"Mill Group"
+
+ 
+cwSKUCode1:$partno:stockitem:$parent ;; "SKU Code"
+cwQuality1:$cwQuality:stockitem:$parent ; ;; "Quality"
+cwGSM1:$cwsortno:stockitem:$stockitemname  ;;$cwGSM:stockitem:$parent ;;"GSM"
+
+cwSize1:$cwSize:stockitem:$parent ;;"Size"
+
+cwSheet1:$cwSheet:stockitem:$parent ;;"Sheet"
+cwPackWeight1:$cwPacknew:stockitem:$parent ;;"Pack Weight"
+
+      [Line: LnstocksummaryTitle]
+        use: Lnstocksummary
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: snf: set as: "SKU Code"
+local:field: fwf: set as: "Quality"
+Local: Field: snf1: Set As:"GSM"
+Local: Field: snf2: Set As:"Size"
+
+Local: Field: snf3: Set As:"Quality Group"
+Local: Field: snf4: Set As:"Mill Group"
+
+Local: Field: numf: Set As:"Sheet"
+Local: Field: numf1: Set As:"Pack Size"
+Local: Field: numf2: Set As:"Pack Weight"
+
+Local: Field: qtyf: Set As:"Unit"
+Local: Field: qtyf2: Set As:"Kgs"
+Local: Field: numf3: Set As:"BDL"
+Local: Field: numf4: Set As:"Gst"
+local: field: qtyf: type: String
+
+Local: field: default: Align:centre
+Local: Field:qtyf:Align:centre
+Local: Field:qtyf2:Align:centre
+Local: field: fwf: Align:left
+Local: field: fwf:indent:13
+Local: Field:snf  : style:style4x
+local:field : snf : style:style4x
+local:field : fwf :style:style4x
+Local: Field: snf1: style:style4x
+Local: Field: snf2:style:style4x
+Local: Field: snf3:style:style4x
+Local: Field: snf4:style:style4x
+
+Local: Field: numf:style:style4x
+Local: Field: numf1:style:style4x
+Local: Field: numf2:style:style4x
+Local: Field: numf3:style:style4x
+Local: Field: qtyf:style:style4x
+Local: Field: qtyf2:style:style4x
+
+[System: Formula]
+cwSKUCode1val:($$number:$cwSKUCode1x/$$number:100000)
+
+cwSKUCode1val2new:$$String:@@cwSKUCode1val:"Decimals:6, No Comma"
+
+  
+[Line: Lnstocksummary]
+Fields: snf,fwf
+right field:snf1,snf2,numf2,snf3,snf4,numf1,numf,qtyf2,qtyf ;;,numf3
+;; {15.Dec.22 15:04} right field:snf1,snf2,numf1,numf,numf2,qtyf,qtyf2 ;;,numf3
+
+Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,Decimals:2"
+local:field: qtyf2 : Format : "NoSymbol, Short Form, No Compact,NoZero,Decimals:3"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+
+local:field: ratepf : setas  : #amtf/#qtyf
+
+local: field: fwf: alter : stockitem : $$isstockitem
+option : alter on enter
+
+local : field : fwf : alter : stockitem : $$isstockitem
+
+Local: Field: snf11: Set As:$$String:@@cwSKUCode1val:"Decimals:6, No Comma"
+Local: Field: snf12: Set As:@@cwSKUCode1val2new
+Local: Field: snf13: Set As:$cwSKUCodenewx
+
+
+;; {15.Dec.22 14:28}   Local: field: numf11: Format: "decimals:6"
+  
+local:field: snf: set as:$partno  ;;$cwSKUCode1x  ;;$partno:stockitem:$parent ;; "SKU Code"
+local:field: fwf: set as:$cwQuality ;;:stockitem:$parent ; ;; "Quality"
+Local: Field: snf1: Set As:if $$isempty:$cwGSM then $cwsortno else $cwGSM ;;:stockitem:$parent  ;;$cwGSM:stockitem:$parent ;;"GSM"
+Local: Field: snf2: Set As:$cwSize ;;:stockitem:$parent ;;"Size"
+
+Local: Field: snf3: Set As:$parent  ;;:stockitem:$parent ;;"Quality Group"
+Local: Field: snf4: Set As:$category  ;;:stockitem:$parent;;"Mill Group"
+
+
+Local: Field: numf: Set As:$cwproduct ;;:stockitem:$parent  ;;$cwSheet:stockitem:$parent ;;"Sheet"
+Local: Field: numf2: Set As:$cwsceneitem  ;;:stockitem:$parent  ;;$cwPacknew:stockitem:$parent ;;"Pack Weight"
+
+Local: Field: numf1: Set As:$cwDenominator3 ;;:stockitem:$parent ;;"Pack Size"
+
+Local: Field: numf3: Set As:$cwBDL2  ;;"BDL"
+
+Local: Field: qtyf: Set As:$closingbalance ;;:stockitem:$parent ;;"Kgs"
+Local: Field: qtyf2: Set As:$closingbalance ;;:stockitem:$parent ;;"Unit"
+
+Local: Field:snf:border:thin left right
+Local: Field:default:border:thin right
+border:thin bottom
+
+Local: Field:DEFAULT: style:style3x
+
+Local: field: snf: Width:8
+Local: field: snf1: Width:6
+Local: field: snf2: Width:10
+Local: field: numf: Width:6
+Local: field: numf2: Width:10
+
+local: field: qtyf: type:quantity:Secondary UNITS
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+Local: Field:qtyf:Align:right
+Local: Field:qtyf2:Align:right
+
+local: field:snf3: Invisible:##logi1
+ local: field:snf4: Invisible:##logi1
+ 
+SPACE TOP:0.1
+SPACE bottom:0.1
+
+[line: LnstocksummaryTotals]
+use: Lnstocksummary
+option: totalOpt
+
+local: field: fwf: align: right
+local: field: default : style: normal bold
+
+local:field: snf: set as:"" ;; "SKU Code"
+local:field: fwf: set as:"";;"Total" ;; "Quality"
+
+Local: Field: snf1: Set As:"" ;;"GSM"
+Local: Field: snf2: Set As:"" ;;"Size"
+
+Local: Field: snf3: Set As:"" ;;"Quality Group"
+Local: Field: snf4: Set As:"" ;;"Mill Group"
+
+
+Local: Field: numf: Set As:""  ;;"Pack"
+Local: Field: numf1: Set As:""  ;;"Sheet"
+Local: Field: numf2: Set As:""  ;;"Pack Weight"
+Local: Field: numf3: Set As:"";;$$total:numf3  ;;"Unit"
+Local: Field: qtyf: Set As:"";;$$total:qtyf    ;;"Kgs"
+Local: Field: qtyf2: Set As:"";;$$total:qtyf2 ;;"BDL"
+Local: Field: numf1: Set As:"" ;;"Pack Size"
+Local: Field:snf  : style:style4x
+local:field : snf : style:style4x
+local:field : fwf :style:style4x
+Local: Field: snf1: style:style4x
+Local: Field: snf2:style:style4x
+
+Local: Field: numf:style:style4x
+Local: Field: numf1:style:style4x
+Local: Field: numf2:style:style4x
+Local: Field: numf3:style:style4x
+Local: Field: qtyf:style:style4x
+Local: Field: qtyf2:style:style4x
+
+
+;;==============================================================================
+
+ [button:stocksummarybotton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:stocksummarybotton
+
+ [report:stocksummarybotton]
+ form:stocksummarybotton
+
+ [form:stocksummarybotton]
+ part:stocksummarybotton
+
+ HEIGHT:50% PAGE
+ WIDTH:50% PAGE
+
+ [part:stocksummarybotton]
+ line:titlelinex,SKUCodeline,Qualityline,GSMline,Sizeline,Sheetline,PackWeightline,QualityGroupline,MillGroupline
+
+ [line:titlelinex]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: Normal Bold
+ 
+ space bottom:0.5
+
+ [line:deliveryline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Item Name"
+ 
+ Local: Field: nf:modifies:str1
+ 
+
+ Local: Field: nf: table:stockitem,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ space bottom:0.5
+ Local: field: sp: Width:18
+
+
+ 
+ [line:SKUCodeline]
+ field:sp,snfx,nf,snfx2,nf2
+
+ local:field: sp: set as:"SKU Code"
+ Local: Field: snfx: info: "From:"
+ Local: Field: snfx2: info: "To:"
+ 
+ Local: Field: nf:modifies:str1
+ Local: Field: nf2:modifies:str10
+
+ Local: Field: nf: table:collstockitem2,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ Local: Field: nf2: table:collstockitem2,Not Applicable
+ Local: Field: nf2: Show table: Always
+
+ space bottom:0.5
+ 
+ Local: field: sp: Width:18
+ Local: field: snfx: Width:8
+ Local: field: snfx2: Width:5
+ 
+ [line:Qualityline]
+ field:sp,nf
+ 
+ local:field: sp: set as: "Quality"
+ Local: Field: nf:modifies:str2
+ 
+ Local: Field: nf: table:collcwQuality,Not Applicable
+ Local: Field: nf: Show table: Always
+ space bottom:0.5
+ Local: field: sp: Width:18
+ 
+ 
+
+ [line:GSMline]
+ field:sp,nf
+ Local: Field: sp: Set As:"GSM"
+ Local: Field: nf:modifies:str3
+ 
+ Local: Field: nf: table:collGSM,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ space bottom:0.5
+ Local: field: sp: Width:18
+ 
+ [line:Sizeline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Size"
+ Local: Field: nf:modifies:str4
+ 
+ Local: Field: nf: table:collSize,Not Applicable
+ Local: Field: nf: Show table: Always
+ space bottom:0.5
+ Local: field: sp: Width:18
+
+ [line:Sheetline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Sheet"
+ Local: Field: nf:modifies:str5
+ 
+ Local: Field: nf: table:collSheet,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ space bottom:0.5
+ Local: field: sp: Width:18
+ 
+ [line:PackWeightline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Pack Weight"
+ Local: Field: nf:modifies:str6
+
+ space bottom:0.5
+ Local: field: sp: Width:18
+
+ ;;QualityGroupline,MillGroupline
+ 
+ [line:QualityGroupline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Quality Group"
+ Local: Field: nf:modifies:str7
+ 
+ Local: Field: nf: table:stockgroup,Not Applicable
+ Local: Field: nf: Show table: Always
+
+
+ space bottom:0.5
+ Local: field: sp: Width:18
+
+[line:MillGroupline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Mill Group"
+ Local: Field: nf:modifies:str8
+ 
+  Local: Field: nf: table:Stock Category,Not Applicable
+ Local: Field: nf: Show table: Always
+
+
+ space bottom:0.5
+ Local: field: sp: Width:18
+

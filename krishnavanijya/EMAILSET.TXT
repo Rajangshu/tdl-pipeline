@@ -1,0 +1,208 @@
+; Created By: Taniya on 2020-02-11 18:16, ID:
+
+
+[Line: lnemailconfiga1]
+field:sp,cwlogical
+Local: Field: sp: info: "Set E-Mail Configuration ?"
+Local: Field: cwlogical: storage:cwemailloadcmp
+Local: field: sp: Width:22
+Local: Field: DEFAULT: Style: Normal Bold
+Local: Field : cwlogical : SubForm : subemail22: $$value
+
+local: field: sp: inactive:not $SalesVoucherEmailEnabled
+local: field: cwlogical: inactive:not $SalesVoucherEmailEnabled
+
+
+[Report: subemail22]
+Form: subemail22
+title:"Email"
+[Form: subemail22]
+part: subemail22
+height :18
+width :38% page
+[part: subemail22]
+line:cwblanklinetitle,cwblankline,lnFromea  ,lncmpMailServer1 ,lnFromEMailAddra ,lnauthusernamea,lnauthuserpassa ,lnemailbody,lncwkvFileFormat;; +
+;; {15.Feb.20 14:05} ,cwlnmailto
+
+[Line: cwblanklinetitle]
+field:fwfc
+Local: Field: fwfc: info: "E-Mail Configuration"
+Local: Field: fwfc: Border: thin bottom
+Local: Field: fwfc: Style: Normal Bold
+
+[line:lnFromea]
+Fields: Medium Prompt,DSPMailServerNamexy
+Local	: Field : Medium Prompt : Set as : @@AddressFromFormat
+Local: field: Medium Prompt: Width:23
+
+[Field	: DSPMailServerNamexy]				
+Use: DSPMailServerNamex
+storage:cwemailservera
+
+  [Field: DSPMailServerNamex]
+				
+Use			: Name Field
+Case		: Normal
+Style		: Normal Italic
+Validate	: NOT $$IsEmpty:$$Value
+		
+Width		: 30
+Table		: ListOfCommonMailServers
+Show Table	: Always
+Modifies	: SVMailServerName
+;;	storage:cwemailserver
+
+[Line: lncmpMailServer1]
+space top:1
+Field	:Medium Prompt,  DSP MailServerxx
+Local	: 	Field : Medium Prompt : Set as : $$LocaleString:"Server Address :"			
+ Local: field: Medium Prompt: Width:23
+
+[field: DSP MailServerxx]
+Use			: Name Field
+Case		: Normal
+Set as		: If #DSPMailServerNamexx Contains $$SysName:UserDefined Then ##SVMailServer +
+							  Else If #DSPMailServerNamexx NOT Contains $$SysName:UserDefined Then $$GetMailServerAddr:#DSPMailServerNamexx Else ##SVMailServer			
+Modifies	: SVMailServer
+Skip		: NOT $$IsEmpty:##SVMailServer AND NOT $$IsEdited
+Style		: Normal Italic
+Validate	: NOT $$IsEmpty:$$Value
+ASCIIOnly	: Yes
+Width		: 30
+Set Always	: Yes
+Option		: EnglishOnly
+storage:cwserveradd
+
+[Line: lnFromEMailAddra]
+space top:1
+Fields: Medium Prompt,nf
+Local	: Field : Medium Prompt : Set as : $$LocaleString:"From E-Mail Address :"
+Local: Field: nf: storage:cwfemailaddress
+Local: field: Medium Prompt: Width:23
+Local: field: nf: Width:30
+Local: Field: nf: Style: Normal Bold
+Local: Field: nf: Case	: Normal
+
+[Line: lnauthusernamea]
+space top:1
+Fields: Medium Prompt,nf10
+Local	: Field : Medium Prompt : Set as : $$LocaleString:"Authentication User Name :"
+Local: Field: nf10: storage:cwauthusernamenew
+Local: field: Medium Prompt: Width:23
+Local: field: nf10: Width:30
+Local: Field: nf10: Style: Normal Bold
+Local: Field: nf10: Case	: Normal
+
+[Line: lnauthuserpassa]
+space top:1
+Fields: Medium Prompt,DSPMailAuthPasswordxa
+Local	: Field : Medium Prompt : Set as : $$LocaleString:"Authentication Password :"
+Local: field: Medium Prompt: Width:23
+
+[Field: DSPMailAuthPasswordxa]
+Use			: Name Field
+Case		: Normal
+storage:cwauthuserpassnew
+Inactive	: $$IsEmpty:#nf10
+Validate	: NOT $$IsEmpty:#nf10
+Option		: EnglishOnly
+
+[Line: lnemailbody]
+space top:1
+Fields: long Prompt,cwlogical
+Local: Field: long Prompt: info: "Set E-Mail Body ?"
+Local: field: long Prompt: Width:23
+Local: Field : cwlogical : SubForm : emailbody: $$value
+
+
+
+[Line: lncwkvFileFormat]
+space top:1
+Fields: Medium Prompt,cwkvExportFileFormat
+Local	: Field : Medium Prompt : Set as : $$LocaleString:"File Format :"
+Local: field: Medium Prompt: Width:23
+
+
+[Field:cwkvExportFileFormat]
+Use: LandingPageInputs
+		
+Table		: SVExportFormat
+Show Table	: Always
+ storage:cwkvFileFormat
+ 
+ [System: Formula]
+ cwkvFileFormat:$cwkvFileFormat:COMPANY:##SVCURRENTCOMPANY
+
+
+
+[Report: emailbody]
+Form: emailbody
+[Form: emailbody]
+Part: emailbody
+width:50%  page
+height:20%  page
+
+[Part: emailbody]
+Line: emailbodytitx,emailbody1x,emailbody2x ,emailbody3x,emailbody4x
+
+[Line: emailbodytitx]
+field:nf
+
+Local: Field: nf: info: "E-Mail Body"
+Local: field: nf: Align: centre
+Local: field: nf: Width:80
+
+[Line: emailbody1x]
+field:nf
+Local: Field: nf: storage:ceembody
+Local: field: nf:Case	: Normal
+Local: field: nf:Width:100
+Local: field: nf: max:100
+
+[Line: emailbody2x]
+use:emailbody1x
+Local: Field: nf: storage:ceembody2
+
+[Line: emailbody3x]
+use:emailbody1x
+Local: Field: nf: storage:ceembody3
+
+[Line: emailbody4x]
+use:emailbody1x
+Local: Field: nf: storage:ceembody4
+
+
+[line : cwlnmailtox]
+  field : sp,snf
+  Local: Field: sp: info: "Email to:"
+  Local: Field: snf: storage: cwEmailTO
+  local: Field: snf: max: 500
+  local : field : snf : Lines : 3
+  Local: field: snf: Width:  3 inch
+  space top : 0.7
+  local: field: snf: Case: Normal
+
+
+[Field	: DSPMailServerNamexx]
+				
+				Use			: Name Field
+				Case		: Normal
+				Style		: Normal Italic
+				Validate	: NOT $$IsEmpty:$$Value
+				;ASCIIOnly	: Yes
+				Width		: 30
+				Table		: ListOfCommonMailServers
+				Show Table	: Always
+				Modifies	: SVMailServerName
+				storage:cwemailserver
+
+
+
+
+
+
+
+
+;;====================================================================================================
+
+

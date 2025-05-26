@@ -1,0 +1,15 @@
+; Created By: Khokan on 2022-11-09 15:30, ID: 
+ [#Line: GTRNDestination]
+ add:option:GTRNDestinationopt
+ [!line:GTRNDestinationopt]
+
+ add:field:sp,snfx,sp2,cwlogical
+ Local: Field: sp: Set As:"Case No."
+ Local: Field: sp2: Set As:"Fill Item?"
+ Local: Field: snf: storage:cwcasenosj
+ ;;Local: Field : cwlogical : SubForm : repfillitem: $$value
+
+ ;;[report:repfillitem]
+ ;;form:repfillitem
+
+ ;;[form:repfillitem]

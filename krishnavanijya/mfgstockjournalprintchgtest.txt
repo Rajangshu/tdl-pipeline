@@ -1,0 +1,218 @@
+
+
+     [#menu: Gateway of Tally]
+        add: Option: mfgtestLock ;; : @@mfgtestDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@mfgtestReport: Display: Repmfgtest
+  */
+
+
+     [!menu: mfgtestLock]
+        add: Item: before: @@locQuit: @@mfgtestReport: Display: Repmfgtest
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   mfgtestReport: "mfgtest"
+;; mfgtestDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: Repmfgtest]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@mfgtestReport
+   Printset: Report Title: @@mfgtestReport
+
+       Form: Frmmfgtest
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+     
+      [Form: Frmmfgtest]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0mfgtest,Prtmfgtest
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: mfgtestbotbrk,mfgtestbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+add:button:cwLoadedDrawingshow
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: mfgtestConfigure
+
+      [part: mfgtestbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: mfgtestbotopbrk]
+        use: dspacctitles
+  add: part: mfgtestTitlePart
+
+      [part: mfgtestTitlePart]
+       line: LnmfgtestTitle
+       
+      [line: LnmfgtestCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0mfgtest]
+      line : LnmfgtestCurrPeriod
+      
+      [Part: Prtmfgtest]
+       Line: LnmfgtestTitle,Lnmfgtest
+bottom Line: LnmfgtestTotals
+     repeat: Lnmfgtest: Colmfgtest
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: Colmfgtest]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColmfgtestFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColmfgtestFilter:$$isSales:$voucherTypeName
+ColmfgtestFilter2:$amount < 24000
+
+      [Line: LnmfgtestTitle]
+        use: Lnmfgtest
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: Lnmfgtest]
+     Fields: mfgtestmastid,sdf,nf,fwf
+Right Field: ratepf,Qtyf,Amtf
+
+     Option: Alter on Enter
+        key: mfgtestDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: sdf : set as : $date
+Local: Field: amtf: Set As:$amount
+
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: mfgtestDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: mfgtestDisplayVoucher
+
+ 	
+     [Report: mfgtestDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #mfgtestmastid
+	
+
+        [Field: mfgtestmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LnmfgtestTotals]
+        use: Lnmfgtest
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+[button:cwLoadedDrawingshow]
+
+
+ key:F6
+ title:"Show AUTH."
+
+;; {23.Feb.24 17:46} Action : Modify Variables:cwLoadedDrawingshow
+
+Add: Action : Call	: cwfunsalessjn
+
+ scope : selected lines
+
+ [Function: cwfunsalessjn]
+ VARIABLE : str12: string
+ VARIABLE : str13: string
+;; {14.Nov.24 17:56}  08:set:str12:$$collectionfield:$cwImagePathvchtype1:1:cwSelectedcwImagePathjobvch
+;; {14.Nov.24 17:56}  10:set:str13:$$collectionfield:$cwImagePathuopdate1:1:cwSelectedcwImagePathjobvch
+
+ 195	: EXECUTE: cwLoadedDrawingshow
+
+ [collection: cwSelectedcwImagePathjobvch]
+Data Source	:  Report		: selected
+
+ fetch:cwImagePathvchtype1,cwImagePathuopdate1
+
+ add:format:$amount,10
+ add:format:$cwImagePathuopdate1,10
+
+
+ [report:cwLoadedDrawingshow]
+ form:cwLoadedDrawingshow
+   title:""
+
+ [form:cwLoadedDrawingshow]
+ part:cwLoadedDrawingshow,cwLoadedDrawingshow2,cwLoadedDrawingshow3
+
+;; HEIGHT:20% PAGE
+ ;;WIDTH:30% PAGE
+
+ [part:cwLoadedDrawingshow]
+ line:cwLoadedDrawingshow
+
+
+ 
+ [line:cwLoadedDrawingshow]
+  field:sp,cwLoadedDrawingshow
+
+ [field:cwLoadedDrawingshow]
+ use:snf
+;; {14.Nov.24 17:58}  setas:##str12+##str13
+
+  [part:cwLoadedDrawingshow2]
+ line:cwLoadedDrawingshow2
+
+ [line:cwLoadedDrawingshow2]
+  field:snf
+ Local: Field: snf: Set As:""
+
+ [part:cwLoadedDrawingshow3]
+ line:cwLoadedDrawingshow1
+
+ [line:cwLoadedDrawingshow1]
+
+ field:snf

@@ -1,0 +1,316 @@
+
+;;Client:
+;;Serial:
+; Created By: Khokan on 2022-09-17 10:46, ID:
+      /*
+[include : e:\d7comps\tprime\RefreshTDL.txt]
+[include : e:\d7comps\tprime\cwSite.txt]
+[include : e:\d7comps\tprime\CommonFields2.txt]
+[include : e:\d7comps\tprime\CommonFormulae.txt]
+;;[include : e:\d7comps\tprime\ShowDemoForm.txt] ;; Demo Form
+              */
+[include : e:\d7comps\tprime\termsconditions.txt] ;; Demo Form
+
+;; {20.Dec.22 17:51} [include : e:\d7comps\tprime\altqty.txt] ;; Demo Form
+;;[include : cwnaltqty2.txt]
+
+;;[include : Changelog.txt] ;; Not Related to Tally, But For Changes we do in Project
+
+
+
+[System : formula]
+AltQtyActive : @@IsStockJrnl or @@issales or @@ispurchase
+
+KrishnavanijyaDEmoMode : no  ;; yes to enable demo no to allow full access
+krishnavanijyademodate : '3/20/2023'
+krishnavanijyaedudate : '3/1/2023'
+
+KrishnavanijyaDemoDt : if @@KrishnavanijyaDEmoMode then if @@CWEdu then $date <= @@Krishnavanijyaedudate else $date <= @@Krishnavanijyademodate else yes
+KrishnavanijyaMachDemoDate : if @@KrishnavanijyaDEmoMode then if @@CWEdu then $$machinedate <= @@Krishnavanijyaedudate else $$machinedate <= @@Krishnavanijyademodate else yes
+KrishnavanijyaSales : $$issales:$vouchertypename and @@KrishnavanijyaDemoDt
+
+[System : Formula] ;; Demo Formula
+cwShowDemoForm: @@KrishnavanijyaDEmoMode
+cwShowDemoDate: @@Krishnavanijyademodate
+cwShowDemoDate2: @@Krishnavanijyaedudate
+
+[system : udf]
+KrishnavanijyaEnabled : logical : 111 ;; change this value.
+cwregoffice : string : 112 ;; change this value.1
+cwNAMVCHTYPE : string : 113 ;; change this value.11
+cwNAMPrinters : string : 114 ;; change this value.111
+cwbccanvchloc : string : 115 ;; change this value.1111
+
+ImageSignatureEnabled : logical : 116
+cwSignaturepathyes : logical : 117
+
+cwSignaturepath : string : 118
+cwLeftMarg : number : 119
+cwRightMargin : number : 120
+cwtopMargin : number : 121
+cwbottomMargin : number : 122
+
+;--------------------------------------------- Company Config
+
+[#Form: Company Operations]
+                Switch   : KrishnavanijyaLowerRel  : KrishnavanijyaNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : KrishnavanijyaCurrenRel : KrishnavanijyaFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : KrishnavanijyaNOTFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End : KrishnavanijyaConfig
+
+[!Form : KrishnavanijyaFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : KrishnavanijyaConfig  ;;,cwinvprintingline2newKham
+local : line : cwTestConfig : local : field : short name field : tool tip: "Double-Click for browsing to CircuitWorld.in"
+
+
+[#Part : CMP TallyShopFeatures Left]
+ Add : Line : At End : KrishnavanijyaConfig,cwregdoffline2,cwNameofVoucherType2,cwPrinterNameline,setuomdetailsline,LocationofSignatureline,cwPathtosavefileLn ;;,cwbccanvchlocline
+
+[Line : KrishnavanijyaConfig]
+Field : KrishnavanijyaConfigTitle,KrishnavanijyaConfig
+right field : Short name field
+Local: Field: short name field : info: "sales@circuitworld.in"
+Local: Field: short name field: case : normal
+Local: Field: short name field: Color : blue
+;;Local: Field: short name field: border : thin bottom
+Local: Field: short name field: width : 0
+
+
+key  : cwKrishnavanijyaBrowse
+
+[key : cwKrishnavanijyaBrowse]
+key : left double click
+action : browse : "www.circuitworld.in"
+
+
+
+ [Field: KrishnavanijyaConfigTitle]
+ Use : medium prompt
+ info: "Enable Krishnavanijya?"
+ width : 0
+
+ [Field: KrishnavanijyaConfig]
+  Use: logical field
+ Set As: $KrishnavanijyaEnabled
+ storage: KrishnavanijyaEnabled
+
+
+ [System: Formula]
+ KrishnavanijyaEnabled :$KrishnavanijyaEnabled:COMPANY:##SVCURRENTCOMPANY
+
+  [line:cwregdoffline2]
+  field:sp,fwf
+ Local: Field: sp: Set As: "Regd.Office :"
+ Local: Field:fwf: storage:cwregoffice
+
+ [line:cwNameofVoucherType2]
+  field:sp,NF
+ Local: Field: sp: Set As: "Name of Voucher Type :"
+ Local: Field:NF: storage:cwNAMVCHTYPE
+ Local: Field: nf: table:COLLcwNAMVCHTYPE,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: field: sp: Width:25
+
+ [Collection: COLLcwNAMVCHTYPE]
+ TYPE:VOUCHERTYPE
+ TITLE:"List of Vouchers"
+
+
+ [line:cwPrinterNameline]
+ field:sp,NF
+
+ Local: Field: sp: Set As: "Name of Printers :"
+
+ Local: Field:NF: storage:cwNAMPrinters
+ Local: Field: nf: table:List of Printers,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: field: sp: Width:25
+
+;---------------------------------------------
+; UDF
+[include : KrishnavanijyaUDF.txt]
+
+; Master Changes
+
+  [include :stockitem.txt]
+
+  [include :barcodechg.txt]  ;;stock item
+;; {24.Jan.25 14:01}   [include : barcodechgnew.txt]
+
+  [include :addnof6.txt]
+  [include :costcentre.txt]
+  [include :stylechg.txt]
+  [include :salesvouchertype.txt]
+  [include :stockjourlvouchertype.txt]
+  [include :purchasevouchertype.txt]
+  [include :companychg.txt]
+  [include :ledgermasterchg.txt]
+
+
+; Transaction Changes
+
+ [include : salesvoucherchg.txt]
+ ;;[include : salesvoucherchg2.txt]
+
+ [include : stockjournalvoucherchg.txt]
+ [include : purchasevoucherchg.txt]
+;; {15.Nov.22 10:59}  [include :userchg.txt]
+ [include :userchg1.txt]
+
+; invoice Changes
+;; {29.Oct.22 09:14} [include :printconfiguation.txt]
+
+[include : Featureschg.txt]
+
+[include :paymentreceprint.txt]
+
+[include :salesinvoicechg.txt]   ;; challan
+[include :salesinvoicechg4.txt]   ;; invoice
+[include :salesinvoicechg5.txt]  ;; invoice simple
+[include :salesinvoicechg6.txt]   ;; Challan simple
+[include :salesinvoicechg7.txt]   ;; packing list
+
+;; {28.Jun.23 14:41} [include : salesinv1.txt]
+
+;;[include :emailvchchg.txt]
+
+[include :stockjournalprintingchg.txt]
+
+;; {08.Oct.22 14:48} [include :salesinvoicechg2.txt]
+;; {08.Oct.22 14:26} [include :salesinvoicechg3.txt]
+
+; Report Changes
+
+[include : misreport.txt]
+[include : Multistockitemchg.txt]
+[include : stocksummary.txt]
+[include : cwExportvch.txt]
+[include : cwExportvch2.txt]
+
+[include : Ledgermaster.txt]
+;; {02.Nov.22 10:22} [include : multivchprinchg.txt]
+[include : multivchprinchg1.txt]
+
+[include :Despatchupdaterep.txt]
+[include :Despatchrep.txt]
+[include :Daybookchg.txt]
+;; {03.Nov.22 10:23} [include : test1.txt]
+;; {05.Nov.22 13:32} [include : test2.txt]
+
+[include : Claimamountreport.txt]
+[include : ItemmasterReport.txt]
+[include : stocksummarychg.txt]
+[include : ledgermasterreport.txt]
+[include : stockjourlreport.txt]
+[include : costcentrereport.txt]
+
+[include : ledgervoucherreport.txt]
+
+;; {08.Nov.22 17:02} [include : purchaseminautopost.txt]
+
+[include : purchasemoutautopost2.txt]     ;; purchase m out
+
+;; {16.Jan.25 13:40} [include : stocksummarymillwisechg.txt]
+[include : stocksummarymillwisechg2.txt]
+[include : stocksummarymillwisemfg.txt]
+
+;;[include : purchaseminautopost1.txt]
+[include : pricelist.txt]
+[include : Productmaster.txt]
+
+[include : purchaseregister.txt]
+[include : purchaseregister2.txt]
+
+
+
+ [include : salesregister.txt]
+ [include : salesregister2.txt]
+ [include : stockitemvoucherreport.txt]
+ [include : inventorybooksreport.txt]
+
+;; [include : text12.txt]
+
+;; {17.Feb.23 10:28} [include : Itemwisestockreport.txt]
+;; {23.Feb.23 12:37} [include : Itemwisestockreport2.txt]
+;; {13.Mar.23 13:25} [include : Itemwisestockreport3.txt]
+
+[include : Itemwisestockreport3new.txt]
+
+
+;; {29.May.23 18:59} [include : Itemwisestockreport4.txt]
+[include : partnowiseItemreport.txt]
+
+[include : salesreportmail.txt]   ;;"E-Mail Voucher"
+
+;; {17.Mar.25 18:22} [include :testsummaryrep.txt]
+
+;;[include : stockitemrep.txt]
+
+;;[include : stockreport.txt]
+;;[include : testautopost.txt]
+                       /*
+[include : e:\d7comps\tprime\CommonVars.txt]
+[include : e:\d7comps\tprime\tallyserial.txt]
+[include : e:\d7comps\tprime\servervouchers.txt]
+[include : e:\d7comps\tprime\commonudf.txt] */
+;; {20.Jan.23 17:44} [include : e:\d7comps\tprime\commonfunctions.txt] ;; Demo Form
+
+;;[include : e:\d7comps\tprime\commonborders.txt]
+;;[include : e:\d7comps\tprime\Cwwbst.txt]
+;;[include : e:\d7comps\tprime\addwbstno.txt]
+;;[include : e:\d7comps\tprime\CMPWBSTNO.txt]
+;;[include : e:\d7comps\tprime\cwwaybills.txt]
+;;[include : e:\d7comps\tprime\cmpIECNo.txt]
+;;[include : e:\d7comps\tprime\addtableinconsignee.txt]
+;;[include : e:\d7comps\tprime\LedTANNo.txt]
+;;[include : e:\d7comps\tprime\LedCSTNo.txt]
+;;[include : e:\d7comps\tprime\batchchange.txt]
+;;[include : e:\d7comps\tprime\broker.txt] ;; for enabling broker
+
+;;================================salesvoucheremail==============================================
+[include : salesvoucheremail.txt]
+[include : salesinvoiceemail.txt]
+
+;;[include : CWGSTREPORT.txt]
+;;[include : CWGSTREPORTvch.txt]
+
+;; {20.Jan.23 17:44}  [include : cancenvoucherexport.txt]
+ ;;[include : cancenvoucherexport2.txt]
+;; {20.Jan.23 17:32} [include : cancenvoucherreport.txt]
+
+;; {25.Jan.23 10:30} [include : TESTNN.txt]
+
+;; {25.Jan.23 12:43} [include : TESTNN2.txt]
+
+
+;;======================================================================================
+
+[include : defsalesregister.txt]
+
+
+[include : newsalesvchchanges.txt]
+[include : pricedifferencerep.txt]
+[include : approvepricerep.txt]
+
+[include :autobatchtransfer.txt]
+[include : SalesDeliveryReport.txt]
+
+;;===========25/9-24======================================================================
+
+[include : cwgatewaytally.txt]
+[include : stockjournalvchtype.txt]
+[include : vchtypechg.txt]
+
+[include : stockjournalchg.txt]
+
+[include : mfgstockjournalprintchg.txt]
+;;[include : mfgstockjournalprintchgtest.txt]
+;;[include : stockrepauto.txt]
+
+
+
+
+
+

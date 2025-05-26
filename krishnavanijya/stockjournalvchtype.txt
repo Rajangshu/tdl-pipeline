@@ -1,0 +1,23 @@
+; Created By: Khokan on 2024-09-25 14:20, ID: 
+
+[System: Formula]
+cwkvstkjourVoucher:$$IsStockJrnl:$parent
+
+[#Part: VTYP Behaviour]
+
+ add:option:sjVTYPBehaviouropt:@@cwkvstkjourVoucher and @@KrishnavanijyaEnabled
+
+ [!part:sjVTYPBehaviouropt]
+ line:cwUseasMfgJournalline
+
+
+
+
+ [line:cwUseasMfgJournalline]
+  field:long prompt,cwlogical
+
+Local: Field: long prompt: Set As:"Use as Mfg Journal:"
+Local: Field: cwlogical: storage:cwUseasMfgJournal
+ Local: Field: default: Style:small
+
+ Local: Field: default: Style: Normal Bold

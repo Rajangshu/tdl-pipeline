@@ -1,0 +1,203 @@
+; Created By: Khokan on 2023-01-05 16:53, ID: 
+
+     [#menu: Gateway of Tally]
+;; {05.Jan.23 18:07}         add: Option: purchaseregisterLock ;; : @@purchaseregisterDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@purchaseregisterReport: Display: Reppurchaseregister
+
+
+
+     [!menu: purchaseregisterLock]
+        add: Item: before: @@locQuit: @@purchaseregisterReport: Display: Reppurchaseregister
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   purchaseregisterReport: "Purchase Register"
+;; purchaseregisterDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Reppurchaseregister]
+        use: Dsp Template
+      Title: @@purchaseregisterReport
+   Printset: Report Title: @@purchaseregisterReport
+       Form: Frmpurchaseregister
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     variable:STR1
+     
+      [Form: Frmpurchaseregister]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0purchaseregister,Prtpurchaseregister
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: purchaseregisterbotbrk,purchaseregisterbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: purchaseregisterbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: purchaseregisterbotopbrk]
+        use: dspacctitles
+  add: part: purchaseregisterTitlePart
+
+      [part: purchaseregisterTitlePart]
+       line: LnpurchaseregisterTitle
+       
+      [line: LnpurchaseregisterCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+       Local: Field: fwf: Style:style4
+      Local: Field: fwf2: Style: style4
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0purchaseregister]
+      line : LnpurchaseregisterCurrPeriod
+      
+      [Part: Prtpurchaseregister]
+       Line: LnpurchaseregisterTitle,Lnpurchaseregister
+bottom Line: LnpurchaseregisterTotals
+     repeat: Lnpurchaseregister: Colpurchaseregister
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,amtf1,amtf2,amtf3,amtf4
+
+[Collection: Colpurchaseregister]
+source Collection: sourceColpurchaseregister
+by:partyledgername:$partyledgername
+aggr compute:NoofInvoice:sum:1
+aggr compute:Taxableamt:sum:$$CollAmtTotal:inventoryentries:$amount
+compute:PARTYGSTIN1:$PARTYGSTIN
+aggr compute:cwVCHCGSTVALUE1:sum:@@cwVCHCGSTVALUE2
+aggr compute:cwVCHIGSTVALUE1:sum:@@cwVCHIGSTVALUE2
+Compute:masterid:$masterid
+Compute:freightamt1:$freightamt
+ 
+[Collection: sourceColpurchaseregister]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColpurchaseregisterFilter,IsNonOptionalCancelledVchs
+   COMPUTE:freightamt:$$FilterAMTTotal:LEDGERENTRIES:CWAppropriateForFIELD:$AMOUNT
+   
+    [system: Formula]
+ColpurchaseregisterFilter:$$ispurchase:$vouchertypename
+
+
+
+[Line: LnpurchaseregisterTitle]
+use: Lnpurchaseregister
+option: titleopt
+
+;;     local: field:default: set as: $$DescName
+
+
+local:field: fwf: set as: "Supplier Name"
+local:field: NF: set as: "Supplier GST No."
+local:field: snf: set as: "No. of Invoice"
+local:field: AMTF: set as: "Taxable Amount"
+local:field: AMTF2: set as: "CGST Amount"
+local:field: AMTF3: set as: "SGST Amount"
+local:field: AMTF4: set as: "IGST Amount"
+
+local:field: fwf: style:style4
+local:field: NF:style:style4
+local:field: SNF:style:style4
+local:field: AMTF:style:style4
+local:field: AMTF1:style:style4
+local:field: AMTF2:style:style4
+local:field: AMTF3:style:style4
+local:field: AMTF4:style:style4
+Local: field: DEFAULT: Align: centre
+Local: field: FWF: Align: LEFT
+
+[System: Formula]
+CWAppropriateForFIELD:$AppropriateFor:ledger:$ledgername="GST"
+
+
+
+[Line: Lnpurchaseregister]
+Fields:fwf,nf
+right field: snf,Amtf,Amtf2,Amtf3,Amtf4,Amtf5
+;; {05.Jan.23 18:10} Option: Alter on Enter
+
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+;; {05.Jan.23 18:10}      local: field: fwf: alter : voucher : $$isvoucher
+;; {05.Jan.23 18:10} option : alter on enter
+;; {05.Jan.23 18:10} local : field : fwf : alter : voucher : $$isvoucher
+
+local:field: fwf: set as:$partyledgername ;; "Supplier Name"
+local:field: NF: set as:$PARTYGSTIN1 ;; "Supplier GST No."
+local:field: snf: set as:$NoofInvoice ;; "No. of Invoice"
+local:field: AMTF: set as:$$nettamount:$Taxableamt:$freightamt1 ;; "Taxable Amount"
+local:field: AMTF2: set as:$cwVCHCGSTVALUE1 ;; "CGST Amount"
+local:field: AMTF3: set as:$cwVCHCGSTVALUE1  ;; "ISGST Amount"
+local:field: AMTF4: set as:$cwVCHIGSTVALUE1;; "SGST Amount"
+Local: Field:default: Border: thin right
+Local: Field:DEFAULT: style:style3
+
+Local: Field: AMTF5: Set As:$freightamt1  ;;$FilterAMTTotal:LEDGERENTRIES:CWAppropriateForFIELD:$AMOUNT
+
+ option: display on enter
+
+local : field :fwf:Display:Reppurchaseregister2 ;;Report name
+local : field :fwf:modifies:STR1
+local : field :fwf:variable:STR1
+
+
+ [!line : cwalterVch]
+  Key: CW Alter On Enter, CW Alter on LDC
+			
+ [Key: CW Alter On Enter]
+			
+ Key	: Enter
+ Action	: Call	: CW Alter On Enter
+			
+ [Key: CW Alter on LDC]
+			
+ Key	: Left Double Click
+ Action	: Call		: CW Alter On Enter
+			
+ [Function: CW Alter On Enter]
+   VARIABLE : VCHID : STRING
+  00 : SET : VCHID : $$SPrintf:"ID:%s":$masterid ;;##VCHID2
+  000	: SET OBJECT 	: (Voucher, ##VchId).
+  0002 : alter : myvoucher
+
+ [report : myvoucher]
+  use : voucher
+  form : voucher	
+ OBJECT : VOUCHER : ##VCHID
+
+
+[line: LnpurchaseregisterTotals]
+use: Lnpurchaseregister
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local:field: fwf: set as:"Total" ;; "Supplier Name"
+local:field: NF: set as:"" ;; "Supplier GST No."
+local:field: snf: set as:"" ;; "No. of Invoice"
+local:field: AMTF: set as:$$total:amtf ;; "Taxable Amount"
+local:field: AMTF2: set as:$$total:amtf2  ;; "CGST Amount"
+local:field: AMTF3: set as:$$total:amtf3  ;; "ISGST Amount"
+local:field: AMTF4: set as:$$total:amtf4  ;; "SGST Amount"
+
+local:field: fwf: style:style4
+local:field: NF:style:style4
+local:field: SNF:style:style4
+local:field: AMTF:style:style4
+local:field: AMTF1:style:style4
+local:field: AMTF2:style:style4
+local:field: AMTF3:style:style4
+local:field: AMTF4:style:style4

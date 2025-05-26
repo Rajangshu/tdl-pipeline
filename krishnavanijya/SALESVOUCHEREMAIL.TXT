@@ -1,0 +1,82 @@
+; Created By: Khokan on 2023-06-16 18:04, ID: 
+
+[System : formula]
+SalesVoucherEmailDEmoMode : Yes  ;; yes to enable demo no to allow full access
+salesvoucheremaildemodate : '5/12/2021'
+salesvoucheremailedudate : '6/1/2021'
+
+SalesVoucherEmailDemoDt : if @@SalesVoucherEmailDEmoMode then if @@CWEdu then $date <= @@SalesVoucherEmailedudate else $date <= @@SalesVoucherEmaildemodate else yes
+SalesVoucherEmailMachDemoDate : if @@SalesVoucherEmailDEmoMode then if @@CWEdu then $$machinedate <= @@SalesVoucherEmailedudate else $$machinedate <= @@SalesVoucherEmaildemodate else yes
+SalesVoucherEmailSales : $$issales:$vouchertypename and @@SalesVoucherEmailDemoDt
+
+[System : Formula] ;; Demo Formula
+cwShowDemoForm: @@SalesVoucherEmailDEmoMode
+cwShowDemoDate: @@SalesVoucherEmaildemodate
+cwShowDemoDate2: @@SalesVoucherEmailedudate
+
+[system : udf]
+SalesVoucherEmailEnabled : logical : 119 ;; change this value.
+
+;--------------------------------------------- Company Config
+
+[#Form: Company Operations]
+                Switch   : SalesVoucherEmailLowerRel  : SalesVoucherEmailNotFor3.2  : ($$Number:$$ProdInfo:ProdReleaseAsStr) < 3.2
+                Switch   : SalesVoucherEmailCurrenRel : SalesVoucherEmailFor3.2     : ($$Number:$$ProdInfo:ProdReleaseAsStr) >= 3.2
+
+[!Form : SalesVoucherEmailNOTFor3.2]
+
+Local: Part : CMP AccFeat Left : Add : Line : At End : SalesVoucherEmailConfig,lnemailconfiga1
+
+[!Form : SalesVoucherEmailFor3.2]
+Local  : Part  : CMP TallyShopFeatures Left        : Add :  Line : At End  : SalesVoucherEmailConfig,lnemailconfiga1
+local : line : cwTestConfig : local : field : short name field : tool tip: "Double-Click for browsing to CircuitWorld.in"
+
+[#Part  : CMP TallyShopFeatures Left]
+ Add :  Line : At End  : SalesVoucherEmailConfig,lnemailconfiga1
+
+[Line : SalesVoucherEmailConfig]
+Field : SalesVoucherEmailConfigTitle,SalesVoucherEmailConfig
+right field : Short name field
+Local: Field: short name field : info: "sales@circuitworld.in"
+Local: Field: short name field: case : normal
+Local: Field: short name field: Color : blue
+;;Local: Field: short name field: border : thin bottom
+Local: Field: short name field: width : 0
+
+
+key  : cwSalesVoucherEmailBrowse
+
+[key : cwSalesVoucherEmailBrowse]
+key : left double click
+action : browse : "www.circuitworld.in"
+
+
+
+[Field: SalesVoucherEmailConfigTitle]
+Use : medium prompt
+info: "Enable SalesVoucherEmail?"
+width : 0
+
+[Field: SalesVoucherEmailConfig]
+Use: logical field
+Set As: $SalesVoucherEmailEnabled
+storage: SalesVoucherEmailEnabled
+
+
+[System: Formula]
+SalesVoucherEmailEnabled :  $SalesVoucherEmailEnabled:COMPANY:##SVCURRENTCOMPANY
+
+
+
+;---------------------------------------------
+
+
+; UDF
+[include : SalesVoucherEmailUDF.txt]
+
+; Master Changes
+;; {14.Feb.20 10:24} [include : sendemail.txt]
+[include : Emailset.txt]
+[include : voucheremail.txt]
+;; {15.Feb.20 14:44} [include : voucheremail2.txt]
+[include : Vouchertypeset.txt]

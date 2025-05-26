@@ -1,0 +1,177 @@
+; Created By: Khokan on 2022-11-07 17:15, ID: 
+
+
+
+[#line:ei consignee]
+;; {07.Dec.22 17:01} add:option:cwnewpurceionsigneeopt:@@KrishnavanijyaEnabled
+ [!line:cwnewpurceionsigneeopt]
+ 
+add:right field:sdf4
+Local: Field: sdf4: Set As:$REFERENCEDATE
+Local: Field: sdf4: storage:cwREFERENCEDATE
+local: field: sdf4 Invisible: yes
+
+[System: UDF]
+cwREFERENCEDATE:date:1583
+
+
+[System: Formula]
+
+cwSourceGodownpurc:$cwSourceGodownpurc:vouchertype:$vouchertypename
+cwTargetGodownpurc:$cwTargetGodownpurc:vouchertype:$vouchertypename
+
+ [#line:eiconsignee]
+ add:option:purceionsigneeopt:@@ispurchase and @@KrishnavanijyaEnabled and @@cwIsTradingvchtype
+ [!line:purceionsigneeopt]
+  field:sp1,nf
+
+ Local: Field: sp1: Set As:"Target Godown:"
+ Local: Field: nf: storage:cwTargetGodownpurc
+ Local: Field: nf: Set As:@@cwTargetGodownpurc
+ Local: field: sp1: Width:15
+
+
+
+[#Field: VCHBATCH Godown]
+add:option:cwVCHBATCHGodownopt:@@ispurchase and @@KrishnavanijyaEnabled and @@cwIsTradingvchtype
+[!field:cwVCHBATCHGodownopt]
+
+
+delete:Set by Condition
+add:Set by Condition:yes:if $$line=1 then @@cwSourceGodownpurc else $$value
+
+
+
+[#Part: VCHTitle2Right]
+add:option:cwVCHTitle2Rightopt:@@ispurchase and @@KrishnavanijyaEnabled and @@cwIsTradingvchtype
+[!part:cwVCHTitle2Rightopt]
+
+add:line:stockentrydtline
+
+[line:stockentrydtline]
+right field:sp2,sdf,newsdf1
+Local: Field: sp2: Set As:"Stock Entry Date"
+Local: Field: sdf: storage:cwStockEntryDate
+Local: field: sp2: Width:17
+Local: field: sdf: Width:15
+Local: field: sdf: Align:left
+
+on: focus : yes : call : cwUpdateDate
+
+[function: cwUpdateDate]
+;; {11.Nov.22 17:18} 10 : log : ##sdf1
+;; {11.Nov.22 17:18} 20 : log : $cwStockEntryDate
+
+;; {11.Nov.22 17:22} 30: if : $$isempty:##sdf1 or ##sdf1= ""
+40: set : sdf1 : $cwStockEntryDate
+;; {11.Nov.22 17:22} 50 : end if
+
+;; {11.Nov.22 17:58} 60 : log : ##sdf1
+
+
+
+
+[field:newsdf1]
+use : short date field
+ style : normal
+set always : no
+width : @@shortwidth - 1
+
+variable:sdf1
+Invisible: yes
+
+
+
+
+
+;;=============
+
+
+ [#Part: DBLLINE Narration]
+  add:option:newDBLLINENarrationX:@@ispurchase and @@KrishnavanijyaEnabled and @@cwIsTradingvchtype
+ [!part:newDBLLINENarrationX]
+
+ add:line:before:VCH NarrPrompt:claimaccountline,claimaccountline2,claimaccountline3,claimaccountline4
+
+ [line:claimaccountline]
+ field:sp,nf,sp2,amtf
+ Local: Field: sp: Set As:"Claim Account"
+ Local: Field: sp2: Set As:"Amount"
+ Local: Field: nf: storage:cwClaimAccount
+ Local: Field: amtf: storage:cwClaimAccountamt
+ Local: Field: amtf: Set As:$$value
+ 
+ Local: field: sp: Width:15
+ Local: field: sp2: Width:10
+ Local: field: nf: Width:30
+ Local: field: amtf: Align:left
+ 
+ Local: Field: sp: Style: small
+ Local: Field: sp2: Style: small
+ Local: Field: nf: Style: small Bold
+ Local: Field: amtf: Style: small Bold
+ 
+ 
+ [line:claimaccountline2]
+ field:sp,nf,sp2,amtf
+ Local: Field: sp: Set As:"Claim Account"
+ Local: Field: sp2: Set As:"Amount"
+ 
+ Local: Field: nf: storage:cwClaimAccount2
+ Local: Field: amtf: storage:cwClaimAccountamt2
+ Local: Field: amtf: Set As:$$value
+ 
+ Local: Field: sp: Style: small
+ Local: Field: sp2: Style: small
+ Local: Field: nf: Style: small Bold
+ Local: Field: amtf: Style: small Bold
+ 
+ Local: field: amtf: Align:left
+ 
+ Local: field: sp: Width:15
+ Local: field: sp2: Width:10
+ Local: field: nf: Width:30
+ 
+ [line:claimaccountline3]
+ field:sp,nf,sp2,amtf
+ Local: Field: sp: Set As:"Claim Account"
+ Local: Field: sp2: Set As:"Amount"
+
+ Local: Field: nf: storage:cwClaimAccount3
+ Local: Field: amtf: storage:cwClaimAccountamt3
+ Local: Field: amtf: Set As:$$value
+
+ Local: Field: sp: Style: small
+ Local: Field: sp2: Style: small
+ Local: Field: nf: Style: small Bold
+ Local: Field: amtf: Style: small Bold
+
+ Local: field: amtf: Align:left
+
+ Local: field: sp: Width:15
+ Local: field: sp2: Width:10
+ Local: field: nf: Width:30
+ 
+ [line:claimaccountline4]
+ field:sp,nf,sp2,amtf
+ Local: Field: sp: Set As:"Claim Account"
+ Local: Field: sp2: Set As:"Amount"
+
+ Local: Field: nf: storage:cwClaimAccount4
+ Local: Field: amtf: storage:cwClaimAccountamt4
+ Local: Field: amtf: Set As:$$value
+
+ Local: Field: sp: Style: small
+ Local: Field: sp2: Style: small
+ Local: Field: nf: Style: small Bold
+ Local: Field: amtf: Style: small Bold
+
+ Local: field: amtf: Align:left
+
+ Local: field: sp: Width:15
+ Local: field: sp2: Width:10
+ Local: field: nf: Width:30
+ 
+ ;;=======================================
+ 
+

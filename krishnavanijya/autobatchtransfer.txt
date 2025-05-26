@@ -1,0 +1,294 @@
+; Created By: Khokan on 2019-11-23 10:21, ID:
+
+; Created By: Khokan on 2019-03-19 16:03, ID:
+
+[#Field: STKALLOC NameTitle]
+Width:25
+[#Field: STKALLOC Name]
+Width:25
+
+;; {23.Nov.19 10:22} [#Menu: Inventory Info.]
+;; {23.Nov.19 10:22} delete:option:cwnewgatewayoftallyBarcode
+
+;; {23.Nov.19 10:22} [#menu:gate wayof tally]
+
+  /*
+[#Menu: Inventory Info.]
+add:option:newgatewayoftallynew
+
+[!menu:newgatewayoftallynew
+               */
+[#menu:gate wayof tally]
+add:button:cwfileitemnew
+
+[button:cwfileitemnew]
+key:alt+T
+TITLE:"Opening Batch Transfer"
+action:modify variable:BatchTransferrepnew
+
+
+
+[report:BatchTransferrepnew]
+form:BatchTransferrepnew
+
+
+[form:BatchTransferrepnew]
+part:BatchTransferrepxnew
+ HEIGHT:30% PAGE
+ WIDTH:40% PAGE
+ on : form accept : yes : call :BatchTransferfunnew:#nf:#nf2
+
+[part:BatchTransferrepxnew]
+line:sourcecompanyxnew,targetcompanynew
+
+[line:sourcecompanyxnew]
+field:sp,nf
+Local: Field: sp: Set As:"Source Company"
+Local: field: sp: Width:15
+Local: field: NF: Width:40
+Local: Field: nf: table:collSourceCompanynew
+Local: Field: nf: Show table: Always
+SPACE BOTTOM:0.5
+
+[Collection:collSourceCompanynew]
+use:listofcompanies
+
+[line:targetcompanynew]
+field:sp,nf2
+Local: Field: sp: Set As:"Target Company"
+Local: field: sp: Width:15
+Local: field: NF2: Width:40
+Local: Field: nf2: table:collSourceCompanynew
+Local: Field: nf2: Show table: Always
+
+
+[variable:myitem2new]
+
+variable: cwitembatchgodown : string
+variable: cwmyitem : string
+variable: cwmygodown : string
+variable: cwmybatch : string
+variable:cwmycwPKT:number
+variable:cwmycwBDL:number
+variable:cwmycwKGS:number
+variable:cwmycwSHEETS:number
+
+
+variable:MyActualQty : quantity
+variable:cwMyclQty : quantity
+variable:cwMyclaltQty : number
+
+[collection :  Collmyitemnew2]
+data source : variable : myitem2new
+
+format:$cwitembatchgodown,10
+format:$cwmyitem,10
+format:$cwmygodown ,10
+format:$cwmybatch,10
+
+format:$cwmycwPKT,10
+format:$cwmycwBDL2,10
+format:$cwmycwKGS,10
+format:$cwmycwSHEETS,10
+format:$cwmyqty,10
+format:$MyActualQty,10
+format:$cwMyclQty,10
+format:$cwMyclaltQty,10
+
+[system : variable]
+list variable :myitem2new
+
+[System: Formula]
+cwitemclqtyalt:($$String:$closingbalance:"NoSymbol,Secondary")
+;; {22.Aug.24 17:41} cwitemclqtyalt:($closingbalance:"NoSymbol,Secondary")
+
+[Function: BatchTransferfunnew]
+parameter:cwSourceCompany:string
+parameter:cwTargetCompany:string
+
+variable : myitem : string
+variable : mygodown : string
+variable : mybatch : string
+
+variable:mycwPKT:number
+variable:mycwBDL:number
+variable:mycwKGS:number
+variable:mycwSHEETS:number
+variable:MyclQty : quantity
+variable:MyclaltQty :number
+
+Variable : cwProgressCount : Number :1
+Variable : cwProgressCount2 : Number :1
+variable : BatchIndex : number
+variable : ctr : number : $$numitems:collstockitem  ; required for Progress Bar
+
+variable:itembatchgodown:string
+
+ListVariable:myitem2new
+
+
+ 02:Querybox:"Batch Transfer?":yes:no
+ 03:do if :not $$lastresult:continue
+
+10:set:SVCURRENTCOMPANY:##cwSourceCompany
+20:set:cwProgressCount:$$numitems:collstockitemnew
+
+30: LIST DELETE	:myitem2new
+
+40: start Progress : ##cwProgressCount:"Gathering Items":"":"Please Wait...."
+
+50:walk collection:collstockitemnew ;;collstockitem
+
+60:Show Progress: ##cwProgressCount2
+70:incr:cwProgressCount2
+
+80 : set : myitem : $stockitemname
+
+90:walk collection:collbatchnew2
+
+100: set : mygodown :$godownname
+110: set : mybatch :$name
+
+120:set:itembatchgodown:##myitem+##mygodown+##mybatch
+
+130:set:mycwPKT:$cwPKT
+140:set:mycwBDL:$cwBDL
+150:set:mycwKGS:$cwKGS
+160:set:mycwSHEETS:$cwSHEETS
+165:set:MyclQty:$closingbalance
+167:set:MyclaltQty:@@cwitemclqtyalt
+
+180 : list add : myitem2new : ##itembatchgodown
+;; {20.Mar.19 14:16} 003 : log object
+190:set : BatchIndex : $$listIndex:myitem2new:##itembatchgodown
+
+200 : set : myitem2new[##BatchIndex].cwitembatchgodown : ##itembatchgodown
+210 : set : myitem2new[##BatchIndex].cwmybatch : ##mybatch
+220 : set : myitem2new[##BatchIndex].cwmyitem : ##myitem	
+230 : set : myitem2new[##BatchIndex].cwmygodown : ##mygodown
+
+240 :set:myitem2new[##BatchIndex].cwmycwPKT:##mycwPKT
+250:set:myitem2new[##BatchIndex].cwmycwBDL:##mycwBDL
+260:set:myitem2new[##BatchIndex].cwmycwKGS:##mycwKGS
+270:set:myitem2new[##BatchIndex].cwmycwSHEETS:##mycwSHEETS
+275:set:myitem2new[##BatchIndex].cwMyclQty:##MyclQty
+277:set:myitem2new[##BatchIndex].cwMyclaltQty:##MyclaltQty
+
+;; {22.Aug.24 13:24} 280: set :myitem2new[##BatchIndex].MyActualQty  :  ##myitem2[##BatchIndex].MyActualQty +$actualqty
+280: set :myitem2new[##BatchIndex].MyActualQty  :  ##myitem2[##BatchIndex].MyActualQty +$closingbalance
+
+290 : end walk ;;29:
+300 : end walk
+
+310 : END Progress
+
+320: set: cwProgressCount : $$numitems:Collmyitemnew2
+330: start Progress : ##cwProgressCount:"Updadting Items" :"":"Please Wait...."
+340: set : cwProgressCount2 : 1
+
+350:set:SVCURRENTCOMPANY:##cwTargetCompany
+
+360: walk collection:Collmyitemnew2
+
+370 : set : mygodown :$cwmygodown ;; $godownname
+380 : set : mybatch :$cwmybatch;; $batchname
+385 : set : MyclQty :$cwMyclQty;; $batchname
+386 : set : MyclaltQty :$cwMyclaltQty;; $batchname
+
+
+390 :set:mycwPKT:$cwmycwPKT
+400:set:mycwBDL:$cwmycwBDL
+410:set:mycwKGS:$cwmycwKGS
+420:set:mycwSHEETS:$cwmycwSHEETS
+
+ ;;111111:log object  ;;terget
+
+;;500 : modifyobject: (stockitem,$cwmyitem).batchallocations[1,@@aFormula2].cwType[1].cwType :##cwtype,cwChasissno[1].cwChasissno:##mycwChasissno,cwEngineno[1].cwEngineno :##mycwEngineno,cwColorcode[1].cwColorcode :##mycwColorcode,cwMfgyear[1].cwMfgyear :##mycwMfgyear,cwkeyNo[1].cwkeyNo :##mycwkeyNo,cwFSCno[1].cwFSCno :##mycwFSCno,cwBatteryslno[1].cwBatteryslno :##mycwBatteryslno,cwBatterymake[1].cwBatterymake :##mycwBatterymake
+
+500 : modifyobject: (stockitem,$cwmyitem).cwopqtyalt[1].cwopqtyalt :##MyclaltQty
+
+;; {22.Aug.24 12:53} 20000 : call : cwItemBatchChange:$cwmyitem:##mybatch:##mygodown:##cwtype:##mycwChasissno:##mycwEngineno:##mycwColorcode:##mycwMfgyear:##mycwkeyNo:##mycwFSCno:##mycwBatteryslno:##mycwBatterymake
+
+
+600:Show Progress: ##cwProgressCount2
+620:incr:cwProgressCount2
+
+
+630 : end walk  ;; 188 : walk collection : Collmyitemnew
+
+650 : return
+
+
+[function : cwItemBatchChange]
+parameter : myitem: string ;;: ##mybatch:##mygodown:##cwtype:##mycwChasissno:##mycwEngineno
+parameter : mybatch: string
+parameter : mygodown: string
+parameter : cwtype: string
+parameter : mycwchasissno: string
+parameter : mycwengineno: string
+parameter : mycwColorcode: string
+parameter : mycwMfgyear: string
+parameter : mycwkeyNo: string
+parameter : mycwFSCno: string
+parameter : mycwBatteryslno: string
+parameter : mycwBatterymake: string
+
+
+object : stock item : ##myitem
+
+;;01 : log : ##myitem + " " + ##mybatch + " " + ##mygodown + " "  + ##mycwchasissno + " " + ##mycwengineno
+02 : set target
+;; {25.Nov.19 10:45} 03 : log: $name
+10 : walk : BATCHALLOCATIONS
+
+
+15 : if : $batchname = ##mybatch and $godownname = ##mygodown
+20 : set target : BATCHALLOCATIONS[$$loopindex]
+;; {25.Nov.19 10:45} 21 : log : $batchname + " " + $godownname
+25 : set value :  cwType : ##cwtype
+30 : set value :  cwChasissno : ##mycwchasissno
+;; {25.Nov.19 10:42} 35 : set value :  cwChasissno[1].cwChasissno : ##mycwchasissno
+40 : set value : cwEngineno : ##mycwengineno
+
+41:set value :cwColorcode:##mycwColorcode
+42:set value :cwMfgyear:##mycwMfgyear
+43:set value :cwkeyNo:##mycwkeyNo
+44:set value :cwFSCno:##mycwFSCno
+45:set value :cwBatteryslno:##mycwBatteryslno
+46:set value :cwBatterymake:##mycwBatterymake
+
+
+;; {25.Nov.19 12:04} 100 : log target
+200 :save target
+250 : return
+300 : endif
+1000: end walk
+
+
+
+[System: Formula]
+aFormula2 : $batchname = ##mybatch and $godownname=##mygodown
+
+[Collection: collstockitemnew]
+type:stockitem
+filter:itembatchfilternew
+fetch : batchallocations.*
+fetch : Name, Parent, ExpiryPeriod,openingbalance,ClosingBalance, GodownName, MfdOn, ClosingAsOnDate,cwtype,cwChasissno,cwEngineno,cwColorcode,cwMfgyear,cwkeyNo,cwFSCno,cwBatteryslno,cwBatterymake
+
+[System: Formula]
+itembatchfilternew:not $$isempty:$openingbalance
+itembatchfilter2new:not $$isempty:$openingbalance
+
+
+[Collection: collbatchnew2]
+use : Active Batches VchExtract
+;; {20.Mar.19 13:35} Type     : Batch
+;; {20.Mar.19 12:33} CHILD OF : $$LoopCollObj:$Name
+filter:itembatchfilter2new
+child of:##myitem
+
+Fetch: Name, Parent, ExpiryPeriod,openingbalance,ClosingBalance, GodownName, MfdOn, ClosingAsOnDate,cwtype,cwChasissno,cwEngineno,cwColorcode,cwMfgyear,cwkeyNo,cwFSCno,cwBatteryslno,cwBatterymake
+
+
+
+

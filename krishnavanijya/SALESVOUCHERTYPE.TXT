@@ -1,0 +1,597 @@
+; Created By: Khokan on 2022-10-11 16:44, ID: 
+
+[System: Formula]
+cwkvsalesVoucher:$$Issales:$parent or $$ispurchase:$parent or $$IsCreditNote:$parent OR $$IsDebitNote:$parent or $$IsDelNote:$parent
+cwsalesStartingNumber:$cwsalesStartingNumber:vouchertype:$vouchertypename
+
+;;========================================
+;; {15.Jun.23 16:32}  [#Part: VTYP Advance]
+ [#Part: VTYP Behaviour]
+ add:option:AdvancestatuschqVTYPBehaviouropt: @@KrishnavanijyaEnabled
+
+ [!part:AdvancestatuschqVTYPBehaviouropt]
+ ADD:line:cwSkipVoucherNo
+
+  [line:cwsalesStartingNumber]
+  field:long prompt,numf
+
+ Local: Field: long prompt: Set As:"Voucher Number:"
+ Local: Field: numf: storage:cwsalesStartingNumber
+ Local: Field: default: Style:small
+ Local: field: numf: Align:left
+ Local: Field: default: Style: Normal Bold
+
+;;========================================
+
+[#Part: VTYP Behaviour]
+
+ add:option:statuschqVTYPBehaviouropt:@@cwkvsalesVoucher and @@KrishnavanijyaEnabled
+
+ [!part:statuschqVTYPBehaviouropt]
+ line:cwsalesStartingNumber,cwinvprintingline2newKham,cwinvprintingline2newKham2,cwinvprintingSimple,cwinvprintingline2newKhamPacking
+
+
+ 
+ 
+ [line:cwSkipVoucherNo]
+  field:long prompt,cwlogical
+
+Local: Field: long prompt: Set As:"Skip Voucher Number:"
+Local: Field: cwlogical: storage:cwSkipVoucherNo
+ Local: Field: default: Style:small
+
+ Local: Field: default: Style: Normal Bold
+ 
+ 
+ ;;=================================
+
+  [#Part: VTYP Behaviour]
+
+  add:option:statuschqVTYPBehavioursalesopt:@@KrishnavanijyaEnabled
+
+ [!part:statuschqVTYPBehavioursalesopt]
+ line:cwEnableCustomizationline
+ 
+  [line:cwEnableCustomizationline]
+ field:long prompt,cwlogical
+
+
+ Local: Field: long prompt: info:"Enable Customization?"
+ Local: Field: cwlogical: storage:cwEnableCustomization
+
+ [System: Formula]
+
+ cwEnableCustomization:$cwEnableCustomization:vouchertype:$vouchertypename="yes"
+
+ 
+ ;;=================================
+ 
+ [line:cwinvprintingSimple]
+ field:long prompt,cwlogical
+
+
+ Local: Field: long prompt: info:"Printing Configuration (for Simple Printed )"
+
+ Local: field: long prompt : Width:34
+  Local: Field : cwlogical : SubForm :PrintingConfrepSimpleprint: $$value
+  
+  
+  [report:PrintingConfrepSimpleprint]
+  form:PrintingConfrepSimpleprint
+  
+  [form:PrintingConfrepSimpleprint]
+  part:PrintingConfrepSimpleprint
+  
+  width:25% page
+ height:50% page
+  
+  [part:PrintingConfrepSimpleprint]
+  line:PrintingConfrepSimpleprint
+  
+  [line:PrintingConfrepSimpleprint]
+  
+ field:sp,spaceLeftSimple
+ Local: Field: sp: Set As:"Sapce Left (Inches)"
+ Local: field: sp: Width:24
+ SPACE TOP:0.5
+
+ [Field:spaceLeftSimple]
+ Use : Number Field
+ Modifies:spaceLeftSimple
+;; {04.Nov.22 13:30}  set as:##spaceLeftSimple
+ storage:cwspaceLeftSimple
+
+[Variable : spaceLeftSimple]
+Persistent: Yes
+Type      : Number
+ 
+ ;;================================================================================================
+ 
+ [line:cwinvprintingline2newKham2]
+ field:long prompt,cwlogical
+
+
+ Local: Field: long prompt: info:"Printing Configuration (for Invoice)"
+
+ Local: field: long prompt : Width:34
+ Local: Field : cwlogical : SubForm :PrintingConfrep2Kham2: $$value
+
+
+ [report:PrintingConfrep2Kham2]
+ form:PrintingConfform2Kham2
+
+ [form:PrintingConfform2Kham2]
+ part:PrintingConfpart2Kham2
+ width:25% page
+ height:50% page
+
+ [part:PrintingConfpart2Kham2]
+ line:cwinvprintingline2xKham2, heightnewlineKham2,widthnewlineKham2,topnewlineKham2,titleline
+
+
+
+ [line:titleline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Title:"
+ Local: Field: nf: storage:cwtitle
+ 
+ [line:cwinvprintingline2xKham2]
+ field:fwfc
+
+ Local: Field: fwfc: info:"Printing Configuration"
+ Local: Field: fwfc: Border: thin bottom
+ Local: field: fwfc: Width:20
+ Local: Field: fwfc: Style: Normal Bold
+
+[line:heightnewlineKham2]
+field:sp,spaceHeightnewKham2
+Local: Field: sp: Set As:"Sapce Height (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceHeightnewKham2]
+Use : Number Field
+Modifies:spaceHeightnewKham2
+set as:##spaceHeightnewKham2
+storage:cwSapceHeight2
+
+
+[Variable: spaceHeightnewKham2]
+Persistent  : Yes
+Type        : Number
+
+;;=====================================================================================
+
+[line:widthnewlineKham2]
+field:sp,spacewidthnewKham2
+Local: Field: sp: Set As:"Sapce Width (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+
+[Field:spacewidthnewKham2]
+Use : Number Field
+Modifies:spacewidthnewKham2
+set as:##spacewidthnewKham2
+storage:cwSapceWidth2
+
+[Variable : spacewidthnewKham2]
+Persistent: Yes
+Type      : Number
+
+;;=================
+
+[line:LeftnewlineKham2]
+field:sp,spaceLeftnewKham2
+Local: Field: sp: Set As:"Sapce Left (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceLeftnewKham2]
+Use : Number Field
+Modifies:spaceLeftnewKham2
+set as:##spaceLeftnewKham2
+ storage:cwSapceLeft2
+
+[Variable : spaceLeftnewKham2]
+Persistent: Yes
+Type      : Number
+
+;;=====================
+
+[line:RightnewlineKham2]
+field:sp,spaceRightnewKham2
+Local: Field: sp: Set As:"Sapce Right (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceRightnewKham2]
+Use : Number Field
+Modifies:spaceRightnewKham2
+set as:##spaceRightnewKham2
+
+
+[Variable: spaceRightnewKham2]
+Persistent  : Yes
+Type        : Number
+
+
+
+;;========================
+
+[line:topnewlineKham2]
+field:sp,spacetopnewKham2
+Local: Field: sp: Set As:"Sapce Top (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spacetopnewKham2]
+Use : Number Field
+Modifies:spacetopnewKham2
+set as:##spacetopnewKham2
+
+  storage:cwSapceTop2
+  
+[Variable : spacetopnewKham2]
+Persistent: Yes
+Type      : Number
+
+
+
+;;=============================================================================
+
+
+[System: Variables]
+
+spaceHeightnewKham2:10
+spacewidthnewKham2:8.10
+spaceLeftnewKham2:0.50
+spaceRightnewKham2:0.50
+
+spacetopnewKham2:0.50
+
+
+ 
+;;==========================
+
+
+[line:cwinvprintingline2newKham]
+ field:long prompt,cwlogical
+
+
+ Local: Field: long prompt: info:"Printing Configuration (for Challan)"
+
+ Local: field: long prompt : Width:34
+ Local: Field : cwlogical : SubForm :PrintingConfrep2Kham: $$value
+;; {04.Nov.22 13:28}  Local: Field: long prompt: Color : blue
+;; {04.Nov.22 13:28}  Local: Field: cwlogical: Color : blue
+;; {04.Nov.22 13:28}  Local: Field: long prompt: Style: Normal Bold
+;; {04.Nov.22 13:28}  Local: Field: cwlogical: Style: Normal Bold
+
+
+
+
+ [report:PrintingConfrep2Kham]
+ form:PrintingConfform2Kham
+
+ [form:PrintingConfform2Kham]
+ part:PrintingConfpart2Kham
+ width:25% page
+ height:50% page
+
+ [part:PrintingConfpart2Kham]
+ line:cwinvprintingline2xKham, heightnewlineKham,widthnewlineKham,topnewlineKham,widthnewlineKhamh,titleline2   ;; ;,LeftnewlineKham,RightnewlineKham  ;;,topnewline2,spacebottomnew,SapceNetAmountPart,SapceGrossAmountPart,spacenettamtline2newtop,spacenettamtline2new  ;;,SapceNetAmountPart,SapceGrossAmountPart,spacenettamtline2newtop,spacenettamtline2new,spacegrossamtline2new
+
+
+  [line:titleline2]
+ field:sp,nf
+ Local: Field: sp: Set As:"Title:"
+ Local: Field: nf: storage:cwtitle2
+
+ [line:cwinvprintingline2xKham]
+ field:fwfc
+
+ Local: Field: fwfc: info:"Printing Configuration"
+ Local: Field: fwfc: Border: thin bottom
+ Local: field: fwfc: Width:20
+ Local: Field: fwfc: Style: Normal Bold
+
+[line:heightnewlineKham]
+field:sp,spaceHeightnewKham
+Local: Field: sp: Set As:"Sapce Height (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceHeightnewKham]
+Use : Number Field
+Modifies:spaceHeightnewKham
+set as:##spaceHeightnewKham
+storage:cwSapceHeight
+
+
+[Variable: spaceHeightnewKham]
+Persistent  : Yes
+Type        : Number
+
+;;=====================
+
+[line:widthnewlineKham]
+field:sp,spacewidthnewKham
+Local: Field: sp: Set As:"Sapce Width (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+
+[Field:spacewidthnewKham]
+Use : Number Field
+Modifies:spacewidthnewKham
+set as:##spacewidthnewKham
+storage:cwSapceWidth
+
+[Variable : spacewidthnewKham]
+Persistent: Yes
+Type      : Number
+
+[line:widthnewlineKhamh]
+field:sp,spacewidthnewKhamh
+Local: Field: sp: Set As:"Without Header Top Space"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+
+[Field:spacewidthnewKhamh]
+Use : Number Field
+Modifies:cwSapceTopSpace
+set as:##cwSapceTopSpace
+storage:cwSapceTopSpace
+
+[Variable : cwSapceTopSpace]
+Persistent: Yes
+Type      : Number
+
+;;=================
+
+[line:LeftnewlineKham]
+field:sp,spaceLeftnewKham
+Local: Field: sp: Set As:"Sapce Left (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceLeftnewKham]
+Use : Number Field
+Modifies:spaceLeftnewKham
+set as:##spaceLeftnewKham
+ storage:cwSapceLeft
+
+[Variable : spaceLeftnewKham]
+Persistent: Yes
+Type      : Number
+
+;;=====================
+
+[line:RightnewlineKham]
+field:sp,spaceRightnewKham
+Local: Field: sp: Set As:"Sapce Right (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceRightnewKham]
+Use : Number Field
+Modifies:spaceRightnewKham
+set as:##spaceRightnewKham
+
+
+[Variable: spaceRightnewKham]
+Persistent  : Yes
+Type        : Number
+
+
+
+;;===============================================================================
+
+[line:topnewlineKham]
+field:sp,spacetopnewKham
+Local: Field: sp: Set As:"Sapce Top (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spacetopnewKham]
+Use : Number Field
+Modifies:spacetopnewKham
+set as:##spacetopnewKham
+
+  storage:cwSapceTop
+[Variable : spacetopnewKham]
+Persistent: Yes
+Type      : Number
+
+
+
+;;=============================================================================
+
+
+[System: Variables]
+
+spaceHeightnewKham:10
+spacewidthnewKham:8.10
+spaceLeftnewKham:0.50
+spaceRightnewKham:0.50
+
+spacetopnewKham:0.50
+cwSapceTopSpace:0.50
+
+
+;;============================packing list=========================
+
+
+;;==========================
+
+
+[line:cwinvprintingline2newKhamPacking]
+ field:long prompt,cwlogical
+
+
+ Local: Field: long prompt: info:"Printing Configuration (for Packing List)"
+
+ Local: field: long prompt : Width:34
+ Local: Field : cwlogical : SubForm :PrintingConfrep2KhamPacking: $$value
+;; {04.Nov.22 13:28}  Local: Field: long prompt: Color : blue
+;; {04.Nov.22 13:28}  Local: Field: cwlogical: Color : blue
+;; {04.Nov.22 13:28}  Local: Field: long prompt: Style: Normal Bold
+;; {04.Nov.22 13:28}  Local: Field: cwlogical: Style: Normal Bold
+
+
+
+
+ [report:PrintingConfrep2KhamPacking]
+ form:PrintingConfform2KhamPacking
+
+ [form:PrintingConfform2KhamPacking]
+ part:PrintingConfpart2KhamPacking
+ width:25% page
+ height:50% page
+
+ [part:PrintingConfpart2KhamPacking]
+ line:cwinvprintingline2xKhamPacking, heightnewlineKhamPacking,widthnewlineKhamPacking,topnewlineKhamPacking,widthnewlineKhamhPacking,titleline2Packing   ;; ;,LeftnewlineKham,RightnewlineKham  ;;,topnewline2,spacebottomnew,SapceNetAmountPart,SapceGrossAmountPart,spacenettamtline2newtop,spacenettamtline2new  ;;,SapceNetAmountPart,SapceGrossAmountPart,spacenettamtline2newtop,spacenettamtline2new,spacegrossamtline2new
+
+
+  [line:titleline2Packing]
+ field:sp,nf
+ Local: Field: sp: Set As:"Title:"
+ Local: Field: nf: storage:cwtitle2Packing
+
+ [line:cwinvprintingline2xKhamPacking]
+ field:fwfc
+
+ Local: Field: fwfc: info:"Printing Configuration"
+ Local: Field: fwfc: Border: thin bottom
+ Local: field: fwfc: Width:20
+ Local: Field: fwfc: Style: Normal Bold
+
+[line:heightnewlineKhamPacking]
+field:sp,spaceHeightnewKhamPacking
+Local: Field: sp: Set As:"Sapce Height (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceHeightnewKhamPacking]
+Use : Number Field
+Modifies:spaceHeightnewKhamPacking
+set as:##spaceHeightnewKhamPacking
+storage:cwSapceHeightPacking
+
+
+[Variable: spaceHeightnewKhamPacking]
+Persistent  : Yes
+Type        : Number
+
+;;=====================
+
+[line:widthnewlineKhamPacking]
+field:sp,spacewidthnewKhamPacking
+Local: Field: sp: Set As:"Sapce Width (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+
+[Field:spacewidthnewKhamPacking]
+Use : Number Field
+Modifies:spacewidthnewKhamPacking
+set as:##spacewidthnewKhamPacking
+storage:cwSapceWidthPacking
+
+[Variable : spacewidthnewKhamPacking]
+Persistent: Yes
+Type      : Number
+
+[line:widthnewlineKhamhPacking]
+field:sp,spacewidthnewKhamhPacking
+Local: Field: sp: Set As:"Without Header Top Space"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+
+[Field:spacewidthnewKhamhPacking]
+Use : Number Field
+Modifies:cwSapceTopSpacePacking
+set as:##cwSapceTopSpacePacking
+storage:cwSapceTopSpacePacking
+
+[Variable : cwSapceTopSpacePacking]
+Persistent: Yes
+Type      : Number
+
+;;=================
+
+[line:LeftnewlineKhamPacking]
+field:sp,spaceLeftnewKhamPacking
+Local: Field: sp: Set As:"Sapce Left (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceLeftnewKhamPacking]
+Use : Number Field
+Modifies:spaceLeftnewKhamPacking
+set as:##spaceLeftnewKhamPacking
+ storage:cwSapceLeftPacking
+
+[Variable : spaceLeftnewKhamPacking]
+Persistent: Yes
+Type      : Number
+
+;;=====================
+
+[line:RightnewlineKhamPacking]
+field:sp,spaceRightnewKhamPacking
+Local: Field: sp: Set As:"Sapce Right (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceRightnewKhamPacking]
+Use : Number Field
+Modifies:spaceRightnewKhamPacking
+set as:##spaceRightnewKhamPacking
+
+
+[Variable: spaceRightnewKhamPacking]
+Persistent  : Yes
+Type        : Number
+
+
+
+;;===============================================================================
+
+[line:topnewlineKhamPacking]
+field:sp,spacetopnewKhamPacking
+Local: Field: sp: Set As:"Sapce Top (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spacetopnewKhamPacking]
+Use : Number Field
+Modifies:spacetopnewKhamPacking
+set as:##spacetopnewKhamPacking
+
+  storage:cwSapceTopPacking
+[Variable : spacetopnewKhamPacking]
+Persistent: Yes
+Type      : Number
+
+
+
+;;=============================================================================
+
+
+[System: Variables]
+
+spaceHeightnewKhamPacking:10
+spacewidthnewKhamPacking:8.10
+spaceLeftnewKhamPacking:0.50
+spaceRightnewKhamPacking:0.50
+
+spacetopnewKhamPacking:0.50
+cwSapceTopSpacePacking:0.50
+
+
+
+

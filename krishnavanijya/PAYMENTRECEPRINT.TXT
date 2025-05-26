@@ -1,0 +1,146 @@
+; Created By: Khokan on 2022-11-16 11:35, ID: 
+
+
+ [KEY : salrep3]
+ title:"Company Details"
+ KEY :alt+F9
+
+ TITLE :if ##logi2 then "Hide Company Details"  else " Show Company Details"
+;; {22.Nov.22 11:23}  TITLE :if ##logi2 then "Show Company Details"  else " Hide Company Details"
+ action :set : logi2:not ##logi2
+
+ [#Form: VCHPRN pymt]
+  add:option:vchprnpymtopt:@@KrishnavanijyaEnabled
+  
+  [#Form: VCHPRN rcpt]
+  add:option:vchprnpymtopt:@@KrishnavanijyaEnabled
+  
+  [#Form: VCHPRN jrnl]
+  add:option:vchprnpymtopt:@@KrishnavanijyaEnabled
+
+ [!form:vchprnpymtopt]
+ Add: BottomButton: At Beginning: salrep3
+;; {25.Jan.23 12:46}  Add: BottomButton: At Beginning: salrep2
+
+
+    [#Form:VCHPRN StkJrnl]
+    add:option:vchprnpymtopt:@@KrishnavanijyaEnabled
+
+
+
+ [#Form: NormalSJPrint]
+;; {16.Nov.22 14:16}   add:part:paymentvchpart
+ ;; SJN Title Main, SJN Details
+  
+  [#Part: SJN Title Main]
+;; {21.Dec.22 13:00}   add:option:vchSJNTitlepymtopt:##logi2 and @@KrishnavanijyaEnabled
+ [!part:vchSJNTitlepymtopt]
+ 
+ delete:Part	: SJN Title
+ add:Part	: before:SJN GdwnTr Title:paymentvchpart,paymentvchpart2
+ 
+ [Part: paymentvchpart2]
+ Lines       : DSP VoucherTime,PPR VchTitle, PPR VchSubTitle, PPR VchDate, PDCN Ref
+ 
+
+;;========================================================
+
+;;cwcmpGSTNNumber
+ 
+ [#Form: NormalJRPrint]
+
+
+;; {21.Dec.22 12:59}  add:option:NormalJRPrintopt:##logi2 and @@IsContra and @@KrishnavanijyaEnabled
+ [!form:NormalJRPrintopt]
+ 
+ delete:Part	:PPRTitle
+ add:Part	:at Beginning:paymentvchpart,PPRTitle
+ 
+ local:part:PPRTitle:delete:line:PPR CmpName
+ local:part:PPRTitle:delete:Repeat      : PPR CmpAddress : Company Address
+
+;;==============================================================================
+    
+  [#Line: PPR VchDate]
+   add:option:cwPPRVchDateopt:@@KrishnavanijyaEnabled
+  [!line:cwPPRVchDateopt]
+
+  Local: Field : PPR VchDate:width:13
+  
+ [#Line: PPR AcctTitles]
+ add:option:cwPPRAcctTitlesopt:@@KrishnavanijyaEnabled
+ [!line:cwPPRAcctTitlesopt]
+
+  Local: Field :NameTitleField:width:10
+ 
+ [#Line: VCHBILL ExplLine]
+ add:option:cwVCHBILLExplLineopt:@@KrishnavanijyaEnabled
+ [!line:cwVCHBILLExplLineopt]
+
+ Local: Field: VCHBILLType:width:10
+ 
+ [#Line: PPR ThruTitle]
+ add:option:cwPPRThruTitleopt:@@KrishnavanijyaEnabled
+ [!line:cwPPRThruTitleopt]
+
+ Local : Field : Name Title Field  :width:12
+ 
+ 
+ [#Line: PPR WordTitle]
+  add:option:cwPPRWordTitleopt:@@KrishnavanijyaEnabled
+ [!line:cwPPRWordTitleopt]
+ 
+ Local : Field : Name Title Field  :width:22
+ 
+ [#Line: PPR Sign]
+  add:option:cwPPRSignopt:@@KrishnavanijyaEnabled
+ [!line:cwPPRSignopt]
+ Local: Field : Simple Prompt  :width:22
+ Local: Field : Short Prompt  :width:22
+ 
+
+ [#Line: PJR Sign]
+  add:option:cwPJRSignopt:@@KrishnavanijyaEnabled
+ [!line:cwPJRSignopt]
+ 
+ Local : Field : Simple Field  :width:22
+
+ ;;===================================================================
+    
+ [#Part: PPR LogoTitle]
+;; {21.Dec.22 13:10}   add:option:vchprnLogoTitlepymtopt:##logi2 and @@KrishnavanijyaEnabled
+  add:option:vchprnLogoTitlepymtopt:@@KrishnavanijyaEnabled
+ [!part:vchprnLogoTitlepymtopt]
+ 
+ delete:Parts : PPR VchTime, PPR Company, PPR VchTitleDetails
+	
+ add:part:paymentvchpart,PPR VchTitleDetails	
+
+ Vertical : Yes
+	
+ [part:paymentvchpart]
+ part:ledvchparta,ledvchpartb,ledvchpartc
+
+ 
+ add:option:recpaychg4TopPartopt2opt:##logi2
+ 
+ [!part:recpaychg4TopPartopt2opt]
+  delete:part:ledvchparta,ledvchpartb,ledvchpartc,PPR VchTitleDetails
+  add:part:cwPPRVchTitleDetails
+
+ [Part :cwPPRVchTitleDetails]
+  Line : cwPPRVchTitle2
+
+  Space Top : 1.5 inch
+  
+  [Line : cwPPRVchTitle2]
+  field:snf
+  height:0.1
+  
+  [part:recpaypart]
+  line:recpaypart
+  
+  [line:recpaypart]
+  field:nf
+  
+

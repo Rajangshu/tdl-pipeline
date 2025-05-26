@@ -1,0 +1,1118 @@
+; Created By: Khokan on 2022-10-15 16:42, ID:
+; Created By: prakash on 2022-05-26 18:14, ID:
+
+
+;;tcp ==  Sawalka ,, saleszingexchange
+
+     [#menu: Gateway of Tally]
+    ;;    add: Option: cwSOExportLock ;; : @@cwSOExportDemoLock
+
+
+     [#menu : cw_Debug_menu]
+        add: Item: before: @@locQuit: @@cwSOExportReport: Display: RepcwSOExport
+
+
+
+     [!menu: cwSOExportLock]
+        add: Item: before: @@locQuit: @@cwSOExportReport: Display: RepcwSOExport
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   cwSOExportReport: "cwExportvch"
+;; cwSOExportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: RepcwSOExport]
+        use: Dsp Template
+      Title: @@cwSOExportReport
+   Printset: Report Title: @@cwSOExportReport
+       Form: FrmcwSOExport
+     Export: Yes
+;; {09.Nov.22 15:56}      set  : svfromdate : ##svcurrentdate
+;; {09.Nov.22 15:56}      set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+;; {07.Nov.22 15:37}      object : voucher : ##myvid
+     variable:str1,str2,str3,sdf1,sdf2
+;;     set:str3:"KV/00005/22-23"
+set:at beginning:set:str2:""
+;; {03.Feb.23 12:23} set:str2:"purchase"
+set:at beginning:set:str3:""
+set:at beginning:set:str1:""
+;;set:at beginning:sdf8:""     ;;1-4-2022
+;;set:at beginning:sdf9:""
+
+      [Form: FrmcwSOExport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0cwSOExport,PrtcwSOExport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: cwSOExportbotbrk,cwSOExportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+add: button : RepcwSOExportExpBtn
+
+ JSONTag: "data"
+
+[key : RepcwSOExportExpBtn]
+key : alt + J
+title:"JSON Export"
+action : $$RepcwSOExportExp
+
+      [part: cwSOExportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: cwSOExportbotopbrk]
+        use: dspacctitles
+  add: part: cwSOExportTitlePart
+
+      [part: cwSOExportTitlePart]
+       line: LncwSOExportTitle
+
+      [line: LncwSOExportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0cwSOExport]
+      line : LncwSOExportCurrPeriod
+
+      [Part: PrtcwSOExport]
+       Line: LncwSOExportTitle,LncwSOExport
+     repeat: LncwSOExport : ColcwSOExport
+   ;;set : 1
+     scroll:both ;; Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColcwSOExport]
+Use: Vouchers of Company
+delete: filter : daybookfilter
+
+Filter: ColSalesVchJSONExportFilter,ColSalesVchJSONExportFilter2,ColSalesVchnoFilter3,IsNonOptionalCancelledVchs
+fetch:address.address
+fetch:vouchernumber,date
+fetch:BASICBUYERADDRESS.BASICBUYERADDRESS
+fetch:CONSIGNEEGSTIN,cwMaker,VoucherTypename,PARTYGSTIN,STATENAME,CONSIGNEESTATENAME,PARTYPINCODE,BASICBUYERNAME,PARTYNAME,CONSIGNEEPINCODE,PLACEOFSUPPLY
+
+[system: Formula]
+ColSalesVchJSONExportFilter:$$issales:$vouchertypename or $$ispurchase:$vouchertypename
+;; {03.Feb.23 12:24} ColSalesVchJSONExportFilter2:if $$issysname:##str2 then yes else $vouchertypename =##str2
+ColSalesVchJSONExportFilter2:if $$issysname:##str2 then yes else @@ColSalesVchJSONExportFilter2x =##str2
+
+ColSalesVchJSONExportFilter2x:$parent:vouchertype:$vouchertypename
+
+ColSalesVchnoFilter3:if $$issysname:##str3 then yes else $vouchernumber =##str3
+
+     [Line: LncwSOExportTitle]
+        use: LncwSOExport
+     option: titleopt
+local:field: nf: set as: "vouchertype"
+local:field: nf1: set as: "invoiceno"
+local:field: sdf: set as: "invoicedate"
+local:field: nf2: set as: "referenceno"
+local:field: sdf2: set as: "referencedate"
+local:field: nf5: set as: "partyname"
+local:field: nf6: set as: "placeofsupply"
+local:field: nf7: set as: "address1"
+local:field: nf8: set as: "address2"
+local:field: nf9: set as: "address3"
+local:field: nf10: set as: "address4"
+local:field: nf11: set as: "country"
+local:field: nf12: set as: "state"
+local:field: nf13: set as: "pincode"
+local:field: nf14: set as: "contactperson"
+local:field: nf15: set as: "mobileno"
+local:field: nf16: set as: "emailid"
+local:field: nf17: set as: "panno"
+local:field: nf18: set as: "registrationtype"
+local:field: nf19: set as: "partygstno"
+local:field: numf1: set as: "partyamount"
+local:field: nf38: set as: "narration"
+local:field: nf41: set as: "drname"
+local:field: nf42: set as: "drcontactno"
+local:field: nf43: set as: "otdate"
+local:field: nf44: set as: "patientname"
+local:field: nf45: set as: "salesperson"
+local:field: nf46: set as: "assistantname"
+local:field: nf47: set as: "despatchdocno"
+local:field: nf48: set as: "despatchthrough"
+local:field: nf49: set as: "destination"
+local:field: snf5: set as: "hospitaldisctype"
+local:field: numf10: set as: "hospitaldiscper"
+local:field: numf11: set as: "hospitaldiscvalue"
+local:field: snf6: set as: "doctorcommissiontype"
+local:field: numf12: set as: "doctorcommissionper"
+local:field: numf13: set as: "doctorcommissionamt"
+local:field: numf14: set as: "commamount"
+local:field: snf7: set as: "thirdparty"
+local:field: numf15: set as: "thirdpartyexpense"
+local:field: snf8: set as: "ipnumber"
+
+local:field: nf21: set as: "linetype"
+local:field: nf22: set as: "lineno"
+local:field: nf23: set as: "saleorderno"
+local:field: nf24: set as: "deliverychallanno"
+local:field: nf25: set as: "itemname"
+local:field: nf26: set as: "itemdescripition"
+local:field: nf27: set as: "hsncode"
+local:field: numf: set as: "gstrate"
+local:field: nf28: set as: "uom"
+local:field: nf29: set as: "uom2"
+local:field: snf28: set as: "Altuom"
+local:field: numf2: set as: "qty"
+local:field: numf26: set as: "qty2"
+local:field: numf3: set as: "rate"
+local:field: numf4: set as: "amount"
+local:field: numf16: set as: "cgstamount"
+local:field: numf17: set as: "sgstamount"
+local:field: numf18: set as: "igstamount"
+local:field: nf30: set as: "ledgername"
+local:field: nf31: set as: "ledgerdrcr"
+
+local:field: nf32: set as: "godownname"
+local:field: nf33: set as: "batchname"
+local:field: numf5: set as: "quantity"
+local:field: numf27: set as: "quantity2"
+local:field: numf6: set as: "rate"
+local:field: nf34: set as: "uom"
+local:field: snf25: set as: "uom2"
+local:field: numf7: set as: "amount"
+local:field: sdf3: set as: "mfgdate"
+local:field: sdf4: set as: "expirydate"
+local:field: numf8: set as: "mrp"
+
+local:field: snf: set as: "linetype"
+local:field: nf35: set as: "lineno"
+local:field: numf9: set as: "amount"
+local:field: nf36: set as: "ledgername"
+local:field: nf37: set as: "ledgerdrcr"
+
+
+local:field: nf50: set as: "BuyerNAME"
+
+local:field: nf51: set as: "BuyerAddress1"
+local:field: nf52: set as: "BuyerAddress2"
+local:field: nf53: set as: "BuyerAddress3"
+local:field: nf54: set as: "BuyerPINCODE"
+local:field: nf55: set as: "BuyerState"
+local:field: nf56: set as: "BuyerGst"
+
+
+
+
+local:field: nf57: set as: "CONSIGNEENAME"
+local:field: nf58: set as: "CONSIGNEEAddress1"
+local:field: nf59: set as: "CONSIGNEEAddress2"
+local:field: nf60: set as: "CONSIGNEEAddress3"
+local:field: nf61: set as: "CONSIGNEEState"
+local:field: nf62: set as: "CONSIGNEEPINCODE"
+local:field: nf63: set as: "CONSIGNEEGst"
+local:field: nf64:set as:"PLACEOFSUPPLY"
+
+
+local:field: numf20:set as:"PKT"
+local:field: numf21:set as:"BDL"
+local:field: numf22:set as:"SHEETS"
+local:field: numf23:set as:"sheetnew1"
+local:field: numf24:set as:"sheetnew2"
+local:field: numf25:set as:"sheetnew3"
+
+
+local:field: snf20:set as:"remarks"
+
+local:field: snf21:set as:"Bundles"
+
+local:field: snf22: set as: "targetgodown"
+local:field: snf23: set as: "stockentryDate"
+local:field: snf24: set as: "isreelproduct"
+local:field: snf50: set as: "Maker"
+
+
+local: field: default : style: normal bold
+
+
+[System: Formula]
+ cwshortmfdvch : if not $$isempty:$date then @@cwshmfddaysvch +"-"+ @@CWSHmfdMONvch + "-"+ @@CWSHmfdYRvch else "" ;; +  else ""
+cwshmfdDaysvch : if @@cwshmfdDays1vch < 10 then "0" + $$string:@@cwshmfdDays1vch else $$string:@@cwshmfdDays1vch
+CWSHmfdMONvch  : if @@CWSHmfdMON1vch < 10 then "0"+$$string:@@CWSHmfdMON1vch else $$string:@@CWSHmfdMON1vch
+ CWSHmfdYRvch  : if @@CWSHmfdYR1vch < 10 then "0"+$$string:@@CWSHmfdYR1vch else $$string:@@CWSHmfdYR1vch
+
+cwshmfdDays1vch: $$DAYOFDATE:$date
+CWSHmfdMON1vch : $$MONTHOFDATE:$date
+ CWSHmfdYR1vch : $$YEAROFDATE:$date
+
+      [Line: LncwSOExport]
+
+  JSONTag: "sales"   ;;1
+     Fields:nf,nf1,sdf,nf2,sdf2,nf5,nf6,nf7,nf8,nf9,nf10,nf11,nf12,nf13,nf14,nf15,nf16,nf17,nf18,nf19,numf1,nf38 +
+     ,nf41,nf42,nf43,nf44,nf45,nf46,nf47,nf48,nf49,snf5,numf10,numf11,snf6,numf12,numf13,numf14,snf7,numf15,snf8 +
+     ,nf21,nf22,nf23,nf24,nf25,nf26,nf27,numf,nf28,snf28,numf2,numf26,numf3,numf4,numf16,numf17,numf18 +
+     ,nf30,nf31,nf32,nf33,numf5,numf27,numf6,nf34,snf25,numf7,sdf3,sdf4,numf8,snf,nf35,numf9,nf36,nf37,nf50,nf51,nf52,nf53,nf54,nf55,nf56,nf57,nf58,nf59,nf60,nf61,nf62,nf63,nf64+
+     ,numf20,numf21,numf22,numf23,numf24,numf25,snf20,snf21,snf22,snf23,snf24,snf50
+
+      /*
+     Fields:snfx,d1,nf,d2,nf1,d3,sdf,d4,nf2,d5,sdf2,d6,nf5,d7,nf6,d8,nf7,d9,nf8,d9,nf9,d10,nf10,d11,nf11,d12,nf12,d13,nf13,d14,nf14,d15,nf15,d16,nf16,d17,nf17,d18,nf18,d19,nf19,d20,numf1,d21,nf38,d22 +
+     ,nf41,d23,nf42,d24,nf43,d25,nf44,d26,nf45,d27,nf46,d28,nf47,d29,nf48,d30,nf49,d31,snf5,d32,numf10,d33,numf11,d34,snf6,d35,numf12,d36,numf13,d37,numf14,d38,snf7,d39,numf15,d40,snf8,d41 +
+     ,nf21,d42,nf22,d43,nf23,d44,nf24,d45,nf25,d46,nf26,d47,nf27,d48,numf,d49,nf28,d50,numf2,d51,numf3,d52,numf4,d53,numf16,d54,numf17,d55,numf18,d56 +
+     ,nf30,d57,nf31,d58,nf32,d59,nf33,d60,numf5,d61,numf6,d62,nf34,d63,numf7,d64,sdf3,d65,sdf4,d66,numf8,d67,snf,d68,nf35,d69,numf9,d70,nf36,d71,nf37,d72,nf50,d73,nf51,d74,nf52,d75,nf53,d76,nf54,d77,nf55,d78,nf56,d79,nf57,d80,nf58,d81,nf59,d82,nf60,d83,nf61,d84,nf62,d85,nf63,d86,nf64,d87+
+     ,numf20,d88,numf21,d89,numf22,d90,numf23,d91,numf24,d92,numf25,d93,snf20,d94,snf21,d95
+        */
+
+ Local: Field: nf40: Set As:$parent:vouchertype:$vouchertypename
+;; {19.Jan.22 10:41} right field: ratepf,Qtyf,Amtf
+;; {17.Oct.22 15:24}      Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+
+;; {19.Jan.22 20:05} Local: Field: amtf: Set As:$amount
+;; {19.Jan.22 20:05} Local: field: amtf: Json Tag: "DrCrAmt"
+;; {19.Jan.22 20:05} Local: field: amtf: Format: "Drcr"
+
+Local: Field:snfx: Set As:"1"
+   Local: Field: sdf5: Set As:$date
+
+ local:field: nf: set as:$vouchertypename ;;  "vouchertype"
+local:field: nf1: set as:$vouchernumber ;;  "invoiceno"
+local:field: sdf: set as:@@cwshortmfdvch  ;;$date ;;  "invoicedate"
+local: field: sdf: type: String
+local:field: nf2: set as:$Reference ;;  "referenceno"
+local:field: sdf2: set as:$ReferenceDate ;;  "referencedate"
+local:field: nf5: set as:$partyledgername ;;  "partyname"
+local:field: nf6: set as:$PlaceOfSupply ;;  "placeofsupply"
+local:field: nf7: set as:@@cwPartyAdd1 ;;  "address1"
+local:field: nf8: set as:@@cwPartyAdd2 ;;  "address2"
+local:field: nf9: set as:@@cwPartyAdd3 ;;  "address3"
+local:field: nf10: set as:@@cwPartyAdd4 ;;  "address4"
+local:field: nf11: set as:$CountryName:ledger:$partyledgername ;;  "country"
+local:field: nf12: set as:$LedStateName:ledger:$partyledgername ;;  "state"
+local:field: nf13: set as:$PinCode:ledger:$partyledgername ;;  "pincode"
+local:field: nf14: set as:$LedgerContact:ledger:$partyledgername ;;  "contactperson"
+local:field: nf15: set as:$LedgerMobile:ledger:$partyledgername ;;  "mobileno"
+local:field: nf16: set as:$EMAIL:ledger:$partyledgername ;;  "emailid"
+local:field: nf17: set as:$IncomeTaxNumber:ledger:$partyledgername ;;  "panno"
+local:field: nf18: set as:$GSTRegistrationType:ledger:$partyledgername ;;  "registrationtype"
+local:field: nf19: set as:$PartyGSTIN  ;;:ledger:$partyledgername ;;  "partygstno"
+local:field: numf1: set as:$amount ;;  "partyamount"
+local:field: nf38: set as:$narration ;;  "narration"
+local:field: nf41: set as:@@cwszdrname;;$$fulllist:DOCDETAILSAGG:$stoDocNAme ;; "drname"
+local:field: nf42: set as:$stoContactNo ;;"drcontactno"
+local:field: nf43: set as:$stoOTDate ;; "otdate"
+local:field: nf44: set as:$stoPatientName ;; "patientname"
+local:field: nf45: set as:$stoSalesPrsn ;; "salesperson"
+local:field: nf46: set as:@@cwszasstname;;$$fulllist:ASSISTANCERPTAGG:$stoAssistant  ;; "assistantname"
+local:field: nf47: set as:$BASICSHIPDOCUMENTNO ;; "despatchdocno"
+local:field: nf48: set as:$BASICFINALDESTINATION ;; "despatchthrough"
+local:field: nf49: set as:$BASICSHIPPEDBY ;; "destination"
+
+local:field: snf5: set as:$stoHospitldisc ;; "hospitaldisctype"
+local:field: numf10: set as:$stoHospitlCmsnPrcntge ;; "hospitaldiscper"
+local:field: numf11: set as:$stoHospitlCmsnPrcntgeAmt ;; "hospitaldiscvalue"
+local:field: snf6: set as:@@cwszdocdisctype;;$$CollectionField:$stoDocDiscType:First:DOCDETAILSAGG  ;; "doctorcommissiontype"
+local:field: numf12: set as:@@cwszstoledcomm;;$$CollectionField:$stoLedComsn:First:DOCDETAILSAGG ;; "doctorcommissionper"
+local:field: numf13: set as:@@cwszstoledcommper;;$$CollectionField:$stoComsnAmt:First:DOCDETAILSAGG ;; "doctorcommissionamt"
+local:field: numf14: set as:$stolastCmisnAmt ;; "commamount"
+local:field: snf7: set as:$stoThirdPartyName ;; "thirdparty"
+local:field: numf15: set as:$stoThirdPartyExpnse ;; "thirdpartyexpense"
+local:field: snf8: set as:$stoIPno ;; "ipnumber"
+
+local:field: nf50: set as: $PARTYNAME
+local:field: nf51: set as:$$CollectionField:$address:First:address ;; "Buyer Address-1"
+local:field: nf52: set as:$$CollectionField:$address:2:address ;; "Buyer Address-2"
+local:field: nf53: set as:$$CollectionField:$address:3:address  ;; "Buyer Address-3"
+local:field: nf54: set as:$PARTYPINCODE  ;; "Buyer State"
+
+local:field: nf55: set as:$STATENAME ;; "Buyer Gst"
+local:field: nf56: set as:$PARTYGSTIN ;; "Buyer Gst"
+
+local:field: nf57: set as:$BASICBUYERNAME ;; "Buyer Address-1"
+local:field: nf58: set as:$$CollectionField:$BASICBUYERADDRESS:First:BASICBUYERADDRESS ;; "Buyer Address-1"
+local:field: nf59: set as:$$CollectionField:$BASICBUYERADDRESS:2:BASICBUYERADDRESS ;; "Buyer Address-2"
+local:field: nf60: set as:$$CollectionField:$BASICBUYERADDRESS:3:BASICBUYERADDRESS  ;; "Buyer Address-3"
+
+local:field: nf61: set as:$CONSIGNEESTATENAME ;; "Buyer State"
+local:field: nf62: set as:$CONSIGNEEPINCODE ;; "PINCODE"
+local:field: nf63: set as:$CONSIGNEEGSTIN ;; "Buyer Gst"
+local:field: nf64: set as:$PLACEOFSUPPLY ;; "PLACEOFSUPPLY"
+ local:field: snf24: set as:$cwIsReelvchtmfg ;; "isreelproduct"
+ local:field: snf50: set as:$cwMaker ;; "cwMaker"
+
+
+
+local:field: nf21: set as: "";;  "linetype"
+local:field: nf22: set as:"" ;;  "lineno"
+local:field: nf23: set as: " " ;;  "saleorderno"
+local:field: nf24: set as: " " ;;  "deliverychallanno"
+local:field: nf25: set as:"" ;;  "itemname"
+local:field: nf26: set as: " " ;;  "itemdescripition"
+local:field: nf27: set as: " " ;;  "hsncode"
+local:field: numf: set as: " " ;;  "gstrate"
+local:field: nf28: set as:"" ;;  "uom"
+local:field: numf2: set as:"" ;;  "qty"
+local:field: numf3: set as:"" ;;  "rate"
+local:field: numf4: set as:"" ;;  "amount"
+local:field: numf16: set as:"" ;; "cgstamount"
+local:field: numf17: set as:"" ;; "sgstamount"
+local:field: numf18: set as:"" ;; "igstamount"
+local:field: nf30: set as: " " ;;  "ledgername"
+local:field: nf31: set as: " " ;;  "ledgerdrcr"
+local:field: nf32: set as: " " ;;  "godownname"
+local:field: nf33: set as: " " ;;  "batchname"
+local:field: numf5: set as: " " ;;  "quantity"
+local:field: numf6: set as: " " ;;  "rate"
+local:field: nf34: set as: " " ;;  "uom"
+local:field: numf7: set as: " " ;;  "amount"
+local:field: sdf3: set as: " " ;;  "mfgdate"
+local:field: sdf4: set as: " " ;;  "expirydate"
+local:field: numf8: set as: " " ;;  "mrp"
+local:field: snf: set as:"" ;; "linetype"
+local:field: nf35: set as: " " ;;  "lineno"
+local:field: numf9: set as: " " ;;  "amount"
+local:field: nf36: set as: " " ;;  "ledgername"
+local:field: nf37: set as: " " ;;  "ledgerdrcr"
+
+local:field: numf20:set as: " " ;; "PKT"
+local:field: numf21:set as: " " ;; "BDL"
+local:field: numf22:set as: " " ;; "SHEETS"
+local:field: numf23:set as: " " ;; sheetnew1"
+local:field: numf24:set as: " " ;; "sheetnew2"
+local:field: numf25:set as: " " ;; "sheetnew3"
+
+
+local:field: snf20:set as: " " ;; "remarks"
+
+local:field: snf21:set as: " " ;; "Bundles"
+
+local:field: snf22: set as:$cwTargetGodownpurc ;; "targetgodown"
+local:field: snf23: set as:@@CWStockEntrymovvch2 ;; "stockentryDate"
+
+local:field: snf22: json tag: "targetgodown"
+local:field: snf23: json tag: "stockentryDate"
+local:field: snf24: json tag:"isreelproduct"
+
+local:field: nf: json tag: "vouchertype"
+local:field: nf1: json tag: "invoiceno"
+local:field: sdf: json tag: "invoicedate"
+local:field: nf2: json tag: "referenceno"
+local:field: sdf2: json tag: "referencedate"
+local:field: nf5: json tag: "partyname"
+local:field: nf6: json tag: "placeofsupply"
+local:field: nf7: json tag: "address1"
+local:field: nf8: json tag: "address2"
+local:field: nf9: json tag: "address3"
+local:field: nf10: json tag: "address4"
+local:field: nf11: json tag: "country"
+local:field: nf12: json tag: "state"
+local:field: nf13: json tag: "pincode"
+local:field: nf14: json tag: "contactperson"
+local:field: nf15: json tag: "mobileno"
+local:field: nf16: json tag: "emailid"
+local:field: nf17: json tag: "panno"
+local:field: nf18: json tag: "registrationtype"
+local:field: nf19: json tag: "partygstno"
+local:field: numf1: json tag: "partyamount"
+local:field: nf38: json tag: "narration"
+local:field: nf41: json tag: "doctorname"
+local:field: nf42: json tag: "doctorcontactno"
+local:field: nf43: json tag: "otdate"
+local:field: nf44: json tag: "patientname"
+local:field: nf45: json tag: "salesperson"
+local:field: nf46: json tag: "assistantname"
+local:field: nf47:json tag: "despatchdocno"
+local:field: nf48: json tag: "despatchthrough"
+local:field: nf49:json tag: "destination"
+
+local:field: snf5: json tag: "hospitaldisctype"
+local:field: numf10: json tag: "hospitaldiscper"
+local:field: numf11: json tag: "hospitaldiscvalue"
+local:field: snf6: json tag: "doctorcommissiontype"
+local:field: numf12: json tag: "doctorcommissionper"
+local:field: numf13: json tag: "doctorcommissionamt"
+local:field: numf14: json tag: "commamount"
+local:field: snf7: json tag: "thirdparty"
+local:field: numf15: json tag: "thirdpartyexpense"
+local:field: snf8: json tag: "ipnumber"
+
+local:field: nf50: json tag: "BuyerNAME"
+local:field: nf51: json tag:"BuyerAddress1"
+local:field: nf52: json tag:"BuyerAddress2"
+local:field: nf53: json tag: "BuyerAddress3"
+local:field: nf54: json tag:"BuyerPinCode "
+
+local:field: nf55:json tag:"BuyerState"
+local:field: nf56: json tag:"BuyerGst"
+
+local:field: nf57:json tag:"CONSIGNEENAME"
+
+local:field: nf58: json tag:"CONSIGNEEAddress1"
+local:field: nf59:json tag:"CONSIGNEEAddress2"
+local:field: nf60: json tag:"CONSIGNEEAddress3"
+
+local:field: nf61: json tag:"CONSIGNEEPincode "
+local:field: nf62: json tag:"CONSIGNEEState"
+
+local:field: nf63: json tag:"CONSIGNEEGst"
+
+local:field: nf64:json tag:"PLACEOFSUPPLY"
+
+local:field: numf20:json tag:"PKT"
+local:field: numf21:json tag:"BDL"
+local:field: numf22:json tag:"SHEETS"
+local:field: numf23:json tag:"sheetnew1"
+local:field: numf24:json tag:"sheetnew2"
+local:field: numf25:json tag:"sheetnew3"
+ local:field: snf50: json tag:"Maker" ;; "cwMaker"
+
+
+
+local:field: snf20:json tag:"remarks"
+
+local:field: snf21:json tag:"Bundles"
+
+
+add:explode:cwSZEitmexplode : Yes
+add:explode:cwSZELedgerexplode : Yes
+
+;; {10.Nov.22 15:11} add:explode:cwSZEitmexplode
+;; {10.Nov.22 15:11} add:explode:cwSZELedgerexplode
+;; {10.Nov.22 15:11} add:explode:cwSZELedgerexplode999
+
+
+  ;;;Local: Field:snfx: Set As:"999"
+  
+;;local:field: nf:  width :100
+;;local:field: snf21: max :100
+
+
+
+
+
+ [collection: cwPartybuyer]
+  type : address : ledger
+  child of : $PARTYNAME
+
+   [collection: cwPartyconsignee]
+  type : BASICBUYERADDRESS : ledger
+
+  child of : $BASICBUYERNAME
+
+[System: Formula]
+cwGSTValueItemWise:$amount*@@cwItemgstrate/100
+
+[part:cwSZEitmexplode]
+line:cwSZEitmexplode
+repeat:cwSZEitmexplode:inventoryentries
+
+
+[part:cwSZELedgerexplode999]
+line:cwSZELedgerexplode999
+
+[line:cwSZELedgerexplode999]
+use:LncwSOExport
+delete:explode
+
+ Local: Field:snfx: Set As:"999"
+  local:field: nf: set as: " " ;;  "vouchertype"
+local:field: nf1: set as: " " ;;  "invoiceno"
+local:field: sdf: set as: " " ;;  "invoicedate"
+local:field: nf2: set as: " " ;;  "referenceno"
+local:field: sdf2: set as: " " ;;  "referencedate"
+local:field: nf5: set as: " " ;;  "partyname"
+local:field: nf6: set as: " " ;;  "placeofsupply"
+local:field: nf7: set as: " " ;;  "address1"
+local:field: nf8: set as: " " ;;  "address2"
+local:field: nf9: set as: " " ;;  "address3"
+local:field: nf10: set as: " " ;;  "address4"
+local:field: nf11: set as: " " ;;  "country"
+local:field: nf12: set as: " " ;;  "state"
+local:field: nf13: set as: " " ;;  "pincode"
+local:field: nf14: set as: " " ;;  "contactperson"
+local:field: nf15: set as: " " ;;  "mobileno"
+local:field: nf16: set as: " " ;;  "emailid"
+local:field: nf17: set as: " " ;;  "panno"
+local:field: nf18: set as: " " ;;  "registrationtype"
+local:field: nf19: set as: " " ;;  "partygstno"
+local:field: numf1: set as: " " ;;  "partyamount"
+local:field: nf38: set as: " " ;;  "narration"
+local:field: nf41: set as:"" ;; "drname"
+local:field: nf42: set as:"" ;;"drcontactno"
+local:field: nf43: set as:"" ;; "otdate"
+local:field: nf44: set as:"" ;; "patientname"
+local:field: nf45: set as:"" ;; "salesperson"
+local:field: nf46: set as:"" ;; "assistantname"
+local:field: nf47: set as:"" ;; "despatchdocno"
+local:field: nf48: set as:"" ;; "despatchthrough"
+local:field: nf49: set as:"" ;; "destination"
+
+local:field: snf5: set as: "" ;;hospitaldisctype"
+local:field: numf10: set as: "" ;;hospitaldiscper"
+local:field: numf11: set as: "" ;;hospitaldiscvalue"
+local:field: snf6: set as: "" ;;doctorcommissiontype"
+local:field: numf12: set as: "" ;;doctorcommissionper"
+local:field: numf13: set as: "" ;;doctorcommissionamt"
+local:field: numf14: set as: "" ;;commamount"
+local:field: snf7: set as: "" ;;thirdparty"
+local:field: numf15: set as: "" ;;thirdpartyexpense"
+local:field: snf8: set as: "" ;;ipnumber"
+
+local:field: nf50: set as:"" ;; "Buyer Address-1"
+local:field: nf51: set as:"" ;; "Buyer Address-2"
+local:field: nf52: set as:"" ;; "Buyer Address-3"
+local:field: nf53: set as:"" ;; "Buyer State"
+local:field: nf54: set as:"" ;; "Buyer Gst"
+
+local:field: nf55: set as:"" ;; "Buyer Address-1"
+local:field: nf56: set as:"" ;; "Buyer Address-2"
+local:field: nf57: set as:""  ;; "Buyer Address-3"
+local:field: nf58: set as:"";; "Buyer State"
+local:field: nf59: set as:"";; "Buyer Gst"
+local:field: nf60: set as:"";; "Buyer Gst"
+local:field: nf61: set as:"";; "Buyer Gst"
+local:field: nf62: set as:"";; "Buyer Gst"
+local:field: nf63: set as:"";; "Buyer Gst"
+local:field: nf64: set as:"";; "Buyer Gst"
+
+
+local:field: nf21: set as:""  ;;  "linetype"
+local:field: nf22: set as:"" ;;  "lineno"
+local:field: nf23: set as:""
+local:field: nf24: set as:""
+local:field: nf25: set as:""
+local:field: nf26: set as:""
+local:field: nf27: set as:""
+local:field: numf: set as:""
+local:field: nf28: set as:""
+local:field: numf2: set as:""
+local:field: numf26: set as:""
+local:field: numf3: set as:""
+local:field: numf4: set as:""
+
+local:field: numf16: set as:""
+local:field: numf17: set as:""
+local:field: numf18: set as:""
+local:field: nf30: set as:""
+local:field: nf31: set as:""
+local:field: nf32: set as: " " ;;  "godownname"
+local:field: nf33: set as: " " ;;  "batchname"
+local:field: numf5: set as: " " ;;  "quantity"
+local:field: numf6: set as: " " ;;  "rate"
+local:field: nf34: set as: " " ;;  "uom"
+local:field: numf7: set as: " " ;;  "amount"
+local:field: sdf3: set as: " " ;;  "mfgdate"
+local:field: sdf4: set as: " " ;;  "expirydate"
+local:field: numf8: set as: " " ;;  "mrp"
+local:field: snf: set as:"" ;; "linetype"
+local:field: nf35: set as:"" ;;  "lineno"
+local:field: numf9: set as: " " ;;  "amount"
+local:field: nf36: set as: " " ;;  "ledgername"
+local:field: nf37: set as: " " ;;  "ledgerdrcr"
+
+
+local:field: numf20:set as:""
+local:field: numf21:set as:""
+local:field: numf22:set as:""
+local:field: numf23:set as:""
+local:field: numf24:set as:""
+local:field: numf25:set as:"" ;;"sheetnew3"
+
+
+local:field: snf20:set as:""
+
+local:field: snf21:set as:"" ;;"Bundles"
+
+
+
+[line:cwSZEitmexplode]
+use:LncwSOExport
+delete:explode
+ jsontag:"itemallocation"   ;;2
+ Local: Field:snfx: Set As:"2"
+  local:field: nf: set as:""  ;;  "vouchertype"
+local:field: nf1: set as: " " ;;  "invoiceno"
+local:field: sdf: set as: " " ;;  "invoicedate"
+local:field: nf2: set as: " " ;;  "referenceno"
+local:field: sdf2: set as: " " ;;  "referencedate"
+local:field: nf5: set as: " " ;;  "partyname"
+local:field: nf6: set as: " " ;;  "placeofsupply"
+local:field: nf7: set as: " " ;;  "address1"
+local:field: nf8: set as: " " ;;  "address2"
+local:field: nf9: set as: " " ;;  "address3"
+local:field: nf10: set as: " " ;;  "address4"
+local:field: nf11: set as: " " ;;  "country"
+local:field: nf12: set as: " " ;;  "state"
+local:field: nf13: set as: " " ;;  "pincode"
+local:field: nf14: set as: " " ;;  "contactperson"
+local:field: nf15: set as: " " ;;  "mobileno"
+local:field: nf16: set as: " " ;;  "emailid"
+local:field: nf17: set as: " " ;;  "panno"
+local:field: nf18: set as: " " ;;  "registrationtype"
+local:field: nf19: set as: " " ;;  "partygstno"
+local:field: numf1: set as: " " ;;  "partyamount"
+local:field: nf38: set as: " " ;;  "narration"
+local:field: nf41: set as:"" ;; "drname"
+local:field: nf42: set as:"" ;;"drcontactno"
+local:field: nf43: set as:"" ;; "otdate"
+local:field: nf44: set as:"" ;; "patientname"
+local:field: nf45: set as:"" ;; "salesperson"
+local:field: nf46: set as:"" ;; "assistantname"
+local:field: nf47: set as:"" ;; "despatchdocno"
+local:field: nf48: set as:"" ;; "despatchthrough"
+local:field: nf49: set as:"" ;; "destination"
+
+local:field: snf5: set as: "" ;;hospitaldisctype"
+local:field: numf10: set as: "" ;;hospitaldiscper"
+local:field: numf11: set as: "" ;;hospitaldiscvalue"
+local:field: snf6: set as: "" ;;doctorcommissiontype"
+local:field: numf12: set as: "" ;;doctorcommissionper"
+local:field: numf13: set as: "" ;;doctorcommissionamt"
+local:field: numf14: set as: "" ;;commamount"
+local:field: snf7: set as: "" ;;thirdparty"
+local:field: numf15: set as: "" ;;thirdpartyexpense"
+local:field: snf8: set as: "" ;;ipnumber"
+
+local:field: nf50: set as:"" ;; "Buyer Address-1"
+local:field: nf51: set as:"" ;; "Buyer Address-2"
+local:field: nf52: set as:"" ;; "Buyer Address-3"
+local:field: nf53: set as:"" ;; "Buyer State"
+local:field: nf54: set as:"" ;; "Buyer Gst"
+
+local:field: nf55: set as:"" ;; "Buyer Address-1"
+local:field: nf56: set as:"" ;; "Buyer Address-2"
+local:field: nf57: set as:""  ;; "Buyer Address-3"
+local:field: nf58: set as:"";; "Buyer State"
+local:field: nf59: set as:"";; "Buyer Gst"
+local:field: nf60: set as:"";; "Buyer Gst"
+local:field: nf61: set as:"";; "Buyer Gst"
+local:field: nf62: set as:"";; "Buyer Gst"
+local:field: nf63: set as:"";; "Buyer Gst"
+local:field: nf64: set as:"";; "Buyer Gst"
+
+
+local:field: nf21: set as: "product"  ;;  "linetype"
+local:field: nf22: set as:$$linenumber-2 ;;  "lineno"
+local:field: nf23: set as:if $$issysname:$OrderNo then "" else $OrderNo ;;$BasicPurchaseOrderNo ;;  "saleorderno"
+local:field: nf24: set as:if $$issysname:$TRACKINGNUMBER then "" else $TRACKINGNUMBER ;;$BasicShipDeliveryNote ;;  "deliverychallanno"
+local:field: nf25: set as:$stockitemname ;;  "itemname"
+local:field: nf26: set as:$BasicUserDescription ;;  "itemdescripition"
+local:field: nf27: set as:@@cwitemHSNCode ;;  "hsncode"
+local:field: numf: set as:@@cwItemgstrate ;;  "gstrate"
+local:field: nf28: set as:$baseunits:stockitem:$stockitemname ;;  "uom"
+;; {03.Apr.23 12:41} local:field: snf28: setas :$$stringwordex:$rate:"/":2 ;;$AdditionalUnits:stockitem:$stockitemname ;;"Alt.uom"
+local:field: snf28: setas :$AdditionalUnits:stockitem:$stockitemname ;;"Alt.uom"
+local:field: numf2: set as:$billedqty ;;  "qty"
+local:field: numf26: set as:$billedqty ;;  "qty"
+local: field: numf26: type:quantity:Secondary units
+Local: field: numf26: Format: "nozero,nosymbol"
+local:field: numf3: set as:$rate ;;  "rate"
+local:field: numf4: set as:$amount ;;  "amount"
+
+local:field: numf16: set as:if  not $$isempty:@@cwVCHCGSTVALUE then  @@cwGSTValueItemWise/2 else "" ;; "cgstamount"
+local:field: numf17: set as:if  not $$isempty:@@cwVCHSGSTVALUE then @@cwGSTValueItemWise/2 else "";; "sgstamount"
+local:field: numf18: set as: if not $$isempty:@@cwVCHIGSTVALUE then  @@cwGSTValueItemWise else "" ;; "igstamount"
+local:field: nf30: set as:$ledgername ;;  "ledgername"
+local:field: nf31: set as:if $$isdr:$amount then "Dr" else "Cr" ;;  "ledgerdrcr"
+local:field: nf32: set as: " " ;;  "godownname"
+local:field: nf33: set as: " " ;;  "batchname"
+local:field: numf5: set as: " " ;;  "quantity"
+local:field: numf6: set as: " " ;;  "rate"
+local:field: nf34: set as: " " ;;  "uom"
+local:field: numf7: set as: " " ;;  "amount"
+local:field: sdf3: set as: " " ;;  "mfgdate"
+local:field: sdf4: set as: " " ;;  "expirydate"
+local:field: numf8: set as: " " ;;  "mrp"
+local:field: snf: set as:"" ;; "linetype"
+local:field: nf35: set as:"" ;;  "lineno"
+local:field: numf9: set as: " " ;;  "amount"
+local:field: nf36: set as: " " ;;  "ledgername"
+local:field: nf37: set as: " " ;;  "ledgerdrcr"
+
+
+local:field: numf20:set as:$cwPKT ;;"PKT"
+local:field: numf21:set as:$cwBDL ;;"BDL"
+local:field: numf22:set as:$cwSHEETS ;;"SHEETS"
+local:field: numf23:set as:$cwSheet ;;"sheetnew1"
+local:field: numf24:set as:$cwSheet:stockitem:$stockitemname  ;;"sheetnew2"
+local:field: numf25:set as:"" ;;"sheetnew3"
+
+
+local:field: snf20:set as:$cwremarks ;;"remarks"
+
+local:field: snf31: set as:$cwstockgrraw
+ local:field: snf32: set as:$cwOtherssj
+
+local:field: snf21:set as:"" ;;"Bundles"
+
+local:field: nf21: json tag: "linetype"
+local:field: nf22: json tag: "lineno"
+local:field: nf23: json tag: "saleorderno"
+local:field: nf24: json tag: "deliverychallanno"
+local:field: nf25: json tag: "itemname"
+local:field: nf26: json tag: "itemdescripition"
+local:field: nf27: json tag: "hsncode"
+local:field: numf: json tag: "gstrate"
+local:field: nf28: json tag: "uom"
+local:field: nf29: json tag: "uom2"
+local:field: snf28: json tag: "Altuom"
+local:field: numf2: json tag: "qty"
+local:field: numf26: json tag: "qty2"
+local:field: numf3: json tag: "rate"
+local:field: numf4: json tag: "amount"
+local:field: numf16: json tag:"cgstamount"
+local:field: numf17: json tag:"sgstamount"
+local:field: numf18: json tag:"igstamount"
+local:field: nf30: json tag: "ledgername"
+local:field: nf31: json tag: "ledgerdrcr"
+
+local:field: numf20:json tag:"PKT"
+local:field: numf21:json tag:"BDL"
+local:field: numf22:json tag:"SHEETS"
+local:field: numf23:json tag:"sheetnew1"
+local:field: numf24:json tag:"sheetnew2"
+local:field: numf25:json tag:"sheetnew3"
+
+
+local:field: snf20:json tag:"remarks"
+
+local:field: snf21:json tag:"Bundles"
+
+ ;;=====================================================
+ add:explode:cwSZEBatchAllocExplode : Yes
+
+[part:cwSZEBatchAllocExplode]
+line:cwSZEBatchAllocExplode
+repeat:cwSZEBatchAllocExplode:BatchAllocations
+
+
+[line:cwSZEBatchAllocExplode]
+use:LncwSOExport
+delete:explode
+ jsontag:"batchallocation"   ;;3
+ 
+ local:field: snf26: set as:$cwUOM
+ Local: Field:snfx: Set As:"3"
+  local:field: nf: set as: "" ;;  "vouchertype"
+local:field: nf1: set as: " " ;;  "invoiceno"
+local:field: sdf: set as: " " ;;  "invoicedate"
+local:field: nf2: set as: " " ;;  "referenceno"
+local:field: sdf2: set as: " " ;;  "referencedate"
+local:field: nf5: set as: " " ;;  "partyname"
+local:field: nf6: set as: " " ;;  "placeofsupply"
+local:field: nf7: set as: " " ;;  "address1"
+local:field: nf8: set as: " " ;;  "address2"
+local:field: nf9: set as: " " ;;  "address3"
+local:field: nf10: set as: " " ;;  "address4"
+local:field: nf11: set as: " " ;;  "country"
+local:field: nf12: set as: " " ;;  "state"
+local:field: nf13: set as: " " ;;  "pincode"
+local:field: nf14: set as: " " ;;  "contactperson"
+local:field: nf15: set as: " " ;;  "mobileno"
+local:field: nf16: set as: " " ;;  "emailid"
+local:field: nf17: set as: " " ;;  "panno"
+local:field: nf18: set as: " " ;;  "registrationtype"
+local:field: nf19: set as: " " ;;  "partygstno"
+local:field: numf1: set as: " " ;;  "partyamount"
+local:field: nf38: set as: " " ;;  "narration"
+local:field: nf41: set as:"" ;; "drname"
+local:field: nf42: set as:"" ;;"drcontactno"
+local:field: nf43: set as:"" ;; "otdate"
+local:field: nf44: set as:"" ;; "patientname"
+local:field: nf45: set as:"" ;; "salesperson"
+local:field: nf46: set as:"" ;; "assistantname"
+local:field: nf47: set as:"" ;; "despatchdocno"
+local:field: nf48: set as:"" ;; "despatchthrough"
+local:field: nf49: set as:"" ;; "destination"
+
+
+local:field: nf50: set as:"" ;; "Buyer Address-1"
+local:field: nf51: set as:"" ;; "Buyer Address-2"
+local:field: nf52: set as:"" ;; "Buyer Address-3"
+local:field: nf53: set as:"" ;; "Buyer State"
+local:field: nf54: set as:"" ;; "Buyer Gst"
+
+local:field: nf55: set as:"" ;; "Buyer Address-1"
+local:field: nf56: set as:"" ;; "Buyer Address-2"
+local:field: nf57: set as:""  ;; "Buyer Address-3"
+local:field: nf58: set as:"";; "Buyer State"
+local:field: nf59: set as:"";; "Buyer Gst"
+local:field: nf60: set as:"";; "Buyer Gst"
+local:field: nf61: set as:"";; "Buyer Gst"
+local:field: nf62: set as:"";; "Buyer Gst"
+local:field: nf63: set as:"";; "Buyer Gst"
+local:field: nf64: set as:"";; "Buyer Gst"
+
+
+local:field: snf5: set as: "" ;;hospitaldisctype"
+local:field: numf10: set as: "" ;;hospitaldiscper"
+local:field: numf11: set as: "" ;;hospitaldiscvalue"
+local:field: snf6: set as: "" ;;doctorcommissiontype"
+local:field: numf12: set as: "" ;;doctorcommissionper"
+local:field: numf13: set as: "" ;;doctorcommissionamt"
+local:field: numf14: set as: "" ;;commamount"
+local:field: snf7: set as: "" ;;thirdparty"
+local:field: numf15: set as: "" ;;thirdpartyexpense"
+local:field: snf8: set as: "" ;;ipnumber"
+
+local:field: nf21: set as: " " ;;  "linetype"
+local:field: nf22: set as: " " ;;  "lineno"
+local:field: nf23: set as: " " ;;  "saleorderno"
+local:field: nf24: set as: " " ;;  "deliverychallanno"
+local:field: nf25: set as: " " ;;  "itemname"
+local:field: nf26: set as: " " ;;  "itemdescripition"
+local:field: nf27: set as: " " ;;  "hsncode"
+local:field: numf: set as: " " ;;  "gstrate"
+local:field: nf28: set as: " " ;;  "uom"
+
+local:field: numf2: set as: " " ;;  "qty"
+local:field: numf26: set as:"" ;;  "qty"
+local:field: numf3: set as: " " ;;  "rate"
+local:field: numf4: set as: " " ;;  "amount"
+local:field: numf16: set as:"" ;; "cgstamount"
+local:field: numf17: set as:"" ;; "sgstamount"
+local:field: numf18: set as:"" ;; "igstamount"
+local:field: nf30: set as: " " ;;  "ledgername"
+local:field: nf31: set as: " " ;;  "ledgerdrcr"
+local:field: nf32: set as:$godownname ;;  "godownname"
+local:field: nf33: set as:$batchname ;;  "batchname"
+local:field: numf5: set as:$billedqty ;;  "quantity"
+local:field: numf27: set as:$cwQTY ;;  "quantity"
+local:field: numf6: set as:$rate ;;  "rate"
+local:field: nf34: set as:$baseunits:stockitem:$stockitemname ;;  "uom"
+local:field: snf25: set as:$cwUOM ;;  "uom"
+local:field: numf7: set as:$amount ;;  "amount"
+local:field: sdf3: set as:$MfdOn ;;  "mfgdate"
+local:field: sdf4: set as:$ExpiryPeriod ;;  "expirydate"
+local:field: numf8: set as:@@cwitemmrprate ;;  "mrp"
+
+local:field: snf  : set as:"" ;; "linetype"
+local:field: nf35 : set as:"" ;;  "lineno"
+local:field: numf9: set as:"" ;;  "amount"
+local:field: nf36 : set as:"" ;;  "ledgername"
+local:field: nf37 : set as:"" ;;  "ledgerdrcr"
+
+local:field: numf20:set as:$cwPKT ;;"PKT"
+local:field: numf21:set as:$cwBDL ;;"BDL"
+local:field: numf22:set as:$cwSHEETS ;;"SHEETS"
+local:field: numf23:set as:#numf22/#numf24  ;;"sheetnew1"
+local:field: numf24:set as:$cwSheet:stockitem:$stockitemname ;;"sheetnew2"
+local:field: numf25:set as:$cwSHEETS ;;"sheetnew3"
+
+
+local:field: snf20:set as:"" ;;"remarks"
+
+local:field: snf21:set as:$CWBundles ;;"Bundles"
+
+local:field: snf31: set as:$cwstockgrraw
+ local:field: snf32: set as:$cwOtherssj
+
+
+local:field: nf32: json tag: "godownname"
+local:field: nf33: json tag: "batchname"
+local:field: numf5: json tag: "quantity"
+local:field: numf27: json tag: "quantity2"
+local:field: numf6: json tag: "rate"
+local:field: nf34: json tag: "uom"
+local:field: nf35: json tag: "uom2"
+local:field: numf7: json tag: "amount"
+local:field: sdf3: json tag: "mfgdate"
+local:field: sdf4: json tag: "expirydate"
+local:field: numf8: json tag: "mrp"
+
+
+local:field: numf20:json tag:"PKT"
+local:field: numf21:json tag:"BDL"
+local:field: numf22:json tag:"SHEETS"
+local:field: numf23:json tag:"sheetnew1"
+local:field: numf24:json tag:"sheetnew2"
+local:field: numf25:json tag:"sheetnew3"
+
+
+local:field: snf20:json tag:"remarks"
+
+local:field: snf21:json tag:"Bundles"
+
+ ;;=====================================================
+
+ [part:cwSZELedgerexplode]
+line:cwSZELedgerexplode
+repeat:cwSZELedgerexplode:ledgerentries
+
+
+[line:cwSZELedgerexplode]
+use:LncwSOExport
+delete:explode
+jsontag:"ledgerallocation"    ;;4  999
+Local: Field:snfx: Set As:"4"
+ empty : $ledgername = $partyledgername or $$issysname:$ledgername or $$isempty:$amount
+ local:field: nf: set as: "" ;;  "vouchertype"
+local:field: nf1: set as: " " ;;  "invoiceno"
+local:field: sdf: set as: " " ;;  "invoicedate"
+local:field: nf2: set as: " " ;;  "referenceno"
+local:field: sdf2: set as: " " ;;  "referencedate"
+local:field: nf5: set as: " " ;;  "partyname"
+local:field: nf6: set as: " " ;;  "placeofsupply"
+local:field: nf7: set as: " " ;;  "address1"
+local:field: nf8: set as: " " ;;  "address2"
+local:field: nf9: set as: " " ;;  "address3"
+local:field: nf10: set as: " " ;;  "address4"
+local:field: nf11: set as: " " ;;  "country"
+local:field: nf12: set as: " " ;;  "state"
+local:field: nf13: set as: " " ;;  "pincode"
+local:field: nf14: set as: " " ;;  "contactperson"
+local:field: nf15: set as: " " ;;  "mobileno"
+local:field: nf16: set as: " " ;;  "emailid"
+local:field: nf17: set as: " " ;;  "panno"
+local:field: nf18: set as: " " ;;  "registrationtype"
+local:field: nf19: set as: " " ;;  "partygstno"
+local:field: numf1: set as: " " ;;  "partyamount"
+local:field: nf38: set as: " " ;;  "narration"
+local:field: nf41: set as:"" ;; "drname"
+local:field: nf42: set as:"" ;;"drcontactno"
+local:field: nf43: set as:"" ;; "otdate"
+local:field: nf44: set as:"" ;; "patientname"
+local:field: nf45: set as:"" ;; "salesperson"
+local:field: nf46: set as:"" ;; "assistantname"
+local:field: nf47: set as:"" ;; "despatchdocno"
+local:field: nf48: set as:"" ;; "despatchthrough"
+local:field: nf49: set as:"" ;; "destination"
+
+local:field: snf5: set as: "" ;;hospitaldisctype"
+local:field: numf10: set as: "" ;;hospitaldiscper"
+local:field: numf11: set as: "" ;;hospitaldiscvalue"
+local:field: snf6: set as: "" ;;doctorcommissiontype"
+local:field: numf12: set as: "" ;;doctorcommissionper"
+local:field: numf13: set as: "" ;;doctorcommissionamt"
+local:field: numf14: set as: "" ;;commamount"
+local:field: snf7: set as: "" ;;thirdparty"
+local:field: numf15: set as: "" ;;thirdpartyexpense"
+local:field: snf8: set as: "" ;;ipnumber"
+
+local:field: nf21: set as: " " ;;  "linetype"
+local:field: nf22: set as: " " ;;  "lineno"
+local:field: nf23: set as: " " ;;  "saleorderno"
+local:field: nf24: set as: " " ;;  "deliverychallanno"
+local:field: nf25: set as: " " ;;  "itemname"
+local:field: nf26: set as: " " ;;  "itemdescripition"
+local:field: nf27: set as: " " ;;  "hsncode"
+local:field: numf: set as: " " ;;  "gstrate"
+local:field: nf28: set as: " " ;;  "uom"
+local:field: numf2: set as: " " ;;  "qty"
+local:field: numf26: set as: " " ;;  "qty"
+local:field: numf3: set as: " " ;;  "rate"
+local:field: numf4: set as: " " ;;  "amount"
+local:field: numf16: set as:"" ;; "cgstamount"
+local:field: numf17: set as:"" ;; "sgstamount"
+local:field: numf18: set as:"" ;; "igstamount"
+local:field: nf30: set as: " " ;;  "ledgername"
+local:field: nf31: set as: " " ;;  "ledgerdrcr"
+local:field: nf32: set as: " " ;;  "godownname"
+local:field: nf33: set as: " " ;;  "batchname"
+local:field: numf5: set as: " " ;;  "quantity"
+local:field: numf6: set as: " " ;;  "rate"
+local:field: nf34: set as: " " ;;  "uom"
+local:field: numf7: set as: " " ;;  "amount"
+local:field: sdf3: set as: " " ;;  "mfgdate"
+local:field: sdf4: set as: " " ;;  "expirydate"
+local:field: numf8: set as: " " ;;  "mrp"
+
+
+local:field: nf50: set as:"" ;; "Buyer Address-1"
+local:field: nf51: set as:"" ;; "Buyer Address-2"
+local:field: nf52: set as:"" ;; "Buyer Address-3"
+local:field: nf53: set as:"" ;; "Buyer State"
+local:field: nf54: set as:"" ;; "Buyer Gst"
+
+local:field: nf55: set as:"" ;; "Buyer Address-1"
+local:field: nf56: set as:"" ;; "Buyer Address-2"
+local:field: nf57: set as:""  ;; "Buyer Address-3"
+local:field: nf58: set as:"";; "Buyer State"
+local:field: nf59: set as:"";; "Buyer Gst"
+local:field: nf60: set as:"";; "Buyer Gst"
+local:field: nf61: set as:"";; "Buyer Gst"
+local:field: nf62: set as:"";; "Buyer Gst"
+local:field: nf63: set as:"";; "Buyer Gst"
+local:field: nf64: set as:"";; "Buyer Gst"
+
+
+local:field: snf: set as:"Ledger" ;; "linetype"
+local:field: nf35: set as:($$linenumber-2)- ($$numitems:inventoryentries) ;;  "lineno"
+local:field: numf9: set as:$amount ;;  "amount"
+local:field: nf36: set as:$ledgername ;;  "ledgername"
+local:field: nf37: set as:if $$isdr:$amount then "Dr" else "Cr" ;;  "ledgerdrcr"
+
+local:field: snf: json tag: "linetype"
+local:field: nf35: json tag: "lineno"
+local:field:numf9: json tag: "amount"
+local:field: nf36: json tag: "ledgername"
+local:field: nf37: json tag: "ledgerdrcr"
+
+
+
+
+
+;;============================================================
+
+      [line: LnSalesVchJSONExportTotals]
+        use: LncwSOExport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+
+
+;------------------------------ JSON Export
+
+
+
+    [Report: RepcwSOExportExp]
+  ;  variable : svfromdate : date
+  ;  variable : svtodate   : date
+  use : dsp template
+  delete: form
+    add: form : RepcwSOExportExp
+
+    [form : RepcwSOExportExp]
+    part : RepcwSOExportExp
+
+    [part : RepcwSOExportExp]
+    line : RepcwSOExportExp
+    set : 1
+    repeat : RepcwSOExportExp
+
+    [line : RepcwSOExportExp]
+    field : nf
+    Local: Field: nf: Set As: $$RepcwSOExportExp
+
+    [function : RepcwSOExportExp]
+;; {09.Nov.22 18:36}     variable : svfromdate : date : @@dspFromDate
+;; {09.Nov.22 18:36}     variable : svtodate : date   : @@dspToDate
+    variable: myfilename : string : ##str1
+
+;; {09.Nov.22 18:37}     00x : log : ##svFromDate
+;; {09.Nov.22 18:37}     00y : log : ##svToDate
+    10 : do if : ##myfilename = "" : set : myfilename : "e:\RepcwSOExport.json"
+    20 : Set   :SVExportFormat  : $$SysName:UTF8JSON
+
+    30 : Set   :SVExportLanguage: $$SysName:UTF8JSON
+    40 : Set   :SVPrintFileName :##myfilename
+    50 : set: SVOpenFileAfterExport : no
+
+    60 : export : RepcwSOExport : yes : yes
+    70 : return : "Done"
+
+

@@ -1,0 +1,309 @@
+; Created By: Khokan on 2023-09-29 18:23, ID: 
+
+     [#menu: Gateway of Tally]
+      ;;  add: Option: salesreportmailLock ;; : @@salesreportmailDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@salesreportmailReport: Display: Repsalesreportmail
+
+
+
+     [!menu: salesreportmailLock]
+        add: Item: before: @@locQuit: @@salesreportmailReport: Display: Repsalesreportmail
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   salesreportmailReport: "E-Mail Voucher"
+;; salesreportmailDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Repsalesreportmail]
+        use: Dsp Template
+;; Use				: Range Value Template
+        Use				: Range  Template
+        
+      Title: @@salesreportmailReport
+   Printset: Report Title: @@salesreportmailReport
+       Form: Frmsalesreportmail
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable:logi1,str1
+    set:logi1:no
+    set:str1:""
+     
+      [Form: Frmsalesreportmail]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0salesreportmail,Prtsalesreportmail
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: salesreportmailbotbrk,salesreportmailbotOpbrk
+ delete:Bottom Toolbar Buttons 	:BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+add: Button:BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+  add:button:Save View,change view
+ ;;    local : button : report config : action :modify variable: salesreportmailConfigure
+        option : enable Range filters
+      add:button:sendmailslreg2,cwIncludePrinted,cwledgerfilterbotton
+      
+      
+      [button:cwIncludePrinted]
+
+ key  :CTRL+ f5
+ title:"Include Printed"
+
+
+ Action :SET:logi1:Not ##logi1
+      
+      
+      [part: salesreportmailbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: salesreportmailbotopbrk]
+        use: dspacctitles
+  add: part: salesreportmailTitlePart
+
+      [part: salesreportmailTitlePart]
+       line: LnsalesreportmailTitle
+       
+      [line: LnsalesreportmailCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0salesreportmail]
+      line : LnsalesreportmailCurrPeriod
+      
+      [Part: Prtsalesreportmail]
+       Line: LnsalesreportmailTitle,Lnsalesreportmail
+
+     repeat: Lnsalesreportmail: Colsalesreportmail
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: Colsalesreportmail]
+Type	: Vouchers : Vouchertype
+Child of : $$VchTypesales
+	
+Belongs To : Yes
+fetch:partyledgername,amount,cwsendmailyes
+
+compute:cwEWayBillno1:@@cwEWayBillno
+
+filter:ColsalesreportmailFilter,cwemaledgerfilter,cwsendmailyesFilter
+;;filter:cwemaledgerfilter,cwsendmailyesFilter
+
+OPTION:Colcwsendmailyes:##logi1
+
+[!Collection:Colcwsendmailyes]
+
+delete:filter:cwsendmailyesFilter
+
+[system: Formula]
+ColsalesreportmailFilter:not $$isempty:@@cwEWayBillno
+cwsendmailyesFilter:$cwsendmailyes=""
+
+ [System: Formula]
+cwemaledgerfilter:if $$issysname:##str1 then yes else $partyledgername =##str1
+
+
+[Line: LnsalesreportmailTitle]
+use: Lnsalesreportmail
+option: titleopt
+
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: snf: set as: "Vch No."
+local:field: fwf: set as: "Party Name"
+local:field: nf: set as: "E-Way Bill No"
+local:field: nf2: set as: "E-mail"
+local:field: amtf: set as: "Value"
+
+local: field: default : style: normal bold
+
+[Line: Lnsalesreportmail]
+Fields: sdf,snf,fwf
+right field:nf2,nf,Amtf
+
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+local : field : sdf : set as :$date
+local : field : snf : set as :$vouchernumber
+local : field : fwf : set as :$partyledgername
+local : field : nf : set as  :$cwEWayBillno1  ;;@@cwEWayBillno
+local : field : nf2 : set as  :$email:ledger:$partyledgername
+local : field : snf2 : set as  :$cwsendmailyes  ;;@@cwEWayBillno
+local : field : amtf : set as : $amount
+
+
+;;==============================================
+
+
+[button:sendmailslreg2]
+title:"Send Mail"
+key:ctrl+S
+;; {07.Oct.23 13:12} action :call:cwsentmailnew
+action :call:fuFullUpname
+Scope  : Selected lines
+
+
+[Function:fuFullUpname]
+
+VARIABLE:VID:STRING
+
+
+25 : walk collection : MSelectedledmail
+26 : log : $masterid
+30: SET	: VID	: $$SPrintf:@@VCHMasterID:$masterid
+
+
+60 :modify object : (Voucher,##VID).cwsendmailyes[1].cwsendmailyes:"yes"
+
+
+
+80 : end walk
+
+
+100 : QueryBox:"Send Mail ?":Yes:No;; on this line
+200 : do if : not $$lastresult : continue;; on this line
+
+230:call:cwsentmailnew:##VID
+
+;;===================================================
+
+
+[System: Formula]
+;;cwroysweta321:"roysweta321@gmail.com"
+
+[Function: cwsentmailnew]
+variable : myledgername : string
+                variable : myledgermailid : string
+                variable : SVMailServer : string
+                variable : SVMailServeradd : string
+                variable : SVMailFromAddress : string
+                variable : myledgermailcc : string
+                variable : SVMailAuthUserName : string
+                variable : SVMailAuthPasswd : string
+                variable : SVMailUseSsl : string
+                variable : SVMailUseSSLOnStdPort : string
+                variable : myledgercpname : string
+                variable : myledgergstno : string
+                variable : saleitem : string
+                variable : vchno : string
+                variable : vchdate : date
+                variable : companyname : string
+                variable : vouchertypename : string
+                variable : vchamt : amount
+                variable : mstid : string
+                variable : mysubject : string
+                variable : mybody : string
+                variable : myemail1 : string :@@cwroysweta321
+
+                VARIABLE:VID:STRING
+
+                01 : QueryBox:"Send Mail ?":Yes:No;; on this line
+                02 : do if : not $$lastresult : continue;; on this line
+
+                03 :walk collection :MSelectedledmail
+                
+
+              ;;   04:set : myemail1 :@@cwroysweta321
+                 
+                06 :set :myledgername:$partyledgername
+                06a :set :SVMailServer:@@cwemailserver
+                06a2 :set :SVMailServeradd:@@cwserveraddopt
+                06b :set :SVMailFromAddress:@@cwfromemailadd
+                07 :set :myledgermailid:$Email:ledger:##myledgername
+                09 :set :myledgermailcc:$EMailCC:ledger:##myledgername
+                09a :set :SVMailAuthUserName:@@cwauthusername
+                09b :set :SVMailAuthPasswd:@@cwauthuserpass
+                09c : set : SVMailUseSsl :$$GetUseSSLState:##SVMailServer
+                09d : set : SVMailUseSSLOnStdPort :$$GetUseSSLOnStdPortState:##SVMailServer
+                10 :set :myledgercpname:$LedgerContact:ledger:##myledgername
+                12 :set :myledgergstno:$PARTYGSTIN:ledger:##myledgername
+                13 :set :saleitem:$stockitemname
+                14 :set :vchno:$vouchernumber
+                15 :set :vchdate:$date
+                15a :set :companyname:##svcurrentcompany
+                15b :set :vouchertypename:$VoucherTypeName
+                16 :set :vchamt:$DaybookAmount
+                17 :set :mstid:$masterid
+                18 :set :mysubject:@@cmpmailname+" "+"Invoice No."+" "+##vchno ;;  $cwvchtypeenaemailsub:vouchertype:$VoucherTypeName
+                19 : set : mybody :$$cwReplace:$cwvchtypeenaemailbody:vouchertype:$VoucherTypeName;;@@mailbody
+
+;; {05.May.21 18:38}                 100:set :SVMailText :@@cwdesmailbodyval  ;;##mybody
+                100:set :SVMailText :##mybody
+;; {01.Nov.23 15:34}                 106 : set : SVExportFormat :$$SysName:"PDF (Read-only document)" ;; $$SysName:ANSIPDF ;;@@cwkvFileFormat  ;;
+                106 : set : SVExportFormat :$$SysName:ANSIPDF ;;@@cwkvFileFormat  ;;
+                107 : set : svMailAttachfileName :$$MakeExportName:@@cwkvFileFormat:##Svexportformat ;;ANSIPDF ;;@@cwkvFileFormat  ;;
+;; {01.Nov.23 15:51}                 106 : set : SVExportFormat :@@cwkvFileFormat  ;;
+	        110: SET: SVMailEmbedImage:no
+	        112:log:##SVExportFormat
+	        120 : set : mysubject: $$cwReplace:##mysubject
+;; {24.Feb.20 12:31} 	        121: log : ##mybody
+               ;;130:log:##myemail1
+               
+               160 : SET : SVPrintFileName : $$MakeMailName:##myledgermailid:##SVMailServeradd:##SVMailFromAddress:##myledgermailcc:##mysubject:##SVMailAuthUserName:##SVMailAuthPasswd:##SVMailUseSsl:##SVMailUseSSLOnStdPort   ;;:##myemail1
+
+;; {05.May.21 18:37}                160 : SET : SVPrintFileName : $$MakeMailName:##myledgermailid:##SVMailServeradd:##SVMailFromAddress:##myledgermailcc:@@mydespsubject:##SVMailAuthUserName:##SVMailAuthPasswd:##SVMailUseSsl:##SVMailUseSSLOnStdPort
+
+
+
+                2000  : call : cwMailItnew:##mstid;; on this line
+
+                 2100 :end walk
+                2500 : continue
+
+                
+;;================================================================================
+
+
+[button:cwledgerfilterbotton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:delivewledgerfiltryrep
+
+ [report:delivewledgerfiltryrep]
+ form:delivewledgerfiltryrep
+
+ [form:delivewledgerfiltryrep]
+ part:delivewledgerfiltryrep
+
+ HEIGHT:20% Screen
+ WIDTH:30% Screen
+
+ [part:delivewledgerfiltryrep]
+ line:titlelinex1,cwledreline
+
+ [line:titlelinex1]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: Normal Bold
+ space bottom:0.5
+
+ [line:cwledreline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Party Name"
+ Local: Field: nf:modifies:str1
+ space bottom:0.5
+ Local: field: sp: Width:12
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:cwcollemailPartyName,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+ 
+ [Collection: cwcollemailPartyName]
+ type:ledger
+ title:"List of Ledgers"
+
+
+
+;;=====================

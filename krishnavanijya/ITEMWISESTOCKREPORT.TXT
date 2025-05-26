@@ -1,0 +1,468 @@
+; Created By: Anil on 2023-02-10 13:12, ID: 
+
+;;CARTE LUMINA ITC 230 51X76 100 8.9 = Item Name
+
+     [#menu: Gateway of Tally]
+        add: Option: ItemwisestockreportLock ;; : @@ItemwisestockreportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ItemwisestockreportReport: Display collection:collRepstockitemrepnew
+
+
+
+     [!menu: ItemwisestockreportLock]
+        add: Item: before: @@locQuit: @@ItemwisestockreportReport: Display collection:collRepstockitemrepnew
+;; {11.Feb.23 16:53}         add: Item: before: @@locQuit: @@ItemwisestockreportReport: Display :RepItemwisestockreport
+        add: Item: before: @@locQuit: Blank
+        
+        
+[collection:collRepstockitemrepnew]
+Use: Extract Alias Collection
+Source Collection	:List of Stockitems
+Title       		: $$LocaleString:"List of Stock item"
+Collection  		: Primary
+Variable    		: SStockItem ;;Group Name
+Report      		:RepItemwisestockreport
+Trigger     		: SStockItem ;;GroupNamex
+Fetch				: Name, ReserveName, Parent
+        
+    [System: formula]
+   ItemwisestockreportReport: "Item Wise Stock Report"
+;; ItemwisestockreportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepItemwisestockreport]
+        use: Dsp Template
+      Title: @@ItemwisestockreportReport
+   Printset: Report Title: @@ItemwisestockreportReport
+       Form: FrmItemwisestockreport
+     Export: Yes
+   ;  set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    Variable: logi1,logi2,logi3,logi4,logi5,logi6
+          set: logi1:"yes"
+          set: logi2:"yes"
+          set: logi3:"yes"
+          set: logi4:"yes"
+          set: logi5:"yes"
+          set: logi6:"yes"
+     
+      [Form: FrmItemwisestockreport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0Itemwisestockreport,PrtItemwisestockreport
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: Itemwisestockreportbotbrk,ItemwisestockreportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+add:button:cwconfigurebotton
+      [part: ItemwisestockreportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: Itemwisestockreportbotopbrk]
+        use: dspacctitles
+  add: part: ItemwisestockreportTitlePart
+
+      [part: ItemwisestockreportTitlePart]
+       line: LnItemwisestockreportTitle
+       
+      [line: LnItemwisestockreportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  Local: Field: fwf: Set As: ##SStockItem
+  Local: Field: fwf2:invisible: $$inprintmode
+
+      [part: PrtTitle0Itemwisestockreport]
+      line : LnItemwisestockreportCurrPeriod
+      
+      [Part: PrtItemwisestockreport]
+       Line: LnItemwisestockreportTitle,LnItemwisestockreportTitle2,cwopeningline,LnItemwisestockreport
+;; {11.Feb.23 17:00}        Line: LnItemwisestockreportTitle,LnItemwisestockreportTitle2,LnItemwisestockreport
+bottom Line: LnItemwisestockreportTotals
+     repeat: LnItemwisestockreport: cwVouchersofStockItem ;;ColItemwisestockreport
+     scroll: both ;;Vertical
+ Common Border: YEs
+      Total: Qtyf,Qtyf1,Qtyf2,Qtyf3,Qtyf4,qtyf5,amtf,amtf2,amtf5
+
+
+[Collection: cwVouchersofStockItem]
+	Use 	    : Stock Voucher Template
+
+    Type        : Vouchers : Stock Item
+    Collection  : StockPendingTrack
+    Child of    : ##pvsStockItemName
+;; {13.Feb.23 11:09}     Filter      : InOutFilter, IsVCHGodownExist, IsVCHBatchExists, IsVchGodownBatchExist, IsBatchGodownVouchers
+	ParmVAR		: pvsStockItemName		: String	:##SStockItem ;; #StockItemName
+
+	;; The Below 3 computes are added to ensure that, appropriate Method Names and its Default values are available in the Collection definition before its been locally modified in Report definition
+	Compute		: TNetSAAuditStatus				: ""
+    Compute		: TNetSAAuditNote				: ""
+    Compute		: ManualSampling				: ""
+    
+;; {13.Feb.23 17:54}     Compute : ItemOPInActQty1 :  $$FilterQtyTotal:InventoryEntries:cwOwnOPItemInEntries:$StkOpBalance
+    
+    Compute : ItemInActQty1 :  $$FilterQtyTotal:InventoryEntries:cwOwnItemInEntries:$BILLEDQTY
+    Compute : ItemoutActQtyout :  $$FilterQtyTotal:InventoryEntries:cwOwnItemInEntriesout:$BILLEDQTY
+    
+    Compute :CWOwnGdwnItemInAmounts	: $$FilterAmtTotal:InventoryEntries:cwOwnItemAMTInEntries:$Amount ;;+
+    Compute :CWOwnGdwnItemOutAmounts	: $$FilterAmtTotal:InventoryEntries:cwOwnItemInEntriesout:$Amount  ;;+
+    Compute	: CWTBalStkClosing	: If (##IsItemBatchReport) Then @@CWBatchTBalStkClosing Else If  (##IsItemBatchGdwnReport) Then @@CWBatchGdwnTBalStkClosing Else $$AsSignedQty:$$ToValue:$Date:$TPG_TBalClosing:StockItem:#StockItemName
+;; {13.Feb.23 17:28}     compute : StkOpBalance1 :$StkOpBalance	
+
+    Sort        : @@Default                     : $IsPndgTrackLine, $Date    ;;;, $SortPosition
+    Sort        : @@SortAlphaIncr               : @@FirstContraName, $Date
+    Sort        : @@SortAlphaDecr               : -@@FirstContraName, $Date
+;;  Sort        : @@QtyWiseIncr                 : $$Abs:@@TotalItemVchQty, $Date
+;;  Sort        : @@QtyWiseDecr                 : -$$Abs:@@TotalItemVchQty, $Date
+  fetch:ReferenceDate,cwStockEntryDate,reference,PhysInDiff,StkOpBalance ;;,ClosingValue
+
+
+
+
+ [system: Formula]
+Colstockregister2Filternew5:##SStockItem=$stockitemname ;;$partyledgername
+;; {13.Feb.23 17:54} cwOwnOPItemInEntries    : $StockItemName = ##SStockItem AND $$IsInwards:$StkOpBalance
+cwOwnItemInEntries    : $StockItemName = ##SStockItem AND $$IsInwards:$BILLEDQTY
+cwOwnItemInEntriesout    : $StockItemName = ##SStockItem AND not $$IsInwards:$BILLEDQTY
+
+;; {13.Feb.23 14:04} cwOwnItemCLInEntries    : $StockItemName = ##SStockItem AND $$IsInwards:$CLOSINGBalance
+;; {13.Feb.23 14:04} cwOwnItemCLInEntriesout    : $StockItemName = ##SStockItem AND not $$IsInwards:$CLOSINGBalance
+
+cwOwnItemAMTInEntries    :($StockItemName = ##SStockItem) AND NOT $$IsEmpty:$$IfDr:$Amount
+cwOwnItemAMTInEntriesOUT    :($StockItemName = ##SStockItem) AND NOT $$IsEmpty:$$IfCr:$Amount
+
+cwFinalPrevTot	: $$PrevLineField
+
+[System: Formula]
+cwNettInOutTotal				: If ($$IsEmpty:#qtyf AND NOT $$IsEmpty:#qtyf2) Then #qtyf2 Else +
+								  If (NOT $$IsEmpty:#qtyf AND $$IsEmpty:#qtyf2) Then #qtyf Else +
+								  $$NettQty:#qtyf:#qtyf2
+								  
+cwNettamtInOutTotal				: If (##IsItemBatchReport) Then $$AsDrAmt:@@cwStkBatchClValue Else +
+						  If (##IsItemBatchGdwnReport) Then $$AsDrAmt:@@cwStkGdwnBatchClValue Else $$AsDrAmt:@cwClValue
+
+[System: Formula]
+cwStkBatchItemOpeningValue  	: $$ReportObject:$$CollectionFieldByKey:$OpeningValue:@@cwStkSearchitemBatch:StkVchStockOPBal
+cwVchClAsPerValue  		    : If $$IsVoucher OR $IsPndgTrackLine Then $TBalStkClosing Else $$AsSignedQty:@@cwStkBatchItemOpeningValue
+cwStkSearchitemBatch			: ##StockItemName + ##DSPBatchName
+
+cwStkBatchClValue :If ##UseNormalValuation Then @@cwVchClAsPerValue Else $$NettAmount:@@cwFinalPrevTot:@@cwFinalPrevTotAmt
+
+cwStkGdwnBatchClValue  		: If ##UseNormalValuation Then @@cwVchGdwnBatchClAsPerValue Else  $$NettAmount:@@cwFinalPrevTot:@@cwFinalPrevTotAmt
+cwClValue			: If ##UseNormalValuation Then @cwAsPerValue Else $$NettAmount:@cwFinalPrevTot:@cwFinalPrevTotAmt
+cwAsPerValue		: If $$IsVoucher OR $IsPndgTrackLine Then $TBalStkClosing Else $$AsSignedQty:$OpeningValue:StockItem:#StockItemName
+cwFinalPrevTot	: $$PrevLineField
+
+cwFinalPrevTotAmt	: If ($$IsEmpty:#DSPVchInAmt AND NOT $$IsEmpty:#DSPVchNettOutAmt) Then #DSPVchNettOutAmt Else +
+						  If (NOT $$IsEmpty:#DSPVchInAmt AND $$IsEmpty:#DSPVchNettOutAmt) Then #DSPVchInAmt Else +
+						  $$NettAmount:@cwInValue:@cwOutValue
+cwInValue         : $$NettAmount:#DSPVchInAmt
+cwOutValue        : $$NettAmount:#DSPVchNettOutAmt
+
+cwVchGdwnBatchClAsPerValue  	: If $$IsVoucher OR $IsPndgTrackLine Then $TBalStkClosing Else $$AsSignedQty:@@cwStkGdwnBatchItemOpeningValue
+;; {16.Feb.23 12:28} cwGdwnBatchItemOpeningValue: $$ReportObject:$$CollectionFieldByKey:$OpeningValue:@@StkSearchitemGdwnBatch:StkVchGdwnBatchOPBal
+cwStkSearchitemGdwnBatch		: ##StockItemName + ##DSPBatchName + ##DSPGodownName
+cwStkGdwnBatchItemOpeningValue: $$ReportObject:$$CollectionFieldByKey:$OpeningValue:@@cwStkSearchitemGdwnBatch:StkVchGdwnBatchOPBal
+                          	
+      [Line: LnItemwisestockreportTitle]
+        use: LnItemwisestockreport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+;; {10.Feb.23 13:34} local:field: nf: set as: "Name"
+local:field: fwf: set as: "Particulars"
+local:field: snf: set as: "Vch Type"
+local:field: snf1: set as: "Vch No"
+local:field: snf2: set as: "Sup Inv No"
+local:field: sdf2: set as: "Sup Inv Date"
+;; {10.Feb.23 15:46} local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Amt"
+local:field: ratepf : set as : ""
+local:field: ratepf2 : set as : ""
+local:field: ratepf3 : set as : ""
+Local: Field: amtf: Set As:""
+Local: Field: qtyf: Set As:""
+Local: Field: qtyf1: Set As:""
+Local: Field: cwinwordfld: Set As:"Inword"
+local : field : cwinwordfld : delete : field
+Local: field:cwinwordfld : Align: centre
+
+Local: Field: amtf2: Set As:""
+Local: Field: qtyf2: Set As:" "
+Local: Field: qtyf3: Set As:" "
+Local: Field: cwoutwordfld: Set As:"Outword"
+local : field : cwoutwordfld : delete : field
+Local: field:cwoutwordfld : Align: centre
+
+Local: Field: qtyf4: Set As:""
+Local: Field: amtf5: Set As:""
+Local: Field: qtyf5: Set As:" "
+Local: Field: cwclosingfld: Set As:"Closing Balance"
+local : field : cwclosingfld : delete : field
+Local: field:cwclosingfld : Align: centre
+      local: field: default : style: normal bold
+      
+[line:LnItemwisestockreportTitle2]
+ use: LnItemwisestockreport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "" ;;"Date"
+;; {10.Feb.23 13:34} local:field: nf: set as: "Name"
+local:field: fwf: set as: "" ;;"Particulars"
+local:field: snf: set as: ""
+local:field: snf1: set as: ""
+local:field: snf2: set as: "" ;;"Sup Inv No"
+local:field: sdf2: set as: "" ;;"Sup Inv Date"
+;; {10.Feb.23 15:46} local:field: qtyf: set as: "" ;;"Qty."
+local:field: amtf: set as: "" ;;"Value"
+local:field: ratepf : set as :"Rate"
+local:field: ratepf2 : set as :"Rate"
+local:field: ratepf3 : set as :"Rate"
+Local: Field: amtf: Set As:"Amt"
+Local: Field: qtyf: Set As:"Qty-KGS "
+Local: Field: qtyf1: Set As:"Qty-PKT "
+Local: Field: cwinwordfld: Set As:"Inword"
+;; {10.Feb.23 15:57} local : field : cwinwordfld : delete : field
+Local: Field: amtf2: Set As:"Amt"
+Local: Field: qtyf2: Set As:"Qty-KGS "
+Local: Field: qtyf3: Set As:"Qty-PKT "
+Local: Field: cwoutwordfld: Set As:"Outword"
+
+Local: Field: amtf5: Set As:"Amt"
+Local: Field: qtyf4: Set As:"Qty-KGS "
+Local: Field: qtyf5: Set As:"Qty-PKT "
+Local: Field: cwclosingfld: Set As:"Closing Balance"
+      local: field: default : style: normal bold
+      
+
+[field:cwinwordfld]
+  field:qtyf,qtyf1,ratepf,amtf
+;; {14.Feb.23 15:53}   field:qtyf5,qtyf1,ratepf,amtf
+  width:30
+;; {13.Feb.23 12:20}   Local: Field: qtyf1: Set As:"QTY-PKT"
+local: field:qtyf : Invisible:not ##logi1
+;; {14.Feb.23 15:53} local: field:qtyf5 : Invisible:not ##logi1
+local: field:qtyf1 : Invisible:not ##logi2
+local: field:ratepf : Invisible:not ##logi3
+local: field:amtf : Invisible:not ##logi4
+  
+[field:cwoutwordfld]
+  field:qtyf2,qtyf3,ratepf2,amtf2
+  width:30
+  local: field:qtyf2 : Invisible:not ##logi1
+  local: field:qtyf3 : Invisible:not ##logi2
+  local: field:ratepf2 : Invisible:not ##logi3
+  local: field:amtf2 : Invisible:not ##logi4
+  
+[field:cwclosingfld]
+  field:qtyf4,qtyf5,ratepf3,amtf5
+  width:30
+  local: field:qtyf4 : Invisible:not ##logi1
+  local: field:qtyf5 : Invisible:not ##logi2
+  local: field:ratepf3 : Invisible:not ##logi3
+  local: field:amtf5 : Invisible:not ##logi4
+
+      [Line: LnItemwisestockreport]
+     Fields: snf20,sdf,fwf,snf,snf1,snf2,sdf2
+right fields: cwinwordfld,cwoutwordfld,cwclosingfld,amtf10,amtf11,amtf12,qtyf10,qtyf11,qtyf12 ;;,DSPVchClQty ;;ratepf,Qtyf,Amtf
+Local: Field: amtf10: Set As:if $$isempty:#amtf then #amtf2 else #amtf
+Local: Field: amtf11: Set As:$$prevlinefield
+Local: Field: amtf12: Set As:if $$line=1 then #amtf10-#amtf11 else $$prevlinefield-#amtf10
+Local: Field: qtyf10: Set As:if $$isempty:#qtyf then #qtyf2 else #qtyf
+Local: Field: qtyf11: Set As:$$prevlinefield ;;if $$line=1 then $$prevlinefield-#qtyf10 else
+Local: Field: qtyf12: Set As:if $$line=1 then #qtyf10-#qtyf11 else $$prevlinefield-#qtyf10
+local: field:qtyf10 : Invisible: yes
+local: field:qtyf11 : Invisible: yes
+local: field:qtyf12 : Invisible: yes
+local: field:amtf10 : Invisible: yes
+local: field:amtf11 : Invisible: yes
+local: field:amtf12 : Invisible: yes
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;; {14.Feb.23 15:53} local:field: qtyf5 : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local : field : sdf : set as : $date
+ local:field: fwf: set as:if $$isempty:$partyledgername then $stockitemname else $partyledgername ;;"Particulars"
+local:field: snf: set as: $vouchertypename ;;"Vch Type"
+local:field: snf1: set as: $vouchernumber ;;"Vch No"
+local:field: snf2: set as: $reference;;"Sup Inv No"
+local:field: sdf2: set as: $REFERENCEDATE;;"Sup Inv Date"
+Local: Field: amtf: Set As:$CWOwnGdwnItemInAmounts ;;$ItemInAMT1 ;;$$AsDrAmt:$InVchAmt ;;"Value"
+Local: Field: amtf2: Set As:$CWOwnGdwnItemOutAmounts ;;$ItemOUTAMTOUT ;;$$AsDrAmt:$InVchAmt ;;"Value"
+Local: Field: qtyf: Set As:$ItemInActQty1 ;;$$FilterQtyTotal:InventoryEntries:OwnItemInEntries:$BatchAutoActualQty
+;; {14.Feb.23 15:54} Local: Field: qtyf5: Set As:$ItemInActQty1 ;;$$FilterQtyTotal:InventoryEntries:OwnItemInEntries:$BatchAutoActualQty
+Local: Field: qtyf2: Set As:$ItemoutActQtyout ;;$$FilterQtyTotal:InventoryEntries:OwnItemInEntries:$BatchAutoActualQty
+Local: Field: qtyf3: Set As:$ItemoutActQtyout ;;$$FilterQtyTotal:InventoryEntries:OwnItemInEntries:$BatchAutoActualQty
+;; {13.Feb.23 16:04} Local: Field: qtyf4: Set As:#qtyf-#qtyf2 ;;$$FilterQtyTotal:InventoryEntries:OwnItemInEntries:$BatchAutoActualQty
+Local: Field: qtyf4: Set As:#qtyf12 ;;@@CWCLQTY+@@CWCLQTYNEW2 ;;IF $$IsEmpty:@@cwFinalPrevTot Then $$AsInQty:@@cwNettInOutTotal  Else $$AsInQty:$$NettQty:@@cwFinalPrevTot:@@cwNettInOutTotal
+Local: Field: qtyf5: Set As:#qtyf1-#qtyf3 ;;$$FilterQtyTotal:InventoryEntries:OwnItemInEntries:$BatchAutoActualQty
+Local: Field: qtyf1: Set As:$ItemInActQty1
+local: field: qtyf1: type:quantity:Secondary units
+local: field: qtyf3: type:quantity:Secondary units
+local: field: qtyf5: type:quantity:Secondary units
+Local: Field: ratepf: Set As:#AMTF/#QTYF
+;; {14.Feb.23 15:54} Local: Field: ratepf: Set As:#AMTF/#qtyf5
+Local: Field: ratepf2: Set As:#AMTF2/#QTYF2
+Local: Field: ratepf3: Set As:#AMTF5/#qtyf4 ;;#ratepf-#ratepf2
+Local: Field: AMTF5: Set As:#amtf12 ;;@@cwclamt ;;cwNettamtInOutTotal-@@cwclamtnew2 ;;@@cwclamt-@@cwclamtnew2 ;;(#amtf-#amtf2)
+;; {10.Feb.23 15:51} Local: Field: cwinwordfld: Set As:"" ;;"Quantity"
+;; {10.Feb.23 15:51} local : field : cwinwordfld : delete : field
+Local: Field: snf20: Set As:##logi2
+local: field:snf20 : Invisible: yes
+
+local: field:cwinwordfld : Invisible:not ##logi5
+local: field:cwoutwordfld : Invisible:not ##logi6
+
+Local: Field: default: Border: thin right ;;left right
+
+[System: Formula]
+CWCLQTY:IF $$IsEmpty:@@cwFinalPrevTot Then $$AsInQty:@@cwNettInOutTotal  Else $$AsInQty:$$NettQty:@@cwFinalPrevTot:@@cwNettInOutTotal
+cwclamt:(#amtf-#amtf2)
+cwclamt2:If (##IsItemBatchReport) Then $$AsDrAmt:@@cwNettamtInOutTotal Else +
+						  If (##IsItemBatchGdwnReport) Then $$AsDrAmt:@@cwStkGdwnBatchClValue Else $$AsDrAmt:@cwClValue
+
+[line:cwopeningline]
+ use: LnItemwisestockreport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: ""
+;; {10.Feb.23 13:34} local:field: nf: set as: "Name"
+local:field: fwf: set as: "Opening"
+local:field: snf: set as: ""
+local:field: snf1: set as: ""
+local:field: snf2: set as: ""
+local:field: sdf2: set as: ""
+;; {10.Feb.23 15:46} local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: ""
+local:field: ratepf : set as :$OPENINGRate:STOCKITEM:##SStockItem
+local:field: ratepf2 : set as : ""
+local:field: ratepf3 : set as :$OPENINGRate:STOCKITEM:##SStockItem
+Local: Field: amtf: Set As:$OpeningValue:STOCKITEM:##SStockItem
+Local: Field: amtf11: Set As:#amtf5 ;;$OpeningValue:STOCKITEM:##SStockItem
+Local: Field: qtyf11: Set As:#qtyf4 ;;$StkOpBalance:STOCKITEM:##SStockItem
+Local: Field: qtyf: Set As:$StkOpBalance:STOCKITEM:##SStockItem
+;; {14.Feb.23 15:54} Local: Field: qtyf5: Set As:$StkOpBalance:STOCKITEM:##SStockItem
+Local: Field: qtyf1: Set As:$StkOpBalance:STOCKITEM:##SStockItem
+local: field: qtyf1: type:quantity:Secondary units
+;; {13.Feb.23 17:13} Local: Field: cwinwordfld: Set As:"Inword"
+;; {10.Feb.23 17:15} local : field : cwinwordfld : delete : field
+;; {10.Feb.23 17:15} Local: field:cwinwordfld : Align: centre
+
+Local: Field: amtf2: Set As:""
+Local: Field: qtyf2: Set As:""
+Local: Field: qtyf3: Set As:""
+;; {10.Feb.23 17:13} Local: Field: cwoutwordfld: Set As:"Outword"
+;; {10.Feb.23 17:13} local : field : cwoutwordfld : delete : field
+;; {10.Feb.23 17:13} Local: field:cwoutwordfld : Align: centre
+
+Local: Field: qtyf4: Set As:@@CWCLQTYNEW2 ;;$StkOpBalance:STOCKITEM:##SStockItem
+Local: Field: amtf5: Set As:$OpeningValue:STOCKITEM:##SStockItem
+Local: Field: qtyf5: Set As:$StkOpBalance:STOCKITEM:##SStockItem
+local: field: qtyf5: type:quantity:Secondary units
+;; {10.Feb.23 17:13} Local: Field: cwclosingfld: Set As:"Closing Balance"
+;; {10.Feb.23 17:13} local : field : cwclosingfld : delete : field
+;; {10.Feb.23 17:13} Local: field:cwclosingfld : Align: centre
+      local: field: default : style: normal bold
+      
+[System: Formula]
+CWCLQTYNEW2:$StkOpBalance:STOCKITEM:##SStockItem
+cwclamtnew2:$OpeningValue:STOCKITEM:##SStockItem
+      [line: LnItemwisestockreportTotals]
+        use: LnItemwisestockreport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+;; {14.Feb.23 15:55}       local: field: qtyf5: set as: $$total:qtyf5
+      local: field: qtyf1: set as: $$total:qtyf1
+      local: field: qtyf2: set as: $$total:qtyf2
+      local: field: qtyf3: set as: $$total:qtyf3
+      local: field: qtyf4: set as: $$PrevLineField ;;$$total:qtyf3
+      local: field: qtyf5: set as: $$PrevLineField ;;$$total:qtyf3
+;; {15.Feb.23 17:50}       local: field: qtyf3: set as:if $$line=1 then #qtyf3 else if $parent <>$$prevobj:$parent then #qtyf3 else $$nettamount:$$prevlinefield+#qtyf3
+      local: field: fwf: set as: "Total"
+;; {14.Feb.23 15:45}       local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      local: field: amtf2 : set as :  $$total:amtf2
+      local: field: amtf5 : set as :  $$PrevLineField ;;$$total:amtf5
+
+;; {14.Feb.23 17:00} Local: Field: amtf13: Set As:if $$line=1 then #amtf1 else if $parent <>$$prevobj:$parent then #amtf1 else $$nettamount:$$prevlinefield+#amtf1
+;;=============================================
+
+[button:cwconfigurebotton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:configurerep
+
+ [report:configurerep]
+ form:configureform
+
+ [form:configureform]
+ part:configurepart
+
+ HEIGHT:20% Screen
+ WIDTH:30% Screen
+
+ [part:configurepart]
+ line:titleconfigline,cwquantityline,cwaltunitline,cwrateline,cwvalueline,cwgoodsinwardline,cwgoodsoutwardline
+ 
+ [line:titleconfigline]
+ field:fwfc
+ Local: Field: fwfc: info:"Configure"
+ 
+ [line:cwquantityline]
+ field:sp,cwlogical
+ Local: Field: sp: info: "Show Quantity"
+ Local: Field: cwlogical: storage:cwquantity
+ Local: Field: cwlogical: modifies:logi1
+ 
+ [line:cwaltunitline]
+  field:sp,cwlogical
+ Local: Field: sp: info: "Show Alternate Unit"
+ Local: Field: cwlogical: storage:cwaltunit
+ Local: Field: cwlogical: modifies:logi2
+ 
+ [line:cwrateline]
+ field:sp,cwlogical
+ Local: Field: sp: info: "Show Rate"
+ Local: Field: cwlogical: storage:cwrate
+ Local: Field: cwlogical: modifies:logi3
+ 
+ [line:cwvalueline]
+ field:sp,cwlogical
+ Local: Field: sp: info: "Show Value"
+ Local: Field: cwlogical: storage:cwvalue
+ Local: Field: cwlogical: modifies:logi4
+ 
+ [line:cwgoodsinwardline]
+ field:sp,cwlogical
+ Local: Field: sp: info: "Show Goods Inwards"
+ Local: Field: cwlogical: storage:cwgoodsinward
+ Local: Field: cwlogical: modifies:logi5
+ 
+ [line:cwgoodsoutwardline]
+ field:sp,cwlogical
+ Local: Field: sp: info: "Show Goods Outward"
+ Local: Field: cwlogical: storage:cwgoodsoutward
+ Local: Field: cwlogical: modifies:logi6
+ 
+ 
+ 
+ 
+;;======================================
+[#Line: STKVCH OpeningBalance]
+ border:thin box

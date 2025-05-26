@@ -1,0 +1,1457 @@
+; Created By: Khokan on 2022-10-11 16:50, ID:
+
+[#Line: GST TransAdditionalDetails]
+
+Local:Field: Medium Prompt: Width:30
+
+;;======================
+[System: Formula]
+cwIsTradingvchtype:yes ;;$cwIsTradingvchtype:vouchertype:$vouchertypename="yes"
+
+  [#line:eiconsignee]
+ add:option:vchlocalsalesopt:@@issales
+ [!line:vchlocalsalesopt]
+
+ add:field:cwsendmailfield
+
+
+ [field:cwsendmailfield]
+ use:snf
+ storage:cwsendmailyes
+ Invisible: yes
+
+
+
+ [#Field: VCH Ref Combo]
+ add:option:cwVCHRefComboopt:@@KrishnavanijyaEnabled
+
+ [!field:cwVCHRefComboopt]
+
+ Local:Field:SimplePrompt: Width:20
+	
+
+[#Field: VCH Type]
+  add:option:cwVCHTypeopt:@@KrishnavanijyaEnabled
+
+ [!field:cwVCHTypeopt]
+ 
+delete:Color         : @@SV_VCHCOLOR
+delete: Background   : @@SV_VCHTYPE
+add:Color            : @@cwvchtypecolor
+
+add: Background      : @@cwBackgroundcolor
+       
+       
+[System: Formula]
+cwvchtypecolor:$cwvchtypecolor:COMPANY:##SVCURRENTCOMPANY
+cwBackgroundcolor:$cwBackgroundcolor:COMPANY:##SVCURRENTCOMPANY
+
+
+[System: Formula]
+cwNumberingMethod:$NumberingMethod:VoucherType:##SVVoucherType
+cwSkipVoucherNo:$cwSkipVoucherNo:VoucherType:##SVVoucherType="yes"
+
+
+
+[#Field: VCH Number]
+option:cwVCHNumberopt:@@cwSkipVoucherNo
+[!field:cwVCHNumberopt]
+
+skip:if @@cwNumberingMethod="Automatic (Manual Override)" then yes else no
+
+
+;;==============================================================================
+
+ [#part:ei consignee]
+  add:option:cweiconsigneeopt:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote) and @@KrishnavanijyaEnabled
+
+ [!part:cweiconsigneeopt]
+  width:100% page
+  
+   [#line:ei consignee]
+  add:option:cweiconsigneeopt2:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote) and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+
+ [!line:cweiconsigneeopt2]
+
+ Local: field: ei consignee: Width:60
+ 
+ [#Line: cI InvInfo]
+  add:option:cweiInvInfoopt2:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote) and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+
+
+  [#Line: EI InvInfo]
+  add:option:cweiInvInfoopt2:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote) and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+
+ [!line:cweiInvInfoopt2]
+   Local   : Field : Vch StockItem    : Width    : @@LongWidth+25
+  
+  [#line:ei consignee]
+  add:option:cweiconsigneeopt:@@issales and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+
+ [!line:cweiconsigneeopt]
+ 
+  field:sp,cwlogical
+  Local: Field: sp: Set As:"Is Despatch"
+  Local: Field: cwlogical: storage:cwIsDespatch
+  Local: field: ei consignee: Width:60
+  Local: field: sp: Width:15
+
+  
+ [#Field: EI ChallanNo]
+ add:option:cwChallanNoopt:@@issales and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+
+ [!field:cwChallanNoopt]
+ set as:if $$line=1 then $vouchernumber else $$value
+
+;;==============================================================================
+
+
+ [#part:eiconsignee]
+ add:option:vchreelprodusalesopt:@@cwEnableCustomization and @@KrishnavanijyaEnabled and @@cwIsManufacturingvchtype
+ [!part:vchreelprodusalesopt]
+
+ add:line:isreelproductmfgvchline
+ 
+ [#Field: EI Buyer]
+ add:option:cwEIBuyeropt:@@issales and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+
+ [!field:cwEIBuyeropt]
+  delete:table
+ add:table:collTraderLedgersVchSRC
+
+
+[Collection: collTraderLedgersVchSRC]
+title:"List of Ledger"	
+Type	: Ledger
+
+
+filter:cwisshipfilter
+	
+[System: Formula]
+cwisshipfilter:$cwisship:group:$parent:ledger:$name ="yes"
+
+;;==============================================================================
+
+ [#Collection: Stockable Godown VchExtract]
+ 
+ Title: $$LocaleString:"List of Godown"
+
+ add:subtitle : " Name","Units","Kgs"
+ Use	      : Extract Alias Collection	
+ Title        : @@GodownTitle
+
+ type:godown
+
+ Fetch      : Name, HasNoSpace, ItemClBalance
+
+ delete:format
+ add:format:$name,50
+ Fetch	: GodownItemClBal, GodownType
+
+ add:Format  : @@cwGodownItemClBal   : "Base"
+ add:Format  : $GodownItemClBal   : "Base"
+
+ [System: Formula]
+ cwGodownItemClBal:$$string:$GodownItemClBal:"Secondary,shortform,compact"
+ 
+;;==============================================================================
+
+[#Field: VCH Godown StkJrnl]
+	
+Delete	: Table
+add:table:Stockable Godown VchExtract
+
+;;==============================================================================
+
+[#Collection: Vch Stock Item Extract]
+;; {12.Nov.22 12:12} add:option:Stockitemextsalesopt:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote) and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+add:option:Stockitemextsalesopt:@@cwEnableCustomization and @@KrishnavanijyaEnabled
+[!Collection:Stockitemextsalesopt]
+
+Title: $$LocaleString:"List of Items"
+
+add:subtitle : "Item Name","Part No.","Units","Kgs"
+
+
+;; {01.Nov.22 17:55} delete:Collection
+;; {01.Nov.22 17:40} Collection:collStockitemextsalesoptpartno
+;; {02.Nov.22 10:29} add:Collection:collStockitemextsalesopt
+
+;; {02.Nov.22 10:29} [Collection:collStockitemextsalesopt]
+type :stock item
+delete:format
+add:format:$name,50
+add:format:$partno ;;+$name  ;;,35
+
+add :Format: @@cwVchStkItmBalance   : "Base"
+add :Format: $VchStkItmBalance   : "Base"
+
+
+Align: Right
+
+FullHeight : Yes
+
+[System: Formula]
+
+cwVchStkItmBalance:$$string:$VchStkItmBalance:"Secondary,shortform,compact"
+
+
+;;============================================
+
+[Collection:collStockitemextsalesoptpartno]
+type :stock item
+delete:format
+add:format:$partno,35
+add:format:$name,35
+
+add :Format: $VchStkItmBalance   : "Base"
+add :Format: ""
+
+Align: Right
+FullHeight   		: Yes
+
+ 
+ 
+;;==============================================================================
+
+ [#Form: STKVCH BatchAllocations]
+
+ add:option:cwSTKVCHBatchAllocationsopt:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote) and @@cwEnableCustomization and @@KrishnavanijyaEnabled   ;;and @@cwIsTradingvchtype
+
+ [!form:cwSTKVCHBatchAllocationsopt]
+
+ local:Part: ALLOC Title:add:line:cwALLOCTitleline,isreelproductline1
+ 
+ 
+ 
+ [line:isreelproductline1]
+ FIELD:Short Prompt,CWLOGICAL
+
+ Local: Field: Short Prompt: Set As:"Is Reel Product"
+ local: Field:CWLOGICAL : setas:$cwIsReelProductmfg:stockitem:#allocname
+ Local: Field: default: Skip: Yes
+
+ Local: Field: default: Style: small
+ Local: field: Short Prompt: Width:15
+ 
+
+ [line:cwALLOCTitleline]
+
+ add:field:numf,snfx,snfx3,snfx2,numf2,snfx4,numf3,snfx5,snfx6,snfx7,numf4,snfx8,numf5,snfx9,snfx10,snfx11,numf6
+
+ Local: Field: numf : Set As:$conversion:stockitem:#allocname
+ Local: Field: snfx2: Set As:$baseunits:stockitem:#allocname
+
+ Local: Field: snfx3: Set As:"="
+ Local: Field: snfx4: Set As:","
+
+ Local: Field: snfx : Set As:$AdditionalUnits:stockitem:#allocname
+ Local: Field: numf2: Set As:$denominator:stockitem:#allocname
+
+;;======================================================================================
+
+Local: Field: numf3:Set As:$cwConversion3:stockitem:#allocname
+
+;; {09.Oct.24 13:08}  Local: Field: snfx5:Set As:$cwunitply3:stockitem:#allocname
+ Local: Field: snfx5:Set As:$cwproduct3:stockitem:#allocname
+
+ Local: Field: snfx6:Set As:"="
+
+ Local: Field: snfx7: Set As:if $$isempty:@@cwunitalt3new then $cwproduct4:stockitem:#allocname else $cwunitalt3:stockitem:#allocname
+;; {25.Nov.24 16:27}  Local: Field: snfx7: Set As:$cwproduct4:stockitem:#allocname
+
+ Local: Field: snfx8: Set As:","
+
+ Local: Field: numf4: Set As:$cwDenominator3:stockitem:#allocname
+
+;; Local: Field: snfx7: Border: thin box ;;left right
+
+
+ ;;=============================================================================
+
+ Local: Field: numf5:Set As:$cwConversion4:stockitem:#allocname
+
+ Local: Field: snfx9:Set As:$cwunitply4:stockitem:#allocname
+
+ Local: Field: snfx10:Set As:"="
+
+ Local: Field: snfx11: Set As:$cwunitalt4:stockitem:#allocname
+
+ Local: Field: numf6: Set As:$cwDenominator4:stockitem:#allocname
+
+ Local: field: numf: Align:right
+ Local: field: numf3: Align:right
+ Local: field: numf6: Align:left
+
+ space top:1
+
+ Local: Field: default: Skip: Yes
+
+ Local: Field: default: Color : blue
+
+ Local: Field: default: Style: small bold
+
+ Local: field: snfx: Width:3
+ Local: field: snfx2: Width:3
+ Local: field: snfx3: Width:1
+ Local: field: snfx4: Width:1
+ Local: field: snfx5: Width:4
+ Local: field: snfx6: Width:1
+ Local: field: snfx7: Width:4
+ Local: field: snfx8: Width:1
+ Local: field: snfx10: Width:1
+ Local: field: snfx11: Width:4
+ Local: field: snfx12: Width:2
+
+ Local: field: numf: Width:3
+ Local: field: numf2: Width:5
+ Local: field: numf3: Width:2
+ Local: field: numf4: Width:4
+ Local: field: numf5: Width:4
+ Local: field: numf6: Width:4
+
+ Local: field: numf: Align:left
+ Local: field: numf1: Align:left
+ Local: field: numf2: Align:left
+ Local: field: numf3: Align:left
+ Local: field: numf4: Align:left
+
+ [System: Formula]
+ cwunitalt3new:$cwunitalt3:stockitem:#allocname
+
+;;==============================================================================
+
+ [#Part: EI DelNoteInfo]
+;; {22.Aug.23 10:10}   add:option:vchDelNoteInfoopt:@@issales and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+  add:option:vchDelNoteInfoopt:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote) and @@cwEnableCustomization and @@KrishnavanijyaEnabled    ;;and @@cwIsTradingvchtype
+
+ [!part:vchDelNoteInfoopt]
+ add:Line: cwVehicleNoline,cwDespatchDateline,cwSlipNoline,TransporterNameline,cwACLINE
+
+ [line:cwVehicleNoline]
+  Field       : Medium Prompt,snf
+   Local       : Field : Medium Prompt : Info :"Transporter Vehicle"
+
+  Local: Field: snf: storage:cwtrsVehicle
+
+  Local: Field: snf: Style: Normal Bold
+
+  Local: Field: DEFAULT: Color : blue
+  
+  
+  [line:cwSlipNoline]
+  Field       : Medium Prompt,snf
+   Local       : Field : Medium Prompt : Info :"Transporter Slip No"
+
+  Local: Field: snf: storage:cwtrsSlipNo
+
+  Local: Field: snf: Style: Normal Bold
+
+  Local: Field: DEFAULT: Color : blue
+ 
+  [line:cwDespatchDateline]
+  Field       : Medium Prompt,sdf
+   Local       : Field : Medium Prompt : Info :"Transporter Despatch Date"
+
+  Local: Field: sdf: storage:cwDespatchDate
+  Local: field: sdf: Align: left
+  Local: Field: sdf: Style: Normal Bold
+
+  Local: Field: DEFAULT: Color : blue
+
+  [Line: TransporterNameline]
+  Field       : Medium Prompt,nf
+  Local       : Field : Medium Prompt : Info :"Transporter Name"
+
+  Local: Field: nf: storage:cwcwTransporterName
+
+  Local: Field:nf : Show table: Always
+  Local: Field:nf :Variable: SV Ledger
+  Local: Field:nf : Keys   : Create Ledger, Alter Ledger
+  Local: Field: nf: table:tabtransporter ,Not Applicable
+  
+  ;; Local: Field: DEFAULT: Color : blue
+  
+  [Line: cwACLINE]
+  Field       : Medium Prompt,nf
+  Local       : Field : Medium Prompt : Info :"A/C:"
+
+  Local: Field: nf: storage:cwAC
+
+
+  [Collection: tabtransporter]
+  title:"Transporter Name"
+  type :ledger
+  child of:"Transporter"
+  format :$name,30
+
+ [#Part: VCHTitleLeft]
+ add:option:vchtitleleftopt:@@issales and @@KrishnavanijyaEnabled
+ [!part:vchtitleleftopt]
+
+;; {03.Feb.24 16:27}   ADD:LINE:At Beginning:cwvchnoline
+
+
+ [#line: EI Consignee]
+  add:option:eiConsigneeopt:@@issales and @@cwEnableCustomization and @@KrishnavanijyaEnabled   ;;and @@cwIsTradingvchtype
+ [!line:eiConsigneeopt]
+
+ ADD:field:BEFORE:EI Consignee:snf3new,numfnew3,numfnew4  ;;,snf4new
+
+
+
+ ;;===========================================================
+ 
+
+ [LINE:cwvchnoline]
+ field:sp,snf2new,snf1new,numfnew,numfnew2,numfnew4,snf3new,sp2,PlainVCHDate
+ Local: Field: sp: Set As:"Last Bill No."
+ Local: Field: sp2: Set As:"Date:"
+ Local: field: sp:delete: Align
+ Local: Field: PlainVCHDate: Skip: Yes
+
+ Local: Field: numf: Set As:$vouchernumber ;;$$numitems:collsalesvch
+ Local: Field: snf: info: ""
+ Local: field: snf: Width:8
+
+;; {12.Oct.22 17:00}  Local: Field: snf: control:msgamandatory:if $$increatemode then (if @@cwsalesStartingNumber => $$numitems:collsalesvch+1 then no else yes) else no
+;; {12.Oct.22 17:59}  Local: Field: snf: control:msgamandatory:if $$increatemode then (if @@cwsalesStartingNumber => $$number:$vouchernumber then no else yes) else no
+
+ Local: Field: snf2: Set As: $$CollectionField:$vouchernumber:(-1):collsalesvch
+
+  Local: Field: snf1: Set As:$$StringWordEx:$vouchernumber:"/":2
+  Local: Field: numf: Set As:#snf1
+  Local: Field: numf2: Set As:#numf+@@cwsalesStartingNumber
+
+  Local: Field: sp: Style: small
+  Local: Field: snf: Style: small
+  Local: Field: snf3: Set As:if $$isempty:$$value then #snf2new else $$value
+  
+ [field:snf2new]
+  use:snf1
+
+;; {24.Aug.23 13:15}   Set As:$$CollectionField:$vouchernumber:(-1):collsalesvch
+
+;; {24.Aug.23 13:15}   Set As:if $$increatemode then ($$CollectionField:$vouchernumber:(-1):collsalesvch) else $$value
+  Set As:if $$increatemode then $$cwchkExists:##SVVouchertype:$$value else $$value
+
+;; {18.Aug.23 13:29}   Set As:if $$increatemode or $$isempty:$$value then ($$CollectionField:$vouchernumber:(-1):collsalesvch) else $$value
+
+  skip:yes
+   Style: small
+   
+   
+   
+   [function : cwchkExists]
+ parameter : cwvouchertype : string
+ parameter : vchno : string
+;; parameter : myid : number
+ variable : vchno2 :string ;; number
+
+ 32x : set : vchno2 : $$collectionfield:$vouchernumber:1:colmyvchno
+
+
+ 40 : return :##vchno2 ;; $$collectionfield:$vouchernumber:(-1):colmyvchrefno
+
+ [collection: colmyvchno]
+ type : Vouchers : Vouchertype
+ child of : ##cwvouchertype
+ fetch : vouchertypename,masterid,vouchernumber
+ sort : @@default : -$vouchernumber
+  keep source : no
+
+ [System: Formula]
+ fltrefnosame : $vouchernumber = ##vchno
+   
+   
+ [Collection: collsalesvch]
+
+
+ Type	: Vouchers : Vouchertype
+ Child of : $$VchTypesales
+	
+;; Belongs To  : Yes
+ Keep Source: Yes
+ 
+;; Keep Source: ...
+
+ fetch:vouchernumber
+
+   
+   [System: Formula]
+   cwkvissales:$$issales:$vouchertypename
+   
+  [field:snf1new]
+  use:snf1
+  Set As:$$StringWordEx:#snf2new:"/":2
+
+  Invisible: yes
+   Style: small
+   color:yellow
+   
+  [field:numfnew]
+  use:numf
+  Set As:#snf1new
+  Invisible: yes
+   Style: small
+   
+
+    
+   [System: Formula]
+
+   cwlastbillnokv:$$CollectionField:$vouchernumber:(-1):collsalesvch
+   cwlastbillnokv2:$$number:@@cwlastbillnokv
+
+   cwlastbillnokv3:$$number:#numfnew ;;+@@cwsalesStartingNumber
+   cwvchbillnokv3:#numfnew+@@cwsalesStartingNumber
+
+
+;; {14.Oct.22 11:16}   [#Field: VCH Number]
+;; {13.Oct.22 17:10}   add:field:snf3new,numfnew3,numfnew4,snf4new
+;; {13.Oct.22 17:16}   add:field:numfnew4,snf4new
+;; {14.Oct.22 11:16}   border:thin box
+
+  [LINE:cwvchnoline2]
+  field:snf,sp,snf3new,numfnew3,numfnew4,snf4new
+  Local: Field: sp: Set As:"Last Bill No"
+;; {13.Oct.22 17:33}  local: field: default: Invisible: yes
+
+  [field:snf3new]
+  use:snf1
+  Set As:$$StringWordEx:$vouchernumber:"/":2
+   Invisible: yes
+
+  Border: thin box ;;left right
+  color:blue
+
+   [field:snf4new]
+   use:snf1
+;; {13.Oct.22 10:59}    add:control:msgamandatory:if $$increatemode then (if #numfnew2 => $$number:#numfnew4 then no else yes) else no
+   Invisible: yes
+  ;;  Set As:"aaaaaaqqqq"
+  [#field: EI Consignee]
+    add:option:fieldeiConsigneeopt:@@issales and @@cwEnableCustomization and @@KrishnavanijyaEnabled  and @@cwIsTradingvchtype
+  [!field:fieldeiConsigneeopt]
+
+;; {03.Nov.22 17:13}    add:control:msgamandatory:if $$isempty:@@cwsalesStartingNumber then no else (if $$increatemode then (if #numfnew2 => $$number:#numfnew4 then no else yes) else no)
+;; {03.Nov.22 17:13}    add:control:msgamandatory:if $$isempty:@@cwsalesStartingNumber then no else #numfnew2 => $$number:#numfnew4
+;; {24.Aug.23 15:00}    add:control:msgamandatory:if $$increatemode then (if #numfnew2 => $$number:#numfnew4 then yes else no) else no
+   add:control:msgamandatory:if $$increatemode then (if #numfnew2 =>  #numfnew4 then no  else yes) else no
+
+;; {13.Oct.22 10:55}    add:control:msgamandatory:if $$increatemode then (if @@cwvchbillnokv3 => $$number:#numfnew4 then no else yes) else no
+
+
+ [field:numfnew2]
+  use:numf
+  Set As:#numfnew+@@cwsalesStartingNumber
+  type:number:forced
+
+;; {13.Oct.22 10:44}   Set As:@@cwlastbillnokv3
+   Invisible: yes
+    Style: small
+ Border: thin box ;;left right
+ color:red
+
+
+  [field:numfnew3]
+  use:numf
+  Set As:#numfnew
+   Invisible: yes
+
+  [field:numfnew4]
+  use:numf
+  Set As:$$number:#snf3new
+
+  Invisible: yes
+   Border: thin box ;;left right
+   color:green
+
+ [System: Formula]
+
+ msgamandatory:"Invoice Number more then - " +$$string:@@cwsalesStartingNumber
+
+ cwvoucherno:$$StringWordEx:#snf2new:"/":2
+
+ cwvoucherno2:$$number:@@cwvoucherno+@@cwsalesStartingNumber
+
+ cwvoucherno3:$$StringWordEx:$vouchernumber:"/":2
+
+
+
+ [#field:vchnumber]
+;; {12.Oct.22 17:57}  add:option:salesvchnumberopt:@@issales and @@KrishnavanijyaEnabled
+ [!field:salesvchnumberopt]
+
+ ;; {13.Oct.22 10:55}   add:control:msgamandatory:if $$isempty:@@cwsalesStartingNumber then no else (if $$increatemode then (if @@cwvoucherno3 => $$number:@@cwvoucherno2 then no else yes) else no)
+  add:control:msgamandatory:if $$increatemode then (if #numfnew2 => $$number:#numfnew4 then no else yes) else no
+
+
+ ;;============================================================================
+ 
+ [System: Formula]
+;; {08.Nov.22 15:11} cwmetinopt:$$IsJobMaterialReceive:$VoucherTypeName
+cwmetinopt:$$IsJobMaterialissue:$VoucherTypeName
+
+
+
+ [#Line: VCHBATCH ColumnOne]
+;; {04.Nov.22 14:22}  add:option:VCHBATCHColumnOnept:@@ispurchase and @@KrishnavanijyaEnabled
+;; {12.Nov.22 11:19}  add:option:VCHBATCHColumnOnesalespt:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote or @@cwmetinopt) and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+ add:option:VCHBATCHColumnOnesalespt: @@cwEnableCustomization and @@KrishnavanijyaEnabled    ;;and @@cwIsTradingvchtype
+ [!line:VCHBATCHColumnOnept]
+
+  add:Field:AtBeginning:numf,numf2
+
+  add:right Field:after:VCH QtyTitle:numf4
+
+  Local: Field: numf: set as:if @@cwIsReelvchtmfgyes then "REEL1" else "PKT1"
+  Local: Field: numf2: set as:"BDL"
+  Local: Field: VCH QtyTitle: info:"KGS"
+   Local: Field: numf4: info:"SHEETS"
+
+  local: field: numf: type: String
+  local: field: numf2: type: String
+  local: field: numf4: type: String
+  Local: Field: numf: Skip: Yes
+  Local: Field: numf2: Skip: Yes
+  Local: Field: numf4: Skip: Yes
+
+  Local: Field: numf: Style: small Bold
+  Local: Field: numf2: Style: small Bold
+  Local: Field: numf3: Style: small Bold
+  Local: Field: numf4: Style: small Bold
+
+
+  [#Line: VCHBATCH ColumnTwo]
+
+
+  [System: Formula]
+
+  cwsheetvch:$cwPKT*$cwConversion4:stockitem:#allocname
+
+  [#Field: VCHBATCH RateUnits]
+  add:option:VCHBATCHRateUnitssales:@@issales and @@KrishnavanijyaEnabled   ;;and @@cwIsTradingvchtype
+ [!field:VCHBATCHRateUnitssales]
+
+    delete:Skip On
+    
+ [#Line: VCHBATCH Date]
+    
+ add:option: VCHBATCHDateoptsales:@@cwEnableCustomization and @@KrishnavanijyaEnabled   ;;and @@cwIsTradingvchtype
+ [!line:VCHBATCHDateoptsales]
+    
+;; {27.Jan.25 11:43}  add:Right Field:after:VCHBATCHAltBilledQty:numf,numf4,SNF40,SNF41
+ add:Right Field:after:VCHBATCHAltBilledQty:numf4,SNF40,SNF41
+ Local: Field: numf: setas: ""
+ Local: Field: numf4: setas: ""
+ Local: Field: SNF40: info: ""
+ Local: Field: SNF41: info: ""
+ Local: Field: numf: Skip: Yes
+ Local: Field: numf4: Skip: Yes
+ Local: field: SNF40: Width:10
+ local: field: SNF40: Invisible:IF @@IsStockJrnl THEN NO ELSE yes
+ local: field: SNF41: Invisible:IF @@IsStockJrnl THEN NO ELSE yes
+
+
+;; {16.Dec.24 13:00}  local: field: NUMF: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="no" THEN "YES" ELSE "NO"
+
+
+
+
+
+ [#line:STKVCH Batch2]
+;; {04.Nov.22 14:24}  add:option:STKVCHBatch2pt:@@ispurchase and @@KrishnavanijyaEnabled
+;; {12.Nov.22 11:19}  add:option:STKVCHBatch2ptsales:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote or @@cwmetinopt) and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+ add:option:STKVCHBatch2ptsales:@@cwEnableCustomization and @@KrishnavanijyaEnabled   ;;and @@cwIsTradingvchtype
+ [!line:STKVCHBatch2pt]
+
+  add:Field:AtBeginning:numf,numf8,numf9,numf2,snf10,snf11,snf12
+
+  add:right field:before:VCHBATCH BilledQty:numf5,snfx,numf6,snfx2
+  add:right Field:after:VCHBATCH BilledQty:numf4
+   Border: thin box
+
+  local: field: snfx: Invisible: yes
+  local: field: snfx2: Invisible: yes
+  local: field: numf5: Invisible: yes
+  local: field: numf6: Invisible: yes
+   local: field: numf8: Invisible: yes
+;; {28.Oct.22 12:51}    local: field: numf9: Invisible: yes
+;; {12.Dec.24 13:21}   Local: Field: numf8: Border: thin box ;;left right
+;; {12.Dec.24 13:21}   Local: Field: numf9: Border: thin box ;;left right
+;; {31.Dec.22 11:24}   Local: Field: numf: Border: thin box ;;left right
+
+  Local: Field: numf: storage :cwPKT
+  Local: Field: numf2: storage :cwBDL
+
+  Local: Field: snf10: storage :cwPKT2
+
+ Local: Field: snf11: storage :cwBDL2
+
+ Local: Field: snf10: Set As:$$STRING:#numf
+ Local: Field: snf11: Set As:$$STRING:#numf2
+ Local: Field: snf12: Set As:$$STRING:#numf4
+
+ Local: Field: numf3: storage :cwKGS
+ Local: Field: numf4:storage :cwSHEETS
+ Local: Field: snf12: storage :cwSHEETS2
+
+   Local: Field: numf4: Set As:$$table:VCHBATCHName:$cwSHEETS2
+
+  Local: Field: numf2: Set As:if #numf8 > #numf then 0 else #numf9
+
+ Local: Field: numf8: Set As:$cwDenominator3:stockitem:#allocname
+
+ Local: Field: numf9: Set As:$$RoundDown:@@itemopbatchno:1
+
+ Local: field: numf2: Format: "zero"
+
+  Local: Field: VCHBATCH Name: Set As:if #numf8 > #numf then "0" +$$STRING:@@batchoptno+$$STRING:#numf else $$STRING:#numf9 +$$STRING:@@batchoptno+$$STRING:#numf8
+
+
+  Local: Field: numf5: Set As:#numf*$denominator:stockitem:#allocname
+;; {12.Nov.22 11:06}  Local: Field: numf6: Set As:#numf5 * ($conversion:stockitem:#allocname/$denominator:stockitem:#allocname)
+ Local: Field: numf7: Set As:#numf5 * ($conversion:stockitem:#allocname/$denominator:stockitem:#allocname)
+
+ Local: Field: SNFX : Set As:$BASEUNITS:stockitem:#allocname
+ Local: Field: SNFX2 : Set As:$AdditionalUnits:stockitem:#allocname
+
+ Local: Field: NUMF: INACTIVE :@@BatchAllocBreak
+ Local: Field: NUMF2: INACTIVE :@@BatchAllocBreak
+ Local: Field: NUMF4: INACTIVE :@@BatchAllocBreak
+
+ Local: Field:VCHBATCH BilledQty : Set As:$$ASQTY:@@MYQTY
+
+ Local: Field: VCHBATCH BilledQty: Set Always:yes
+ Local: Field: VCHBATCH BilledQty:type:quantity:forced
+
+ local: field: snf10: Invisible: yes
+ local: field: snf11: Invisible: yes
+ local: field: snf12: Invisible: yes
+
+
+  Local: Field: numf: Style: small
+  Local: Field: numf2: Style: small
+  Local: Field: numf3: Style: small
+  Local: Field: numf4: Style: small
+  
+
+  ;; HI KOTE PAPER 80 20X30 500 15.5
+  
+
+
+
+  [#Field: VCHBATCH Rate]
+  add:option:cwsalesVCHBATCHRateopt:@@issales and @@KrishnavanijyaEnabled    ;;and @@cwIsTradingvchtype
+ [!Field:cwsalesVCHBATCHRateopt]
+ 
+  delete:setbycondition
+;; {01.Sep.23 12:00}  delete:option
+
+;; {05.Sep.23 11:44} add:Set by Condition	: $$Line = 1 AND ($Amount != 0) AND ($Amount != @@CalcedAmt) AND NOT ($$IsValidPriceLevel:$PriceLevel): @CalcRate
+
+add:Set by Condition	: (($$Line = 1) AND NOT $$IsEmpty:@TableRate) AND ($$IsEmpty:$Rate AND NOT $$IsFieldEdited)						: @TableRate
+add:Set by Condition	: (($$IsValidPriceLevel:$PriceLevel) AND $$IsEmpty:@@PriceLevelRate AND ##ICFGStkNonPriceListItem) :(If (NOT $$InCreateMode AND NOT $$InAlterMode) Then $$Value Else If $$Isstartupvalue Then $$Value Else if ($Amount != 0) AND ($Amount != @@CalcedAmt) Then @NrmlCalcRate Else If (NOT $$IsFieldEdited) Then @CurrStaRate Else $$Value)
+
+
+add:Set by Condition	: (($$IsValidPriceLevel:$PriceLevel) AND ($Amount != 0) AND ($Amount != @@CalcedAmt)) : If $$IsEmpty:$$Value Then @CalcRate Else If $$IsFieldEdited:VCHBatchValue Then  @@NrmlAmount / $BilledQty Else $$Value
+add:Set by Condition    : ($$IsValidPriceLevel:$PriceLevel) AND (NOT $$IsEmpty:$$Value) : $$Value
+
+add:Set by Condition	: ($$IsValidPriceLevel:$PriceLevel) AND ($$Isempty:$$Value) AND ($Discount!=0 OR @@GetDist = 0) : @NrmlStdRate
+add:Set by Condition	: $$IsFieldEdited 	: $$Value
+add:Set by Condition    : @IsBilledQtyEdited : @StdRate
+;; {05.Sep.23 11:48} add:Set by Condition	: ($Amount != 0) AND ($Amount != @@CalcedAmt) : @CalcRate
+
+add:Set by Condition	: ($$IsEmpty:$Rate AND (NOT $$IsTrackingOn) AND (NOT $$IsSalesOrdersOn) AND (NOT $$IsPurcOrdersOn)) : @NrmlStdRate
+
+add:Set by Condition	: YES   : $Rate
+add:Set by Condition	: YES   : @@StdSellRate
+
+
+ delete: Skip On
+ delete: Skip
+;; {05.Sep.23 11:39}  set as:if $$isempty:$$value then $batchrate else $$value
+ 
+;; {10.Aug.23 11:18}  add:setbycondition:yes:if $$line=1 then @StdRate else $$prevlinefield
+ ;;add:setbycondition:yes:if $$line=1 then (if $$isempty:@@PriceLevelRate then @@StdSellRate else @@PriceLevelRate) else $$prevlinefield
+;; {10.Aug.23 11:44}  add:setbycondition:yes:if $$increatemode and not $$IsFieldEdited then @@cwvchbatchratenew else $$value
+;; {16.Aug.23 18:11}  add:setbycondition:yes:if $$IsFieldEdited then $$value else @@cwvchbatchratenew
+
+ ;;add:setbycondition:yes:if $$increatemode then @@cwvchbatchratenew else $$value
+
+
+ [System: Formula]
+ cwvchbatchratenew:if $$line=1 then (if $$isempty:@@PriceLevelRate then @@StdSellRate else @@PriceLevelRate) else $$prevlinefield
+
+
+;; {02.Aug.23 15:50}  add:setbycondition:yes:@StdRate  ;;if $$isEmpty:$Rate then $$value else @StdRate ;;(if $$line=1 then @StdRate else $$prevlinefield)
+;; {28.Jul.23 16:32}  add:setbycondition:yes:if $$IsEmpty:$Rate AND NOT $$IsFieldEdited then $$value else @StdRate
+
+ ;;Set by Condition	: (($$Line = 1) AND NOT $$IsEmpty:@TableRate) AND ($$IsEmpty:$Rate AND NOT $$IsFieldEdited)
+ 
+ [#Field: VCHBATCH value]
+ add:option:cwsalesVCHBATCHvalueopt:@@issales and @@KrishnavanijyaEnabled    ;;and @@cwIsTradingvchtype
+ [!Field:cwsalesVCHBATCHvalueopt]
+ 
+ delete:setbycondition
+  add:setbycondition:yes:#VCHBATCHRate*#VCHBATCHBilledQty
+
+
+
+ [#Line: VCHBATCH Date]
+;; {16.Dec.24 11:09}  add:option:cwVCHBATCHDateopt:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote) and @@cwEnableCustomization and @@KrishnavanijyaEnabled    ;;and @@cwIsTradingvchtype
+ [!line:cwVCHBATCHDateopt]
+  add:right Field:after:VCHBATCHAltBilledQty:numf4
+  Local: Field: numf4: Skip: Yes
+
+ [#Line: STKVCH AltUnits]
+ add:option:cwVCHaltBATCHDateopt:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote or @@cwmetinopt) and @@cwEnableCustomization and @@KrishnavanijyaEnabled   ;;and @@cwIsTradingvchtype
+ [!line:cwVCHaltBATCHDateopt]
+ add:right Field:after:VCHAltBilledQty:numf13 ;;,numf14,numf15,numf16
+
+ Local: Field: numf13: Skip: Yes
+ Local: Field: numf14: Skip: Yes
+ Local: Field: numf15: Skip: Yes
+ Local: Field: numf16: Skip: Yes
+   
+ Local: Field: numf13: Set As:""
+ Local: Field: numf14: Set As:""
+ Local: Field: numf15: Set As:""
+ Local: Field: numf16: Set As:""
+
+;; {17.Dec.24 13:10}  local: field: NUMF13: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+ local: field: NUMF14: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+ local: field: NUMF15: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+ local: field: NUMF16: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+ 
+
+
+
+;;===============================================================
+
+[System: Formula]
+cwIsManufacturingvchtype:$cwIsManufacturingvchtype:vouchertype:$vouchertypename="yes"
+cwIsReelvchtmfgyes:$$OWNER:$cwIsReelvchtmfg="yes"
+   
+[!line:VCHBATCHColumnOnesalespt]
+
+add:right Field:before:VCH QtyTitle:snf10,NUMF1,numf,numf10,numf2,numf5,numf6,snf11
+;; {12.Dec.24 12:44}   add:right Field:before:VCH QtyTitle:snf10,NUMF1,numf,numf2,numf5,numf6,snf11
+
+  add:right Field:after:VCH QtyTitle:numf25,numf26,numf4,NUMF12,NUMF13,NUMF14
+  Local: Field: snf25: Border: thin box ;;left right
+;;  Local: Field: snf25: Set As:#cwisreelprof
+  
+
+ ;; Local: Field: SNF18: set as:@@cwIsReelvchtmfgyes
+ ;; Local: Field: SNF18: Border: thin box ;;left right
+  
+
+  Local: Field: numf: info:if @@cwUseasMfgJournalopt then "MTR/Kgs" else (if $$owner:$$owner:$cwIsReelvchtmfg="yes" then "MTR" else IF @@IsStockJrnl  THEN "REEL/Pkt" ELSE "Pkt")
+  Local: Field: numf25: info:"SQMT"
+  Local: Field: numf26: info:"Weight"
+  Local: Field: numf10: info:if @@cwIsReelvchtmfgyes then "MTR" else "Pkt"
+;; {29.Jan.25 10:47}   Local: Field: numf1: info:if @@cwIsReelvchtmfgyes then "REEL" else "QTY"
+   Local: Field: numf1: info:if @@cwUseasMfgJournalopt then "REEL/Pkt" else (if @@cwIsReelvchtmfgyes then "REEL" else "QTY")
+
+
+  Local: Field: VCH QtyTitle: info:if @@cwIsReelvchtmfgyes then "Qty" else  IF @@IsStockJrnl  THEN "SQMT/Kgs" ELSE  "Kgs"
+  
+              /*
+  Local: Field: numf: info:"Pkt"
+  Local: Field: numf1: info:"Qty"
+  Local: Field: VCH QtyTitle: info:"Kgs"
+                    */
+  Local: Field: snf10: info:"Uom"
+  Local: Field: numf2: info:"Bdl"
+
+  Local: Field: numf4: info:"Sheets"
+  Local: Field: snf11: info:"Bundles"
+  Local: Field: numf5: info: ""
+  Local: Field: numf6: info: ""
+ /*
+  local: field: NUMF2: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="yes" THEN "YES" ELSE "NO"
+  local: field: NUMF4: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="yes" THEN "YES" ELSE "NO"
+  local: field: SNF11: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="yes" THEN "YES" ELSE "NO"
+  
+  local: field: NUMF25: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="no" THEN "YES" ELSE "NO"
+  local: field: NUMF26: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="no" THEN "YES" ELSE "NO"
+                   */
+  local: field: NUMF2: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+  local: field: NUMF4: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+  local: field: SNF11: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+
+  local: field: NUMF25: Invisible:IF #cwisreelprof="no" THEN "YES" ELSE "NO"
+  local: field: NUMF26: Invisible:IF #cwisreelprof="no" THEN "YES" ELSE "NO"
+
+
+  local: field: numf: type: String
+  local: field: numf1: type: String
+  local: field: numf2: type: String
+  local: field: numf4: type: String
+  local: field: numf11: type: String
+
+  Local: Field: numf: Skip: Yes
+  Local: Field: numf2: Skip: Yes
+  Local: Field: numf4: Skip: Yes
+
+  Local: Field: numf: Style: small
+  Local: Field: numf1: Style: small
+  Local: Field: numf2: Style: small
+  Local: Field: numf3: Style: small
+  Local: Field: numf4: Style: small
+  Local: Field: numf5: Style: small
+  Local: Field: snf10: Style: small
+  Local: Field: snf11: Style: small
+
+  local: field: numf12: Invisible: yes
+  local: field: numf13: Invisible: yes
+  local: field: numf14: Invisible: yes
+  local: field: numf15: Invisible: yes
+  local: field: numf5: Invisible: yes
+  local: field: numf6: Invisible: yes
+  local: field: numf10: Invisible: yes
+
+  [System: Formula]
+;; {29.Oct.22 16:56}   cwbules:if #numf > @@cwbules1 then @@cwbules2 else #numf
+  cwbules:if #numf =#NUMF1 then @@cwbules1 else @@cwbules2
+  cwbules1:$cwDenominator3:STOCKITEM:#allocname
+
+  cwbules2:if #numf8 < #numf9 then #numf8 else #numf9 ;;if #numf8 > #numf then "0"  else #numf9
+
+ [!line:STKVCHBatch2ptsales]
+
+ add:right field:before:VCHBATCH BilledQty:SNF10,numf1,numf,numf10,numf8,numf9,numf2,numf5,snfx,numf6,snfx2,NUMF20,NUMF21,snf11
+;; {12.Dec.24 12:44}  add:right field:before:VCHBATCH BilledQty:SNF10,numf1,numf,numf8,numf9,numf2,numf5,snfx,numf6,snfx2,NUMF20,NUMF21,snf11
+  add:right Field:after:VCHBATCH BilledQty:NUMF25,numf26,numf4,NUMF12,NUMF13,NUMF14,SNF50
+
+  Local: Field: NUMF25: storage:cwsqmtmtr
+  Local: Field: NUMF26: storage:cwsqmtWeightper
+  Local: Field: numf25: Set As:$$number:#VCHBATCHBilledQty  ;;#numf/$cwDenominator3:stockitem:#allocname
+;; {17.Dec.24 10:35}   Local: Field: numf26: Set As:$cwWeightperPktitem:stockitem:#allocname
+  Local: Field: numf26: Set As:$cwsceneitem:stockitem:#allocname
+
+  ;; @@cwIsRLLfil="yes" THEN #NUMF1
+  
+  Local: Field: snf40: Set As:@@cwIsRLLfil
+  Local: Field: numf40: Set As:#NUMF1
+  Local: Field: snf40: Border: thin box ;;left right
+  Local: Field: numf40: Border: thin box ;;left right
+
+  Local: Field: NUMF20: Set As:IF #NUMF8 > #NUMF THEN #NUMF ELSE #NUMF8
+  Local: Field: NUMF21: Set As:IF #SNF10="PKT" THEN #NUMF20 ELSE #NUMF9
+  
+  local: field: snfx: Invisible: yes
+  local: field: snfx2: Invisible: yes
+  local: field: numf5: Invisible: yes
+  local: field: numf6: Invisible: yes
+  local: field: numf8: Invisible: yes
+  local: field: numf9: Invisible: yes
+  local: field: numf10: Invisible: yes
+  local: field: numf20: Invisible: yes
+  local: field: numf21: Invisible: yes
+
+  local: field: NUMF2: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="yes" THEN "YES" ELSE "NO"
+   /*
+  local: field: NUMF4: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="yes" THEN "YES" ELSE "NO"
+  local: field: SNF11: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="yes" THEN "YES" ELSE "NO"
+  local: field: NUMF25: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="no" THEN "YES" ELSE "NO"
+  local: field: NUMF26: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="no" THEN "YES" ELSE "NO"
+    */
+  local: field: NUMF4: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+  local: field: SNF11: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+  local: field: NUMF25: Invisible:IF #cwisreelprof="no" THEN "YES" ELSE "NO"
+  local: field: NUMF26: Invisible:IF #cwisreelprof="no" THEN "YES" ELSE "NO"
+
+  Local: Field: numf6: Color : blue
+  
+;; {11.Dec.24 16:21}   Local: Field: numf5: Border: thin box ;;left right
+;; {11.Dec.24 16:21}   Local: Field: numf6: Border: thin box ;;left right
+;; {11.Dec.24 16:21}   Local: Field: numf8: Border: thin box ;;left right
+;; {11.Dec.24 16:21}   Local: Field: numf9: Border: thin box ;;left right
+
+  Local: Field: default: Color : blue
+;; {28.Oct.22 13:00}   Local: Field: numf: Border: thin box ;;left right
+  Local: Field: numf8: Color : blue
+  Local: Field: numf9: Color :red
+  Local: Field: numf8: Style: Normal Bold
+;; {28.Oct.22 14:57}   Local: Field: numf9: Style: Normal Bold
+
+
+ Local: Field: numf: storage :cwPKT
+ Local: Field: snf50: storage :cwPKTnew
+ Local: Field: snf50: Set As:$$string:#numf
+local: field: snf50: Invisible: yes
+ 
+ Local: Field: numf1: storage :cwQTY
+ Local: Field: numf2: storage :cwBDL
+
+ Local: Field: numf3: storage :cwKGS
+ Local: Field: numf4:storage :cwSHEETS
+ Local: Field: SNF10:storage :cwUOM
+ 
+ Local: Field: SNF10:set as :if $$isempty:$$value then $cwTransactionUOM:stockitem:#allocname else $$value
+ local: field: snf10: type: String :forced
+ Local: Field: SNF10:Table       : collMYcwShowTransactions, Not Applicable
+ Local: Field: SNF10:Show Table  : Always
+
+ Local: Field: snf11: storage:CWBundles
+;; {13.Oct.22 13:23}  Local: Field: numf: Set As:$$table:VCHBATCHName:$cwPKT2
+
+;; {19.Oct.22 16:56}  Local: Field: numf: Set As:IF #SNF10="PKT" THEN #NUMF1 ELSE $$table:VCHBATCHName:$closingbalance ;;$pktaltqty1
+
+ Local: Field: numf: Set As:if #SNF10="PKT" THEN #NUMF1 else if  #SNF10="BDL" or #SNF10="Sqmt" then #NUMF1*$cwDenominator3:STOCKITEM:#allocname else if #SNF10="kgs" then #NUMF1/$Denominator:STOCKITEM:#allocname else $$table:VCHBATCHName:$closingbalance
+
+;; {11.Dec.24 17:56}  Local: Field: numf: Set As:if $$owner:$$owner:$cwIsReelvchtmfg="yes" then #NUMF10*$cwDenominator3:STOCKITEM:#allocname else (if #SNF10="PKT" THEN #NUMF1 else if #SNF10="BDL" or #SNF10="Sqmt" then #NUMF1*$cwDenominator3:STOCKITEM:#allocname else if #SNF10="kgs" then #NUMF1/$Denominator:STOCKITEM:#allocname else $$table:VCHBATCHName:$closingbalance)
+
+;; {11.Dec.24 16:32}  Local: Field: numf: Set As:if @@cwIsReelvchtmfgyes="yes" then #NUMF1*$cwDenominator3:STOCKITEM:#allocname else 1000 ;;(if #SNF10="kgs" then #NUMF1/$Denominator:STOCKITEM:#allocname else $$table:VCHBATCHName:$closingbalance)
+
+ Local: Field: numf10: Set As:#NUMF*$cwDenominator3:STOCKITEM:#allocname ;;else (if #SNF10="kgs" then #NUMF1/$Denominator:STOCKITEM:#allocname else $$table:VCHBATCHName:$closingbalance)
+
+
+ Local: Field: numf1: Set As:$$table:VCHBATCHName:$$number:@@pktaltqty
+
+;;Local: Field: numf2: Set As:$$table:VCHBATCHName:$cwBDL2
+;; Local: Field: numf4: Set As:$$table:VCHBATCHName:$cwSHEETS2
+;; {10.Sep.24 14:43} Local: Field: numf1: Border: thin box ;;left right
+
+ Local: Field: numf4: Set As:$cwPKT*$cwConversion4:stockitem:#allocname
+
+;; {28.Oct.22 15:09}  Local: Field: snf11: Set As:if #numf8 > #numf then "0" +$$STRING:@@batchoptno+$$STRING:#numf else $$STRING:#numf9 +$$STRING:@@batchoptno+$$STRING:#numf8
+;; {29.Oct.22 17:34}  Local: Field: snf11: Set As:$$STRING:#numf2 +$$STRING:@@batchoptno+$$string:@@cwbules  ;;$$STRING:#numf9
+ Local: Field: snf11: Set As:$$STRING:#numf2 +$$STRING:@@batchoptno+$$string:#NUMF21  ;;$$STRING:#numf9
+
+;; {28.Oct.22 12:24}  Local: Field: snf11: Set As:$$STRING:#numf8
+
+ Local: Field: NUMF12: Set As:if #numf8 > #numf then #numf else #numf9*#numf8
+ 
+;; {08.Jan.25 11:39}  Local: Field: NUMF13: Set As:IF #SNF10="sheet" THEN #NUMF1 ELSE $$NUMBER:$cwSheet:STOCKITEM:#allocname
+ Local: Field: NUMF13: Set As:IF #SNF10="sheet" THEN #NUMF1 ELSE $$NUMBER:$cwproduct:STOCKITEM:#allocname
+
+ local : field : NUMF13 : type : number : forced
+ local : field : NUMF14 : type : number : forced
+
+ Local: Field: NUMF14: Set As:#NUMF13*#NUMF12
+
+Local: Field: NUMF12: storage:cwsheetnew1
+Local: Field: NUMF13: storage:cwsheetnew2
+Local: Field: NUMF14: storage:cwsheetnew3
+
+;; {11.Dec.24 17:16} local: field: numf10: Invisible: yes
+local: field: numf12: Invisible: yes
+local: field: numf13: Invisible: yes
+Local: Field: numf13: Border: thin box ;;left right
+local: field: numf14: Invisible: yes
+local: field: numf15: Invisible: yes
+;; {12.Dec.24 13:21} Local: Field: numf14: Border: thin box ;;left right
+
+;; {19.Oct.22 17:03}  Local: Field: numf2: Set As:if #numf8 > #numf then 0 else #numf9 ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+ Local: Field: numf2: Set As:IF #SNF10="BDL" THEN #NUMF1 ELSE  (if #numf8 > #numf then 0 else #numf9) ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+;; {11.Dec.24 12:24}  Local: Field: numf2: Set As:IF #SNF10="BDL" or #SNF10="Sqmt" THEN $cwDenominator3:stockitem:#allocname ELSE  (if #numf8 > #numf then 0 else #numf9) ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+;; {19.Oct.22 17:03}  Local: Field: numf8: Set As:$cwDenominator3:stockitem:#allocname ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+ Local: Field: numf8: Set As:IF #SNF10="BDL" THEN #NUMF1 ELSE ($cwDenominator3:stockitem:#allocname) ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+;; {28.Oct.22 12:31}  Local: Field: numf8: Set As:IF #SNF10="BDL" THEN ($cwDenominator3:stockitem:#allocname) else #NUMF1 ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+;; {12.Oct.22 16:49}  Local: Field: numf9: Set As:#numf/#numf8 ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+ Local: Field: numf9: Set As:$$RoundDown:@@itemopbatchno:1 ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+ Local: field: numf2: Format: "zero"
+ Local: field: numf25: Format: "zero,decimals:3"
+
+;; {12.Oct.22 16:57}  Local: Field: VCHBATCH Name: Set As:if #numf8 > #numf then "0" +" "+$$STRING:@@batchoptno+" "+$$STRING:#numf else $$STRING:#numf9 +" "+$$STRING:@@batchoptno+" "+$$STRING:#numf8
+;; {12.Dec.24 13:22}    Local: Field: numf: Border: thin box ;;left right
+;; {12.Dec.24 13:22}    Local: Field: numf2: Border: thin box ;;left right
+
+ Local: Field: numf5: Set As:#numf*$denominator:stockitem:#allocname
+;; {12.Nov.22 11:10}  Local: Field: numf6: Set As:#numf5 * ($conversion:stockitem:#allocname/$denominator:stockitem:#allocname)
+;; {26.Nov.22 16:04}  Local: Field: numf6: Set As:IF #SNF10="RLL" THEN #NUMF1 ELSE #numf5 * ($conversion:stockitem:#allocname/$denominator:stockitem:#allocname)
+
+;; {30.Dec.22 17:13}  Local: Field: numf6: Set As:IF @@cwIsRLLfil="yes" THEN #NUMF1 ELSE #numf5 * ($conversion:stockitem:#allocname/$denominator:stockitem:#allocname)
+
+;; {30.Dec.22 18:02}  Local: Field: numf6: Set As:$$roundUP:@@kcwvvchqtyalt:1
+
+ Local: Field: numf6: Set As:@@kcwvvchqtyalt
+ 
+;; Local: Field: numf6: FORMAT:"DECIMALS:2"
+
+ Local: Field: SNFX : Set As:$BASEUNITS:stockitem:#allocname
+ Local: Field: SNFX2 : Set As:$AdditionalUnits:stockitem:#allocname
+
+ Local: Field: snf10: INACTIVE :@@BatchAllocBreak
+ Local: Field: snf11: INACTIVE :@@BatchAllocBreak
+ Local: Field: NUMF1: INACTIVE :@@BatchAllocBreak
+ Local: Field: NUMF: INACTIVE :@@BatchAllocBreak
+ Local: Field: NUMF2: INACTIVE :@@BatchAllocBreak
+ Local: Field: NUMF4: INACTIVE :@@BatchAllocBreak
+ Local: Field: NUMF5: INACTIVE :@@BatchAllocBreak
+ Local: Field: NUMF6: INACTIVE :@@BatchAllocBreak
+ Local: Field: NUMF7: INACTIVE :@@BatchAllocBreak
+ Local: Field: NUMF25: INACTIVE :@@BatchAllocBreak
+ Local: Field: NUMF26: INACTIVE :@@BatchAllocBreak
+;; Local: Field: numf: Border: thin box ;;left right
+
+;; {11.Dec.24 17:05}  Local: Field:VCHBATCH BilledQty : Set As:if @@cwIsReelvchtmfgyes="yes" then $$ASQTY:#numf10 else (IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY)
+
+Local: Field:VCHBATCH BilledQty : Set As:if $$owner:$$owner:$cwIsReelvchtmfg="yes" then $$ASQTY:@@MYQTYSQMT else (IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY)
+
+;; {12.Dec.24 12:45}  Local: Field:VCHBATCH BilledQty : Set As:IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY
+
+
+;; {05.Sep.23 11:37}  Local: Field:VCHBATCH BilledQty :delete:setbycondition
+;; {05.Sep.23 11:37}  Local: Field:VCHBATCH BilledQty :add:setbycondition:yes:IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY
+
+ Local: Field: VCHBATCH BilledQty: Set Always:yes
+ Local: Field: VCHBATCH BilledQty:type:quantity:forced
+
+ Local: Field: numf: Style: small
+ Local: Field: numf2: Style: small
+ Local: Field: numf3: Style: small
+ Local: Field: numf4: Style: small
+ Local: Field: numf5: Style: small
+ Local: Field: numf6: Style: small
+ Local: Field: numf7: Style: small
+ 
+
+
+ 
+[System : Formula]
+MYQTYSQMT : @@MYQTY0SQMT + " = "  + @@MYQTY1SQMT
+MYQTY0SQMT : $$STRING:#NUMF10 + " " + #SNFX
+MYQTY1SQMT : $$STRING:#NUMF1 + " " + #SNFX2
+
+ [System: Formula]
+
+
+;; IF @@cwIsRLLfil="yes" THEN #NUMF1 ELSE #numf5 * ($conversion:stockitem:#allocname/$denominator:stockitem:#allocname)
+
+
+;;kcwvvchqtyalt2:#numf5 * ($conversion:stockitem:#allocname/$denominator:stockitem:#allocname)
+
+kcwvvchqtyalt2:#numf5 * ($conversion:stockitem:#allocname/$denominator:stockitem:#allocname)
+
+kcwvvchqtyalt3:$$RoundUp:@@kcwvvchqtyalt2:1
+
+kcwvvchqtyalt4:if #numf=@@kcwvvchqtyalt3 then @@kcwvvchqtyalt3 else #numf    ;;if #numf=@@kcwvvchqtyalt3 then @@kcwvvchqtyalt3 else #numf
+
+kcwvvchqtyalt:if @@cwIsRLLfil="yes" THEN #numf1 ELSE @@kcwvvchqtyalt4
+
+ [System: Formula]
+
+ MYQTYITEMreel : @@MYQTY0ITEMreel + " = "  + @@MYQTY1ITEMreel
+ MYQTYITEMreel : @@MYQTY0ITEMreel + " = "  + @@MYQTY1ITEMreel
+ MYQTY0ITEMreel : $$STRING:#NUMF5 + " " + #SNFX
+ MYQTY1ITEMreel : $$STRING:#NUMF6 + " " + #SNFX2
+
+
+   [Collection:collMYcwShowTransactions]
+   type:unit
+   title:"List of Unit"
+   filter:MYcwShowTransactions
+   
+   [System: Formula]
+   MYcwShowTransactions:$cwShowTransactions="YES"
+   cwIsRLLfil:$cwIsRLL:UNIT:#snf10
+
+ [#Collection: Active Batches VchExtract]
+  add:option:ActiveBatchesVchExtractopt:@@KrishnavanijyaEnabled
+  [!Collection: ActiveBatchesVchExtractopt]
+
+;; {22.May.17 15:35}      delete:SubTitle
+;; {22.May.17 15:33}      add:SubTitle            : $$LocaleString:"Name", @@ExpirySubTitle, $$LocaleString:"Balance",$$LocaleString:"Rate",$$LocaleString:"Qty",$$LocaleString:"Amount"
+
+  add:SubTitle            :$$LocaleString:"Balance-2",$$LocaleString:"Balance-3",$$LocaleString:"Balance-4"
+
+   compute:pktaltqty1:@@pktaltqty
+
+   add:Format				:$pktaltqty1,10
+   add:Format				: $cwBDL2,10
+   add:Format				: $cwSHEETS2,10
+
+  ;; add:Format				: $Closingvalue,8   : "Base"
+
+  Fetch: cwPKT2,cwBDL2,cwKGS,cwSHEETS,cwSHEETS2,Name, Parent, ExpiryPeriod, ActualQty, ClosingBalance, GodownName, ClosingAsondate, MfdOn ,billedQty,Closingrate,Closingvalue
+
+
+  [System: Formula]
+  pktaltqty:$$String:$ClosingBalance:"Symbol,Secondary"
+
+ ;;========================================================================================================
+ 
+ [#line:STKVCH BatchTotal]
+  
+  add:option:SSTKVCHBatchTotaloptsales:@@cwEnableCustomization and @@KrishnavanijyaEnabled   ;;and @@cwIsTradingvchtype
+ [!line:SSTKVCHBatchTotaloptsales]
+
+ add:right Field:after:VCHBATCH BQtyTotal:numf25,numf26
+
+ Local: Field: numf25: info: ""
+ Local: Field: numf26: setas:$$CollnumTotal:BatchAllocations:$cwsqmtWeightper
+ Local: Field: numf25: Border: totals
+ Local: Field: numf26: Border: totals
+ Local: Field: numf26: Skip: Yes
+ 
+ local: field: NUMF25: Invisible:IF #cwisreelprof="no" THEN "YES" ELSE "NO"
+ local: field: NUMF26: Invisible:IF #cwisreelprof="no" THEN "YES" ELSE "NO"
+ 
+ ;;========================================================================================================
+
+ [#Line: EI ColumnOne]
+ add:option:cwEIColumnOneopt:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote or @@IsDelNote or @@cwmetinopt) and @@cwEnableCustomization and @@KrishnavanijyaEnabled    ;;and @@cwIsTradingvchtype
+ [!line:cwEIColumnOneopt]
+
+ add:right Field:before:VCH QtyTitle:snf1,numf1,numf,numf2
+
+ add:right Field:after:VCH QtyTitle:numf4,numf25,numf26
+ 
+
+  Local: Field: numf1: info:if $$owner:$$owner:$cwIsReelvchtmfg then "REEL" else "QTY"
+
+  Local: Field: numf: info:if $$owner:$$owner:$cwIsReelvchtmfg="yes" then "MTR" else "Pkt"
+  Local: Field: numf25: info:"SQMT"
+  Local: Field: numf26: info:"Weight"
+  
+  Local: Field: numf10: info:if $$owner:$$owner:$cwIsReelvchtmfg then "MTR" else "Pkt"
+  Local: Field: numf1: info:if $$owner:$$owner:$cwIsReelvchtmfg then "REEL" else "QTY"
+  Local: Field: VCH QtyTitle: info:if $$owner:$$owner:$cwIsReelvchtmfg then "Qty" else "Kgs"
+  
+
+  Local: Field: numf: setas:if $$owner:$$owner:$cwIsReelvchtmfg="YES" then "MTR" else "Pkt"
+  Local: Field: numf1: setas:if $$owner:$$owner:$cwIsReelvchtmfg="YES" then "REEL" ELSE "Qty"
+  Local: Field: VCHQtyTitle: setas:if $$owner:$$owner:$cwIsReelvchtmfg="YES" then "SQMT" ELSE "Kgs"
+
+       
+ local: field: NUMF2: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+  local: field: NUMF4: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+  local: field: SNF11: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+
+  local: field: NUMF25: Invisible:IF #cwisreelprof="no" THEN "YES" ELSE "NO"
+  local: field: NUMF26: Invisible:IF @@cwIsManufacturingvchtype THEN "no" ELSE "yes"
+
+
+;; {26.Nov.24 15:54}   Local: Field: numf1: info:"Qty"
+  Local: Field: snf10: info:"Uom"
+  Local: Field: numf2: info:"Bdl"
+;; {26.Nov.24 15:55}   Local: Field: VCH QtyTitle: info:"Kgs"
+  Local: Field: numf4: info:"Sheets"
+  Local: Field: snf11: info:"Bundles"
+  Local: Field: snf1: info:"Remarks"
+
+
+ local: field: numf: type: String
+ local: field: numf2: type: String
+ local: field: numf4: type: String
+ Local: Field: numf: Skip: Yes
+ Local: Field: numf1: Skip: Yes
+ Local: Field: numf2: Skip: Yes
+ Local: Field: numf4: Skip: Yes
+ Local: field: snf1: Width:10
+ 
+ Local: field: VCH QtyTitle: Width:20
+ Local: field: VCH AmtTitle: Width:20
+ Local: field: VCH RateTitle: Width:18
+ Local: field: VCH RateUnitsTitle: Width:10
+   
+ Local: Field: snf1: Style: small Bold
+ Local: Field: numf: Style: small Bold
+ Local: Field: numf1: Style: small Bold
+ Local: Field: numf2: Style: small Bold
+ Local: Field: numf3: Style: small Bold
+ Local: Field: numf4: Style: small Bold
+ Local: Field: numf25: Style: small Bold
+ Local: Field: numf26: Style: small Bold
+
+ [#Line: EI ColumnTwo]
+
+ add:option:cwEIColumntwoopt:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote or @@IsDelNote or @@cwmetinopt) and @@cwEnableCustomization and @@KrishnavanijyaEnabled   ;;and @@cwIsTradingvchtype
+ [!line:cwEIColumntwoopt]
+
+ add:right Field:before:VCH BilledQtyTitle:snfx,numf,numf2
+
+ add:right Field:after:VCH BilledQtyTitle:numf4,numf25,numf26
+
+ Local: Field: numf: set as:""
+ Local: Field: numf2: set as:""
+ Local: Field: VCH QtyTitle: info:""
+ Local: Field: numf4: info:""
+ Local: Field: numf25: info:""
+ Local: Field: snf1: info:""
+
+ local: field: numf: type: String
+ local: field: numf2: type: String
+ local: field: numf4: type: String
+ Local: Field: numf: Skip: Yes
+ Local: Field: numf2: Skip: Yes
+ Local: Field: numf4: Skip: Yes
+ 
+ Local: field: snfx: Width:10
+ 
+ Local: field: VCH QtyTitle: Width:20
+ Local: field: VCH AmtTitle: Width:20
+ Local: field: VCH RateTitle: Width:18
+ Local: field: VCH RateUnitsTitle: Width:10
+ 
+;; {08.Jan.25 12:24}   local: field: NUMF26: Invisible:IF #cwisreelprof="no" THEN "YES" ELSE "NO"
+
+ 
+ [#Line: EI InvInfo]
+ add:option:newEIInvInfo:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote or @@IsDelNote or @@cwmetinopt) and @@cwEnableCustomization and @@KrishnavanijyaEnabled   ;;and @@cwIsTradingvchtype
+
+ [#Line: CI InvInfo]
+  
+ add:option:newEIInvInfo:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote or @@IsDelNote or @@cwmetinopt) and @@cwEnableCustomization and @@KrishnavanijyaEnabled    ;;and @@cwIsTradingvchtype
+ [!line:newEIInvInfo]
+ add:right field:before:VCHBilledQty:snf1,numf1,numf,numf2,numf5,snfx,numf6,snfx2
+ add:right Field:after:VCHBilledQty:numf4,numf25,numf26 ;;,snf10
+  
+;; {16.Dec.24 13:05}  local: field: NUMF26: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="no" THEN "YES" ELSE "NO"
+   
+  Local: Field: numf1: storage :cwQTY
+  Local: Field: NUMF25: storage:cwsqmtmtr
+  Local: Field: NUMF26: storage:cwsqmtWeightper
+  Local: Field: numf25: Set As:$$CollnumTotal:BatchAllocations:$cwsqmtmtr
+  Local: Field: numf1: Set As:$$CollnumTotal:BatchAllocations:$cwQTY
+
+  Local: field: VCHBilledQty: Width:20
+  Local: field: VCH Value: Width:20
+  Local: field: VCH Rate: Width:18
+  Local: field: VCH RateUnit: Width:10
+  
+  Local: Field: numf: Skip: Yes
+;; {03.Nov.22 12:57}   Local: Field: numf1: Skip: Yes
+ Local: Field: numf2: Skip: Yes
+;; {03.Nov.22 12:57}   Local: Field: numf3: Skip: Yes
+  Local: Field: numf4: Skip: Yes
+;; {03.Nov.22 12:57}   Local: Field: numf5: Skip: Yes
+;; {03.Nov.22 12:57}   Local: Field: numf6: Skip: Yes
+
+  local: field: snfx: Invisible: yes
+  local: field: snfx2: Invisible: yes
+  local: field: numf5: Invisible: yes
+  local: field: numf6: Invisible: yes
+
+  Local: Field: numf: storage :cwPKT
+  Local: Field: numf2: storage :cwBDL
+  Local: Field: snf1: storage :cwremarks
+  Local: Field: snf1: setas :$$CollectionField:$cwSHEETS2:First:BatchAllocations
+
+  Local: Field: numf3: storage :cwKGS
+  Local: Field: numf4:storage :cwSHEETS
+  Local: field: snf1: Width:10
+  
+  Local: Field: snf10: Set As:@@cwisreelproductyes
+  Local: Field: numf26: setas:if @@cwisreelproductyes="no" then $cwsceneitem:stockitem:$stockitemname else $$CollnumTotal:BatchAllocations:$cwsqmtWeightper
+;; {09.Jan.25 17:39}   Local: Field: numf26: setas:$$CollnumTotal:BatchAllocations:$cwsqmtWeightper
+  Local: Field: numf  : Set As : $$CollNumTotal:batchallocations:$cwPKT
+  Local: Field: numf2 : Set As:$$CollNumTotal:batchallocations:$cwBDL
+  Local: Field: numf4 : Set As:$$CollNumTotal:batchallocations:$cwSHEETS
+;; {09.Jan.25 17:56}   Local: Field:numf26 : Border: thin box ;;left right
+
+  Local: Field: snf1:Inactive   : $$IsEnd:$StockItemName OR @@NoBaseUnits
+  Local: Field: numf:Inactive   : $$IsEnd:$StockItemName OR @@NoBaseUnits
+  Local: Field: numf1:Inactive  : $$IsEnd:$StockItemName OR @@NoBaseUnits
+  Local: Field: numf2:Inactive  : $$IsEnd:$StockItemName OR @@NoBaseUnits
+  Local: Field: numf4:Inactive  : $$IsEnd:$StockItemName OR @@NoBaseUnits
+  Local: Field: numf25:Inactive : $$IsEnd:$StockItemName OR @@NoBaseUnits
+  Local: Field: numf26:Inactive : $$IsEnd:$StockItemName OR @@NoBaseUnits
+
+  Local: Field: numf: Style: small
+  Local: Field: numf1: Style: small
+  Local: Field: numf2: Style: small
+  Local: Field: numf3: Style: small
+  Local: Field: numf4: Style: small
+  Local: Field: numf25: Style: small
+  Local: Field: numf26: Style: small
+                         /*
+  local: field: NUMF2: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="yes" THEN "YES" ELSE "NO"
+  local: field: NUMF4: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="yes" THEN "YES" ELSE "NO"
+  local: field: SNF11: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="yes" THEN "YES" ELSE "NO"
+  local: field: NUMF25: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="no" THEN "YES" ELSE "NO"
+  local: field: NUMF26: Invisible:IF $$owner:$$owner:$cwIsReelvchtmfg="no" THEN "YES" ELSE "NO"
+                      */
+                      
+  local: field: NUMF2: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+  local: field: NUMF4: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+  local: field: SNF11: Invisible:IF #cwisreelprof="yes" THEN "YES" ELSE "NO"
+
+  local: field: NUMF25: Invisible:IF #cwisreelprof="no" THEN "YES" ELSE "NO"
+  local: field: NUMF26: Invisible:IF @@cwIsManufacturingvchtype THEN "no" ELSE "yes"
+
+ [System: Formula]
+ cwisreelproductyes:$cwIsReelProductmfg:stockitem:$stockitemname ;;#allocname
+  
+;;====================================================================================================
+
+   [#Field: EI QtyTotal]
+;; {28.Oct.22 16:59}    add:option:newEIQtyTotal:@@issales or @@ispurchase and @@KrishnavanijyaEnabled
+  [!field:newEIQtyTotal]
+
+ [#Form: Export Invoice]
+ add:option:cwExportInvoicnew:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote or @@cwmetinopt) and @@cwEnableCustomization and @@KrishnavanijyaEnabled    ;;and @@cwIsTradingvchtype
+ [!form:cwExportInvoicnew]
+ 
+  Local : Line: VCH NarrPrompt: Add   : Right Field 	: before: EI QtyTotal:numf22
+  Local : Line: VCH NarrPrompt: Add   : Right Field 	: after: EI QtyTotal:numf28,numf27
+	
+  Local : Line: VCH NarrPrompt:Local: field: EI billedQtyTotal: Width:20
+  Local : Line: VCH NarrPrompt:Local: field: EIValueTotal: Width:20
+  Local : Line: VCH NarrPrompt:Local: field: EI RateTotal: Width:18
+  Local : Line: VCH NarrPrompt:Local: field: VCH RatePerTotal: Width:10
+ 
+;; {28.Oct.22 16:20}     add:Field  before:EI BilledQtyTotal:numf22
+    Local: Field: numf22: Set As:$$CollNumTotal:inventoryentries:$cwBDL
+    Local: Field: numf27: Set As:$$CollNumTotal:inventoryentries:$cwsqmtWeightper
+    Local: Field: numf22: Skip: Yes
+    Local: Field: numf27: Skip: Yes
+    Local: Field: numf28: Skip: Yes
+    Local: Field: numf22:border:totals
+    Local: Field: numf27:border:totals
+    Local: Field: numf28:border:totals
+    ;;Local : Line: VCH NarrPrompt:border:totals
+    
+     local: field: NUMF27: Invisible:IF @@cwIsManufacturingvchtype THEN "no" ELSE "yes"
+     local: field: NUMF28: Invisible:IF #cwisreelprof="no" THEN "YES" ELSE "NO"
+
+
+
+   Local: field: numf22: Align:left
+   Local: field: numf27: Align:left
+
+   [#Field:	EI RatePerTotal]
+   add:option:cwEIRatePerTotalnew:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote or @@IsDelNote or @@cwmetinopt) and @@cwEnableCustomization and @@KrishnavanijyaEnabled    ;;and @@cwIsTradingvchtype
+  [!field:cwEIRatePerTotalnew]
+
+
+    delete: Invisible: yes
+    
+    [#field:EI RateTotal]
+    
+     add:option:cwEIRateTotalnew:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote or @@IsDelNote or @@cwmetinopt) and @@cwEnableCustomization and @@KrishnavanijyaEnabled   ;;and @@cwIsTradingvchtype
+   [!field:cwEIRateTotalnew]
+   
+    delete: Invisible: yes
+
+  [#Line: STKVCH AltUnits]
+  add:option:cwSTKVCHAltUnitsnew:(@@issales or @@ispurchase or @@IsCreditNote OR @@IsDebitNote or @@IsDelNote or @@cwmetinopt) and @@cwEnableCustomization and @@KrishnavanijyaEnabled   ;;and @@cwIsTradingvchtype
+   [!line:cwSTKVCHAltUnitsnew]
+   
+   Local       : Field : VCHAltBilledQty   : Width     : 20
+   Local       : Field : VCHLandedRate     : Width     : 18
+   Local       : Field : VCHLandedRateUnit : Width     : 10
+   Local       : Field : VCHAddlFigure     : Width     : 20
+   
+
+;;=============================================================================================
+
+
+[#Collection: Active Batches VchExtract]
+
+SubTitle  : $$LocaleString:"Mtr/Pkt"
+add:format:$cwPKTnew,12
+
+fetch:cwPKTnew
+

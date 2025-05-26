@@ -1,0 +1,17 @@
+; Created By: Khokan on 2023-01-11 16:13, ID: 
+           /*
+[#Field: DSP VchInTitle]
+
+    Info        : $$LocaleString:"Inwards"
+    Align       : Centre
+    Style       : Normal Bold
+        Invisible       : NOT ##DSPShowInwards
+        Width           : @@DSPCondQtyWidth + @@DSPCondAltQtyWidth + @@DSPCondRateWidth + @@DSPCondAmtWidth
+        
+
+    [#System: Formula]
+        DSPVchQtyWidth  	: @@CompactQtyWidth+2  ;10
+	DSPVchRateWidth 	: @@CompactRateWidth+2 ;;10
+	DSPVchAmtWidth  	: If NOT $$InPixelMode Then 15+2 Else 11+2
+
+         */

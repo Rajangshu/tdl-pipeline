@@ -1,0 +1,374 @@
+; Created By: Khokan on 2022-12-24 11:49, ID: 
+; Created By: khokan on 2020-08-14 11:01, ID:
+
+
+     [#menu: Gateway of Tally]
+        add: Option: UpdateCRNDetailsLock ;; : @@UpdateCRNDetailsDemoLock
+
+
+     [#menu : cw_Debug_menu]
+        add: Item: before: @@locQuit: @@UpdateCRNDetailsReport:alter: RepUpdateCRNDetails
+
+
+
+     [!menu: UpdateCRNDetailsLock]
+        add: Item: before: @@locQuit: @@UpdateCRNDetailsReport: alter: RepUpdateCRNDetails
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   UpdateCRNDetailsReport: "Update CRN Details"
+;; UpdateCRNDetailsDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: RepUpdateCRNDetails]
+        use: Dsp Template
+      Title: @@UpdateCRNDetailsReport
+   Printset: Report Title: @@UpdateCRNDetailsReport
+       Form: FrmUpdateCRNDetails
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+;; {14.Aug.20 18:57}     multi objects:ColUpdateCRNDetails
+
+
+list variable : myListVar
+    variable : logi1,logi2
+    set : logi1 : $$fillmyListVar
+    set :logi2:yes
+
+
+
+
+   [Variable: myListVar]
+
+variable : mymasterid : number
+variable : date1 :date
+variable : stockitemname :string
+variable : batchname :string
+variable : godownname : string
+variable : orderno : string
+variable : ORDERDUEDATE : string
+variable : vouchernumber : string
+variable : cwBatchcaptionval2 : string
+variable : billedqty : quantity
+variable : discount : number
+
+variable : amount : amount
+	
+variable:cwTradeDiscountnew2:number
+
+variable:cwAccessoryFree2:number
+variable:cwINCDiscount2:number
+variable:cwCorpDiscount2:number
+variable:cwDealerDiscount2:number
+variable:cwDSABrokerDiscount2:number
+
+
+
+variable:cwwstitle1newx:string
+variable:cwwstitle2newx:string
+variable:cwwstitle3newx:string
+variable:cwwstitle4newx:string
+variable:cwwstitle5newx:string
+variable:cwcustomername1:string
+
+variable:cwCustomerReferenceNo2:string
+variable:cwCustomerReferencedt2:date
+
+
+variable : ctr  : number
+	
+	
+	
+
+[system : variable]
+variable : myListVar
+
+
+[Collection: myListVarColl]
+	Data Source: Variable	: myListVar
+
+[function : fillmyListVar]
+10 : list delete : myListVar
+100 : walk collection : ColUpdateCRNDetails
+ ;;1000:log object
+201 : list add : myListVar : $$loopindex : $mymasterid:mymasterid
+202 : list add : myListVar : $$loopindex : $vouchernumber:vouchernumber
+
+210x : list add : myListVar : $$loopindex : $date1:date1
+210 : list add : myListVar : $$loopindex : $batchname:batchname
+210y : list add : myListVar : $$loopindex : $stockitemname:stockitemname
+211 : list add : myListVar : $$loopindex : $godownname:godownname
+212 : list add : myListVar : $$loopindex : $orderno:orderno
+213 : list add : myListVar : $$loopindex : $ORDERDUEDATE:ORDERDUEDATE
+213x : list add : myListVar : $$loopindex : $cwcustomername1:cwcustomername1
+
+;; {15.Aug.20 10:14} 214 : list add : myListVar : $$loopindex : $cwbatchdetailsnew:cwbatchdetailsnew
+
+    /*
+230 : list add : myListVar : $$loopindex :$cwTradeDiscountnew2:cwTradeDiscountnew2
+
+231 : list add : myListVar : $$loopindex :$cwAccessoryFree2:cwAccessoryFree2
+232 : list add : myListVar : $$loopindex :$cwINCDiscount2:cwINCDiscount2
+233 : list add : myListVar : $$loopindex :$cwCorpDiscount2:cwCorpDiscount2
+234 : list add : myListVar : $$loopindex :$cwDealerDiscount2:cwDealerDiscount2
+235 : list add : myListVar : $$loopindex :$cwDSABrokerDiscount2:cwDSABrokerDiscount2
+                     */
+
+220 : list add : myListVar : $$loopindex :$cwwstitle1newx:cwwstitle1newx
+221 : list add : myListVar : $$loopindex :$cwwstitle2newx:cwwstitle2newx
+222 : list add : myListVar : $$loopindex :$cwwstitle3newx:cwwstitle3newx
+223 : list add : myListVar : $$loopindex :$cwwstitle4newx:cwwstitle4newx
+224 : list add : myListVar : $$loopindex :$cwwstitle5newx:cwwstitle5newx
+
+225 : list add : myListVar : $$loopindex :$cwCustomerReferenceNo2:cwCustomerReferenceNo2
+226 : list add : myListVar : $$loopindex :$cwCustomerReferencedt2:cwCustomerReferencedt2
+
+236 : list add : myListVar : $$loopindex : $billedqty:billedqty
+243 : list add : myListVar : $$loopindex : $discount:discount
+244 : list add : myListVar : $$loopindex : $amount:amount
+
+245 : list add : myListVar : $$loopindex : $ctr :ctr
+
+400 : end walk
+
+;;===============================================================
+
+      [Form: FrmUpdateCRNDetails]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0UpdateCRNDetails,PrtUpdateCRNDetails
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: UpdateCRNDetailsbotbrk,UpdateCRNDetailsbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+  on : form accept : yes : Call : UpdateEmdDetails
+
+
+  ;;============================================
+
+
+
+      [part: UpdateCRNDetailsbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: UpdateCRNDetailsbotopbrk]
+        use: dspacctitles
+  add: part: UpdateCRNDetailsTitlePart
+
+      [part: UpdateCRNDetailsTitlePart]
+       line: LnUpdateCRNDetailsTitle
+
+      [line: LnUpdateCRNDetailsCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf: Skip: Yes
+      Local: Field: fwf2: Skip: Yes
+  invisible: $$inprintmode
+
+      [part: PrtTitle0UpdateCRNDetails]
+      line : LnUpdateCRNDetailsCurrPeriod
+
+      [Part: PrtUpdateCRNDetails]
+       Line: LnUpdateCRNDetailsTitle,LnUpdateCRNDetails
+;; {14.Aug.20 11:09} bottom Line: LnUpdateCRNDetailsTotals
+     repeat: LnUpdateCRNDetails:myListVarColl  ;; ColUpdateCRNDetails
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColUpdateCRNDetails]
+source Collection: sourcColUpdateCRNDetails
+walk:inventoryentries,batchallocations
+
+by:vouchernumber:$vouchernumber
+by:date1:$date
+
+by:stockitemname:$stockitemname
+by:batchname:$batchname
+
+by:BASICBUYERNAME1:$...BASICBUYERNAME
+compute:cwwstitle1newx:$cwwstitle1new
+compute:cwwstitle2newx:$cwwstitle2new
+compute:cwwstitle3newx:$cwwstitle3new
+compute:cwwstitle4newx:$cwwstitle4new
+compute:cwcustomername1:$cwcustomername
+compute:cwCustomerReferencedt2:$cwCustomerReferencedt
+compute:cwCustomerReferenceNo2:$cwCustomerReferenceNo
+
+compute:statename:$statename
+
+compute:mymasterid:$masterid
+
+compute:customaradd1x:$customaradd1
+
+Keep Source	: ...
+
+
+
+[Collection: sourcColUpdateCRNDetails]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColUpdateCRNDetailsFilter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColUpdateCRNDetailsFilter:$$Issales:$VoucherTypeName
+
+      [Line: LnUpdateCRNDetailsTitle]
+        use: LnUpdateCRNDetails
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+local:field: sdf:info: "Date"
+local:field: snfx:info: "Sl. No."
+local:field: snf: set as: "Battery Model"
+local:field: snf2: set as: "Battery Serial Number"
+local:field: sdf2: set as: "Date of Sale"
+local:field: fwf: set as: "Customer Name"
+local:field: snf3: set as: "Customer Contact Number"
+local:field: sdf3: set as: "Complain Received Date"
+local:field: snf4: set as: "Vehicle Model"
+local:field: snf5: set as: "Vehicle Registration Number"
+local:field: snf6: set as: "CRN (Customer Reference Number)"
+local:field: sdf4: set as: "CRN (Customer Reference Number)DATE"
+
+local: field: default : style: normal bold
+
+local : field : sdf4 : delete : storage
+local : field : snf6 : delete : storage
+Local : field : default: Lines : 0
+Local: field: default: Align: centre
+Local: field: fwf: Align:left
+Local: Field: sdf: Skip: Yes
+Local: Field: snfx: Skip: Yes
+Local: Field: snf: Skip: Yes
+Local: Field: snf2: Skip: Yes
+Local: Field: sdf2: Skip: Yes
+Local: Field: fwf: Skip: Yes
+Local: Field: snf3: Skip: Yes
+Local: Field: sdf3: Skip: Yes
+Local: Field: snf4: Skip: Yes
+Local: Field: snf5: Skip: Yes
+;; {14.Aug.20 11:17} Local: Field: snf6: Skip: Yes
+;; {14.Aug.20 11:17} Local: Field: snf6: Skip: Yes
+
+local:field: sdf  : style:style1
+local:field: snfx :  style:style1
+local:field: snf  :  style:style1
+local:field: sdf2 :  style:style1
+local:field: snf2 :  style:style1
+local:field: snf3 : style:style1
+local:field: sdf3 :  style:style1
+local:field: fwf  : style:style1
+local:field: snf4 : style:style1
+local:field: sdf4 :  style:style1
+local:field: snf5 :  style:style1
+local:field: snf6 : style:style1
+local:field: snf7 :  style:style1
+local:field: snf8 : style:style1
+local:field: snf9 : style:style1
+local:field: snf10: style:style1
+local:field: snf11: style:style1
+local:field: snf12:  style:style1
+local:field: snf13: style:style1
+local:field: snf14:  style:style1
+
+
+
+
+[Line: LnUpdateCRNDetails]
+Fields: snfx,snf,snf2,sdf2,fwf
+right field:snf3,sdf3,snf4,snf5,snf6,sdf4
+
+Option: Alter on Enter
+
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+
+;; local : field : fwf : alter : ledger : $$isledger
+
+local:field: sdf:set as:$date1 ;;"Date"
+local:field: snfx:set as:$$line ;; "Sl. No."
+local:field: snf: set as:$stockitemname ;; "Battery Model"
+local:field: snf2: set as:$batchname ;; "Battery Serial Number"
+local:field: sdf2: set as:"" ;; "Date of Sale"
+local:field: fwf: set as:$cwcustomername1 ;; "Customer Name"
+local:field: snf3: set as:$cwwstitle1newx ;; "Customer Contact Number"
+local:field: sdf3: set as:$cwwstitle2newx ;; "Complain Received Date"
+local:field: snf4: set as:$cwwstitle3newx ;; "Vehicle Model"
+local:field: snf5: set as:$cwwstitle4newx ;; "Vehicle Registration Number"
+local:field: snf6: set as:$cwCustomerReferenceNo2 ;; "CRN (Customer Reference Number)"
+local:field: sdf4: set as:$cwCustomerReferencedt2 ;;"CRN (Customer Reference Number)DATE"
+
+;; {14.Aug.20 11:17} Local: Field: snf6: storage:
+;; {14.Aug.20 11:17} Local: Field: sdf4: storage:
+ local:field: snf6: storage:cwCustomerReferenceNo2
+  local:field: sdf4: storage:cwCustomerReferencedt2
+
+
+Local: Field: sdf: Skip: Yes
+Local: Field: snfx: Skip: Yes
+Local: Field: snf: Skip: Yes
+Local: Field: snf2: Skip: Yes
+Local: Field: sdf2: Skip: Yes
+Local: Field: fwf: Skip: Yes
+Local: Field: snf3: Skip: Yes
+Local: Field: sdf3: Skip: Yes
+Local: Field: snf4: Skip: Yes
+Local: Field: snf5: Skip: Yes
+
+Local: Field: default: Border: thin right
+
+local:field: default:  style:style2
+
+      [line: LnUpdateCRNDetailsTotals]
+        use: LnUpdateCRNDetails
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+
+;;====================================================
+
+
+ [function : UpdateEmdDetails]
+variable :  vid : string
+variable : xid : string
+
+variable:varcwCustomerReferenceNo2:string
+variable:varcwCustomerReferencedt2:date
+
+
+10:log:##varcwCustomerReferenceNo2
+20 : walk  collection : myListVarColl
+30 : SET : VID	: $$SPrintf:@@VCHMasterID:$mymasterid
+40 : set : xid :$batchname ;; $vouchernumber
+
+50 : set : varcwCustomerReferenceNo2 : $cwCustomerReferenceNo2
+52 : set : varcwCustomerReferencedt2 : $cwCustomerReferencedt2
+
+
+;; {14.Aug.20 19:19} 900 : modify object : (Voucher, ##VID).inventoryentries[1,@@sameitem].BatchAllocations[1,@@samebill].cwTradeDiscount[1].cwTradeDiscount:##varcwTradeDiscountnew2,cwAccessoryFree[1].cwAccessoryFree:##varcwAccessoryFree2,cwINCDiscount[1].cwINCDiscount:##varcwINCDiscount2,cwCorpDiscount[1].cwCorpDiscount:##varcwCorpDiscount2,cwDealerDiscount[1].cwDealerDiscount:##varcwDealerDiscount2,cwDSABrokerDiscount[1].cwDSABrokerDiscount:##varcwDSABrokerDiscount2
+900 : modify object : (Voucher, ##VID).inventoryentriesin[1,@@sameitem].BatchAllocations[1,@@samebill].cwCustomerReferenceNo[1].cwCustomerReferenceNo:##varcwCustomerReferenceNo2,cwCustomerReferencedt[1].cwCustomerReferencedt:##varcwCustomerReferencedt2
+920 : end walk
+
+[System: Formula]
+sameitem:$stockitemname=$stockitemname
+;; {15.Feb.20 12:03} samebill:$vouchernumber=##xid
+samebill:$batchname=##xid

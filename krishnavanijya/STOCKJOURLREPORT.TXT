@@ -1,0 +1,684 @@
+; Created By: Khokan on 2022-11-16 12:11, ID: 
+
+     [#menu: Gateway of Tally]
+;; {25.Feb.25 17:21}         add: Option: stockjourlreportLock ;; : @@stockjourlreportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@stockjourlreportReport: Display: Repstockjourlreport
+
+
+
+     [!menu: stockjourlreportLock]
+        add: Item: before: @@locQuit: @@stockjourlreportReport: Display: Repstockjourlreport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   stockjourlreportReport: "stockjourlreport"
+;; stockjourlreportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Repstockjourlreport]
+        use: Dsp Template
+      Title: @@stockjourlreportReport
+   Printset: Report Title: @@stockjourlreportReport
+       Form: Frmstockjourlreport
+     Export: Yes
+;; {16.Nov.22 13:05}      set  : svfromdate : ##svcurrentdate
+;; {16.Nov.22 13:05}      set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+        variable:str1,str2,str3,sdf1,sdf2
+;;     set:str3:"KV/00005/22-23"
+set:at beginning:set:str2:""
+set:at beginning:set:str3:""
+set:at beginning:set:str1:""
+set:at beginning:set:str5:""
+
+
+      [Form: Frmstockjourlreport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0stockjourlreport,Prtstockjourlreport
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: stockjourlreportbotbrk,stockjourlreportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+     JSONTag: "data"
+     
+      [part: stockjourlreportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: stockjourlreportbotopbrk]
+        use: dspacctitles
+  add: part: stockjourlreportTitlePart
+
+      [part: stockjourlreportTitlePart]
+       line: LnstockjourlreportTitle
+       
+      [line: LnstockjourlreportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0stockjourlreport]
+      line : LnstockjourlreportCurrPeriod
+      
+      [Part: Prtstockjourlreport]
+       Line: LnstockjourlreportTitle,Lnstockjourlreport
+bottom Line: LnstockjourlreportTotals
+     repeat: Lnstockjourlreport: Colstockjourlreport
+     scroll:both ;; Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: Colstockjourlreport]
+                           /*
+       Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColstockjourlreportFilter,ColStockjourVchJSONExportFilter2,ColstockjourlVchnoFilter3,IsNonOptionalCancelledVchs
+     fetch:vouchernumber,date
+        */
+   ;;=====
+      object : voucher : ##vid
+      
+    [system: Formula]
+ColstockjourlreportFilter:$$IsStockJrnl:$vouchertypename and $cwEnableCustomization:vouchertype:$vouchertypename="yes"
+
+ColStockjourVchJSONExportFilter2:if $$issysname:##str2 then yes else $vouchertypename =##str2
+
+ColstockjourlVchnoFilter3:if $$issysname:##str3 then yes else $vouchernumber =##str3
+
+
+      [Line: LnstockjourlreportTitle]
+        use: Lnstockjourlreport
+     option: titleopt
+
+local:field: sdf: set as: "date"
+local:field: nf: set as: "name"
+local:field: nf2: set as: "citem"
+local:field: snf4: set as: "cuom"
+local:field: nf3: set as: "cgodownname"
+
+local:field: numf20:set as:"cqty1"
+local:field: numf:set as:"cpkt"
+local:field: numf2:set as:"cbdl"
+local:field: numf3:set as:"csheets"
+local:field: numf4:set as:"csheetnew1"
+local:field: numf5:set as:"csheetnew2"
+local:field: numf6:set as:"csheetnew3"
+
+local:field: snf:set as:"cbundles"
+local:field: qtyf: set as: "cqty"
+local:field: ratepf : set as : "crate"
+local:field: snf7: set as: "cper"
+local:field: nf10: set as: "cvouchertype"
+local:field: amtf: set as: "camount"
+
+
+;;====
+
+local:field: nf5: set as: "pitem"
+local:field: snf6: set as: "cuom"
+local:field: nf6: set as: "pgodownname"
+ local:field: nf11: set as: "cvouchertype"
+ 
+local:field: numf21:set as:"pqty1"
+
+local:field: numf11:set as:"ppkt"
+local:field: numf12:set as:"pbdl"
+local:field: numf13:set as:"psheets"
+local:field: numf14:set as:"psheetnew1"
+local:field: numf15:set as:"psheetnew2"
+local:field: numf16:set as:"psheetnew3"
+local:field: snf3:set as:"pbundles"
+local:field: qtyf3: set as: "pqty"
+local:field: snf8: set as: "pper"
+local:field: ratepf2 : set as : "prate"
+local:field: amtf3: set as: "pamount"
+
+local:field: snf30:  set as:"maker"
+local:field: snf31:  set as:"mfg"
+local:field: snf32:  set as:"others"
+
+local: field: default: type: String
+
+local: field: default : style: normal bold
+
+[Line: Lnstockjourlreport]
+  JSONTag: "StockJrnl"
+ field:sdf,nf,nf10,nf2,nf3,snf5,numf20,numf,numf2,numf3,numf4,numf5,numf6,snf,qtyf,ratepf,snf7,amtf,nf5,nf6,snf6,numf21,numf11,numf12,numf13,numf14,numf15,numf16,snf3,qtyf3,ratepf2,snf8,amtf3,snf30,snf31,snf32
+
+
+ Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: sdf: set as:@@cwshortmfdvch  ;;$date ;;  "invoicedate"
+local: field: sdf: type: String
+local:field: nf: set as:$VOUCHERNUMBER ;; "name"
+local:field: nf2: set as:"" ;; "citem"
+local:field: nf3: set as:"" ;; "cgodownname"
+
+local:field: numf:set as:"" ;;"cpKT"
+local:field: numf2:set as:"" ;;"cbdl"
+local:field: numf3:set as:"" ;;"csheets"
+local:field: numf4:set as:"" ;;"csheetnew1"
+local:field: numf5:set as:"" ;;"csheetnew2"
+local:field: numf6:set as:"" ;;"csheetnew3"
+local:field: snf:set as:"" ;;"cbundles"
+local:field: qtyf: set as:"" ;; "cqty"
+local:field: ratepf : set as :"" ;; "crate"
+local:field: amtf: set as:"" ;; "camount"
+
+local:field: snf7: set as:"" ;; "cper"
+local:field: snf8: set as:"" ;; "pper"
+local:field: nf10: set as:$Vouchertypename ;; "Voucher type"
+
+    local: field: NF: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : NF : alter : voucher : $$isvoucher
+
+;;====
+
+local:field: nf5: set as:"" ;; "pitem"
+local:field: nf6: set as:"" ;; "pgodownname"
+
+local:field: numf11:set as:"" ;;"ppKT"
+local:field: numf12:set as:"" ;;"pbdl"
+local:field: numf13:set as:"" ;;"psheets"
+local:field: numf14:set as:"" ;;"psheetnew1"
+local:field: numf15:set as:"" ;;"psheetnew2"
+local:field: numf16:set as:"" ;;"psheetnew3"
+local:field: snf3:set as:"" ;;"pbundles"
+local:field: qtyf3: set as:"" ;; "pqty"
+local:field: ratepf2 : set as :"" ;; "prate"
+local:field: amtf2: set as:"" ;; "pamount"
+
+ local:field: snf30: set as:$cwMaker
+ local:field: snf31: set as:""
+ local:field: snf32: set as:""
+
+;;;=========================================
+
+local:field: sdf: json tag:"date"
+local:field: nf: json tag:"name"
+local:field: nf10: json tag:"Voucher type"
+local:field: nf2: json tag:"citem"
+
+local:field: nf3: json tag:"cgodownname"
+local:field: snf4: json tag: "cuom"
+local:field: numf:json tag:"cpKT"
+local:field: numf2:json tag:"cbdl"
+
+local:field: numf3:json tag:"csheets"
+local:field: numf4:json tag:"csheetnew1"
+local:field: numf5:json tag:"csheetnew2"
+local:field: numf6:json tag:"csheetnew3"
+local:field: snf:json tag:"cbundles"
+local:field: qtyf: json tag: "cqty"
+local:field: numf20: json tag: "cqty"
+local:field: ratepf :json tag: "crate"
+local:field: snf7: json tag:"cper"
+local:field: amtf: json tag:"camount"
+
+
+
+
+
+;;====
+
+local:field: nf5: json tag: "pitem"
+local:field: nf6:json tag: "pgodownname"
+local:field: snf5: json tag: "cuom"
+local:field: numf11:json tag:"ppKT"
+local:field: numf12:json tag:"pbdl"
+local:field: numf13:json tag:"psheets"
+local:field: numf14:json tag:"psheetnew1"
+local:field: numf15:json tag:"psheetnew2"
+local:field: numf16:json tag:"psheetnew3"
+local:field: snf3:json tag:"pbundles"
+local:field: qtyf3: json tag: "pqty"
+local:field: ratepf2 :json tag:"prate"
+local:field: snf8: json tag:"pper"
+local:field: amtf2:json tag:"pamount"
+local:field: snf30: json tag:"maker"
+
+
+ADD:EXPLODE:CONSUMPTIONITEMEXP:YES
+ADD:EXPLODE:PRODUCTIONITEMEXP:YES
+
+[PART:CONSUMPTIONITEMEXP]
+LINE:CONSUMPTIONITEMEXP
+repeat:CONSUMPTIONITEMEXP:inventoryentriesout
+
+[LINE:CONSUMPTIONITEMEXP]
+ use: Lnstockjourlreport
+DELETE:EXPLODE
+ jsontag:"conitemallocation"
+local:field: sdf: set as:""  ;;$date ;;  "invoicedate"
+local: field: sdf: type: String
+local:field: nf: set as:"" ;; "name"
+local:field: nf2: set as:$STOCKITEMNAME ;; "citem"
+local:field: nf3: set as:$GODOWNNAME ;; "cgodownname"
+local:field: snf5:set as:$cwUOM ;;"UOM"
+local:field: numf20:set as:$cwQTY ;;$cwPKT ;;"cpKT"
+local:field: numf:set as:$cwPKT ;;"cpKT"
+local:field: numf2:set as:$cwBDL ;;"cbdl"
+local:field: numf3:set as:$cwSHEETS;;"csheets"
+local:field: numf4:set as:$cwsheetnew1 ;;"csheetnew1"
+local:field: numf5:set as:$cwsheetnew2 ;;"csheetnew2"
+local:field: numf6:set as:$cwsheetnew3 ;;"csheetnew3"
+local:field: snf:set as:$CWBundles ;;"cbundles"
+local:field: qtyf: set as:$BILLEDQTY ;; "cqty"
+local:field: ratepf : set as :$RATE;; "crate"
+local:field: amtf: set as:$AMOUNT ;; "camount"
+local:field: snf7: set as:$baseunits:stockitem:$STOCKITEMNAME
+
+;;====
+
+local:field: nf5: set as:"" ;; "pitem"
+local:field: nf6: set as:"" ;; "pgodownname"
+
+local:field: numf11:set as:"" ;;"ppKT"
+local:field: numf12:set as:"" ;;"pbdl"
+local:field: numf13:set as:"" ;;"psheets"
+local:field: numf14:set as:"" ;;"psheetnew1"
+local:field: numf15:set as:"" ;;"psheetnew2"
+local:field: numf16:set as:"" ;;"psheetnew3"
+local:field: snf3:set as:"" ;;"pbundles"
+local:field: qtyf3: set as:"" ;; "pqty"
+local:field: ratepf2 : set as :"" ;; "prate"
+local:field: amtf2: set as:"" ;; "pamount"
+
+ local:field: snf30: set as:""
+ local:field: snf31: set as:$cwstockgrraw
+ local:field: snf32: set as:""
+
+
+
+;;;=========================================
+
+local:field: sdf: json tag:"date"
+local:field: nf: json tag:"name"
+local:field: nf2: json tag:"citem"
+local:field: nf3: json tag:"cgodownname"
+local:field: snf5: json tag: "cuom"
+
+local:field: numf20:json tag:"cqty1"
+local:field: numf:json tag:"cpKT"
+local:field: numf2:json tag:"cbdl"
+local:field: numf3:json tag:"csheets"
+local:field: numf4:json tag:"csheetnew1"
+local:field: numf5:json tag:"csheetnew2"
+local:field: numf6:json tag:"csheetnew3"
+local:field: snf:json tag:"cbundles"
+local:field: qtyf: json tag: "cqty"
+local:field: ratepf :json tag: "crate"
+local:field: amtf: json tag:"camount"
+
+;;====
+
+local:field: nf5: json tag: "pitem"
+local:field: nf6:json tag:"pgodownname"
+local:field: snf6: json tag: "cuom"
+local:field: numf11:json tag:"ppKT"
+local:field: numf12:json tag:"pbdl"
+local:field: numf13:json tag:"psheets"
+local:field: numf14:json tag:"psheetnew1"
+local:field: numf15:json tag:"psheetnew2"
+local:field: numf16:json tag:"psheetnew3"
+local:field: snf3:json tag:"pbundles"
+local:field: qtyf3: json tag: "pqty"
+local:field: ratepf2 :json tag:"prate"
+local:field: amtf2:json tag:"pamount"
+local:field: snf31: json tag:"mfg"
+
+
+
+add:explode:cwCONSUMPTIONExplode : Yes
+
+[part:cwCONSUMPTIONExplode]
+line:cwCONSUMPTIONExplode
+repeat:cwCONSUMPTIONExplode:BatchAllocations
+
+
+[line:cwCONSUMPTIONExplode]
+use:Lnstockjourlreport
+delete:explode
+jsontag:"batchallocation"   ;;3
+
+
+local:field: sdf: set as:""  ;;$date ;;  "invoicedate"
+local: field: sdf: type: String
+local:field: nf: set as:"" ;; "name"
+local:field: nf2: set as:$batchNAME ;; "citem"
+local:field: nf3: set as:$GODOWNNAME ;; "cgodownname"
+local:field: snf5:set as:$cwUOM ;;"UOM"
+local:field: numf20:set as:$cwQTY ;;$cwPKT ;;"cpKT"
+local:field: numf:set as:$cwPKT ;;"cpKT"
+local:field: numf2:set as:$cwBDL ;;"cbdl"
+local:field: numf3:set as:$cwSHEETS;;"csheets"
+local:field: numf4:set as:$cwsheetnew1 ;;"csheetnew1"
+local:field: numf5:set as:$cwsheetnew2 ;;"csheetnew2"
+local:field: numf6:set as:$cwsheetnew3 ;;"csheetnew3"
+local:field: snf:set as:$CWBundles ;;"cbundles"
+local:field: qtyf: set as:$BILLEDQTY ;; "cqty"
+local:field: ratepf : set as :$RATE;; "crate"
+local:field: amtf: set as:$AMOUNT ;; "camount"
+local:field: snf7: set as:$baseunits:stockitem:$STOCKITEMNAME
+
+;;=========================================================================
+
+local:field: nf5: set as:"" ;; "pitem"
+local:field: nf6: set as:"" ;; "pgodownname"
+
+local:field: numf11:set as:"" ;;"ppKT"
+local:field: numf12:set as:"" ;;"pbdl"
+local:field: numf13:set as:"" ;;"psheets"
+local:field: numf14:set as:"" ;;"psheetnew1"
+local:field: numf15:set as:"" ;;"psheetnew2"
+local:field: numf16:set as:"" ;;"psheetnew3"
+local:field: snf3:set as:"" ;;"pbundles"
+local:field: qtyf3: set as:"" ;; "pqty"
+local:field: ratepf2 : set as :"" ;; "prate"
+local:field: amtf2: set as:"" ;; "pamount"
+
+
+ local:field: snf30: set as:""
+ local:field: snf31: set as:""
+ local:field: snf32: set as:$cwOtherssj
+
+;;;=========================================
+
+local:field: sdf: json tag:"date"
+local:field: nf: json tag:"name"
+local:field: nf2: json tag:"citem"
+local:field: nf3: json tag:"cgodownname"
+local:field: snf5: json tag: "cuom"
+
+local:field: numf20:json tag:"cqty1"
+local:field: numf:json tag:"cpKT"
+local:field: numf2:json tag:"cbdl"
+local:field: numf3:json tag:"csheets"
+local:field: numf4:json tag:"csheetnew1"
+local:field: numf5:json tag:"csheetnew2"
+local:field: numf6:json tag:"csheetnew3"
+local:field: snf:json tag:"cbundles"
+local:field: qtyf: json tag: "cqty"
+local:field: ratepf :json tag: "crate"
+local:field: amtf: json tag:"camount"
+
+;;====
+
+local:field: nf5: json tag: "pitem"
+local:field: nf6: json tag:"pgodownname"
+local:field: snf6: json tag: "cuom"
+local:field: numf11:json tag:"ppKT"
+local:field: numf12:json tag:"pbdl"
+local:field: numf13:json tag:"psheets"
+local:field: numf14:json tag:"psheetnew1"
+local:field: numf15:json tag:"psheetnew2"
+local:field: numf16:json tag:"psheetnew3"
+local:field: snf3:json tag:"pbundles"
+local:field: qtyf3: json tag: "pqty"
+local:field: ratepf2 :json tag:"prate"
+local:field: amtf2:json tag:"pamount"
+local:field: snf32: json tag:"others"
+
+
+;;=========================================
+
+[PART:PRODUCTIONITEMEXP]
+LINE:PRODUCTIONITEMEXP
+repeat:PRODUCTIONITEMEXP:inventoryentriesin
+
+[LINE:PRODUCTIONITEMEXP]
+
+ use: Lnstockjourlreport
+DELETE:EXPLODE
+jsontag:"proitemallocation"
+local:field: sdf: set as:""  ;;$date ;;  "invoicedate"
+local: field: sdf: type: String
+local:field: nf: set as:"" ;; "name"
+local:field: nf2: set as:"" ;; "citem"
+local:field: nf3: set as:"" ;; "cgodownname"
+
+local:field: numf:set as:"" ;;"cpKT"
+local:field: numf2:set as:"" ;;"cbdl"
+local:field: numf3:set as:"";;"csheets"
+local:field: numf4:set as:"" ;;"csheetnew1"
+local:field: numf5:set as:"" ;;"csheetnew2"
+local:field: numf6:set as:"" ;;"csheetnew3"
+local:field: snf:set as:"" ;;"cbundles"
+local:field: qtyf: set as:"" ;; "cqty"
+local:field: ratepf : set as :"";; "crate"
+local:field: amtf: set as:"" ;; "camount"
+
+;;==============================================
+
+local:field: nf5: set as:$STOCKITEMNAME ;; "pitem"
+local:field: nf6: set as:$GODOWNNAME ;; "pgodownname"
+
+local:field: snf6:set as:$cwUOM ;;"UOM"
+local:field: numf21:set as:$cwQTY  ;;"pqty"
+
+local:field: numf11:set as:$cwPKT ;;"ppKT"
+local:field: numf12:set as:$cwBDL ;;"pbdl"
+local:field: numf13:set as:$cwSHEETS ;;"psheets"
+local:field: numf14:set as:$cwsheetnew1 ;;"psheetnew1"
+local:field: numf15:set as:$cwsheetnew2 ;;"psheetnew2"
+local:field: numf16:set as:$cwsheetnew3 ;;"psheetnew3"
+local:field: snf3:set as:$CWBundles ;;"pbundles"
+local:field: qtyf3: set as:$BILLEDQTY ;; "pqty"
+local:field: ratepf2 : set as :$RATE ;; "prate"
+local:field: amtf2: set as:$AMOUNT ;; "pamount"
+local:field: snf8: set as:$baseunits:stockitem:$STOCKITEMNAME
+
+ local:field: snf30: set as:""
+ local:field: snf31: set as:$cwstockgrraw
+ local:field: snf32: set as:""
+
+;;;=========================================
+
+local:field: sdf: json tag:"date"
+local:field: nf: json tag:"name"
+local:field: nf2: json tag:"citem"
+local:field: nf3: json tag:"cgodownname"
+
+local:field: numf:json tag:"cpKT"
+local:field: numf20:json tag:"cQTY"
+
+local:field: numf2:json tag:"cbdl"
+local:field: numf3:json tag:"csheets"
+local:field: numf4:json tag:"csheetnew1"
+local:field: numf5:json tag:"csheetnew2"
+local:field: numf6:json tag:"csheetnew3"
+local:field: snf:json tag:"cbundles"
+local:field: qtyf: json tag: "cqty"
+local:field: ratepf :json tag: "crate"
+local:field: amtf: json tag:"camount"
+
+;;====
+
+local:field: nf5: json tag: "pitem"
+local:field: nf6: json tag:"pgodownname"
+local:field: numf21:json tag:"pQTY1"
+local:field: numf11:json tag:"ppKT"
+local:field: numf12:json tag:"pbdl"
+local:field: numf13:json tag:"psheets"
+local:field: numf14:json tag:"psheetnew1"
+local:field: numf15:json tag:"psheetnew2"
+local:field: numf16:json tag:"psheetnew3"
+local:field: snf3:json tag:"pbundles"
+local:field: qtyf3: json tag: "pqty"
+local:field: ratepf2 :json tag:"prate"
+local:field: snf8: json tag:"pper"
+local:field: amtf2:json tag:"pamount"
+local:field: snf31: json tag:"mfg"
+
+add:explode:cwPRODUCTIONExplode2 : Yes
+
+[part:cwPRODUCTIONExplode2]
+line:cwPRODUCTIONExplode2
+repeat:cwPRODUCTIONExplode2:BatchAllocations
+
+
+[line:cwPRODUCTIONExplode2]
+use:Lnstockjourlreport
+delete:explode
+jsontag:"batchallocation"   ;;3
+
+
+local:field: sdf: set as:""  ;;$date ;;  "invoicedate"
+local: field: sdf: type: String
+local:field: nf: set as:"" ;; "name"
+local:field: nf2: set as:""  ;;$batchNAME ;; "citem"
+local:field: nf3: set as:$GODOWNNAME ;; "cgodownname"
+local:field: snf5:set as:""  ;;$cwUOM ;;"UOM"
+local:field: numf20:set as:""  ;;$cwQTY ;;$cwPKT ;;"cpKT"
+local:field: numf:set as:"" ;;$cwPKT ;;"cpKT"
+local:field: numf2:set as:"" ;;$cwBDL ;;"cbdl"
+local:field: numf3:set as:"" ;;$cwSHEETS;;"csheets"
+local:field: numf4:set as:"" ;;$cwsheetnew1 ;;"csheetnew1"
+local:field: numf5:set as:"" ;;$cwsheetnew2 ;;"csheetnew2"
+local:field: numf6:set as:"" ;;$cwsheetnew3 ;;"csheetnew3"
+local:field: snf:set as:"" ;;$CWBundles ;;"cbundles"
+local:field: qtyf: set as:"" ;;$BILLEDQTY ;; "cqty"
+local:field: ratepf : set as :"" ;;$RATE;; "crate"
+local:field: amtf: set as:" ";;$AMOUNT ;; "camount"
+local:field: snf7: set as:"" ;;$baseunits:stockitem:$STOCKITEMNAME
+
+;;====
+
+local:field: nf5: set as:$batchNAME ;; "pitem"
+local:field: nf6: set as:$GODOWNNAME ;; "pgodownname"
+
+local:field: snf6:set as:$cwUOM ;;"UOM"
+local:field: numf21:set as:$cwQTY  ;;"pqty"
+
+local:field: numf11:set as:$cwPKT ;;"ppKT"
+;; {07.Sep.24 11:28} Local: Field: numf11: Border: thin box ;;left right
+local:field: numf12:set as:$cwBDL ;;"pbdl"
+local:field: numf13:set as:$cwSHEETS ;;"psheets"
+local:field: numf14:set as:$cwsheetnew1 ;;"psheetnew1"
+local:field: numf15:set as:$cwsheetnew2 ;;"psheetnew2"
+local:field: numf16:set as:$cwsheetnew3 ;;"psheetnew3"
+local:field: snf3:set as:$CWBundles ;;"pbundles"
+local:field: qtyf3: set as:$BILLEDQTY ;; "pqty"
+local:field: ratepf2 : set as :$RATE ;; "prate"
+local:field: amtf2: set as:$AMOUNT ;; "pamount"
+local:field: snf8: set as:$baseunits:stockitem:$STOCKITEMNAME
+
+ local:field: snf30: set as:""
+ local:field: snf31: set as:""
+ local:field: snf32: set as:$cwOtherssj
+
+
+
+;;;=========================================
+
+local:field: sdf: json tag:"date"
+local:field: nf: json tag:"name"
+local:field: nf2: json tag:"citem"
+local:field: nf3: json tag:"cgodownname"
+local:field: snf5: json tag: "cuom"
+
+local:field: numf20:json tag:"cqty1"
+local:field: numf:json tag:"cpKT"
+local:field: numf2:json tag:"cbdl"
+local:field: numf3:json tag:"csheets"
+local:field: numf4:json tag:"csheetnew1"
+local:field: numf5:json tag:"csheetnew2"
+local:field: numf6:json tag:"csheetnew3"
+local:field: snf:json tag:"cbundles"
+local:field: qtyf: json tag: "cqty"
+local:field: ratepf :json tag: "crate"
+local:field: amtf: json tag:"camount"
+
+;;====
+
+local:field: nf5: json tag: "pitem"
+local:field: nf6:json tag: "pgodownname"
+local:field: snf6: json tag: "cuom"
+local:field: numf11:json tag:"ppKT"
+local:field: numf12:json tag:"pbdl"
+local:field: numf13:json tag:"psheets"
+local:field: numf14:json tag:"psheetnew1"
+local:field: numf15:json tag:"psheetnew2"
+local:field: numf16:json tag:"psheetnew3"
+local:field: snf3:json tag:"pbundles"
+local:field: qtyf3: json tag: "pqty"
+local:field: ratepf2 :json tag:"prate"
+local:field: amtf2:json tag:"pamount"
+ local:field: snf32: json tag:"Others"
+
+
+
+
+      [line: LnstockjourlreportTotals]
+        use: Lnstockjourlreport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+;;=========================
+
+
+ [Report: RepcwSOExportExp4]
+  ;  variable : svfromdate : date
+  ;  variable : svtodate   : date
+  use : dsp template
+  delete: form
+    add: form : RepcwSOExportExp4
+
+    [form : RepcwSOExportExp4]
+    part : RepcwSOExportExp4
+
+    [part : RepcwSOExportExp4]
+    line : RepcwSOExportExp4
+    set : 1
+    repeat : RepcwSOExportExp4
+
+    [line : RepcwSOExportExp4]
+    field : nf
+    Local: Field: nf: Set As:$$RepcwSOExportExp4
+
+    [function : RepcwSOExportExp4]
+;; {09.Nov.22 18:36}     variable : svfromdate : date : @@dspFromDate
+;; {09.Nov.22 18:36}     variable : svtodate : date   : @@dspToDate
+    variable: myfilename : string : ##str1
+
+    variable : vid : string : $$SPrintf:@@VCHMasterID:##num3
+    
+  ;;  a0001 : log : "Str1: " +##str1 + ", Str5: " +##str5+", Str3: "+##str3  +", num3: " + $$string:##num3
+   ;; a0002 : log : "date1: " +$$string:##svFromDate + ", date2: " + $$string:##svTodate
+;; {09.Nov.22 18:37}     00x : log : ##svFromDate
+;; {09.Nov.22 18:37}     00y : log : ##svToDate
+    10 : do if : ##myfilename = "" : set : myfilename : "e:\Repstockjourlreport.json"
+    20 : Set   :SVExportFormat  : $$SysName:UTF8JSON
+
+    30 : Set   :SVExportLanguage: $$SysName:UTF8JSON
+    40 : Set   :SVPrintFileName :##myfilename
+    50 : set: SVOpenFileAfterExport : no
+
+    60 : export : Repstockjourlreport : yes : yes
+
+
+   ;; a003a: log: "Exported"
+   ;; a0003 : log : "Str1: " +##str1 + ", Str5: " +##str5+", Str3: "+##str3
+   ;; a0004 : log : "date1: " +$$string:##svFromDate + ", date2: " + $$string:##svTodate
+
+
+
+    70 : return : "Done"
+

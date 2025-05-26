@@ -1,0 +1,159 @@
+; Created By: Khokan on 2023-01-06 10:03, ID: 
+
+     [#menu: Gateway of Tally]
+;; {06.Jan.23 10:08}         add: Option: salesregister2Lock ;; : @@salesregister2DemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@salesregister2Report: Display: Repsalesregister2
+
+
+
+     [!menu: salesregister2Lock]
+        add: Item: before: @@locQuit: @@salesregister2Report: Display: Repsalesregister2
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   salesregister2Report: "Sales Register"
+;; salesregister2DemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Repsalesregister2]
+        use: Dsp Template
+      Title: @@salesregister2Report
+   Printset: Report Title: @@salesregister2Report
+       Form: Frmsalesregister2
+     Export: Yes
+;; {06.Jan.23 10:11}      set  : svfromdate : ##svcurrentdate
+;; {06.Jan.23 10:11}      set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     variable:STR1
+     
+      [Form: Frmsalesregister2]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0salesregister2,Prtsalesregister2
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: salesregister2botbrk,salesregister2botOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: salesregister2botBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: salesregister2botopbrk]
+        use: dspacctitles
+  add: part: salesregister2TitlePart
+
+      [part: salesregister2TitlePart]
+       line: Lnsalesregister2Title
+       
+      [line: Lnsalesregister2CurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style:style4
+      Local: Field: fwf2: Style: style4
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf: Set As:##STR1
+  Local: Field: fwf2:invisible: $$inprintmode
+
+      [part: PrtTitle0salesregister2]
+      line : Lnsalesregister2CurrPeriod
+      
+      [Part: Prtsalesregister2]
+       Line: Lnsalesregister2Title,Lnsalesregister2
+bottom Line: Lnsalesregister2Totals
+     repeat: Lnsalesregister2: Colsalesregister2
+     scroll: Vertical
+ Common Border: YEs
+      Total:Qtyf,amtf,amtf1,amtf2,amtf3,amtf4
+
+[Collection: Colsalesregister2]
+  source Collection: sourceColsalesregister
+  
+  by:partyledgername:$partyledgername
+by:VOUCHERNUMBER:$VOUCHERNUMBER
+;aggr compute:NoofInvoice:sum:1
+compute:Taxableamt:$$CollAmtTotal:inventoryentries:$amount
+compute:PARTYGSTIN1:$PARTYGSTIN
+compute:cwVCHCGSTVALUE1:@@cwVCHCGSTVALUE2
+compute:cwVCHIGSTVALUE1:@@cwVCHIGSTVALUE2
+ Compute:masterid:$masterid
+Compute:freightamt1:$freightamt
+ FILTER:Colpurchaseregister2Filter
+ 
+    [system: Formula]
+Colsalesregister2Filter: Yes
+
+      [Line: Lnsalesregister2Title]
+        use: Lnsalesregister2
+     option: titleopt
+local:field: fwf: set as: "Supplier Name"
+local:field: NF: set as: "Supplier GST No."
+local:field: snf: set as: "No. of Invoice"
+local:field: AMTF: set as: "Taxable Amount"
+local:field: AMTF2: set as: "CGST Amount"
+local:field: AMTF3: set as: "SGST Amount"
+local:field: AMTF4: set as: "IGST Amount"
+
+local:field: fwf: style:style4
+local:field: NF:style:style4
+local:field: SNF:style:style4
+local:field: AMTF:style:style4
+local:field: AMTF1:style:style4
+local:field: AMTF2:style:style4
+local:field: AMTF3:style:style4
+local:field: AMTF4:style:style4
+Local: field: DEFAULT: Align: centre
+Local: field: FWF: Align: LEFT
+
+      [Line: Lnsalesregister2]
+ Fields:fwf,nf
+right field:Amtf,Amtf2,Amtf3,Amtf4
+;; {05.Jan.23 18:10} Option: Alter on Enter
+
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+;; {05.Jan.23 18:10}      local: field: fwf: alter : voucher : $$isvoucher
+;; {05.Jan.23 18:10} option : alter on enter
+;; {05.Jan.23 18:10} local : field : fwf : alter : voucher : $$isvoucher
+
+local:field: fwf: set as:$partyledgername ;; "Supplier Name"
+local:field: NF: set as:$PARTYGSTIN1 ;; "Supplier GST No."
+local:field: snf: set as:$NoofInvoice ;; "No. of Invoice"
+local:field: AMTF: set as:$$nettamount:$Taxableamt:$freightamt1 ;; "Taxable Amount"
+local:field: AMTF2: set as:$cwVCHCGSTVALUE1 ;; "CGST Amount"
+local:field: AMTF3: set as:$cwVCHCGSTVALUE1  ;; "ISGST Amount"
+local:field: AMTF4: set as:$cwVCHIGSTVALUE1;; "SGST Amount"
+Local: Field:default: Border: thin right
+Local: Field:DEFAULT: style:style3
+
+option : cwalterVch
+
+[line: Lnsalesregister2Totals]
+use: Lnsalesregister2
+option: totalOpt
+
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local:field: fwf: set as:"Total" ;; "Supplier Name"
+local:field: NF: set as:"" ;; "Supplier GST No."
+local:field: snf: set as:"" ;; "No. of Invoice"
+local:field: AMTF: set as:$$total:amtf ;; "Taxable Amount"
+local:field: AMTF2: set as:$$total:amtf2  ;; "CGST Amount"
+local:field: AMTF3: set as:$$total:amtf3  ;; "ISGST Amount"
+local:field: AMTF4: set as:$$total:amtf4  ;; "SGST Amount"
+
+local:field: fwf: style:style4
+local:field: NF:style:style4
+local:field: SNF:style:style4
+local:field: AMTF:style:style4
+local:field: AMTF1:style:style4
+local:field: AMTF2:style:style4
+local:field: AMTF3:style:style4
+local:field: AMTF4:style:style4

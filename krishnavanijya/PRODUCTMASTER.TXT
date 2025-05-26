@@ -1,0 +1,386 @@
+; Created By: Khokan on 2022-12-24 13:27, ID: 
+
+     [#menu: Gateway of Tally]
+;; {24.Dec.22 15:31}         add: Option: ProductmasterLock ;; : @@ProductmasterDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ProductmasterReport: Display: RepProductmaster
+
+
+
+     [!menu: ProductmasterLock]
+        add: Item: before: @@locQuit: @@ProductmasterReport: Display: RepProductmaster
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ProductmasterReport: "Product Master"
+;; ProductmasterDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepProductmaster]
+        use: Dsp Template
+      Title: @@ProductmasterReport
+   Printset: Report Title: @@ProductmasterReport
+       Form: FrmProductmaster
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      variable:str1,str2,str3,str4,str5,str6,str7,str8,str9,str10,str11
+    set:str1:""
+    set:str2:""
+    set:str3:""
+    set:str4:""
+    set:str5:""
+    set:str6:""
+    set:str7:""
+    set:str8:""
+    set:str9:""
+    set:str10:""
+     
+      [Form: FrmProductmaster]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0Productmaster,PrtProductmaster
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: Productmasterbotbrk,ProductmasterbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:style4
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style3
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style4
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style3
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style3  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style3
+
+ ADD:button:productmasterbotton2
+
+    [button:productmasterbotton2]
+    key:f7
+ title:"Filter"
+ Action : Modify Variables:productmasterbotton2
+
+ [report:productmasterbotton2]
+ form:productmasterbotton2
+
+ [form:productmasterbotton2]
+ part:productmasterbotton2
+
+ HEIGHT:50% PAGE
+ WIDTH:50% PAGE
+
+ [part:productmasterbotton2]
+
+
+  line:titlelinex,Quailitycodelinexx,Qualityline,GSMline,Sizeline,Sheetline,QualityGroupline,MillGroupline  ;;,PackWeightline
+
+
+ [line:Quailitycodelinexx]
+
+ field:sp,snfx,nf,snfx2,nf2
+
+ Local: Field: sp: Set As:"Quaility Code"
+
+ Local: Field: snfx: info: "From:"
+ Local: Field: snfx2: info: "To:"
+
+ Local: Field: nf:modifies:str1
+ Local: Field: nf2:modifies:str10
+ 
+ Local: Field: nf: table:collstockitem2,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ Local: Field: nf2: table:collstockitem2,Not Applicable
+ Local: Field: nf2: Show table: Always
+
+
+ space bottom:0.5
+
+ Local: field: sp: Width:18
+ Local: field: snfx: Width:8
+ Local: field: snfx2: Width:5
+
+
+
+      [part: ProductmasterbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: Productmasterbotopbrk]
+        use: dspacctitles
+  add: part: ProductmasterTitlePart
+
+      [part: ProductmasterTitlePart]
+       line: LnProductmasterTitle
+       
+      [line: LnProductmasterCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+    Local: Field:fwf  : style:style4
+    local:field : fwf2 : style:style4
+
+      [part: PrtTitle0Productmaster]
+      line : LnProductmasterCurrPeriod
+      
+      [Part: PrtProductmaster]
+       Line: LnProductmasterTitle,LnProductmaster
+;;bottom Line: LnProductmasterTotals
+     repeat: LnProductmaster: ColProductmaster
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColProductmaster]
+     type:stockitem
+     
+   sort :@@default : $partno
+   FILTER:cwPARENTPROfilter,cwQualityfilterX,cwGSMfilterX,cwSizefilterX,cwSheetfilterX,cwQualityGroupfilter2,cwMillGroupfilter2 ;;,cwPackWeightfilterX
+   
+   [System: Formula]
+   cwPARENTPROfilter:if $$issysname:##str1 then yes else $partno >= ##str1 and $partno =< ##str10
+   
+   cwQualityfilterX:if $$issysname:##str2 then yes else $cwQuality =##str2
+ cwGSMfilterX:if $$issysname:##str3 then yes else @@cwGSMnewrep =##str3
+ 
+ cwGSMnewrep:if $$isempty:$cwGSM then $cwsortno else $cwGSM
+ 
+ cwSizefilterX:if $$issysname:##str4 then yes else $cwSize =##str4
+ cwSheetfilterX:if $$issysname:##str5 then yes else $cwSheet =##str5
+ cwPackWeightfilterX:if $$issysname:##str6 then yes else $cwPacknew =##str6
+ 
+ cwQualityGroupfilter2:if $$issysname:##str7 then yes else $parent =##str7
+ cwMillGroupfilter2:if $$issysname:##str8 then yes else $category =##str8
+
+   
+[Line: LnProductmasterTitle]
+use: LnProductmaster
+option: titleopt
+
+local:field: snf: set as: "Quaility Code"
+local:field: snf2: set as: "Quaility"
+local:field: snf3: set as: "GSM"
+local:field: snf4: set as: "Size"
+local:field: snf5: set as: "Sheet"
+
+Local: Field: snf16: Set As:"Mill Group"
+
+
+local:field: numf: set as: "Pack Weight"
+local:field: snf6: set as: "Is Reel"
+local:field: snf7: set as: "Quality Group"
+local:field: snf8: set as: "UOM-1"
+local:field: snf9: set as: "UOM-2"
+local:field: snf10: set as: "UOM-3"
+local:field: numf2: set as: "PKT/BDL"
+local:field: snf11: set as: "UOM-4"
+local:field: numf3: set as: "UOM-4_con"
+local:field: numf4: set as: "UOM-4_deno"
+local:field: numf5: set as: "UOM-4_Con_uom"
+local:field: snf12: set as: "Transaction UOM"
+local:field: snf13: set as: "HSN"
+local:field: numf6: set as: "GST Rate"
+
+Local: field: default: Align:centre
+Local : field : default: Lines : 0
+
+local:field: snf: style:style4
+local:field: snf2:style:style4
+local:field: snf3: style:style4
+local:field: snf4:style:style4
+local:field: snf5:style:style4
+local:field: numf:style:style4
+local:field: snf6:style:style4
+local:field: snf16:style:style4
+local:field: snf7:style:style4
+local:field: snf8:style:style4
+local:field: snf9:style:style4
+local:field: snf10:style:style4
+local:field: numf2:style:style4
+local:field: snf11:style:style4
+local:field: numf3:style:style4
+local:field: numf4:style:style4
+local:field: numf5:style:style4
+local:field: snf12:style:style4
+local:field: snf13:style:style4
+local:field: numf6:style:style4
+
+
+[Line: LnProductmaster]
+Fields:snf,snf2,snf3,snf4,snf5,numf,snf6,snf7,snf16,snf8,snf9,snf10,numf2,snf11,numf3,numf4,numf5,snf12,snf13,numf6
+
+local:field: snf: set as:$partno ;; "Quaility Code"
+local:field: snf2: set as:$cwQuality ;; "Quaility"
+local:field: snf3: set as:if $$isempty:$cwGSM then $cwsortno else $cwGSM ;; "GSM"
+local:field: snf4: set as:$cwSize ;; "Size"
+local:field: snf5: set as:$cwproduct  ;;$cwSheet ;; "Sheet"
+local:field: numf: set as:$cwsceneitem ;;$cwPacknew ;; "Pack Weight"
+local:field: snf6: set as:$cwIsReelProduct ;; "Is Reel"
+local:field: snf7: set as:$parent ;; "Group"
+local:field: snf8: set as:$baseunits ;$Conversion ;; "UOM-1"
+local:field: snf9: set as:$AdditionalUnits ;;$cwConversion3 ;; "UOM-2"
+local:field: snf10: set as:$cwunitply3 ;; "UOM-3"
+local:field: numf2: set as:$cwDenominator3 ;; "PKT/BDL"
+local:field: snf11: set as:$cwunitply4 ;; "UOM-4"
+local:field: numf3: set as:$cwConversion4;; "UOM-4_con"
+local:field: numf4: set as:$cwDenominator4 ;; "UOM-4_deno"
+local:field: numf5: set as:$cwunitply4 ;; "UOM-4_Con_uom"
+local: field: numf5: type: String
+local:field: snf12: set as:$cwTransactionUOM ;; "Transaction UOM"
+local:field: snf13: set as:$$cwGethsncode:$name ;; "HSN"
+local:field: numf6: set as:$$cwGetGSTRateFor:$name ;; "GST Rate"
+
+Local: Field: snf15: Set As:$parent  ;;"Quality Group"
+Local: Field: snf16: Set As:$category ;;"Mill Group"
+
+
+Local: field: numf6: Format: "percentage,nozero"
+local: field: snf2: alter : stockitem : $$isstockitem
+option : alter on enter
+local : field : snf2 : alter : stockitem : $$isstockitem
+
+local:field: default: style:style3
+
+Local: Field: default: Border: thin right
+Local: field:snf: Width:8
+Local: field:snf3: Width:8
+Local: field:snf4: Width:8
+Local: field:snf5: Width:5
+Local: field:snf6: Width:8
+Local: field:snf8: Width:8
+Local: field:snf9: Width:8
+Local: field:snf8: Width:8
+Local: field:snf10: Width:8
+Local: field:snf11: Width:8
+Local: field:snf12: Width:8
+Local: field:snf13: Width:8
+Local: field:numf2: Width:6
+
+
+[System: Formula]
+cwgstrate:if not $$issysname:$stockitemname then $$GetGSTRateForInclusive:$Date:"":$Name ELSE 0
+
+
+[Function: cwGethsncode]
+Parameter	: pStockItemName	: String
+returns : string
+20	: Do If	: (NOT $$IsEmpty:@@GSTApplDate AND $().Date < @@GSTApplDate) : Return	: ""
+200 : Return	: $$GetInfoFromHierarchy:##pStockItemName:"Stock Item":"HSNCOde":##SVCurrentDate:"GST":$GSTStockItemRate:"":""
+
+
+
+ [function: cwGetGroupRate]
+ parameter :mygroupname : string
+ object : stock group :##mygroupname
+
+;; {19.Jul.19 13:55}  20 : log : "in Group " + ##mygroupname
+;; {19.Jul.19 13:55}  21 : log : $$numitems:gstdetails
+
+ 35 : if : $$numitems:gstdetails > 0
+
+40: return:$$collectionfield:@@cwGSTDETAILSj:(-1):gstdetails ;;cwcollgstrateItmGrp
+45: end if
+50 : return :0
+
+ [Function: cwGetGSTRateFor]
+parameter : myitemname : string
+variable : mygroupname : string
+variable : myGrandgroupname : string
+variable : myGrandParentGrpname : string
+variable : myrate : number
+returns : number
+;; {01.Sep.20 15:09} 00 : log : "In fn " + ##myitemname
+01 : if : ##myitemname = ""
+02 : return : 0
+03 : end if
+
+10: if: $$numitems:cwte1j>0
+20: return:$$collectionfield:@@cwGSTDETAILSj:(-1):cwte1j
+30: end if
+
+
+
+111: set : mygroupname : $parent:stockitem:##myitemname
+;; {01.Sep.20 15:09} 111a : log :"A - "+##mygroupname
+112 : set : myrate : $$cwGetGroupRate:##mygroupname
+;; {01.Sep.20 15:09} 1113 : log :##myrate
+114 : do if : ##myrate <> 0 : return : ##myrate
+
+50 : if : $$issysname:$parent:stockgroup:##mygroupname
+55 : return : 0
+60 : endif
+
+211: set : mygroupname : $parent:stockgroup:##mygroupname
+;; {01.Sep.20 15:09} 2323 : log : "B - "+##mygroupname
+2112 : set : myrate : $$cwGetGroupRate:##mygroupname
+;; {01.Sep.20 15:09} 2113 : log :##myrate
+2214 : do if : ##myrate <> 0 : return : ##myrate
+ ;;==================
+50a : if : $$issysname:$parent:stockgroup:##mygroupname
+55b : return : 0
+60c : endif
+
+211d: set : myGrandgroupname : $parent:stockgroup:##mygroupname
+;; {01.Sep.20 15:09} 2323e : log : "C - "+##myGrandgroupname
+2112f : set : myrate : $$cwGetGroupRate:##myGrandgroupname
+;; {01.Sep.20 15:09} 2113g : log :##myrate
+2214h : do if : ##myrate <> 0 : return : ##myrate
+;;======================
+10ab : if : $$issysname:$grandparent:stockgroup:##mygroupname
+20bb : return : 0
+30cb : endif
+
+40db: set : myGrandgroupname : $grandparent:stockgroup:##mygroupname
+;; {01.Sep.20 15:09} 50eb : log : "D - "+##myGrandgroupname
+60fb : set : myrate : $$cwGetGroupRate:##myGrandgroupname
+;; {01.Sep.20 15:09} 70gb : log :##myrate
+80hb : do if : ##myrate <> 0 : return : ##myrate
+;;======================
+10abc : if : $$issysname:$parent:stockgroup:##myGrandgroupname
+20bbc : return : 0
+30cbc : endif
+
+40dbc: set : myGrandParentGrpname : $parent:stockgroup:##myGrandgroupname
+;; {01.Sep.20 15:09} 50ebc : log : "E - "+##myGrandgroupname
+60fbc : set : myrate : $$cwGetGroupRate:##myGrandParentGrpname
+;; {01.Sep.20 15:09} 70gbc : log :##myrate
+80hbc : do if : ##myrate <> 0 : return : ##myrate
+;;======================
+10abcd : if : $$issysname:$grandparent:stockgroup:##myGrandgroupname
+20bbcd : return : 0
+30cbcd : endif
+
+40dbcd: set : myGrandParentGrpname : $grandparent:stockgroup:##myGrandgroupname
+;; {01.Sep.20 15:09} 50ebcd : log : "E - "+##myGrandgroupname
+60fbcd : set : myrate : $$cwGetGroupRate:##myGrandParentGrpname
+;; {01.Sep.20 15:09} 70gbcd : log :##myrate
+80hbcd : do if : ##myrate <> 0 : return : ##myrate
+;;======================
+500 : return : 0
+
+[System: Formula]
+cwGSTDETAILSj : $$CollectionField:@@cwSTATEWISEDETAILSj:(-1):STATEWISEDETAILS
+cwSTATEWISEDETAILSj: $$FilterValue:$gstrate:RATEDETAILS:last:cwdutyheaditaxj
+cwdutyheaditaxj : $GSTRATEDUTYHEAD = "Integrated Tax"
+
+[Collection: cwte1j]
+type : GSTDETAILS :stockitem
+child of : ##myitemname
+fetch : *.*
+
+
+[Collection: cwcollgstrateItmGrp]
+type : GSTDETAILS :stockgroup
+child of :##mygroupname
+fetch : *.*
+
+

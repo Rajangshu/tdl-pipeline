@@ -1,0 +1,25 @@
+; Created By: Taniya on 2024-07-20 11:12, ID: 
+
+[#Part: EI consignee]
+add:option:cwkbeiconsigneeopt:@@KrishnavanijyaEnabled
+
+[!part:cwkbeiconsigneeopt]
+add:line:cwkbvchstatusline
+
+[line: cwkbvchstatusline]
+field:sp,nf
+
+  Local: Field: sp: info: "Status"
+  Local: field: sp: Width:17
+  Local: field: nf: Width:35
+  local: field: nf: storage:cwstatus
+  Local: Field: nf: Show table: Always
+  Local: Field: nf: table:statuscoll ,Not Applicable
+  Local: Field: nf: Style: normal Bold
+  Local: Field: nf: skip:yes
+
+ [collection:statuscoll]
+   title:"Status List"
+   listname:"Pending"
+   listname:"Approve"
+

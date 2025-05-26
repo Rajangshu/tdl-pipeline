@@ -1,0 +1,210 @@
+; Created By: Khokan on 2024-08-13 12:43, ID: 
+
+[#Menu: Gateway of Tally]
+add:option:cwbpaccountsbookopt
+
+[!menu:cwbpaccountsbookopt]
+add:button:cwbcgeneratedbillbtn
+
+[button:cwbcgeneratedbillbtn]
+ key:Alt+G
+ title:"Generate Bills"
+ Action : Modify Variables:repcwbcgeneratedbill
+
+ [report:repcwbcgeneratedbill]
+  title:"Generate Bills"
+ form:formcwbcgeneratedbill
+
+
+ [form:formcwbcgeneratedbill]
+ part:cwbcgeneratedbillpart
+
+ width:50% PAGE
+
+;; {13.Aug.24 12:43}   on : form Accept : yes:call :cwbillgeneratefun:#fwf2:#fwf3:#fwf5:#amtf5:#sdf:#fwf4
+
+ [part:cwbcgeneratedbillpart]
+ part:cwbcgeneratedbillpartb,cwbcgeneratedbillparta ;,cwbcgeneratedbillpartc
+ vertical:yes
+
+ [part:cwbcgeneratedbillpartb]
+  line:cwbcgeneratedbillsgline
+
+ [line:cwbcgeneratedbillsgline]
+  field:sp,fwf2
+
+ Local: Field: sp: info: "Select Group"
+ Local: Field: sp: width:17
+ Local: Field: fwf2 : table :  Sundry Debtors
+Local: Field: fwf2 : Keys        : Create Group, Alter Group
+Local: Field: fwf2 : Variable    : SV Group
+Local: Field: fwf2: Show table: Always
+Local: Field: fwf2: Style: Normal Bold
+
+space bottom:0.5
+
+[part:cwbcgeneratedbillparta]
+ line:cwbcgeneratedbtline
+ repeat:cwbcgeneratedbtline:colcwbcgeneratedbilltype
+ scroll:vertical
+ break on:$$issysname:$cwbcgeneratedbilltype
+ height:10
+
+ [Collection:colcwbcgeneratedbilltype]
+ type:colcwbcgeneratedbilltype:company
+ child of:$name
+
+
+ [line:cwbcgeneratedbtline]
+field:sp,fwf3
+
+Local: Field: sp: info:if $$line=1 then "Bill Type" else ""
+ Local: Field: sp: width:17
+Local: Field: fwf3 :storage:cwbcgeneratedbilltype
+Local: Field: fwf3: dynamic:""
+Local: Field: fwf3 : table : FeesType,Not Applicable
+local : field : fwf3 :  key : create cost centre, Alter CstCtr
+local : field : fwf3 : Variable    : SV Cost Centre
+Local: Field: fwf3: Show table: Always
+Local: Field: fwf3: Style: Normal Bold
+space bottom:0.5
+
+;;========================================
+
+[Collection:colcwbcgeneratedbilltypenew]
+ type:colcwbcgeneratedbilltype:company
+ child of:$name
+
+ fetch:cwbcgeneratedbilltype
+ 
+ 
+ 
+ ;;================================led group===============================
+ 
+ 
+
+
+[#Part: GRP Details]
+ add:option:cwbcgrpdetailsopt
+
+[!part:cwbcgrpdetailsopt]
+add : lines : At Beginning  : fees
+
+[line : fees]
+field : Long Prompt,cwlogical
+
+local : field : Long Prompt : info : "Fees Details ?"
+local : field : cwlogical : subform : feesDet : $$value
+
+[report : feesDet]
+FORM :feesDet
+title : "Fees Details"
+
+[FORM :feesDet]
+PART :feesDet
+full width : no
+height : 6 inch
+
+[PART :feesDet]
+line : class, ledgerHead, ledgerDet
+scroll : vertical
+repeat : ledgerDet  : FeesDetails
+Break on : $$issysname:$FeesLedger
+
+[line : class]
+field : snf, snf1
+Local: Field: snf : info: " Under :"
+Local: Field: snf : width:7
+
+Local: Field: snf1 : storage : Name:Name:First
+Local: Field: snf1: Style: Normal Bold
+
+space bottom:0.5
+
+[line : ledgerHead]
+border:thin top bottom
+use:ledgerDet
+
+Local: Field: fwf : info:"Ledgers"
+Local: Field: amtf : info:"Amount (Rs)"
+Local: Field: snf : info:"Fees Type"
+Local: Field: numf2 : info:"GST %"
+Local: Field: numf2 : type:string
+
+Local: Field: fwf:delete: storage
+Local: Field: amtf:delete: storage
+Local: Field: snf:delete: storage
+
+Local: Field: amtf:delete: inactive
+Local: Field: snf:delete: inactive
+
+Local: Field: fwf : delete:table : List of Ledgers,Endoflist
+Local: Field: fwf :delete: Keys        : Alter Ledger, Create Ledger
+Local: Field: fwf :delete: Variable    : SV Ledger
+Local: Field: fwf: Show table: no
+
+Local: Field: snf : delete:table : FeesType
+local : field : snf : delete: key : create cost centre, Alter CstCtr
+local : field : snf :delete: Variable    : SV Cost Centre
+Local: Field: snf: Show table: no
+
+Local: Field: default: Style: Normal Bold
+
+[function :cwGetIGSTRateByLedgerName]
+ parameter : ledgername: String
+ object : Ledger : ##ledgerName
+
+ 10: return : @@cwIgstrate
+
+[line : ledgerDet]
+field : fwf,amtf
+right fields :numf2,snf  ;;,cwlogical
+
+Local: Field: numf2: Set As:$$cwGetIGSTRateByLedgerName:#fwf
+Local: Field: numf2: format:"percentage,no zero"
+Local: Field: numf2: skip:yes
+
+Local: Field: fwf : storage: FeesLedger
+Local: Field: fwf : table : List of Ledgers,Endoflist
+Local: Field: fwf : Keys        : Alter Ledger, Create Ledger
+Local: Field: fwf : Variable    : SV Ledger
+Local: Field: fwf: Show table: Always
+Local: Field: amtf : storage: Fees
+Local: Field: amtf : inactive : $$isend:$FeesLedger
+Local: Field: snf : inactive : $$isend:$FeesLedger
+Local: Field: snf : Storage : isSessionFee
+Local: Field: snf : table : FeesType
+local : field : snf :  key : create cost centre, Alter CstCtr
+local : field : snf : Variable    : SV Cost Centre
+Local: Field: snf: Show table: Always
+Local: Field: cwlogical: storage: iscwElective
+
+[collection : FeesType]
+Title : $$LocaleString:"Fees Type "
+ list name: @@cwFTAdimission
+ list name: @@cwFTSession
+ list name: @@cwFTHY
+ list name: @@cwFTM
+ list name: @@cwftQ
+
+[System : Formula]
+cwFTAdimission : "Admission"
+cwFTSession : "Annual"
+cwFTHY : "Halfyearly"
+cwFTM :"Monthly"
+cwFTQ : "Quarterly"
+
+[collection : ElectiveFeesDetails]
+type : FeesDetails : ledger
+child of : $name
+
+
+
+
+[system : formula]
+isSessionFee : $isSessionFee:ledger:$ledgername  ;;group:#groupname
+
+
+
+
+

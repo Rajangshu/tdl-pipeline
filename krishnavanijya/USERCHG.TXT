@@ -1,0 +1,1079 @@
+; Created By: Khokan on 2022-11-12 11:31, ID: 
+
+[#Line: CUTitle]
+ add:option:CUTitleoptx:@@KrishnavanijyaEnabled
+ [!line:CUTitleoptx]
+
+ add:right field : snfx3
+ Local: Field: snfx3: info: "Group Lock "
+
+ Local: Field: snfx2: Style: Normal Bold
+ Local: Field: snfx3: Style: Normal Bold
+ Local: Field: snfx4: Style: Normal Bold
+
+ Local: field: snfx2: Width:11
+ Local: field: snfx3: Width:11
+ Local: field: snfx4: Width:11
+
+
+ [#Line: CUSubTitle]
+ add:option:CUSubTitleoptx:@@KrishnavanijyaEnabled
+ [!line:CUSubTitleoptx]
+add:right field : snfx3
+
+
+ Local: Field: snfx3: info: ""
+
+ [#Part: Company Users]
+ add:option:CompanyUsersoptx
+ [!part:CompanyUsersoptx]
+
+ local:line:CompanyUsers: add : right field : cwGroupnamefield
+
+
+ [Collection: collskip]
+ title:"Yes/No"
+ listname:"Yes"
+ listname:"No"
+
+
+ ;;==========================
+
+
+ [field:cwisIndentApproveBy]
+
+ Use     :snfx
+ table:collApproveby
+ Show table: Always
+ storage:cwisApproveBy
+ Width:11
+
+ [Collection: collApproveby]
+ title:"Yes/No"
+ listname:"Yes"
+ listname:"No"
+
+
+
+  [Collection:collcwisApproverCmp]	
+  Type     : User List  : Company
+  Child Of : ##SVCurrentCompany
+  format:$Name,10
+
+  format:$cwisApproveBy,10
+
+
+  fetch:Name,Security,cwisApproveBy
+  filter:myvchnamefilter
+
+
+  [System:Formula]
+  myvchnamefilter:$Name=$$CmpUserName
+   MYcwisApproverNEW:$$FilterValue:$cwisApproveBy:collcwisApproverCmp:First:myvchnamefilter
+
+   myusername:$$FilterValue:$name:collcwisApproverCmp:First:myvchnamefilter
+
+
+
+  [Function:funMYcwisApprover]
+  variable:b:logical:@@MYcwisApproverNEW
+  10:return:##b
+
+  [Function: myusername]
+  variable:a:string:@@myusername
+  10:return:##a
+
+ ;;==========================
+
+ [field:cwCreditfield1]
+
+Use     :snfx
+table:collskip
+Show table: Always
+
+inactive : $$issysname:$name
+storage:cwCreditlimitdays
+width:10
+
+ [field:cwGroupnamefield]
+
+Use     :snfx
+table:collskip
+Show table: Always
+
+inactive : $$issysname:$name
+storage:cwGroupnamenew
+width:10
+ SubForm :ledgroup: $$value
+
+[report:ledgroup]
+form:ledgroup
+
+
+
+[form:ledgroup]
+part:ledgroup
+
+[part:ledgroup]
+line:ledgroup,ledgroup2
+repeat:ledgroup2:collcwGroupname
+break on  : $$issysname:$cwGroupname
+scroll: vertical
+option: small size part
+height : 30% page
+
+[Collection: collcwGroupname]
+type:collcwGroupname:Company
+child of:##SVCURRENTCOMPANY
+
+[line:ledgroup]
+field:nf,nf2,nf4
+Local: Field:nf:info:"Main Group"
+Border: thin bottom
+Local: field: nf: Align:centre
+Local: Field: nf: Style: Normal Bold
+
+Local: Field:nf2:info:"Child Group"
+Local: field: nf2: Align:centre
+Local: Field: nf2: Style: Normal Bold
+
+Local: Field:nf4:info:"Ledger"
+Local: field: nf4: Align:centre
+Local: Field: nf4: Style: Normal Bold
+;; {29.Feb.20 12:27} local: field:nf4: Invisible: yes
+
+[line:ledgroup2]
+field:nf12,nf2,nf6
+
+
+Local: Field: nf12: storage:cwGroupname
+Local: Field: nf12:table: Group,Not Applicable
+Local: Field: nf12:table: Show table: Always
+Local: Field: nf3:modifies:str1
+Local: Field: nf3: Set As:#nf12
+
+Local: Field: nf2: storage:cwGroupname2
+Local: Field: nf2:table: cwGroupxx,Not Applicable
+Local: Field: nf2:dynamic:""
+
+Local: Field: nf2: Show table: Always
+
+ local: field: nf2: inactive: $$issysname:#nf12
+
+ Local: Field: nf6: storage:cwledgerblk
+local: field: nf6: inactive: $$issysname:#nf12
+Local: Field: nf6: table:cwledgertable ,AllItems
+Local: Field: nf6: Show table: Always
+Local: Field: nf6:dynamic:""
+;; {29.Feb.20 12:27} local: field:nf6: Invisible: yes
+
+[collection:cwledgertable]
+title:"List of Ledger"
+type :ledger
+
+
+add:filter:cwledblkfilt
+
+[System: Formula]
+cwledblkfilt:$parent:ledger:$name=#nf2
+
+
+[collection:cwGroupxx]
+title:"Child Groups"
+    type        : group
+child of: #nf12
+ BelongsTo   : Yes
+
+keep source:no
+
+format:$name,10
+format:$grandparent,10
+format:$parent,10
+
+
+fetch:name,cwGroupname
+option : cwRefreshOption : #nf12 = "x" or #nf12 <> "x"
+compute : myparent : #nf12
+
+[!collection : cwRefreshOption]
+
+
+[System: Formula]
+
+cwnewfil: $$cwnewfil:$name
+
+[function : cwnewfil]
+parameter : myname : string
+10 : return : $$isobjectbelongsto:group:(##myname):#nf12
+
+
+
+
+
+
+ [collection:cwnewfunc]
+ Parm Var	: pConsignee	: String:##str1
+ Type		: group
+ Childof		: ##pConsignee
+ BelongsTo	: Yes
+	
+
+
+ [collection:cwGroupxxx]
+    Type        : Group
+
+  add:filter:cwgrop
+
+
+[System: Formula]
+ cwgrop:$name=$cwGroupname
+
+
+
+;;======================================================
+;;======================================================
+
+[field:cwGodownnamefield]
+
+Use     :snfx
+table:collskip
+Show table: Always
+
+inactive : $$issysname:$name
+storage:cwGodownnamenew
+ Width:13
+ SubForm :Godownlock: $$value
+
+ [report:Godownlock]
+ form:Godownlock
+
+ [form:Godownlock]
+ part:Godownlock
+
+ [part:Godownlock]
+ line:Godownlock,Godownlock2
+
+ repeat:Godownlock2:collcwGodownNamelock
+break on  : $$issysname:$cwGodownNamelock
+scroll: vertical
+option: small size part
+height : 30% page
+
+[Collection:collcwGodownNamelock]
+type:collcwGodownNamelock:Company
+child of:##SVCURRENTCOMPANY
+
+ [line:Godownlock]
+ field:nf
+ Local: Field: nf: info: "Godown Name"
+
+ [line:Godownlock2]
+ field:nf
+ Local: Field: nf: storage:cwGodownNamelock
+ Local: Field: nf: table:collcwGodownName ,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ [Collection: collcwGodownName]
+ type:godown
+ title:"List of godown"
+
+
+ [Collection: collcwgodownnamenew]
+source Collection: colluser1
+walk:collcwGodownNamelock
+compute:cwGodownNamelock1:$cwGodownNamelock
+
+format:cwGodownNamelock1,10
+
+fetch:cwGodownNamelock
+
+[function : cwcheckgodown]
+ parameter : myparent :string:$name ;;$parent
+
+ 10 : walk collection : collcwgodownnamenew
+ 20 : if : ##myparent =$cwGodownNamelock1
+
+ 30 : return :yes
+ 40 : end if
+ 50 : end walk
+
+ 60 : return :no
+
+;;=========================godown===============================================
+
+[#Field: VCHBATCH Godown]
+
+;; {30.Aug.22 15:30} add:option:VCHBATCHGodownopt:@@KSLEnabled and not @@cwOwner and $$funmycwGroupnamenew="yes"
+[!field:VCHBATCHGodownopt]
+
+delete:Table       : Stockable Godown VchExtract                 : $$IsMultiGodownOn And (NOT @@IsOrderVch AND NOT @@IsJobOrderVouchers AND ($$Line = 1 OR @@HasTrackingNo OR @@IsOrdersOn) AND NOT @@IsJobCostingOn)
+		
+delete:Table       : Stockable Godown VchExtract, End of List    : $$IsMultiGodownOn And (NOT @@IsOrderVch AND NOT @@IsJobOrderVouchers AND ($$Line > 1 AND NOT @@HasTrackingNo AND NOT @@IsOrdersOn) AND NOT @@IsJobCostingOn) OR ($$Line > 1 AND @@IsNonTrackJobInOut)
+delete:Table       : Stockable Godown VchExtract, Any            : $$IsMultiGodownOn And ((@@IsOrderVch AND NOT @@IsJobCostingOn) OR @@IsJobOrderVouchers)
+
+delete:Table       : JOB Stockable Godown VchExtract             : NOT @@IsOrderVch AND ($$Line = 1 OR @@HasTrackingNo OR @@IsOrdersOn) AND @@IsJobCostingOn AND $$IsRemoteCompany
+delete:Table       : JOB Stockable Godown VchExtract, End of List: NOT @@IsOrderVch AND ($$Line > 1 AND NOT @@HasTrackingNo AND NOT @@IsOrdersOn) AND @@IsJobCostingOn AND $$IsRemoteCompany
+delete:Table       : JOB Stockable Godown VchExtract, Any        : @@IsOrderVch AND @@IsJobCostingOn
+
+add:table:collgodown, End of List
+
+[Collection: collgodown]
+type:godown
+title:"List of Godowns"
+;; {27.Feb.20 11:02} format:$name,10
+;; {27.Feb.20 11:02} format:$$cwcheckgodown,10
+filter:cwcheckgodownfilter
+
+[System: Formula]
+cwcheckgodownfilter:$$cwcheckgodown="yes"
+
+;;==============================================================
+
+[Collection: collgodownx]
+type:godown
+title:"List of Title"
+format:$name,10
+format:$$cwcheckgodown,10
+
+[#Field: DSP Get Godown Name]
+;; {30.Aug.22 15:30} add:option:DSPGetGodownNameopt:@@AktradingEnabled and not @@cwOwner and $$funmycwGroupnamenew="yes"
+[!field:DSPGetGodownNameopt]
+Use         : Name Field
+delete:Table       : Godown Summary
+add:Table       : collgodown
+Show table: Always
+
+
+;;========================================================
+
+
+ [Collection:collCompanyUsersx]	
+  Type     : User List  : Company
+  Child Of : ##SVCurrentCompany
+  format:$Name,10
+  format:$cwGroupname,10
+  format:$cwGroupname2,10
+  format:$cwledgerblk,10
+  format:$cwCreditlimitdays,10
+  fetch:Name,Security,cwGroupname,cwGroupname2,cwledgerblk,cwCreditlimitdays
+  filter:myvchnamefilter
+
+
+  [System:Formula]
+  myvchnamefilter:$Name=$$CmpUserName
+  myusername:$$FilterValue:$name:collCompanyUsersx:First:myvchnamefilter
+  mycwCreditlimitdays:$$FilterValue:$cwCreditlimitdays:collCompanyUsersx:First:myvchnamefilter
+
+
+;;=============================================================================================
+
+ [Function: funmycwCreditlimitdays]
+  variable:b:logical:@@mycwCreditlimitdays
+  10:return:##b
+
+
+
+[Collection: collcwGroupnamenew]
+source Collection: colluser1
+walk:collcwGroupname
+compute:cwGroupname1:$cwGroupname
+compute:cwGroupname1x:$cwGroupname2
+compute:cwledgerblkx:$cwledgerblk
+compute:cwcheckledgrpz:$cwcheckledgrp
+format:$cwGroupname1,10
+format:$cwGroupname1x,10
+format:$cwledgerblkx,10
+format:$cwcheckledgrpz,10
+
+fetch:cwGroupname,cwGroupname2,cwledgerblk,cwcheckledgrp
+
+
+
+
+
+[Collection: colluser1]
+Type     : User List  : Company
+Child Of : ##SVCurrentCompany
+format:$Name,10
+
+fetch: Name,Security,cwGroupname,cwGroupname2,cwledgerblk,cwcheckledgrp,cwGodownNamelock
+filter:myvchnamefiltern
+keep source : yes
+
+
+;;===========================================
+
+      /*
+ [#Line: DSP ColVchDetail]
+ [#Line: DSP VchDetail]
+ border:thin box
+ add:field:snf,snf1
+ Local: Field: snf: Set As:$cwbroker
+ Local: Field: snf1: Set As:##svusername
+    */
+
+;;=================sales register===============================================
+
+ [#Collection: Filtered Vouchers of Company]
+  fetch:cwbroker
+  add:option:cwFilteredVouchersofCompanyopt:@@cwNormal and $$funmycwGroupnamenew="yes"
+
+  [!Collection: cwFilteredVouchersofCompanyopt]
+
+  add:filter:usersalesmanfilter
+
+  [System: Formula]
+  usersalesmanfilter:##svusername=$cwbroker
+
+  ;;Sapan Sarawagi
+
+;;======================================================================================
+
+/*
+[#Line: TRSCRDetail]
+border:thin box
+add:field:snf
+Local: Field:snf: Set As:$cwbroker1   ;;:ledger:$TrackLedger
+     */
+
+[#Collection: OutwardCldTrackofCompany]
+[#Collection: OutwardCldTrackofCompany]
+  fetch:cwbroker
+
+  Compute : cwbroker1 : $cwbroker:ledger:$TrackLedger
+
+  [#Collection: OutwardNegTrackOfCompany]
+   add:option:cwOutwardNegTrackOfCompanyopt:@@cwNormal and $$funmycwGroupnamenew="yes"
+
+  [!Collection: cwOutwardNegTrackOfCompanyopt]
+
+
+  Compute : cwbroker1 : $cwbroker:ledger:$TrackLedger
+    add:filter:usersalesmanfilter2salesbill
+
+  [#Collection: OutwardPosTrackOfCompany]
+  add:option:cwOutwardPosTrackOfCompanyopt:@@cwNormal and $$funmycwGroupnamenew="yes"
+
+  [!Collection: cwOutwardPosTrackOfCompanyopt]
+
+  Compute : cwbroker1 : $cwbroker:ledger:$TrackLedger
+  add:filter:usersalesmanfilter2salesbill
+
+   [System: Formula]
+  usersalesmanfilter2salesbill:##svusername=$cwbroker1
+
+;;======================================================================================
+
+ [function : cwcheckParent]
+ parameter : myparent :string:$name
+ variable : ledparent : string : $parent
+;; {13.Sep.19 12:33}  01 : if :not (##myparent contains "easter" or ##myparent = "creditor 1" or ##myparent = "ledger a")
+;; {13.Sep.19 12:33}  02 : return : no
+;; {13.Sep.19 12:33}  03 : end if
+
+ ;05 : return : yes
+
+;; {13.Sep.19 12:35}  09 : log : "Led NAme: "+##myparent
+;; {13.Sep.19 12:35}  09b: log : "Led PArent: "+##ledparent
+ 10 : walk collection : collcwGroupnamenew
+
+
+15:  if : $$isobjectbelongsto:group:(##ledparent):$cwGroupname2
+;; {13.Sep.19 12:35}  11 : log: "x "+$cwledgerblk
+20 :    if : $cwledgerblk = ""
+23 :    RETURN : NO
+24 :    end if ;;20
+
+28 :    if : $cwledgerblk = ##myparent
+29 :    return : no
+30 :    end if ;; 28
+
+35 : end if ;; 15
+
+
+
+50 : end walk
+;; {13.Sep.19 12:35} 55 : log : $name +" not found"
+ 60 : return : yes
+
+
+
+
+
+[System:Formula]
+myvchnamefiltern:$Name=$$CmpUserName
+
+
+;;==========================================================================================ledger
+
+[#Collection: Monthly Ledger]
+ add:option:collMonthlyLedgeropt:@@KrishnavanijyaEnabled and not @@cwOwner and $$funmycwGroupnamenew="yes"
+[!Collection:collMonthlyLedgeropt]
+
+Use         : List of Ledgers
+Variable    : Ledger Name
+Report      : Ledger Vouchers
+Trigger     : LedgerNamexx
+Fetch		: Name
+
+
+
+[Report: LedgerNamexx]   ;;Auto Report
+
+Use    : Collection Variable
+Local  : Line : Collection Variable : Field : LedgerNamexx
+Local  : Field: MV Title            : Info  : $$LocaleString:"Name of Ledger"
+
+
+
+[Field: LedgerNamexx]
+Use         : Name Field
+Key         : Create Ledger
+Modifies    : LedgerName
+;; {14.Nov.22 12:29} Table       : ListofExtractLedgers
+delete:Table       : ListofExtractLedgers
+
+add:table:collbrokerxnewnew
+;; {14.Nov.22 16:35} add:table:colltickkslentry
+Show Table  : Always
+;; {14.Nov.22 11:34} CommonTable : No
+
+ [Collection:collbrokerxnewnew]
+type:ledger
+title:"List of Ledger"
+;; {14.Nov.22 12:20} filter : cwcheckParent2ksnewx2x
+
+format:$name,30
+format:$parent,10
+
+format:$$cwcheckParentaccountbooks ;;:$parent
+format:$$cwcheckParentaccountbooks2  ;;:$parent
+
+
+
+;; {14.Nov.22 17:20} filter:cwcheckParent2ksnewx2xfilter
+
+[System: Formula]
+cwcheckParent2ksnewx2xfilter:$$cwcheckParent2ks="yes"
+
+;;================================================================
+
+
+;;================================================================
+
+
+[Collection:collbrokerxnew]
+type:ledger
+title:"List of Ledger"
+;; {14.Nov.22 12:20} filter : cwcheckParent2ksnewx2x
+
+format:$name,30
+
+
+format:$parent,10
+
+
+format:$$cwcheckParent
+
+
+;; {14.Nov.22 13:01} format:$$cwcheckParentnew,10
+
+;; {14.Nov.22 13:01} format:@@cwcheckParent2ksnewxx,10
+;; {14.Nov.22 13:01} format:$$cwcheckParent2ks,10
+
+
+ [System: Formula]
+ cwcheckParent2ksnewxx:$$cwcheckParent2ks:$parent
+ cwcheckParent2ksnewx2x:$$cwcheckParent2ks  ;;="yes"
+
+
+ cwcheckParent :$$cwcheckParent
+ cwcheckParentksl :$$cwcheckParent="no"
+
+ ;;========================================Group Summary=======================
+
+
+[#Collection: Group Summary]
+;; {14.Nov.22 12:26}  add:option:collGroupSummaryopt:@@KrishnavanijyaEnabled and not @@cwOwner and $$funmycwGroupnamenew="yes"
+
+ [!collection:collGroupSummaryopt]
+
+Use         : List of Groups  ;;Group
+Collection  : Primary
+Variable    : Group Name
+delete:Report      : Group Summary
+add:Report      :RepcollGroupSummaryx
+Trigger     : GroupNamex1
+Fetch		: Name
+
+[Report      :RepcollGroupSummaryx]
+use:GroupSummary	
+	
+	
+	
+[Report: GroupNamex1]    ;;Auto Report
+
+Use     : Collection Variable
+Local   : Line : Collection Variable : Field : GroupNamex1
+Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Group"
+
+
+[Field: GroupNamex1]
+
+Use         : Name Field
+Key         : Create Group
+Set as      : if ##GroupName = "" then $$SysName:Primary else ##GroupName
+Modifies    : GroupName
+delete:Table       : Group Summary Extract
+add:Table       : collGroupSummary
+Show Table  : Always
+CommonTable : No
+
+[Collection: collGroupSummary]
+type:group
+title:"List of Group"
+
+;; {19.Mar.20 18:53} format:$name,30
+;; {19.Mar.20 18:54} format:$parent,30
+;; {19.Mar.20 18:54} format:$$cwcheckgrParent,10
+;; {19.Mar.20 18:54} format:$$cwcheckParent2,10
+;; {19.Mar.20 18:54} format:$$cwcheckParent,10
+
+add:filter:mycwGroupsummarynamenewvch
+
+[System: Formula]
+;; {26.Sep.19 15:55}  mycwGroupnamenew:not $$cwcheckParent2=$name
+;; {26.Feb.20 17:25}  mycwGroupnamenew:$$cwcheckgrParent="no" ;;not $$cwcheckParent=$name
+;; {29.Feb.20 13:06}  mycwGroupnamenew:$$cwcheckgrParent="yes" ;;not $$cwcheckParent=$name
+;; {19.Mar.20 18:24}  mycwGroupnamenewvch:$$cwcheckParent="no"
+ mycwGroupsummarynamenewvch:$$cwcheckgrParent="yes"
+
+
+
+;;==============================================================================
+
+[#Collection: Group Vouchers]
+;; {14.Nov.22 12:26} add:option:collGroupVouchersopt:@@KrishnavanijyaEnabled and not @@cwOwner and $$funmycwGroupnamenew="yes"
+
+[#Collection: Group Outstandings]
+;; {14.Nov.22 12:26}  add:option:GroupOutstandingsopt:@@KrishnavanijyaEnabled and not @@cwOwner and $$funmycwGroupnamenew="yes"
+[!Collection:GroupOutstandingsopt]
+
+Use         : Group Summary
+Fetch		: Name
+Report      : Group Outstandings
+Delete      : Collection  : Primary
+Trigger     : GOutstandingsx
+Filter      : GroupWithBillWise
+
+
+[Report: GOutstandingsx]    ;;Auto Report
+
+Use     : Group Name
+Local   : Field : Group Name : Delete: Table
+Local   : Field : Group Name : delete   : Table : Group Outstandings Extract
+Local   : Field : Group Name : Add   : Table : GroupOutstandingsExtractx
+
+[Collection: GroupOutstandingsExtractx]
+type:group
+title:"List of Group"
+;; {29.Feb.20 12:47}  add:filter:mycwGroupnamenew
+;; {29.Feb.20 13:03} format:$name,10
+;; {29.Feb.20 13:03} format:$$cwcheckgrParent,10
+;; {29.Feb.20 13:03} format:$$cwcheckParent2,10
+;; {29.Feb.20 13:03} format:@@mycwGroupnamenewxk,10
+
+filter:mycwGroupnamenewxk
+
+[System: Formula]
+mycwGroupnamenewxk:@@mycwGroupnamenewxk2="yes" or @@mycwGroupnamenewxk2="no"  ;;or $$cwcheckgrParent="yes"
+mycwGroupnamenewxk1:$$cwcheckgrParent="yes"
+mycwGroupnamenewxk2:$$isobjectbelongsto:group:($parent:group:$parent):$$cwcheckParent2
+
+[!Collection:collGroupVouchersopt]
+
+Use         : Group
+Variable    : Group Name
+Report      : Group Vouchers
+Trigger     : VGroupNamex
+Fetch		: Name
+	
+[Report: VGroupNamex]
+Use     : Group Name
+Local   : Field	: Group Name	: Delete: Table
+Local   : Field	: Group Name	: delete	: Table	: VGroupSummaryx
+Local   : Field	: Group Name	: add	: Table	: collGroupSummaryExtract
+;; {29.Feb.20 13:05} Local   : Field	: Group Name	: add	: Table	: GroupOutstandingsExtractx
+
+[Collection: collGroupSummaryExtract]
+type:group
+title:"List of Group"
+;; {29.Feb.20 13:07} add:filter:mycwGroupnamenew
+
+;; {19.Mar.20 18:53} format:$name,30
+;; {19.Mar.20 18:54} format:$parent,30
+;; {19.Mar.20 18:54} format:$$cwcheckgrParent,10
+;; {19.Mar.20 18:54} format:$$cwcheckParent2,10
+;; {19.Mar.20 18:54} format:$$cwcheckParent,10
+
+add:filter:mycwGroupnamenewvch
+
+[System: Formula]
+;; {26.Sep.19 15:55}  mycwGroupnamenew:not $$cwcheckParent2=$name
+;; {26.Feb.20 17:25}  mycwGroupnamenew:$$cwcheckgrParent="no" ;;not $$cwcheckParent=$name
+;; {29.Feb.20 13:06}  mycwGroupnamenew:$$cwcheckgrParent="yes" ;;not $$cwcheckParent=$name
+;; {19.Mar.20 18:24}  mycwGroupnamenewvch:$$cwcheckParent="no"
+ mycwGroupnamenewvch:$$cwcheckgrParent="yes"
+
+
+ [function : cwcheckgrParent]
+ parameter : myparent :string:$name ;;$parent
+
+ 10 : walk collection : collcwGroupnamenew
+ 20 : if : ##myparent =$cwGroupname2
+
+ 30 : return :yes
+ 40 : end if
+ 50 : end walk
+
+ 60 : return :no
+
+
+
+  [function : cwcheckParent2]
+ parameter : myparent :string:$parent
+
+ 10 : walk collection : collcwGroupnamenew
+20 :    if : $cwledgerblk = ""
+23 :    RETURN :$cwGroupname1x  ;;$cwGroupname2
+24 :    end if ;;20
+
+50 : end walk
+
+ 60 : return : no
+ 
+ 
+
+;;================================================================================================
+
+
+[#Collection: GrpOS LedgerChildOfGroupName]
+ add:option:cwGrpOSLedgerChildOfGroupName ;;:not @@cwOwner
+[!Collection:cwGrpOSLedgerChildOfGroupName]
+;; {13.Sep.19 17:42} add:filter:cwnewled
+use:collbrokerxnew
+
+[#collection:GrpOS GroupChildOfGroupName]
+;; {14.Nov.22 12:26} add:option:cwGrpOSGroupChildOfGroupName:not @@cwOwner
+[!Collection:cwGrpOSGroupChildOfGroupName]
+use:collGroupSummaryExtract
+;; {13.Sep.19 17:45} add:filter:cwnewledgrp
+
+[System: Formula]
+cwnewled:not $$cwcheckParent3=$name;;="Creditor 1"
+cwnewledgrp:not $$cwcheckParent2=$Name
+
+
+
+;;========================Receipts and Payments summary=======================
+
+[#Report: RPGroup Summary]
+
+[#Collection: TrialBal GroupChildOfGroupName]
+;; {28.Feb.20 18:30} add:option:TrialBalGroupChildOfGroupNameopt:not @@cwOwner
+[!collection:TrialBalGroupChildOfGroupNameopt]
+add:filter:mycwGroupnamenew
+
+[#line:DSP AccLine]	
+;; {26.Sep.19 18:37} add:field:snf
+;; {26.Sep.19 18:38} Local: Field: snf: Set As:$$cwcheckgrParent
+
+;;=================================================================
+
+[#Field: ACLSLed]
+add:option:ACLSLedtopt:@@KrishnavanijyaEnabled and not @@cwOwner and $$funmycwGroupnamenew="yes"
+
+[!field:ACLSLedtopt]
+
+  delete:table
+ add:table:colltickkslentry
+ 
+ [#Field: VCH Particulars]
+ add:option:ACLSLedtopt:@@KrishnavanijyaEnabled and not @@cwOwner and $$funmycwGroupnamenew="yes"
+
+
+
+
+;;=================================================================
+
+
+[#Field: EI Consignee]
+add:option:EIConsigneeticktopt:@@KrishnavanijyaEnabled and not @@cwOwner and $$funmycwGroupnamenew="yes"
+
+[!field:EIConsigneeticktopt]
+ delete:Table       : Party Cash Ledgers Extract : NOT @@UseClassFmt
+ delete:Table       : Invoice Ledgers Extract    : @@UseClassFmt
+
+;; {29.Feb.20 12:01}  add:table:colltick
+;; {29.Feb.20 11:57}  add:table:Coluserrep
+
+ delete:table
+ add:table:colltickkslentry
+
+
+[Collection: colltickkslentry]
+
+type:ledger
+title:"List of Ledger"
+;; {14.Nov.22 12:20} filter : cwcheckParent2ksnewx2x
+
+format:$name,30
+
+
+format:$parent,10
+
+
+;; {15.Nov.22 10:02} format:$$cwsalesParent2ks,10
+;; {15.Nov.22 10:02} format:@@mycwsalesParent2ks,10
+format:$$cwcheckParententry,10
+format:$$cwsalesParent2ks,10
+
+
+
+
+[System: Formula]
+cwcheckParentfilterentry:$$cwcheckParent2sales="yes"
+mycwsalesParent2ks:$$cwsalesParent2ks:$parent
+mycwsalesParent2ks1:$$cwsalesParent2ks:$name
+
+[function : cwcheckParent2sales]
+ parameter : myparent :string:$parent
+
+ 10 : walk collection : collcwGroupnamenew
+ 20 : if : ##myparent = $cwGroupname2
+
+ 30 : return : yes
+ 40 : end if
+ 50 : end walk
+
+ 60 : return : no
+ 
+ 
+ ;;=================================================
+ 
+ [function : cwcheckParentaccountbooks2]
+
+ parameter : myparent :string:$name
+ variable : ledparent : string : $parent
+
+ 10 : walk collection : collcwGroupnamenew
+
+
+ 15:  if : $$isobjectbelongsto:group:(##ledparent):$cwGroupname2
+
+ 20 :    if : $cwledgerblk = ""
+ 23 :    RETURN : NO
+ 24 :    end if ;;20
+
+ 28 :    if : $cwledgerblk = ##myparent
+ 29 :    return : no
+ 30 :    end if ;; 28
+
+ 35 : end if ;; 15
+
+ 50 : end walk
+
+ 60 : return : yes
+
+
+
+;;================================================================
+
+[function : cwsalesParent2ks]
+ parameter : myparent :string:$parent
+
+ 10 : walk collection : collcwGroupnamenew
+ 14:log:"aaaaaaaaaaaaaaaaaaaaa"
+ 15:log:$cwGroupname2
+ 16:log:"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+
+ 20 : if : ##myparent = $cwGroupname2
+
+ 30 : return : yes
+ 40 : end if
+ 50 : end walk
+
+ 60 : return :no
+
+
+;;================================================================
+
+[function : cwcheckParentaccountbooks]
+ parameter : myparent :string:$parent
+
+ 10 : walk collection : collcwGroupnamenew
+ 14:log:"xxxxxxxxxxxxxxxxxxxx"
+ 15:log:$cwGroupname2
+ 16:log:"yyyyyyyyyyyyyyyyyyyyyyyyyy"
+
+ 20 : if : ##myparent = $cwGroupname2
+
+ 30 : return : yes
+ 40 : end if
+ 50 : end walk
+
+ 60 : return :no
+ 
+ 
+ ;;=================================================
+ 
+
+
+   [function : cwcheckParententry]
+ parameter : myparent :string:$name
+ variable : ledparent : string :$parent
+
+ ;05 : return : yes
+
+;; {29.Feb.20 12:44}  09 : log : "Led NAme: "+##myparent
+;; {29.Feb.20 12:44}  09b: log : "Led PArent: "+##ledparent
+ 10 : walk collection : collcwGroupnamenew
+
+;;$$isobjectbelongsto:group:($parent:ledger:$parent):$$Groupsundrydebtors
+
+
+15: if : $$isobjectbelongsto:group:(##ledparent):$cwGroupname2
+
+;; {29.Feb.20 12:38} 15:  if : $$isobjectbelongsto:group:($parent:ledger:##ledparent):$cwGroupname2
+;; {13.Sep.19 12:35}  11 : log: "x "+$cwledgerblk
+
+20 :    if : $cwledgerblk = ""
+23 :    RETURN :no
+24 :    end if ;;20
+
+28 :    if : $cwledgerblk = ##myparent
+29 :    return : yes
+30 :    end if ;; 28
+
+35 : end if ;; 15
+
+
+
+50 : end walk
+;; {13.Sep.19 12:35} 55 : log : $name +" not found"
+ 60 : return : yes
+;;==================================================================
+
+
+[System: Formula]
+cwcheckParent2ksnewxx1:$$cwcheckParent2ks:$parent
+cwcheckParent2ksnewx2x2:$$cwcheckParent2ks:$name  ;;="yes"
+
+
+[System: Formula]
+ksltinew:$$cwcheckParent:@@kslti
+kslti:$$isobjectbelongsto:group:($parent:ledger:$parent):$$Groupsundrydebtors
+
+
+[Collection: colltick]
+Use  : List of Ledgers
+type : ledger
+
+;; {26.Feb.20 18:29} filter:ledmassage2new
+Align: Right ;;centre
+Fetch: Name, Language Name, TaxType, AffectsStock, IsRevenue, IsDeemedPositive, Parent, IsInterestOn
+;; {29.Feb.20 11:57} format:$name,10
+;; {29.Feb.20 11:57} format:$parent,10
+;; {29.Feb.20 11:57} format:$$cwcheckParentnew,10
+;; {29.Feb.20 11:57} format:$$cwcheckParentnew,10
+;; {29.Feb.20 11:57} format:@@cwcheckParent2ksnewx,10
+;; {29.Feb.20 11:57} format:@@cwcheckParent2ksnewx2,10
+;; {29.Feb.20 11:57} format:@@cwcheckParentnewxxxx,10
+filter:cwcheckParent2ksnewx2
+
+
+[System: Formula]
+cwcheckParent2ksnewx:$$cwcheckParent2ks:$parent
+;; {28.Feb.20 16:26} cwcheckParent2ksnewx2:if $$funmycwGroupnamenew="yes" then $$cwcheckParent2ks:$parent="yes" else no
+cwcheckParent2ksnewx2:$$cwcheckParent2ks:$parent ;;="yes"
+cwcheckParentnewxxxx:$$cwcheckParent:$parent ;;="yes"
+
+;;=====================================
+
+ [Collection:collCompanyUsersnew]	
+  Type     : User List  : Company
+  Child Of : ##SVCurrentCompany
+  format:$Name,10
+
+  format:$cwGroupnamenew,10
+  fetch:cwskipyesno2,Name,Security,cwGroupname,cwGroupnamenew
+  filter:myvchnamefilter
+
+
+  [System:Formula]
+  mycwGroupnamenew:$$FilterValue:$cwGroupnamenew:collCompanyUsersnew:First:myvchnamefilter
+
+
+
+
+[Function:funmycwGroupnamenew]
+    variable:a:string:@@mycwGroupnamenew
+    10:return:##a
+
+    [Function:funitemAppruser2]
+     variable:b:logical:@@cwownerx
+    10:return:##b
+
+ [System: Formula]
+cwOwnerx : (##svusername = $ownername:company:##svcurrentcompany)
+
+
+
+;;=========================================================
+
+
+[function : cwcheckParent2ks]
+ parameter : myparent :string:$parent
+
+ 10 : walk collection : collcwGroupnamenew
+ 20 : if : ##myparent = $cwGroupname2
+
+ 30 : return : yes
+ 40 : end if
+ 50 : end walk
+
+ 60 : return : no
+
+ ;;================================================
+
+     [function : cwcheckParentnew]
+ parameter : myparent :string:$name
+ variable : ledparent : string : $parent
+;; {13.Sep.19 12:33}  01 : if :not (##myparent contains "easter" or ##myparent = "creditor 1" or ##myparent = "ledger a")
+;; {13.Sep.19 12:33}  02 : return : no
+;; {13.Sep.19 12:33}  03 : end if
+
+ ;05 : return : yes
+
+;; {27.Feb.20 11:44}  09 : log : "Led NAme: "+##myparent
+;; {27.Feb.20 11:44}  09b: log : "Led PArent: "+##ledparent
+ 10 : walk collection : collcwGroupnamenew
+
+
+15:  if : $$isobjectbelongsto:group:(##ledparent):$cwGroupname2
+;; {13.Sep.19 12:35}  11 : log: "x "+$cwledgerblk
+20 :    if : $cwledgerblk = ""
+23 :    RETURN : NO
+24 :    end if ;;20
+
+28 :    if : $cwledgerblk = ##myparent
+29 :    return : no
+30 :    end if ;; 28
+
+35 : end if ;; 15
+
+
+
+50 : end walk
+;; {13.Sep.19 12:35} 55 : log : $name +" not found"
+ 60 : return : yes

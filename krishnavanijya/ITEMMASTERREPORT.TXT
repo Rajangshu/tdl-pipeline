@@ -1,0 +1,391 @@
+; Created By: Khokan on 2022-11-07 11:40, ID: 
+
+     [#menu: Gateway of Tally]
+     ;;   add: Option: ItemmasterReportLock ;; : @@ItemmasterReportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ItemmasterReportReport: Display: RepItemmaster
+
+
+
+     [!menu: ItemmasterReportLock]
+        add: Item: before: @@locQuit: @@ItemmasterReportReport: Display: RepItemmaster
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ItemmasterReportReport: "ItemmasterReport"
+;; ItemmasterReportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepItemmaster]
+        use: Dsp Template
+      Title: @@ItemmasterReportReport
+   Printset: Report Title: @@ItemmasterReportReport
+       Form: FrmItemmasterReport
+     Export: Yes
+;; {09.Nov.22 15:57}      set  : svfromdate : ##svcurrentdate
+;; {09.Nov.22 15:57}      set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    
+    variable:str1,str2
+    
+   set:at beginning:str2:""
+   set:at beginning:str3:""
+   set:at beginning:str1:""
+     
+      [Form: FrmItemmasterReport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0ItemmasterReport,PrtItemmasterReport
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: ItemmasterReportbotbrk,ItemmasterReportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+      add: button : RepItemmaster
+
+ JSONTag: "data"
+
+      
+      [part: ItemmasterReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ItemmasterReportbotopbrk]
+        use: dspacctitles
+  add: part: ItemmasterReportTitlePart
+
+      [part: ItemmasterReportTitlePart]
+       line: LnItemmasterReportTitle
+       
+      [line: LnItemmasterReportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0ItemmasterReport]
+      line : LnItemmasterReportCurrPeriod
+      
+      [Part: PrtItemmasterReport]
+       Line: LnItemmasterReportTitle,LnItemmasterReport
+
+     repeat: LnItemmasterReport: ColItemmasterReport
+     scroll: both  ;;Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColItemmasterReport]
+;; {08.Nov.22 09:15}      type:stockitem
+     use:stockitem
+     fetch:name,cwGSM,cwIsReelProduct,cwsceneitem,cwWeightperPktitem,cwQuality,category,stockcategory,cwGSM,cwSize,cwproduct,cwPacknew,partno,parent,baseunits,AdditionalUnits,CONVERSION,DENOMINATOR
+fetch:cwproduct3,cwproduct4
+
+;; {07.Nov.22 16:56}  fetch:gstrate.RATEDETAILS
+;; {07.Nov.22 16:56}   fetch : *.* ,GSTDETAILS.*.*,GSTDETAILS.STATEWISEDETAILS.*
+  filter:ColitemmasterFilter3
+  
+    [system: Formula]
+ColItemmasterReportFilter: Yes
+
+ColitemmasterFilter3:if $$issysname:##str2 then yes else $name =##str2
+
+
+      [Line: LnItemmasterReportTitle]
+        use: LnItemmasterReport
+     option: titleopt
+
+;;      istr, ismfg,hsn details,gst rate details
+
+ Local : field :default: Lines : 0
+ 
+ Local: Field: nf: Set As:"itemname"
+
+ Local: Field: snf: Set As:"quality"
+ Local: Field: snf1: Set As:"category"
+ Local: Field: snf2: Set As:"gsm"
+ Local: Field: snf3: Set As:"size"
+
+ Local: Field: snf4: Set As:"sheet"
+ Local: Field: snf5:Set As:"packweight"
+ Local: Field: snf6:Set As:"partno"
+ Local: Field: snf7: Set As:"stockgroup"
+ Local: Field: snf8: Set As:"uom1kgs"
+ Local: Field: snf9: Set As:"uom2pktkgs"
+ Local: Field: numf: Set As:"where"
+ Local: Field: numf1: Set As:"denometor"
+ Local: Field: snf10: Set As:"uom3bdlpkt"
+ Local: Field: numf2: Set As:"conversion3"
+ Local: Field: numf3: Set As:"denominator3"
+ Local: Field: snf11: Set As:"unitalt3"
+ Local: Field: snf12: Set As:"uom4sheetpkt"
+ Local: Field: NUMF4: Set As:"conversion4"
+ Local: Field: NUMF5: Set As:"denominator4"
+ Local: Field: SNF13: Set As:"unitalt4"
+ Local: Field: SNF14: Set As:"transactionuom"
+ Local: Field: SNF15: Set As:"gstapplicable"
+ Local: Field: SNF16: Set As:"gstdetails"
+ Local: Field: SNF17: Set As:"description"
+ Local: Field: SNF18: Set As:"hsnsac"
+ Local: Field: SNF19: Set As:"calculationtype"
+ Local: Field: SNF20: Set As:"taxability"
+ Local: Field: numf6: Set As:"gstrate"
+ Local: Field: sdf: Set As:"gstdate"
+
+ Local: Field: snf21:Set As:"typeofsupply"
+ Local: Field: snf22: Set As:"uqc"
+ Local: Field: snf23: Set As:"isreelproduct"
+ Local: Field: snf24: Set As:"maintaininbatches"
+ 
+ Local: Field: snf25: Set As:"istrading"
+ Local: Field: snf26: Set As:"ismanufacturing"
+ Local: Field: snf27: Set As:"isreelproductt"
+ Local: Field: snf28: Set As:"isreelproductm"
+ Local: Field: snf29: Set As:"hsnsandetails"
+ Local: Field: snf30: Set As:"gstratedetails"
+ Local: Field: snf31: Set As:"weightperpkt"
+ Local: Field: snf32:  Set As:"units3"
+ Local: Field: snf33:  Set As:"units4"
+
+ [System: Formula]
+;; {05.Sep.24 11:42} cwkvgstdate:$(StockItem, $name).GSTDETAILS[Last].ApplicableFrom  ;;"gstdate"
+cwkvgstdate:$$GetInfoFromHierarchy:$Name:"StockItem":"ApplicableFrom":##SVCurrentDate:"GST"
+cwgstdt : if not $$isempty:@@cwkvgstdate then @@cwgstdDayssales +"-"+ @@CWgstfdMONsales + "-"+ @@CWSHmfdYRsales else "" ;; +  else ""
+cwgstdDayssales : if @@cwshmfdDays1sales < 10 then "0" + $$string:@@cwgstfdDays1sales else $$string:@@cwgstfdDays1sales
+CWgstfdMONsales  : if @@CWgstfdMON1sales < 10 then "0"+$$string:@@CWgstfdMON1sales else $$string:@@CWgstfdMON1sales
+CWSHmfdYRsales  : if @@CWgstYR1sales < 10 then "0"+$$string:@@CWgstYR1sales else $$string:@@CWgstYR1sales
+
+cwgstfdDays1sales: $$DAYOFDATE:@@cwkvgstdate
+CWgstfdMON1sales : $$MONTHOFDATE:@@cwkvgstdate
+CWgstYR1sales : $$YEAROFDATE:@@cwkvgstdate
+
+cwkvgstdatemnew:$$string:@@cwgstdDayssalesx +"-"+$$string:@@CWgstfdMONsalesx+"-"+$$string:@@CWSHmfdYRsalesx
+cwkvgstdatemnewx:$$GetInfoFromHierarchy:$Name:"StockItem":"ApplicableFrom":##SVCurrentDate:"GST"
+
+
+
+cwgstdDayssalesx : if @@cwgstfdDays1salesx < 10 then "0" + $$string:@@cwgstfdDays1salesx else $$string:@@cwgstfdDays1salesx
+CWgstfdMONsalesx  : if @@CWgstfdMON1salesx < 10 then "0"+$$string:@@CWgstfdMON1salesx else $$string:@@CWgstfdMON1salesx
+CWSHmfdYRsalesx  : if @@CWgstYR1salesx < 10 then "0"+$$string:@@CWgstYR1salesx else $$string:@@CWgstYR1salesx
+
+cwgstfdDays1salesx: $$DAYOFDATE:@@cwkvgstdatemnewx
+CWgstfdMON1salesx : $$MONTHOFDATE:@@cwkvgstdatemnewx
+CWgstYR1salesx : $$YEAROFDATE:@@cwkvgstdatemnewx
+
+;cwproduct3:string:1005
+;cwproduct4:string:1006
+
+[Line: LnItemmasterReport]
+      JSONTag: "stockitem"
+     Fields:nf,SNF,snf1,SNF2,SNF3,SNF4,SNF5,SNF6,SNF7,SNF8,SNF9,NUMF,NUMF1,snf10,numf2,numf3,snf11,snf12,numf4+
+     ,numf5,snf13,snf14,snf15,snf16,snf17,snf18,snf19,snf20,numf6,sdf,snf21,snf22,snf23,snf24,snf25,snf26,snf27,snf28,snf29,snf30,snf31,snf32,snf33
+
+     Option: Alter on Enter
+
+     local: field: nf: alter : STOCKITEM : $$isSTOCKITEM
+option : alter on enter
+local : field : nf : alter :STOCKITEM : $$isSTOCKITEM
+
+Local: Field: nf: Set As:$name  ;;"Item Name"
+
+ Local: Field: snf1: Set As:$category  ;;"Quality"
+ Local: Field: snf: Set As:$cwQuality  ;;"Quality"
+ Local: Field: snf2: Set As:if $$isempty:$cwGSM then $cwsortno else $cwGSM ;;"GSM"
+ Local: Field: snf3: Set As:$cwSize ;;"Size"
+
+
+ Local: Field: snf4: Set As:$cwproduct ;;$cwSheet  ;;"Sheet"
+ Local: Field: snf5: Set As:$cwPacknew ;;"Pack Weight"
+ Local: Field: snf6: Set As:$partno ;;"Part No"
+ Local: Field: snf7: Set As:$parent  ;;"Stock Group"
+ Local: Field: snf8: Set As:$baseunits  ;;"UOM-1 (Kgs)"
+ Local: Field: snf9: Set As:$AdditionalUnits  ;;"UOM-2 (Pkt = Kgs)"
+ Local: Field: numf: Set As:$CONVERSION  ;;"where"
+ Local: Field: numf1: Set As:$DENOMINATOR  ;;"Denom"
+ Local: Field: snf10: Set As:$cwunitply3  ;;"UOM -  3 (Bdl = Pkt)"
+ Local: Field: numf2: Set As:$cwConversion3  ;;"Conversion3"
+ Local: Field: numf3: Set As:$cwDenominator3  ;;"Denominator3"
+ Local: Field: snf11: Set As:$cwunitalt3  ;;"Unitalt3"
+ Local: Field: snf12: Set As:$cwunitply4  ;;"UOM - 4 (Sheet = Pkt)"
+ Local: Field: NUMF4: Set As:$cwConversion4  ;;"Conversion4"
+ Local: Field: NUMF5: Set As:$cwDenominator4  ;;"Denominator4"
+ Local: Field: SNF13: Set As:$cwunitalt4  ;;"Unitalt4"
+ Local: Field: SNF14: Set As:$cwTransactionUOM  ;;"Transaction UOM"
+ Local: Field: SNF15: Set As:$GSTApplicable  ;;"GST Applicable"
+ Local: Field: SNF16: Set As:"no"  ;;"GST Details"
+ Local: Field: SNF17: Set As:$$GetInfoFromHierarchy:$Name:"StockItem":"Description":##SVCurrentDate:"GST"  ;;"Description"
+ Local: Field: SNF18: Set As:$$GetInfoFromHierarchy:$Name:"StockItem":"HSNCode":##SVCurrentDate:"GST"  ;;"HSN/SAC"
+ Local: Field: SNF19: Set As:$$GetInfoFromHierarchy:$Name:"StockItem":"CalculationType":##SVCurrentDate:"GST" ;;$(StockItem, $name).GSTDETAILS[Last].CalculationType  ;;"Calculation Type"
+ Local: Field: SNF20: Set As:$$GetInfoFromHierarchy:$Name:"StockItem":"Taxability":##SVCurrentDate:"GST" ;;$(StockItem, $name).GSTDETAILS[Last].Taxability  ;;"Taxability"
+ Local: Field: sdf: Set As:@@cwkvgstdatemnew  ;;$$GetInfoFromHierarchy:$Name:"StockItem":"ApplicableFrom":##SVCurrentDate:"GST" ;;@@cwgstdt;;"gstdate"
+ local: field: sdf: type: String
+ Local: field: sdf: Width:0
+ Local: Field: numf6: Set As:@@cwCGSTDutyHead*2  ;;+@@cwsGSTDutyHead  ;;$$GetInfoFromHierarchy:$Name:"StockItem":"GSTRate":##SVCurrentDate:"GST":0:@@CGSTDutyHead ;;$GetInfoFromHierarchy:$Name:"StockItem":"GSTRate":##SVCurrentDate:"GST":0:@@IGSTDutyHead ;;$$cwGetGSTRateForInclusivex:$name  ;;"Gst %"
+
+ Local: Field: numf7: Set As:$$FilterValue:$GSTRATE:RATEDETAILS:1:cwCESSfilter  ;;"cess"
+ 
+ local:field: numf7 : set as :$$GetInfoFromHierarchy:$Name:"StockItem":"GSTRate":@@VchDate:"GST":0:@@CessDutyHead
+
+ Local: Field: snf21: Set As:$GSTTYPEOFSUPPLY  ;;"Type of Supply"
+ Local: Field: snf22: Set As:$GSTREPUOM ;;"UQC"
+ Local: Field: snf23: Set As:$cwIsReelProduct ;;"UQC"
+ Local: Field: snf24: Set As:$IsBatchWiseOn ;;"UQC"
+ Local: Field: default: Border: thin right
+ 
+ Local: Field: snf25: Set As:$cwIsTrading1 ;;"istrading"
+ Local: Field: snf26: Set As:$cwIsManufacturing1 ;;"ismanufacturing"
+ Local: Field: snf27: Set As:$cwIsReelProduct ;;"isreelproduct"
+ Local: Field: snf28: Set As:$cwIsReelProductmfg ;;"isreelproduct"
+ Local: Field: snf29: Set As:$GSTMstSrcHSNDetails  ;;"hsnsandetails"
+ Local: Field: snf30: Set As:$GSTMstSrcGSTDetails ;;"gstratedetails"
+ Local: Field: snf31: Set As:$cwsceneitem ;;"gstratedetails"
+ 
+  Local: Field: snf32: Set As:$cwproduct3
+Local: Field: snf33: Set As:$cwproduct4
+ 
+ 
+ Local: Field: nf: json tag:"itemname"
+
+ Local: Field: snf: json tag:"quality"
+ Local: Field: snf1: json tag:"category"
+ Local: Field: snf2: json tag:"gsm"
+ Local: Field: snf3: json tag:"size"
+
+ Local: Field: snf4: json tag:"sheet"
+ Local: Field: snf5:json tag:"packweight"
+ Local: Field: snf6:json tag:"partno"
+ Local: Field: snf7: json tag:"stockgroup"
+ Local: Field: snf8: json tag:"uom1kgs"
+ Local: Field: snf9: json tag:"uom2pktkgs"
+ Local: Field: numf: json tag:"where"
+ Local: Field: numf1: json tag:"denometor"
+ Local: Field: snf10: json tag:"uom3bdlpkt"
+ Local: Field: numf2: json tag:"conversion3"
+ Local: Field: numf3: json tag:"denominator3"
+ Local: Field: snf11: json tag:"unitalt3"
+ Local: Field: snf12: json tag:"uom4sheetpkt"
+ Local: Field: NUMF4: json tag:"conversion4"
+ Local: Field: NUMF5: json tag:"denominator4"
+ Local: Field: SNF13: json tag:"unitalt4"
+ Local: Field: SNF14: json tag:"transactionuom"
+ Local: Field: SNF15: json tag:"gstapplicable"
+ Local: Field: SNF16: json tag:"gstdetails"
+ Local: Field: SNF17: json tag:"description"
+ Local: Field: SNF18: json tag:"hsnsac"
+ Local: Field: SNF19: json tag:"calculationtype"
+ Local: Field: SNF20: json tag:"taxability"
+ Local: Field: numf6: json tag:"gstrate"
+  Local: Field: sdf: json tag:"gstdate"
+
+ Local: Field: snf21: json tag:"typeofsupply"
+ Local: Field: snf22: json tag:"uqc"
+ Local: Field: snf23: json tag:"isreelproduct"
+ Local: Field: snf24: json tag:"maintaininbatches"
+ 
+ Local: Field: snf25: json tag:"istrading"
+ Local: Field: snf26: json tag:"ismanufacturing"
+ Local: Field: snf27: json tag:"isreelproductt"
+ Local: Field: snf28: json tag:"isreelproductm"
+ Local: Field: snf29: json tag:"hsnsandetails"
+ Local: Field: snf30: json tag:"gstratedetails"
+ Local: Field: snf31:json tag:"weightperpkt"
+ Local: Field: snf32: json tag:"units3"
+Local: Field: snf33: json tag:"units4"
+
+ 
+ 
+ 
+ [System: Formula]
+
+ cwCGSTDutyHead:$$GetInfoFromHierarchy:$Name:"StockItem":"GSTRate":##SVCurrentDate:"GST":0:@@CGSTDutyHead
+ cwsGSTDutyHead:$$GetInfoFromHierarchy:$Name:"StockItem":"GSTRate":##SVCurrentDate:"GST":0:@@SGSTDutyHead
+ 
+ [function : cwgetitemrate]
+       object : stockitem : $name  ;;stockitemname
+       10: log:        @@cwIgstrate
+       20 : return : @@cwIgstrate
+
+[#object: stockitem]
+cwGSTRate : @@cwItemgstrate
+
+ 
+ [Function: cwGetGSTRateForInclusivex]
+parameter : myitemname : string
+returns : number
+20 : return: $$collectionfield:@@cwGSTDETAILS:(-1):cwte1new
+
+[System: Formula]
+cwGSTDETAILS : $$CollectionField:@@cwSTATEWISEDETAILS:(-1):STATEWISEDETAILS
+cwSTATEWISEDETAILS: $$FilterValue:$gstrate:RATEDETAILS:last:cwdutyheaditax
+cwdutyheaditax : $GSTRATEDUTYHEAD = "Integrated Tax"
+
+cwCESSfilter : $GSTRATEDUTYHEAD = "CESS"
+
+cwcessDETAILS : $$CollectionField:@@cwSTATEWISEDETAILScess:(-1):STATEWISEDETAILS
+cwSTATEWISEDETAILScess: $$FilterValue:$CessRate:RATEDETAILS:last:cwCESSfilter
+
+[Collection: cwte1new]
+type : GSTDETAILS : stockitem
+child of : ##myitemname
+fetch : *.*
+
+ [Function: cwGetcessRateForInclusive]
+parameter : myitemname : string
+returns : number
+20 : return: $$collectionfield:@@cwcessDETAILS:(-1):cwte1
+
+      [line: LnItemmasterReportTotals]
+        use: LnItemmasterReport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+;;================================
+
+
+;; {07.Nov.22 16:51} [key : RepItemmaster]
+[button : RepItemmaster]
+
+key : alt + J
+title:"JSON Export"
+action : $$RepcwSOExportExp2
+
+ ;;f:\dibyendu
+
+ [Report: RepcwSOExportExp2]
+    form : RepcwSOExportExp2
+
+    [form : RepcwSOExportExp2]
+    part : RepcwSOExportExp2
+
+    [part : RepcwSOExportExp2]
+    line : RepcwSOExportExp2
+    set : 1
+    repeat : RepcwSOExportExp2
+
+    [line : RepcwSOExportExp2]
+    field : nf
+    Local: Field: nf: Set As: $$RepcwSOExportExp2
+
+    [function : RepcwSOExportExp2]
+    variable: myfilename : string : ##str1
+    10 : do if : ##myfilename = "" : set : myfilename : "e:\RepItemmaster.json"
+    20 : Set   :SVExportFormat  : $$SysName:UTF8JSON
+
+    30 : Set   :SVExportLanguage: $$SysName:UTF8JSON
+    40 : Set   :SVPrintFileName :##myfilename
+    50 : set: SVOpenFileAfterExport : no
+
+    60 : export : RepItemmaster : yes : yes
+    70 : return : "Done"
+
+

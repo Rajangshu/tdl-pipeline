@@ -1,0 +1,338 @@
+; Created By: Taniya on 2024-07-20 09:42, ID: 
+
+  [System: Formula]
+  cwkbadminnewopt:$OwnerName:company:##svcurrentcompany=$$cmpusername
+
+     [#menu: Gateway of Tally]
+        ;;add: Option: cwkbpricedifferenceLock ;; : @@cwkbpricedifferenceDemoLock
+       
+
+     [!menu: cwkbpricedifferenceLock]
+        add: Item: before: @@locQuit: @@cwkbpricedifferenceReport: Display: Repcwkbpricedifference
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   cwkbpricedifferenceReport: "Price Difference"
+;; cwkbpricedifferenceDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: Repcwkbpricedifference]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@cwkbpricedifferenceReport
+   Printset: Report Title: @@cwkbpricedifferenceReport
+
+       Form: Frmcwkbpricedifference
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+
+variable:str1,str2,str3
+
+set:str1:""
+set:str2:""
+set:str3:""
+     
+      [Form: Frmcwkbpricedifference]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0cwkbpricedifference,Prtcwkbpricedifference
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: cwkbpricedifferencebotbrk,cwkbpricedifferencebotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+     local : button : report config : action :modify variable: cwkbpricedifferenceConfigure
+ 
+  add:button:cwApproveupdate
+  
+  local: button:cwApproveupdate : inactive:not @@cwkbadminnewopt
+
+
+      [part: cwkbpricedifferencebotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: cwkbpricedifferencebotopbrk]
+        use: dspacctitles
+  add: part: cwkbpricedifferenceTitlePart
+
+      [part: cwkbpricedifferenceTitlePart]
+       line: LncwkbpricedifferenceTitle
+       
+      [line: LncwkbpricedifferenceCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: style10emailA
+      Local: Field: fwf2: Style: style10emailA
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0cwkbpricedifference]
+      line : LncwkbpricedifferenceCurrPeriod
+      
+      [Part: Prtcwkbpricedifference]
+       Line: LncwkbpricedifferenceTitle,Lncwkbpricedifference
+;;bottom Line: LncwkbpricedifferenceTotals
+     repeat: Lncwkbpricedifference: Colcwkbpricedifference
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: Colcwkbpricedifference]
+source Collection: Colcwkbpricedifferencesrc
+walk:inventoryentries
+
+by : masterid : $masterid
+by:vouchertypename1:$vouchertypename
+by:vouchernumber1:$vouchernumber
+by:date1:$date
+by:partyledgername1:$partyledgername
+by:stockitemname1:$stockitemname
+by:stockitembase:$baseunits:stockitem:$stockitemname
+compute:rate1:$rate
+compute:pricerate:$$GetPriceFromLevel:$StockItemName:$PriceLevel:$Date:$rate
+by:cwstatus1:$..cwstatus
+
+add:filter:ColcwkbpricedifferenceFilter
+add:filter:cwkbpvchnumberfilter,cwkbppartynamefilter,cwkbpitemnamefilter
+
+[Collection: Colcwkbpricedifferencesrc]
+type :vouchers :vouchertype
+child of:$$vchtypesales
+
+belongs to : yes
+fetch : *.*
+keep source:()
+
+    [system: Formula]
+ColcwkbpricedifferenceFilter:$cwstatus1 <> "Approve" ;;and $pricerate <> $rate1
+
+      [Line: LncwkbpricedifferenceTitle]
+        use: Lncwkbpricedifference
+     option: titleopt
+
+local:field: nf: set as: "Voucher Type"
+local:field: snf: set as: "Voucher Number"
+local:field: sdf: set as: "Voucher Date"
+local:field: fwf: set as: "Party A/C Name"
+local:field: nf2: set as: "Products"
+local:field: numf: set as: "PL Rate"
+local:field: numf2 : set as :"Vch Rate"
+local:field: nf3 : set as : "Status"
+local:field: snf3 : set as : "PL Unit"
+local:field: snf4 : set as : "Vch Unit"
+
+local: field: nf : style: style10emailA
+local:field: snf: style: style10emailA
+local:field: sdf: style: style10emailA
+local:field: fwf: style: style10emailA
+local:field: nf2: style: style10emailA
+local:field: numf: style: style10emailA
+local:field: numf2 : style: style10emailA
+local:field: nf3 : style: style10emailA
+local:field: snf3 : style: style10emailA
+local:field: snf4 : style: style10emailA
+
+local: field: sdf: type: String
+local: field: numf: type: String
+local: field: numf2: type: String
+local: field: snf3: type: String
+local: field: snf4: type: String
+
+Local: field: default: Align:  centre
+Local: field: fwf:delete: Align:  centre
+
+; Main Line
+      [Line: Lncwkbpricedifference]
+   Fields: nf,snf,sdf,fwf
+Right Field: nf2,numf,snf3,numf2,snf4,nf3
+border:thin bottom
+
+local:field: nf: set as:$vouchertypename1;; "Voucher Type"
+local:field: snf: set as:$vouchernumber1;;  "Voucher Number"
+local:field: sdf: set as:$date1;;  "Voucher Date"
+local:field: fwf: set as:$partyledgername1;;  "Party A/C Name"
+local:field: nf2: set as:$stockitemname1;;  "Products"
+local:field: numf: set as:$pricerate;;  "PL Rate"
+local:field: numf2 : set as :$rate1;; "Vch Rate"
+local:field: nf3 : set as :$cwstatus1;;  "Aprove"
+local:field: snf3 : set as :$pricerate;; "PL Unit"
+local:field: snf4 : set as :$rate1;; "vch Unit"
+local:field: snf3 : Type        : Rate : Unit Symbol
+local:field: snf4 : Type        : Rate : Unit Symbol
+
+
+Local: field: nf2: Align: centre
+Local: field: nf3: Align: centre
+Local: field: snf3: Align: centre
+Local: field: snf4: Align: centre
+
+Local: field: nf: Width:15
+Local: field: snf: Width:15
+Local: field: sdf: Width:12
+Local: field: nf2: Width:35
+Local: field: numf: Width:10
+Local: field: numf2: Width:10
+Local: field: nf3: Width:15
+Local: field: snf3: Width:8
+Local: field: snf4: Width:8
+
+Local: field: numf: Format: "decimals:2,no zero"
+Local: field: numf2: Format: "decimals:2,no zero"
+
+Local: Field: default: Style: style3
+Local: Field: default: border:thin left right
+
+option:cwalterVch
+
+remove if:(#numf = #numf2 and #snf3 = #snf4)
+
+      [line: LncwkbpricedifferenceTotals]
+        use: Lncwkbpricedifference
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+      
+      
+;;=========================================================================
+
+[button : cwApproveupdate]
+key  : f5
+title : "Update"
+scope : Selected
+
+Action : Modify Variables:cwApproveupdaterep
+
+[report:cwApproveupdaterep]
+title:"Update"
+ form:cwApproveupdaterep
+
+ [form:cwApproveupdaterep]
+ part:cwApproveupdaterep
+
+
+ on : form Accept : yes:call:ApproveUpname:#snf20
+
+
+ [part:cwApproveupdaterep]
+ line:Statusupdate
+
+ [line:Statusupdate]
+ field:sp,snf20
+ Local: Field:sp : Set As:"Status"
+ Local: Field: snf20: Show table: Always
+ Local: Field: snf20: table:statuscoll ,Not Applicable
+ Local: field: sp: Width:20
+
+ Local: Field: sp: Style:style3
+ Local: Field: snf20: Style:style10emailA
+
+
+
+
+;;====================================================================
+
+ [Function:ApproveUpname]
+
+parameter : mycwStatus: string
+VARIABLE:VID:STRING
+
+25 : walk collection : Seletcedpurchasecolx
+
+30: SET	: VID	: $$SPrintf:@@VCHMasterID:$masterid
+
+60 :modify object : (Voucher,##VID).cwstatus[1].cwstatus:##mycwstatus
+
+
+70 : continue
+80 : end walk
+
+[Collection: Seletcedpurchasecolx]
+Data Source: Report: Selected
+
+;;====================================================================
+
+ [report:cwkbpricedifferenceConfigure]
+ form:cwkbpricedifferenceConfigure
+
+ [form:cwkbpricedifferenceConfigure]
+ part:cwkbpricedifferenceConfigure
+
+ HEIGHT:20% Screen
+ WIDTH:30% Screen
+
+ [part:cwkbpricedifferenceConfigure]
+ line:cwkbpfiltertitle,cwkbpvchnumberline,cwkbppartynameline,cwkbpitemnameline
+
+[line:cwkbpfiltertitle]
+ field:fwfc
+ Local: Field: fwfc: info:"Filter"
+ Local: Field: fwfc: Border: thin bottom
+ Local: Field: fwfc: Style: style10emailA
+ space bottom:0.5
+ 
+ [line:cwkbpvchnumberline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Voucher Number"
+ Local: Field: nf:modifies:str1
+ Local: Field: nf:full width:yes
+ space bottom:0.5
+ Local: field: sp: Width:14
+ Local: Field: sp: Style: style3
+ Local: Field: nf: Style: style10emailA
+ 
+ [line:cwkbppartynameline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Party Name"
+ Local: Field: nf:modifies:str2
+  Local: Field: nf:full width:yes
+ space bottom:0.5
+ Local: field: sp: Width:14
+ Local: Field: sp: Style: style3
+ Local: Field: nf: Style: style10emailA
+ Local: Field: nf: table:Party Cash Ledgers Extract,Not Applicable
+ Local: Field: nf: Show table: Always
+ 
+[line:cwkbpitemnameline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Products"
+ Local: Field: nf:modifies:str3
+  Local: Field: nf:full width:yes
+ space bottom:0.5
+ Local: field: sp: Width:14
+ Local: Field: sp: Style: style3
+ Local: Field: nf: Style: style10emailA
+ Local: Field: nf: table:collcwitem,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ [Collection: collcwitem]
+ type:stockitem
+ title:"List of Item Name"
+
+
+ [System: Formula]
+ cwkbpvchnumberfilter:if $$issysname:##str1 then yes else $vouchernumber1 =##str1
+ cwkbppartynamefilter:if $$issysname:##str2 then yes else $partyledgername1 =##str2
+ cwkbpitemnamefilter:if $$issysname:##str3 then yes else $stockitemname1 =##str3
+
+
+
+
+
+

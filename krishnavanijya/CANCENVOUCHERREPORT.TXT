@@ -1,0 +1,210 @@
+; Created By: Taniya on 2021-09-23 16:56, ID:
+
+
+
+     [#menu: Gateway of Tally]
+;; {24.Sep.21 10:03}         add: Option: cwcancelrepportLock ;; : @@cwcancelrepportDemoLock
+
+
+
+     [!menu: cwcancelrepportLock]
+        add: Item: before: @@locQuit: @@cwcancelrepportReport: Display: Repcwcancelrepport
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   cwcancelrepportReport: "cwcancelrepport"
+;; cwcancelrepportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: Repcwcancelrepport]
+        use: Dsp Template
+      Title: @@cwcancelrepportReport
+   Printset: Report Title: @@cwcancelrepportReport
+       Form: Frmcwcancelrepport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+
+      [Form: Frmcwcancelrepport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0cwcancelrepport,Prtcwcancelrepport
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: cwcancelrepportbotbrk,cwcancelrepportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: cwcancelrepportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: cwcancelrepportbotopbrk]
+        use: dspacctitles
+  add: part: cwcancelrepportTitlePart
+
+      [part: cwcancelrepportTitlePart]
+       line: LncwcancelrepportTitle
+
+      [line: LncwcancelrepportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0cwcancelrepport]
+      line : LncwcancelrepportCurrPeriod
+
+      [Part: Prtcwcancelrepport]
+       Line: LncwcancelrepportTitle,Lncwcancelrepport
+bottom Line: LncwcancelrepportTotals
+     repeat: Lncwcancelrepport: Colcwcancelrepport
+     scroll: Both
+ Common Border: YEs
+      Total: numf,amtf,amtf2,amtf3,amtf4,amtf5
+
+[Collection: Colcwcancelrepport]
+
+source Collection: Colcwcancelrepportsrc
+walk:inventoryentries
+
+by : mymasterid : $masterid
+compute:date1:$date
+compute:myline1:$myline
+compute:vouchernumber1:$vouchernumber
+compute:partyledgername1:$partyledgername
+compute:stockitemname1:$stockitemname
+compute:cwbcitemstatus1:$cwbcitemstatus
+compute:cwslvchvehlno1:$$owner:$cwslvchvehlno
+compute:cwslvchvehldate1:$$owner:$cwslvchvehldate
+compute:cwslvchareanm1:$$owner:$cwslvchareanm
+compute:cwslvchoutltty1:$$owner:$cwslvchoutltty
+compute:cwslvchsalemn1:$$owner:$cwslvchsalemn
+compute:stkitemrp1:@@cwrepItemmrp
+compute:billedqty1:$billedqty
+compute:rate1:$rate
+compute:discount1:$discount
+aggr compute:actualqty1:sum:$actualqty
+aggr compute:amount1:sum:$amount
+aggr compute:invamt1:sum:$$CollAmtTotal:inventoryentries:$amount
+aggr compute:ledamt1:sum:$$CollAmtTotal:ledgerentries:$amount
+aggr compute:cashdisc1:sum:$$FilteramtTotal:ledgerentries:cashdiscamtfilt:$amount
+aggr compute:schdisc1:sum:$$FilteramtTotal:ledgerentries:schdiscamtfilt:$amount
+aggr compute:roudval:sum:@@cwRoffValue
+aggr compute:gstamt:sum:@@cwVCHGSTVAlue
+
+by:narration1:$$owner:$narration
+by:cwbcvchdelivrsta1:$$owner:$cwbcvchdelivrsta
+
+Sort	: @@Default	:$vouchernumber1,$mymasterid, $stockitemname1
+
+[Collection: Colcwcancelrepportsrc]
+Type : Vouchers:VoucherType
+ChildOf :$$VchTypesales
+belongs to : yes
+fetch : *.*
+keep source:()
+      delete: filter : daybookfilter
+       add:filter: IsNonOptionalCancelledVchs
+
+
+    [system: Formula]
+ColcwcancelrepportFilter: Yes
+
+      [Line: LncwcancelrepportTitle]
+        use: Lncwcancelrepport
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: snf8: set as: "Inv No"
+local:field: sdf: set as: "Inv Date"
+local:field: fwf: set as: "Party name"
+local:field: snf: set as: "Area"
+local:field: snf2: set as: "Outlet"
+local:field: snf3: set as: "Salesman"
+local:field: nf: set as: "Item name"
+local:field: snf4: set as: "Status"
+local:field: numf: set as: "Quantity"
+local:field: numf2: set as: "Rate"
+local:field: numf3: set as: "Disc %"
+local:field: amtf: set as: "Amount"
+local:field: amtf2: set as: "Sch. Disc"
+local:field: amtf3: set as: "Cash. Disc"
+local:field: amtf4: set as: "GST"
+local:field: amtf5: set as: "Bill Amount"
+local:field: nf2: set as: "Vehicle No"
+local:field: sdf2: set as: "Vehicle Alloaction Date"
+
+local: field: numf: type: String
+local: field: numf2: type: String
+local: field: sdf: type: String
+local: field: sdf2: type: String
+local: field: amtf: type: String
+local: field: amtf2: type: String
+local: field: amtf3: type: String
+local: field: amtf4: type: String
+local: field: amtf5: type: String
+
+local: field: default : style: normal bold
+
+      [Line: Lncwcancelrepport]
+      border:thin bottom
+     Fields: snf8,sdf,fwf
+right field:snf,snf2,snf3,nf,snf4,numf,numf2,numf3,amtf,amtf2,amtf3,amtf4,amtf5,nf2,sdf2
+     Option: Alter on Enter
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+
+local:field: snf8: set as:$vouchernumber1;; "Inv No"
+local:field: sdf: set as:$date1;; "Inv Date"
+local:field: fwf: set as: $partyledgername1;;"Party name"
+local:field: snf: set as:$cwslvchareanm1;;"Area"
+local:field: snf2: set as:$cwslvchoutltty1"Outlet"
+local:field: snf3: set as:$cwslvchsalemn1;;"Salesman"
+local:field: nf: set as: $stockitemname1;;"Item name"
+local:field: snf4: set as:$cwbcitemstatus1;;"Status"
+local:field: numf: set as:$billedqty1;;"Quantity"
+local:field: numf2: set as:$rate1;;"Rate"
+local:field: numf3: set as:$discount1;;"Disc %"
+local:field: amtf: set as:$amount1;;"Amount"
+local:field: amtf2: set as:$schdisc1;;"Sch. Disc"
+local:field: amtf3: set as:$cashdisc1;;"Cash. Disc"
+local:field: amtf4: set as:$gstamt;;"GST"
+local:field: amtf5: set as:if $$isdr:$roudval then (((($invamt1+$gstamt)-$cashdisc1)-$schdisc1)-$roudval) else (((($invamt1+$gstamt)-$cashdisc1)-$schdisc1)+$roudval);; "Bill Amount"
+local:field: nf2: set as:$cwslvchvehlno1;;"Vehicle No"
+local:field: sdf2: set as:$cwslvchvehldate1;;"Vehicle Alloaction Date"
+
+Local: Field: default: Border: thin left right
+
+
+      [line: LncwcancelrepportTotals]
+        use: Lncwcancelrepport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+
+
+      local:field: snf: set as:"";;"Inv No"
+local:field: sdf: set as:"";; "Inv Date"
+local:field: fwf: set as:"Total";; "Party name"
+local:field: snf: set as: "";;"Area"
+local:field: snf2: set as:"";; "Outlet"
+local:field: snf3: set as:"";; "Salesman"
+local:field: nf: set as:"";; "Item name"
+local:field: snf4: set as:"";; "Status"
+local:field: numf: set as:$$total:numf;; "Quantity"
+local:field: numf2: set as:"";; "Rate"
+local:field: numf3: set as:"";; "Disc %"
+local:field: amtf: set as:$$total:amtf;;"Amount"
+local:field: amtf2: set as:$$total:amtf2;; "Sch. Disc"
+local:field: amtf3: set as:$$total:amtf3;;"Cash. Disc"
+local:field: amtf4: set as:$$total:amtf4;;"GST"
+local:field: amtf5: set as:$$total:amtf5;;"Total Amount"
+local:field: nf2: set as:"";;"Vehicle No"
+local:field: sdf2: set as:"";; "Vehicle Alloaction Date"
+

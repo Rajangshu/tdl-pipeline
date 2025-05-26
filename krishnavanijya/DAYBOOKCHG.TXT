@@ -1,0 +1,86 @@
+; Created By: Khokan on 2022-11-03 15:18, ID: 
+
+[System : Formula]
+mypurcreg : $$ispurchase:##VoucherTypeName
+mysalesreg : $$issales:##VoucherTypeName
+
+
+  [#Line: DBTitle1]
+   add:option:newDBTitle1opt: @@mypurcreg and @@KrishnavanijyaEnabled
+   add:option:newDBTitle2opt: @@mysalesreg and @@KrishnavanijyaEnabled
+  [!line:newDBTitle1opt]
+ 
+   add:field:SNF2,SDF,SDF2 ;,snf
+   Local: Field: snf: Set As:"Ship"
+   Local: Field: snf2: Set As: "Sup. Inv No"
+   Local: Field: sdf: Set As: "Sup. Inv Date"
+   Local: Field: sdf2: Set As: "Stock Entry Date"
+   local: field: sdf: type: String
+   local: field: sdf2: type: String
+
+    Local: field: sdf2: Width:15
+    
+    local: field: sdf: Invisible:if $$isempty:##StockItemName  then  no  else yes
+    local: field: sdf2: Invisible:if $$isempty:##StockItemName  then  no  else yes
+    local: field: snf1: Invisible:if $$isempty:##StockItemName  then  no  else yes
+    local: field: snf2: Invisible:if $$isempty:##StockItemName  then  no  else yes
+    
+    [!line:newDBTitle2opt]
+      add:field:snf,snf9
+   Local: Field: snf: Set As:"Ship"
+   Local: Field: snf9: Set As:"E-mail Id"
+   local: field: SNF9: Invisible:Not ##logi1
+   
+   [#line:DSP VchDetail]
+   add:option:newDBVchDetailTitle1opt: @@mypurcreg and @@KrishnavanijyaEnabled
+   
+   add:option:newDBVchDetailTitle2opt: @@mysalesreg and @@KrishnavanijyaEnabled
+  [!line:newDBVchDetailTitle1opt]
+  
+   add:field:SNF2,SDF,SDF2,snf1
+   Local: field: snf1: Width:5
+   Local: Field: snf: Set As:$BASICBUYERNAME  ;;PARTYMAILINGNAME
+    Local: field: sdf2: Width:15
+    Local: Field: snf2: Set As: $reference
+  Local: Field: sdf: Set As: $ReferenceDate
+ Local: Field: sdf2: Set As: $cwStockEntryDate
+
+  Local: Field: snf2: Style: Normal Bold
+  
+  local: field: sdf: Invisible:if $$isempty:##StockItemName  then  no  else yes
+  local: field: sdf2: Invisible:if $$isempty:##StockItemName  then  no  else yes
+  local: field: snf1: Invisible:if $$isempty:##StockItemName  then  no  else yes
+  local: field: snf2: Invisible:if $$isempty:##StockItemName  then  no  else yes
+  
+   [!line:newDBVchDetailTitle2opt]
+
+   add:field:snf,snf9
+
+   Local: Field: snf: Set As:$BASICBUYERNAME  ;;PARTYMAILINGNAME
+   Local: Field: snf9: Set As:$email:ledger:$partyledgername ;;$BASICBUYERNAME
+   local: field: SNF9: Invisible:Not ##logi1
+   
+   [#Form: Day Book]
+
+    add:button:CWEMAILbottonKK
+    
+    [button:CWEMAILbottonKK]
+ key:alt+f7
+ Title		: If ##logi1 Then $$LocaleString:"Hide E-mail Id" Else $$LocaleString:"Show E-mail Id"
+Action :SET:logi1:Not ##logi1
+   
+   
+  [#report:Voucher Register]
+variable:logi1
+SET:logi1:NO
+
+
+
+;;==============================================================================
+
+  [#Collection: Daybook Vouchers of Company]
+  fetch:PARTYMAILINGNAME,BASICBUYERNAME,ReferenceDate,cwStockEntryDate,reference
+
+  [#Collection: Filtered Vouchers of Company]
+  ;; {13.Oct.22 17:27} [#Collection: Vouchers of Company]
+  fetch:PARTYMAILINGNAME,BASICBUYERNAME,ReferenceDate,cwStockEntryDate,reference

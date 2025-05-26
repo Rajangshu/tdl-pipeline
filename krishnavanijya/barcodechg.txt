@@ -1,0 +1,229 @@
+; Created By: Khokan on 2024-10-09 12:13, ID: 
+
+ [#field:stksnf]
+ delete:inactive: (not @@cwhascustomudf) or $$issysname:$cwsortnoStr:COMPANY:##SVCURRENTCOMPANY
+ skip:yes
+ delete:border: thick box
+ Invisible: yes
+
+
+ [#field:stksnf2]
+ delete:inactive: (not @@cwhascustomudf) or $$issysname:$cwsizeStr:COMPANY:##SVCURRENTCOMPANY
+ skip:yes
+ delete:border : thin box
+;; {23.Dec.24 14:19}  Invisible: yes
+  
+ [#field:stksnf3]
+
+ delete:inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr:COMPANY:##SVCURRENTCOMPANY
+ skip:yes
+;; setas:$cwQuality
+ Invisible: yes
+
+ [#field:stksnf4]
+ delete:inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr2:COMPANY:##SVCURRENTCOMPANY
+;; {25.Jan.25 15:14}  Invisible: yes
+ skip:yes
+  setas:$cwQuality
+  
+ [#field:stksnf5]
+  delete:inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr3:COMPANY:##SVCURRENTCOMPANY
+  Invisible: yes
+  skip:yes
+  
+  
+         /*
+
+  [#field:stksnf14]
+
+  delete:inactive: (not @@cwhascustomudf) or $$issysname:$cwproductStr14:COMPANY:##SVCURRENTCOMPANY
+;; {16.Dec.24 17:29}    Invisible: yes
+  skip:yes
+  setas:$cwSizeitem1
+        */
+  
+ ;;==================================================
+ 
+[#Part: STKI Batch]
+add : line : after : STKI Batchable :cwnewSkipAutoFillline
+
+[line:cwnewSkipAutoFillline]
+field:medium prompt,cwlogical2
+ Local: Field: medium prompt: info: "Skip Auto Fill (1 Barcode for All Qty)?"
+Local: field: medium prompt: Width: 0
+
+
+Local: Field: cwlogical2: storage:cwBatchQtyOne
+
+;;========================================================
+
+
+[#line : GodBatchAllocations] ; Batch Allocations
+Local: Field: SNF14: Set As:if $$isempty:$cwbatchcaption1 then "" else $cwbatchcaption1    ;;cwPKTnew
+Local: Field: snf13: Set As: $cwPKT
+
+;; {08.Feb.25 10:40} [#line:MyBarCodeInvEntries]
+
+;; {08.Feb.25 10:39} Local: Field: numf7: Set As:$$CollectionField:$cwPKT:$$line:BatchAllocations
+
+
+;;========================================================
+
+
+
+ [*Function: batchbarcodefill]
+
+  parameter :trno :string
+  parameter :ordernox :string
+  parameter :duedtx :DueDate
+  parameter :mftx :date
+
+  parameter :mygodown :string
+  parameter :myqty:number
+  parameter :myrate:number
+  parameter :mydiscount:number
+  parameter :myamount:number
+  PARAMETER : FPARTNO: STRING
+  PARAMETER : LASTBATCH : NUMBER
+  PARAMETER : FNUMZERO : NUMBER
+  PARAMETER : STARTINGNO : NUMBER
+  PARAMETER : mymrp : STRING
+;; {17.Nov.23 11:56}   PARAMETER : mysize : STRING
+  PARAMETER : capt1 : STRING
+  PARAMETER : capt2 : STRING
+  PARAMETER : capt3 : STRING
+
+
+  parameter : myline : number : 1
+  parameter : myPositive : logical : yes
+;; {21.Jan.25 14:42}     parameter : cwbatchSQMTKGsjp : number
+
+  VARIABLE : ctr : number : $$numitems:BatchAllocations
+
+
+;; {24.Apr.18 13:16}   x03043 : log : $isdeemedpositive
+;; {24.Apr.18 13:16}   x3043i : log : $$line
+
+
+
+ f011  : if : @@cwIsOutwardType
+ f012  : set : lastbatch : ##lastbatch - 1
+ f013a: set : FPARTNO : ""
+;; {20.Jul.20 15:04}  f013  : log : ##lastbatch
+ f014 : end if
+
+; 000000  : log :"test 04.09.2018"
+03a: if : not $$isstockjrnl:##SVvouchertype
+03c:  while : ##ctr  >= 0
+03d: delete collection object : BatchAllocations : 1 : yes
+03d1: decr : ctr
+03e: end while
+
+03f: else
+
+03g: while : $$numitems:BatchAllocations > 1
+03h: delete collection object : BatchAllocations : 1 : yes
+03i: end while
+
+03z: end if
+
+
+
+10  : set: ctr : 1
+
+30 : for range  : ctr1 : number : 1 :  ##myqty
+;; {24.Apr.18 13:48} 40 : log : ##ctr
+
+;; {24.Apr.18 13:48} 0343 : log : ##mygodown
+;; {01.Jul.23 16:34}   44: log :"hi"
+45 : do if : $$loopindex > 1 : insert collection object  : BatchAllocations
+;; {01.Apr.22 15:29} 46 : do if : $$loopindex = 1 and (not @@isstockjrnl) : set target : BatchAllocations[1]
+
+46 : do if : $$loopindex = 1 and ((not @@isstockjrnl) or (@@isstockjrnl and not $$IsMultiGodownOn)) : set target : BatchAllocations[1]
+
+46a : if : $$loopindex = 1 and (@@isstockjrnl and $$IsMultiGodownOn)
+46b: do if : ##myPositive : set target : InventoryEntriesIn[##myline]
+46c: do if : not ##myPositive : set target : InventoryEntriesOut[##myline]
+46d: set target : BatchAllocations[1]
+46e: end if
+
+50a : set value : TrackingNumber : ##trno
+50b : set value : OrderNo : ##ordernox
+50c : set value : OrderDueDate : ##duedtx
+50d : set value : MfdOn : ##mftx
+
+50 : set value : godownname : ##mygodown
+55 : set value : cwbatchcaption1 : ##capt1
+60 : set value : cwbatchcaption2 : ##capt2
+65 : set value : cwbatchcaption3 : ##capt3
+
+70 : set value : batchname  :  $$Cwmakebatch
+
+75 : set value : billedqty : if $cwBatchQtyOne:COMPANY:##SVCURRENTCOMPANY then $$asqty:##myqty else $$asqty:1 ;;##myqty
+78 : set value : Actualqty : if $cwBatchQtyOne:COMPANY:##SVCURRENTCOMPANY then $$asqty:##myqty else $$asqty:1 ;;##myqty
+;; {21.Jan.25 14:42} 78xx : set value : cwbatchSQMTKGsj:##cwbatchSQMTKGsjp
+79 : set value : cwQTY :1 ;;##myqty
+80 : set value : batchrate : $$asrate:##myrate ;; in fn: batchbarcodefill
+90 : set value : BatchDiscount : ##mydiscount
+92 : set value : cwmrpbatch: ##mymrp
+;; {17.Nov.23 11:56} 93 : set value : cwSize: ##mysize
+
+;; {18.Dec.24 12:18} 190 : if : $cwBatchQtyOne:COMPANY:##SVCURRENTCOMPANY
+190 : if : $cwBatchQtyOne:stockitem:$stockitemname
+191 : break
+192 : end if
+
+199 : set: ctr : ##ctr + 1
+200 : end for
+
+
+;;==============================================================================
+
+[#Line: itembarcodedet]
+add:field :after:numf:numf12,numf13
+add:field :before:numf:snf10
+Local: Field: snf10: info:"Uom"
+
+Local: Field: numf : info:"REEL/PKT"
+Local: Field: numf12: info:"MTR"
+Local: Field: numf13: info:"SQMT/KG"
+
+
+[#Line: itembarcodedet2]
+add:field :before:numf:snf10
+add:field :after:numf:numf12,numf13
+
+Local: Field: SNF10:set as :if $$isempty:$$value then $cwTransactionUOM:stockitem:#fldprtno else $$value
+local: field: snf10: type: String :forced
+Local: Field: SNF10:Table       : collMYcwShowTransactions, Not Applicable
+Local: Field: SNF10:Show Table  : Always
+
+Local: Field: SNF10:storage :cwbatchUOMsj
+Local: Field: numf12:storage:cwbatchMTRsj
+Local: Field: numf13: storage:cwbatchSQMTKGsj
+
+;; {24.Jan.25 16:20}  Local: Field: numf13: Set As:if #SNF10="Sqmt" then #numf12*$cwDenominator3:stockitem:#fldprtno else if #SNF10="REEL"  THEN $cwDenominator3:STOCKITEM:#fldprtno*#numf12 else if #SNF10="PKT"  THEN $Denominator:STOCKITEM:#fldprtno*#numf else if  #SNF10="BDL" then #NUMF*$cwDenominator3:STOCKITEM:#fldprtno else if #SNF10="kgs" then #NUMF/$Denominator:STOCKITEM:#fldprtno else $$value
+ Local: Field: numf13: Set As:if #SNF10="Sqmt" then #numf12*$cwDenominator3:stockitem:#fldprtnonew else if #SNF10="REEL"  THEN $cwDenominator3:STOCKITEM:#fldprtnonew*#numf12 else if #SNF10="PKT"  THEN $Denominator:STOCKITEM:#fldprtnonew*#numf else if  #SNF10="BDL" then #NUMF*$cwDenominator3:STOCKITEM:#fldprtnonew else if #SNF10="kgs" then #NUMF/$Denominator:STOCKITEM:#fldprtnonew else $$value
+
+[#Form: itembarcodedet]
+Part: itembarcodedet
+on : form Accept : yes : Form Accept
+;; {21.Jan.25 14:41} on : form Accept : yes : Call : batchbarcodefill:$cwautotr:$cwautoor:$cwordue:$cwmfddt:$cwnewgodownname:$cwnewbcodeqty:$cwnewrate:$cwnewdis:$cwnewamount:#fldprtno:#fldbatch:#fldnuzero:#fldstno:$cwmrpbatch:$cwfillvalcaption1:$cwfillvalcaption2:$cwfillvalcaption3:#cwxline:#cwlogical:#numf13  ;;:$cwSize
+
+;;===========================================================================================
+ [#field:fldprtno]
+ use:snf
+ delete:Set As:$partno:stockitem:$stockitemname
+ add:Set As:$vouchernumber+$partno:stockitem:$stockitemname
+ skip :yes
+ 
+ [field:fldprtnonew]
+ use:snf
+ Set As:$partno:stockitem:$stockitemname
+ skip :yes
+ 
+ [#Line: lnstkdetx]
+ add:field:fldprtnonew
+Invisible: @@cwIsOutwardType
+
+;;==================================

@@ -1,0 +1,380 @@
+; Created By: Khokan on 2024-09-03 12:14, ID: 
+
+     [#menu: Gateway of Tally]
+;; {03.Sep.24 17:12}         add: Option: SalesDeliveryReportLock ;; : @@SalesDeliveryReportDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@SalesDeliveryReportReport: Display: RepSalesDeliveryReport
+  */
+
+
+     [!menu: SalesDeliveryReportLock]
+        add: Item: before: @@locQuit: @@SalesDeliveryReportReport: Display: RepSalesDeliveryReport
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   SalesDeliveryReportReport: "Sales Delivery Report"
+;; SalesDeliveryReportDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: RepSalesDeliveryReport]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@SalesDeliveryReportReport
+   Printset: Report Title: @@SalesDeliveryReportReport
+
+       Form: FrmSalesDeliveryReport
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+
+variable:logi1
+    set:logi1:no
+     
+      [Form: FrmSalesDeliveryReport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0SalesDeliveryReport,PrtSalesDeliveryReport
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: SalesDeliveryReportbotbrk,SalesDeliveryReportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: SalesDeliveryReportConfigure
+;; {03.Sep.24 17:12}      add:button:cwSalesDeliverybuttom,cwIncludesdPrinted
+     add:button:cwExportJSONbtn,cwIncludesdPrinted
+     
+     [button:cwIncludesdPrinted]
+
+ key  :CTRL+ f5
+;; {04.Sep.24 11:21}  title:if ##logi1 then "Show All"  else " Hide All"
+ title:if ##logi1 then "Hide All"  else " Show All"
+
+
+ Action :SET:logi1:Not ##logi1
+     
+      [part: SalesDeliveryReportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: SalesDeliveryReportbotopbrk]
+        use: dspacctitles
+  add: part: SalesDeliveryReportTitlePart
+
+      [part: SalesDeliveryReportTitlePart]
+       line: LnSalesDeliveryReportTitle
+       
+      [line: LnSalesDeliveryReportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0SalesDeliveryReport]
+      line : LnSalesDeliveryReportCurrPeriod
+      
+      [Part: PrtSalesDeliveryReport]
+       Line: LnSalesDeliveryReportTitle,LnSalesDeliveryReport
+bottom Line: LnSalesDeliveryReportTotals
+     repeat: LnSalesDeliveryReport: ColSalesDeliveryReport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: ColSalesDeliveryReport]
+Use: Vouchers of Company
+delete: filter : daybookfilter
+Filter: ColSalesDeliveryReportFilter,cwsalesdeliveryrepFilter,IsNonOptionalCancelledVchs
+fetch:PARTYMAILINGNAME,CONSIGNEEMAILINGNAME,masterid
+
+add:OPTION:ColSalesDeliveryReportopt:##logi1
+      
+[!Collection: ColSalesDeliveryReportopt]
+delete:Filter: ColSalesDeliveryReportFilter,cwsalesdeliveryrepFilter,IsNonOptionalCancelledVchs
+add:Filter: ColSalesDeliveryReportFilter,IsNonOptionalCancelledVchs
+     
+     
+[system: Formula]
+ColSalesDeliveryReportFilter:$$isSales:$voucherTypeName
+cwsalesdeliveryrepFilter:not $salesdeliveryrep="yes"
+
+[Line: LnSalesDeliveryReportTitle]
+use: LnSalesDeliveryReport
+option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: fwf: set as: "Bill To"
+local:field: nf: set as: "Mobile"
+local:field: nf2: set as: "E-mail"
+local:field: snf: set as: "Exported"
+local:field: nf3: set as: "Ship To"
+local:field: nf4: set as: "Voucher Type"
+local:field: nf5: set as: "Voucher No"
+local:field: qtyf: set as: "Quantity"
+
+local:field: sdf: style:style4
+local:field: fwf: style:style4
+local:field: NF:style:style4
+local:field: sNF:style:style4
+local:field: NF1:style:style4
+local:field: NF2:style:style4
+local:field: NF3:style:style4
+local:field: NF4:style:style4
+local:field: NF5:style:style4
+local:field: qtyf:style:style4
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+
+; Main Line
+
+[Line: LnSalesDeliveryReport]
+Fields: SalesDeliveryReportmastid,sdf,fwf
+Right Field: nf,nf2,nf3,nf4,nf5,Qtyf,snf
+
+Option: Alter on Enter
+key: SalesDeliveryReportDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: sdf: set as:$date ;; "Date"
+local:field: fwf: set as:$PARTYMAILINGNAME ;; "Bill To"
+local:field: nf: set as:$LedgerMobile:LEDGER:$PARTYMAILINGNAME;; "Mobile"
+local:field: nf2: set as:$email:LEDGER:$PARTYMAILINGNAME ;; "E-mail"
+local:field: nf3: set as:$CONSIGNEEMAILINGNAME ;; "Ship To"
+local:field: nf4: set as:$VoucherTypename ;; "Voucher Type"
+local:field: nf5: set as:$vouchernumber ;; "Voucher No"
+local:field: qtyf: set as:@@cwinvbQty ;; "Quantity"
+Local: Field: snf: Set As:$salesdeliveryrep
+Local: Field:DEFAULT: style:style3
+Local: Field: default: Border: thin right
+Local: field: nf: Width:10
+Local: field: snf: Width:8
+Local: field: nf2: Width:20
+
+Local: field: nf4: Width:10
+Local: field: nf5: Width:15
+Local : field : default: Lines : 0
+Local: field:qtyf: Width:10
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: SalesDeliveryReportDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: SalesDeliveryReportDisplayVoucher
+
+ 	
+     [Report: SalesDeliveryReportDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #SalesDeliveryReportmastid
+	
+
+        [Field: SalesDeliveryReportmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+[line: LnSalesDeliveryReportTotals]
+use: LnSalesDeliveryReport
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+
+local: field: fwf: set as: "Total"
+
+local:field: sdf: set as:"" ;;$date ;; "Date"
+
+local:field: nf: set as:"" ;;$LedgerMobile:LEDGER:$PARTYMAILINGNAME;; "Mobile"
+local:field: nf2: set as:"" ;;$email:LEDGER:$PARTYMAILINGNAME ;; "E-mail"
+local:field: nf3: set as:"" ;;$CONSIGNEEMAILINGNAME ;; "Ship To"
+local:field: nf4: set as:"" ;;$VoucherTypename ;; "Voucher Type"
+local:field: nf5: set as:"" ;;$vouchernumber ;; "Voucher No"
+local:field: snf: set as:"" ;;$vouchernumber ;; "Voucher No"
+local: field: qtyf: set as:$$total:qtyf
+
+local:field: fwf: style:style4
+local:field: NF:style:style4
+local:field: NF1:style:style4
+local:field: NF2:style:style4
+local:field: NF3:style:style4
+local:field: NF4:style:style4
+local:field: NF5:style:style4
+local:field: qtyf:style:style4
+
+;;=====================================
+
+ [#line:eiconsignee]
+ add:option:cwvchlocalsalesopt:@@issales and @@KrishnavanijyaEnabled
+ [!line:cwvchlocalsalesopt]
+ 
+ add:field:salesdeliveryfield
+ [field:salesdeliveryfield]
+ use:cwlogical
+ storage:salesdeliveryrep
+Invisible: yes
+
+;;=============================================
+
+
+  [button:cwExportJSONbtn]
+    title:"Export Excel"
+    scope : selected
+    key:alt + 8
+    action :Call :cwSelectedJSONExport
+
+   [function : cwSelectedJSONExport]
+;; {27.Jan.22 13:11} variable : mystr ,CurrentVchMSTID : string : ""
+variable :myvid : string : ""
+variable: ProgressCount : number :0
+
+20 :call : cwJSONExport2
+
+
+ [function : cwJSONExport]
+ variable : myvid : string:$$Sprintf:@@VCHMasterID:@@GSTCurntVchrMSTID
+ 000 : set target
+
+ 0004 : call : cwJSONExport2
+
+[Collection:cwSelectedSalesBills]
+
+Data Source: parent Report: Selected
+
+fetch:masterid,VTID
+format:$masterid,10
+ by:masterid:$masterid
+Client Only	: Yes
+
+
+[Collection:cwSelectedSalesBills2]
+Data Source: Report: Selected
+fetch:masterid,VTID
+format:$masterid,10
+by:masterid:$masterid
+Client Only	: Yes
+
+ [function : cwJSONExport2]
+ variable : expfilename : string :$$cwSanitize2:@@cwSZmcdtmctym
+ VARIABLE:VID:STRING :" ";;$$Sprintf:@@VCHMasterID:$masterid
+ 0540 : Set   :svExportFormat  :$$SysName:Excel
+ 0560 : Set   :SVPrintFileName :@@cwPathtoSavefile + "\"+##expfilename + ".xlsx"
+
+0570 : set: svExportPreDefMstFileName : no
+0570aa : set: SVExcelExportUpdateBook : no
+0580 : export : Exportbutton2 : yes : yes
+
+0582: walk collection : cwSelectedSalesBills2
+
+0585 : SET : VID	:$$SPrintf:@@VCHMasterID:$masterid
+
+0587 :modify object : (Voucher, ##VID).salesdeliveryrep[1].salesdeliveryrep:yes
+0588:  end walk
+
+[button:exportbutton2x]
+ title:" Update Export "
+ key:ctrl + e
+  Action : Modify Variables:Exportbutton2
+
+
+[System: Formula]
+cwRDFPrintexepath:$cwJSONexepath:COMPANY:##SVCURRENTCOMPANY
+cwPathtoSavefile:$cwPathtoSavefile:COMPANY:##SVCURRENTCOMPANY
+cwSZmcdtmctym:"SDR"+" "+$$string:$$machinedate+"_" +$$string:$$machinetime
+cwSZmcdtmctymnew:$vouchernumber +"_" + $$string:$date
+
+ [report:Exportbutton2]
+
+  use:RepSalesDeliveryReport
+  local:Form: FrmSalesDeliveryReport:delete:Part: DspAccTitles,PrtTitle0SalesDeliveryReport
+   local:part:PrtSalesDeliveryReport:repeat:LnSalesDeliveryReport:cwSelectedSalesBills
+   local:part:PrtSalesDeliveryReport:local:line:LnSalesDeliveryReport :local: field: snf: Invisible: yes
+   local:part:PrtSalesDeliveryReport:local:line:LnSalesDeliveryReportTitle :local: field: snf: Invisible: yes
+   local:part:PrtSalesDeliveryReport:local:line:LnSalesDeliveryReportTotals :local: field: snf: Invisible: yes
+   local:part:PrtSalesDeliveryReport:delete:bottom line:LnSalesDeliveryReportTotals
+
+
+[function: cwnormalize3]
+parameter : str : string
+parameter :ftoken : string
+
+variable : str2 : string: ""
+
+1000: For Token : abcd : ##str : ##ftoken
+1001 : set : str2 : ##str2 + ##abcd
+1002: end for
+
+1003 : return : ##str2
+
+
+ [function : cwSanitize2]
+Parameter : str : string
+;; {20.Aug.20 12:13} 10 : log : ##str
+
+0010 : set : str : $$cwnormalize3:##str:"-"
+;; {22.Jan.22 11:28} 0020 : set : str : $$cwnormalize3:##str:"_"
+0030 : set : str : $$cwnormalize3:##str:"+"
+0040 : set : str : $$cwnormalize3:##str:"="
+
+0050 : set : str : $$cwnormalize3:##str:"'"
+0060 : set : str : $$cwnormalize3:##str:'"'
+0070 : set : str : $$cwnormalize3:##str:"`"
+0080 : set : str : $$cwnormalize3:##str:"["
+0090 : set : str : $$cwnormalize3:##str:"]"
+0100 : set : str : $$cwnormalize3:##str:"\"
+0110 : set : str : $$cwnormalize3:##str:","
+0120 : set : str : $$cwnormalize3:##str:"."
+0130 : set : str : $$cwnormalize3:##str:"/"
+0140 : set : str : $$cwnormalize3:##str:"{"
+0150 : set : str : $$cwnormalize3:##str:"}"
+0160 : set : str : $$cwnormalize3:##str:"|"
+0170 : set : str : $$cwnormalize3:##str:":"
+0180 : set : str : $$cwnormalize3:##str:"<"
+0190 : set : str : $$cwnormalize3:##str:">"
+0200 : set : str : $$cwnormalize3:##str:"?"
+0210 : set : str : $$cwnormalize3:##str:"~"
+0220 : set : str : $$cwnormalize3:##str:"!"
+0230 : set : str : $$cwnormalize3:##str:"@"
+0240 : set : str : $$cwnormalize3:##str:"#"
+0250 : set : str : $$cwnormalize3:##str:"$"
+0260 : set : str : $$cwnormalize3:##str:"%"
+0270 : set : str : $$cwnormalize3:##str:"^"
+0280 : set : str : $$cwnormalize3:##str:"&"
+0290 : set : str : $$cwnormalize3:##str:"*"
+0300 : set : str : $$cwnormalize3:##str:"("
+0310 : set : str : $$cwnormalize3:##str:")"
+0320 : set : str : $$cwnormalize3:##str:";"
+
+0400 : return : ##str
+;======================
+
+;;===================================
+[System: Formula]
+cwszdrname:"";;$$fulllist:DOCDETAILSAGG:$stoDocNAme
+cwszasstname:"";;$$fulllist:ASSISTANCERPTAGG:$stoAssistant
+cwszdocdisctype:"";;$$CollectionField:$stoDocDiscType:First:DOCDETAILSAGG
+cwszstoledcomm:"";;$$CollectionField:$stoLedComsn:First:DOCDETAILSAGG
+cwszstoledcommper:"";;$$CollectionField:$stoComsnAmt:First:DOCDETAILSAGG
+
+
+
+

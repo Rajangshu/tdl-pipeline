@@ -1,0 +1,524 @@
+; Created By: Khokan on 2022-01-19 16:31, ID:
+       /*
+[#Collection: Ledger Out Sub Orders] ;; issue in tally, dont remove it -- pg  ;;meterial out
+add:option:LedgerOutSubOrdersopt  ;;:@@MaricaEnabled
+
+[!Collection: LedgerOutSubOrdersopt]
+delete :Filter		: PositiveClosingBalance
+
+     */
+
+
+[include: e:\d7comps\tprime\CommonPosting.txt]
+
+; ------------------------- {For Accept Code
+
+
+
+[System: Formula]
+ autopostFormAccept :$$ispurchase:$vouchertypename ;; 1 Here Set Condition for Auto Post
+ cwautopostvchopt :$cwEnableAutoposting:Vouchertype:##SVVoucherType
+ cwQueryboxmag:"Do you want to booked Inventory on"+" "+$$string:$cwStockEntryDate
+ 
+[#form : voucher]
+ on : form Accept : @@autopostFormAccept  : Form Accept
+ on : form Accept : @@autopostFormAccept   : Call : autopostPostVch
+
+ ; ------------------------- For Accept Code}
+
+
+
+ [function : autopostPostVch]
+  returns : logical
+ variable  : myvchno : string : $vouchernumber
+ variable  : myvchdate : date : $date
+ variable  : Vchtypename : string  :$cwAutoPostVoucherType:Vouchertype:##SVVoucherType   ;;"Material In";;"Stock Journal" ;;$cwcrnotepostvchtype:Vouchertype:##SVVoucherType   ;; 2 Here Set Voucher Type to Post
+ variable  : cwDRLedger : string   :$partyledgername    ;; 3 here Set Debit Ledger
+ variable  : cwCRLedger : string   :$partyledgername    ;; 4 Here Set Credit Ledger
+
+ variable : ctr : number : 1
+ variable : myamt : amount : 0
+ variable : VchExistsId : number
+ variable : VchExists : Logical
+ variable : myid : string
+ variable : myBASICDUEDATEOFPYMT : string
+ variable : myBILLOFLADINGNO : string
+ variable : myBillofLadingDate : string
+ variable : myBASICSHIPPEDBY : string
+ variable : myBASICFINALDESTINATION : string
+ variable : myBASICSHIPVESSELNO : string
+ variable : myBASICDATETIMEOFINVOICE : string
+ variable : myEICHECKPOST : string
+ variable : myPROCESSINGDURATION : DueDate
+ variable : myADDITIONALNARRATION : string
+ variable : myBASICORDERDATE :date
+
+
+ variable : myVoucherDestinationGodown : string:$cwTargetGodownpurc  ;;:ledger:$partyledgername
+
+variable : myBasicPurchaseOrderNo : string
+
+variable : myItemName2 : string
+variable : myorderno : string
+variable : mygodownname : string ;;:" Not Applicable"
+
+variable : mygodownname2 : string  ;;:" Any"
+variable : myParentItem2 : string
+variable : mybatchname2 : string
+variable : mybillqty2 : quantity
+variable : myrate2 : rate
+variable : myamount2 : amount
+
+variable : myItemName : string
+variable : myParentItem : string
+variable : mybatchname : string
+variable : mycwTypeofProcessing : string
+variable : mybillqty : quantity
+variable : myrate : rate
+variable : myamount : amount
+
+variable :mycwPKT:number
+variable :mycwQTY:number
+variable :mycwBDL:number
+
+variable :mycwKGS:number
+variable :mycwSHEETS:number
+variable :mycwUOM:string
+variable :myCWBundles:string
+variable :mycwsheetnew1:number
+variable :mycwsheetnew2:number
+variable :mycwsheetnew3:number
+
+
+
+  /*
+ff100  : log : "in"
+
+ff1000 : walk collection : Collmin
+ff1001 : log object
+ff1002 : end walk
+
+ff200  : log : "out"
+ff2000 : walk collection : Collmout
+ff2001 : log object
+ff2002 : end walk
+     */
+
+;; {21.Jan.22 14:22} dfasf : continue
+
+  0009:Querybox:@@cwQueryboxmag:yes:no
+ 09a:do if :not $$lastresult:continue
+ 00T10 : if : $$issysname:##Vchtypename
+;; {24.Apr.13 13:33} 00T20 : log : "Voucher Type Not Configured"
+ 00T30 : continue
+ 00T40 : end if ;; $$issysname:##Vchtypename
+
+ 00T50 : if : $$issysname:##cwDRLedger
+ 00T60 : log : "Debit Ledger Not Configured"
+ 00T70 : continue
+ 00T80 : end if ;; $$issysname:##cwDRLedger
+
+ 00T90 : if : $$issysname:##cwCRLedger
+ 00T91 : log : "Credit Ledger Not Configured"
+ 00T92 : continue
+ 00T93 : end if ;; $$issysname:##cwCRLedger
+
+
+ 10 : set : myvchno : $vouchernumber
+ 11 : set : myorderno : $Reference
+
+
+
+ 
+ 12 : set : myBASICDUEDATEOFPYMT : $BASICDUEDATEOFPYMT
+ 13 : set : myBILLOFLADINGNO : $BILLOFLADINGNO
+ 14 : set : myBASICSHIPPEDBY : $BASICSHIPPEDBY
+ 20 : set : myBASICFINALDESTINATION : $BASICFINALDESTINATION
+ 30 : set : myBASICSHIPVESSELNO : $BASICSHIPVESSELNO
+ 40 : set : myBASICDATETIMEOFINVOICE : $BASICDATETIMEOFINVOICE
+ 
+
+
+ 50 : set : myPROCESSINGDURATION : $ProcessingDuration
+ 60 : set : myADDITIONALNARRATION : $AdditionalNarration
+ 70 : set : myBillofLadingDate : $BillofLadingDate
+
+
+ 80 : Set : SVViewName :$$SysName:MulConsVchView
+
+
+ 90: set : VchExistsId : $$isVoucherExists:##VchTypeName:##myVchNo:##MyVchDate
+ 100: set : VchExists : ##VchExistsId > 0
+
+ 110: set : myid : $$SPrintf:@@VCHMasterID:##VchExistsId
+ 120: if : ##VchExists
+ 130: new object: voucher : ##myId
+
+ 140:  while : $$tgtobject:$$numitems:inventoryentriesout > 0
+ 150: delete collection object : inventoryentriesout : 1 : yes
+
+
+ 160: end while
+ 170: else
+ 180: new object : voucher
+ 190: end if
+
+ 200: set value : date : ##myVCHDate
+ 210: set value : vouchernumber : ##myVchNo
+ 220 : set value : REFERENCE :##myorderno  ;; ##myVchNo
+ 230 : set value : vouchertypename : ##VchTypeName
+ 240 : set value : partyledgername : ##cwDRLedger
+ 250 : set value : BASICDUEDATEOFPYMT : ##myBASICDUEDATEOFPYMT
+ 260 : set value : BILLOFLADINGNO : ##myBILLOFLADINGNO
+
+ 270 : set value : BASICSHIPPEDBY : ##myBASICSHIPPEDBY
+
+ 280 : set value : BASICFINALDESTINATION : ##myBASICFINALDESTINATION
+
+ 290 : set value : BASICSHIPVESSELNO : ##myBASICSHIPVESSELNO
+ 300 : set value : BASICDATETIMEOFINVOICE : ##myBASICDATETIMEOFINVOICE
+ 310 : set value : EICHECKPOST : ##myEICHECKPOST
+ 320 : set value : PROCESSINGDURATION : ##myPROCESSINGDURATION
+ 340 : set value : AdditionalNarration : ##myADDITIONALNARRATION
+ 350 : set value : BillofLadingDate : ##myBillofLadingDate
+
+
+ 360: set value : DESTINATIONGODOWN : ##myVoucherDestinationGodown
+ 370: set value : VOUCHERDESTINATIONGODOWN : ##myVoucherDestinationGodown
+
+ 380: set value : USEFORGODOWNTRANSFER : yes
+ 390: set value : PARTYNAME :##cwDRLedger
+ 400: set value : BASICBASEPARTYNAME :##cwDRLedger
+ 410: set value : BASICBUYERNAME :##cwDRLedger
+
+ 420: set value : STATENAME : "West Bengal"
+ 430: set value : COUNTRYOFRESIDENCE  :"India"
+ 440: set value : PLACEOFSUPPLY : "West Bengal"
+
+
+;;=========================================
+
+
+450: walk collection :CollINVOICEDELNOTES
+460 : set : myBASICPURCHASEORDERNO : $mynumber
+470 : set : myBASICORDERDATE : $mydate
+
+
+480: insert collection object :INVOICEORDERLIST
+
+490: set value : BASICPURCHASEORDERNO :##myBASICPURCHASEORDERNO  ;;$BASICPURCHASEORDERNO
+500:set value:BASICORDERDATE:##myBASICORDERDATE  ;;$BASICORDERDATE
+510:set value:ORDERTYPE:"BOM Out Order"
+520: set target : ..
+
+530:end walk
+
+;;=========================================
+
+540:walk collection:collBASICBUYERADDRESSnew
+550: insert collection object :BASICBUYERADDRESS
+560:set value:BASICBUYERADDRESS:$address
+570: set target : ..
+
+580:end walk
+
+590:walk collection:collBASICBUYERADDRESSnew
+600: insert collection object :ADDRESS
+610:set value:ADDRESS:$address
+620: set target : ..
+
+630:end walk
+
+
+640:set value:PARTYGSTIN:$PartyGSTIN ;;:ledger:$partyledgername
+650:set value:COUNTRYOFRESIDENCE:"India "
+660:set value:STATENAME:$ledSTATENAME:ledger:$partyledgername
+670:set value:PARTYNAME:$partyledgername
+680:set value:BASICBASEPARTYNAME:$partyledgername
+690:set value:BASICBUYERNAME:$partyledgername
+700:set value:CONSIGNEESTATENAME:$ledSTATENAME:ledger:$partyledgername
+
+
+;;==============================
+710 :walk collection:Collmout
+
+720:set:myItemName:$stockitemname
+730:set:mygodownname:$GodownName
+735:set:myParentItem: $parentitem ;;"HW CHANDARANI FABRIC" ;; $ParentItem
+740:set:mybatchname:$batchname
+750:set:mybillqty:$billedqty
+
+760:set:myamount:$Amount
+
+770:set :mycwPKT:$cwPKT1
+780:set :mycwQTY:$cwQTY1
+790:set :mycwBDL:$cwBDL1
+
+800:set :mycwKGS:$cwKGS1
+810:set :mycwSHEETS:$cwSHEETS1
+820:set :mycwUOM:$cwUOM1
+830:set :myCWBundles:$CWBundles1
+840:set :mycwsheetnew1:$cwsheetnew1x
+890:set :mycwsheetnew2:$cwsheetnew2x
+900:set:mycwsheetnew3:$cwsheetnew3x
+
+;;==============================================================================
+
+ 910: INSERT COLLECTION OBJECT	: inventoryentriesout
+
+
+ 920 : set value : stockitemname:##myItemName
+
+ 930 :set value :ISDEEMEDPOSITIVE:"no"
+ 940:start block
+ 950:set object
+
+ 960:set VALUE:cwsheetnew3:##mycwPKT
+ 970:set VALUE:cwQTY:##mycwQTY
+ 980:setVALUE :cwBDL:##mycwBDL
+
+990:set VALUE:cwKGS:##mycwKGS
+1000:set VALUE:cwSHEETS:##mycwSHEETS
+1010:set VALUE:cwUOM:##mycwUOM
+1020:set VALUE:CWBundles:##myCWBundles
+1030:set VALUE:cwsheetnew1:##mycwsheetnew1
+1040:set VALUE:cwsheetnew2:##mycwsheetnew2
+1050:setVALUE:cwsheetnew3:##mycwsheetnew3
+
+ 1060 : SET VALUE : actualqty :-1*##mybillqty
+ 1070 : SET VALUE : billedqty :-1*##mybillqty
+
+
+ 1080 : SET VALUE : rate :(##myamount/##mybillqty)
+
+
+
+ 1090 : set value : amount :-1*##myamount
+
+
+ 1100:end block
+
+
+
+ 1110 : insert collection object : Batch Allocations
+ 1120 : set value : godownname :##mygodownname
+ 1130 : set value : batchname : ##mybatchname
+
+ 1140 : set value : DESTINATIONGODOWNNAME :##mygodownname  ;;  ;;##mygodownname
+ 1150 : set value : PARENTITEM :##myParentItem
+ 1160 : set value : ORDERTYPE : "SubOrder"
+ 1170 : set value : ORDERNO :##myVchNo
+ 1180 : set value : DYNAMICCSTISCLEARED : "no"
+ 1190: set value : OrderDueDate :$$DateRange:##myVCHDate:(##myVCHDate):FALSE  ;;True  ;;FALSE
+
+ 1200 :set value :ISDEEMEDPOSITIVE:"no"
+
+ 1210:start block
+ 1220:set object
+
+ 1230:set VALUE:cwsheetnew3:##mycwPKT
+1240:set VALUE:cwQTY:##mycwQTY
+1250:setVALUE :cwBDL:##mycwBDL
+
+1260:set VALUE:cwKGS:##mycwKGS
+1270:set VALUE:cwSHEETS:##mycwSHEETS
+1280:set VALUE:cwUOM:##mycwUOM
+1290:set VALUE:CWBundles:##myCWBundles
+1300:set VALUE:cwsheetnew1:##mycwsheetnew1
+1310:set VALUE:cwsheetnew2:##mycwsheetnew2
+1320:setVALUE:cwsheetnew3:##mycwsheetnew3
+
+ 1330 : set value : actualqty :-1*##mybillqty  ;;$$asoutqty:##mybillqty
+ 1340 : set value : billedqty :-1*##mybillqty  ;;$$asoutqty:##mybillqty
+
+ 1350 : SET VALUE : rate :(##myamount/##mybillqty)
+
+ 1360 : set value : amount :-1*##myamount  ;;*-1
+
+ 1370:end block
+
+
+ 1380:walk collection:Collmin
+
+
+1390:set:myItemName2:$stockitemname
+1400:set:mygodownname2:$GodownName
+1410:set:myParentItem2:$ParentItem
+1420:set:mybatchname2:$batchname
+1430:set:mybillqty2:$billedqty
+
+               
+1440:set:myamount:$Amount
+
+1450 : insert collection object :inventoryentriesin
+1460 : set value : STOCKITEMNAME :##myItemName2  ;;##myParentItem2
+
+
+1470 : SET VALUE : isdeemedpositive:"yes"
+
+
+1480:start block
+1490:set object
+
+1500:set VALUE:cwsheetnew3:##mycwPKT
+1510:set VALUE:cwQTY:##mycwQTY
+1520:setVALUE :cwBDL:##mycwBDL
+
+1530:set VALUE:cwKGS:##mycwKGS
+1540:set VALUE:cwSHEETS:##mycwSHEETS
+1550:set VALUE:cwUOM:##mycwUOM
+1560:set VALUE:CWBundles:##myCWBundles
+1570:set VALUE:cwsheetnew1:##mycwsheetnew1
+1580:set VALUE:cwsheetnew2:##mycwsheetnew2
+1590:setVALUE:cwsheetnew3:##mycwsheetnew3
+
+1600 : set value : actualqty :##mybillqty2  ;;$$asinqty:##mybillqty
+1610 : set value : billedqty :##mybillqty2  ;;$$asinqty:##mybillqty
+
+1620 : set value : rate :(##myamount2/##mybillqty2)
+
+1630: set value : amount :##myamount2
+
+1640:end block
+
+
+
+;;===================================================
+
+
+1650 : insert collection object :Batch Allocations
+1660 : set value : destinationgodownname :##mygodownname2
+1670 : set value : batchname : ##mybatchname2
+1680 : set value : GODOWNNAME :##myVoucherDestinationGodown  ;;##mygodownname2
+1690 : set value : ORDERTYPE :"SubOrder"
+1700 : set value : PARENTITEM :##myParentItem2
+1710 : set value : ORDERNO :##myVchNo
+
+1720 : set value : DYNAMICCSTISCLEARED : "no"
+1730 : set value : OrderDueDate :$$DateRange:##myVCHDate:(##myVCHDate):FALSE  ;;True  ;;FALSE  ;;True
+1740 :set value :ISDEEMEDPOSITIVE:"no"
+
+1750:start block
+1760:set object
+
+1770:set VALUE:cwsheetnew3:##mycwPKT
+1780:set VALUE:cwQTY:##mycwQTY
+1790:setVALUE :cwBDL:##mycwBDL
+
+1800:set VALUE:cwKGS:##mycwKGS
+1810:set VALUE:cwSHEETS:##mycwSHEETS
+1820:set VALUE:cwUOM:##mycwUOM
+1830:set VALUE:CWBundles:##myCWBundles
+1840:set VALUE:cwsheetnew1:##mycwsheetnew1
+1850:set VALUE:cwsheetnew2:##mycwsheetnew2
+1860:setVALUE:cwsheetnew3:##mycwsheetnew3
+
+1870 : set value : actualqty :##mybillqty2  ;;$$asinqty:##mybillqty
+1880 : set value : billedqty :##mybillqty2  ;;$$asinqty:##mybillqty ;;*-1
+
+1890 : set value : rate :(##myamount2/##mybillqty2)
+
+
+
+1900 : set value : amount :##myamount2 ;;*-1
+
+1910:end block
+
+
+
+1920:set target:..
+1930 : end walk
+
+1940 : set target : ..
+1950 : end walk
+
+1960 : if : not ##VchExists
+1970 : create target
+1980 : end if
+
+1990 : if : ##VChExists
+2000 : save target
+
+2010 : end if
+
+2020 : return
+
+
+
+
+[Collection: Collmin]
+source Collection:default  ;;sourCollmin
+walk:inventoryentriesin,BatchAllocations ;;,VOUCHERCOMPONENTLIST
+
+by:vouchernumber:$vouchernumber
+by:stockitemname:$stockitemname
+by:ParentItem:$ParentItem
+by:ParentItem:$ParentItem
+by:godownname:$godownname
+by:batchname:$batchname
+aggr compute:billedqty:sum:$billedqty
+aggr compute:amount:sum:$amount
+
+compute :cwPKT1:$cwPKT
+compute :cwQTY1:$cwQTY
+compute :cwBDL1:$cwBDL
+
+compute :cwKGS1:$cwKGS
+compute :cwSHEETS1:$cwSHEETS
+compute :cwUOM1:$cwUOM
+compute :CWBundles1:$CWBundles
+compute :cwsheetnew1x:$cwsheetnew1
+compute :cwsheetnew2x:$cwsheetnew2
+compute :cwsheetnew3x:$cwsheetnew3
+
+[Collection: Collmout]
+source Collection:default  ;;sourCollmin
+walk: allinventoryentries ,BatchAllocations   ;;,VOUCHERCOMPONENTLIST
+
+by:vouchernumber:$vouchernumber
+by:stockitemname:$stockitemname
+by:ParentItem:$...stockItemname
+by:godownname:$godownname
+by:batchname:$batchname
+aggr compute:billedqty:sum:$billedqty
+aggr compute:amount:sum:$amount
+
+compute :cwPKT1:$cwPKT
+compute :cwQTY1:$cwQTY
+compute :cwBDL1:$cwBDL
+
+compute :cwKGS1:$cwKGS
+compute :cwSHEETS1:$cwSHEETS
+compute :cwUOM1:$cwUOM
+compute :CWBundles1:$CWBundles
+compute :cwsheetnew1x:$cwsheetnew1
+compute :cwsheetnew2x:$cwsheetnew2
+compute :cwsheetnew3x:$cwsheetnew3
+
+[Collection: sourCollmin]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+;; {21.Jan.22 17:07}      Filter: ColtestrepinFilter,IsNonOptionalCancelledVchs
+
+
+
+    [system: Formula]
+
+ColtestrepinFilter:$vouchernumber="LOT/0002" ;$$IsJobMaterialIssue:$vouchertypename and $vouchernumber="LOT/0002" ;;##myVchNo
+;; {21.Jan.22 14:36} ColtestrepinFilter:$$IsJobMaterialIssue:$vouchertypename  ;;and $vouchernumber=##myVchNo
+ColtestrepinFilter2:$vouchernumber=##myVchNo
+
+
+
+[Collection: collBASICBUYERADDRESSnew]
+type : address : ledger
+child of:$partyledgername
+
+[Collection: CollINVOICEDELNOTES]
+
+ source collection :default
+ by:mynumber:$vouchernumber
+ by : mydate: $DATE
+
+
+

@@ -1,0 +1,200 @@
+; Created By: Khokan on 2024-11-11 17:11, ID: 
+
+
+[System: Formula]
+cwUseasMfgJournalinv:$cwUseasMfgJournal:vouchertype:$vouchertypename="yes"
+cwUseasMfgJournalinv2:$cwUseasMfgJournal:vouchertype:$vouchertypename="no"
+
+[#form : Simple Printed Invoice]
+;;   add : option : mfgstockjournalchgOpt : @@mfgstockjournalchgSales
+
+[#form : ComprehensiveInvoice]
+
+[#Form: NormalSJPrint]
+   add : option : mfgstockjournalchgOpt: @@cwUseasMfgJournalinv
+
+[!form : mfgstockjournalchgOpt]
+Delete : Part
+Delete : Bottom Part
+Delete : Page Break
+   add : Top part : mfgstockjournalchgTopPart
+   add : Part : mfgstockjournalchgInvACCPart
+   Add : bottom Part :  mfgstockjournalchgBottomPart
+   add : page Break : mfgstockjournalchgCLBreak, mfgstockjournalchgOPBreak
+
+ [Part : mfgstockjournalchgCLBreak]
+   use : mfgstockjournalchgBottomPart
+
+ [Part : mfgstockjournalchgOpBreak]
+  part : mfgstockjournalchgTopPart
+
+ [part : mfgstockjournalchgTopPart]
+ line:cwblankline
+
+ [part : mfgstockjournalchgINVACCPart]
+Parts       : mfgstockjournalchgInvPart,mfgstockjournalchgInvPart2   ;; mfgstockjournalchgAccPart
+CommonBorder: Yes
+Vertical    : Yes
+Scroll      : Vertical
+Float       : No
+;;Total       :
+
+ [part : mfgstockjournalchgInvPart]
+  line : mfgstockjournalchgInvLineTitle,mfgstockjournalchgInvLine   ;;,mfgstockjournalchgInvLineTotal
+repeat : mfgstockjournalchgInvLine : InventoryEntriesIn
+Scroll : vertical
+Common border : yes
+ float : no
+
+
+ [Line : mfgstockjournalchgInvLine]
+ field :fwf
+right field :snf,snf2,qtyf,amtf
+
+local: field: fwf : set as :@@invitemname  ;; "FG Product"
+local : field : snf : set as :$$CollectionField:$batchname:1:BatchAllocations
+local : field : snf2: set as :$godownname  ;; "Location"
+local : field : qtyf : set as :$$CollectionField:$billedqty:1:BatchAllocations
+local : field : amtf : set as :$$CollectionField:$amount:1:BatchAllocations
+
+ 
+explode : mfgstockjournalchgBUDPart : $basicuserdescription != ''
+explode : mfgstockjournalchgBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+
+[line: mfgstockjournalchgInvLineTitle]
+ use : mfgstockjournalchgInvLine
+delete : explode
+   local : field: default : type : string
+   
+
+ local: field: fwf : set as : "FG Product"
+ local : field : snf: set as : "Batch No"
+ local : field : snf2: set as : "Location"
+ local : field : qtyf : set as : "Qty."
+ local : field : amtf : set as :"Amount"
+ 
+ local : field : qtyf : align : right
+ local: field : ratef : align : right
+ local : field : amtf : align : right
+ border:thin top bottom
+
+
+[part : mfgstockjournalchgBatchPart]
+line : mfgstockjournalchgBatchLine
+repeat : mfgstockjournalchgBatchLine : BatchAllocations
+
+[line : mfgstockjournalchgBatchLine]
+use : mfgstockjournalchgBUDLine
+local: field: fwf : set as :@@invitemname
+  
+
+local : field : snf : set as :$$CollectionField:$batchname:@@linep1:BatchAllocations
+
+local : field : snf2: set as :$godownname  ;; "Location"
+local : field : qtyf : set as :$$CollectionField:$billedqty:@@linep1:BatchAllocations
+local : field : amtf : set as :$$CollectionField:$amount:@@linep1:BatchAllocations
+
+[part : mfgstockjournalchgBUDPart]
+line: mfgstockjournalchgBUDLine
+repeat : mfgstockjournalchgbudline : basicuserdescription
+
+[line : mfgstockjournalchgBudLine]
+ use  : mfgstockjournalchgINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : $basicuserdescription
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : ""
+
+[line : mfgstockjournalchgInvLineTotal]
+ use  : mfgstockjournalchgINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : ""
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : $$collamttotal:inventoryentries:$amount
+local : field : amtf : border :thin top
+space bottom : 0.05
+
+
+[part:mfgstockjournalchgInvPart2]
+Line :cwblankline,mfgstockjournalchgInvLineTitle2,mfgstockjournalchgInv2
+
+repeat:mfgstockjournalchgInv2:cwcollsjmfgpro
+
+[line: mfgstockjournalchgInvLineTitle2]
+ use : mfgstockjournalchgInv2
+delete : explode
+   local : field: default : type : string
+
+  border:thin top bottom
+ local: field: fwf : set as : "FG Product"
+
+ local : field : numf : set as : "Qty."
+
+[Line : mfgstockjournalchgInv2]
+field :fwf
+right field :numf
+
+
+local: field: fwf : set as :$cwsjMfgProduct ;;@@invitemname
+local : field : snf : set as :"" ;;$$CollectionField:$batchname:1:BatchAllocations
+local : field : snf2: set as :"" ;;$godownname
+local : field : numf : set as :$cwsjMfgQty ;;$$CollectionField:$billedqty:1:BatchAllocations
+local : field : amtf : set as :"" ;;$$CollectionField:$amount:1:BatchAllocations
+
+add:explode:mfgstockjournalchgexp
+
+[part:mfgstockjournalchgexp]
+line:mfgstockjournalchgexp
+repeat:mfgstockjournalchgexp:cwcollsjRawMaterial
+
+[line:mfgstockjournalchgexp]
+
+use:mfgstockjournalchgInv2
+
+delete:explode
+
+local: field: fwf : set as :$cwsjRawMaterial
+local : field : snf : set as :"" ;;$$CollectionField:$batchname:1:BatchAllocations
+local : field : snf2: set as :"" ;;$godownname
+local : field : numf : set as :$cwsjRawMQty
+local : field : amtf : set as :"" ;;$$CollectionField:$amount:1:BatchAllocations
+
+[part : mfgstockjournalchgACCPart]
+  line : mfgstockjournalchgACCLine
+repeat : mfgstockjournalchgACCLine : Ledger Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+ [Line : mfgstockjournalchgACCLine]
+   use : mfgstockjournalchgINVLine
+empty : $ledgername = $partyledgername or $$issysname:$ledgername or $$isempty:$amount
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"NoZero,Percentage"
+local : field : ratef  : set as : $basicrateofinvoicetax
+local : field : snf : set as : ""
+local : field : fwf : set as : $ledgername
+local : field : qtyf : set as : ""
+delete : explode
+
+  [part : mfgstockjournalchgBottomPart]
+   line : mfgstockjournalchgTotLine,cwblankline
+  
+  [line : mfgstockjournalchgTotLine]
+    use : mfgstockjournalchgACCLine
+ delete : empty
+  local : field : ratef  : set as :""
+  local : field : fwf : set as : "Total:"
+  local : field : fwf : align : right
+  local : field : amtf : format : "ShowBaseSymbol" 
+  
+  

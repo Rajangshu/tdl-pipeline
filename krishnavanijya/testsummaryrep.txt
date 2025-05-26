@@ -1,0 +1,184 @@
+; Created By: Khokan on 2025-03-17 16:34, ID: 
+
+
+     [#menu: Gateway of Tally]
+        add: Option: testsummaryrepLock ;; : @@testsummaryrepDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@testsummaryrepReport: Display: Reptestsummaryrep
+  */
+
+
+     [!menu: testsummaryrepLock]
+        add: Item: before: @@locQuit: @@testsummaryrepReport: Display: Reptestsummaryrep
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   testsummaryrepReport: "testsummaryrep"
+;; testsummaryrepDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: Reptestsummaryrep]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@testsummaryrepReport
+   Printset: Report Title: @@testsummaryrepReport
+
+       Form: Frmtestsummaryrep
+
+     Export: Yes
+
+      ;;  set: svfromdate : ##svcurrentdate
+      ;;  set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+ list Variable: cwAllPhyStock
+     
+      [Form: Frmtestsummaryrep]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0testsummaryrep,Prttestsummaryrep
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: testsummaryrepbotbrk,testsummaryrepbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+   set: logi1 : $$fillPhysicalStock
+ ;;    local : button : report config : action :modify variable: testsummaryrepConfigure
+
+      [part: testsummaryrepbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: testsummaryrepbotopbrk]
+        use: dspacctitles
+  add: part: testsummaryrepTitlePart
+
+      [part: testsummaryrepTitlePart]
+       line: LntestsummaryrepTitle
+       
+      [line: LntestsummaryrepCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0testsummaryrep]
+      line : LntestsummaryrepCurrPeriod
+      
+      [Part: Prttestsummaryrep]
+       Line: LntestsummaryrepTitle,Lntestsummaryrep
+bottom Line: LntestsummaryrepTotals
+     repeat: Lntestsummaryrep:Coltestsummaryrep ;; Coltestsummaryrep
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+; Main Collection
+
+[Collection: Coltestsummaryrep]
+  Collection:Coltestsummaryrep1:Coltestsummaryrep2
+
+
+
+[Collection: Coltestsummaryrep2]
+type:stockitem
+
+Fetch	: cwnewmtr1,cwPKT,stockcategory,cwKGS,partno,cwQuality,cwBDL,cwGSM,cwSize,cwsceneitem,cwSheet,cwPacknew,name, Parent, ExpiryPeriod, ClosingBalance, GodownName, MfdOn, ClosingAsOnDate
+
+
+[Collection: Coltestsummaryrep1]
+
+type : batch
+
+child of:$$LoopCollObj:$Name
+
+Fetch	: cwnewmtr1,cwPKT,cwKGS,stockcategory,partno,cwQuality,cwGSM,cwBDL,cwBDL2,cwSize,cwSheet,cwPacknew,name, Parent, ExpiryPeriod, ClosingBalance, GodownName, MfdOn, ClosingAsOnDate
+
+
+    [system: Formula]
+ColtestsummaryrepFilter: Yes ; $$isSales:$voucherTypeName
+
+      [Line: LntestsummaryrepTitle]
+        use: Lntestsummaryrep
+     option: titleopt
+;;    local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+; Main Line
+      [Line: Lntestsummaryrep]
+     Fields: testsummaryrepmastid,fwf,nf
+Right Field: snf,Qtyf,numf,numf1,numf2,numf3,snf9
+
+     Option: Alter on Enter
+        key: testsummaryrepDisplayOnEnter  ; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field: qtyf: Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf: setas  : #amtf/#qtyf
+
+local:field: fwf : set as : $parent
+local:field: nf : set as : $name
+local:field: snf : set as : $godownname
+local:field: numf : set as : $cwPKT
+local:field: numf2 : set as : $cwKGS
+local:field: numf2 : set as : $cwKGS
+
+local:field: numf3 : set as :$$reportobject:$$CollectionFieldByKey:$lvcwThanps1:@@cwgodownpFilter:cwAllPhyStock
+local:field: snf9 : set as : $cwBDL2
+local:field: qtyf : set as : $closingbalance
+local:field:default:border:thin left
+
+
+
+
+ 			
+   ;------------------------------  Alter Voucher Start (4.1)
+
+        [Key: testsummaryrepDisplayOnEnter]
+	 Key: ctrl + enter
+      Action: Display: testsummaryrepDisplayVoucher
+
+ 	
+     [Report: testsummaryrepDisplayVoucher]
+ 	 Use: Vch Display
+	Form: Vch Display
+      Object: Voucher:  #testsummaryrepmastid
+	
+
+        [Field: testsummaryrepmastid]
+	Set as:"ID:"+$$String:$masterid
+	Invisible:Yes
+
+
+   ;------------------------------  Alter Voucher End (4.1)
+
+
+
+      [line: LntestsummaryrepTotals]
+        use: Lntestsummaryrep
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

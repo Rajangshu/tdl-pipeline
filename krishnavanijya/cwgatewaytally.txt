@@ -1,0 +1,292 @@
+; Created By: Khokan on 2024-09-25 10:21, ID:
+
+[#Menu: Gateway of Tally]
+Title       : $$LocaleString:"Gateway of Tally"
+	
+ delete:Indent  	: @@locIndentMasters
+
+delete:Key Item	: @@locCreate			: C : Execute	: Create Master		 	: @createmst
+delete:Key Item	: @@locAlter			: A : Execute	: Alter Master			: @altermst
+delete:Key Item    : @@locChartofAccounts  : H : Alter   	: CoA List Of Accounts
+delete:Item        : BLANK 	
+
+delete:Indent  	: @@locTransactions
+delete:Key Item	: @@locVouchers			: V : Create Collection	: Company Vouchers		: $$AllowCreateAnyVoucher:Yes:$$CurrentSimpleCompany
+delete:Key Item    : @@locDayBook          : K : Display   		: Day Book              : @IsDayBookVisible
+delete:Item        : BLANK
+
+delete:Indent  	: @@locIndentUtilities
+	
+delete:Key Item	: @@LocBanking				: N	: Menu					: Banking				: $$IsAccountingOn:$$CurrentSimpleCompany
+delete:Item        : BLANK
+
+delete:Indent  	: @@locIndentReports
+	
+delete:Key Item	: @@locFinalAccounts		: F : Menu		: Final Accounts : $$IsAccountingOn:$$CurrentSimpleCompany +
+																				AND (@IsBSVisible OR @IsPandLVisible +
+																				OR @IsCashFlowVisisble OR @IsFundFlowVisisble)
+	
+delete:Key Item    : @@locBalanceSheet      	: B : Display				: Balance Sheet		: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible
+delete:Key Item    : @@locProfitLossAcc     	: P : Display				: Profit and Loss	: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible
+delete:Key Item    : @@locIncomeExpenseAcc  	: I : Display				: Profit and Loss	: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible
+delete:Key Item    : @@locStockSummary      	: S : Display 				: Stock Summary		: $$IsInventoryOn:$$CurrentSimpleCompany AND @IsStkSummVisible
+delete:Key Item    : @@locRatioAnalysis     	: R : Display				: Ratio Analysis	: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible
+	
+delete:Item        : BLANK
+delete:Key Item    : @@locDisplayMoreReports  	: D : Menu		: Display Menu
+delete:Key Item    : @@locDashBoard			: O	: Display	: DashboardReport
+	
+delete:Key Item   	: @@locQuit					: Q
+		
+delete:Control 	: @@locCreate			: $$IsTrueInAnyCmp:@createmst
+delete:Control 	: @@locAlter			: $$IsTrueInAnyCmp:@altermst
+delete:Control		: @@locChartofAccounts	: NOT $$IsEmpty:$$SelectedCmps
+delete:Control		: @@locVouchers			: $$IsTrueInAnyCmp:($$AllowCreateAnyVoucher:Yes:$$CurrentSimpleCompany)
+delete:Control 	: @@locDayBook          : $$IsTrueInAnyCmp:@IsDayBookVisible
+delete:Control		: @@LocBanking			: $$IsTrueInAnyCmp:@@IsBankingMenuVisible
+delete:Control 	: @@locFinalAccounts	: ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:@IsfinalAcc
+delete:Control		: @@locBalanceSheet     : NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible)
+delete:Control		: @@locProfitLossAcc    : NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible) AND NOT $$IsPLasIncomeExpense
+delete:Control		: @@locIncomeExpenseAcc : NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible) AND $$IsPLasIncomeExpense
+
+delete:Control		: @@locDisplayMoreReports	: NOT $$IsEmpty:$$SelectedCmps
+delete:Control		: @@locStockSummary			: $$IsTrueInAnyCmp:($$IsInventoryOn:$$CurrentSimpleCompany AND @IsStkSummVisible)
+delete:Control		: @@locRatioAnalysis    	: NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible)
+	
+delete:createmst		: @createaccmst OR @createinvmst OR @createpyrlmst OR @createstatmst OR @altercmpfeature OR @createpurchvch OR @createjrnlvch
+delete:createaccmst	: $$GlobalAllow:Create:(Accounts Masters):$$CurrentSimpleCompany
+delete:createinvmst	: $$IsInventoryOn:$$CurrentSimpleCompany AND $$GlobalAllow:Create:InventoryMasters:$$CurrentSimpleCompany
+delete:createpyrlmst	: $$IsPayrollOn:$$CurrentSimpleCompany AND $$GlobalAllow:Create:PayrollMasters:$$CurrentSimpleCompany
+delete:createstatmst	: $$GlobalAllow:Create:StatutoryMasters:$$CurrentSimpleCompany
+	
+	/*Directly $$AllowCreateVoucher:$$VchTypePurchase:Yes:$$CurrentSimpleCompany is not working at menu level.Using System formula also not working.
+	So created the function to make it work. Once this issue is solved have to remove the function and have to use diectly at menu level
+	*/
+	
+delete:createpurchvch	: $$IsAllowCreatePurchVch
+delete:createjrnlvch	: $$IsAllowCreateJrnlVch
+	
+delete:altermst		: @alteraccmst OR @alterinvmst OR @alterpyrlmst OR @alterstatmst OR @altercmpfeature
+delete:alteraccmst		: $$GlobalAllow:Alter:AccountsMasters:$$CurrentSimpleCompany
+delete:alterinvmst		: $$IsInventoryOn:$$CurrentSimpleCompany AND $$GlobalAllow:Alter:InventoryMasters:$$CurrentSimpleCompany
+delete:alterpyrlmst	: $$IsPayrollOn:$$CurrentSimpleCompany AND $$GlobalAllow:Alter:PayrollMasters:$$CurrentSimpleCompany
+delete:alterstatmst	: $$GlobalAllow:Alter:StatutoryMasters:$$CurrentSimpleCompany
+delete:altercmpfeature	: $$GlobalAllow:Alter:CompanyFeatures:$$CurrentSimpleCompany
+	
+delete:IsfinalAcc		: $$IsAccountingOn:$$CurrentSimpleCompany +
+						AND (@IsBSVisible OR @IsPandLVisible OR @IsCashFlowVisisble OR @IsFundFlowVisisble)
+
+delete:IsBSVisible 		: $$GlobalAllow:Display:BalanceSheet:$$CurrentSimpleCompany
+delete:IsPandLVisible 		: $$GlobalAllow:Display:ProfitLossAc:$$CurrentSimpleCompany
+delete:IsStkSummVisible	: $$GlobalAllow:Display:StockSummary:$$CurrentSimpleCompany
+delete:IsDayBookVisible	: $$GlobalAllow:Display:DayBook:$$CurrentSimpleCompany
+	
+delete:IsCashFlowVisisble 	: $$GlobalAllow:Display:CashFlow:$$CurrentSimpleCompany
+delete:IsFundFlowVisisble 	: $$GlobalAllow:Display:FundsFlow:$$CurrentSimpleCompany
+
+delete:PymtReconAlter		: @@IsPaymentRequestOn AND @@IsPymtReconAlterVisible
+delete:PymtReconDisp		: @@IsPaymentRequestOn AND @@IsPymtReconDispVisible
+
+delete:Key		: Unconditional Quit
+    
+Help				: @@HlpGateway_of_Tally
+	
+
+[#menu: Gateway of Tally]	
+
+ add:item :before:@@locquit:Manufacturing:menu:Manufacturing
+ add:item :before:@@locquit:Trading:menu:Trading
+ 	
+[System: Formula]
+Trading:"Trading"
+Manufacturing:"Manufacturing"
+	
+	
+[Menu	: Trading]
+		
+Title       : $$LocaleString:"Trading"
+Indent  	: @@locIndentMasters
+
+Key Item	: @@locCreate			: C : Execute	: Create Master		 	: @createmst
+Key Item	: @@locAlter			: A : Execute	: Alter Master			: @altermst
+Key Item    : @@locChartofAccounts  : H : Alter   	: CoA List Of Accounts
+Item        : BLANK 	
+
+Indent  	: @@locTransactions
+Key Item	: @@locVouchers			: V : Create Collection	: Company Vouchers		: $$AllowCreateAnyVoucher:Yes:$$CurrentSimpleCompany
+Key Item    : @@locDayBook          : K : Display   		: Day Book              : @IsDayBookVisible
+Item        : BLANK
+
+Indent  	: @@locIndentUtilities
+	
+Key Item	: @@LocBanking				: N	: Menu					: Banking				: $$IsAccountingOn:$$CurrentSimpleCompany
+Item        : BLANK
+Indent  	: @@locIndentReports
+	
+Key Item	: @@locFinalAccounts		: F : Menu		: Final Accounts : $$IsAccountingOn:$$CurrentSimpleCompany +
+																				AND (@IsBSVisible OR @IsPandLVisible +
+																				OR @IsCashFlowVisisble OR @IsFundFlowVisisble)
+	
+Key Item    : @@locBalanceSheet      	: B : Display				: Balance Sheet		: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible
+Key Item    : @@locProfitLossAcc     	: P : Display				: Profit and Loss	: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible
+Key Item    : @@locIncomeExpenseAcc  	: I : Display				: Profit and Loss	: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible
+Key Item    : @@locStockSummary      	: S : Display 				: Stock Summary		: $$IsInventoryOn:$$CurrentSimpleCompany AND @IsStkSummVisible
+Key Item    : @@locRatioAnalysis     	: R : Display				: Ratio Analysis	: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible
+	
+Item        : BLANK
+Key Item    : @@locDisplayMoreReports  	: D : Menu		: Display Menu
+Key Item    : @@locDashBoard			: O	: Display	: DashboardReport
+	
+Key Item   	: @@locQuit					: Q
+		
+Control 	: @@locCreate			: $$IsTrueInAnyCmp:@createmst
+Control 	: @@locAlter			: $$IsTrueInAnyCmp:@altermst
+Control		: @@locChartofAccounts	: NOT $$IsEmpty:$$SelectedCmps
+Control		: @@locVouchers			: $$IsTrueInAnyCmp:($$AllowCreateAnyVoucher:Yes:$$CurrentSimpleCompany)
+Control 	: @@locDayBook          : $$IsTrueInAnyCmp:@IsDayBookVisible
+Control		: @@LocBanking			: $$IsTrueInAnyCmp:@@IsBankingMenuVisible
+Control 	: @@locFinalAccounts	: ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:@IsfinalAcc
+Control		: @@locBalanceSheet     : NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible)
+Control		: @@locProfitLossAcc    : NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible) AND NOT $$IsPLasIncomeExpense
+Control		: @@locIncomeExpenseAcc : NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible) AND $$IsPLasIncomeExpense
+
+Control		: @@locDisplayMoreReports	: NOT $$IsEmpty:$$SelectedCmps
+Control		: @@locStockSummary			: $$IsTrueInAnyCmp:($$IsInventoryOn:$$CurrentSimpleCompany AND @IsStkSummVisible)
+Control		: @@locRatioAnalysis    	: NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible)
+	
+createmst		: @createaccmst OR @createinvmst OR @createpyrlmst OR @createstatmst OR @altercmpfeature OR @createpurchvch OR @createjrnlvch
+createaccmst	: $$GlobalAllow:Create:(Accounts Masters):$$CurrentSimpleCompany
+createinvmst	: $$IsInventoryOn:$$CurrentSimpleCompany AND $$GlobalAllow:Create:InventoryMasters:$$CurrentSimpleCompany
+createpyrlmst	: $$IsPayrollOn:$$CurrentSimpleCompany AND $$GlobalAllow:Create:PayrollMasters:$$CurrentSimpleCompany
+createstatmst	: $$GlobalAllow:Create:StatutoryMasters:$$CurrentSimpleCompany
+	
+/*Directly $$AllowCreateVoucher:$$VchTypePurchase:Yes:$$CurrentSimpleCompany is not working at menu level.Using System formula also not working.
+So created the function to make it work. Once this issue is solved have to remove the function and have to use diectly at menu level
+*/
+	
+createpurchvch	: $$IsAllowCreatePurchVch
+createjrnlvch	: $$IsAllowCreateJrnlVch
+	
+altermst		: @alteraccmst OR @alterinvmst OR @alterpyrlmst OR @alterstatmst OR @altercmpfeature
+alteraccmst		: $$GlobalAllow:Alter:AccountsMasters:$$CurrentSimpleCompany
+alterinvmst		: $$IsInventoryOn:$$CurrentSimpleCompany AND $$GlobalAllow:Alter:InventoryMasters:$$CurrentSimpleCompany
+alterpyrlmst	: $$IsPayrollOn:$$CurrentSimpleCompany AND $$GlobalAllow:Alter:PayrollMasters:$$CurrentSimpleCompany
+alterstatmst	: $$GlobalAllow:Alter:StatutoryMasters:$$CurrentSimpleCompany
+altercmpfeature	: $$GlobalAllow:Alter:CompanyFeatures:$$CurrentSimpleCompany
+	
+IsfinalAcc		: $$IsAccountingOn:$$CurrentSimpleCompany +
+						AND (@IsBSVisible OR @IsPandLVisible OR @IsCashFlowVisisble OR @IsFundFlowVisisble)
+
+IsBSVisible 		: $$GlobalAllow:Display:BalanceSheet:$$CurrentSimpleCompany
+IsPandLVisible 		: $$GlobalAllow:Display:ProfitLossAc:$$CurrentSimpleCompany
+IsStkSummVisible	: $$GlobalAllow:Display:StockSummary:$$CurrentSimpleCompany
+IsDayBookVisible	: $$GlobalAllow:Display:DayBook:$$CurrentSimpleCompany
+	
+IsCashFlowVisisble 	: $$GlobalAllow:Display:CashFlow:$$CurrentSimpleCompany
+IsFundFlowVisisble 	: $$GlobalAllow:Display:FundsFlow:$$CurrentSimpleCompany
+
+PymtReconAlter		: @@IsPaymentRequestOn AND @@IsPymtReconAlterVisible
+PymtReconDisp		: @@IsPaymentRequestOn AND @@IsPymtReconDispVisible
+
+Key					: Unconditional Quit
+
+Help				: @@HlpGateway_of_Tally
+
+ add:item :before:@@locquit:"0. MIS":menu:mismenu1
+
+;;==============================================================================================================
+
+
+[Menu	: Manufacturing]
+		
+Title       : $$LocaleString:"Manufacturing"
+Indent  	: @@locIndentMasters
+
+Key Item	: @@locCreate			: C : Execute	: Create Master		 	: @createmst
+Key Item	: @@locAlter			: A : Execute	: Alter Master			: @altermst
+Key Item    : @@locChartofAccounts  : H : Alter   	: CoA List Of Accounts
+Item        : BLANK 	
+
+Indent  	: @@locTransactions
+Key Item	: @@locVouchers			: V : Create Collection	: Company Vouchers		: $$AllowCreateAnyVoucher:Yes:$$CurrentSimpleCompany
+Key Item    : @@locDayBook          : K : Display   		: Day Book              : @IsDayBookVisible
+Item        : BLANK
+
+Indent  	: @@locIndentUtilities
+	
+Key Item	: @@LocBanking				: N	: Menu					: Banking				: $$IsAccountingOn:$$CurrentSimpleCompany
+Item        : BLANK
+Indent  	: @@locIndentReports
+	
+Key Item	: @@locFinalAccounts		: F : Menu		: Final Accounts : $$IsAccountingOn:$$CurrentSimpleCompany +
+																				AND (@IsBSVisible OR @IsPandLVisible +
+																				OR @IsCashFlowVisisble OR @IsFundFlowVisisble)
+	
+Key Item    : @@locBalanceSheet      	: B : Display				: Balance Sheet		: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible
+Key Item    : @@locProfitLossAcc     	: P : Display				: Profit and Loss	: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible
+Key Item    : @@locIncomeExpenseAcc  	: I : Display				: Profit and Loss	: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible
+Key Item    : @@locStockSummary      	: S : Display 				: Stock Summary		: $$IsInventoryOn:$$CurrentSimpleCompany AND @IsStkSummVisible
+Key Item    : @@locRatioAnalysis     	: R : Display				: Ratio Analysis	: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible
+	
+Item        : BLANK
+Key Item    : @@locDisplayMoreReports  	: D : Menu		: Display Menu
+Key Item    : @@locDashBoard			: O	: Display	: DashboardReport
+	
+Key Item   	: @@locQuit					: Q
+		
+Control 	: @@locCreate			: $$IsTrueInAnyCmp:@createmst
+Control 	: @@locAlter			: $$IsTrueInAnyCmp:@altermst
+Control		: @@locChartofAccounts	: NOT $$IsEmpty:$$SelectedCmps
+Control		: @@locVouchers			: $$IsTrueInAnyCmp:($$AllowCreateAnyVoucher:Yes:$$CurrentSimpleCompany)
+Control 	: @@locDayBook          : $$IsTrueInAnyCmp:@IsDayBookVisible
+Control		: @@LocBanking			: $$IsTrueInAnyCmp:@@IsBankingMenuVisible
+Control 	: @@locFinalAccounts	: ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:@IsfinalAcc
+Control		: @@locBalanceSheet     : NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible)
+Control		: @@locProfitLossAcc    : NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible) AND NOT $$IsPLasIncomeExpense
+Control		: @@locIncomeExpenseAcc : NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible) AND $$IsPLasIncomeExpense
+
+Control		: @@locDisplayMoreReports	: NOT $$IsEmpty:$$SelectedCmps
+Control		: @@locStockSummary			: $$IsTrueInAnyCmp:($$IsInventoryOn:$$CurrentSimpleCompany AND @IsStkSummVisible)
+Control		: @@locRatioAnalysis    	: NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible)
+	
+createmst		: @createaccmst OR @createinvmst OR @createpyrlmst OR @createstatmst OR @altercmpfeature OR @createpurchvch OR @createjrnlvch
+createaccmst	: $$GlobalAllow:Create:(Accounts Masters):$$CurrentSimpleCompany
+createinvmst	: $$IsInventoryOn:$$CurrentSimpleCompany AND $$GlobalAllow:Create:InventoryMasters:$$CurrentSimpleCompany
+createpyrlmst	: $$IsPayrollOn:$$CurrentSimpleCompany AND $$GlobalAllow:Create:PayrollMasters:$$CurrentSimpleCompany
+createstatmst	: $$GlobalAllow:Create:StatutoryMasters:$$CurrentSimpleCompany
+	
+/*Directly $$AllowCreateVoucher:$$VchTypePurchase:Yes:$$CurrentSimpleCompany is not working at menu level.Using System formula also not working.
+So created the function to make it work. Once this issue is solved have to remove the function and have to use diectly at menu level
+*/
+	
+createpurchvch	: $$IsAllowCreatePurchVch
+createjrnlvch	: $$IsAllowCreateJrnlVch
+	
+altermst		: @alteraccmst OR @alterinvmst OR @alterpyrlmst OR @alterstatmst OR @altercmpfeature
+alteraccmst		: $$GlobalAllow:Alter:AccountsMasters:$$CurrentSimpleCompany
+alterinvmst		: $$IsInventoryOn:$$CurrentSimpleCompany AND $$GlobalAllow:Alter:InventoryMasters:$$CurrentSimpleCompany
+alterpyrlmst	: $$IsPayrollOn:$$CurrentSimpleCompany AND $$GlobalAllow:Alter:PayrollMasters:$$CurrentSimpleCompany
+alterstatmst	: $$GlobalAllow:Alter:StatutoryMasters:$$CurrentSimpleCompany
+altercmpfeature	: $$GlobalAllow:Alter:CompanyFeatures:$$CurrentSimpleCompany
+	
+IsfinalAcc		: $$IsAccountingOn:$$CurrentSimpleCompany +
+						AND (@IsBSVisible OR @IsPandLVisible OR @IsCashFlowVisisble OR @IsFundFlowVisisble)
+
+IsBSVisible 		: $$GlobalAllow:Display:BalanceSheet:$$CurrentSimpleCompany
+IsPandLVisible 		: $$GlobalAllow:Display:ProfitLossAc:$$CurrentSimpleCompany
+IsStkSummVisible	: $$GlobalAllow:Display:StockSummary:$$CurrentSimpleCompany
+IsDayBookVisible	: $$GlobalAllow:Display:DayBook:$$CurrentSimpleCompany
+	
+IsCashFlowVisisble 	: $$GlobalAllow:Display:CashFlow:$$CurrentSimpleCompany
+IsFundFlowVisisble 	: $$GlobalAllow:Display:FundsFlow:$$CurrentSimpleCompany
+
+PymtReconAlter		: @@IsPaymentRequestOn AND @@IsPymtReconAlterVisible
+PymtReconDisp		: @@IsPaymentRequestOn AND @@IsPymtReconDispVisible
+
+Key					: Unconditional Quit
+
+Help				: @@HlpGateway_of_Tally
+
+ add: Item: before: @@locQuit: @@stocksummarymillwisemfgReport: Display: Repstocksummarymillwisemfg
+        add: Item: before: @@locQuit: Blank
+	

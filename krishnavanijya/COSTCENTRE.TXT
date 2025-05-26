@@ -1,0 +1,28 @@
+; Created By: Khokan on 2022-11-26 15:33, ID: 
+
+[#Form: Cost Centre]
+
+[#Part:  MST CostCentreParent]
+add:option:cwmstCostCentreParentopt:@@KrishnavanijyaEnabled
+[!part:cwmstCostCentreParentopt]
+
+add:line:ccGSMline,ccSheetline
+
+[line:ccQualityline]
+field:short prompt,cwlogical
+Local: Field:short prompt : Set As:"Is Quality"
+Local: Field: cwlogical: storage:cwccQualityyes
+
+[line:ccGSMline]
+field:short prompt,cwlogical
+Local: Field:short prompt : Set As:"Is GSM"
+Local: Field: cwlogical: storage:cwccGSMyes
+[line:ccSizeline]
+field:short prompt,cwlogical
+Local: Field:short prompt : Set As:"Is Size"
+Local: Field: cwlogical: storage:cwccSizeyes
+
+[line:ccSheetline]
+field:short prompt,cwlogical
+Local: Field:short prompt : Set As:"Is Sheet"
+Local: Field: cwlogical: storage:cwccSheetyes

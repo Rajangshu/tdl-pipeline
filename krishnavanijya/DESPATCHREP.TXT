@@ -1,0 +1,396 @@
+; Created By: Khokan on 2022-11-02 15:09, ID: 
+
+     [#menu: Gateway of Tally]
+;; {02.Nov.22 16:00}         add: Option: DespatchrepLock ;; : @@DespatchrepDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@DespatchrepReport: Display: RepDespatchrep
+
+
+
+     [!menu: DespatchrepLock]
+        add: Item: before: @@locQuit: @@DespatchrepReport: Display: RepDespatchrep
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   DespatchrepReport: "Despatch  Report"
+;; DespatchrepDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepDespatchrep]
+        use: Dsp Template
+      Title: @@DespatchrepReport
+   Printset: Report Title: @@DespatchrepReport
+       Form: FrmDespatchrep
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     variable:str1,str2,str3,str4,str5,str6,str7,logi1,logi2
+    set:str1:""
+    set:str2:""
+    set:str3:""
+    set:str4:""
+    set:logi1:yes
+    set:logi2:yes
+    
+      [Form: FrmDespatchrep]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0Despatchrep,PrtDespatchrep
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: Despatchrepbotbrk,DespatchrepbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+    add:button:cwDespatchbotton
+ local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:style4
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style3
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style4
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style3
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style3  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style3
+
+      [part: DespatchrepbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: Despatchrepbotopbrk]
+        use: dspacctitles
+  add: part: DespatchrepTitlePart
+
+      [part: DespatchrepTitlePart]
+       line: LnDespatchrepTitle
+       
+      [line: LnDespatchrepCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0Despatchrep]
+      line : LnDespatchrepCurrPeriod
+      
+      [Part: PrtDespatchrep]
+       Line: LnDespatchrepTitle,LnDespatchrep
+bottom Line: LnDespatchrepTotals
+     repeat: LnDespatchrep: ColDespatchrep
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,Qtyf2,numf,amtf2
+
+[Collection: ColDespatchrep]
+     Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: cwVehicleNoFilter,GodownNamefilterr,cwtrsSlipNoFilter,cwIsDespatchFilter,cwdespatchdateFilter2,ColDespatchupdaterepFilter,partyledgernameFilter,BASICBUYERNAMEFilter,IsNonOptionalCancelledVchs
+     fetch:cwtrsVehicle,BASICSHIPVESSELNO,BASICBUYERNAME,BasicBuyeraddress,cwkgvch,cwtrsSlipNo
+
+    [system: Formula]
+partyledgernameFilter:if $$issysname:##str1 then yes else $partyledgername=##str1
+BASICBUYERNAMEFilter:if $$issysname:##str2 then yes else $BASICBUYERNAME=##str2
+;; {07.Dec.22 11:56} cwVehicleNoFilter:if $$issysname:##str3 then yes else $BASICSHIPVESSELNO=##str3
+cwVehicleNoFilter:if $$issysname:##str3 then yes else $cwtrsVehicle=##str3
+cwtrsSlipNoFilter:if $$issysname:##str4 then yes else $cwtrsSlipNo=##str4
+GodownNamefilterr:if $$issysname:##str5 then yes else @@cwGodownName1=##str5
+cwdespatchdateFilter2:not $$isempty:$cwdespatchdate
+
+cwGodownName1:$$CollectionField:$godownname:First:inventoryentries
+
+[Line: LnDespatchrepTitle]
+use: LnDespatchrep
+option: titleopt
+     
+local:field: snf: set as: "Invoice No."
+local:field: sdf: set as: "Inv.Date"
+local:field: fwf: set as: "Party Name"
+local:field: nf1: set as: "Ship. Party"
+local:field: SNF1: set as: "Godown Name"
+
+local:field: numf: set as: "Bundles"
+local:field: qtyf: set as: "Units"
+local:field: qtyf2: set as: "Qty."
+local:field: SNF2: set as: "Units"
+
+local:field: ratepf : set as : "Rate"
+local:field: amtf: set as: "Value"
+local:field: snf5: set as: "Transporter Slip No"
+local:field: nf: set as: "Vehicle No."
+local:field: sdf2: set as: "Despatch Date"
+local:field: amtf2: set as: "Freight"
+
+Local : field :sdf2: Lines : 0
+Local : field :snf5: Lines : 0
+local: field: qtyf: type: String
+
+local:field: snf: style:style4
+local:field: sdf:style:style4
+local:field: fwf:style:style4
+local:field: nf1:style:style4
+local:field: SNF1:style:style4
+local:field: numf:style:style4
+local:field: qtyf:style:style4
+local:field: qtyf2:style:style4
+local:field: SNF2:style:style4
+local:field: ratepf :style:style4
+local:field: amtf:style:style4
+local:field: amtf2:style:style4
+local:field: nf:style:style4
+local:field: snf5:style:style4
+local:field: sdf2:style:style4
+
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+
+[Line: LnDespatchrep]
+Fields: snf,sdf,fwf
+right field:nf1,snf1,numf,Qtyf,Qtyf2,amtf2,nf,sdf2,snf5
+
+Option: Alter on Enter
+
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+local:field: qtyf2 : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+
+local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+
+local:field: snf: set as:$vouchernumber ;; "Invoice No."
+local:field: sdf: set as:$date ;;  "Inv.Date"
+local:field: fwf: set as:$partyledgername ;;  "Party Name"
+local:field: nf1: set as:$BASICBUYERNAME ;; "Ship. Party"
+local:field: SNF1: set as:$$CollectionField:$godownname:First:inventoryentries ;;  "GDN"
+
+local:field: numf: set as:$$CollnumTotal:inventoryentries:$cwBDL ;;  "Bundles"
+local:field: qtyf: set as:$$CollQtyTotal:inventoryentries:$billedqty ;;  "Units"
+local:field: qtyf2: set as:$$CollQtyTotal:inventoryentries:$billedqty ;;  "Qty."
+local:field: SNF2: set as:"" ;;  "Units"
+
+local:field: ratepf : set as : #amtf/#qtyf2 ;;  "Rate"
+local:field: amtf: set as:$$CollamtTotal:inventoryentries:$amount  ;;  "Value"
+
+Local: Field: amtf2: Set As:$$abs:$$FilterValue:$amount:ledgerentries:1:cwFreightFilter
+
+local:field: nf: set as:$cwtrsVehicle  ;;$BASICSHIPVESSELNO ;;  "Vehicle "
+local:field: sdf2: set as:$cwDespatchDate ;;  "Despatch Date"
+local: field: qtyf: type:quantity:Secondaryunits
+Local: Field: snf5: set as:$cwtrsSlipNo
+
+Local: Field: default: Border: thin right
+Local: field: snf1: Width:18
+Local: Field:DEFAULT: style:style3
+local: field: amtf2: Invisible:not ##logi1
+
+ADD:EXPLODE:partyaddline:##logi2
+
+[part:partyaddline]
+line:disppartyaddline
+
+[line:disppartyaddline]
+use: LnDespatchrep
+delete:explode
+
+Local: Field:fwf: Set As:$$FullList:cwParty:$address ;; $$fulllist:$address:cwParty
+local:field: snf: set as:"" ;;$vouchernumber ;; "Invoice No."
+local:field: sdf: set as:"" ;; $date ;;  "Inv.Date"
+
+local:field: nf1: set as:$$FullList:BASICBUYERADDRESS:$BASICBUYERADDRESS ;;$BASICBUYERNAME ;; "Ship. Party"
+local:field: SNF1: set as:"" ;;  "GDN"
+
+local:field: numf: set as:"" ;;  "Bundles"
+local:field: qtyf: set as:"" ;;  "Units"
+local:field: qtyf2: set as:"" ;;  "Qty."
+local:field: SNF2: set as:"" ;;  "Units"
+
+local:field: ratepf : set as : "" ;;  "Rate"
+local:field: amtf: set as:""  ;;  "Value"
+
+Local: Field: amtf2: Set As:""
+
+local:field: nf: set as:""  ;;$BASICSHIPVESSELNO ;;  "Vehicle "
+local:field: sdf2: set as:"" ;;  "Despatch Date"
+
+Local: Field: snf5: set as:""
+Local : field : fwf: Lines : 0
+Local : field : nf1: Lines : 0
+
+ [collection: collcwBASICBUYERNAME]
+  type : BASICBUYERADDRESS : ledger
+  child of : $BASICBUYERNAME
+
+[line: LnDespatchrepTotals]
+use: LnDespatchrep
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local: field: qtyf: set as: $$total:qtyf
+local: field: qtyf2: set as: $$total:qtyf2
+local: field: fwf: set as: "Total"
+
+local: field: amtf : set as :  $$total:amtf
+local: field: amtf2 : set as :  $$total:amtf2
+
+local:field: snf: set as:"" ;; "Invoice No."
+local:field: sdf: set as:"" ;; "Inv.Date"
+
+local:field: nf1: set as:"" ;; "Ship. Party"
+local:field: SNF1: set as:"" ;; "GDN"
+
+local:field: numf: set as:$$total:numf ;; "Bundles"
+
+local:field: SNF2: set as:"" ;; "Units"
+
+local:field: ratepf : set as :"" ;; "Rate"
+
+local:field: nf: set as:"" ;; "Vehicle Date"
+local:field: sdf2: set as:"" ;;"Despatch Date"
+ Local: Field: snf5:set as:""
+ 
+local:field: snf: style:style4
+local:field: sdf:style:style4
+local:field: fwf:style:style4
+local:field: nf1:style:style4
+local:field: SNF1:style:style4
+local:field: numf:style:style4
+local:field: qtyf:style:style4
+local:field: qtyf2:style:style4
+local:field: SNF2:style:style4
+local:field: ratepf :style:style4
+local:field: amtf:style:style4
+local:field: amtf2:style:style4
+local:field: nf:style:style4
+local:field: sdf2:style:style4
+
+
+;;==============================================================================
+
+
+ [button:cwDespatchbotton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:cwDespatchbotton
+
+ [report:cwDespatchbotton]
+ form:cwDespatchbotton
+
+ [form:cwDespatchbotton]
+ part:cwDespatchbotton
+
+ HEIGHT:50% PAGE
+ WIDTH:30% PAGE
+
+ [part:cwDespatchbotton]
+ line:titlelinex,PartyNameline1,ShipPartyNameline1,VehicleNoline1,TransporterSlipNoline1,GodownNameline1,FreightShowNameline1,PartyAddressShowNameline1
+
+
+
+ [line:PartyNameline1]
+ field:sp,nf
+ Local: Field: sp: Set As:"Party Name"
+
+ Local: Field: nf:modifies:str1
+
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:collcwledger1,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ space bottom:0.5
+ Local: field: sp: Width:18
+ 
+ [line:ShipPartyNameline1]
+ field:sp,nf
+ Local: Field: sp: Set As:"Ship Name"
+
+ Local: Field: nf:modifies:str2
+
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:collcwledger1,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ space bottom:0.5
+
+ Local: field: sp: Width:18
+
+ 
+  [line:VehicleNoline1]
+
+  field:sp,nf
+  Local: Field: sp: Set As:"Vehicle No."
+
+  Local: Field: nf:modifies:str3
+  Local: Field: sp: Style: Normal Bold
+  space bottom:0.5
+  
+  Local: field: sp: Width:18
+ 
+  [line:TransporterSlipNoline1]
+
+  field:sp,nf
+  Local: Field: sp: Set As:"Transporter Slip No"
+
+  Local: Field: nf:modifies:str4
+  Local: Field: sp: Style: Normal Bold
+  space bottom:0.5
+  Local: field: sp: Width:18
+
+
+
+
+
+  [line:GodownNameline1]
+ field:sp,nf
+ Local: Field: sp: Set As:"Godown Name"
+
+ Local: Field: nf:modifies:str5
+
+ Local: Field: sp: Style: Normal Bold
+ Local: Field: nf: table:collcwgodwn1,Not Applicable
+ Local: Field: nf: Show table: Always
+
+ space bottom:0.5
+
+ Local: field: sp: Width:18
+ 
+ [Collection: collcwgodwn1]
+ type:godown
+ title:"List of Godown"
+ 
+ [Collection: collcwledger1]
+ type:ledger
+ title:"List of Ledgers"
+ 
+ 
+ [line:FreightShowNameline1]
+ field:sp,cwlogical
+ Local: Field: sp: Set As:"Show Freight"
+
+ Local: Field: cwlogical:modifies:logi1
+ Local: Field: cwlogical:set as:##logi1
+
+ Local: Field: sp: Style: Normal Bold
+
+
+ space bottom:0.5
+ Local: field: sp: Width:18
+ 
+ [line:PartyAddressShowNameline1]
+ field:sp,cwlogical
+ Local: Field: sp: Set As:"Show Party Address"
+
+ Local: Field: cwlogical:modifies:logi2
+ Local: Field: cwlogical:set as:##logi2
+
+ Local: Field: sp: Style: Normal Bold
+
+
+ space bottom:0.5
+ Local: field: sp: Width:18
+
+
+

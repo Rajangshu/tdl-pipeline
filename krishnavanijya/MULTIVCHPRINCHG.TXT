@@ -1,0 +1,194 @@
+; Created By: Khokan on 2022-11-02 10:16, ID:
+; Created By: joy on 2020-01-03 13:22, ID:
+
+
+ [#Part: SV MultiPrintMedium]
+  add:option: MVPPrintCommonopt:@@KrishnavanijyaEnabled
+
+
+
+[#Part: MVP Print Common]
+add:option: MVPPrintCommonopt:@@KrishnavanijyaEnabled
+[!part:MVPPrintCommonopt]
+
+;; {09.Apr.22 11:47} add:line:cwselectledgrp,cwselectledLed,vchnoline ;;cwselectledgrp,cwselectledLed,vchnoline
+add:line:vchnoline ;;cwselectledgrp,cwselectledLed,vchnoline
+[line:vchnoline]
+
+field:medium prompt,snf,snfx,snf2,snf3
+Local: Field: medium prompt: Set As:"Voucher No. From :"
+Local: Field:snfx: info:" To :"
+Local: Field: default: Color : blue
+Local: Field: snf:Modifies:vchno1
+Local: Field: snf2:Modifies:vchno2
+Local: Field: snf3:Modifies:vchno3
+Local: Field: snf3: Set As:#VoucherTypeName
+local: field: snf3: Invisible: yes
+Local: field: snf: Width:25
+Local: field: snf2: Width:25
+
+Local: Field: snf: table:cwvchnocol,notapplicable
+Local: Field: snf: Show table: Always
+
+Local: Field: snf2: table:cwvchnocol,notapplicable
+Local: Field: snf2: Show table: Always
+Local: Field:default: delete: Skip: Yes
+;; {08.Jan.21 13:05} Local: Field:default: add: Skip:not $$issysname:#nf9 or not $$issysname:#nf10;;if ##mprtgrp=" Not Applicable" ;; or not ##mprtLed=" Not Applicable" ;; not $$issysname:##mprtgrp
+Local: Field:medium prompt:Skip: Yes
+
+;; {06.Jan.21 16:10} option:cwskipopt:##mprtgrp=" Not Applicable"
+
+Local: Field: snf4: Set As:##mprtgrp
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[field:cwMvPartyGrp]
+use:nf
+
+[Line: cwselectledgrp]
+field:sp,cwMvPartyGrp
+Local: Field: sp: info:"Select Group :"
+Local: Field: cwMvPartyGrp: table: tabgroup,Not Applicable
+Local: Field: cwMvPartyGrp: Show table: Always
+Local: field: sp: Width:33
+Local: Field: cwMvPartyGrp:Modifies:mprtgrp
+Local: Field: cwMvPartyGrp: Style: Normal Bold
+Local: Field: cwMvPartyGrp: Set As: if $$isempty:$$value then $$sysname:NotApplicable else $$value
+;; {16.May.13 18:39} remove if : not ($$issales:##SVVoucherOfType or $$isCreditNote:##SVVoucherOfType or $$isDebitNote:##SVVoucherOfType)
+Local: Field:default: delete: Skip: Yes
+;; {08.Jan.21 17:29} Local: Field: nf9: Set As:#nf
+local: field: nf9: Invisible: yes
+
+   [field:cwMvParty]
+   use:nf
+[line : cwselectledLed]
+field:sp,cwMvParty
+Local: Field: sp: info:"Select Ledger: :"
+Local: Field: cwMvParty:  delete : table
+Local: Field: cwMvParty: add : table: ledger,Not Applicable
+Local: Field: cwMvParty: Show table: Always
+Local: field: sp: Width:33
+Local: Field: cwMvParty:Modifies:mprtLed
+;; {08.Jan.21 17:29} Local: Field: nf10: Set As:#nf
+local: field: nf10: Invisible: yes
+Local: Field:default: delete: Skip: Yes
+
+
+
+[Collection: tabgroup]	
+title:"Group List"
+use:group
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[collection:cwvchnocol]
+title:"List Of Voucher Number"
+
+ParmVar : SvFromDate : Date :#SvFromDate;;##StatFromDate
+ParmVar : SvTodate   : Date :#SvTodate;; ##StatToDate
+
+ Type        :vouchers
+     Filter: ColaaFilter,IsNonOptionalCancelledVchs
+    add:Filter: ColaaPartyGrpFilter
+    add:Filter: ColaaPartyFilter
+     format:$vouchernumber,20
+;; {25.May.21 14:05}      format:$ledgername,20
+;; {25.May.21 13:25}      format:@@cwMvhasPartyGrp,20
+;; {07.Jan.20 14:12}      format:$date,20
+
+
+    [system: Formula]
+ColaaFilter: $vouchertypename=#VoucherTypeName
+ColaaPartyFilter:if $$issysname:#cwMvParty then yes else  $partyledgername=#cwMvParty
+ColaaPartyGrpFilter:if $$issysname:#cwMvPartyGrp then yes else  @@cwMvhasPartyGrp=#cwMvPartyGrp
+cwMvhasPartyGrp:$parent:ledger:$partyledgername
+
+[variable : vchno1]
+type : string
+default : ""
+persistent: no
+
+[variable : vchno2]
+type : string
+default : ""
+persistent: no
+
+[variable : vchno3]
+type : string
+default : ""
+persistent: no
+
+[system : variable]
+vchno1: ""
+vchno2: ""
+vchno3: ""
+
+
+[variable : mprtgrp]
+type : string
+default : ""
+persistent: no
+
+[system : variable]
+mprtgrp: ""
+mprtLed: ""
+
+[variable : mprtLed]
+type : string
+default : ""
+persistent: no
+
+
+
+
+
+[System: Formula]
+cwvchNofilternew:if $$issysname:##vchno1 then no else not @@cwvouchernumberfilternew
+cwvouchernumberfilternew:if $$issysname:##vchno1 then no else $vouchernumber >= ##vchno1 AND $vouchernumber <= ##vchno2
+cwmpgrp: if $$issysname:##mprtgrp then no else $$filtercount:AllLedgerEntries:cwPrnBelong =0
+cwmultiopt:if $$issysname:##vchno1 then @@cwmpgrp else not @@cwvouchernumberfilternew
+cwPrnBelong : $myPrnBelongs:ledger:$ledgername
+cwchkLed : if $$issysname:##mprtLed then no else $$filtercount:AllLedgerEntries:cwPrnBelongLed =0
+cwPrnBelongLed : $ledgername = ##mprtLed
+
+
+[#object : ledger]
+myPrnBelongs : $$isbelongsto:##mprtgrp
+
+
+[#Form: Multi Vch Print]
+;; {02.Nov.22 10:22} add:option:cwMultiVchPrintopt:@@KrishnavanijyaEnabled
+[!form:cwMultiVchPrintopt]
+ empty if :@@cwmpgrp or @@cwchkLed or  @@cwvchNofilternew
+
+
+ [#menu: Gateway of Tally]
+add:option:cwGatewayofTallyopt:@@KrishnavanijyaEnabled
+[!menu:cwGatewayofTallyopt]
+
+add:button:cwMultiVoucher
+
+[button:cwMultiVoucher]
+key:alt+M
+TITLE:"Multi-Voucher"
+;; {02.Nov.22 09:53} action:modify variable:MultiVoucherPrint	
+action:Print:MultiVoucherPrint	
+;; {02.Nov.22 09:52} Current Report	: Multi Voucher Print
+;; {02.Nov.22 09:52} OutputAccess	: $$Allow:Print:Vouchers
+
+
+[#Report: MultiVoucherPrintConfig]
+add:option:cwMultiVoucherPrintConfigopt:@@KrishnavanijyaEnabled
+[!Report:cwMultiVoucherPrintConfigopt]
+ add:set:SVVoucherType:"Sales"
+
+
+ [#Form: MultiVoucherPrintConfig]
+  Add: BottomButton: At Beginning: salrep2,salrep
+  
+  
+
+;;;;;;==========================================
+
+
+

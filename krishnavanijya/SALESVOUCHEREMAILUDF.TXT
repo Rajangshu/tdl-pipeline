@@ -1,0 +1,24 @@
+[System: UDF]
+;; <StorageName> : <Data Type> : <Storage Location>
+
+[System: UDF]
+cwemailloadcmp:logical:2001
+cwemailservera:string:2002
+cwemailserver:string:2003
+cwserveradd:string:2004
+cwfemailaddress:string:2005
+cwauthusernamenew:string:2006
+cwauthuserpassnew:string:2007
+ceembody:string:2008
+ceembody2:string:2009
+ceembody3:string:2010
+ceembody4:string:2011
+cwEmailTO:string:2012
+
+[System: UDF]
+cwvchtypeenaemail:logical:3001
+cwvchtypeenaemailsub:string:3002
+cwvchtypeenaemailbody:string:3003
+cwsendtoslfalso:logical:3004
+
+

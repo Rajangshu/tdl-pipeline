@@ -1,0 +1,802 @@
+; Created By: Khokan on 2022-11-12 12:54, ID:
+
+  [System: Formula]
+  cwUseasMfgJournalopt:$cwUseasMfgJournal:vouchertype:$vouchertypename="yes"
+  cwIsTradingvchtypeoptnew:$cwIsTradingvchtype:vouchertype:$vouchertypename="yes"
+[#Part: SJ Column]
+add:option:cwSJColumnopt:@@IsStockJrnl and @@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+
+ [!part:cwSJColumnopt]
+delete:Right Parts : SJ InTitle
+
+
+
+[#Part: SJ Body]
+add:option:cwSJBodyopt:@@IsStockJrnl and @@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+
+[!part:cwSJBodyopt]
+delete:Parts       : SJOut
+delete:Right Parts : SJIn
+add:Parts : SJOut
+
+
+ [#Form: NRML StkJrnl]
+ add:option:cwNRMLStkJrnlopt:@@IsStockJrnl and @@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+
+ [!form:cwNRMLStkJrnlopt]
+  Add         :Part: SJ InTitle,SJIn
+
+ ;;==============================================================================
+ 
+ [#Line: SJ TitleTwoA]
+  add:option:sjTitleTwoABopt:@@IsStockJrnl and @@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+
+ [!line:sjTitleTwoABopt]
+ 
+ add:Field:before: VCH ItemTitle :snf8
+ Local: Field: snf8 : info:"MFG"
+ 
+  [#Line: SJDetailsA]
+   add:option:sjSJDetailsAopt:@@IsStockJrnl and @@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+
+ [!line:sjSJDetailsAopt]
+
+
+add:Field:before: VCH StockItem:snf8
+Local: Field: snf8: storage:cwstockgrraw
+Local: Field: snf8: table:cwcollfacepapercc,Not Applicable
+Local: Field: snf8: Show table: Always
+local:field:snf8:variable:svcost centre
+local:field:SNF8:key:Create Cost Centre, Alter CstCtr
+                
+
+ [#Line: SJ TitleTwoB]
+
+ add:option:TitleTwoBopt:@@IsStockJrnl and @@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+ add:option:TitleTwoBopt2:@@IsStockJrnl and @@cwIsTradingvchtypeoptnew and @@KrishnavanijyaEnabled
+ 
+ [!line:TitleTwoBopt2]
+ 
+ add:right Field:before:VCHBilledQtyTitle:snf10,NUMF1,numf,numf2,numf5,snfx,numf6,snfx2,snf11
+ add:right Field:after:VCHBilledQtyTitle:numf4,NUMF12,NUMF13,NUMF14
+
+ Local: Field: snf8 : info:"MFG"
+
+
+;; {26.Nov.24 15:44}   Local: Field: numf: info:"Pktaaa"
+;; {26.Nov.24 15:44}   Local: Field: numf1: info:"Qtyaaa"
+  Local: Field: snf10: info:"Uom"
+  Local: Field: numf2: info:"Bdl"
+  Local: Field: VCH QtyTitle: info:"Kgs"
+  Local: Field: numf4: info:"Sheets"
+  Local: Field: snf11: info:"Bundles"
+
+  Local: Field: snf3 : info:"Others"
+ Local: Field: numf11: info:"Weight" ;;"Width"
+
+  Local: Field: numf: info:if @@cwUseasMfgJournalopt then "MTR/Kgs" else "REEL/Pkt" ;;if $cwIsReelvchtmfgyes="YES" then "MTR" else "Pkt"
+
+  Local: Field: numf1: info:if @@cwUseasMfgJournalopt then "REEL/Pkt" else "Qty" ;;if $cwIsReelvchtmfgyes="YES" then "REEL" ELSE "Qty"
+
+  Local: Field: VCHBilledQtyTitle: info:"Kgs" ;;if $cwIsReelvchtmfgyes="YES" then "SQMT" ELSE "Kgs"
+
+;; {22.Jan.25 10:28}   Local: Field: numf: Skip: Yes
+;; {22.Jan.25 10:28}   Local: Field: numf1: Skip: Yes
+
+  local: field: numf: type: String
+  local: field: numf1: type: String
+  local: field: numf2: type: String
+  local: field: numf4: type: String
+  local: field: numf11: type: String
+
+  Local: Field: numf: Skip: Yes
+  Local: Field: numf2: Skip: Yes
+  Local: Field: numf4: Skip: Yes
+
+  Local: Field: numf: Style: small
+  Local: Field: numf1: Style: small
+  Local: Field: numf2: Style: small
+  Local: Field: numf3: Style: small
+  Local: Field: numf4: Style: small
+  Local: Field: numf5: Style: small
+  Local: Field: snf3: Style: small
+  Local: Field: snf10: Style: small
+  Local: Field: snf11: Style: small
+
+  local: field: numf12: Invisible: yes
+  local: field: numf13: Invisible: yes
+  local: field: numf14: Invisible: yes
+  local: field: numf15: Invisible: yes
+
+  local: field: snfx: Invisible: yes
+  local: field: snfx2: Invisible: yes
+  local: field: numf5: Invisible: yes
+  local: field: numf6: Invisible: yes
+
+  Local: field: VCH RateTitle: Width:10
+  Local: field: VCHBilledQtyTitle: Width:15
+
+
+ 
+
+ [!line:TitleTwoBopt]
+
+;; {12.Nov.22 12:59} Right Fields: VCH BilledQtyTitle, VCH RateTitle, VCH AmtTitle
+
+;; {12.Nov.22 12:59} add:right fields:after:VCHBilledQtyTitle:SNFX,snf
+
+ add:right Field:before:VCHBilledQtyTitle:snf10,NUMF1,numf,numf2,numf5,snfx,numf6,snfx2,snf11
+ add:right Field:after:VCHBilledQtyTitle:numf4,NUMF12,NUMF13,NUMF14
+  
+ Local: Field: snf8 : info:"MFG"
+
+
+;; {26.Nov.24 15:44}   Local: Field: numf: info:"Pktaaa"
+;; {26.Nov.24 15:44}   Local: Field: numf1: info:"Qtyaaa"
+  Local: Field: snf10: info:"Uom"
+  Local: Field: numf2: info:"Bdl"
+  Local: Field: VCH QtyTitle: info:"Kgs"
+  Local: Field: numf4: info:"Sheets"
+  Local: Field: snf11: info:"Bundles"
+  
+  Local: Field: snf3 : info:"Others"
+ Local: Field: numf11: info:"Weight" ;;"Width"
+  
+   Local: Field: numf: info:if @@cwUseasMfgJournalopt then "MTR/Kgs" else "REEL/Pkt" ;;if $cwIsReelvchtmfgyes="YES" then "MTR" else "Pkt"
+
+  Local: Field: numf1: info:if @@cwUseasMfgJournalopt then "REEL/Pkt" else "Qty" ;;if $cwIsReelvchtmfgyes="YES" then "REEL" ELSE "Qty"
+
+  Local: Field: VCHBilledQtyTitle: info:"SQMT/Kgs" ;;if $cwIsReelvchtmfgyes="YES" then "SQMT" ELSE "Kgs"
+  
+;; {22.Jan.25 10:28}   Local: Field: numf: Skip: Yes
+;; {22.Jan.25 10:28}   Local: Field: numf1: Skip: Yes
+
+  local: field: numf: type: String
+  local: field: numf1: type: String
+  local: field: numf2: type: String
+  local: field: numf4: type: String
+  local: field: numf11: type: String
+
+  Local: Field: numf: Skip: Yes
+  Local: Field: numf2: Skip: Yes
+  Local: Field: numf4: Skip: Yes
+
+  Local: Field: numf: Style: small
+  Local: Field: numf1: Style: small
+  Local: Field: numf2: Style: small
+  Local: Field: numf3: Style: small
+  Local: Field: numf4: Style: small
+  Local: Field: numf5: Style: small
+  Local: Field: snf3: Style: small
+  Local: Field: snf10: Style: small
+  Local: Field: snf11: Style: small
+
+  local: field: numf12: Invisible: yes
+  local: field: numf13: Invisible: yes
+  local: field: numf14: Invisible: yes
+  local: field: numf15: Invisible: yes
+  
+  local: field: snfx: Invisible: yes
+  local: field: snfx2: Invisible: yes
+  local: field: numf5: Invisible: yes
+  local: field: numf6: Invisible: yes
+
+  Local: field: VCH RateTitle: Width:10
+  Local: field: VCHBilledQtyTitle: Width:15
+
+     
+  [#Line: SJDetailsB]
+
+  add:option:sjTitleTwoBnopt:@@IsStockJrnl and @@cwUseasMfgJournalopt or @@cwIsTradingvchtypeoptnew and @@KrishnavanijyaEnabled
+  add:option:sjTitleTwoBnoptnew:@@IsStockJrnl and @@cwUseasMfgJournalopt ;;and @@KrishnavanijyaEnabled
+;; {29.Jan.25 10:08}   add:option:sjTitleTwoBnopt:@@IsStockJrnl @@cwIsTradingvchtypeoptnew and @@KrishnavanijyaEnabled
+;; {28.Jan.25 15:09}   add:option:sjTitleTwoBnopt2:@@IsStockJrnl and @@cwUseasMfgJournalopt or @@cwIsTradingvchtypeoptnew and @@KrishnavanijyaEnabled
+
+  [!line:sjTitleTwoBnopt]
+ 
+
+  add:right field:before:VCH BilledQty:SNF10,snf15,numf1,numf,numf8,numf9,numf2,numf5,snfx,numf6,snfx2,NUMF20,NUMF21,snf11
+  add:right Field:after:VCH BilledQty:numf4,NUMF12,NUMF13,NUMF14  ;;,NUMF16
+;; {29.Jan.25 11:28}     border:thin box
+;; {15.Dec.22 12:33}   Local: Field: SNF10:set as :$cwTransactionUOM:stockitem:$stockitemname
+
+   Local: Field: snf3:storage:cwsjRawMothersnew
+   Local: Field:numf11:storage:cwWeightnew
+   
+  Local: Field: SNF15:set as :$cwIsRLL:unit:#SNF10
+  local: field: SNF15: Invisible: yes
+     
+  Local: Field: SNF10:set as :if $$isempty:$$value then $cwTransactionUOM:stockitem:$stockitemname else $$value
+  local: field: snf10: type: String :forced
+
+  Local: Field: NUMF20: Set As:IF #NUMF8 > #NUMF THEN #NUMF ELSE #NUMF8
+  Local: Field: NUMF21: Set As:IF #SNF10="PKT" THEN #NUMF20 ELSE #NUMF9
+  
+  local: field: snfx: Invisible: yes
+  local: field: snfx2: Invisible: yes
+  local: field: numf5: Invisible: yes
+  local: field: numf6: Invisible: yes
+  local: field: numf8: Invisible: yes
+  local: field: numf9: Invisible: yes
+  local: field: numf20: Invisible: yes
+  local: field: numf21: Invisible: yes
+
+;; {12.Nov.22 17:32}     Local: Field: numf8: Border: thin box ;;left right
+;; {12.Nov.22 17:32}   Local: Field: numf9: Border: thin box ;;left right
+
+  Local: field: VCH BilledQty: Width:15
+  Local: Field: numf8: Color : blue
+  Local: Field: numf9: Color :red
+  Local: Field: numf8: Style: Normal Bold
+;; {28.Oct.22 14:57}   Local: Field: numf9: Style: Normal Bold
+
+   ;; Local: field: numf1: Format: "decimals:2"
+  Local: Field: numf: storage :cwPKT
+  Local: Field: numf1: storage :cwQTY
+  Local: Field: numf2: storage :cwBDL
+
+  Local: Field: numf3: storage :cwKGS
+  Local: Field: numf4:storage :cwSHEETS
+  Local: Field: SNF10:storage :cwUOM
+;;  Local: Field: snf10: Border: thin box ;;left right
+ 
+ 
+  Local: Field: numf: Set As: $$CollNumTotal:batchallocations:$cwPKT
+  Local: Field: numf1: Set As:$$CollNumTotal:batchallocations:$cwQTY
+  Local: Field: numf2: Set As:$$CollNumTotal:batchallocations:$cwBDL
+
+  Local: Field: numf4: Set As:$$CollNumTotal:batchallocations:$cwSHEETS
+ 
+  Local: Field: SNF10:Table       : collMYcwShowTransactions, Not Applicable
+  Local: Field: SNF10:Show Table  : Always
+;; {06.Feb.25 10:59}   Local: Field: numf: Border: thin box ;;left right
+ 
+
+  Local: Field: snf11: storage:CWBundles
+;; {13.Oct.22 13:23}  Local: Field: numf: Set As:$$table:VCHBATCHName:$cwPKT2
+
+;; {19.Oct.22 16:56}  Local: Field: numf: Set As:IF #SNF10="PKT" THEN #NUMF1 ELSE $$table:VCHBATCHName:$closingbalance ;;$pktaltqty1
+
+  Local:Field: numf: Set As:if #SNF10="PKT" THEN #NUMF1 else if  #SNF10="BDL" then #NUMF1*$cwDenominator3:STOCKITEM:#vchstockitem else if #SNF10="kgs" then #NUMF1/$Denominator:STOCKITEM:#vchstockitem else if #SNF15="YES" then $$CollNumTotal:batchallocations:$cwPKT else $$table:VCHBATCHName:$closingbalance
+
+     ;;border:thin box
+;;Local: Field: numf2: Set As:$$table:VCHBATCHName:$cwBDL2
+;; Local: Field: numf4: Set As:$$table:VCHBATCHName:$cwSHEETS2
+
+  Local: Field: numf4: Set As:$cwPKT*$cwConversion4:stockitem:#vchstockitem
+
+;; {28.Oct.22 15:09}  Local: Field: snf11: Set As:if #numf8 > #numf then "0" +$$STRING:@@batchoptno+$$STRING:#numf else $$STRING:#numf9 +$$STRING:@@batchoptno+$$STRING:#numf8
+;; {29.Oct.22 17:34}  Local: Field: snf11: Set As:$$STRING:#numf2 +$$STRING:@@batchoptno+$$string:@@cwbules  ;;$$STRING:#numf9
+  Local: Field: snf11: Set As:$$STRING:#numf2 +$$STRING:@@batchoptno+$$string:#NUMF21  ;;$$STRING:#numf9
+
+;; {28.Oct.22 12:24}  Local: Field: snf11: Set As:$$STRING:#numf8
+
+ Local: Field: NUMF12: Set As:if #numf8 > #numf then #numf else #numf9*#numf8
+ Local: Field: NUMF13: Set As:IF #SNF10="sheet" THEN #NUMF1 ELSE $$NUMBER:$cwSheet:STOCKITEM:#vchstockitem
+
+ Local: Field: NUMF14: Set As:#NUMF13*#NUMF12
+
+ Local: Field: NUMF12: storage:cwsheetnew1
+ Local: Field: NUMF13: storage:cwsheetnew2
+ Local: Field: NUMF14: storage:cwsheetnew3
+
+ local: field: numf12: Invisible: yes
+ local: field: numf13: Invisible: yes
+ local: field: numf14: Invisible: yes
+ local: field: numf15: Invisible: yes
+
+;; {19.Oct.22 17:03}  Local: Field: numf2: Set As:if #numf8 > #numf then 0 else #numf9 ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+ Local: Field: numf2: Set As:IF #SNF10="BDL" THEN #NUMF1 ELSE  (if #numf8 > #numf then 0 else #numf9) ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+;; {19.Oct.22 17:03}  Local: Field: numf8: Set As:$cwDenominator3:stockitem:#allocname ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+ Local: Field: numf8: Set As:IF #SNF10="BDL" THEN #NUMF1 ELSE ($cwDenominator3:stockitem:#vchstockitem) ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+;; {28.Oct.22 12:31}  Local: Field: numf8: Set As:IF #SNF10="BDL" THEN ($cwDenominator3:stockitem:#allocname) else #NUMF1 ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+;; {12.Oct.22 16:49}  Local: Field: numf9: Set As:#numf/#numf8 ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+ Local: Field: numf9: Set As:$$RoundDown:@@itemopbatchno:1 ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+ Local: field: numf2: Format: "zero"
+
+;; {12.Oct.22 16:57}  Local: Field: VCHBATCH Name: Set As:if #numf8 > #numf then "0" +" "+$$STRING:@@batchoptno+" "+$$STRING:#numf else $$STRING:#numf9 +" "+$$STRING:@@batchoptno+" "+$$STRING:#numf8
+
+
+ Local: Field: numf5: Set As:#numf*$denominator:stockitem:#vchstockitem
+;; {12.Nov.22 11:10}  Local: Field: numf6: Set As:#numf5 * ($conversion:stockitem:#allocname/$denominator:stockitem:#allocname)
+;; {28.Nov.22 13:02}  Local: Field: numf6: Set As:IF #SNF10="RLL" THEN #NUMF1 ELSE #numf5 * ($conversion:stockitem:#vchstockitem/$denominator:stockitem:#vchstockitem)
+
+;; {31.Dec.22 11:16}  Local: Field: numf6: Set As:IF @@cwIsRLLfil="yes" THEN #NUMF1 ELSE #numf5 * ($conversion:stockitem:$stockitemname/$denominator:stockitem:$stockitemname)
+
+ Local: Field: numf6: Set As:@@kcwvvchqtyalt
+
+
+ Local: Field: SNFX : Set As:$BASEUNITS:stockitem:#vchstockitem
+ Local: Field: SNFX2 : Set As:$AdditionalUnits:stockitem:#vchstockitem
+
+ Local: Field: snf10: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: snf11: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF1: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF2: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF4: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF5: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF6: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF7: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+
+
+;; {12.Nov.22 13:23}  Local: Field:VCH BilledQty : Set As:IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY
+
+;; {21.Jan.25 11:25}  Local: Field: VCH BilledQty: Set Always:yes
+;; {21.Jan.25 11:25}  Local: Field:VCH BilledQty:type:quantity:forced
+ 
+;; {29.Jan.25 12:13}  Local: Field:VCH BilledQty:border:thin box
+
+;; {29.Jan.25 11:34}  Local: Field:VCH BilledQty:add:SetByCondition:yes:@@cwbillqtystknew  ;;IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY
+;; {29.Jan.25 11:34}  Local: Field:VCH BilledQty:add:SetByCondition:yes:$$ASQTY:@@MYQTY
+
+;; {29.Jan.25 11:35}  Local: Field:VCH BilledQty :add:SetByCondition:yes:if $cwIsReelProductmfg:stockitem:#vchstockitem="yes" then $$ASQTY:@@MYQTYSQMT else (IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY)
+;; {01.Feb.25 12:20}  Local: Field:VCH BilledQty :add:SetByCondition:yes:if $cwIsTrading1:stockitem:#vchstockitem="no" then  $$CollqtyTotal:batchallocations:$billedqty else $$ASQTY:@@MYQTY    ;;else (IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY)
+
+
+ Local: Field:VCH BilledQty:delete:SetByCondition
+
+;; {26.Feb.25 09:54}  Local: Field:VCH BilledQty :add:SetByCondition:yes:if $$isempty:$$value then @@cwbillqtycons else $$value   ;;if $cwIsManufacturing1:stockitem:#vchstockitem="yes" then #numf*$cwDenominator3:stockitem:$stockitemname else if $cwIsTrading1:stockitem:#vchstockitem="no" then  $$CollqtyTotal:batchallocations:$billedqty else $$ASQTY:@@MYQTY    ;;else (IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY)
+;; {26.Feb.25 10:02}  Local: Field:VCH BilledQty :add:SetByCondition:yes:@@cwbillqtycons   ;;if $cwIsManufacturing1:stockitem:#vchstockitem="yes" then #numf*$cwDenominator3:stockitem:$stockitemname else if $cwIsTrading1:stockitem:#vchstockitem="no" then  $$CollqtyTotal:batchallocations:$billedqty else $$ASQTY:@@MYQTY    ;;else (IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY)
+;; {25.Feb.25 16:24}  Local: Field:VCH BilledQty :add:SetByCondition:yes:if $cwUseasMfgJournal:vouchertype:$vouchertypename="yes" then (if $$isempty:$$value then @@cwbillqtycons else $$value) else @@cwbillqtycons    ;;if $cwIsManufacturing1:stockitem:#vchstockitem="yes" then #numf*$cwDenominator3:stockitem:$stockitemname else if $cwIsTrading1:stockitem:#vchstockitem="no" then  $$CollqtyTotal:batchallocations:$billedqty else $$ASQTY:@@MYQTY    ;;else (IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY)
+;; {25.Feb.25 18:22}  Local: Field:VCH BilledQty :add:SetByCondition:yes:if $$isempty:#numf16 then @@cwbillqtycons else $$asqty:#numf16    ;;if $$isempty:$$value then @@cwbillqtycons else $$value    ;;if $cwIsManufacturing1:stockitem:#vchstockitem="yes" then #numf*$cwDenominator3:stockitem:$stockitemname else if $cwIsTrading1:stockitem:#vchstockitem="no" then  $$CollqtyTotal:batchallocations:$billedqty else $$ASQTY:@@MYQTY    ;;else (IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY)
+
+;; Local: Field:VCH BilledQty:add:SetByCondition:yes:if $$isempty:$$value then @@cwbillqtycons else $$ASQTY:@@MYQTY      ;;if $cwIsManufacturing1:stockitem:#vchstockitem="yes" then #numf*$cwDenominator3:stockitem:$stockitemname else if $cwIsTrading1:stockitem:#vchstockitem="no" then  $$CollqtyTotal:batchallocations:$billedqty else $$ASQTY:@@MYQTY    ;;else (IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY)
+;; {26.Feb.25 10:47}  Local: Field:VCH BilledQty:add:SetByCondition:yes:IF $cwIsTradingvchtype:vouchertype:$vouchertypename="YES" THEN $$ASQTY:@@MYQTY else @@cwbillqtyconsnew
+
+ Local: Field:VCH BilledQty:add:SetByCondition:yes:@@cwbillqtycons  ;;IF $cwIsTradingvchtype:vouchertype:$vouchertypename="YES" THEN $$ASQTY:@@MYQTY else @@cwbillqtyconsnew
+
+ ;;Local: Field:VCH BilledQty :border:thin box
+
+;; Local: Field:VCH BilledQty :add:SetByCondition:yes:#numf*$cwDenominator3:stockitem:$stockitemname
+
+ Local: Field: numf: Style: small
+ Local: Field: numf2: Style: small
+ Local: Field: numf3: Style: small
+ Local: Field: numf4: Style: small
+ Local: Field: numf5: Style: small
+ Local: Field: numf6: Style: small
+ Local: Field: numf7: Style: small
+ 
+ [!line:sjTitleTwoBnoptnew]
+  add:right Field:after:VCH BilledQty:NUMF16
+  
+ Local: Field: numf16: Set As:$$CollNumTotal:batchallocations:$$number:$billedqty
+
+ local: field: numf16: Invisible:if $$increatemode then "yes" else "no"
+ local: field: VCH BilledQty: Invisible:if $$increatemode then "no" else "yes"
+ Local: Field: numf16: Skip: Yes
+ Local: Field: numf16: format:"nozero,decimals:2"
+ 
+ [System: Formula]
+ cwbillqtystknew:IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY
+ cwbillqtycons:if $cwIsManufacturing1:stockitem:#vchstockitem="yes" then #numf*$cwDenominator3:stockitem:$stockitemname else if $cwIsTrading1:stockitem:#vchstockitem="no" then  $$CollqtyTotal:batchallocations:$billedqty else $$ASQTY:@@MYQTY
+;; {20.Feb.25 18:20}  cwbillqtycons:@@MYQTY
+
+cwmfgreelyes:$cwIsManufacturing1:stockitem:#vchstockitem="yes" or $cwIsReelProductmfg:stockitem:#vchstockitem="yes"
+
+cwbillqtyconsnew:if $$isempty:$$value then @@cwbillqtycons else $$value
+;;================================================================================
+
+;; {28.Jan.25 15:02} [!line:sjTitleTwoBnopt2]
+
+
+;;================================================================================
+ [#Part: SJ Column]
+;; {15.Dec.22 16:28}  add:option:SJColumnopt:@@IsStockJrnl and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+ [!part:SJColumnopt]
+
+ Part: SJOutTitle ;;,SJInTitle
+ delete:RightPart : SJ InTitle
+ Vertical    : yes
+
+
+
+ [#Line: SJ TitleTwoC]
+ add:option:sjTitleTwoCpt:@@IsStockJrnl and @@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+ add:option:sjTitleTwoCpt1:@@IsStockJrnl and @@cwIsTradingvchtypeoptnew and @@KrishnavanijyaEnabled
+
+
+ [!line:sjTitleTwoCpt1]
+  add:right Field:before:VCHBilledQtyTitle:snf10,NUMF1,numf,snfx3,numf2,numf5,snfx,numf6,snfx2,snf11
+
+  add:right Field:after:VCHBilledQtyTitle:numf4,NUMF12,NUMF13,NUMF14
+
+ Local: Field: snf3 : info:"Others"
+ Local: Field: numf11: info:"Weight" ;;"Width"
+
+ border:thin bottom
+
+  Local: Field: numf: setas:"Pkt" ;;if $cwIsReelvchtmfgyes="YES" then "MTR" else "Pkt"
+  Local: Field: snfx2: info:"Pkt"
+  Local: Field: snfx3: info:""
+  Local: Field: numf1: setas:"Qty" ;;if $cwIsReelvchtmfgyes="YES" then "REEL" ELSE "Qty"
+  Local: Field: VCHBilledQtyTitle: setas:"Kgs"  ;;if $cwIsReelvchtmfgyes="YES" then "SQMT" ELSE "Kgs"
+
+
+  Local: Field: snf10: info:"Uom"
+  Local: Field: numf2: info:"Bdl"
+
+  Local: Field: numf4: info:"Sheets"
+  Local: Field: snf11: info:"Bundles"
+  Local: field: snf10: Align: Right ;;centre
+
+  Local: Field: SNF18: Set As:$cwIsReelvchtmfgyes
+
+  Local: Field:numf: Skip: Yes
+  Local: Field:numf1: Skip: Yes
+  Local: Field:VCH QtyTitle: Skip: Yes
+
+;; {26.Nov.24 15:34}    Local: Field: numf: info:if $cwIsReelvchtmfgyes="YES" then "MTR" else "Pkt"
+;; {26.Nov.24 15:34}   Local: Field: numf1: info:if $cwIsReelvchtmfgyes="YES" then "REEL" else "Qty"
+;; {26.Nov.24 15:34}   Local: Field: VCH QtyTitle: info:if $cwIsReelvchtmfgyes="YES" then "SQMT" else "Kgs"
+
+  local: field: numf: type: String
+  local: field: numf1: type: String
+  local: field: numf2: type: String
+  local: field: numf4: type: String
+  local: field: numf11: type: String
+
+  Local: Field: numf: Skip: Yes
+  Local: Field: numf2: Skip: Yes
+  Local: Field: numf4: Skip: Yes
+
+  Local: Field: numf: Style: small
+  Local: Field: numf1: Style: small
+  Local: Field: numf2: Style: small
+  Local: Field: numf3: Style: small
+  Local: Field: numf4: Style: small
+  Local: Field: numf5: Style: small
+  Local: Field: snf10: Style: small
+  Local: Field: snf11: Style: small
+
+  local: field: numf12: Invisible: yes
+  local: field: numf13: Invisible: yes
+  local: field: numf14: Invisible: yes
+  local: field: numf15: Invisible: yes
+
+   local: field: snfx: Invisible: yes
+  local: field: snfx2: Invisible: yes
+  local: field: numf5: Invisible: yes
+  local: field: numf6: Invisible: yes
+  Local: field: numf2: Align: left
+
+;; {21.Jan.25 17:10}      Local: field: VCH RateTitle: Width:10
+;; {28.Jan.25 15:12}  Local: field:VCHBilledQtyTitle : Width:13
+;; {28.Jan.25 15:12}    Local: field:snf10 : Width:10
+;; {28.Jan.25 15:12}    Local: field:snf3 : Width:10
+;; {28.Jan.25 15:12}    Local: field:numf11 : Width:8
+;; {21.Jan.25 17:17}    Local: Field: default: Border: thin box ;;left right
+;; {21.Jan.25 17:10}    Local: field: snfx3: Width:0.3
+ [!line:sjTitleTwoCpt]
+
+ add:right Field:before:VCHBilledQtyTitle:snf10,NUMF1,numf,snfx3,numf2,numf5,snfx,numf6,snfx2,snf11
+
+  add:right Field:after:VCHBilledQtyTitle:numf4,NUMF12,NUMF13,NUMF14
+  
+    Local: Field: snf3 : info:"Others"
+ Local: Field: numf11: info:"Weight" ;;"Width"
+ 
+ border:thin bottom
+
+;; {29.Jan.25 10:39}   Local: Field: numf: setas:"REEL/Pkt" ;;if $cwIsReelvchtmfgyes="YES" then "MTR" else "Pkt"
+  Local: Field: snfx2: info:"Pkt"
+  Local: Field: snfx3: info:""
+
+  Local: Field: numf: info:if @@cwUseasMfgJournalopt then "MTR/Kgs" else "REEL/Pkt" ;;if $cwIsReelvchtmfgyes="YES" then "MTR" else "Pkt"
+
+  Local: Field: numf1: info:if @@cwUseasMfgJournalopt then "REEL/Pkt" else "Qty" ;;if $cwIsReelvchtmfgyes="YES" then "REEL" ELSE "Qty"
+
+  Local: Field: VCHBilledQtyTitle: setas:"SQMT/Kgs"  ;;if $cwIsReelvchtmfgyes="YES" then "SQMT" ELSE "Kgs"
+
+
+  Local: Field: snf10: info:"Uom"
+  Local: Field: numf2: info:"Bdl"
+
+  Local: Field: numf4: info:"Sheets"
+  Local: Field: snf11: info:"Bundles"
+  Local: field: snf10: Align: Right ;;centre
+  
+  Local: Field: SNF18: Set As:$cwIsReelvchtmfgyes
+  
+  Local: Field:numf: Skip: Yes
+  Local: Field:numf1: Skip: Yes
+  Local: Field:VCH QtyTitle: Skip: Yes
+  
+;; {26.Nov.24 15:34}    Local: Field: numf: info:if $cwIsReelvchtmfgyes="YES" then "MTR" else "Pkt"
+;; {26.Nov.24 15:34}   Local: Field: numf1: info:if $cwIsReelvchtmfgyes="YES" then "REEL" else "Qty"
+;; {26.Nov.24 15:34}   Local: Field: VCH QtyTitle: info:if $cwIsReelvchtmfgyes="YES" then "SQMT" else "Kgs"
+
+  local: field: numf: type: String
+  local: field: numf1: type: String
+  local: field: numf2: type: String
+  local: field: numf4: type: String
+  local: field: numf11: type: String
+
+  Local: Field: numf: Skip: Yes
+  Local: Field: numf2: Skip: Yes
+  Local: Field: numf4: Skip: Yes
+
+  Local: Field: numf: Style: small
+  Local: Field: numf1: Style: small
+  Local: Field: numf2: Style: small
+  Local: Field: numf3: Style: small
+  Local: Field: numf4: Style: small
+  Local: Field: numf5: Style: small
+  Local: Field: snf10: Style: small
+  Local: Field: snf11: Style: small
+
+  local: field: numf12: Invisible: yes
+  local: field: numf13: Invisible: yes
+  local: field: numf14: Invisible: yes
+  local: field: numf15: Invisible: yes
+
+   local: field: snfx: Invisible: yes
+  local: field: snfx2: Invisible: yes
+  local: field: numf5: Invisible: yes
+  local: field: numf6: Invisible: yes
+  Local: field: numf2: Align: left
+
+;; {21.Jan.25 17:10}      Local: field: VCH RateTitle: Width:10
+ Local: field:VCHBilledQtyTitle : Width:13
+   Local: field:snf10 : Width:10
+   Local: field:snf3 : Width:10
+   Local: field:numf11 : Width:8
+;; {21.Jan.25 17:17}    Local: Field: default: Border: thin box ;;left right
+;; {21.Jan.25 17:10}    Local: field: snfx3: Width:0.3
+  
+;;==============================================================================
+
+
+
+;;==============================================================================
+  [field:numfqty2]
+  use:numf
+  border:thin box
+  storage:cwsjMfgQtynew
+  setas:$cwbatchSQMTKGsj
+  Invisible: yes
+  
+  [#Line: STKVCH Batch2]
+  add:option:SJstkmfgpt:$ISDEEMEDPOSITIVE="yes" and @@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+
+ [!line:SJstkmfgpt]
+ add: right field:numfqty2
+
+ [#line:ALLOC Title]
+ 
+  add:option:cwALLOCTitlesjopt:$ISDEEMEDPOSITIVE="yes" and @@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+
+ [!line:cwALLOCTitlesjopt]
+
+ add:field:numfqty2
+
+;;===================================================================
+
+ [#Line: SJDetailsC]
+  add:option:cwSJDetailsCsjopt:@@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+
+ [!line:cwSJDetailsCsjopt]
+ 
+ add: right field:numfqty2
+ 
+ 
+  [#Line: SJDetailsC]
+   add:option:SJDetailsCopt:@@IsStockJrnl and @@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+
+ [!line:SJDetailsCopt]
+ Local: field: VCH StockItem: Width:40
+
+             /*
+add:Field:before: VCH StockItem:snf8
+Local: Field: snf8: storage:cwstockgrrawnew
+Local: Field: snf8: table:cwcollfacepapercc,Not Applicable
+Local: Field: snf8: Show table: Always
+local:field:snf8:variable:svcost centre
+local:field:SNF8:key:Create Cost Centre, Alter CstCtr
+        */
+ 
+ [#Line: SJDetailsD]
+
+;; {28.Jan.25 15:08}  add:option:SJDetailsDnopt:@@IsStockJrnl and @@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+ add:option:SJDetailsDnopt:@@IsStockJrnl and @@cwIsTradingvchtypeoptnew or @@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+
+ [!line:SJDetailsDnopt]
+
+
+  add:right field:before:VCHSTKJrnl BilledQty:SNF10,SNF15,numf1,numf,numf8,numf9,numf2,numf5,snfx,numf6,snfx2,NUMF20,NUMF21,snf11,numf30,numf31
+  add:right Field:after:VCHSTKJrnl BilledQty:numf4,NUMF12,NUMF13,NUMF14,numfqty2
+;; {21.Jan.25 17:10}   delete:Indent: 4
+
+  Local: Field: snf3:storage:cwsjRawMothersnew
+   Local: Field:numf11:storage:cwWeightnew
+   
+ Local: field:VCHSTKJrnlBilledQty : Width:10
+    Local: field:snf3 : Width:10
+;; {21.Jan.25 17:09}  Local: field:VCHRate : Width:15
+;; {21.Jan.25 17:09}  Local: field:VCHValue : Width:15
+;; {21.Jan.25 17:09}  Local: field:numf2 : Width:10
+ Local: field:snf10 : Width:10
+;; {21.Jan.25 17:09}  Local: field:snf11 : Width:18
+
+ Local: field: numf: Align: left
+ Local: field: numf1: Align: left
+ Local: field: numf2: Align: left
+ 
+ Local: Field: SNF15:set as :$cwIsRLL:unit:#SNF10
+ local: field: SNF15: Invisible: yes
+     
+ Local: Field: NUMF20: Set As:IF #NUMF8 > #NUMF THEN #NUMF ELSE #NUMF8
+ Local: Field: NUMF21: Set As:IF #SNF10="PKT" THEN #NUMF20 ELSE #NUMF9
+
+ local: field: snfx: Invisible: yes
+ local: field: snfx2: Invisible: yes
+ Local: Field: snfx: Border: thin box ;;left right
+ Local: Field: snfx2: Border: thin box ;;left right
+ local: field: numf5: Invisible: yes
+ local: field: numf6: Invisible: yes
+ local: field: numf8: Invisible: yes
+ local: field: numf9: Invisible: yes
+ local: field: numf20: Invisible: yes
+ local: field: numf21: Invisible: yes
+
+  ;;   Local: field: numf1: Format: "decimals:2"
+ Local: Field: numf8: Color : blue
+ Local: Field: numf9: Color :red
+ Local: Field: numf8: Style: Normal Bold
+
+ Local: Field: numf: storage :cwPKT
+ Local: Field: numf1: storage :cwQTY
+ Local: Field: numf2: storage :cwBDL
+
+ Local: Field: numf3: storage :cwKGS
+ Local: Field: numf4:storage :cwSHEETS
+ Local: Field: SNF10:storage :cwUOM
+ Local: Field: SNF10:Table       : collMYcwShowTransactions, Not Applicable
+ Local: Field: SNF10:Show Table  : Always
+ Local: Field: snf11: storage:CWBundles
+ 
+ ;;Local: Field: SNF10:set as :$cwTransactionUOM:stockitem:$stockitemname
+
+ Local: Field: SNF10:set as :if $$isempty:$$value then $cwTransactionUOM:stockitem:$stockitemname else $$value
+ local: field: snf10: type: String :forced
+
+
+ Local: Field: numf: Set As: $$CollNumTotal:batchallocations:$cwPKT
+ Local: Field: numf1: Set As:$$CollNumTotal:batchallocations:$cwQTY
+ Local: Field: numf2: Set As:$$CollNumTotal:batchallocations:$cwBDL
+
+
+;; {30.Dec.22 17:06}  Local: Field: numf: Set As:if #SNF10="PKT" THEN #NUMF1 else if  #SNF10="BDL" then #NUMF1*$cwDenominator3:STOCKITEM:#vchstockitem else if #SNF10="kgs" then #NUMF1/$Denominator:STOCKITEM:#vchstockitem else $$table:VCHBATCHName:$closingbalance
+
+
+ Local:Field: numf: Set As:if #SNF10="PKT" THEN #NUMF1 else if  #SNF10="BDL" then #NUMF1*$cwDenominator3:STOCKITEM:#vchstockitem else if #SNF10="kgs" then #NUMF1/$Denominator:STOCKITEM:#vchstockitem else if #SNF15="YES" then $$CollNumTotal:batchallocations:$cwPKT else $$table:VCHBATCHName:$closingbalance
+
+
+ Local: Field: numf4: Set As:$cwPKT*$cwConversion4:stockitem:#vchstockitem
+
+ Local: Field: snf11: Set As:$$STRING:#numf2 +$$STRING:@@batchoptno+$$string:#NUMF21  ;;$$STRING:#numf9
+
+ Local: Field: NUMF12: Set As:if #numf8 > #numf then #numf else #numf9*#numf8
+ Local: Field: NUMF13: Set As:IF #SNF10="sheet" THEN #NUMF1 ELSE $$NUMBER:$cwSheet:STOCKITEM:#vchstockitem
+
+ Local: Field: NUMF14: Set As:#NUMF13*#NUMF12
+
+ Local: Field: NUMF12: storage:cwsheetnew1
+ Local: Field: NUMF13: storage:cwsheetnew2
+ Local: Field: NUMF14: storage:cwsheetnew3
+
+ local: field: numf12: Invisible: yes
+ local: field: numf13: Invisible: yes
+ local: field: numf14: Invisible: yes
+ local: field: numf15: Invisible: yes
+ Local: Field: numf2: Set As:IF #SNF10="BDL" THEN #NUMF1 ELSE  (if #numf8 > #numf then 0 else #numf9) ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+
+ Local: Field: numf8: Set As:IF #SNF10="BDL" THEN #NUMF1 ELSE ($cwDenominator3:stockitem:#vchstockitem) ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+ Local: Field: numf9: Set As:$$RoundDown:@@itemopbatchno:1 ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+ Local: field: numf2: Format: "zero"
+
+
+ Local: Field: numf5: Set As:#numf*$denominator:stockitem:#vchstockitem
+
+;; {28.Nov.22 13:03}  Local: Field: numf6: Set As:IF #SNF10="RLL" THEN #NUMF1 ELSE #numf5 * ($conversion:stockitem:#vchstockitem/$denominator:stockitem:#vchstockitem)
+
+ Local: Field: numf6: Set As:IF @@cwIsRLLfil="yes" THEN #NUMF1 ELSE #numf5 * ($conversion:stockitem:#allocname/$denominator:stockitem:#allocname)
+
+
+ Local: Field: SNFX : Set As:$BASEUNITS:stockitem:#vchstockitem
+ Local: Field: SNFX2 : Set As:$AdditionalUnits:stockitem:#vchstockitem
+
+ Local: Field: snf10: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: snf3: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: snf11: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF1: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF11: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF2: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF4: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF5: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF6: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+ Local: Field: NUMF7: INACTIVE :$$IsEnd:$StockItemName OR @@NOBaseUnits
+
+ Local: Field: VCHSTKJrnl BilledQty: Set Always:yes
+ Local: Field:VCHSTKJrnl BilledQty:type:quantity:forced
+ Local: field: numf11: Align:left
+
+;; {21.Feb.25 11:39}  Local: Field:VCHSTKJrnl BilledQty:delete:SetByCondition
+ Local: Field: numf30: Set As:#numf
+ Local: Field: numf31: Set As:#numf1 ;;#numf30 * $conversion:stockitem:$stockitemname / $denominator:stockitem:$stockitemname
+ local: field: numf30: Invisible: yes
+ local: field: numf31: Invisible: yes
+Local: Field: numf31: Border: thin box ;;left right
+
+;; {20.Dec.22 16:37}  Local: Field:VCHSTKJrnl BilledQty:add:SetByCondition:yes:@@cwbillqtystknew  ;;IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY
+;; {29.Jan.25 11:58}  Local: Field:VCHSTKJrnl BilledQty:add:SetByCondition:yes:$$ASQTY:@@MYQTYnew
+;; {01.Feb.25 12:31}   Local: Field:VCHSTKJrnl BilledQty :add:SetByCondition:yes:if $cwIsTrading1:stockitem:#vchstockitem="no" then  $$CollqtyTotal:batchallocations:$billedqty else $$ASQTY:@@MYQTY    ;;else (IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY)
+
+;; {21.Feb.25 11:33}   Local: Field:VCHSTKJrnl BilledQty :add:SetByCondition:yes:if $cwIsManufacturing1:stockitem:#vchstockitem="yes" then #numf*$cwDenominator3:stockitem:$stockitemname else if $cwIsTrading1:stockitem:#vchstockitem="no" then  $$CollqtyTotal:batchallocations:$billedqty else $$ASQTY:@@MYQTY    ;;else (IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY)
+;; {21.Feb.25 11:39}   Local: Field:VCHSTKJrnl BilledQty :add:SetByCondition:yes:$$CollqtyTotal:batchallocations:$billedqty   ;;if $cwIsManufacturing1:stockitem:#vchstockitem="yes" then #numf*$cwDenominator3:stockitem:$stockitemname else if $cwIsTrading1:stockitem:#vchstockitem="no" then  $$CollqtyTotal:batchallocations:$billedqty else $$ASQTY:@@MYQTY    ;;else (IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY)
+
+ ;;   Border: thin box ;;left right
+ Local: Field: numf: Style: small
+ Local: Field: numf2: Style: small
+ Local: Field: numf3: Style: small
+ Local: Field: numf4: Style: small
+ Local: Field: numf5: Style: small
+ Local: Field: numf6: Style: small
+ Local: Field: numf7: Style: small
+ 
+ 
+ add:right field : qtyf
+ Local: Field: qtyf: Set As: $$asqty:@@MYQTYnew
+ Local: Field: qtyf: Border: thin box ;;left right
+ Local: Field: qtyf: storage: billedqty
+ Local: Field: qtyf: Skip: Yes
+ Local: Field: qtyf: invisible: Yes
+
+
+[System : Formula]
+MYQTYnew : @@MYQTY0 + " = "  + @@MYQTY1new
+MYQTY0new : $$STRING:#NUMF30 + " " + #SNFX
+MYQTY1new : $$STRING:#NUMF31 + " " + #SNFX2
+itemHasAltQty : not $$issysname:$Additionalunits:stockitem:$stockitemname
+
+ ;;=========================================================================================================================
+ 
+ [#line:SJTotals]
+  add:option:cwSJTotalspt:@@IsStockJrnl and @@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+
+ [!line:cwSJTotalspt]
+ Local: field:VCHBilledQtyTotal : Width:18
+ 
+
+ ;;==========================================================================================================================
+[#Field: VCHBATCH Name]
+;;delete:Width       : If @@HasMfgDateSet OR @@HasExpiryDate Then 18 Else @@VCHBatchNameWidth
+;; {24.Jan.25 18:02} add:Width       : 30 ;;If @@HasMfgDateSet OR @@HasExpiryDate Then  Else @@VCHBatchNameWidth
+;;border:thin box
+[#Line: STKVCH Batch2]
+  add:option:cwSJstkBatch2spt:@@IsStockJrnl and @@cwUseasMfgJournalopt and @@KrishnavanijyaEnabled
+
+ [!line:cwSJstkBatch2spt]
+Local: Field:VCHBATCH BilledQty :delete:setbycondition
+Local: Field:VCHBATCH BilledQty :delete:setas
+;; {27.Jan.25 17:21} Local: Field:VCHBATCH BilledQty :add:Set As:$$ASQTY:@@MYQTYSQMT
+;; {29.Jan.25 11:08} Local: Field:VCHBATCH BilledQty :add:Set As:$$ASQTY:if $$isempty:$$ASQTY:@@MYQTYSQMT then $$ASQTY:@@MYQTY else $$ASQTY:@@MYQTYSQMT
+
+Local: Field:VCHBATCH BilledQty : Set As:if $cwIsReelProductmfg:stockitem:$stockitemname="yes" then $$ASQTY:@@MYQTYSQMT else (IF #SNF10="kgs" THEN $$ASQTY:#NUMF1 ELSE $$ASQTY:@@MYQTY)
+
+
+;;=============================================
+
+
+
+

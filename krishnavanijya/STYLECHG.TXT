@@ -1,0 +1,121 @@
+; Created By: Khokan on 2022-10-08 12:21, ID: 
+
+ [style:style0]
+ font:"normal"
+ height:14
+ bold:yes
+
+
+ [style:style1]
+ font:"Times New Roman"
+ height:14
+ bold:yes
+ 
+ [style:style2]
+ font:"Times New Roman"
+ height:18
+ bold:yes
+
+ [style:style3]
+ font:"Times New Roman"
+ height:10
+ bold:no
+ 
+  [style:style4]
+ font:"Times New Roman"
+ height:9.5
+ bold:yes
+ 
+ [style:style10]
+ font:"Tahoma"
+
+ height:8
+ bold:yes
+ 
+  [style:style10A]
+ font:"Tahoma"
+ height:9.5
+ bold:yes
+ 
+ [style:style11]
+ font:"Tahoma"
+ height:8
+ bold:NO
+ 
+ [style:style12]
+ font:"Tahoma"
+ height:16
+ bold:yes
+ 
+  [style:style12x]
+ font:"Tahoma"
+ height:11
+ bold:yes
+
+
+ [style:style14]
+ font:"COURIER NEW"
+ height:8
+ bold:yes
+ 
+  [style:style14x]
+ font:"COURIER NEW"
+ height:11
+ bold:yes
+ 
+ [style:style15]
+ font:"COURIER NEW"
+ height:8
+ bold:NO
+ 
+  [style:style15x]
+ font:"COURIER NEW"
+ height:9
+ bold:NO
+ 
+ [style:style16]
+ Use     : Small
+ Italic  : Yes
+ height:8
+ bold:NO
+ 
+  [style:style16x]
+ Use     : Small
+ Italic  : Yes
+ height:9
+ bold:NO
+
+
+[style:style3x]
+ font:"Calibri"
+ height:10
+ bold:no
+
+  [style:style4x]
+ font:"Calibri"
+ height:10
+ bold:yes
+
+
+ [style:style10email]
+ font:"Times New Roman"
+
+ height:8
+ bold:yes
+ 
+  [style:style11email]
+ font:"Times New Roman"
+ height:8
+ bold:NO
+
+ [style:style12email]
+ font:"Times New Roman"
+ height:17
+ bold:yes
+
+
+ 
+   [style:style10emailA]
+ font:"Times New Roman"
+ height:10.5
+ bold:yes

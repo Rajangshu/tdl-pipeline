@@ -1,0 +1,75 @@
+; Created By: Khokan on 2022-10-28 14:39, ID: 
+
+ [#Part: Company MailingDtlsContact]
+	
+
+  add:option:newCMPName
+  [!part:newCMPName]
+
+  add:line:Headerline,cwcolorline,cwBackgroundline
+  
+  [line:Headerline]
+  field:Medium Prompt,nf
+
+  Local: Field: Medium Prompt: Set As:"Header"
+  Local: Field: nf: storage:cwHeader
+  
+  
+  [line:cwcolorline]
+  field:Medium Prompt,nf
+
+  Local: Field: Medium Prompt: Set As:"Color:"
+  Local: Field: nf: storage:cwvchtypecolor
+  
+  Local: Field: nf: table:cwAColor ;;,Not Applicable
+ Local: Field: nf : show table:always
+  
+  [line:cwBackgroundline]
+  field:Medium Prompt,nf
+
+  Local: Field: Medium Prompt: Set As:"Background:"
+  Local: Field: nf: storage:cwBackgroundcolor
+  
+    Local: Field: nf: table:cwAColor ;;,Not Applicable
+ Local: Field: nf : show table:always
+
+  
+  
+  
+  [collection : cwAColor]
+title :"Colours"
+
+listname:"Aquamarine"
+listname:"Black"
+listname:"Blue"
+listname:"DarkGreen16Bit"
+
+listname:"Deep Cobalt Blue"
+listname:"Geranium"
+listname:"Geranium16Bit"
+
+
+listname:"Green"
+listname:"Grey16Bit"
+listname:"Green16Bit"
+
+
+listname:"Leaf Green"
+listname:"Light Blue"
+listname:"Light Purple"
+listname:"Pale Green"
+listname:"Pale Leaf Green"
+listname:"Red"
+listname:"Released Blue"
+listname:"Released Brown"
+listname:"Released Green"
+listname:"Released Pale Yellow"
+listname:"Released Orange"
+listname:"Released Yellow"
+
+listname:"Royal Blue"
+listname:"Satin Blue"
+listname:"Surf Green"
+listname:"Very Light Blue"
+listname:"White"
+listname:"Yellow16Bit"

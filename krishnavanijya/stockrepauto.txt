@@ -1,0 +1,219 @@
+; Created By: Khokan on 2024-11-29 12:15, ID: 
+
+; Auto Column Repeat
+/*
+Criteria :
+1 Collection which will be repeated eg : stock item (for stock item name)
+1 Variable which will be repeated (which will store the value of repeated collection)
+1 left field to be repeated (at line level)
+if you want to have multiple repeated fields, then repeat one field and in that field add all the required fields
+eg : repeat : snfNew
+[field : snfnew]
+field : snf,amtf,qtyf etc whatever is required
+
+*/
+
+; Created By: suman on 2011-11-22 15:26
+
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: stockrepautoLock ;;: @@stockrepautoDemoLock
+
+     [!menu: stockrepautoLock]
+        add: Item: before: @@locQuit: @@stockrepautoReport: Display: Repstockrepauto
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   stockrepautoReport: "stockrepauto Report"
+ stockrepautoDemoLock: yes ;; $$MachineDate < $$Date:"02/12/2011"
+
+
+
+    [Report: Repstockrepauto]
+        use: Dsp Template
+      Title: @@stockrepautoReport
+   Printset: Report Title: @@stockrepautoReport
+       Form: Frmstockrepauto
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+      Repeat : Mystockrepauto
+          Variable: DoSetAutoColumn ;; this is must
+         Set : DoSetAutoColumn : Yes ;; this is must
+          Set : DspRepeatCollection : "Mystockrepauto" ;;
+          Variable : SVFromDate, SVToDate
+          Variable: Mystockrepauto
+
+      [Form: Frmstockrepauto]
+        use: DSP Template
+       Part: DspAccTitles,Prtstockrepauto ;;,Prtstockrepauto2
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: stockrepautobotbrk,stockrepautobotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+  option: setautovchoption : ##Dosetautocolumn AND $$SetAutoColumns:Mystockrepauto ;; this is must
+
+
+ [System : Variable]
+Mystockrepauto : ""
+
+
+[Variable : Mystockrepauto]
+repeat : ##DspRepeatCollection
+Default : ""
+Set always : yes
+
+
+
+[Collection: Mystockrepauto]    ;; this collection is for Repeated Columns
+
+Type : stockitem ;; set required object here.
+fetch : *
+Filter : stockrepautoFormula
+keep source : ().
+fetch:stkoutqty
+
+[System : Formula]
+stockrepautoFormula :not $$isempty:$stkoutqty
+
+  ;; Now, set the object to actual repeat object (in this case it is stock item so we are
+  ;; modifying Stock ITem
+
+[#Object : stockitem]
+    Mystockrepauto : $nAME
+
+
+      [part: stockrepautobotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: stockrepautobotopbrk]
+        use: dspacctitles
+  add: part: stockrepautoTitlePart
+
+      [part: stockrepautoTitlePart]
+       line: LnstockrepautoTitle
+
+      [line: LnstockrepautoCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+
+      [Part: Prtstockrepauto]
+       Line: LnstockrepautoTitle,Lnstockrepauto
+;; {29.Nov.24 13:04}        bottom Line: LnstockrepautoTotals
+     repeat: Lnstockrepauto: ColstockrepautoVertical
+     scroll:both ;; Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,numf
+      float:no
+;;      vertical:yes
+
+
+[Collection: ColstockrepautoVertical]  ;; this collection is normal (going down)
+
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColstockrepautoVFilter,IsNonOptionalCancelledVchs
+     sort : @@default : $vouchertypename
+keep source : ().
+
+    [system: Formula]
+ColstockrepautoVFilter: $$issales:$vouchertypename
+
+/*
+
+   [line:closingstockline]
+     use: Lnstockrepauto
+local:field: sdf: set as:""
+local:field: snf: set as:""
+local:field: nf: set as: "Opening Stock"
+local:field: numf : set as:$openingbalance:stockitem:##mystockrepauto
+local:field:default:style:normal bold
+*/
+
+
+[Line: LnstockrepautoTitle]
+use: Lnstockrepauto
+option: titleopt
+
+local:field: sdf: set as:"Date"
+local:field: snf: set as: "Bill No."
+local:field: nf: set as: "Name of Party"
+
+local:field: numf : set as :##mystockrepauto
+local: field: default : style: normal bold
+
+local: field: numfnew1: type: String
+
+local:field:default:align:centre
+
+local:field:numf:line:0
+
+[field:numfnew1]
+field:numf,snf
+local:field: snf : set as :##mystockrepauto
+
+[Line: Lnstockrepauto] ;; main line
+Fields:nf,numfnew1
+
+Option: Alter on Enter
+
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+
+local:field: ratepf : setas  : #amtf/#qtyf
+local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+
+local: field :sdf : alter : voucher : $$isvoucher
+Local: Field: sdf: Set As:$date
+Local: Field: snf: Set As:$vouchernumber
+Local: Field: nf: Set As:$stockitemname
+Local: Field: numf: Set As:$$reportobject:$$CollectionFieldByKey:$billedqty:#nf:cwAllsallesStock
+
+repeat:numfnew1 ;; The Field to Repeat ;; Only Left Field is repeated
+
+local:field:default:border:thin left
+
+[System: Formula]
+myitemsame : $stockitemname1 = ##mystockrepauto
+
+[Collection: cwAllsallesStock]
+
+
+source Collection: sourColstockrepautoVertical2
+walk:inventoryentries
+by:stockitemname:$stockitemname
+aggr compute:billedqty:sum:$billedqty
+;; {29.Nov.24 13:19} filter:myitemsame
+
+ search key:$stockitemname
+
+[Collection: sourColstockrepautoVertical2]  ;; this collection is normal (going down)
+Use: Vouchers of Company
+delete: filter : daybookfilter
+Filter: ColstockrepautoVFilter,IsNonOptionalCancelledVchs
+sort : @@default : $vouchertypename
+keep source : ().
+
+
+[line:lnstockrepautototals]
+use:Lnstockrepauto
+border:totals
+Local: Field: nf: Set As:  " Total"
+local: field: numf : set as : $$total:numf
+delete : repeat
+replace : field : numf : numf5
+add : repeat : numf5
+local: field:numf5: set as:$$total:numf
+Local: Field: default: Style: Normal Bold
+
+

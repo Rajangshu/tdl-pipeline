@@ -1,0 +1,377 @@
+; Created By: Khokan on 2022-11-08 13:06, ID: 
+
+     [#menu: Gateway of Tally]
+;; {08.Nov.22 14:27}         add: Option: ClaimamountreportLock ;; : @@ClaimamountreportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ClaimamountreportReport: Display Collection: collRepClaimamountreport ;;: RepClaimamountreport
+
+
+
+     [!menu: ClaimamountreportLock]
+        add: Item: before: @@locQuit: @@ClaimamountreportReport: Display Collection: collRepClaimamountreport ;;: RepClaimamountreport
+        add: Item: before: @@locQuit: Blank
+        
+        
+     [Collection: collRepClaimamountreport]
+
+   Use         : Extract Alias Collection
+   Source Collection	: List of Ledgers
+   Variable    : Ledger Name
+   Report      :RepClaimamountreport
+   Trigger     : LedgerNamex
+   Fetch       : Name
+
+   [Report: LedgerNamex]   ;;Auto Report
+
+            Use     : Collection Variable
+            Local   : Line : Collection Variable : Field : LedgerNamex
+            Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Ledger"
+
+
+            [Field: LedgerNamex]
+
+          Use         : Name Field
+          Key         : Create Ledger
+          Modifies    : LedgerName
+          Table       :cwcollbrokerx  ;; List of ExtractLedgers
+          Show Table  : Always
+          CommonTable : No
+
+	
+	
+   [Collection: cwcollbrokerx]
+   type:ledger
+
+   TITLE:"List of Ledger Name"
+
+    filter:mycwshowinledstate
+
+  [System: Formula]
+
+  mycwshowinledstate:$$IsBelongsTo:$$GroupSundryDebtors OR $$IsBelongsTo:$$GroupSundryCreditors
+        
+        
+        
+        
+    [System: formula]
+   ClaimamountreportReport: "Purchase Claim Details"
+;; ClaimamountreportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepClaimamountreport]
+        use: Dsp Template
+      Title: @@ClaimamountreportReport
+   Printset: Report Title: @@ClaimamountreportReport
+       Form: FrmClaimamountreport
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+
+     
+     variable:str1
+     set:str1:""
+     
+      [Form: FrmClaimamountreport]
+        use: DSP Template
+;; {08.Nov.22 15:25}        Part: DspAccTitles,PrtTitle0Claimamountreport,PrtClaimamountreport
+       Part: PrtTitle0Claimamountreport,PrtTitle0Claimamountreport2,PrtClaimamountreport
+      Width: 60% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: Claimamountreportbotbrk,ClaimamountreportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+   add:button:Claimbotton
+ local:Part:DSPCompanyName:local:line:DSPCompanyName: Local: Field: DSP CompanyName:PrintStyle:style4
+local:Part:DSPCompanyAddress:local:line:DSPCompanyAddress: Local: Field: DSPCompanyAddress:PrintStyle:style3
+local:Part:DSPReportTitle:local:line:DSPReportName: Local: Field: DSPReportName:PrintStyle:style4
+local:Part:DSPReportSubTitle:local:line:DSPReportSubTitle: Local: Field: DSPReportSubTitle:PrintStyle:style3
+local:Part:DSPReportTitle:local:line:DSPReportPeriod:Local: Field: DSPReportPeriod:PrintStyle:style3  ;; Local: Field: DSPReportPeriod:border:thin box  ;;PrintStyle:style2
+local:Part:DSPPageNo:local:line:DSPPageNo: Local: Field:DSPPageNo:PrintStyle:style3
+
+      [part: ClaimamountreportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: Claimamountreportbotopbrk]
+        use: dspacctitles
+  add: part: ClaimamountreportTitlePart
+
+      [part: ClaimamountreportTitlePart]
+       line: LnClaimamountreportTitle
+
+    [part: PrtTitle0Claimamountreport]
+    line : repcmpline,repcmpaddline,reportnameline
+    
+;; {08.Nov.22 15:38}     option:PrtTitle0Claimamountreportopt:$$InPrintMode
+    
+;; {08.Nov.22 15:38}     [!part:PrtTitle0Claimamountreportopt]
+    Repeat      : repcmpaddline :  Company Address
+    invisible: not $$inprintmode	
+    ;;Invisible   : NOT ($$InPrintMode OR ($$InExportMode AND @@IsExcelFormat)) OR NOT $$IsCommon:SVCurrentCompany OR (NOT ##PrintWithAddress AND (NOT ##SVPrintWithCIN OR (##SVPrintWithCIN AND $$IsEmpty:($CorporateIdentityNo:Company:##SVCurrentCompany)))) OR NOT ##PrintWithCompanyName OR $$IsEmptyCollection:CompanyAddress
+
+
+    [part:PrtTitle0Claimamountreport2]
+    line:LnClaimamountreportCurrPeriod
+    
+    [line: repcmpline]
+    field: fwf
+
+    Local: Field: fwf: Set As:@@CmpMailName
+    Local: Field: fwf: Style: style4
+
+    [line: repcmpaddline]
+    field: fwf
+    Local: Field: fwf: Set As:$address
+    Local: Field: fwf: Style: style3
+;; {08.Nov.22 15:37}      Local: Field: fwf:invisible: $$inprintmode
+     
+      [line: reportnameline]
+      field: fwf
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: style4
+      Local: Field: fwf2: Style: style4
+      Local: Field: fwf2: Set As: @@dspDateStr
+      Local: Field: fwf: Set As:@@ClaimamountreportReport+" From "+@@dspDateStr
+
+
+      
+      [line: LnClaimamountreportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: style4
+      Local: Field: fwf2: Style: style4
+      Local: Field: fwf2: Set As: @@dspDateStr
+
+      Local: Field: fwf: Set As:##LedgerName
+  Local: Field: fwf2:nvisible: $$inprintmode
+
+
+      [Part: PrtClaimamountreport]
+       Line: LnClaimamountreportTitle,LnClaimamountreport
+bottom Line: LnClaimamountreportTotals
+     repeat: LnClaimamountreport: ColClaimamountreport
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,amtf1,amtf2
+
+[Collection: ColClaimamountreport]
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColClaimamountreportFilter,cwClaimAccountFilter1,ColClaimamountreportFilter2,cwClaimAccountfilter,IsNonOptionalCancelledVchs
+      fetch:ReferenceDate,Reference
+    [system: Formula]
+ColClaimamountreportFilter:$$ispurchase:$vouchertypename
+ColClaimamountreportFilter2: $partyledgername=##LedgerName
+cwClaimAccountFilter1: not $$isempty:$cwClaimAccount
+
+ [System: Formula]
+cwClaimAccountfilter:if $$issysname:##str1 then yes else $cwClaimAccount =##str1
+
+
+[Line: LnClaimamountreportTitle]
+use: LnClaimamountreport
+option: titleopt
+
+local:field: sdf: set as: "Vch. Date"
+local:field: snf: set as: "Vch. No."
+
+local:field: sdf2: set as: "Sup Inv Date"
+local:field: snf1: set as: "Sup Inv No."
+
+local:field: fwf: set as: "Claim Remarks"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Amount Rs."
+
+local: field: default : style: normal bold
+
+local:field: snf: style:style4
+local:field: sdf:style:style4
+
+local:field: snf1: style:style4
+local:field: sdf2:style:style4
+
+local:field: fwf:style:style4
+local:field: amtf:style:style4
+
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+
+[Line: LnClaimamountreport]
+Fields: snf,sdf,snf1,sdf2,fwf
+right field:Amtf,amtf1,amtf2,amtf3,amtf4
+
+Local: Field: amtf3: Set As:$cwClaimAccountamt+$cwClaimAccountamt2+$cwClaimAccountamt3+$cwClaimAccountamt4
+Local: Field: amtf4: Set As:if $$line=1 then #amtf3 else $$prevlinefield+#amtf3
+
+
+Option: Alter on Enter
+     
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+
+local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+
+local:field: sdf: set as:$date ;; "Bill Date"
+local:field: snf: set as:$vouchernumber;; "Bill No."
+local:field: fwf: set as:$cwClaimAccount ;;$$CollectionField:$cwremarks:First:inventoryentries ;; "Claim Remarks"
+
+local:field: amtf: set as:$cwClaimAccountamt ;;$amount;; "Amount Rs."
+local:field: amtf1: set as:$$nettamount:$cwClaimAccountamt:$cwClaimAccountamt2;;:$cwClaimAccountamt3;;:$cwClaimAccountamt4  ;; "Amount Rs."
+Local: Field: amtf2: Set As:if $$line=1 then #amtf1 else $$prevlinefield+#amtf1
+
+local:field: snf1: set as:$Reference ;; "Sup Inv Date"
+local:field: sdf2: set as:$ReferenceDate ;; "Sup Inv No."
+
+local:field: default: style:style3
+local: field: amtf1: Invisible: yes
+local: field: amtf2: Invisible: yes
+local: field: amtf3: Invisible: yes
+local: field: amtf4: Invisible: yes
+Local: Field: default: Border: thin right
+Local: Field: snf: Border: thin left right
+
+
+add:explode:LnClaimamountexp
+
+[part:LnClaimamountexp]
+line:LnClaimamountexp2,LnClaimamountexp3,LnClaimamountexp4
+
+[line:LnClaimamountexp]
+use: LnClaimamountreport
+
+
+local:field: sdf: set as:"" ;; "Bill Date"
+local:field: snf: set as:"" ;; "Bill No."
+
+local:field: sdf2: set as:"" ;; "Bill Date"
+local:field: snf1: set as:"" ;; "Bill No."
+
+local: field: qtyf: set as:""
+local: field: amtf3: set as:""
+local: field: amtf4: set as:""
+
+local: field: fwf: set as:$cwClaimAccount
+
+local: field: amtf : set as :$cwClaimAccountamt
+remove if :$$isempty:$cwClaimAccountamt
+delete:explode
+
+[line:LnClaimamountexp2]
+use: LnClaimamountreport
+
+local:field: sdf: set as:"" ;; "Bill Date"
+local:field: snf: set as:"" ;; "Bill No."
+
+local: field: qtyf: set as:""
+local: field: amtf3: set as:""
+local: field: amtf4: set as:""
+
+
+local: field: fwf: set as:$cwClaimAccount2
+
+local: field: amtf : set as :$cwClaimAccountamt2
+delete:explode
+remove if :$$isempty:$cwClaimAccountamt2
+
+[line:LnClaimamountexp3]
+use: LnClaimamountreport
+
+local:field: sdf: set as:"" ;; "Bill Date"
+local:field: snf: set as:"" ;; "Bill No."
+
+local: field: qtyf: set as:""
+local: field: amtf3: set as:""
+local: field: amtf4: set as:""
+
+
+local: field: fwf: set as:$cwClaimAccount3
+
+local: field: amtf : set as :$cwClaimAccountamt3
+delete:explode
+remove if :$$isempty:$cwClaimAccountamt3
+
+[line:LnClaimamountexp4]
+use: LnClaimamountreport
+
+local:field: sdf: set as:"" ;; "Bill Date"
+local:field: snf: set as:"" ;; "Bill No."
+
+local: field: qtyf: set as:""
+local: field: amtf3: set as:""
+local: field: amtf4: set as:""
+
+
+local: field: fwf: set as:$cwClaimAccount4
+
+local: field: amtf : set as :$cwClaimAccountamt4
+delete:explode
+remove if :$$isempty:$cwClaimAccountamt4
+
+
+[line: LnClaimamountreportTotals]
+use: LnClaimamountreport
+option: totalOpt
+local: field: fwf: align: right
+local: field: default : style: normal bold
+
+local:field: sdf: set as:"" ;; "Bill Date"
+local:field: snf: set as:"" ;; "Bill No."
+      
+local: field: qtyf: set as: $$total:qtyf
+
+local: field: fwf: set as: "Grand Total Rs."
+
+local: field: amtf : set as :#amtf4;;#amtf2
+local: field: amtf1 : set as :  $$total:amtf1
+local: field: amtf2 : set as :$$prevlinefield
+local: field: amtf3 : set as :$$prevlinefield
+local: field: amtf4 : set as :$$prevlinefield
+
+local:field: nf: style:style4
+local:field: sdf:style:style4
+local:field: fwf:style:style4
+local:field: amtf:style:style4
+
+
+;;============================
+ [button:Claimbotton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:Claimbotton
+
+ [report:Claimbotton]
+ form:Claimbotton
+
+ [form:Claimbotton]
+ part:Claimbotton
+
+ HEIGHT:20% Screen
+ WIDTH:30% Screen
+
+ [part:Claimbotton]
+ line:titlelinex,Claimbotton
+
+ [line:Claimbotton]
+ field:sp,nf
+ Local: Field: sp: Set As:"Claim Remarks"
+ Local: Field: nf:modifies:str1
+ space bottom:0.5
+ Local: field: sp: Width:18
+ Local: Field: sp: Style: Normal Bold
+
+
+
+;;=====================
+
+
+
+

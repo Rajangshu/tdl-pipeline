@@ -1,0 +1,1432 @@
+; Created By: Khokan on 2023-07-14 17:49, ID: 
+
+[!form : emailsalesinvoicechg4Opt]
+Delete : Part
+Delete : Bottom Part
+Delete : Page Break
+   add : Top part : emailsalesinvoicechg4TopPart1,emailsalesinvoicechg4TopPart,emailsalesinvoicechg4TopPart4,emailaksalesinvoiceTopPart3
+   add : Part : emailsalesinvoicechg4InvACCPart
+   Add : bottom Part :  emailsalesinvoicechg4BottomPart,emailsalesinvoicechg4BottomPart2,emailsalesinvoicechg4BottomPart4,emailsalesinvoicechg4BottomPart3,emailsalesinvoicechg4BottomPart6
+   add : page Break : salesinvoicechg4CLBreak, salesinvoicechg4OPBreak
+
+  Width     : @@cwSapceWidth2 inch
+  Height    : @@cwSapceHeight2 inch
+ ; Space Right : 0.6 inch
+  Space Left  : 0.8  inch
+        
+ add:option:emailsalesinvoicechg4TopPartopt:##logi2
+
+
+
+  [!form:emailsalesinvoicechg4TopPartopt]
+  delete:toppart:emailsalesinvoicechg4TopPart1,emailsalesinvoicechg4TopPart
+  Space Top : @@cwSapceTop2 inch
+
+ [Part : emailsalesinvoicechg4CLBreak]
+   part:emailcontinaprt
+
+   [part:emailcontinaprt]
+   line:emailcontinaprt
+
+
+   [line:emailcontinaprt]
+   field:fwf
+   Local: Field: fwf: Set As:"Continued ..."
+   Local: field: fwf: Align: Right ;;centre
+   Local: Field: fwf:style:style11
+
+ [Part : emailsalesinvoicechg4OpBreak]
+  part : emailsalesinvoicechg4TopPart1,emailsalesinvoicechg4TopPart,emailsalesinvoicechg4TopPart4,emailaksalesinvoiceTopPart3,emailsalesinvoicechg4InvPartnew
+;; {21.Oct.22 10:04}   part : salesinvoicechg4TopPart4,aksalesinvoiceTopPart3,salesinvoicechg4InvPartnew
+   Vertical:yes
+
+  add:option:emailsalesinvoicechg4TopPartoptpartoptnew:##logi2
+
+  [!part:emailsalesinvoicechg4TopPartoptpartoptnew]
+
+  delete:toppart:emailsalesinvoicechg4TopPart1,emailsalesinvoicechg4TopPart
+
+ ;; Space Top : @@cwSapceTop2 inch
+
+ [part : emailsalesinvoicechg4InvPartnew]
+  line : emailsalesinvoicechg4InvLineTitle,emailsalesinvoicechg4InvLineTitle2
+     border:thin box
+
+ [part : emailsalesinvoicechg4TopPart]
+ part:emailsalesinvoicechg4TopParta,emailsalesinvoicechg4TopPartb,emailsalesinvoicechg4TopPartc
+
+ [part:emailsalesinvoicechg4TopParta]
+ line:emaillogoline1
+  add:option:emaillogopart4:##SALogoPath <> ""
+ ;; border:thin box
+
+ [line:emaillogoline1]
+ field:nf
+
+
+  [!part:emaillogopart4]
+ Graph Type: ##SALogoPath
+ width:19% page
+  ;;width:17% page
+
+ [part:emailsalesinvoicechg4TopPartb]
+
+ line:emailcmpnameline2,emailimportersline
+
+
+
+ [part:emailsalesinvoicechg4TopPartc]
+
+ line:emailtaxinvline,emailcmpaddline2,emailcwcmpPhonePrnline2,emailregdoffline,emailcmpgstinline2
+ repeat:emailcmpaddline2:collCompanyAddress
+
+
+ [part:emailsalesinvoicechg4TopPart2]
+ line:emailcmpaddline2,emailcwcmpPhonePrnline2,emailcmpgstinline2
+repeat:emailcmpaddline2:collCompanyAddress
+
+
+
+[line:emailcmpnameline2]
+field:nf
+Local: Field: nf: Set As:@@cmpmailname
+Local: Field: nf:style:style12email
+
+Local : field : nf: Lines : 0
+Local: field: nf: Width:40 ;;50
+
+[line:emailimportersline]
+use:emailcmpnameline2
+Local: Field: nf: Set As:$cwHeader:COMPANY:##SVCURRENTCOMPANY  ;;"Imports & Distributors"
+ Local: Field: nf:style:style12emailx
+
+
+ [part:emailsalesinvoicechg4TopPart1]
+  line:emailtaxinvline2   ;;,taxinvline23
+  [line:emailtaxinvline23]
+   field:fwf,copyfield
+
+   Local: Field: nf: Set As:##SVPrintCopy
+   Local: Field: fwf: Set As:#copyfield
+   local: field: copyfield: Invisible: yes
+  Local: Field: fwf:style:style11email
+  Local: field: fwf: Align: Right ;;centre
+
+  [line:emailtaxinvline2]
+  field:fwfc
+   Local: Field: fwfc: Set As:##ReportTitle  ;;@@invtitle ;;$cwtitle:VOUCHERTYPE:$VOUCHERTYPENAME ;;@@invtitle
+   Local: Field: fwfc:style:style12emailx
+   Local: Field: FWFC: Border: thin boTTOM
+
+
+  [line:emailtaxinvline]
+FIELD:NF
+ Local: Field: NF: Set As:$cwtitle2:VOUCHERTYPE:$VOUCHERTYPENAME  ;;"@@invtitle"
+;; {28.Oct.22 13:34}  Local: field: fwf: Align: Right ;;centre
+  Local: Field: NF:style:style12emailx
+  Local: field: NF: Width:35
+  remove if :@@cwNormalInvoicenew ;;##logi1
+   Local: Field: NF: Border: thin boTTOM
+
+   [line:emailtaxinvline231]
+   field:nf,copyfield
+
+   Local: Field: nf: Set As:#copyfield
+   local: field: copyfield: Invisible: yes
+  Local: Field: nf:style:style11email
+  Local: field: nf: Align: Right ;;centre
+ Local: field: NF: Width:35
+  remove if :@@cwNormalInvoicenew ;;##logi1
+
+[line:emailcmpaddline2]
+
+field:fwf
+
+Local: Field: fwf: Set As:$address
+Local: Field: fwf:style:style11email
+
+[line:emailcwcmpPhonePrnline2]
+;; {20.Oct.22 17:01} use:cmpaddline2
+field:snfx,nf,snfx3,nf2
+
+Local: Field: snfx: Set As:"P.  "
+Local: Field: snfx2: Set As:"M.  "
+Local: Field: snfx3: Set As:"E.  "
+
+Local: Field: nf: Set As:@@cwcmpPhonePrn2
+Local: Field: snf2: Set As:@@cwcmpmobPrn
+Local: Field: nf2: Set As:@@cwcmpEmailPrn2
+Local: field: snfx: Width:2
+Local: field: snfx3: Width:2
+Local: field: nf: Width:25
+Local: field: nf2: Width:30
+Local: Field: snfx:style:style10email
+Local: Field: snfx3:style:style10email
+Local: Field: nf:style:style11email
+Local: Field: nf2:style:style11email
+
+
+
+ [line:emailcmpgstinline2]
+field:sp,nf,sp2,nf2
+ Local: Field: sp: Set As:"GSTIN"
+ Local: Field: sp2: Set As:"CIN No. "
+ Local: Field: nf2: Set As:@@cwCMPCinno
+ Local: Field: nf: Set As:@@VATCMPGSTNumber  ;;@@cwGSTNNumber
+
+ Local: field: sp: Width:13
+ Local: field: sp2: Width:13
+ Local: Field: sp: Style:style10email
+
+ Local: Field: sp2: Style:style10email
+ Local: Field: nf: Style:style11email
+ Local: Field: nf2: Style:style11email
+
+  [line:emailregdoffline]
+   field:sp,fwf
+
+ Local: Field: sp: Set As: "Regd.Office :"
+ Local: Field: fwf: Set As:$cwregoffice:COMPANY:##SVCURRENTCOMPANY
+;; {20.Oct.22 17:15}  Local: Field: fwf: Set As: "Regd.Office :" +$cwregoffice:COMPANY:##SVCURRENTCOMPANY
+ remove if :$$isempty:$cwregoffice:COMPANY:##SVCURRENTCOMPANY
+   Local: field: sp: Width:15
+   Local: Field: sp: Style:style10email
+   Local: Field: fwf: Style:style11email
+
+ [line:emailcmpStateNameline2]
+ use:emailcmpaddline2
+ Local: Field: sp: Set As:"GSTIN"
+ Local: Field: fwf: Set As:"StateName : "+@@mycwcmpStateName
+
+
+  [line:emailcmpemailNameline2]
+ use:cmpaddline2
+ Local: Field: sp: Set As:"E-Mail"
+ Local: Field: fwf: Set As:"E-Mail : "+$email:COMPANY:##SVCURRENTCOMPANY
+
+  [line:emailcmpcinnoline1]
+ use:emailcmpaddline2
+ Local: Field: sp: Set As:"CIN No."
+ Local: Field: fwf: Set As:@@cwCMPCinno
+
+ ;;===============
+ [part:emailsalesinvoicechg4TopPart4]
+ line:emailcopyline,CWBLANKLINE
+
+ [line:emailcopyline]
+ field:fwf,copyfield
+
+ Local: Field: fwf: Set As:if $$issysname:##SVPrintCopy then "" else #copyfield
+ Local: field: fwf: Align: Right ;;centre
+ local: field: copyfield: Invisible: yes
+  Local: Field: fwf:style:style10email
+
+ ;;===============
+
+  [part:emailaksalesinvoiceTopPart3]
+ part:emailaksalesinvoiceTopPart3a,emailaksalesinvoiceTopPart3b,emailaksalesinvoiceTopPart3c
+  border:thin box
+
+ [part:emailaksalesinvoiceTopPart3a]
+ line:emailbuyerdtline,emailbuyernameline,emailbuyeraddrline,emailbuyergstno,emailbuyerpanline,emailbuyerstateline,emailbuyerpinline,emailshippPhoneanline1
+
+ Repeat  : emailbuyeraddrline :  cwParty
+   border:thin right
+ [line:emailbuyerdtline]
+ field:fwfc
+ Local: Field: fwfc: Set As:"Buyer (Bill To)"
+
+ Local: Field: fwfc:style:style10emailA ;;style10email
+ height:1.2
+ space top:0.4
+ border:thin bottom
+
+ [line:emailbuyernameline]
+ field:fwf
+ Local: Field: sp: Set As:"Name"
+ Local: Field: fwf: Set As:$PARTYMAILINGNAME
+ Local: Field:fwf: indent:1
+ Local: field: sp: Width:13
+ Local: Field: fwf:style:style10emailA ;;style10email
+  space top:0.4
+
+ [line:emailbuyeraddrline]
+ field:fwf
+ Local: Field: sp: Set As:If $$Line > 1 Then "" Else $$LocaleString:"Address"
+ Local: Field: fwf: Set As:$ADDRESS
+ Local: Field: default: Style:cwTahoma2
+ Local: Field:fwf: indent:1
+ Local: field: sp: Width:13
+ Local: Field:default:style:style11email
+;; {29.Oct.22 10:28}  space top:0.2
+
+   [line:emailbuyerstatecode]
+ field:sp,fwf
+ Local: Field: sp: Set As:"State Code"
+ Local: Field: fwf: Set As:$$getgststatecode:@@cwVoucherPartyStateName
+  Local: field: sp: Width:15
+  Local: Field:default:style:style11email
+ space top:0.2
+ Local: Field:sp: indent:1
+
+ [line:emailbuyerstateline]
+ use:emailbuyerstatecode
+ Local: Field: sp: Set As:"State"
+ Local: Field: fwf: Set As:$STATENAME +", Code : "+$$getgststatecode:$STATENAME
+
+
+
+ [line:emailbuyerpinline]
+ use:emailbuyerstatecode
+
+ Local: Field: sp: Set As:"Pincode:"
+
+ Local: Field: FWF: Set As:$PinCode:LEDGER:$PARTYNAME
+
+
+ [line:emailbuyerpanline]
+ use:emailbuyerstatecode
+
+ Local: Field: sp: Set As:"PAN/IT No:"
+
+ Local: Field: FWF: Set As:$IncomeTaxNumber:LEDGER:$PARTYMAILINGNAME
+ remove if:$$isempty:$IncomeTaxNumber:LEDGER:$PARTYMAILINGNAME
+ Local: Field: sp: Style:style10email
+
+ [line:emailbuyergstno]
+ use:emailbuyerstatecode
+ Local: Field: sp: Set As:"GSTIN/UIN"
+ Local: Field: fwf: Set As:$PARTYGSTIN
+  Local: Field: sp: Style:style10email
+  remove if:$$isempty:$PARTYGSTIN
+
+  [line:emailbuyerPhoneanline]
+ use:emailshipstateline
+
+ Local: Field: sp: Set As:"Phone :"
+
+ Local: Field: FWF: Set As:$LedgerPhone:LEDGER:$PARTYMAILINGNAME
+ remove if:$$isempty:$LedgerPhone:ledger:$PARTYMAILINGNAME
+
+ [part:emailaksalesinvoiceTopPart3b]
+ line:emailshipdtline,emailshipnameline,emailshipaddrline,emailshipgstno,emailshippanline,emailshipstateline,emailshippinline,emailshippPhoneanline1
+  repeat:emailshipaddrline:BASICBUYERADDRESS
+  border:thin right
+
+ [line:emailshipdtline]
+ field:fwfc
+ Local: Field: fwfc: Set As:"Consignee (Ship to)"
+ border:thin bottom
+
+
+ height:1.2
+ space top:0.4
+ Local: Field:default:style:style10emailA ;;style10email
+
+ [line:emailshipnameline]
+ field:fwf
+ Local: Field: sp: Set As:"Name:"
+ Local: Field: fwf: Set As:$CONSIGNEEMAILINGNAME
+
+ Local: field: sp: Width:13
+ Local: Field:default:style:style10emailA ;;style10email
+ space top:0.4
+ Local: Field:fwf: indent:1
+
+ [line:emailshipaddrline]
+ field:fwf
+ Local: Field: sp: Set As: If $$Line > 1 Then "" Else $$LocaleString:"Address"
+ Local: Field: fwf: Set As:$BASICBUYERADDRESS
+;; {26.Aug.22 12:30}  Local: Field: sp: Style:Style7
+    Local: field: sp: Width:13
+ Local: Field:default:style:style11email
+;; {29.Oct.22 10:26}  space top:0.4
+ Local: Field:fwf: indent:1
+ [line:emailshipstateline]
+ field:sp,fwf
+
+ Local: Field: sp: Set As:"State"
+ Local: Field: fwf: Set As:$CONSIGNEESTATENAME +", Code : "+$$getgststatecode:$CONSIGNEESTATENAME
+ Local: Field:default:style:style11email
+   Local: field: sp: Width:15
+ space top:0.2
+ Local: Field:sp: indent:1
+
+ [line:emailshipstatecode]
+ use:shipnameline
+ Local: Field: sp: Set As:"State Code"
+ Local: Field: fwf: Set As:$$getgststatecode:$CONSIGNEESTATENAME
+
+
+ [line:emailshipgstno]
+ use:shipstateline
+ Local: Field: sp: Set As:"GSTIN/UIN"
+ Local: Field: fwf: Set As:$CONSIGNEEGSTIN
+
+ Local: Field:sp:style:style10email
+ Local: Field:fwf:style:style11email
+
+  remove if:$$isempty:$CONSIGNEEGSTIN
+
+ [line:emailshippinline]
+ use:emailshipstateline
+
+ Local: Field: sp: Set As:"Pincode:"
+
+ Local: Field: FWF: Set As:$CONSIGNEEPINCODE  ;;$PinCode:LEDGER:$BASICBASEPARTYNAME
+   remove if:$$isempty:$CONSIGNEEPINCODE
+
+ [line:emailshippanline]
+ use:emailshipstateline
+
+ Local: Field: sp: Set As:"PAN/IT No :"
+
+ Local: Field: FWF: Set As:$IncomeTaxNumber:LEDGER:$CONSIGNEEMAILINGNAME
+
+ remove if:$$isempty:$IncomeTaxNumber:LEDGER:$CONSIGNEEMAILINGNAME
+
+ Local: Field:sp:style:style10email
+ Local: Field:fwf:style:style11email
+
+  [line:emailshippPhoneanline]
+ use:shipstateline
+
+ Local: Field: sp: Set As:"Phone :"
+
+ Local: Field: FWF: Set As:$LedgerPhone:LEDGER:$CONSIGNEEMAILINGNAME
+ remove if:$$isempty:$LedgerPhone:ledger:$CONSIGNEEMAILINGNAME
+
+  [line:emailshippPhoneanline1]
+  field:snf
+  height:0.3
+
+ [part:emailaksalesinvoiceTopPart3c]
+;; {03.Apr.23 15:38}  line:invnoline,invdtline,delchnoline1,delchdateline1,ewaynoline,duedateline1,Originalinvnoline,Originalinvdtline ;;trucknoline1,TransporterNameline1,cnnoline1
+ line:emailinvnoline,emailinvdtline,emaildelchnoline1,emaildelchdateline1,emailewaynoline,emailOriginalinvnoline,emailOriginalinvdtline ;;trucknoline1,TransporterNameline1,cnnoline1
+
+
+ [line:emailinvnoline]
+ field:sp,snf
+ Local: Field:sp: Set As:"Invoice No."
+ Local: Field:sp: indent:1
+ Local: Field:sp: Set As:if @@IsCreditNote then  "CN No." else if @@IsDebitNote then  "DN No."else "Invoice No."
+ Local: Field:snf: Set As:$vouchernumber
+ Local: field: sp: Width:17.5 ;;18
+;; {15.Jul.23 11:29}  Local: field: snf: Width:24.5 ;;21.5
+ Local: field: snf: Width:23.3 ;;5
+
+ Local: Field:default:style:style10email
+ space top:0.2
+
+ [line:emailinvdtline]
+ use:emailinvnoline
+ Local: Field:sp: Set As:if @@IsCreditNote then  "CN Date" else if @@IsDebitNote then  "DN Date"else "Invoice Date"
+ Local: Field:snf: Set As:$date
+ local: field:snf: type:date
+
+
+  [line:emailOriginalinvnoline]
+ field:sp,snf
+
+ Local: Field:sp: Set As:if @@IsCreditNote then "Original Inv No." else if @@Ispurchase then "Supplier Inv No."  else ""
+ Local: Field:snf: Set As:$REFERENCE
+ Local: field: sp: Width:18
+ Local: field: snf: Width:20
+
+ Local: Field:default:style:style10email
+ space top:0.2
+
+ [line:emailOriginalinvdtline]
+ use:emailinvnoline
+ Local: Field:sp: Set As:if @@IsCreditNote then  "Date" else if @@Ispurchase then "Date" else ""
+ Local: Field:snf: Set As:$REFERENCEdate
+ local: field:snf: type:date
+
+ [line:emailduedateline1]
+ use:emailinvnoline
+  Local: Field:sp: Set As:"Due Date"
+ Local: Field:snf: Set As:@@cwvchBillDueDateShort  ;;s$$collectionfield:($$collectionfield:$billcreditperiod:first:BILLALLOCATIONS):first:ledgerentries
+   local: field:snf: type:date
+
+;; {25.Oct.22 14:53}   Local: Field:default:style:style11email
+
+
+ [line:emaildelchnoline1]
+ use:emailinvnoline
+  Local: Field:sp: Set As:"Challan No."
+ Local: Field:snf: Set As:$$CollectionField:$BasicShipDeliveryNote:First:InvoiceDelNotes
+ Local: Field:default:style:style11email
+ remove if:$$isempty:$$CollectionField:$BasicShipDeliveryNote:First:InvoiceDelNotes
+
+ [line:emaildelchdateline1]
+ use:emailinvnoline
+ Local: Field:sp: Set As:"Challan Date"
+ Local: Field:snf: Set As:$$CollectionField:$BasicShippingDate:First:InvoiceDelNotes
+ Local: Field:default:style:style11email
+
+remove if:$$isempty:$$CollectionField:$BasicShippingDate:First:InvoiceDelNotes
+
+
+ [line:emailewaynoline]
+use:emailinvnoline
+Local: Field: sp: Set As:"eway Bill No"
+Local: Field: snf: Set As:@@cwEWayBillno
+Local: Field:default:style:style11email
+remove if:$$isempty:@@cwEWayBillno
+
+[line:emailewaydtline]
+use:emailinvnoline
+Local: Field: sp: Set As:"eway Bill Date"
+Local: Field: snf: Set As:$EwayBillDetails[Last].BillDate
+remove if:$$isempty:@@cwEWayBillno
+
+Local: Field:default:style:style11email
+
+ [part : emailsalesinvoicechg4INVACCPart]
+Parts       : emailsalesinvoicechg4InvPart ;;, salesinvoicechg4AccPart
+CommonBorder: Yes
+Vertical    : Yes
+Scroll      : Vertical
+Float       : No
+;;Total       :
+border:thin box
+
+ [part : emailsalesinvoicechg4InvPart]
+  line : emailsalesinvoicechg4InvLineTitle,emailsalesinvoicechg4InvLineTitle2,emailsalesinvoicechg4InvLine  ;;,salesinvoicechg4InvLineTotal
+repeat : emailsalesinvoicechg4InvLine : Inventory Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+
+ [Line : emailsalesinvoicechg4InvLine]
+ field : snf,snf2,numf1,fwf
+ right field :snfx2,snf3,snf4,snf5,snf6,qtyf,qtyf2,ratef,snfx,amtf,EXPINVHSNSACDetails,EXPINV IGSTRate,EXPINVRate, EXPINVRatePer
+
+  Local: Field: SNFX2: Set As:$cwremarks
+   Local: Field: snfx2: width:4
+   Local: field: snfx2: Align:centre
+
+ local : field : snf: set as :$$linenumber-2 ;; "SL No"
+ local : field : snf2: set as :#EXPINVHSNSACDetails  ;;@@cwitemHSNCode ;; "HSN"
+ local : field : fwf : set as :$cwQuality:stockitem:$stockitemname  ;; @@invitemname
+ local: field: snf3 : set as :$cwsortno:stockitem:$stockitemname  ;; $cwGSM:stockitem:$stockitemname ;; "GSM"
+ local: field: snf4 : set as :$cwSize:stockitem:$stockitemname ;; "Size"
+;; {16.Jan.25 16:22}  local: field: snf5 : set as :$cwPacknew:stockitem:$stockitemname ;; "Unit Wt."
+ local: field: snf5 : set as :$cwsceneitem:stockitem:$stockitemname ;; "Unit Wt."
+ local: field: snf6 : set as :IF $$ISEMPTY:$billedqty THEN "" ELSE $$FULLLIST:BATCHALLOCATIONS:$CWBundles ;; "Bundles"
+ local: field: numf1 : set as :#EXPINVIGSTRate
+
+ local : field : qtyf : set as : $billedqty
+ local : field : qtyf2 : set as : $billedqty
+ local : field : ratef : set as : $rate
+ local : field : snfx : set as :#EXPINVRatePer ;; $baseunits:stockitem:$stockitemname
+ local : field : amtf : set as : $amount
+ local: field: EXPINVHSNSACDetails: Invisible: yes
+ local: field: EXPINVIGSTRate: Invisible: yes
+ local: field: EXPINVRatePer: Invisible: yes
+ local: field: EXPINVRate: Invisible: yes
+
+ local: field: qtyf: type: quantity:Secondary units
+ local: field: snfx: type: Rate : Unit Symbol
+
+ explode : emailsalesinvoicechg4BUDPart : $basicuserdescription != ''
+ explode : emailsalesinvoicechg4BatchPart  ;;: $batchname != "Primary batch"
+
+ local: field: numf1: Invisible:NOT @@InvGSTIGSTRate
+
+ Local: field: qtyf: Format: "nosymbol,nocomma"
+ Local: field: qtyf2: Format: "nosymbol,nocomma"
+ Local: field:numf1: Format: "nozero,percentage"
+
+ local : field : ratef : type : number
+ local : field : ratef : align : right
+ local : field : ratef : format :"Decimals:2,NoZero"
+ Local: Field: default: Border: thin right
+ Local: Field: fwf:delete: Border: thin right
+ Local: Field: amtf:delete: Border: thin right
+
+ Local: field: snf: Width:4 ;;6
+;; {27.Jan.23 14:38}  Local: field: snf4: Width:if ##logi2 then "9.1" else "10.6"
+;; {27.Jan.23 14:52}  Local: field: snf4: Width:if ##logi2 then "10" else "10.6"
+ Local: field: snf4: Width:if ##logi2 then "9.8" else "10"
+;; {25.Jan.23 14:28}  Local: field: snf4: Width:10.6
+ Local: field: snf3: Width:8.6 ;;6.6 ;;5 ;;13
+ Local: field: snf2: Width:9 ;;8 ;;12
+ Local: field: snf5: Width:8 ;;5
+ Local: field: snf6: Width:11 ;;16
+ Local: field: qtyf: Width:11 ;;7
+;; {27.Jan.23 14:51}  Local: field: qtyf2: Width:if ##logi2 then "11.8" else "12";;9
+ Local: field: qtyf2: Width:if ##logi2 then "11.8" else "11.8";;9
+ Local: field: amtf: Width:15
+ Local: field: numf1: Width:6
+ Local : field : snf6: Lines : 0
+
+;; {27.Jan.23 17:02}  Local: field: qtyf:space right:2
+
+ Local: Field:default:style:style10email
+ Local: Field:snf:style:style11email
+ Local: Field:snf2:style:style11email
+ Local: Field:snfx2:style:style10email
+ Local: Field:snfx:style:style11email
+ Local: Field:fwf:style:style10email
+ Local: Field:numf1:style:style11email
+
+  Local: Field:qtyf:style:style10email
+ Local: Field:qtyf2:style:style10email
+ Local: Field:amtf:style:style10email
+ space top:0.3
+
+
+ local : field : snf: Align:centre
+ local : field : snfx: Align:centre
+ local : field : snf2: Align:centre
+ local : field : numf1: Align:centre
+
+
+ local: field: snf3 : Align:centre
+ local: field: snf4 :Align:centre
+ local: field: snf5 :Align:centre
+ local: field: snf6 : Align:centre
+
+;; {25.Jan.23 14:20}  local : field : qtyf : Align:centre
+;; {25.Jan.23 17:10}  local : field : qtyf2 : Align:centre
+
+
+[line: emailsalesinvoicechg4InvLineTitle]
+ use : emailsalesinvoicechg4InvLine
+ delete : explode
+   local : field: default : type : string
+;; {15.Dec.22 12:15}  Local: Field: snfx2: Set As:"Per"
+ local : field : snf: set as : "SL"
+ local : field : snf2: set as : "HSN"
+ local : field : numf1: set as : "GST"
+ local: field: fwf : set as : "Product Description"
+   local: field: fwf :indent:8
+ local: field: snf3 : set as : "GSM"
+ local: field: snf4 : set as : "Size"
+ local: field: snf5 : set as : "Unit"
+ local: field: snf6 : set as : "Bundles"
+
+ local : field : qtyf : set as : "Total "
+ local : field : qtyf2 : set as : "Qty"
+
+ local: field : ratef : set as : "Rate"
+ local: field : snfx : set as : "Per"
+ local : field : amtf : set as :"Amount"
+ local: field: qtyf: type:string
+ local: field: qtyf2: type:string
+ local: field: snfx: type:string
+ local : field : default : align : centre
+ local: field : ratef : align : centre
+ local : field : fwf : align : left
+ local: field: ratef: type: String
+   Local: Field:numf1:style:tnrstyle3
+
+ Local: Field:default:style:tnrstyle3
+
+ local : field : snf: style:tnrstyle3
+ local : field : snf2:style:tnrstyle3
+ local : field : numf1: style:tnrstyle3
+ local: field: fwf : style:tnrstyle3
+
+ local: field: snf3 :style:tnrstyle3
+ local: field: snf4 : style:tnrstyle3
+ local: field: snf5 :style:tnrstyle3
+ local: field: snf6 : style:tnrstyle3
+
+ local : field : qtyf :style:tnrstyle3
+ local : field : qtyf2 :style:tnrstyle3
+
+ local: field : ratef :style:tnrstyle3
+ local: field : snfx : style:tnrstyle3
+ local : field : amtf :style:tnrstyle3
+ 
+ [style:tnrstyle3]
+ font:"Times New Roman"
+ height:10
+ bold:yes
+
+
+ [line: emailsalesinvoicechg4InvLineTitle2]
+ use : emailsalesinvoicechg4InvLine
+ delete : explode
+   local : field: default : type : string
+
+ local : field : snf: set as : " No"
+ local : field : snf2: set as : ""
+ local: field: fwf : set as : ""
+  Local: Field: snfx2: Set As:""
+ local: field: snf3 : set as : ""
+ local: field: snf4 : set as : ""
+ local: field: snf5 : set as : " Wt."
+ local: field: snf6 : set as : ""
+  local : field : numf1: set as :"Rate" ;; "GST %"
+ local : field : qtyf : set as : " Units"
+ local : field : qtyf2 : set as : "(In Kgs)"
+ local: field : ratef : set as : ""
+ local: field : snfx : set as : ""
+ local : field : amtf : set as :""
+ local: field: qtyf: type:string
+ local: field: qtyf2: type:string
+
+ local : field : default : align : centre
+ local: field : ratef : align : centre
+ local : field : fwf : align : left
+ local: field: ratef: type: String
+;; {17.Oct.22 09:51}  Local : field : default: Lines :2
+ Local: Field:numf1:style:tnrstyle3
+
+ Local: Field:default:style:tnrstyle3
+
+ local : field : snf: style:tnrstyle3
+ local : field : snf2:style:tnrstyle3
+ local : field : numf1: style:tnrstyle3
+ local: field: fwf : style:tnrstyle3
+
+ local: field: snf3 :style:tnrstyle3
+ local: field: snf4 : style:tnrstyle3
+ local: field: snf5 :style:tnrstyle3
+ local: field: snf6 : style:tnrstyle3
+
+ local : field : qtyf :style:tnrstyle3
+ local : field : qtyf2 :style:tnrstyle3
+
+ local: field : ratef :style:tnrstyle3
+ local: field : snfx : style:tnrstyle3
+ local : field : amtf :style:tnrstyle3
+
+ border:thin bottom
+   delete: space top:0.3
+   add: space bottom:0.3
+
+[part : emailsalesinvoicechg4BatchPart]
+line : emailsalesinvoicechg4BatchLine
+;; {20.Oct.22 14:53} repeat : salesinvoicechg4BatchLine : BatchAllocations
+
+[line : emailsalesinvoicechg4BatchLine]
+  use : emailsalesinvoicechg4BUDLine
+
+ local : field : snf: set as :"" ;;$$linenumber-2 ;; "SL No"
+ local : field : snf2: set as :"" ;;@cwitemHSNCode;; "HSN"
+;; {20.Oct.22 14:52}  local : field : fwf : set as :$$string:$cwsheetnew1+" x "+$$string:$cwsheetnew2+" = "+$$string:$cwsheetnew3+" "+"Sheet" ;; @@invitemname
+  local : field : fwf : set as :if $$isempty:@@cwbsheet then "" else ($$string:@@cwsheetnew1new+" x "+$$string:@@cwsheetnew2new+" = "+$$string:@@cwsheetnew3new+" "+"Sheet") ;; @@invitemname
+
+   Local: Field: snfx2: Set As:""
+ local: field: snf3 : set as :"" ;;$cwGSM:stockitem:#fwf ;; "GSM"
+ local: field: snf4 : set as :"" ;;$cwSize:stockitem:$stockitemname ;; "Size"
+ local: field: snf5 : set as :"" ;; "Unit Wt."
+ local: field: snf6 : set as :"" ;;$$FULLLIST:BATCHALLOCATIONS:$CWBundles ;; "Bundles"
+
+ local : field : qtyf : set as :"" ;; $billedqty
+ local : field : qtyf2 : set as : "" ;;$billedqty
+ local : field : ratef : set as :"" ;; $rate
+ local : field : snfx : set as :"" ;; $baseunits:stockitem:$stockitemname
+ local : field : amtf : set as :"" ;; $amount
+ local: field: snf6 : set as :"" ;;$CWBundles ;; "Bundles"
+  Local   : Field : fwf : Style     :style16
+   Local: Field: numf1: Set As:""
+
+[part : emailsalesinvoicechg4BUDPart]
+line: emailsalesinvoicechg4BUDLine
+repeat : emailsalesinvoicechg4budline : basicuserdescription
+
+[line : emailsalesinvoicechg4BudLine]
+ use  : emailsalesinvoicechg4INVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : $basicuserdescription
+ local : field : snf: set as :"" ;;$$linenumber-2 ;; "SL No"
+ local : field : snf2: set as :"" ;;@cwitemHSNCode;; "HSN"
+ Local: Field: snfx2: Set As:""
+ local: field: snf3 : set as :"" ;;$cwGSM:stockitem:#fwf ;; "GSM"
+ local: field: snf4 : set as :"" ;;$cwSize:stockitem:$stockitemname ;; "Size"
+ local: field: snf5 : set as :"" ;; "Unit Wt."
+ local: field: snf6 : set as :"" ;;$$FULLLIST:BATCHALLOCATIONS:$CWBundles ;; "Bundles"
+
+ local : field : qtyf : set as :"" ;; $billedqty
+ local : field : qtyf2 : set as : "" ;;$billedqty
+ local : field : ratef : set as :"" ;; $rate
+ local : field : snfx : set as :"" ;; $baseunits:stockitem:$stockitemname
+ local : field : amtf : set as :"" ;; $amount
+
+ Local: Field: numf1: Set As:""
+[line : emailsalesinvoicechg4InvLineTotal]
+ use  : emailsalesinvoicechg4INVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : ""
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : snfx : set as :""
+
+   Local: Field: numf1: Set As:""
+ local: field: snf3 : set as :"" ;;$cwGSM:stockitem:#fwf ;; "GSM"
+ local: field: snf4 : set as :"" ;;$cwSize:stockitem:$stockitemname ;; "Size"
+ local: field: snf5 : set as :"" ;; "Unit Wt."
+ local: field: snf6 : set as :"" ;;$$FULLLIST:BATCHALLOCATIONS:$CWBundles ;; "Bundles"
+
+local : field : amtf : set as : $$collamttotal:inventoryentries:$amount
+local : field : amtf : border :thin top
+space bottom : 0.05
+
+
+ [part : emailsalesinvoicechg4ACCPart]
+  line : emailsalesinvoicechg4ACCLine
+repeat : emailsalesinvoicechg4ACCLine : Ledger Entries
+Scroll : vertical
+Common border : yes
+
+ float : no
+
+
+
+  [part : emailsalesinvoicechg4BottomPart]
+   line : emailsalesinvoicechg4TotLine
+   Border: thin box
+   common border:yes
+
+  [line : emailsalesinvoicechg4TotLine]
+    use : emailsalesinvoicechg4INVLINE
+ delete : empty
+  local : field : ratef  : set as :""
+  local : field : fwf : set as : "Sub Total"
+  local : field : fwf : align : right
+;; {14.Oct.22 16:21}   local : field : amtf : format : "ShowBaseSymbol"
+  local : field : snf : set as :""
+  local : field : snf1 : set as :""
+  local : field : snf2 : set as :""
+  local : field : snfx : set as :""
+
+
+ local: field: snf3 : set as :"" ;;$cwGSM:stockitem:#fwf ;; "GSM"
+ local: field: snf4 : set as :"" ;;$cwSize:stockitem:$stockitemname ;; "Size"
+ local: field: snf5 : set as :"" ;; "Unit Wt."
+  local: field: snf6 : set as :$$CollnumTotal:inventoryentries:$cwBDL
+
+   Local: Field:default:style:style10email
+   Local: Field: qtyf: Set As:$$CollQtyTotal:inventoryentries:$billedqty
+   Local: Field: qtyf2: Set As:$$CollQtyTotal:inventoryentries:$billedqty
+   Local: Field: amtf: Set As:$$CollamtTotal:inventoryentries:$amount
+   local: field: qtyf: type: quantity:Secondary units
+
+   Local: field: qtyf: Format: "nosymbol,nocomma"
+   Local: field: qtyf2: Format: "nosymbol,nocomma"
+    local : field : amtf : format : "noShowBaseSymbol"
+    
+     local : field : snf: style:tnrstyle3
+ local : field : snf2:style:tnrstyle3
+ local : field : numf1: style:tnrstyle3
+ local: field: fwf : style:tnrstyle3
+
+ local: field: snf3 :style:tnrstyle3
+ local: field: snf4 : style:tnrstyle3
+ local: field: snf5 :style:tnrstyle3
+ local: field: snf6 : style:tnrstyle3
+
+ local : field : qtyf :style:tnrstyle3
+ local : field : qtyf2 :style:tnrstyle3
+
+ local: field : ratef :style:tnrstyle3
+ local: field : snfx : style:tnrstyle3
+ local : field : amtf :style:tnrstyle3
+
+    space top:0.3
+    height:1.3
+
+  [part:emailsalesinvoicechg4BottomPart2]
+  part:emailsalesinvoicechg4BottomPart2a,emailsalesinvoicechg4BottomPart2b
+   border:thin box
+  [part:emailsalesinvoicechg4BottomPart2a]
+  line:emailcwreline1x,emailcwreline1,emailcwreline,emailcnnoline1x,emailTransporterNameline1x
+  bottomline:amtinwordline
+  ;;common border:yes
+
+  [line:emailcwreline1x]
+  field:fwf
+  height:0.3
+  [line:emailcwreline1]
+  field:fwf
+  Local: Field:fwf: Set As:$narration ;;"Remarks:"
+ ;; Local: Field:snf: Border: thin bottom
+  Local: Field:default:style:style10email
+  Local: field: snf: Width:12
+   Local: Field: fwf:line:2
+   border:thin bottom
+
+  [line:emailcwreline]
+  field:sp,nf
+  Local: Field: fwf: Set As:$narration
+    Local: Field:default:style:style11email
+    Local: Field: fwf:line:0
+     Local: Field: fwf: Border: thin right
+
+  Local: Field:sp: Set As:if $$isempty:$BASICSHIPVESSELNO then "" else "Truck No"
+  Local: Field:nf: Set As:$BASICSHIPVESSELNO
+  Local: field: sp: Width:20
+
+  [line:emailcnnoline1x]
+  field:sp,nf,sp2,sdf
+ Local: Field:sp: Set As:if $$isempty:$BILLOFLADINGNO then "" else "C/N No"
+  Local: Field:sp2: Set As:if $$isempty:$BillofLadingDate then "" else "C/N Date"
+ Local: Field:sdf: Set As:$BillofLadingDate
+   Local: field: sp: Width:20
+;; {25.Jan.23 12:51}  Local: Field:sp: Set As: "C/N No"
+ Local: Field:nf: Set As:$BILLOFLADINGNO
+ Local: Field:default:style:style11email
+;; {25.Oct.22 16:56}  remove if:$$isempty:$BILLOFLADINGNO
+  Local: Field: fwf: Set As:""
+   Local: Field:default:style:style11email
+
+[line:emailcndtline1x]
+ use:emailcwreline
+ Local: Field:sp: Set As:if $$isempty:$BillofLadingDate then "" else "C/N Date"
+ Local: Field:nf: Set As:$BillofLadingDate
+ Local: Field:default:style:style11email
+    Local: Field: fwf: Set As:""
+
+ [line:emailTransporterNameline1x]
+ use:emailcwreline
+
+ Local: Field:sp: Set As:if $$issysname:$cwcwTransporterName then "" else "Transporter Name"
+
+Local: Field:nf: Set As:if $$issysname:$cwcwTransporterName then "" else $cwcwTransporterName
+
+
+
+
+    [part:emailsalesinvoicechg4BottomPart2aa]
+     line:emailtrucknoline1,emailcnnoline1,emailcndtline1,emailewaydtline1,emailewaydtline2  ;;ewaynoline,ewaydtline,ewaydtline1,ewaydtline2 ;;,ewaydtline3 ;;,cwblankline3
+
+
+
+
+   [line:emailamtinwordline]
+   field:snf,fwf
+   Local: Field: snf: Set As:"Amount in words : "
+  Local: Field: fwf: Set As:@@amtwordonlyno
+  border:thin top
+  Local: Field:default:style:style10email
+  Local: field: snf: Width:20
+  Local : field : fwf: Lines : 0
+
+space top:0.5
+
+  [part:emailsalesinvoicechg4BottomPart2b]
+
+    line : emailsalesinvoicechg4ACCLine,emailcwTaxableamtline,emailcwcgstline,emailcwsgstline,emailcwigstline,emailkvrountamtline,emailTCSONSALESline,emailkvrountamtline1
+    bottomline:emailtotalamountline
+repeat : emailsalesinvoicechg4ACCLine : Ledger Entries
+;; {13.Oct.22 15:54} Scroll : vertical
+Common border : yes
+ float : no
+  border:thin left
+
+;; {15.Jul.23 11:55}   width:51% page
+  width:50% page
+
+
+
+
+ [Line : emailsalesinvoicechg4ACCLine]
+ field:nf
+ right field:amtf
+empty : $ledgername = $partyledgername or $$issysname:$ledgername or $$isempty:$amount or @@cwkvgst or @@kvRoundOff or @@kvTCSONSALES
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"NoZero,Percentage"
+local : field : ratef  : set as : $basicrateofinvoicetax
+local : field : snf : set as : ""
+local : field : nf : set as : $ledgername
+local : field : qtyf : set as : ""
+Local: field: amtf: Width:15
+delete : explode
+ Local: Field:default:style:style11email
+ Local: Field: amtf: Border: thin left
+ space top:0.3
+;; {16.Dec.22 17:19}   Local: Field:default:style:style10email
+[line:emailcwTaxableamtline]
+ use:emailsalesinvoicechg4ACCLine
+
+ Local: Field: nf: Set As:"Taxable Amount"
+;; {29.Jun.23 15:36}  Local: Field: amtf: Set As:$amount-@@totaltaxamt
+ Local: Field: amtf: Set As:(@@totaltaxamt2-@@kvrountamt2)-@@kvkvTCSONSALESamt2  ;;@@cwVCHGSTVAlue2-@@kvrountamt2
+ Local: Field:default:style:style10email
+
+
+ [line:emailcwcgstline]
+ use:emailsalesinvoicechg4ACCLine
+
+ Local: Field: nf: Set As:$$FilterValue:$ledgername:LedgerEntries:1:cwDutyLedgercGST2
+ Local: Field: amtf: Set As:@@cwVCHCGSTVALUE2
+    remove if :$$ISEMPTY:@@cwVCHCGSTVALUE2
+     Local: Field:default:style:style11email
+     
+ [line:emailcwsgstline]
+ use:emailsalesinvoicechg4ACCLine
+
+ Local: Field: nf: Set As:$$FilterValue:$ledgername:LedgerEntries:1:cwDutyLedgerSGST2
+ Local: Field: amtf: Set As:@@cwVCHSGSTVALUE2
+  remove if :$$ISEMPTY:@@cwVCHSGSTVALUE2
+   Local: Field:default:style:style11email
+   
+ [line:emailkvrountamtline]
+ use:emailsalesinvoicechg4ACCLine
+    Local: Field: nf: Set As:$$FilterValue:$ledgername:LedgerEntries:1:kvRoundOff
+   Local: Field: amtf: Set As:@@kvrountamt
+   Local: Field:default:style:style11email
+   [line:emailkvrountamtline1]
+ field:nf
+ height:0.3
+
+ [line:emailcwigstline]
+ use:emailsalesinvoicechg4ACCLine
+
+ Local: Field: nf: Set As:$$FilterValue:$ledgername:LedgerEntries:1:cwDutyLedgerIGST2
+ Local: Field: amtf: Set As:@@cwVCHIGSTVALUE2
+  remove if :$$ISEMPTY:@@cwVCHIGSTVALUE2
+
+   Local: Field:default:style:style11email
+   
+   
+     [line:emailTCSONSALESline]
+ use:salesinvoicechg4ACCLine
+ Local: Field: nf: Set As:$$FilterValue:$ledgername:LedgerEntries:1:kvTCSONSALES
+ Local: Field: amtf: Set As:@@kvkvTCSONSALESamt2
+ Local: Field:default:style:style11
+  remove if :$$ISEMPTY:@@kvkvTCSONSALESamt2
+
+   
+ [line:emailtotalamountline]
+  use:emailsalesinvoicechg4ACCLine
+
+ Local: Field: nf: Set As:"Total Amount"
+ Local: Field: amtf: Set As:$amount
+
+ border:thin top
+
+ Local: field: amtf: Width:15
+ Local: Field:default:style:style10email
+
+ Local : field : default: Lines : 0
+ space top:0.5
+  local : field : amtf : format : "ShowBaseSymbol"
+
+ [part:emailsalesinvoicechg4BottomPart3]
+ line:emailirnline2
+ border:thin left right
+
+  [line:emailirnline2]
+
+  field:sp,fwf,sp2,nf,sp3,sdf
+  Local: Field: sp: Set As:"IRN"
+  Local: Field: fwf: Set As:@@GSTeInvIRN
+  Local: Field: sp2: Set As:"Ack. No."
+  Local: Field: nf: Set As:$IRNAckNo
+  Local: Field: sp3: Set As:"Date"
+  Local: Field: sdf: Set As:$$String:$IRNAckDate
+
+    Local: Field:sp:style:style10email
+    Local: Field:sp2:style:style10email
+    Local: Field:sp3:style:style10email
+    Local: Field:fwf:style:style11email
+    Local: Field:nf:style:style11email
+    Local: Field:sdf:style:style11email
+
+   Invisible:$$isempty:@@GSTeInvIRN
+    height:1.2
+    space top:1.2
+
+[part:emailsalesinvoicechg4BottomPart4]
+;; {17.Oct.22 12:09} part:salesinvoicechg4BottomPart4a,salesinvoicechg4BottomPart4b,salesinvoicechg4BottomPart4c
+part:emailsalesinvoicechg4BottomPart4a,emailsalesinvoicechg4BottomPart4c
+border:thin box
+
+[part:emailsalesinvoicechg4BottomPart4a]
+line:emailbankdetailsline,emailbankline,emailifscline,emailacnoline,emailbranchline
+border:thin right
+line:emaildeclineinv, emaildeclineinv2
+repeat:emaildeclineinv2:termcondition
+
+[line:emailbankdetailsline]
+field:nf
+Local: Field: nf1: Set As:##SABankInfo
+Local: Field: nf: Set As:if ##SABankInfo="No" then "" else "Bank Details :"
+border:thin bottom
+
+Local: Field:default:style:style10email
+
+ space top:0.2
+ height:1.2
+
+[line:emailbankline]
+field:sp,nf,sp2,nf2
+
+Local: Field: sp: Set As:if ##SABankInfo="No" then "" else (if $$isempty:$MailingName:Ledger:##SABankName then "" else "Bank Name")
+Local: Field: sp2: Set As:if ##SABankInfo="No" then "" else (if $$isempty:$MailingName:Ledger:##SAbank then "" else "Bank Name")
+
+Local: Field: nf: Set As:if ##SABankInfo="No" then "" else ($MailingName:Ledger:##SABankName)
+
+Local: Field: nf2: Set As:if ##SABankInfo="No" then "" else ($MailingName:Ledger:##SAbank)
+
+Local: Field:default:style:style10email
+
+Local: field: SP: Width:20
+Local: field: nf: Width:30 ;;35
+
+Local: field: SP2: Width:20
+Local: field: nf2: Width:30
+
+Local: Field: nf: Border: thin right
+
+space top:0.2
+
+[line:emailifscline]
+use:emailbankline
+Local: Field: sp: Set As:if ##SABankInfo="No" then "" else (if $$isempty:$MailingName:Ledger:##SABankName then "" else "IFSC Code")
+Local: Field: sp2: Set As:if ##SABankInfo="No" then "" else (if $$isempty:$MailingName:Ledger:##SAbank then "" else "IFSC Code")
+Local: Field: nf: Set As:if ##SABankInfo="No" then "" else ($IFSCode:Ledger:##SABankName)
+Local: Field: nf2: Set As:if ##SABankInfo="No" then "" else ($IFSCode:Ledger:##SAbank)
+Local: Field:default:style:style11email
+delete:space top:0.2
+
+[line:emailacnoline]
+use:emailbankline
+Local: Field: sp: Set As:if ##SABankInfo="No" then "" else (if $$isempty:$MailingName:Ledger:##SABankName then "" else "Account Number")
+Local: Field: sp2: Set As:if ##SABankInfo="No" then "" else (if $$isempty:$MailingName:Ledger:##SAbank then "" else "Account Number")
+Local: Field: nf: Set As:if ##SABankInfo="No" then "" else ($BankDetails:Ledger:##SABankName)
+Local: Field: nf2: Set As:if ##SABankInfo="No" then "" else ($BankDetails:Ledger:##SAbank)
+Local: Field:default:style:style11email
+delete:space top:0.2
+
+[line:emailbranchline]
+use:emailbankline
+Local: Field: sp: Set As:if ##SABankInfo="No" then "" else (if $$isempty:$MailingName:Ledger:##SABankName then "" else "Branch")
+Local: Field: sp2: Set As:if ##SABankInfo="No" then "" else (if $$isempty:$MailingName:Ledger:##SAbank then "" else "Branch")
+Local: Field: nf: Set As:if ##SABankInfo="No" then "" else ($BankBranchName:Ledger:##SABankName)
+Local: Field: nf2: Set As:if ##SABankInfo="No" then "" else ($BankBranchName:Ledger:##SAbank)
+ Local: Field:default:style:style11email
+delete:space top:0.2
+
+[part:emailsalesinvoicechg4BottomPart4b]
+
+line:emailbankdetailsline2,emailbankline2,emailifscline2,emailacnoline2,emailbranchline2
+border:thin right
+
+[line:emailbankdetailsline2]
+field:nf
+Local: Field: nf: Set As:"Bank Details :"
+border:thin bottom
+ Local: Field:default:style:style10email
+
+ space top:0.2
+
+
+[line:emailbankline2]
+field:sp,nf
+Local: Field: sp: Set As: "Bank Name"
+Local: Field: nf: Set As:$MailingName:Ledger:##SAbank
+ Local: Field:default:style:style11email
+  Local: field: SP: Width:15 ;;21
+  Local: field: nf: Width:22.3
+space top:0.2
+
+[line:emailifscline2]
+use:bankline2
+Local: Field: sp: Set As:"IFSC Code"
+Local: Field: nf: Set As:$IFSCode:Ledger:##SAbank
+
+[line:emailacnoline2]
+use:bankline2
+Local: Field: sp: Set As:"Account Number"
+Local: Field: nf: Set As:$BankDetails:Ledger:##SAbank
+
+[line:emailbranchline2]
+use:emailbankline2
+Local: Field: sp: Set As:"Branch"
+Local: Field: nf: Set As:$BankBranchName:Ledger:##SAbank
+
+[part:emailsalesinvoicechg4BottomPart4c]
+;; {20.Jan.23 15:34} part:salesinvoicechg4BottomPart4c1
+part:emailsalesinvoicechg4BottomPart4c2
+border:thin left
+ vertical:yes
+
+;; {17.Oct.22 12:48}  width:50% page
+
+[part:emailsalesinvoicechg4BottomPart4c2]
+
+
+line:emailqrcline
+
+space left:8 ;;17 ;;13
+
+Width		: @@cweInvoiceQRCWidth Inch
+Height		: @@eInvoiceQRCHeight Inch
+
+add:option:emailqrcline3:@@eInvoiceQRCValue <> ""
+
+[!part:emailqrcline3]
+;; {20.Jan.23 16:15} line:qrcline
+QRCode	: @@eInvoiceQRCValue : Yes
+
+
+[part:emailsalesinvoicechg4BottomPart4c1]
+
+line:emailTransporterNameline1,emailTransporterNameline2,emailtrucknoline1,emailcnnoline1,emailcndtline1,emailewaydtline1,emailewaydtline2  ;;ewaynoline,ewaydtline,ewaydtline1,ewaydtline2 ;;,ewaydtline3 ;;,cwblankline3
+
+
+
+[line:emailtrucknoline1]
+ use:emailinvnoline
+
+;; {07.Dec.22 11:52}  Local: Field:sp: Set As:if $$isempty:$BASICSHIPVESSELNO then "" else "Truck No"
+ Local: Field:sp: Set As:if $$isempty:$BASICSHIPVESSELNO then "" else "Truck No"
+ Local: Field:snf: Set As:$BASICSHIPVESSELNO
+;; {07.Dec.22 15:44}  Local: Field:snf: Set As:$cwtrsVehicle
+ Local: Field:default:style:style11email
+;; {25.Oct.22 16:57}  remove if:$$isempty:$BASICSHIPVESSELNO
+
+  [line:emailTransporterNameline1]
+  field:nf
+
+ Local: Field:nf: Set As:if $$isempty:$cwcwTransporterName then "" else "Transporter Name"
+
+
+ Local: Field:default:style:style10email
+ Local: field: snf: Width:20
+ Local : field : snf: Lines : 0
+;; {25.Oct.22 16:57}   remove if:$$isempty:$cwcwTransporterName
+
+ [line:emailTransporterNameline2]
+ field:nf
+
+ Local: Field:nf: Set As:if $$issysname:$cwcwTransporterName then "" else $cwcwTransporterName
+ Local: Field:default:style:style11email
+ Local: field: nf: Width:40
+
+ Local : field : nf: Lines : 0
+
+
+
+
+
+ [line:emailcnnoline1]
+ use:emailinvnoline
+ Local: Field:sp: Set As:if $$isempty:$BILLOFLADINGNO then "" else "C/N No"
+ Local: Field:snf: Set As:$BILLOFLADINGNO
+ Local: Field:default:style:style11email
+;; {25.Oct.22 16:56}  remove if:$$isempty:$BILLOFLADINGNO
+
+[line:emailcndtline1]
+ use:emailinvnoline
+ Local: Field:sp: Set As:if $$isempty:$BillofLadingDate then "" else "C/N Date"
+ Local: Field:snf: Set As:$BillofLadingDate
+ Local: Field:default:style:style11email
+
+
+[line:emailbuyerordline]
+field:sp,nf
+Local: Field: sp: Set As:"Buyer's Order No"
+Local: Field: nf: Set As:$$CollectionField:$BASICPURCHASEORDERNO:First:INVOICEORDERLIST
+Local: Field:default:style:style11email
+Local: field: SP: Width:22
+Local: field: nf: Width:15
+
+
+
+[line:emailbuydtline]
+use:emailbuyerordline
+Local: Field: sp: Set As:"Buyer's Order Date"
+Local: Field: nf: Set As:$$CollectionField:$BASICORDERDATE:First:INVOICEORDERLIST
+
+
+
+[line:emailewaydtline1]
+use:emailbuyerordline
+Local: Field: sp: Set As:""
+Local: Field: nf: Set As:""
+
+height:1.2
+
+[line:emailewaydtline2]
+use:emailbuyerordline
+Local: Field: sp: Set As:""
+Local: Field: nf: Set As:""
+
+border:thin top
+height:1
+
+[line:emailewaydtline3]
+use:emailbuyerordline
+Local: Field: sp: Set As:""
+Local: Field: nf: Set As:""
+;; {29.Oct.22 10:53} border:thin top bottom
+
+
+[part:emailsalesinvoicechg4BottomPart5]
+part:emailsalesinvoicechg4BottomPart5a,emailsalesinvoicechg4BottomPart5aa,emailsalesinvoicechg4BottomPart5b
+border:thin box
+
+[part:emailsalesinvoicechg4BottomPart5a]
+
+line:emaildeclineinv ,emaildeclineinv2
+repeat:emaildeclineinv2:termcondition
+border:thin box
+;; {14.Oct.22 17:06} width:95% page
+
+
+
+[line:emaildeclineinv]
+field:fwf
+Local: Field: fwf: Set As:"General Terms & Condition:" ;;"Declaration"
+border:thin top
+ Local: Field:default:style:style10emaila
+
+ space top:0.1
+ height:1.2
+
+[line:emaildeclineinv2]
+field:snfx,fwf
+Local: Field: snfx: Set As:$billsl
+Local: Field: fwf: Set As:$billterms
+ Local: Field:default:style:style11email
+  Local: field: snfx: Width:2
+ space top:0.1
+
+
+[part:emailsalesinvoicechg4BottomPart5aa]
+line:emailcwkvline
+;; {14.Oct.22 17:10}  border:thin box
+
+[line:emailcwkvline]
+field:snfx
+
+[part:emailsalesinvoicechg4BottomPart5b]
+part:emailsalesinvoicechg4BottomPart5b1
+part:emailsalesinvoicechg4BottomPart5b2
+ vertical:yes
+
+[part:emailsalesinvoicechg4BottomPart5b1]
+line:emailcwqrcline
+
+
+[line:emailcwqrcline]
+field:nf
+Local: Field: snf: Set As:""
+
+[part:emailsalesinvoicechg4BottomPart5b2]
+
+line:emailqrcline
+QRCode	: @@eInvoiceQRCValue : Yes
+;; {24.Jan.23 10:10} width:55% page
+
+
+
+[line:emailqrcline]
+field:nf
+;; {23.Jan.23 11:27} Local: Field: snf: Set As:"cc"
+Local: Field: snf: Border: thin box ;;left right
+Local: field: nf: Width:30
+
+[part:emailsalesinvoicechg4BottomPart6]
+
+;; {30.Sep.23 14:54} part:esignpart2
+part:esignpart,esignpart2
+bottom part:esignpart3
+
+vertical:yes
+;;border:thin left right
+
+;; line:emailforline,cwblankline,cwblankline2,cwblankline3,emailpreparedbyline,emailpreparedbyline2
+border:thin box
+
+
+
+[part:esignpart]
+Line :forline,cwblankline
+
+[part:esignpart2]
+
+
+part:emsignpart2a,emsignpart2b
+
+[part:emsignpart2a]
+line:cwemSignaturelinenewe
+
+[line:cwemSignaturelinenewe]
+field:fwf
+
+[part:emsignpart2b]
+
+line:cwSignatureline1
+Graph Type	:$cwSignaturepath:Company:##SVCurrentCompany
+;; {30.Sep.23 14:56} space top:@@cwtopMargin
+
+;; {30.Sep.23 16:18} Height		: If ((NOT $$InPrintMode) AND ($$InExportAction OR $$InMailAction)) Then 12% Else 8% Page
+Height		: If ((NOT $$InPrintMode) AND ($$InExportAction OR $$InMailAction)) Then 8% Else 6% Page
+Width		: 28% Page
+;; {30.Sep.23 15:49} Width		: 5% Page
+
+space left:@@cwLeftMarg
+space right:@@cwRightMargin
+
+;; {30.Sep.23 14:56} add:option:elogopart4:@@cwSignaturepathlogo <> ""
+
+
+ [line:cwSignatureline1]
+ field:snf
+ 
+ 
+ [System: Formula]
+ cwSignaturepathlogo:$cwSignaturepath:Company:##SVCurrentCompany
+
+[part:esignpart3]
+;;Line: EXPSMPSignature1,preparedbyline,preparedbyline2
+Line:preparedbyline,preparedbyline2
+
+
+
+[line:emailforline]
+field:fwf
+Local: Field: fwf: Set As:@@FORCMPMAIL2
+Local : field : fwf: Lines : 0
+Local: field: fwf: Align: Right ;;centre
+ Local: Field:default:style:style10email
+
+
+
+
+[line:emailpreparedbyline]
+field:snf,nf,snf2,nf2,snf3,fwf
+
+Local: Field: snf: Set As:@@CWusernamepre
+Local: Field: snf2: Set As:@@cwVerifiedby3
+Local: Field: fwf: Set As:""
+
+Local: Field: nf: Set As:""
+Local: Field: nf2: Set As:""
+Local: field: fwf: Align: Right ;;centre
+ Local: Field:default:style:style11email
+ Local: field: snf2: Align:centre
+
+
+
+ [line:emailpreparedbyline2]
+field:snf,nf,snf2,nf2,snf3,fwf
+
+Local: Field: snf: Set As:"Prepared by"
+Local: Field: snf2: Set As:"Verified by"
+Local: Field: fwf: Set As:"Authorised Signatory"
+
+Local: Field: nf: Set As:""
+Local: Field: nf2: Set As:""
+Local: field: fwf: Align: Right ;;centre
+ Local: Field:default:style:style11email
+ Local: field: snf2: Align:centre
+
+;;======================
+
+
+
+

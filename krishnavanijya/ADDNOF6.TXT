@@ -1,0 +1,320 @@
+; Created By: Khokan on 2023-01-03 15:24, ID: 
+
+ [line:setuomdetailsline]
+  field:sp,cwlogical
+
+ Local: Field: sp: Set As: "Set UOM Details :"
+
+ Local: Field:cwlogical: storage:cwSetUOMDetails
+
+ Local: field: sp: Width:25
+ Local: Field : cwlogical : SubForm : cwSetUOMDetailsrep: $$value
+ 
+ 
+ [report:cwSetUOMDetailsrep]
+ form:cwSetUOMDetailsrep
+   title:""
+   
+ [form:cwSetUOMDetailsrep]
+ part:cwSetUOMDetailsrep,cwSetUOMDetailsrep1,cwSetUOMDetailsrep2,cwcwIsManufacturingf6part
+ 
+ [part:cwSetUOMDetailsrep]
+ line:reelline,reeluom1line,reeluom2line
+  BORDER:THIN BOX
+  
+ [line:reelline]
+ field:sp
+ Local: Field: sp: Set As:"Reel Yes"
+ Local: Field: cwlogical: storage:cwreelyes
+ Local: Field: default: Style: Normal Bold
+
+ [line:reeluom1line]
+ field:sp,snf
+ Local: Field: sp: Set As:"UOM-1"
+ Local: Field: SNF: storage:cwuom1item
+ 
+ Local: Field: SNF:Set always  : Yes
+ Local: Field: SNF:Table       : Unit, Not Applicable
+ Local: Field: SNF:Show Table  : Always
+ 
+ [line:reeluom2line]
+ field:sp,snf,SNFX,SNF2
+ Local: Field: sp: Set As:"UOM-2"
+
+ Local: Field: SNFX: info: "="
+ Local: Field: SNF: storage:cwuom2item
+ Local: Field: SNF2: storage:cwuomaltitem
+ 
+ Local: Field: SNF:Set always  : Yes
+ Local: Field: SNF:Table       : Unit, Not Applicable
+ Local: Field: SNF:Show Table  : Always
+ 
+ Local: Field: SNF2:Set always  : Yes
+ Local: Field: SNF2:Table       : Unit, Not Applicable
+ Local: Field: SNF2:Show Table  : Always
+ 
+ 
+
+ 
+
+ [part:cwSetUOMDetailsrep1]
+ LINE:CWBLANKLINE
+ 
+ [part:cwSetUOMDetailsrep2]
+ line:NOreelline,NOreeluom1line,NOreeluom2line,reeluom3line,reeluom4line
+
+ BORDER:THIN BOX
+ 
+ [line:NOreelline]
+ field:sp
+ Local: Field: sp: Set As:"Reel No"
+ Local: Field: cwlogical: storage:cwreelyes
+ Local: Field: default: Style: Normal Bold
+
+ [line:NOreeluom1line]
+ field:sp,snf
+ Local: Field: sp: Set As:"UOM-1"
+ Local: Field: SNF: storage:cwuom1ReelNO
+
+
+ Local: Field: SNF:Set always  : Yes
+ Local: Field: SNF:Table       : Unit, Not Applicable
+ Local: Field: SNF:Show Table  : Always
+
+ [line:NOreeluom2line]
+ field:sp,snf,SNFX,SNF2
+ Local: Field: sp: Set As:"UOM-2"
+
+ Local: Field: SNFX: info: "="
+ 
+ Local: Field: SNF: storage:cwuom2ReelNO
+ Local: Field: SNF2: storage:cwuomaltReelNO
+
+ Local: Field: SNF:Set always  : Yes
+ Local: Field: SNF:Table       : Unit, Not Applicable
+ Local: Field: SNF:Show Table  : Always
+
+ Local: Field: SNF2:Set always  : Yes
+ Local: Field: SNF2:Table       : Unit, Not Applicable
+ Local: Field: SNF2:Show Table  : Always
+ 
+ [line:reeluom3line]
+ field:sp,snf,SNFX,SNF2
+  Local: Field: SNFX: info: "="
+ Local: Field: sp: Set As:"UOM-3"
+ Local: Field: SNF: storage:cwuom3ReelNO
+ Local: Field: SNF2: storage:cwuom3altReelNO
+
+ Local: Field: SNF:Set always  : Yes
+ Local: Field: SNF:Table       : Unit, Not Applicable
+ Local: Field: SNF:Show Table  : Always
+
+ Local: Field: SNF2:Set always  : Yes
+ Local: Field: SNF2:Table       : Unit, Not Applicable
+ Local: Field: SNF2:Show Table  : Always
+ 
+ 
+ [line:reeluom4line]
+ field:sp,snf,SNFX,SNF2
+
+ Local: Field: SNFX: info: "="
+ Local: Field: sp: Set As:"UOM-4"
+
+ Local: Field: SNF: storage:cwuom4ReelNO
+ Local: Field: SNF2: storage:cwuom4altReelNO
+
+ Local: Field: SNF:Set always  : Yes
+ Local: Field: SNF:Table       : Unit, Not Applicable
+ Local: Field: SNF:Show Table  : Always
+
+ Local: Field: SNF2:Set always  : Yes
+ Local: Field: SNF2:Table       : Unit, Not Applicable
+ Local: Field: SNF2:Show Table  : Always
+ 
+ [System: Formula]
+ cwuom1item :$cwuom1item:COMPANY:##SVCURRENTCOMPANY
+ cwuom2item :$cwuom2item:COMPANY:##SVCURRENTCOMPANY
+
+ cwuomaltitem :$cwuomaltitem:COMPANY:##SVCURRENTCOMPANY
+ 
+ cwuom1ReelNO :$cwuom1ReelNO:COMPANY:##SVCURRENTCOMPANY
+ 
+ cwuom2ReelNO   :$cwuom2ReelNO:COMPANY:##SVCURRENTCOMPANY
+ cwuomaltReelNO :$cwuomaltReelNO:COMPANY:##SVCURRENTCOMPANY
+ 
+ cwuom3ReelNO    :$cwuom3ReelNO:COMPANY:##SVCURRENTCOMPANY
+ cwuom3altReelNO :$cwuom3altReelNO:COMPANY:##SVCURRENTCOMPANY
+ 
+ cwuom4ReelNO    :$cwuom4ReelNO:COMPANY:##SVCURRENTCOMPANY
+ cwuom4altReelNO :$cwuom4altReelNO:COMPANY:##SVCURRENTCOMPANY
+ 
+ 
+ [System: Formula]
+ cwuom1itemmfg :$cwuom1itemmfg:COMPANY:##SVCURRENTCOMPANY
+ cwuom2itemmfg :$cwuom2itemmfg:COMPANY:##SVCURRENTCOMPANY
+
+ cwuomaltitemmfg :$cwuomaltitemmfg:COMPANY:##SVCURRENTCOMPANY
+
+ cwuom1ReelNOmfg :$cwuom1ReelNOmfg:COMPANY:##SVCURRENTCOMPANY
+ cwuom3itemmfg :$cwuom3itemmfg:COMPANY:##SVCURRENTCOMPANY
+ cwuomaltitemmfg3 :$cwuomaltitemmfg3:COMPANY:##SVCURRENTCOMPANY
+
+ cwuom2ReelNOmfg   :$cwuom2ReelNOmfg:COMPANY:##SVCURRENTCOMPANY
+ cwuomaltReelNOmfg :$cwuomaltReelNOmfg:COMPANY:##SVCURRENTCOMPANY
+
+ cwuom3ReelNOmfg    :$cwuom3ReelNOmfg:COMPANY:##SVCURRENTCOMPANY
+ cwuom3altReelNOmfg :$cwuom3altReelNOmfg:COMPANY:##SVCURRENTCOMPANY
+
+ cwuom4ReelNOmfg    :$cwuom4ReelNOmfg:COMPANY:##SVCURRENTCOMPANY
+ cwuom4altReelNOmfg :$cwuom4altReelNOmfg:COMPANY:##SVCURRENTCOMPANY
+ 
+ 
+ 
+ 
+;;==========================================================================================
+
+ [part:cwcwIsManufacturingf6part]
+ line:cwcwIsManufacturingf6line
+ 
+ [line:cwcwIsManufacturingf6line]
+ field:sp,cwlogical
+ Local: Field: sp: Set As:"Is Manufacturing"
+ Local: Field:cwlogical : storage:cwIsManufacturingf6
+ Local: field: sp: Width:15
+ Local: Field : cwlogical : SubForm : cwIsManufacturingf6rep: $$value
+ 
+ [report:cwIsManufacturingf6rep]
+ form:cwIsManufacturingf6rep
+ title:""
+ [form:cwIsManufacturingf6rep]
+ part:cwIsManufacturingf6rep
+ 
+ [part:cwIsManufacturingf6rep]
+
+ line:reellinemfg,reeluom1linemfg,reeluom2linemfg,reeluom3linemfgx,CWBLANKLINE,NOreellinemfg,NOreeluom1linemfg,NOreeluom2linemfg,reeluom3linemfg,reeluom4linemfg
+ 
+[line:reellinemfg]
+ field:sp
+ Local: Field: sp: Set As:"Reel Yes"
+ Local: Field: cwlogical: storage:cwreelyesmfg
+ Local: Field: default: Style: Normal Bold
+
+ [line:reeluom1linemfg]
+ field:sp,snf
+ Local: Field: sp: Set As:"UOM-1"
+ Local: Field: SNF: storage:cwuom1itemmfg
+
+ Local: Field: SNF:Set always  : Yes
+ Local: Field: SNF:Table       : Unit, Not Applicable
+ Local: Field: SNF:Show Table  : Always
+
+ [line:reeluom2linemfg]
+ field:sp,snf,SNFX,SNF2
+ Local: Field: sp: Set As:"UOM-2"
+
+ Local: Field: SNFX: info: "="
+ Local: Field: SNF: storage:cwuom2itemmfg
+ Local: Field: SNF2: storage:cwuomaltitemmfg
+
+ Local: Field: SNF:Set always  : Yes
+ Local: Field: SNF:Table       : Unit, Not Applicable
+ Local: Field: SNF:Show Table  : Always
+
+ Local: Field: SNF2:Set always  : Yes
+ Local: Field: SNF2:Table       : Unit, Not Applicable
+ Local: Field: SNF2:Show Table  : Always
+ 
+ 
+ 
+  [line:reeluom3linemfgx]
+ field:sp,snf,SNFX,SNF2
+ Local: Field: sp: Set As:"UOM-3"
+
+ Local: Field: SNFX: info: "="
+ Local: Field: SNF: storage:cwuom3itemmfg
+ Local: Field: SNF2: storage:cwuomaltitemmfg3
+
+ Local: Field: SNF:Set always  : Yes
+ Local: Field: SNF:Table       : Unit, Not Applicable
+ Local: Field: SNF:Show Table  : Always
+
+ Local: Field: SNF2:Set always  : Yes
+ Local: Field: SNF2:Table       : Unit, Not Applicable
+ Local: Field: SNF2:Show Table  : Always
+
+
+ [part:cwSetUOMDetailsrep1mfg]
+ LINE:CWBLANKLINE
+
+ [part:cwSetUOMDetailsrep2mfg]
+ line:NOreellinemfg,NOreeluom1linemfg,NOreeluom2linemfg   ;;,reeluom3linemfg,reeluom4linemfg
+
+ BORDER:THIN BOX
+
+ [line:NOreellinemfg]
+ field:sp
+ Local: Field: sp: Set As:"Reel No"
+ Local: Field: cwlogical: storage:cwreelyesmfg
+ Local: Field: default: Style: Normal Bold
+
+ [line:NOreeluom1linemfg]
+ field:sp,snf
+ Local: Field: sp: Set As:"UOM-1"
+ Local: Field: SNF: storage:cwuom1ReelNOmfg
+
+
+ Local: Field: SNF:Set always  : Yes
+ Local: Field: SNF:Table       : Unit, Not Applicable
+ Local: Field: SNF:Show Table  : Always
+
+ [line:NOreeluom2linemfg]
+ field:sp,snf,SNFX,SNF2
+ Local: Field: sp: Set As:"UOM-2"
+
+ Local: Field: SNFX: info: "="
+
+ Local: Field: SNF: storage:cwuom2ReelNOmfg
+ Local: Field: SNF2: storage:cwuomaltReelNOmfg
+
+ Local: Field: SNF:Set always  : Yes
+ Local: Field: SNF:Table       : Unit, Not Applicable
+ Local: Field: SNF:Show Table  : Always
+
+ Local: Field: SNF2:Set always  : Yes
+ Local: Field: SNF2:Table       : Unit, Not Applicable
+ Local: Field: SNF2:Show Table  : Always
+
+ [line:reeluom3linemfg]
+ field:sp,snf,SNFX,SNF2
+  Local: Field: SNFX: info: "="
+ Local: Field: sp: Set As:"UOM-3"
+ Local: Field: SNF: storage:cwuom3ReelNOmfg
+ Local: Field: SNF2: storage:cwuom3altReelNOmfg
+
+ Local: Field: SNF:Set always  : Yes
+ Local: Field: SNF:Table       : Unit, Not Applicable
+ Local: Field: SNF:Show Table  : Always
+
+ Local: Field: SNF2:Set always  : Yes
+ Local: Field: SNF2:Table       : Unit, Not Applicable
+ Local: Field: SNF2:Show Table  : Always
+ 
+ 
+ 
+ [line:reeluom4linemfg]
+ field:sp,snf,SNFX,SNF2
+ Local: Field: SNFX: info: "="
+ Local: Field: sp: Set As:"UOM-4"
+ Local: Field: SNF: storage:cwuom4ReelNOmfg
+ Local: Field: SNF2: storage:cwuom4altReelNOmfg
+
+ Local: Field: SNF:Set always  : Yes
+ Local: Field: SNF:Table       : Unit, Not Applicable
+ Local: Field: SNF:Show Table  : Always
+
+ Local: Field: SNF2:Set always  : Yes
+ Local: Field: SNF2:Table       : Unit, Not Applicable
+ Local: Field: SNF2:Show Table  : Always
+
+
+

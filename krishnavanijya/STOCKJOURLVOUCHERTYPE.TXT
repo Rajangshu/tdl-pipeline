@@ -1,0 +1,175 @@
+; Created By: Khokan on 2022-12-16 17:33, ID: 
+
+
+[System: Formula]
+cwkvstockjourlVoucher:$$IsStockJrnl:$parent
+
+  [#Part:  VTYP Behaviour]
+ add:option:AdvancestatuschqVTYPBehaviouroptSJ:@@cwkvstockjourlVoucher and @@KrishnavanijyaEnabled
+
+ [!part:AdvancestatuschqVTYPBehaviouroptSJ]
+
+
+ADD:line:cwinvprintingline2newKhamSJ
+
+[line:cwinvprintingline2newKhamSJ]
+ field:long prompt,cwlogical
+
+
+ Local: Field: long prompt: info:"Printing Configuration?"
+
+ Local: field: long prompt : Width:34
+ Local: Field : cwlogical : SubForm :PrintingConfrep2KhamSJ: $$value
+
+;;==============================================================================
+
+
+ [report:PrintingConfrep2KhamSJ]
+ form:PrintingConfform2KhamSJ
+
+ [form:PrintingConfform2KhamSJ]
+ part:PrintingConfpart2KhamSJ
+ width:25% page
+ height:50% page
+
+ [part:PrintingConfpart2KhamSJ]
+ line:cwinvprintingline2xKhamSJ, heightnewlineKhamSJ,widthnewlineKhamSJ,topnewlineKhamSJ,titleline2SJ   ;; ;,LeftnewlineKham,RightnewlineKham  ;;,topnewline2,spacebottomnew,SapceNetAmountPart,SapceGrossAmountPart,spacenettamtline2newtop,spacenettamtline2new  ;;,SapceNetAmountPart,SapceGrossAmountPart,spacenettamtline2newtop,spacenettamtline2new,spacegrossamtline2new
+
+
+  [line:titleline2SJ]
+ field:sp,nf
+ Local: Field: sp: Set As:"Title:"
+ Local: Field: nf: storage:cwtitle2
+
+ [line:cwinvprintingline2xKhamSJ]
+ field:fwfc
+
+ Local: Field: fwfc: info:"Printing Configuration"
+ Local: Field: fwfc: Border: thin bottom
+ Local: field: fwfc: Width:20
+ Local: Field: fwfc: Style: Normal Bold
+
+[line:heightnewlineKhamSJ]
+field:sp,spaceHeightnewKhamSJ
+Local: Field: sp: Set As:"Sapce Height (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceHeightnewKhamSJ]
+Use : Number Field
+Modifies:spaceHeightnewKhamSJ
+set as:##spaceHeightnewKhamSJ
+storage:cwSapceHeightSJ
+
+
+[Variable: spaceHeightnewKhamSJ]
+Persistent  : Yes
+Type        : Number
+
+;;==============================================================================
+
+[line:widthnewlineKhamSJ]
+field:sp,spacewidthnewKhamSJ
+Local: Field: sp: Set As:"Sapce Width (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+
+[Field:spacewidthnewKhamSJ]
+Use : Number Field
+Modifies:spacewidthnewKhamSJ
+set as:##spacewidthnewKhamSJ
+storage:cwSapceWidthSJ
+
+[Variable : spacewidthnewKhamSJ]
+Persistent: Yes
+Type      : Number
+
+[line:widthnewlineKhamhSJ]
+field:sp,spacewidthnewKhamhSJ
+Local: Field: sp: Set As:"Without Header Top Space"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+
+[Field:spacewidthnewKhamhSJ]
+Use : Number Field
+Modifies:cwSapceTopSpaceSJ
+set as:##cwSapceTopSpaceSJ
+storage:cwSapceTopSpaceSJ
+
+[Variable : cwSapceTopSpaceSJ]
+Persistent: Yes
+Type      : Number
+
+;;==============================================================================
+
+[line:LeftnewlineKhamSJ]
+field:sp,spaceLeftnewKhamSJ
+Local: Field: sp: Set As:"Sapce Left (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceLeftnewKhamSJ]
+Use : Number Field
+Modifies:spaceLeftnewKhamSJ
+set as:##spaceLeftnewKhamSJ
+ storage:cwSapceLeftSJ
+
+[Variable : spaceLeftnewKhamSJ]
+Persistent: Yes
+Type      : Number
+
+;;==============================================================================
+
+[line:RightnewlineKhamSJ]
+field:sp,spaceRightnewKhamSJ
+Local: Field: sp: Set As:"Sapce Right (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spaceRightnewKhamSJ]
+Use : Number Field
+Modifies:spaceRightnewKhamSJ
+set as:##spaceRightnewKhamSJ
+
+
+[Variable: spaceRightnewKhamSJ]
+Persistent  : Yes
+Type        : Number
+
+;;===============================================================================
+
+[line:topnewlineKhamSJ]
+field:sp,spacetopnewKhamSJ
+Local: Field: sp: Set As:"Sapce Top (Inches)"
+Local: field: sp: Width:24
+SPACE TOP:0.5
+
+[Field:spacetopnewKhamSJ]
+Use : Number Field
+Modifies:spacetopnewKhamSJ
+set as:##spacetopnewKhamSJ
+
+  storage:cwSapceTopSJ
+  
+[Variable : spacetopnewKhamSJ]
+Persistent: Yes
+Type      : Number
+
+
+
+;;=============================================================================
+
+
+[System: Variables]
+
+spaceHeightnewKhamSJ:10
+spacewidthnewKhamSJ:8.10
+spaceLeftnewKhamSJ:0.50
+spaceRightnewKhamSJ:0.50
+
+spacetopnewKhamSJ:0.50
+cwSapceTopSpaceSJ:0.50
+
+

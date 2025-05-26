@@ -1,0 +1,131 @@
+; Created By: Khokan on 2023-03-30 16:19, ID: 
+
+[#Line: MSTKI Parent Titles]
+; add:option: cwMSTKIParentTitlesopt:@@KrishnavanijyaEnabled
+
+ [!line:cwMSTKIParentTitlesopt]
+  add:field:At Beginning:numf,numf2,numf3,numf4,snf
+
+
+ Local: Field: numf: info:"";; "Thikness"
+ Local: Field: numf1: info:"a";; "Thikness"
+ Local: Field: numf2: info:"";; "Thikness"
+ Local: Field: numf3: info:"";; "Thikness"
+ Local: Field: numf4: info:"";; "Thikness"
+ Local: Field: snf: info:"";; "Thikness"
+
+ Local: field:numf: Width:8
+ Local: field:numf1: Width:8
+ Local: field:numf2: Width:8
+ Local: field:numf3: Width:8
+ Local: field:numf4: Width:8
+ Local: field:snf8: Width:8
+
+ [#Line: MSTKI BalanceTitles]
+  add:option: cwMSTBalanceTitlesTitlesopt:@@KrishnavanijyaEnabled
+
+ [!line:cwMSTBalanceTitlesTitlesopt]
+ add:right field:At Beginning:numf,numf2,numf3,numf4,snf
+
+
+ Local: Field: numf: info:"PKT"
+ Local: Field: numf2:info:"BDL"
+
+ Local: Field: numf3: info:"KGS"
+ Local: Field: numf4:info:"SHEETS"
+ 
+  Local: Field: snf: info: "Is Trading"
+ Local: field: snf: Width:8
+ 
+ Local: field:numf: Width:8
+ Local: field:numf1: Width:8
+ Local: field:numf2: Width:8
+ Local: field:numf3: Width:8
+ Local: field:numf4: Width:8
+
+
+
+ [#Line: MSTKI BodyA]
+  add:option: MSTKIBodyAopt:@@KrishnavanijyaEnabled
+
+ [!line:MSTKIBodyAopt]
+  add:right field:At Beginning:numf,numf2,numf3,numf4,cwlogical
+
+ Local: Field: numf: info:"";; "Thikness"
+ Local: Field: numf1: info:"";; "Thikness"
+ Local: Field: numf2: info:"";; "Thikness"
+ Local: Field: numf3: info:"";; "Thikness"
+ Local: Field: numf4: info:"";; "Thikness"
+ Local: Field: cwlogical: info:"";; "Thikness"
+
+ Local: field:numf: Width:8
+ Local: field:numf1: Width:8
+ Local: field:numf2: Width:8
+ Local: field:numf3: Width:8
+ Local: field:numf4: Width:8
+ Local: field:cwlogical: Width:8
+
+
+ [#line:MSTKI BodyB]
+ add:option: MSTKIBodybopt:@@KrishnavanijyaEnabled
+
+[!line:MSTKIBodybopt]
+add:right field:At Beginning:numf,numf2,numf3,numf4,cwlogical  ;;,numf15op
+
+ Local: Field: numf: storage :cwPKT
+ Local: Field: numf2: storage :cwBDL
+
+ Local: Field: numf3: storage :cwKGS
+ Local: Field: numf4:storage :cwSHEETS
+ Local: Field: cwlogical:storage :cwIsTrading1
+ Local: Field: cwlogical: setas: ##logi1
+ Local: field:numf: Width:8
+ Local: field:numf1: Width:8
+ Local: field:numf2: Width:8
+ Local: field:numf3: Width:8
+ Local: field:numf4: Width:8
+ Local: field:cwlogical: Width:8
+ 
+ [#Button: Blank STKI Opening]
+  add:option: cwBlankSTKIOpeningopt:@@KrishnavanijyaEnabled
+
+[!Button:cwBlankSTKIOpeningopt]
+
+	Use			: Right Button Template
+    Key         : Alt+B
+    Action      : Multi Field Set : STKI OpBal, STKIOpValue,numf,numf2,numf3,numf4 : 0
+    Title       : $$LocaleString:"Zero Opening Balance"
+    Inactive    : NOT $$InAlterMode
+	Scope		: All
+
+ [#line:MSTKI BodyC]
+ add:option: MSTKIcodyAopt:@@KrishnavanijyaEnabled
+
+ [!line:MSTKIcodyAopt]
+ add:right field:At Beginning:numf,numf2,numf3,numf4,cwlogical
+
+ Local: Field: numf: info:""
+ Local: Field: numf2: info:""
+ Local: Field: numf3: info:""
+ Local: Field: numf4: info:""
+ Local: Field: cwlogical: info:""
+ 
+  Local: field:numf: Width:8
+ Local: field:numf1: Width:8
+ Local: field:numf2: Width:8
+ Local: field:numf3: Width:8
+ Local: field:numf4: Width:8
+ Local: field:cwlogical: Width:8
+ 
+ 
+ [#Form: Multi Stock Item]
+  add:option:cwMultiStockItemsopt:@@KrishnavanijyaEnabled
+ [!Form:cwMultiStockItemsopt]
+ add:Buttons:ECommbotton
+
+ [button:ECommbotton]
+ key:ctrl+F8
+ title:"Is Trading"
+  Action :SET:logi1:Not ##logi1
+ 
+

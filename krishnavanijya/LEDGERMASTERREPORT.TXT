@@ -1,0 +1,235 @@
+; Created By: Khokan on 2022-11-14 13:15, ID: 
+
+     [#menu: Gateway of Tally]
+;; {15.Nov.22 11:56}         add: Option: ledgermasterreportLock ;; : @@ledgermasterreportDemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@ledgermasterreportReport: Display: Repledgermasterreport
+
+
+
+     [!menu: ledgermasterreportLock]
+        add: Item: before: @@locQuit: @@ledgermasterreportReport: Display: Repledgermaster
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   ledgermasterreportReport: "Ledger master report"
+;; ledgermasterreportDemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Repledgermaster]
+        use: Dsp Template
+      Title: @@ledgermasterreportReport
+   Printset: Report Title: @@ledgermasterreportReport
+       Form: Frmledgermasterreport
+     Export: Yes
+;; {14.Nov.22 14:50}      set  : svfromdate : ##svcurrentdate
+;; {14.Nov.22 14:50}      set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    
+    variable:str1,str2
+
+   set:at beginning:str2:""
+   set:at beginning:str3:""
+   set:at beginning:str1:""
+     
+      [Form: Frmledgermasterreport]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0ledgermasterreport,Prtledgermasterreport
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: ledgermasterreportbotbrk,ledgermasterreportbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+    add: button : Repledgermaster
+
+      JSONTag: "data"
+
+      [part: ledgermasterreportbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: ledgermasterreportbotopbrk]
+        use: dspacctitles
+  add: part: ledgermasterreportTitlePart
+
+      [part: ledgermasterreportTitlePart]
+       line: LnledgermasterreportTitle
+       
+      [line: LnledgermasterreportCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0ledgermasterreport]
+      line : LnledgermasterreportCurrPeriod
+      
+      [Part: Prtledgermasterreport]
+       Line: LnledgermasterreportTitle,Lnledgermasterreport
+bottom Line: LnledgermasterreportTotals
+     repeat: Lnledgermasterreport: Colledgermasterreport
+     scroll:BOTH ;; Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: Colledgermasterreport]
+    type:ledger
+    child of:$$GroupSundryCreditors
+    
+    filter:ColledgermasterreportFilter
+    
+    [system: Formula]
+ColledgermasterreportFilter:if $$issysname:##str2 then yes else $name =##str2
+
+[Line: LnledgermasterreportTitle]
+use: Lnledgermasterreport
+option: titleopt
+local:field: fwf: set as: "name"
+local:field: SNF: set as: "code"
+local:field: SNF1: set as: "billwiseon"
+local:field: SNF2: set as: "accountinggroup"
+
+local:field: SNF4: set as: "addressline-1"
+local:field: SNF5:set as: "addressLine-2"
+local:field: SNF6: set as: "addressline-3"
+local:field: SNF7: set as: "state"
+local:field: SNF8:set as: "pincode"
+local:field: SNF9: set as: "country"
+local:field: NUMF: set as: "creditlimit(rs)"
+local:field: SNF10: set as: "creditdays"
+local:field: SNF11: set as: "contactpersonname"
+local:field: SNF12: set as: "phnumber "   ;;(Phone No)
+local:field: SNF13: set as: "mobilenumber"
+local:field: SNF14: set as: "faxnumber"
+local:field: SNF15: set as: "emailaddress"
+local:field: SNF16: set as: "ccto(ifany)"
+local:field: SNF17: set as: "Website"
+local:field: SNF18: set as: "bankname"
+local:field: SNF19: set as: "accountnumber"
+local:field: SNF20: set as: "Ifsccode"
+local:field: SNF21:set as: "pan"
+local:field: SNF22: set as: "registrationtype"
+local:field: SNF23: set as: "gstnumber"
+
+
+      local: field: default : style: normal bold
+
+[Line: Lnledgermasterreport]
+JSONTag: "Ledger"
+Fields:fwf
+right field:snf,snf1,snf2,snf4,snf5,snf6,snf7,SNF8,numf,snf10,snf11,snf12,snf13,snf14,snf15,snf16,snf17,snf18,snf19,snf20,snf21,snf22,snf23
+Option: Alter on Enter
+
+local: field: fwf: alter : LEDGER : $$isLEDGER
+option : alter on enter
+local : field : fwf : alter : LEDGER : $$isLEDGER
+
+local:field: fwf: set as:$name ;;"Customer Name"
+local:field: SNF: set as: $$ReptField:Name:2:ledger:$name ;;"Customer Code"
+local:field: SNF2: set as:$parent ;; "Accounting Group"
+local:field: snf1: set as:$IsBillWiseOn
+local:field: SNF4: set as:$$CollectionField:$Address:First:Address  ;; "Address Line - 1"
+local:field: SNF5: set as:$$CollectionField:$Address:2:Address  ;; "Address Line - 2"
+local:field: SNF6: set as:$$CollectionField:$Address:3:Address  ;; "Address Line - 3"
+local:field: SNF7: set as:$LedStateName ;; "State"
+local:field: SNF8: set as:$PinCode ;; "PIN Code"
+local:field: SNF9: set as:$CountryofResidence ;;CountryName ;; "Country"
+local:field: NUMF: set as:$CreditLimit ;; "Credit Limit (Rs)"
+local:field: SNF10: set as:$BillCreditPeriod ;; "Credit Days"
+local:field: SNF11: set as:$LedgerContact ;; "Contact Person Name"
+local:field: SNF12: set as:$LedgerPhone ;; "Land Line "   ;;(Phone No)
+local:field: SNF13: set as:$LedgerMobile ;; "Mobile Number"
+local:field: SNF14: set as:$LedgerFax ;; "Fax Number"
+local:field: SNF15: set as:$EMail ;; "Email Address"
+local:field: SNF16: set as:$EMailCC ;; "CC to (If Any)"     IsBillWiseOn
+local:field: SNF17: set as:$Website ;; "Website"
+local:field: SNF18: set as:$(ledger,#fwf).PAYMENTDETAILS[1].bankname ;; "Bank Name"
+local:field: SNF19: set as:$(ledger,#fwf).PAYMENTDETAILS[1].ACCOUNTNUMBER ;; "Account Number"
+local:field: SNF20: set as:$(ledger,#fwf).PAYMENTDETAILS[1].IFSCODE ;; "IFSC Code"
+local:field: SNF21: set as:$IncomeTaxNumber ;; "PAN"
+local:field: SNF22: set as:$GSTRegistrationType ;; "Registration Type"
+local:field: SNF23: set as:$PartyGSTIN ;; "GST Number"
+
+
+local:field: fwf: json tag: "name"
+local:field: SNF: json tag: "code"
+local:field: SNF2: json tag: "accountinggroup"
+local:field: SNF1: json tag: "billwiseon"
+
+local:field: SNF4: json tag: "addressline-1"
+local:field: SNF5:json tag: "addressLine-2"
+local:field: SNF6: json tag: "addressline-3"
+local:field: SNF7: json tag: "state"
+local:field: SNF8: json tag: "pincode"
+local:field: SNF9: json tag: "country"
+local:field: NUMF: json tag: "creditlimit(rs)"
+local:field: SNF10: json tag: "creditdays"
+local:field: SNF11: json tag: "contactpersonname"
+local:field: SNF12: json tag: "phnumber "   ;;(Phone No)
+local:field: SNF13: json tag: "mobilenumber"
+local:field: SNF14: json tag: "faxnumber"
+local:field: SNF15: json tag: "emailaddress"
+local:field: SNF16: json tag: "ccto(ifany)"
+local:field: SNF17: json tag: "Website"
+local:field: SNF18: json tag: "bankname"
+local:field: SNF19: json tag: "accountnumber"
+local:field: SNF20: json tag: "ifsecode"
+local:field: SNF21:json tag: "pan"
+local:field: SNF22: json tag: "registrationtype"
+local:field: SNF23: json tag: "gstnumber"
+
+
+      [line: LnledgermasterreportTotals]
+        use: Lnledgermasterreport
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+
+       [button : Repledgermaster]
+key : alt + J
+title:"JSON Export"
+action : $$RepcwSOExportExp3
+
+ ;;f:\dibyendu
+
+ [Report: RepcwSOExportExp3]
+    form : RepcwSOExportExp3
+
+    [form : RepcwSOExportExp3]
+    part : RepcwSOExportExp3
+
+    [part : RepcwSOExportExp3]
+    line : RepcwSOExportExp3
+    set : 1
+    repeat : RepcwSOExportExp3
+
+    [line : RepcwSOExportExp3]
+    field : nf
+    Local: Field: nf: Set As: $$RepcwSOExportExp3
+
+    [function : RepcwSOExportExp3]
+    variable: myfilename : string : ##str1
+    10 : do if : ##myfilename = "" : set : myfilename : "e:\Repledgermaster.json"
+    20 : Set   :SVExportFormat  : $$SysName:UTF8JSON
+
+    30 : Set   :SVExportLanguage: $$SysName:UTF8JSON
+    40 : Set   :SVPrintFileName :##myfilename
+    50 : set: SVOpenFileAfterExport : no
+
+    60 : export : Repledgermaster : yes : yes
+    70 : return : "Done"
+
+
+

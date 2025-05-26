@@ -1,0 +1,283 @@
+; Created By: Taniya on 2020-02-11 18:52, ID:
+
+;;======================================
+ [#collection : Daybook Vouchers of Company]
+ fetch:vouchertypename
+
+
+;;=======================================
+
+
+[#Report: Voucher Register]
+add:option:cwvchregsveopt:@@SalesVoucherEmailEnabled
+
+[!report:cwvchregsveopt]
+ variable :logi5
+ set :logi5:yes
+
+
+[#form : Day Book]
+add:option:cwdybksveopt:@@SalesVoucherEmailEnabled
+
+[!form:cwdybksveopt]
+add:button:sendmailslreg
+
+
+[button:sendmailslreg]
+title:"Send Mail"
+key:ctrl+S  ;f8
+action :call:cwsentmail
+Scope  : Selected lines
+
+[Collection: MSelectedledmail]	
+Data Source: Report: Selected
+
+[Function: cwsentmail]
+variable : myledgername : string
+                variable : myledgermailid : string
+                variable : SVMailServer : string
+                variable : SVMailServeradd : string
+                variable : SVMailFromAddress : string
+                variable : myledgermailcc : string
+                variable : SVMailAuthUserName : string
+                variable : SVMailAuthPasswd : string
+                variable : SVMailUseSsl : string
+                variable : SVMailUseSSLOnStdPort : string
+                variable : myledgercpname : string
+                variable : myledgergstno : string
+                variable : saleitem : string
+                variable : vchno : string
+                variable : vchdate : date
+                variable : companyname : string
+                variable : vouchertypename : string
+                variable : vchamt : amount
+                variable : mstid : string
+                variable : mysubject : string
+                variable : mybody : string
+
+                01 : QueryBox:"Send Mail ?":Yes:No;; on this line
+                02 : do if : not $$lastresult : continue;; on this line
+
+                03 :walk collection :MSelectedledmail
+                06 :set :myledgername:$FirstLedger
+                06a :set :SVMailServer:@@cwemailserver
+                06a2 :set :SVMailServeradd:@@cwserveraddopt
+                06b :set :SVMailFromAddress:@@cwfromemailadd
+                07 :set :myledgermailid:$Email:ledger:##myledgername
+                09 :set :myledgermailcc:$EMailCC:ledger:##myledgername
+                09a :set :SVMailAuthUserName:@@cwauthusername
+                09b :set :SVMailAuthPasswd:@@cwauthuserpass
+                09c : set : SVMailUseSsl :$$GetUseSSLState:##SVMailServer
+                09d : set : SVMailUseSSLOnStdPort :$$GetUseSSLOnStdPortState:##SVMailServer
+                10 :set :myledgercpname:$LedgerContact:ledger:##myledgername
+                12 :set :myledgergstno:$PARTYGSTIN:ledger:##myledgername
+                13 :set :saleitem:$stockitemname
+                14 :set :vchno:$vouchernumber
+                15 :set :vchdate:$date
+                15a :set :companyname:##svcurrentcompany
+                15b :set :vouchertypename:$VoucherTypeName
+                16 :set :vchamt:$DaybookAmount
+                17 :set :mstid:$masterid
+                18 :set :mysubject:@@cmpmailname+" "+"Invoice No."+" "+##vchno ;;  $cwvchtypeenaemailsub:vouchertype:$VoucherTypeName
+                19 : set : mybody :$$cwReplace:$cwvchtypeenaemailbody:vouchertype:$VoucherTypeName;;@@mailbody
+
+;; {05.May.21 18:38}                 100:set :SVMailText :@@cwdesmailbodyval  ;;##mybody
+                100:set :SVMailText :##mybody
+                106 : set : SVExportFormat :$$SysName:ANSIPDF
+                
+                107 : set : svMailAttachfileName :$$MakeExportName:@@cwkvFileFormat:##Svexportformat
+                
+	        110: SET: SVMailEmbedImage:no
+	
+	        120 : set : mysubject: $$cwReplace:##mysubject
+;; {24.Feb.20 12:31} 	        121: log : ##mybody
+
+               160 : SET : SVPrintFileName : $$MakeMailName:##myledgermailid:##SVMailServeradd:##SVMailFromAddress:##myledgermailcc:##mysubject:##SVMailAuthUserName:##SVMailAuthPasswd:##SVMailUseSsl:##SVMailUseSSLOnStdPort
+
+;; {05.May.21 18:37}                160 : SET : SVPrintFileName : $$MakeMailName:##myledgermailid:##SVMailServeradd:##SVMailFromAddress:##myledgermailcc:@@mydespsubject:##SVMailAuthUserName:##SVMailAuthPasswd:##SVMailUseSsl:##SVMailUseSSLOnStdPort
+
+                117  : call : cwMailItnew:##mstid;; on this line
+                 333:log object
+
+                120a : continue
+                130 :end walk
+
+
+;;=============================================
+
+[function : cwReplace]
+parameter : mystr1 : string
+variable : mystr2 : string
+
+;; {24.Feb.20 12:31} 01a: log : "Voucher Number:"+##vchno
+;; {24.Feb.20 12:31} 02 : log : "name:"+##myledgergstno
+
+07 : set : mystr2 : $$stringfindandreplace:##mystr1:"$vouchernumber":##vchno
+08 : set : mystr2 : $$stringfindandreplace:##mystr2:"$vouchertypename":##vouchertypename
+09 : set : mystr2 : $$stringfindandreplace:##mystr2:"$date":##vchdate
+10 : set : mystr2 : $$stringfindandreplace:##mystr2:"$companyname":##companyname
+11 : set : mystr2 : $$stringfindandreplace:##mystr2:"$FirstLedger":##myledgername
+12 : set : mystr2 : $$stringfindandreplace:##mystr2:"$LedgerContact":##myledgercpname
+13 : set : mystr2 : $$stringfindandreplace:##mystr2:"$PartyGSTIN":##myledgergstno
+14 : set : mystr2 : $$stringfindandreplace:##mystr2:"$DaybookAmount":##vchamt
+
+;; {24.Feb.20 12:31} 35 : log : "y: " +##mystr2
+
+40 : return : ##mystr2
+
+
+[Report: cwSmp Email Configuration]
+
+	Use		: Email Configuration
+
+ [Function: cwMailItnew]
+	Parameter : VchId2 : String
+	VARIABLE : VCHID : STRING
+	01 : SET : VCHID : $$SPrintf:"ID:%s":##VCHID2
+	05	 : SET OBJECT 	: (Voucher, ##VchId).
+        70  : MAIL  : Mymailinvoicenew : true
+
+
+
+
+ [report: Mymailinvoicenew]
+;; {16.Jun.23 17:56}  use : Printed Invoice
+ TITLE :"TAX INVOICE" ;;"Invoice"
+OBJECT : VOUCHER :##VCHID
+fetch object : voucher : ##VCHID : *.*
+print set : report title :"TAX INVOICE"  ;;"Invoice"
+Print Set: PrintFileName  :"TAX INVOICE"  ;;"Invoice"
+
+;; {12.Feb.20 12:07} form : Mymailinvoice
+;; {05.May.21 14:14} [form : Mymailinvoice]
+;; {05.May.21 14:14} use:voucher
+
+form : Mymailinvoice
+
+[form : Mymailinvoice]
+
+
+  /*
+Delete : Part
+Delete : Bottom Part
+Delete : Page Break
+   add : Top part : cwsalesinvoicechg4TopPart1  ;;,salesinvoicechg4TopPart,salesinvoicechg4TopPart4,aksalesinvoiceTopPart3
+   add : Part : salesinvoicechg4InvACCPart
+;; {17.Oct.22 12:38}    Add : bottom Part :  salesinvoicechg4BottomPart,salesinvoicechg4BottomPart2,salesinvoicechg4BottomPart3,salesinvoicechg4BottomPart4,salesinvoicechg4BottomPart5,salesinvoicechg4BottomPart6
+   Add : bottom Part :  salesinvoicechg4BottomPart,salesinvoicechg4BottomPart2,salesinvoicechg4BottomPart4,salesinvoicechg4BottomPart3,salesinvoicechg4BottomPart6
+   add : page Break : salesinvoicechg4CLBreak, salesinvoicechg4OPBreak
+
+  Width     : @@cwSapceWidth2 inch
+  Height    : @@cwSapceHeight2 inch
+
+
+
+;; {03.Nov.22 17:47}   add:option:salesinvoicechg4TopPartopt:not ##logi2
+  add:option:salesinvoicechg4TopPartopt:##logi2
+       */
+
+
+Delete : Part
+Delete : Bottom Part
+Delete : Page Break
+   add : Top part :emailsalesinvoicechg4TopPart1,emailsalesinvoicechg4TopPart,emailsalesinvoicechg4TopPart4,emailaksalesinvoiceTopPart3
+   add : Part : emailsalesinvoicechg4InvACCPart
+   Add : bottom Part :  emailsalesinvoicechg4BottomPart,emailsalesinvoicechg4BottomPart2,emailsalesinvoicechg4BottomPart4,emailsalesinvoicechg4BottomPart3,emailsalesinvoicechg4BottomPart6 ;;,emsignpart2
+   add : page Break : salesinvoicechg4CLBreak, salesinvoicechg4OPBreak
+
+  Width     : @@cwSapceWidth2 inch
+  Height    : @@cwSapceHeight2 inch
+  Space Top   : 0.3 inch
+  Space Right : 0.3 inch
+  Space Left  : 0.6  inch
+  Space Bottom: 0.3 inch
+;; {30.Sep.23 15:10}  add:option:emailsalesinvoicechg4TopPartopt:##logi2
+ 
+ 
+
+
+  [part:cwsalesinvoicechg4TopPart1]
+  line:newcmpnameline2
+  [line:newcmpnameline2]
+field:nf
+Local: Field: nf: Set As:@@cmpmailname
+;; {14.Jul.23 17:09} Local: Field: nf:style:style12
+Local: Field: nf:style:nbstyle2  ;;if $$InExportMode then "style2" else "style12"
+Local : field : nf: Lines : 0
+Local: field: nf: Width:50
+
+ [style:nbstyle2]
+ font:"Large Bold"
+ height:20
+ bold:yes
+ 
+ 
+        [report: Tallyinvoice]
+TITLE :"TAX INVOICE"
+OBJECT : VOUCHER :##VCHID
+fetch object : voucher : ##VCHID : *.*
+print set : report title :"TAX INVOICE"
+print set : report subtitle :"TAX INVOICE"
+Print Set: PrintFileName  :"TAX INVOICE"
+use:Printed Invoice
+;; {17.Aug.17 12:52} form :Comprehensive Invoice
+
+Variable: SVPrintOrientation
+Set : SVPrintOrientation :$$SysName:portrait
+
+variable:IsVoucher ,UseStatePinInAddrPrint   ;;,vGSTTaxableTitle,PUGSTStateNameandCode
+variable:SABuyersGSTIN,SACompanyGSTIN,ICFGSupplementary,ICFGBuyerDetails
+
+set :IsVoucher :yes
+
+;; {17.Aug.17 12:29} set :vGSTTaxableTitle :yes
+set :UseStatePinInAddrPrint :yes
+;; {17.Aug.17 12:52} set :PUGSTStateNameandCode :yes
+;; {17.Aug.17 12:52} set :SACompanyGSTIN :yes
+;; {17.Aug.17 12:52} set :SABuyersGSTIN :yes
+;; {17.Aug.17 12:52} set :ICFGBuyerDetails :yes
+;; {17.Aug.17 12:52} set :ICFGSupplementary :yes
+
+[Form:myPrinted Invoice]
+use :Comprehensive Invoice
+
+
+
+
+
+
+[System: Formula]
+cwemailserver: $cwemailservera:COMPANY:##SVCURRENTCOMPANY
+cwserveraddopt:$cwserveradd:COMPANY:##SVCURRENTCOMPANY
+cwfromemailadd:$cwfemailaddress:COMPANY:##SVCURRENTCOMPANY
+cwauthusername:$cwauthusernamenew:COMPANY:##SVCURRENTCOMPANY
+cwauthuserpass: $cwauthuserpassnew:COMPANY:##SVCURRENTCOMPANY
+ ceembody :  $ceembody:COMPANY:##SVCURRENTCOMPANY
+ceembody2 :  $ceembody2:COMPANY:##SVCURRENTCOMPANY
+ceembody3 :  $ceembody3:COMPANY:##SVCURRENTCOMPANY
+ceembody4 :  $ceembody4:COMPANY:##SVCURRENTCOMPANY
+cwloginadmin :  $cwloginadmin:COMPANY:##SVCURRENTCOMPANY
+cwloginuser :  $cwloginuser:COMPANY:##SVCURRENTCOMPANY
+cwloginboth :  $cwloginboth:COMPANY:##SVCURRENTCOMPANY
+
+cwemailbodyval:@@ceembody+ "<br/>" + " " + @@ceembody2 +"<br/>" + " " +@@ceembody3+"<br/>" + " " +@@ceembody4 + @@cwotpreq
+
+cwotpreq : if ##requiresotp then "<br><br>OTP is: <b><h1>"  +  ##cwotp +"</h1></b>" else ""
+
+mytime: ##svusername+" "+$$string:$$machinetime
+cwtopdei : if ##cwotp = "" then @@mytime else @@mytime +  " OTP: " + ##cwotp
+dbReport: "Day Book"
+
+
+[System: Formula]
+      mailbody: "Dear "+" <b>"+##myledgercpname +",</b><br/><br/>" +"Thank you for your purchase of"+" <b>"+##saleitem+"</b>.<br/><br/>"+"Please note the following details, as per our records:"+"<br/>"+" Company Name:"+" <b>"+##myledgername+"</b><br/>"+"GST No:"+" <b>"+##myledgergstno +
+      +"</b><br/><br/>"+"Request you to confirm /revert with updated GST No if the above is incorrect.<br/><br/>"+ "Also, Please provide a copy of GST Registration Details (GST REG 25) for our records." +
+      +"<br/><br/>"+"Please find attached, your invoice no.<b>"+" "+##vchno +"</b>, dated: <b>"+$$string:##vchdate+"</b>, for <b>Rs"+" "+$$string:##vchamt +
+      +".</b><br/><br/>"+"For any clarification please revert to the undersigned. " +
+      +"<br/>"+
+      +"<br/><br/>"+"Thanks and Regards"+"<br/><br/>"+"Narpat Singh Baid"+"<br/>"+"9830435406"+
+      +"<br/><br/><br/>PS: If you require any Support, you can docket your request at http://circuitworld.in/docket or call on 9748899180 to place Service Request."
+
+ cwmailsub: "Your Tally Purchase details..."     ;;$cwmailsub:COMPANY:##SVCURRENTCOMPANY
+      dbReport: "Tax Invoice"
+

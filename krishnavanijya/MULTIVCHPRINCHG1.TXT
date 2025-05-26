@@ -1,0 +1,297 @@
+; Created By: Khokan on 2022-11-02 10:16, ID: 
+; Created By: joy on 2020-01-03 13:22, ID:
+
+
+
+[#Form: MultiVoucherPrintConfig]
+ add:option: MultiVoucherPrintConfigopt:@@KrishnavanijyaEnabled
+[!Form:MultiVoucherPrintConfigopt]
+
+;; {03.Nov.22 14:18} Local: Field: default:border:thin box
+;;local : field : MV TitlePrintPeriod : delete : skip
+local : field : SVFromDate: delete : skip
+local : field : SVToDate: delete : skip
+
+[#Line: MV TitlePrintPeriod]
+ add:option: MVPTitlePrintCommonopt:@@KrishnavanijyaEnabled
+[!line:MVPTitlePrintCommonopt]
+
+
+ add:Field:before:MV TitlePrintPeriod:sp,SVFromDate,sp2,SVToDate
+ 
+
+Local : Field : sp : Info : $$LocaleString:"From" ;; (blank for beginning) :"
+Local: field: sp: Width:5
+Local: field: sp2: Width:5
+
+Local : Field : sp2 : Info : $$LocaleString:"To" ;; (blank for end) :"
+
+
+ [#Part: SV MultiPrintMedium]
+  add:option: MVPPrintCommonopt:@@KrishnavanijyaEnabled
+
+
+
+[#Part: MVP Print Common]
+add:option: MVPPrintCommonopt:@@KrishnavanijyaEnabled
+[!part:MVPPrintCommonopt]
+
+;; {09.Apr.22 11:47} add:line:cwselectledgrp,cwselectledLed,vchnoline ;;cwselectledgrp,cwselectledLed,vchnoline
+add:line:vchnoline,PCFGPrintCopies1 ;;cwselectledgrp,cwselectledLed,vchnoline
+
+
+[line:PCFGPrintCopies1]
+Fields      : Medium Prompt,PCFGPrintCopies1
+SpaceBottom : 1
+
+Local: Field: Medium Prompt	: Info	: $$LocaleString:"Type of Copy" + ":"
+
+Local: Field:default: delete: Skip: Yes
+
+[Field: PCFGPrintCopies1]
+
+Use     	: Name Field
+;;		Set as		: If #PCFGNumberCopies = 1  Then $$SysName:NotApplicable Else $$LocaleString:"All"
+
+Set Always  : Yes
+Modifies	: SVPrintCopy : Yes
+Table		: Printlist, NotApplicable                  ;;: #PCFGNumberCopies = 1
+Table		: Printlist, AllPrintlist, NotApplicable     ;;	: #PCFGNumberCopies != 1
+Show Table  : Always
+Width		: 20
+delete: Skip: Yes
+                
+[line:vchnoline]
+
+field:medium prompt,snf,snfx,snf2,snf3
+Local: Field: medium prompt: Set As:"Voucher No. From :"
+Local: Field:snfx: info:" To :"
+Local: Field: default: Color : blue
+Local: Field: snf:Modifies:vchno1
+Local: Field: snf2:Modifies:vchno2
+Local: Field: snf3:Modifies:vchno3
+Local: Field: snf3: Set As:#VoucherTypeName
+local: field: snf3: Invisible: yes
+Local: field: snf: Width:25
+Local: field: snf2: Width:25
+
+Local: Field: snf: table:cwvchnocol,notapplicable
+Local: Field: snf: Show table: Always
+
+Local: Field: snf2: table:cwvchnocol,notapplicable
+Local: Field: snf2: Show table: Always
+Local: Field:default: delete: Skip: Yes
+;; {08.Jan.21 13:05} Local: Field:default: add: Skip:not $$issysname:#nf9 or not $$issysname:#nf10;;if ##mprtgrp=" Not Applicable" ;; or not ##mprtLed=" Not Applicable" ;; not $$issysname:##mprtgrp
+Local: Field:medium prompt:Skip: Yes
+
+;; {06.Jan.21 16:10} option:cwskipopt:##mprtgrp=" Not Applicable"
+
+Local: Field: snf4: Set As:##mprtgrp
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[field:cwMvPartyGrp]
+use:nf
+
+[Line: cwselectledgrp]
+field:sp,cwMvPartyGrp
+Local: Field: sp: info:"Select Group :"
+Local: Field: cwMvPartyGrp: table: tabgroup,Not Applicable
+Local: Field: cwMvPartyGrp: Show table: Always
+Local: field: sp: Width:33
+Local: Field: cwMvPartyGrp:Modifies:mprtgrp
+Local: Field: cwMvPartyGrp: Style: Normal Bold
+Local: Field: cwMvPartyGrp: Set As: if $$isempty:$$value then $$sysname:NotApplicable else $$value
+;; {16.May.13 18:39} remove if : not ($$issales:##SVVoucherOfType or $$isCreditNote:##SVVoucherOfType or $$isDebitNote:##SVVoucherOfType)
+Local: Field:default: delete: Skip: Yes
+;; {08.Jan.21 17:29} Local: Field: nf9: Set As:#nf
+local: field: nf9: Invisible: yes
+
+[field:cwMvParty]
+use:nf
+
+[line : cwselectledLed]
+field:sp,cwMvParty
+Local: Field: sp: info:"Select Ledger: :"
+Local: Field: cwMvParty:  delete : table
+Local: Field: cwMvParty: add : table: ledger,Not Applicable
+Local: Field: cwMvParty: Show table: Always
+Local: field: sp: Width:33
+Local: Field: cwMvParty:Modifies:mprtLed
+;; {08.Jan.21 17:29} Local: Field: nf10: Set As:#nf
+local: field: nf10: Invisible: yes
+Local: Field:default: delete: Skip: Yes
+
+
+
+[Collection: tabgroup]	
+title:"Group List"
+use:group
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[collection:cwvchnocol]
+title:"List Of Voucher Number"
+
+ParmVar : SvFromDate : Date :#SvFromDate;;##StatFromDate
+ParmVar : SvTodate   : Date :#SvTodate;; ##StatToDate
+
+ Type        :vouchers
+     Filter: ColaaFilter,IsNonOptionalCancelledVchs
+    add:Filter: ColaaPartyGrpFilter
+    add:Filter: ColaaPartyFilter
+     format:$vouchernumber,20
+;; {25.May.21 14:05}      format:$ledgername,20
+;; {25.May.21 13:25}      format:@@cwMvhasPartyGrp,20
+;; {07.Jan.20 14:12}      format:$date,20
+
+
+    [system: Formula]
+ColaaFilter: $vouchertypename=#VoucherTypeName
+ColaaPartyFilter:if $$issysname:#cwMvParty then yes else  $partyledgername=#cwMvParty
+ColaaPartyGrpFilter:if $$issysname:#cwMvPartyGrp then yes else  @@cwMvhasPartyGrp=#cwMvPartyGrp
+cwMvhasPartyGrp:$parent:ledger:$partyledgername
+
+[variable : vchno1]
+type : string
+default : ""
+persistent: no
+
+[variable : vchno2]
+type : string
+default : ""
+persistent: no
+
+[variable : vchno3]
+type : string
+default : ""
+persistent: no
+
+[system : variable]
+vchno1: ""
+vchno2: ""
+vchno3: ""
+
+
+[variable : mprtgrp]
+type : string
+default : ""
+persistent: no
+
+[system : variable]
+mprtgrp: ""
+mprtLed: ""
+
+[variable : mprtLed]
+type : string
+default : ""
+persistent: no
+
+
+
+[#Form: Multi Vch Print]
+add:option:cwMultiVchPrintopt  ;;:@@JobWorkModuleEnabled
+[!form:cwMultiVchPrintopt]
+ empty if :@@cwmpgrp or @@cwchkLed or  @@cwvchNofilternew
+
+;; Add: BottomButton: At Beginning: salrepnew2
+
+;; [#Form: MInvoice]
+;;delete : option: fnsalesinvOpt:@@issales and not ##logi1
+;; {12.Apr.22 17:27}  add:option:fnsalesinvOptnew
+
+
+
+
+
+[System: Formula]
+cwvchNofilternew:if $$issysname:##vchno1 then no else not @@cwvouchernumberfilternew
+cwvouchernumberfilternew:if $$issysname:##vchno1 then no else $vouchernumber >= ##vchno1 AND $vouchernumber <= ##vchno2
+cwmpgrp: if $$issysname:##mprtgrp then no else $$filtercount:AllLedgerEntries:cwPrnBelong =0
+cwmultiopt:if $$issysname:##vchno1 then @@cwmpgrp else not @@cwvouchernumberfilternew
+cwPrnBelong : $myPrnBelongs:ledger:$ledgername
+cwchkLed : if $$issysname:##mprtLed then no else $$filtercount:AllLedgerEntries:cwPrnBelongLed =0
+cwPrnBelongLed : $ledgername = ##mprtLed
+
+
+     [#object : ledger]
+     myPrnBelongs : $$isbelongsto:##mprtgrp
+     
+;;;;;;==========================================
+
+  [#menu: Gateway of Tally]
+add:option:cwGatewayofTallyopt:@@KrishnavanijyaEnabled
+[!menu:cwGatewayofTallyopt]
+
+add:button:cwMultiVoucher
+
+[button:cwMultiVoucher]
+key:alt+M
+TITLE:"Multi-Voucher"
+;; {02.Nov.22 09:53} action:modify variable:MultiVoucherPrint	
+action:Print:MultiVoucherPrint	
+;; {02.Nov.22 09:52} Current Report	: Multi Voucher Print
+;; {02.Nov.22 09:52} OutputAccess	: $$Allow:Print:Vouchers
+
+
+[#Report: MultiVoucherPrintConfig]
+add:option:cwMultiVoucherPrintConfigopt:@@KrishnavanijyaEnabled
+[!Report:cwMultiVoucherPrintConfigopt]
+ add:set:SVVoucherType:@@cwNAMVCHTYPE  ;;"Sales"
+ 
+ add:set:SVPrinterName:@@cwNAMPrinters
+
+
+ [System: Formula]
+ cwNAMVCHTYPE:$cwNAMVCHTYPE:COMPANY:##SVCURRENTCOMPANY
+ cwNAMPrinters:$cwNAMPrinters:COMPANY:##SVCURRENTCOMPANY
+
+[button:cwMultiPrinter]
+key:ctrl+f6
+TITLE:"PDF Printer"
+action:modify variable:cwChangePrinter
+
+ [report: cwChangePrinter]
+ Use		: Set Digital Sign
+Set		: SubFormTitle	: @@PrinterConfig
+
+Delete	: Help
+Add		: Help	: @@HlpConfigPrinterSelection
+	
+Local	: Part	: Modify Variables	: Add		: +
+Lines	: At Beginning	: PCFG Print To File, PCFG Print File Name, PCFG Printer Name
+Local	: Form	: OutputConfig Form : +
+Option	: DisableTSTopMenuItems : $$IsProdTallyServer AND $$IsLicensed AND NOT $$NumItems:LicAdminUsers > 0
+Local	: Line	: Config DigitalSign	: +
+Local	: Field	: Default	: Inactive	: NOT @@IsMSPrintToPDFPrinter
+		
+Option	: Dot Matrix Or Draft Print Mode	: NOT $$IsSysNameEqual:PixelMode:##SVPrintMode
+ 
+ [Form: cwChangePrinter]
+
+    Parts           : PCFG General
+    Full Width      : No
+    Space Right     : 2
+    Space Left      : 2
+    Vertical Align  : Bottom
+    No confirm      : Yes
+    BackGround      : @@SV_CMPCONFIG
+    
+ [#Form: MultiVoucherPrintConfig]
+  Add: BottomButton: At Beginning: salrep2,cwNormalInvoice,cwChallan,cwNormalInvoicesf,cwChallansf,CWPackingList
+  
+   [KEY : salrepsimple]
+ title:"Print Format"
+ KEY :ctrl+1
+
+;; {03.Nov.22 17:09}  TITLE :if ##logi1 then "Normal Invoice"  else "Challan Invoice"
+ TITLE :if ##logi2 then "Challan (Simple Format)"  else "Invoice (Simple Format)"
+ action :set : logi2:not ##logi2
+
+;;======================================================
+  
+  [#Report: Multi Voucher Print]
+  Print Set		: SVPrinteWayBillInvoice:"No"
+
+
+
+

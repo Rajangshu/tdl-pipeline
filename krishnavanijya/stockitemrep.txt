@@ -1,0 +1,449 @@
+; Created By: Khokan on 2024-11-25 10:42, ID: 
+
+
+     [#menu: Gateway of Tally]
+        add: Option: stockitemrepLock ;; : @@stockitemrepDemoLock
+       
+  /*
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@stockitemrepReport: Display: Repstockitemrep
+  */
+
+
+     [!menu: stockitemrepLock]
+        add: Item: before: @@locQuit: @@stockitemrepReport: Display: Repstockitemrep
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   stockitemrepReport: "Stock Report"
+;; stockitemrepDemoLock: $$MachineDate < $$Date:"01/12/2023"
+     
+    [Report: Repstockitemrep]
+        use: Dsp Template
+     ;; Use: Range Value Template
+        Use: Range  Template
+        
+      Title: @@stockitemrepReport
+   Printset: Report Title: @@stockitemrepReport
+
+       Form: Frmstockitemrep
+
+     Export: Yes
+
+        set: svfromdate : ##svcurrentdate
+        set: svTodate   : ##svcurrentdate
+
+Local:Button:RelReports: Inactive: Yes
+variable:str1,str2,str3,str4,str5,str6
+set:str1:""
+set:str2:""
+set:str3:""
+set:str4:""
+set:str5:""
+set:str6:""
+     
+      [Form: Frmstockitemrep]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0stockitemrep,Prtstockitemrep
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: stockitemrepbotbrk,stockitemrepbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+
+ADD: Button: Save View, Change View
+
+     option: enable Range filters
+
+ ;;    local : button : report config : action :modify variable: stockitemrepConfigure
+     add:button:cdesbotton
+     
+      [part: stockitemrepbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: stockitemrepbotopbrk]
+        use: dspacctitles
+  add: part: stockitemrepTitlePart
+
+      [part: stockitemrepTitlePart]
+       line: LnstockitemrepTitle
+       
+      [line: LnstockitemrepCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0stockitemrep]
+      line : LnstockitemrepCurrPeriod
+      
+      [Part: Prtstockitemrep]
+       Line: LnstockitemrepTitle,Lnstockitemrep
+bottom Line: LnstockitemrepTotals
+     repeat: Lnstockitemrep: Colstockitemrep
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf,amtf1,amtf2,amtf3,amtf4,AMTF5,AMTF6,AMTF7,numf,numf1,numf2,numf3,numf4,numf5,numf6,numf7,numf8,numf9,numf10,numf11,numf12,numf13
+
+; Main Collection
+
+[Collection: Colstockitemrep]
+source Collection: sourceColstockitemrep
+walk:inventoryentries
+by:vouchernumber:$vouchernumber
+by:stockitemname:$stockitemname
+aggr compute:billedqty:sum:$billedqty
+aggr compute:amount:sum:$amount
+compute:cgstamount1:$$FilteramtTotal:ledgerentries:cgstledFilter:$amount
+compute:sgstamount1:$$FilteramtTotal:ledgerentries:sgstledFilter:$amount
+compute:igstamount1:$$FilteramtTotal:ledgerentries:igstledFilter:$amount
+compute:masterid:$masterid
+
+[Collection: sourceColstockitemrep]
+
+ Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: ColfersalesFilter,IsNonOptionalCancelledVchs
+     
+/*
+Collection: colitembatch:Colstockitem
+
+[Collection: Colstockitem]
+*/
+/*
+type:stockitem
+filter:ColstockitemrepFilter
+filter:cwDescriptionitemsfilter,cwQualityitemsfilter,cwSize1itemsfilter,cwSize2itemsfilter,cwpartnofilter,cwcategoryfilter
+   */
+
+ [System: Formula]
+ ColfersalesFilter:$$isSales:$voucherTypeName
+
+ cwDescriptionitemsfilter:if $$issysname:##str1 then yes else $name =##str1
+ cwQualityitemsfilter:if $$issysname:##str2 then yes else $cwQualityitem2 =##str2
+ cwSize1itemsfilter:if $$issysname:##str3 then yes else $cwSizeitem1 =##str3
+ cwSize2itemsfilter:if $$issysname:##str4 then yes else $cwSizeitem2 =##str4
+ cwpartnofilter:if $$issysname:##str5 then yes else $partno =##str5
+ cwcategoryfilter:if $$issysname:##str6 then yes else $category =##str6
+
+    
+ [Collection: colitembatch]
+ type:batch
+ child of :$$LoopCollObj:$name
+ filter:ColstockitemrepFilter
+    
+ [system: Formula]
+ ColstockitemrepFilter:not $$isempty:$closingbalance
+
+ [Line: LnstockitemrepTitle]
+ use: Lnstockitemrep
+ option: titleopt
+
+ local:field: fwf: set as: "Description"
+
+local:field: nf: set as: "Part No"
+local:field: nf2: set as: "Quality Group"
+local:field: nf3: set as: "Category Group"
+local:field: snf1: set as: "Voucher No"
+local:field: snf: set as: "Quality"
+local:field: snf2: set as: "Size-1"
+local:field: snf3: set as: "Size-2"
+local:field: snf4: set as: "Weight Per Pkt"
+
+local:field: snf5: set as: "Unit-1"
+local:field: snf6: set as: "Unit-2"
+local:field: snf7: set as: "Unit-3"
+local:field: snf8: set as: "Unit-4"
+
+                  /*
+Local: Field: numf: Set As:"Op. Balance"
+Local: Field: amtf: Set As:"Op. Value"
+ Local: Field: numf1: Set As:"gstrate"
+
+local:field: numf2: set as: "Inward Qty"
+local:field: amtf2: set as: "Inward Value"
+
+local:field: numf3: set as: "Outward Qty"
+local:field: amtf3: set as: "Outward Value"
+                 */
+                 
+local:field: numf11: set as: "Qty"
+local:field: amtf4: set as: "Amount"
+
+local:field: amtf5: set as: "Cgst Amount"
+local:field: amtf6: set as: "Sgst Amount"
+local:field: amtf7: set as: "Igst Amount"
+
+Local : field : default: Lines : 0
+
+Local: field: default: Align:centre
+Local: field: fwf: Align:left
+
+Local: Field:nf    : style:style4x
+Local: Field:nf2   : style:style4x
+Local: Field:nf3   : style:style4x
+Local: Field:snf   : style:style4x
+Local: Field:snf1   : style:style4x
+Local: Field:fwf   : style:style4x
+Local: Field:snf2  : style:style4x
+Local: Field:snf3  : style:style4x
+Local: Field:snf4  : style:style4x
+Local: Field:snf5  : style:style4x
+Local: Field:snf6  : style:style4x
+Local: Field:snf7  : style:style4x
+Local: Field:snf8  : style:style4x
+Local: Field:numf  : style:style4x
+Local: Field:numf2 : style:style4x
+Local: Field:numf3 : style:style4x
+Local: Field:numf4 : style:style4x
+Local: Field:numf1 : style:style4x
+Local: Field:numf11: style:style4x
+Local: Field:amtf  : style:style4x
+Local: Field:amtf1 : style:style4x
+Local: Field:amtf2 : style:style4x
+Local: Field:amtf3 : style:style4x
+Local: Field:amtf4 : style:style4x
+Local: Field:amtf5 : style:style4x
+Local: Field:amtf6 : style:style4x
+Local: Field:amtf7 : style:style4x
+
+; Main Line
+
+[System: Formula]
+cgstledFilter:$ledgername="Output CGST"
+sgstledFilter:$ledgername="Output SGST"
+igstledFilter:$ledgername="Output IGST"
+
+[Line: Lnstockitemrep]
+Fields: stockitemrepmastid,fwf
+;; {26.Nov.24 10:43} Right Field:nf,nf2,nf3,snf,snf2,snf3,snf4,snf5,snf6,snf7,snf8,numf1,numf,amtf,numf2,amtf2,numf3,amtf3,numf11,amtf4
+Right Field:nf,nf2,nf3,snf1,snf,snf2,snf3,snf4,snf5,snf6,snf7,snf8,numf11,amtf4,amtf5,amtf6,amtf7
+
+;Option: Alter on Enter
+
+key: stockitemrepDisplayOnEnter  ;; for Display voucher on pressing Control + Enter Key
+
+local:field: fwf : alter   : voucher : $$isvoucher
+local:field: fwf : display : voucher : $$isvoucher
+
+local:field : fwf: set as:$stockitemname  ;;$name ;; "Description"
+Local: Field: nf: Set As:$partno:stockitem:$stockitemname
+Local: Field: nf2: Set As:$parent:stockitem:$stockitemname
+Local: Field: nf3: Set As:$Category:stockitem:$stockitemname
+
+local:field: snf1: set as:$vouchernumber
+local:field: snf: set as:$cwQualityitem2:stockitem:$stockitemname ;;:stockitem:$parent ;; "Quality"
+local:field: snf2: set as:$cwSizeitem1:stockitem:$stockitemname  ;;:stockitem:$parent ;; "Size-1"
+local:field: snf3: set as:$cwSizeitem2:stockitem:$stockitemname  ;;:stockitem:$parent ;; "Size-2"
+local:field: snf4: set as:$cwWeightperPktitem:stockitem:$stockitemname  ;;:stockitem:$parent;; "Weight Per Pkt"
+
+local:field: snf5: set as:$baseunits:stockitem:$stockitemname ;; "Unit-1"
+local:field: snf6: set as:$AdditionalUnits:stockitem:$stockitemname ;; "Unit-2"
+
+local:field: snf7: set as:@@cwuom3ReelNO ;; "Unit-3"
+local:field: snf8: set as:@@cwuom4ReelNO ;; "Unit-4"
+
+local:field: numf1 : set as :@@cwCGSTDutyHead*2
+
+
+Local: Field: numf: Set As:$openingbalance
+Local: Field: amtf: Set As:$openingvalue
+
+Local: Field: numf2: Set As:$Inwardquantity
+Local: Field: amtf2: Set As:$Inwardvalue
+
+local:field: numf3: set as:$outwardquantity ;; "Outward Qty"
+local:field: amtf3: set as:$outwardvalue  ;; "Outward Value"
+
+Local: Field: numf11: Set As:$billedqty  ;;$closingbalance
+Local: Field: amtf4: Set As:$amount  ;;$closingvalue
+Local: field: numf1: Format: "percentage"
+
+Local: Field: amtf5: Set As:IF $$LINE=1 THEN $cgstamount1 ELSE IF $vouchernumber <> $$PREVOBJ:$vouchernumber  THEN $cgstamount1 ELSE ""
+Local: Field: amtf6: Set As:IF $$LINE=1 THEN $sgstamount1 ELSE IF $vouchernumber <> $$PREVOBJ:$vouchernumber  THEN $sgstamount1 ELSE ""
+Local: Field: amtf7: Set As:IF $$LINE=1 THEN $igstamount1 ELSE IF $vouchernumber <> $$PREVOBJ:$vouchernumber  THEN $igstamount1 ELSE ""
+
+Local: field:numf : Width:10
+Local: field:numf3 : Width:10
+Local: field:numf11 : Width:8 ;;14
+Local: field:amtf4 : Width:14
+
+Local: field:nf : Width:8
+
+;; {25.Nov.24 17:19} Local: field:nf3 : Width:15
+
+Local: field:snf4 : Width:8
+Local: field:snf5 : Width:8
+Local: field:snf6 : Width:8
+Local: field:snf7 : Width:8
+Local: field:snf8 : Width:8
+Local: field:snf2 : Width:10
+Local: field:snf3 : Width:11
+
+Local: Field:default  : style:style3x
+
+Local: Field: default: Border: thin right
+
+ option : cwalterVch2
+
+ [!line : cwalterVch2]
+  Key: CW Alter On Enter, CW Alter on LDC
+
+
+
+
+;;------------------------------  Alter Voucher Start (4.1)
+
+[Key: stockitemrepDisplayOnEnter]
+Key: ctrl + enter
+Action: Display: stockitemrepDisplayVoucher
+
+ 	
+[Report: stockitemrepDisplayVoucher]
+Use: Vch Display
+Form: Vch Display
+Object: Voucher:  #stockitemrepmastid
+	
+
+[Field: stockitemrepmastid]
+Set as:"ID:"+$$String:$masterid
+Invisible:Yes
+
+;------------------------------  Alter Voucher End (4.1)
+
+[line: LnstockitemrepTotals]
+use: Lnstockitemrep
+option: totalOpt
+
+local: field: fwf: align: right
+local: field: default : style: normal bold
+local:field: fwf: set as:"Total" ;; "Description"
+
+local:field: snf: set as:"";; "Quality"
+local:field: snf2: set as:"" ;; "Size-1"
+local:field: snf3: set as:"" ;; "Size-2"
+local:field: snf4: set as:"" ;; "Weight Per Pkt"
+
+local:field: snf5: set as:"" ;; "Unit-1"
+local:field: snf6: set as:"" ;; "Unit-2"
+local:field: snf7: set as:"" ;; "Unit-3"
+local:field: snf8: set as:"" ;; "Unit-4"
+
+Local: Field: numf: Set As:$$total:numf
+Local: Field: amtf: Set As:$$total:amtf
+
+Local: Field: numf2: Set As:$$total:numf2
+Local: Field: amtf2: Set As:$$total:amtf2
+
+Local: Field: numf3: Set As:$$total:numf3
+Local: Field: amtf3: Set As:$$total:amtf3
+
+Local: Field: numf11: Set As:$$total:numf11
+Local: Field: amtf4: Set As:$$total:amtf4
+Local: Field: amtf5: Set As:$$total:amtf5
+Local: Field: amtf6: Set As:$$total:amtf6
+Local: Field: amtf7: Set As:$$total:amtf7
+
+Local: Field:snf   : style:style4x
+Local: Field:fwf   : style:style4x
+Local: Field:snf2  : style:style4x
+Local: Field:snf3  : style:style4x
+Local: Field:snf4  : style:style4x
+Local: Field:snf5  : style:style4x
+Local: Field:snf6  : style:style4x
+Local: Field:snf7  : style:style4x
+Local: Field:snf8  : style:style4x
+Local: Field:numf  : style:style4x
+Local: Field:numf2 : style:style4x
+Local: Field:numf3 : style:style4x
+Local: Field:numf4 : style:style4x
+Local: Field:numf11: style:style4x
+Local: Field:amtf  : style:style4x
+Local: Field:amtf1 : style:style4x
+Local: Field:amtf2 : style:style4x
+Local: Field:amtf3 : style:style4x
+Local: Field:amtf4 : style:style4x
+Local: Field:amtf5 : style:style4x
+Local: Field:amtf6 : style:style4x
+Local: Field:amtf7 : style:style4x
+
+;;====================================================================================================================
+
+ [button:cdesbotton]
+ key:f7
+ title:"Filter"
+ Action : Modify Variables:cdespartrep
+ 
+ [report:cdespartrep]
+ form:cdespart
+ title:""
+ 
+ [form:cdespart]
+ part:cdespart
+
+ [part:cdespart]
+ line:cDescriptionitemline,cQualityline,csize1line,csize2line,cpartnoitemline,ccategorygrline
+ 
+ [line:cDescriptionitemline]
+ field:sp,nf
+ local:field: sp: set as: "Description"
+ Local: Field: nf:modifies:str1
+ 
+ Local: Field: nf: table: stockitem,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: field: nf: Width:35
+ Local: Field: default: Style:Style4x
+
+ [line:cQualityline]
+ field:sp,nf
+ local:field: sp: set as: "Quality"
+ Local: Field: nf:modifies:str2
+
+ Local: Field:nf: table:collcwQuality ,Not Applicable
+ Local: Field:nf: Show table: Always
+ Local: Field: default: Style:Style4x
+ 
+ [line:csize1line]
+ field:sp,nf
+ local:field: sp: set as: "Size-1"
+ Local: Field: nf:modifies:str3
+ 
+ Local: Field:nf: table:collSize,Not Applicable
+ Local: Field:nf: Show table: Always
+ Local: Field: default: Style:Style4x
+ 
+ [line:csize2line]
+ field:sp,nf
+
+ local:field: sp: set as: "Size-2"
+ Local: Field: nf:modifies:str4
+ 
+ Local: Field:nf: table:collSize,Not Applicable
+ Local: Field:nf: Show table: Always
+ Local: Field: default: Style:Style4x
+ 
+ 
+ [line:cpartnoitemline]
+ field:sp,nf
+ local:field: sp: set as: "Part No"
+ Local: Field: nf:modifies:str5
+
+ Local: Field: nf: table: stockgroup,Not Applicable
+ Local: Field: nf: Show table: Always
+ Local: field: nf: Width:35
+ Local: Field: default: Style:Style4x
+
+ [line:ccategorygrline]
+ field:sp,nf
+ local:field: sp: set as: "Category"
+ Local: Field: nf:modifies:str6
+
+ Local: Field:nf: table:stockcategory ,Not Applicable
+ Local: Field:nf: Show table: Always
+ Local: Field: default: Style:Style4x
+
+
+

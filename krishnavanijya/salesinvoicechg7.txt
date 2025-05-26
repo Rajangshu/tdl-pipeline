@@ -1,0 +1,682 @@
+; Created By: Khokan on 2024-08-09 18:11, ID: 
+
+
+[#form : Simple Printed Invoice]
+;;   add : option : salesinvoicechg7Opt : @@salesinvoicechg7Sales
+
+[#form : ComprehensiveInvoice]
+;; {10.Aug.24 11:02}    add : option : salesinvoicechg7Opt  ;;: @@salesinvoicechg7Sales
+
+[!form : salesinvoicechg7Opt]
+Delete : Part
+Delete : Bottom Part                    ;;packkrishnasalesTopPart4
+Delete : Page Break
+   add : Top part :saleskrishnasalesTopPart1,aksalesinvoiceTopPart3packing
+
+   add : Part : salesinvoicechg7INVACCPart
+   Add : bottom Part :krishnasalesBottomPart2xpaking,krishnasalesBottomPart2,krishnasalesBottomPart2xpaking2 ;;,krishnasalesBottomPart ;;,krishnasalesBottomPart3x
+
+   add : page Break : salesinvoicechg7CLBreak, salesinvoicechg7OPBreak
+   
+   Width  	    : @@cwSapceWidthPacking inch
+Height 	    : @@cwSapceHeightPacking inch
+Space Top   : @@cwSapceTopPacking inch
+
+
+[System: Formula]
+cwSapceHeightPacking:$cwSapceHeightPacking:vouchertype:$vouchertypename
+cwSapceWidthPacking:$cwSapceWidthPacking:vouchertype:$vouchertypename
+cwSapceTopPacking:$cwSapceTopPacking:vouchertype:$vouchertypename
+cwSapceTopSpacePacking:$cwSapceTopSpacePacking:vouchertype:$vouchertypename
+
+
+ [Part : salesinvoicechg7CLBreak]
+   part:continaprt
+
+ [Part : salesinvoicechg7OpBreak]
+
+part : saleskrishnasalesTopPart1,aksalesinvoiceTopPart3packing
+  Vertical    : Yes
+
+
+
+
+;;===============================
+
+
+ [part : saleskrishnasalesTopPart1]
+ ;;part:salesinvoicechg4TopParta,salesinvoicechg4TopPartb,salesinvoicechg4TopPartc ;;,krishnasalesTopPartc
+ part:saleskrishnasalesTopPart1a,saleskrishnasalesTopPart1b,saleskrishnasalesTopPart1c
+;; {12.Aug.24 17:41}  part:saleskrishnasalesTopPart1a,saleskrishnasalesTopPart1c
+ 
+ [part:saleskrishnasalesTopPart1a]
+ line:logoline17
+  add:option:logopart4:##SALogoPath <> ""
+
+
+ [line:logoline17]
+ field:nf
+
+ 
+ [part:saleskrishnasalesTopPart1b]
+ line:cmpnameline2x ;;,importerslinex
+ 
+ [line:cmpnameline2x]
+field:nf
+Local: Field: nf: Set As:@@cmpmailname
+;; {14.Jul.23 17:09} Local: Field: nf:style:style12
+Local: Field: nf:style:if $$InExportMode then "style2" else "style12"
+Local : field : nf: Lines : 0
+Local: field: nf: Width:50
+
+[line:importerslinex]
+use:cmpnameline2x
+Local: Field: fwfc: Set As:$cwHeader:COMPANY:##SVCURRENTCOMPANY
+ Local: Field: nf:style:style12x
+ 
+ [part:saleskrishnasalesTopPart1c]
+ line:taxinv7line,packingcmpaddline2,packingcwcmpPhonePrnline2,packingregdoffline,packingcmpgstinline2
+ repeat:packingcmpaddline2:collCompanyAddress
+ 
+   [line:taxinv7line]
+FIELD:nf
+ Local: Field: nf: Set As:$cwtitle2Packing:VOUCHERTYPE:$VOUCHERTYPENAME  ;;"@@invtitle"
+
+  Local: Field: nf:style:style12x
+  Local: field: NF: Width:35
+;; {10.Aug.24 10:36}   remove if :@@cwNormalInvoicenew ;;##logi1
+   Local: Field: NF: Border: thin boTTOM
+  
+  
+  [line:packingcmpaddline2]
+
+field:fwf
+
+Local: Field: fwf: Set As:$address
+Local: Field: fwf:style:style11
+
+[line:packingcwcmpPhonePrnline2]
+field:snfx,nf,snfx3,nf2
+
+Local: Field: snfx: Set As:"P.  "
+Local: Field: snfx2: Set As:"M.  "
+Local: Field: snfx3: Set As:"E.  "
+
+Local: Field: nf: Set As:@@cwcmpPhonePrn2
+Local: Field: snf2: Set As:@@cwcmpmobPrn
+Local: Field: nf2: Set As:@@cwcmpEmailPrn2
+Local: field: snfx: Width:2
+Local: field: snfx3: Width:2
+Local: field: nf: Width:25
+Local: field: nf2: Width:30
+Local: Field: snfx:style:style10
+Local: Field: snfx3:style:style10
+Local: Field: nf:style:style11
+Local: Field: nf2:style:style11
+
+[line:packingregdoffline]
+   field:sp,fwf
+
+ Local: Field: sp: Set As: "Regd.Office :"
+ Local: Field: fwf: Set As:$cwregoffice:COMPANY:##SVCURRENTCOMPANY
+;; {20.Oct.22 17:15}  Local: Field: fwf: Set As: "Regd.Office :" +$cwregoffice:COMPANY:##SVCURRENTCOMPANY
+ remove if :$$isempty:$cwregoffice:COMPANY:##SVCURRENTCOMPANY
+   Local: field: sp: Width:15
+   Local: Field: sp: Style:Style10
+   Local: Field: fwf: Style:Style11
+   
+    [line:packingcmpgstinline2]
+field:sp,nf,sp2,nf2
+ Local: Field: sp: Set As:"GSTIN"
+ Local: Field: sp2: Set As:"CIN No. "
+ Local: Field: nf2: Set As:@@cwCMPCinno
+ Local: Field: nf: Set As:@@VATCMPGSTNumber  ;;@@cwGSTNNumber
+
+ Local: field: sp: Width:13
+ Local: field: sp2: Width:13
+ Local: Field: sp: Style:Style10
+
+ Local: Field: sp2: Style:Style10
+ Local: Field: nf: Style:Style11
+ Local: Field: nf2: Style:Style11
+
+[part:packkrishnasalesTopPart4]
+
+line:packinginvnoline1
+border:thin box
+
+[line:packinginvnoline1]
+field:sp,nf
+right field:sp2,sdf,isreelf
+
+Local: Field: sp: Set As:"INVOICE NO.:"
+
+
+Local: Field: sp2: Set As:"INVOICE DATE"
+Local: Field: nf: Set As:$vouchernumber
+Local: Field:sdf: Set As:$date
+local: field: sdf: type: String
+Local: Field: default: style:style10A ;;style10
+Local: field: sp: Width:17
+Local: field: sp2: Width:18
+space top:0.2
+height:1.2
+;; {21.Jan.23 10:37} height:0.8
+
+
+
+ [part:aksalesinvoiceTopPart3packing]
+ part:aksalesinvoiceTopPart3a,aksalesinvoiceTopPart3b,packaksalesinvoiceTopPart3c
+ border:thin box
+  
+ [part:packaksalesinvoiceTopPart3c]
+
+ line:invnoline,invdtline,packingcnnoline1,packingcndtline1,packcwreline,packingTransporterNameline1 ;;,packingTransporterNameline2
+ 
+ 
+ [line:packingTransporterNameline1]
+ use:invnoline
+
+ Local: Field:sp: Set As:if $$issysname:$cwcwTransporterName then "" else "Transporter Name"
+ Local: Field:snf: Set As:if $$issysname:$cwcwTransporterName then "" else $cwcwTransporterName
+
+ Local: Field:default:style:style11
+ Local : field : snf: Lines : 0
+ remove if:$$issysname:$cwcwTransporterName
+
+
+
+
+
+
+ [line:packingcnnoline1]
+ use:invnoline
+ Local: Field:sp: Set As:if $$isempty:$BILLOFLADINGNO then "" else "C/N No"
+ Local: Field:snf: Set As:$BILLOFLADINGNO
+ Local: Field:default:style:style11
+
+ [line:packingcndtline1]
+ use:invnoline
+ Local: Field:sp: Set As:if $$isempty:$BillofLadingDate then "" else "C/N Date"
+ Local: Field:snf: Set As:$BillofLadingDate
+ Local: Field:default:style:style11
+
+
+ [line:packcwreline]
+  use:invnoline
+
+
+  Local: Field:sp: Set As:if $$isempty:$BASICSHIPVESSELNO then "" else "Truck No"
+  Local: Field:Snf: Set As:$BASICSHIPVESSELNO
+  Local: Field:default:style:style11
+
+;;===============================
+
+
+
+ [part : salesinvoicechg7INVACCPart]
+Parts       : salesinvoicechg7InvPart  ;;, salesinvoicechg7AccPart
+CommonBorder: Yes
+Vertical    : Yes
+Scroll      : Vertical
+Float       : No
+;;Total       :
+ border:thin box
+ 
+ [part : salesinvoicechg7InvPart]
+  line : salesinvoicechg7InvLineTitle,salesinvoicechg7InvLineTitle2,salesinvoicechg7InvLine ;;,salesinvoicechg7InvLineTotal
+repeat : salesinvoicechg7InvLine : Inventory Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+ [System: Formula]
+ mycwGSM:$cwsortno:stockitem:$stockitemname  ;; ;;$cwGSM:stockitem:$stockitemname
+ mycwSize:$cwSize:stockitem:$stockitemname
+ mycwPacknew:$cwPacknew:stockitem:$stockitemname
+
+ [Line : salesinvoicechg7InvLine]
+  field : snf,snf2,numf1,fwf
+;; {25.Dec.24 11:12}  right field :snfx,snf8,snf3,numf5,snf4,snf5,snf6,qtyf,qtyf2,EXPINVHSNSACDetails,EXPINVIGSTRate
+;; {10.Jan.25 12:07}  right field :snfx,snf10,snf4,snf8,snf3,numf5,snf5,snf6,qtyf,qtyf2,EXPINVHSNSACDetails,EXPINVIGSTRate
+ right field :snfx,snf10,snf3,numf5,snf8,snf4,snf5,snf6,qtyf,qtyf2,EXPINVHSNSACDetails,EXPINVIGSTRate
+
+
+  Local: Field: SNFX: Set As:$$CollectionField:$cwSHEETS2:1:BATCHALLOCATIONS
+   Local: Field: snfx: width:4
+   Local: field: snfx: Align:centre
+
+ local : field : snf: set as :$$linenumber-2 ;; "SL No"
+ local : field : snf2: set as :#EXPINVHSNSACDetails  ;;@@cwitemHSNCode ;; "HSN"
+ local : field : fwf : set as :$cwQuality:stockitem:$stockitemname  ;; @@invitemname
+ local : field : snf10 : set as :$partno:stockitem:$stockitemname  ;; @@invitemname
+
+ local: field: snf3 : set as :$$CollectionField:@@mycwGSM:1:BATCHALLOCATIONS ;;$cwGSM:stockitem:$stockitemname ;; "GSM"
+ local: field: snf4 : set as :$$CollectionField:@@mycwSize:1:BATCHALLOCATIONS  ;;$cwSize:stockitem:$stockitemname ;; "Size"
+;; {23.Dec.24 12:01}  local: field: snf5 : set as :if $$isempty:$cwsqmtWeightper then $$CollectionField:$cwsqmtWeightper:1:BATCHALLOCATIONS else $$CollectionField:@@mycwsqmtWeightper:1:BATCHALLOCATIONS  ;;$cwPacknew:stockitem:$stockitemname ;; "Unit Wt."
+ local: field: snf5 : set as :if $$isempty:$cwsqmtWeightper then $$CollectionField:@@mycwPacknew:1:BATCHALLOCATIONS else $$CollectionField:$cwsqmtWeightper:1:BATCHALLOCATIONS  ;;$cwPacknew:stockitem:$stockitemname ;; "Unit Wt."
+
+;; {12.Aug.24 15:53}  local: field: snf6 : set as :IF $$ISEMPTY:$billedqty THEN "" ELSE $$FULLLIST:BATCHALLOCATIONS:$CWBundles ;; "Bundles"
+;; {19.Mar.25 10:02}  local: field: snf6 : set as :IF $$ISEMPTY:$billedqty THEN "" ELSE $$FULLLIST:BATCHALLOCATIONS:$CWBundles ;; "Bundles"
+
+ local: field: snf6 : set as :if @@cwIsManufacturingvchtype="yes" then $$CollectionField:$CWBundles:First:BATCHALLOCATIONS ELSE $$FULLLIST:BATCHALLOCATIONS:$CWBundles
+
+ local: field: numf1 : set as :#EXPINVIGSTRate
+ local: field: numf1: Invisible:NOT @@InvGSTIGSTRate
+ Local: Field: snf8: Set As:if @@cwbatchnamekv1= "Primary batch" then "" else $$CollectionField:$batchname:First:BATCHALLOCATIONS
+
+ local : field : qtyf : set as :$$CollectionField:$billedqty:First:BATCHALLOCATIONS
+ local : field : qtyf2 : set as :$$CollectionField:$billedqty:First:BATCHALLOCATIONS
+ 
+  local: field: numf5 : set as :$$CollectionField:$cwPKT:First:BATCHALLOCATIONS
+  
+ local : field : ratef : set as : $rate
+ ;;local : field : snfx : set as : $baseunits:stockitem:$stockitemname
+ local : field : amtf : set as : $amount
+ local: field: EXPINVHSNSACDetails: Invisible: yes
+ local: field: EXPINVIGSTRate: Invisible: yes
+
+ local: field: qtyf: type: quantity:Secondary units
+
+ Local: field:numf1: Format: "nozero,percentage"
+ Local: field: qtyf: Format: "nosymbol,nocomma"
+ Local: field: qtyf2: Format: "nosymbol,nocomma"
+
+ local : field : numf1: Align:centre
+ local : field : ratef : type : number
+ local : field : ratef : align : right
+ local : field : ratef : format :"Decimals:2,NoZero"
+
+ Local: Field: default: Border: thin right
+ local : field : fwf : delete : border: thin right
+ local : field : qtyf2 : delete : border: thin right
+ 
+;; {07.Jan.25 12:52}  local: field: SNF3: Invisible:if $$owner:$$owner:$cwIsReelvchtmfg="yes" then yes else no
+  local: field: SNF6: Invisible:if #isreelf="yes" then yes else no
+  local: field: SNF10: Invisible:if @@cwIsManufacturingvchtype="no" then yes else no
+  local: field: SNF3: Invisible:if @@cwIsManufacturingvchtype and @@issales then yes else no
+  local: field: numf5: Invisible:if #isreelf="no" then yes else no
+
+
+;; {12.Aug.24 15:01}  Local: Field: snf8:Border: thin left
+
+ Local: field: snf: Width:4 ;;6
+;; {27.Jan.23 14:15}  Local: field: snf4: Width:if not ##logi2 then "12.3" else "8" ;12
+;; {08.Mar.25 16:30}  Local: field: snf4: Width:if @@cwIsManufacturingvchtype then "20" else "11" ;;8.4;;if not ##logi2 then "12.3" else "8.4" ;12
+ Local: field: snf4: Width:if @@cwIsManufacturingvchtype then "17" else "11" ;;8.4;;if not ##logi2 then "12.3" else "8.4" ;12
+ Local: field: snf10: Width:10 ;;8.4;;if not ##logi2 then "12.3" else "8.4" ;12
+
+ Local: field: snf3: Width:8 ;;5 ;;if not ##logi2 then "7" else "5"
+ Local: field: snf2: Width:8 ;;if not ##logi2 then "10" else "8" ;;12
+ Local: field: snf5: Width:7.4 ;;if not ##logi2 then "8.3" else "7.4" ;;7
+;; {25.Jan.23 16:55}  Local: field: snf6: Width:9 ;;14
+ Local: field: qtyf: Width:8  ;;if not ##logi2 then "13" else "8" ;;10 ;;14.5 ;;10 ;12
+ Local: field: qtyf2: Width:8 ;;if not ##logi2 then "13" else "8" ;;10 ;;13 ;;9 ;;10
+ Local: field: amtf: Width:14 ;;16.3
+ Local: field: numf1: Width:5
+ Local: field: snf8: Width:14 ;;20
+ Local: field: qtyf:space right:2
+
+;; {12.Mar.25 15:56}  local: field: snf6 :Width:if @@cwIsManufacturingvchtype then "9.4" else 13 ;;9.4 ;;10 ;;13 ;;11 ;;9.4
+ local: field: snf6 :Width:if @@cwIsManufacturingvchtype then "10" else "13" ;;9.4 ;;10 ;;13 ;;11 ;;9.4
+
+ Local : field : snf6: Lines : 0
+ Local: Field:default:style:style10
+ Local: Field:snf:style:style11
+ Local: Field:snf10:style:style11
+ Local: Field:snf2:style:style11
+ Local: Field:snfx2:style:style10
+ Local: Field:fwf:style:style10
+
+ Local: Field:qtyf:style:style10
+ Local: Field:qtyf2:style:style10
+ Local: Field:amtf:style:style10
+ Local: Field:numf1:style:style11
+
+ local : field : snf: Align:centre
+ local : field : snf2: Align:centre
+
+
+ local: field: snf3 : Align:centre
+ local: field: snf4 :Align:centre
+ local: field: snf5 :Align:centre
+ local: field: snf6 : Align:centre
+ local: field: snf8 : Align:centre
+
+explode : salesinvoicechg7BUDPart : $basicuserdescription != ''
+explode : salesinvoicechg7BatchPart
+explode : salesinvoicechg7BatchPart2 : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+
+border:thin top:$stockitemname <> $$prevobj:$stockitemname
+
+[line: salesinvoicechg7InvLineTitle]
+ use : salesinvoicechg7InvLine
+delete : explode
+  local : field: default : type : string
+local : field : snf: set as : "SL"
+ Local: Field: snfx: Set As:""
+ local : field : snf2: set as : "HSN"
+ local: field: fwf : set as : "Product Description"
+ local: field: snf8 : set as : "Batch No"
+;; {12.Aug.24 14:12}  local: field: fwf :indent:12
+ local: field: snf3 : set as : "GSM"
+ local: field: snf10 : set as : "Item"
+ local: field: snf4 : set as : "Size"
+ local: field: snf5 : set as :if $cwIsReelvchtmfg="yes" then "Qty" else "Unit" ;; "Unit"
+ local: field: snf6 : set as : "Bundles"
+   local : field : numf1: set as : "GST"
+;; {27.Dec.24 12:20}  local : field : qtyf : set as : "Total "
+;; {27.Dec.24 12:21}   local : field : qtyf : set as :if $cwIsReelvchtmfg="yes" then "SQMTa" else "Total"
+  local : field : qtyf : set as :if $cwIsReelvchtmfg="yes" then "No. of" else "Total"
+ local : field : qtyf2 : set as : if $cwIsReelvchtmfg="yes" then "SQMT" else "Qty"
+ local: field: numf5 : set as :"Length"
+
+ local: field : ratef : set as : "Rate"
+;; local: field : snfx : set as : "Per"
+ local : field : amtf : set as :"Amount"
+ local: field: qtyf: type:string
+ local: field: qtyf2: type:string
+
+ local : field : default : align : centre
+ local: field : ratef : align : centre
+ local : field : fwf : align : left
+ local: field: ratef: type: String
+
+;; {17.Oct.22 09:51}  Local : field : default: Lines :2
+ Local: Field:default:style:style10
+ Local: Field:snf:style:style10
+ Local: Field:snf10:style:style10
+ Local: Field:snf2:style:style10
+  Local: Field:numf1:style:style10
+;; border:thin bottom
+;; {03.Nov.22 17:49} local: field: fwf :indent:if not ##logi2 then 7 else 25
+;; {12.Aug.24 14:13} local: field: fwf :indent:if ##logi2 then 7 else 25
+
+
+
+[line: salesinvoicechg7InvLineTitle2]
+ use : salesinvoicechg7InvLine
+delete : explode
+
+local : field: default : type : string
+
+local : field : snf: set as : " No"
+local : field : snf2: set as : ""
+local: field: fwf : set as : ""
+ local: field: snf10 : set as : "Code"
+local: field: snf3 : set as : ""
+local: field: snf4 : set as : ""
+local: field: snf5 : set as : if $cwIsReelvchtmfg="yes" then " In Kg." else "Wt."  ;;" Wt."
+local: field: snf6 : set as : ""
+local : field : numf1: set as :"Rate" ;; "GST %"
+local: field: numf5 : set as :"(Mtr)"
+local : field : qtyf : set as :if $cwIsReelvchtmfg="yes" then "REEL" else "Units" ;; " Units"
+local : field : qtyf2 : set as : if $cwIsReelvchtmfg="yes" then "" else "(In Kgs)"
+local: field : ratef : set as : ""
+local: field : snfx : set as : ""
+local : field : amtf : set as :""
+local: field: qtyf: type:string
+local: field: qtyf2: type:string
+
+local : field : default : align : centre
+local: field : ratef : align : centre
+local : field : fwf : align : left
+local: field: ratef: type: String
+;; {17.Oct.22 09:51}  Local : field : default: Lines :2
+Local: Field:default:style:style10
+Local: Field:snf:style:style10
+Local: Field:snf2:style:style10
+Local: Field:numf1:style:style10
+ Local: Field:snf10:style:style10
+
+border:thin bottom
+delete:space top:0.3
+add: space bottom:0.2
+
+
+
+[part : salesinvoicechg7BatchPart]
+line : salesinvoicechg7BatchLine
+;;repeat : salesinvoicechg7BatchLine : BatchAllocations
+
+[line : salesinvoicechg7BatchLine]
+  use : salesinvoicechg7BUDLine
+ delete : explode
+
+local : field : snf: set as :"";;$$string:#amtf ;;$$linenumber-2 ;; "SL No"
+ local : field : snf2: set as :"";;$$string:#amtf ;;@cwitemHSNCode;; "HSN"
+ local : field : amtf: set as :$amount ;;@cwitemHSNCode;; "HSN"
+local: field: snf2: type: amount
+;; {20.Oct.22 14:18}  local : field : fwf : set as :$$string:$cwsheetnew1+" x "+$$string:$cwsheetnew2+" = "+$$string:$cwsheetnew3+" "+"Sheet" ;; @@invitemname
+;; {23.Dec.24 11:46}  local : field : fwf : set as :if $$isempty:@@cwbsheet then "" else ($$string:@@cwsheetnew1new+" x "+$$string:@@cwsheetnew2new+" = "+$$string:@@cwsheetnew3new+" "+"Sheet") ;; @@invitemname
+ local : field : fwf : set as :if #isreelf="yes" then "" else @@cwbsheetn1
+ local: field: snf3 : set as :"" ;;$cwGSM:stockitem:#fwf ;; "GSM"
+ local: field: snf4 : set as :"" ;;$cwSize:stockitem:$stockitemname ;; "Size"
+ local: field: snf5 : set as :"" ;; "Unit Wt."
+ local: field: snf6 : set as :"" ;;$$FULLLIST:BATCHALLOCATIONS:$CWBundles ;; "Bundles"
+ local: field: snf9 : set as :"" ;;$$FULLLIST:BATCHALLOCATIONS:$CWBundles ;; "Bundles"
+ local: field: numf2 : set as :"" ;;$$FULLLIST:BATCHALLOCATIONS:$CWBundles ;; "Bundles"
+  local: field: snf6 : set as :"" ;;$CWBundles ;; "Bundles"
+  local: field: snf8 : set as :"" ;;$CWBundles ;; "Bundles"
+ local: field: numf5 : set as :""
+ local : field : qtyf : set as :"" ;; $billedqty
+ local : field : qtyf2 : set as : "" ;;$billedqty
+ local : field : ratef : set as :"" ;; $rate
+ local : field : snfx : set as :"" ;; $baseunits:stockitem:$stockitemname
+;; {14.Oct.22 17:25}  local : field : amtf : set as :"" ;; $amount
+ Local   : Field : fwf : Style     :style16
+ Local: Field: numf1: Set As:""
+  Local: Field: snfx2: Set As:""
+  local: field: snf10 : set as : ""
+
+  delete:border:thin top
+  
+  [System: Formula]
+   cwbsheetn1:if $$isempty:@@cwbsheet then "" else ($$string:@@cwsheetnew1new+" x "+$$string:@@cwsheetnew2new+" = "+$$string:@@cwsheetnew3new+" "+"Sheet") ;; @@invitemname
+
+
+
+
+[part : salesinvoicechg7BatchPart2]
+line : salesinvoicechg7BatchLine2
+repeat : salesinvoicechg7BatchLine2 : BatchAllocations
+
+[System: Formula]
+cwbatchnamekv1:$$CollectionField:$batchname:1:BATCHALLOCATIONS
+cwbatchnamekv:$$CollectionField:$batchname:@@linep1:BATCHALLOCATIONS
+
+[line : salesinvoicechg7BatchLine2]
+  use : salesinvoicechg7BUDLine
+  
+  delete : explode
+local : field : snf: set as :"";;$$string:#amtf ;;$$linenumber-2 ;; "SL No"
+ local : field : snf2: set as :"";;$$string:#amtf ;;@cwitemHSNCode;; "HSN"
+ local : field : amtf: set as :$amount ;;@cwitemHSNCode;; "HSN"
+local: field: snf2: type: amount
+;; {20.Oct.22 14:18}  local : field : fwf : set as :$$string:$cwsheetnew1+" x "+$$string:$cwsheetnew2+" = "+$$string:$cwsheetnew3+" "+"Sheet" ;; @@invitemname
+Local: Field: snf8: Set As:if @@cwbatchnamekv= "Primary batch" then "" else $$CollectionField:$batchname:@@linep1:BATCHALLOCATIONS
+
+ local: field: snfx : set as :$$owner:$$CollectionField:$cwSHEETS2:@@linep1:BATCHALLOCATIONS ;;$cwGSM:stockitem:$stockitemname ;; "GSM"
+ local: field: snf3 : set as :$$owner:$$CollectionField:@@mycwGSM:@@linep1:BATCHALLOCATIONS ;;$cwGSM:stockitem:$stockitemname ;; "GSM"
+ local: field: snf4 : set as :$$owner:$$CollectionField:@@mycwSize:@@linep1:BATCHALLOCATIONS  ;;$cwSize:stockitem:$stockitemname ;; "Size"
+;; {23.Dec.24 12:00}  local: field: snf5 : set as :$$owner:$$CollectionField:@@mycwPacknew:@@linep1:BATCHALLOCATIONS  ;;$cwPacknew:stockitem:$stockitemname ;; "Unit Wt."
+
+ local: field: snf5 : set as :if $$isempty:$cwsqmtWeightper then $$owner:$$CollectionField:@@mycwPacknew:@@linep1:BATCHALLOCATIONS else $$owner:$$CollectionField:$cwsqmtWeightper:@@linep1:BATCHALLOCATIONS  ;;$cwPacknew:stockitem:$stockitemname ;; "Unit Wt."
+
+
+  local: field: snf6 : set as :$$owner:$$CollectionField:$CWBundles:@@linep1:BATCHALLOCATIONS
+ local: field: snf9 : set as :"" ;;$$FULLLIST:BATCHALLOCATIONS:$CWBundles ;; "Bundles"
+ local: field: numf2 : set as :"" ;;$$FULLLIST:BATCHALLOCATIONS:$CWBundles ;; "Bundles"
+;; {12.Aug.24 15:54}   local: field: snf6 : set as :"" ;;$CWBundles ;; "Bundles"
+
+ local : field : qtyf : set as :$$owner:$$CollectionField:$BILLEDQTY:@@linep1:BATCHALLOCATIONS;; $billedqty
+ local : field : qtyf2 : set as :$$owner:$$CollectionField:$BILLEDQTY:@@linep1:BATCHALLOCATIONS ;;$billedqty
+ local : field : ratef : set as :"" ;; $rate
+;; {25.Feb.25 16:33}  local : field : snfx : set as :"" ;; $baseunits:stockitem:$stockitemname
+;; {14.Oct.22 17:25}  local : field : amtf : set as :"" ;; $amount
+ Local   : Field : fwf : Style     :style16
+ Local: Field: numf1: Set As:""
+  Local: Field: snfx2: Set As:""
+   local: field: numf5 : set as :$$CollectionField:$cwPKT:@@linep1:BATCHALLOCATIONS
+
+    delete:border:thin top
+
+[part : salesinvoicechg7BUDPart]
+line: salesinvoicechg7BUDLine
+repeat : salesinvoicechg7budline : basicuserdescription
+
+[line : salesinvoicechg7BudLine]
+ use  : salesinvoicechg7INVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : snf2 : set as : ""
+local : field : fwf : set as : $basicuserdescription
+local: field: snf3 : set as :"" ;;$cwGSM:stockitem:#fwf ;; "GSM"
+ local: field: snf4 : set as :"" ;;$cwSize:stockitem:$stockitemname ;; "Size"
+ local: field: snf5 : set as :"" ;; "Unit Wt."
+ local: field: snf6 : set as :"" ;;$$FULLLIST:BATCHALLOCATIONS:$CWBundles ;; "Bundles"
+ local: field: snf9 : set as :"" ;;$$FULLLIST:BATCHALLOCATIONS:$CWBundles ;; "Bundles"
+ local: field: numf2 : set as :"" ;;$$FULLLIST:BATCHALLOCATIONS:$CWBundles ;; "Bundles"
+  local: field: snf6 : set as :"" ;;$CWBundles ;; "Bundles"
+   local: field: numf5 : set as :""
+ local : field : qtyf : set as :"" ;; $billedqty
+ local : field : qtyf2 : set as : "" ;;$billedqty
+ local : field : ratef : set as :"" ;; $rate
+ local : field : snfx : set as :"" ;; $baseunits:stockitem:$stockitemname
+;; {14.Oct.22 17:25}  local : field : amtf : set as :"" ;; $amount
+ Local   : Field : fwf : Style     :style16
+ Local: Field: numf1: Set As:""
+  Local: Field: snfx2: Set As:""
+  local: field: snf10 : set as : ""
+[line : salesinvoicechg7InvLineTotal]
+ use  : salesinvoicechg7INVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : ""
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : $$collamttotal:inventoryentries:$amount
+local : field : amtf : border :thin top
+space bottom : 0.05
+
+
+ [part : salesinvoicechg7ACCPart]
+ line : salesinvoicechg7ACCLine
+ repeat : salesinvoicechg7ACCLine : Ledger Entries
+ Scroll : vertical
+ Common border : yes
+ float : no
+
+ [Line : salesinvoicechg7ACCLine]
+ use : salesinvoicechg7INVLine
+empty : $ledgername = $partyledgername or $$issysname:$ledgername or $$isempty:$amount
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"NoZero,Percentage"
+local : field : ratef  : set as : $basicrateofinvoicetax
+local : field : snf : set as : ""
+local : field : fwf : set as : $ledgername
+local : field : qtyf : set as : ""
+delete : explode
+
+ [part : salesinvoicechg7BottomPart]
+ line : salesinvoicechg7TotLine,cwblankline
+  
+ [line : salesinvoicechg7TotLine]
+ use : salesinvoicechg7ACCLine
+ delete : empty
+ local : field : ratef  : set as :""
+ local : field : fwf : set as : "Total:"
+ local : field : fwf : align : right
+ local : field : amtf : format : "ShowBaseSymbol"
+  local: field: snf10 : set as : ""
+  
+ [part : krishnasalesBottomPart2xpaking]
+ line : krishnasalesTotLinepacking
+ common border:yes
+ border:thin box
+
+ [line : krishnasalesTotLinepacking]
+ use : salesinvoicechg7INVLine
+ delete : explode
+ local : field: default : type : string
+
+ local : field : snf: set as : " "
+ local : field : snf2: set as : ""
+ local: field: fwf : set as : "Total"
+
+ local: field: snf3 : set as : ""
+ local: field: snf4 : set as : ""
+ local: field: snf5 : set as :if @@cwisreelproductyes="no" then "" else $$CollnumTotal:inventoryentries:$cwsqmtWeightper
+;; {09.Jan.25 18:35}  local: field: snf5 : set as :if @@cwIsManufacturingvchtype then $$CollnumTotal:inventoryentries:$cwsqmtWeightper else ""
+ local: field: snf6 : set as :$$CollnumTotal:inventoryentries:$cwBDL
+
+ local: field: numf5 : set as :$$CollnumTotal:inventoryentries:$cwPKT
+;; {28.Oct.22 14:26}  local : field : qtyf : set as : " "
+ local: field : ratef : set as : ""
+ local: field : snfx : set as : ""
+ local : field : amtf : set as :""
+ Local: field: fwf: Align: Right ;;centre
+
+  local: field: snf10 : set as : ""
+ Local: Field: qtyf: Set As: $$CollQtyTotal:inventoryentries:$billedqty
+ Local: Field: qtyf2: Set As:$$CollQtyTotal:inventoryentries:$billedqty
+ local : field : fwf : align : right
+
+;; {28.Oct.22 17:19}   local: field: qtyf: type: quantity:Secondary units
+ local: field: qtyf2: type: quantity
+ local : field : amtf : format : "noShowBaseSymbol"
+
+  Local: field: qtyf: Format: "nosymbol,nocomma"
+  Local: field: qtyf2: Format: "nosymbol,nocomma"
+
+  Local: Field:default: style:style10
+;; {21.Jan.23 10:39}   height:1.5
+  height:1.2
+;; {30.Dec.22 11:06}   height:1 ;;1.5
+  space top:0.3
+
+
+ [part:krishnasalesBottomPart2xpaking2]
+ part:krishnasalesBottomPart2xpaking2a
+ part:krishnasalesBottomPart2xpaking2b
+ border:thin box
+
+ [part:krishnasalesBottomPart2xpaking2a]
+line:cwnarraline,eoepackline
+[line:cwnarraline]
+field:fwf
+Local: Field: fwf: Set As:$narration
+ Local   : Field : fwf : Style     :style16
+ Local : field : fwf: Lines : 0
+
+ [part:krishnasalesBottomPart2xpaking2b]
+ line:forpackliee,cwblankline,cwblankline2,cwblankline3,cwblankline4,authpackingline
+ 
+ border:thin left
+ [line:forpackliee]
+ field:fwf
+ Local: Field: fwf: Set As:@@FORCMPMAIL2
+ Local: field: fwf: Align: Right ;;centre
+  Local   : Field : fwf : Style     :style10
+
+ 
+ [line:eoepackline]
+ field:fwf
+ Local: Field: fwf: Set As:"E & O.E. "
+ Local   : Field : fwf : Style     :style10
+ space bottom:0.8
+
+ [line:authpackingline]
+ 
+ field:fwf
+ Local: Field: fwf: Set As:"Authorised Signatory"
+ Local: field: fwf: Align: Right ;;centre
+
+ Local   : Field : fwf : Style     :style10
+ 
+ 

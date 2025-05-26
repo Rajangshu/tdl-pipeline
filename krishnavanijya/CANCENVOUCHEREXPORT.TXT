@@ -1,0 +1,230 @@
+; Created By: Taniya on 2021-09-23 15:50, ID:
+
+
+[line:cwbccanvchlocline]
+field:lp,nf
+Local: Field: lp: info: "Cancel Voucher Location "
+Local: Field: nf: storage:cwbccanvchloc
+Local: Field: nf: Style: Normal Bold
+Local: Field: nf:width:45
+
+[System: Formula]
+cwbcfssinoopt:$cwbcfssino:company:##svcurrentcompany
+cwbccanvchlocopt:$cwbccanvchloc:company:##svcurrentcompany
+
+
+
+
+[field : fsnf]
+ use : short name field
+
+
+[#Line: VCH Display Number]
+ add:field:fsnf
+
+ Local: Field: fsnf: Set As:$vouchernumber
+ Local: Field: fsnf:storage:cwdisvouchernumber
+ Local: Field: fsnf:invisible:yes
+
+ [System: UDF]
+ cwdisvouchernumber:string:908
+
+[System: Formula]
+cwExportFileName :if $$isempty:$vouchernumber then #fsnf else $vouchernumber;;+ ".pdf"
+
+
+
+[#Form: Day Book]
+add:Button:BottomToolBarBtn4
+
+[System : Event]
+BeforeVchCancellation : Before Cancel Object : Yes : Call +
+: cwcguptml;;cwbcancelPrint
+
+[function : cwbcancelPrint]
+parameter : fromBulk : logical : false
+
+variable : cwExportLocation : string : @@cwbccanvchlocopt
+variable : cwExportFileName : string : @@cwExportFileName
+variable : CwPDfFileNameWithPath : string : ##cwExportLocation + ##cwExportFileName
+
+variable : cwTxtFilename : string
+
+/*
+variable : cwpartyledger  : string : if not $$isempty:@@AllLedName then @@AllLedName else if not $$isempty:$partyledgername then $partyledgername else if not $$isempty:$FirstLedger then $FirstLedger else ""
+variable : CWVEHNO  : string :$$OWNER:$cwslvchvehlno
+variable : CWVEHdate  : string :$$OWNER:$cwslvchvehldate
+variable : CWVEHdate  : string :$$OWNER:$cwslvchvehldate
+variable:CWVCHAREA : string :$$OWNER:$cwslvchareanm
+variable:CWVCHOUTLET : string :$$OWNER:$cwslvchoutltty
+variable:CWVCHSALESMAN: string :$$OWNER:$cwslvchsalemn
+variable:CWVCHITEMNAME: string :$$fulllist:inventoryentries:$stockitemname
+variable:CWVCHSTATUS: string :$$fulllist:inventoryentries:$cwbcitemstatus
+variable:CWVCHQUANTITY:number:$$fulllist:inventoryentries:$billedqty
+variable:CWVCHALTQTY:number:$$fulllist:inventoryentries:$aCTUALqTY
+variable:CWVCHRATE:number:$$fulllist:inventoryentries:$rate
+variable:CWVCHDIS :number:$$fulllist:inventoryentries:$discount
+variable:CWVCHAMOUNT:amount:$$fulllist:inventoryentries:$amount
+variable:CWVCHSCHDISC:amount:$$FilteramtTotal:ledgerentries:schdiscamtfilt:$amount
+variable:CWVCHCASHDISC:amount:$$FilteramtTotal:ledgerentries:cashdiscamtfilt:$amount
+variable:CWVCHGST:amount:@@cwVCHGSTVAlue
+
+
+VARIABLE : isfexists : LOGICAL : NO
+
+VARIABLE : CWSENDeMAIL : LOGICAL : yes
+variable : istr : string
+variable : temp : string
+variable : strno : string
+variable : tempcopies : number
+
+variable : invamount : amount : if not $$isempty:$amount then $amount else if not $$isempty:$daybookamount then $daybookamount else ""
+ */
+ A10 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"\":"_"
+ A11 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"/":"_"
+ A12 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"?":"_"
+ A13 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:":":"_"
+ A14 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"*":"_"
+ A15 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:'"':"_"
+ A16 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"<":"_"
+ A17 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:">":"_"
+ A18 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"|":"_"
+ A19 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:" ":"_"
+
+
+ A25 : set : cwTxtFilename :##cwExportFileName+##istr
+sdfsdd : log : ##cwTxtFilename
+;; {14.Nov.19 13:58} qqqq : log object
+
+
+ ; Exporting Supporting File
+
+        B10 : OPEN FILE : ##cwTxtFilename  : TEXT : WRITE
+        B12 : TRUNCATE FILE
+
+         B51 : WRITE FILE LINE : "VOUCHERNUMBER," + $VOUCHERNUMBER
+        B52 : WRITE FILE LINE : "VOUCHERDATE," + $$STRING:$DATE
+        B53 : WRITE FILE LINE : "PARTYNAME," + $partyledgername
+        B54 : WRITE FILE LINE : "VEHICLENO," + $cwslvchvehlno
+        B55 : WRITE FILE LINE : "VEHICLEALLOCATIONDATE," +$$STRING:$cwslvchvehldate
+        B56 : WRITE FILE LINE : "AREA," + $cwslvchareanm
+        B57 : WRITE FILE LINE : "OUTLET," + $cwslvchoutltty
+
+        B58 : WRITE FILE LINE : "SALESMAN," + $cwslvchsalemn
+
+      /*  B59 : WRITE FILE LINE : "ITEMNAME," + ##CWVCHITEMNAME
+        B60: WRITE FILE LINE : "STATUS," + ##CWVCHSTATUS
+        B61: WRITE FILE LINE : "QUANTITY," + $$STRING:##CWVCHQUANTITY
+        B62: WRITE FILE LINE : "ALT QUANTITY," + $$STRING:##CWVCHALTQTY
+        B63: WRITE FILE LINE : "RATE," + $$STRING:##CWVCHRATE
+        B64: WRITE FILE LINE : "DISC%," + $$STRING:##CWVCHDIS
+        B65: WRITE FILE LINE : "AMOUNT=" + $$STRING:##CWVCHAMOUNT
+        B66: WRITE FILE LINE : "SCH.DISC=" + $$STRING:##CWVCHSCHDISC
+        B67: WRITE FILE LINE : "CASH.DISC=" + $$STRING:##CWVCHCASHDISC
+        B68: WRITE FILE LINE : "GST=" + $$STRING:##CWVCHGST
+        B69: WRITE FILE LINE : "BILLAMOUNT=" + $$STRING:##invamount
+        */
+
+
+        C175 : CLOSE TARGET FILE
+  /*
+
+; Exporting PDF
+;; {12.Jun.19 17:05}              A099bx   : log : ##SVPrintCopy
+	A100	: SET			: SVExportLocation	: ##cwExportLocation ;; "."
+	A110	: SET			: SVExportFormat	: $$SysName:PDF
+	A120	: SET			: SVPrintFileName	: ##cwExportLocation+##cwExportFileName+##istr
+
+
+	A140	: SET			: SVPrintFileName	: $$MakeExportName:##SVPrintFileName:##SVExportFormat
+	A130    : set : isfexists : $$isfileexists:##SVPrintFileName
+;; {23.Nov.19 12:09}         a130x11 : log :##isfexists
+        a2323 : log : "Exporting to: " + ##SVPrintFileName  + " " + ##SVPrintCopy
+
+	A150 : do if : ##isfexists : TriggerKey:Enter
+        A155 : set : SVOpenFileAfterExport : no
+;; {12.Jun.19 17:05}         assdf : set : svprintcopies : 1
+;; {12.Jun.19 17:04}         dsffsdafs : log : ##svprintcopies
+;; {12.Jun.19 17:04}         safsdkfj : log : ##svprintcopy
+;; {12.Jun.19 17:04}         safas : log : @@GetCopyNum
+        safasd : set : cwxx: ##SVPrintCopy
+;; {12.Jun.19 17:04}         ss : log : @@VchHasPrintCopies AND (Not @@IsPrintCopyApplicable)
+
+
+;;f001 : log : ##SVPrintOrientation
+;;f002 : log : @@invwidth
+;;f003 : log : @@InvHeight
+f003 : log : ##strno
+
+
+	A160	: do if : not ##fromBulk :  EXPORT REPORT	: cwxx : true
+	A162	: do if : ##fromBulk :  EXPORT REPORT	:MyInvoice : true ;; cwxy : true
+
+
+
+        C090 : end for
+
+        C980 : return : yes
+*/
+
+      /*  B14 : WRITE FILE LINE : "[CWEMAIL]"
+
+        B14A: WRITE FILE LINE : "EXPORTEDON=" + $$string:$$machinedate + " " + $$string:$$machinetime
+
+        B14B: WRITE FILE LINE : "VERSION="+@@cwESigningVersion
+
+        B15 : WRITE FILE LINE : "CMPMAILNAME="+ @@CMPMAILNAME
+        B16 : WRITE FILE LINE : "USERNAME="+ ##svusername
+
+;; {12.Jun.19 17:05}         dddd : log :  $$string:$cwEmail:vouchertype:$vouchertypename
+
+       ; VALUES FROM Voucher Type
+        B20 : WRITE FILE LINE : "Template=" + $cwVchTemplate:vouchertype:$vouchertypename
+        B21 : WRITE FILE LINE : "Left=" + $$string:$cwLeft:vouchertype:$vouchertypename
+        B22 : WRITE FILE LINE : "Top=" + $$string:$cwTop:vouchertype:$vouchertypename
+        B23 : WRITE FILE LINE : "Bottom=" + $$string:$cwBottom:vouchertype:$vouchertypename
+        B24 : WRITE FILE LINE : "Right=" + $$string:$cwRight:vouchertype:$vouchertypename
+        b24a: set : temp :   $cwPrint:vouchertype:$vouchertypename
+        b24aa: set : strno : if $$isempty:$vouchertypename then #FormSubTitle else $vouchertypename;;$vouchertypename;; $cwPrintCopies:vouchertype:$vouchertypename
+        B25 : WRITE FILE LINE : "ActionPrint=" + $$upper:##temp
+        b25a: set : temp :  $cwEmail:vouchertype:$vouchertypename
+        B26 : WRITE FILE LINE : "ActionEmail=" + $$upper:##temp
+        b26a: set : temp : $cwMovetoFolder:vouchertype:$vouchertypename
+        B27 : WRITE FILE LINE : "ActionMoveFolder=" + $$upper:##temp
+        B28 : WRITE FILE LINE : "ActionMoveToPath=" + $cwMovePath:vouchertype:$vouchertypename
+;        B29 : WRITE FILE LINE : "=" + $:vouchertype:$vouchertypename
+;        B30 : WRITE FILE LINE : "=" + $:vouchertype:$vouchertypename
+
+
+         ; VALUES FROM PARTY LEDGER MASTER
+
+        B40 : WRITE FILE LINE : "MAILINGNAME=" + $MAILINGNAME:LEDGER:##cwpartyledger
+        B41 : WRITE FILE LINE : "EMAILID="+ $$cwReplaceCharacters:($EMAIL:LEDGER:##cwpartyledger):";":","
+        B41a : WRITE FILE LINE : "EMAILCCID="+ $$cwReplaceCharacters:($EMailCC:LEDGER:##cwpartyledger):";":","
+        B42 : WRITE FILE LINE : "CONTACTPERSON="+ $LedgerContact:LEDGER:##cwpartyledger
+
+
+         ; VALUES From Voucher
+        B50 : WRITE FILE LINE : "PARTYLEDGERNAME=" + ##cwpartyledger
+        B51 : WRITE FILE LINE : "VOUCHERNUMBER=" + $VOUCHERNUMBER
+        B52 : WRITE FILE LINE : "VOUCHERDATE=" + $$STRING:$DATE
+        B53 : WRITE FILE LINE : "INVOICEAMOUNT="+ $$STRING:##invamount
+
+        ; Values from Settings
+        B60 : WRITE FILE LINE : "SENDEMAIL="+ $$UPPER:$$STRING:##CWSENDeMAIL
+
+
+        ; Value from Formula, for future use
+        B70 :WRITE FILE LINE : "Emailid2=" + @@cwemailid2
+        B72 :WRITE FILE LINE : "EmailStr2=" + @@cwemailStr2
+
+        B75 :WRITE FILE LINE : "cwOthers1=" + @@cwOthers1
+        B76 :WRITE FILE LINE : "cwOthers2=" + @@cwOthers2
+        B77 :WRITE FILE LINE : "cwOthers3=" + @@cwOthers3
+        B78 :WRITE FILE LINE : "cwOthers4=" + @@cwOthers4
+        B79 :WRITE FILE LINE : "cwOthers5=" + @@cwOthers5
+
+        B80 : write file line : "cwSignatureOnPage=" + @@cwOnPage  */
+
+
+

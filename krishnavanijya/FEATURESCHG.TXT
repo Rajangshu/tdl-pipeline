@@ -1,0 +1,77 @@
+; Created By: Khokan on 2023-09-30 11:53, ID: 
+
+[line:LocationofSignatureline]
+  field:sp,cwlogical
+  Local: Field: sp: Set As:"Location of Signature:"
+  Local: Field: cwlogical: storage:cwSignaturepathyes
+  Local: Field: sp: Style: small
+  Local: Field: fwf: Style: small Bold
+  local: Field: fwf: max: 250
+  Local: field: sp: Width:30
+  Local: Field : cwlogical : SubForm : cwSignaturepathrep: $$value
+
+
+
+  [report:cwSignaturepathrep]
+  form:cwSignaturepathrep
+
+  [form:cwSignaturepathrep]
+  part:cwSignaturepathrep
+width:50% page
+
+  [part:cwSignaturepathrep]
+   line:LocationofSignatureline1,Marginlinew
+
+   [line:LocationofSignatureline1]
+   field:sp,fwf
+  Local: Field: sp: Set As:"Path:"
+  Local: Field: fwf: storage:cwSignaturepath
+  Local: Field: sp: Style: small
+  Local: Field: fwf: Style: small Bold
+  local: Field: fwf: max: 250
+;; {18.Jan.22 16:36}   Local: field: sp: Width:30
+
+[line:Marginlinew]
+field:sp,numf,sp2,numf2,sp2,numf2,sp3,numf3  ;;,sp4,numf4
+
+Local: Field: sp: info: "Margin from Left:"
+Local: Field: sp2: info: "Margin from Right:"
+Local: Field: sp3: info: "Margin from Top:"
+Local: Field: sp4: info: "Margin from Bottom:"
+
+Local: field: sp: Width:0
+Local: field: sp2: Width:0
+Local: field: sp3: Width:0
+Local: field: sp4: Width:0
+
+Local: Field: numf: storage: cwLeftMarg
+Local: Field: numf2: storage: cwRightMargin
+Local: Field: numf3: storage: cwtopMargin
+Local: Field: numf4: storage: cwbottomMargin
+
+
+
+Local: field: numf: Width:5
+Local: field: numf2: Width:5
+Local: field: numf3: Width:5
+Local: field: numf4: Width:5
+
+
+
+;;===========================================
+
+
+ [line:cwPartonJSONexeLn]
+field:long prompt,nf
+Local: Field:long prompt: Set As:"Path of JSON Export exe"
+Local: Field: nf: storage:cwJSONexepath
+Local: field: long prompt: Width:20
+Local: field: nf: Width:50
+
+[line:cwPathtosavefileLn]
+field:long prompt,nf
+Local: Field:long prompt: Set As:"SDR Excel Export Path"
+Local: Field: nf: storage:cwPathtoSavefile
+Local: field: long prompt: Width:25
+Local: field: nf: Width:50
+

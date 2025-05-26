@@ -1,0 +1,151 @@
+; Created By: Khokan on 2023-04-18 17:29, ID: 
+
+
+
+     [#menu: Gateway of Tally]
+        add: Option: text11Lock ;; : @@text11DemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@text11Report: Display: Reptext11
+
+
+
+     [!menu: text11Lock]
+        add: Item: before: @@locQuit: @@text11Report: Display: Reptext11
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   text11Report: "text11"
+;; text11DemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Reptext11]
+        use: Dsp Template
+      Title: @@text11Report
+   Printset: Report Title: @@text11Report
+       Form: Frmtext11
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: Frmtext11]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0text11,Prttext11
+      Width: 100% Page
+     Height: 100% Page
+     delete: page break
+        add: page break: text11botbrk,text11botOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+  add:button:Save View,change view
+  
+      [part: text11botBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: text11botopbrk]
+        use: dspacctitles
+  add: part: text11TitlePart
+
+      [part: text11TitlePart]
+       line: Lntext11Title
+       
+      [line: Lntext11CurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0text11]
+      line : Lntext11CurrPeriod
+      
+      [Part: Prttext11]
+       Line: Lntext11Title,Lntext11
+bottom Line: Lntext11Totals
+     repeat: Lntext11:Coltext11
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: Coltext11]
+/*
+source Collection: sourColtext11
+walk:ledgerentries
+by:ledgername:$ledgername
+
+            */
+            
+  Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: Coltext11Filter,IsNonOptionalCancelledVchs
+[Collection: sourColtext11]
+
+        Use: Vouchers of Company
+     delete: filter : daybookfilter
+     Filter: Coltext11Filter,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+Coltext11Filter:$$isjournal:$vouchertypename
+
+      [Line: Lntext11Title]
+        use: Lntext11
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: Lntext11]
+     Fields: sdf,nf,snf,fwf
+right field: ratepf,Qtyf,Amtf,AMTF2
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local : field : sdf : set as : $date
+ local : field : fwf : set as : $ledgername
+ Local: Field: nf: Set As:$name ;; $$FilterValue:($$FilterValue:$NAME:COSTCENTREALLOCATIONS:1:ccaFilter):ledgerentries:1:ccaFilter2
+ Local: Field: snf: Set As:"B11" ;; $$FilterValue:($$FilterValue:$NAME:COSTCENTREALLOCATIONS:1:ccaFilter):ledgerentries:1:ccaFilter2
+ Local: Field: amtf: Set As:$$reportobject:$$collectionfieldbykey:$amount:@@cwColtext112filxx:cwColtext112
+ Local: Field: amtf2: Set As:$$reportobject:$$collectionfieldbykey:$amount:@@cwColtext112filxx1:cwColtext112
+
+ [System: Formula]
+ ccaFilter:$ledgername+"A11"
+ ccaFilter2:yes
+
+ [Collection: cwColtext112]
+source Collection: sourColtext11
+walk:ledgerentries,COSTCENTREALLOCATIONS
+
+by:ledgername:$ledgername
+by:name:$name
+aggr compute:amount:sum:$amount
+
+;; {24.Aug.23 18:02} search key :$name ;; $ledgername+$name
+search key :$ledgername+$name
+
+[System: Formula]
+cwColtext112filxx:#fwf+"B11"
+cwColtext112filxx1:#fwf+"A11"
+
+      [line: Lntext11Totals]
+        use: Lntext11
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

@@ -1,0 +1,125 @@
+; Created By: Khokan on 2022-11-15 14:53, ID: 
+
+ [#Form: Ledger Vouchers]
+
+;; {15.Nov.22 15:01}   Add: BottomButton: At Beginning: Hidesalrep2
+  Add: Button: At Beginning: Hidesalrep2
+  
+  [#Form: Normal Ledger]
+  Add: Button: At Beginning: Hidesalrep2
+
+ [KEY : Hidesalrep2]
+ title:"Company Details"
+;; {15.Nov.22 15:14}  KEY :alt+F9
+ KEY :ctrl+F9
+;; {15.Nov.22 15:09} KEY :"S"+F9
+
+ TITLE :if ##logi3 then "Hide Company Details"  else " Show Company Details"
+;; {22.Nov.22 11:10}  TITLE :if ##logi2 then "Show Company Details"  else " Hide Company Details"
+ action :set : logi3:not ##logi3
+ 
+ ;;=============================================
+ 
+ [#Form: Normal Ledger]
+ add:option:cwNormalLedgeropt:##logi3 and $$InPrintMode
+
+ [!Form: cwNormalLedgeropt]
+ delete:Parts       : LV Title, LV VchTitle, LV Body
+ add:Parts       : ledvchpart,DSP GCC CmpRegnNo,DSP GSTCmpRegnNo, DSP ReportTitle,DSP PageNo, DSP ScaleFactor,LV VchTitle, LV Body
+ Page Break  : DYBK ClPageBreak, DYBK OpPageBreak
+ delete:part:LV Title
+
+ 
+ 
+
+ [part:ledvchpart]
+ part:ledvchparta,ledvchpartb,ledvchpartc
+     
+ [part:ledvchparta]
+ line:ledvchpart
+ add:option:ledvchlogopart4:##SALogoPath <> ""
+  
+  [!part:ledvchlogopart4]
+  Graph Type: ##SALogoPath
+
+ [line:ledvchpart]
+ field:nf
+
+ [part:ledvchpartb]
+
+ line:cmpnameline2rep
+
+ [line:cmpnameline2rep]
+ field:nf
+ Local: Field: nf: Set As:@@cmpmailname
+ Local: Field: nf:style:style12
+ Local : field : nf: Lines : 0
+ Local: field: nf: Width:50
+
+ [part:ledvchpartc]
+ line:repcmpaddline2,repcwcmpPhonePrnline2, repcmpgstinline2,repcmpStateNameline2
+ repeat:repcmpaddline2:collCompanyAddress
+
+
+[line:repcmpaddline2]
+
+field:fwf
+
+Local: Field: fwf: Set As:$address
+Local: Field: fwf:style:style11
+
+
+[line:repcwcmpPhonePrnline2]
+;; {20.Oct.22 17:01} use:cmpaddline2
+field:snfx,nf,snfx3,nf2
+
+Local: Field: snfx: Set As:"P.  "
+Local: Field: snfx2: Set As:"M.  "
+Local: Field: snfx3: Set As:"E.  "
+
+Local: Field: nf: Set As:@@cwcmpPhonePrn2
+Local: Field: snf2: Set As:@@cwcmpmobPrn
+Local: Field: nf2: Set As:@@cwcmpEmailPrn2
+Local: field: snfx: Width:2
+Local: field: snfx3: Width:2
+Local: field: nf: Width:25
+Local: field: nf2: Width:30
+Local: Field: snfx:style:style10
+Local: Field: snfx3:style:style10
+Local: Field: nf:style:style11
+Local: Field: nf2:style:style11
+
+
+ [line:repcmpgstinline2]
+field:sp,nf,sp2,nf2
+ Local: Field: sp: Set As:"GSTIN"
+ Local: Field: sp2: Set As:"CIN No. "
+ Local: Field: nf2: Set As:@@cwCMPCinno
+ Local: Field: nf: Set As:@@cwcmpGSTNNumber
+
+ Local: field: sp: Width:13
+ Local: field: sp2: Width:13
+ Local: Field: sp: Style:Style10
+
+ Local: Field: sp2: Style:Style10
+ Local: Field: nf: Style:Style11
+ Local: Field: nf2: Style:Style11
+
+  [line:repregdoffline]
+   field:sp,fwf
+
+ Local: Field: sp: Set As: "Regd.Office :"
+ Local: Field: fwf: Set As:$cwregoffice:COMPANY:##SVCURRENTCOMPANY
+;; {20.Oct.22 17:15}  Local: Field: fwf: Set As: "Regd.Office :" +$cwregoffice:COMPANY:##SVCURRENTCOMPANY
+ remove if :$$isempty:$cwregoffice:COMPANY:##SVCURRENTCOMPANY
+   Local: field: sp: Width:15
+   Local: Field: sp: Style:Style10
+   Local: Field: fwf: Style:Style11
+
+ [line:repcmpStateNameline2]
+ use:cmpaddline2
+ Local: Field: sp: Set As:"GSTIN"
+ Local: Field: fwf: Set As:"StateName : "+@@mycwcmpStateName
+
+
+

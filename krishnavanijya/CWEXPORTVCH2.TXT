@@ -1,0 +1,198 @@
+; Created By: Khokan on 2022-11-10 15:15, ID: 
+
+     [#menu: Gateway of Tally]
+;; {03.Feb.23 15:08}         add: Option: cwExportvch2Lock ;; : @@cwExportvch2DemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@cwExportvch2Report: Display: RepcwExportvch2
+
+
+
+     [!menu: cwExportvch2Lock]
+        add: Item: before: @@locQuit: @@cwExportvch2Report: Display: RepcwExportvch2
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   cwExportvch2Report: "cwExportvch2"
+;; cwExportvch2DemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: RepcwExportvch2]
+        use: Dsp Template
+      Title: @@cwExportvch2Report
+   Printset: Report Title: @@cwExportvch2Report
+       Form: FrmcwExportvch2
+     Export: Yes
+;; {10.Nov.22 15:41}      set  : svfromdate : ##svcurrentdate
+;; {10.Nov.22 15:41}      set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    
+   variable:str1,str5,str3
+;; {10.Nov.22 16:06} set:at beginning:str2:"sales"
+;; {10.Nov.22 16:06} set:at beginning:str3:""
+;; {10.Nov.22 16:06} set:at beginning:str1:""
+
+;; {03.Feb.23 12:13} set:str5:"purchase"
+;; {10.Nov.22 16:37} set:str3:""
+;; {10.Nov.22 16:37} set:str1:""
+     
+      [Form: FrmcwExportvch2]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0cwExportvch2,PrtcwExportvch2
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: cwExportvch2botbrk,cwExportvch2botOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: cwExportvch2botBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: cwExportvch2botopbrk]
+        use: dspacctitles
+  add: part: cwExportvch2TitlePart
+
+      [part: cwExportvch2TitlePart]
+       line: LncwExportvch2Title
+       
+      [line: LncwExportvch2CurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0cwExportvch2]
+      line : LncwExportvch2CurrPeriod
+      
+      [Part: PrtcwExportvch2]
+       Line: LncwExportvch2Title,LncwExportvch2
+bottom Line: LncwExportvch2Totals
+     repeat: LncwExportvch2: ColcwExportvch2
+     scroll: both  ;;Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColcwExportvch2]
+    Use: Vouchers of Company
+delete: filter : daybookfilter
+
+Filter: cwSalesVchnoFilternew,cwSalesVchnewFilter,IsNonOptionalCancelledVchs
+
+fetch:address.address
+fetch:VoucherTypename,vouchernumber,date
+fetch:BASICBUYERADDRESS.BASICBUYERADDRESS
+fetch:ReferenceDate,reference,Masterid
+fetch:cwTargetGodownpurc,CONSIGNEEGSTIN,PARTYGSTIN,STATENAME,CONSIGNEESTATENAME,PARTYPINCODE,BASICBUYERNAME,PARTYNAME,CONSIGNEEPINCODE,PLACEOFSUPPLY
+
+
+[System: Formula]
+;; {10.Nov.22 16:28} cwSalesVchnoFilternew:if $$issysname:##str5 then yes else $vouchertypename =##str5
+cwSalesVchnoFilternew:$parent:vouchertype:$vouchertypename =##str5
+
+ cwSalesVchnewFilter:$$issales:$vouchertypename or $$ispurchase:$vouchertypename or $$IsStockJrnl:$vouchertypename and $cwEnableCustomization:vouchertype:$vouchertypename="yes"
+ 
+      [Line: LncwExportvch2Title]
+        use: LncwExportvch2
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+
+
+local:field: nf: set as: "Voucher Type"
+local:field: nf2: set as: "Voucher No"
+local:field: snf: set as: "Date"
+local:field: fwf: set as: "Party Name"
+local:field: qtyf: set as: "Qty"
+local:field: amtf: set as: "Value"
+local:field: snf9: set as: "TargetGodown"
+local:field: sdf2: set as: "StockEntryDate"
+local:field: snf11: set as: "Supp. Inv No."
+local:field: snf12: set as: "Supp. Inv Date"
+local:field: snf13: set as: "Master id"
+
+
+local: field: default : style: normal bold
+
+
+[System: Formula]
+ CWStockEntrymovvch2 : if not $$isempty:$cwStockEntryDate then @@cwStockEntryDate1vch +"-"+ @@CWStockEntrymovch + "-"+ @@CWStockEntryYEARvch else "" ;; +  else ""
+cwStockEntryDate1vch : if @@cwStockEntryDate1 < 10 then "0" + $$string:@@cwStockEntryDate1 else $$string:@@cwStockEntryDate1
+CWStockEntrymovch  : if @@cwStockEntryMONTH1 < 10 then "0"+$$string:@@cwStockEntryMONTH1 else $$string:@@cwStockEntryMONTH1
+CWStockEntryYEARvch  : if @@cwStockEntryYEAR1 < 10 then "0"+$$string:@@cwStockEntryYEAR1 else $$string:@@cwStockEntryYEAR1
+
+cwStockEntryDate1: $$DAYOFDATE:$cwStockEntryDate
+cwStockEntryMONTH1 : $$MONTHOFDATE:$cwStockEntryDate
+cwStockEntryYEAR1 : $$YEAROFDATE:$cwStockEntryDate
+
+
+ReferenceDate1 : if not $$isempty:$cwStockEntryDate then @@cwStockEntryDate1vch +"-"+ @@CWStockEntrymovch + "-"+ @@CWStockEntryYEARvch else "" ;; +  else ""
+ReferenceDate1vch : if @@cwReferenceday < 10 then "0" + $$string:@@cwReferenceday else $$string:@@cwReferenceday
+ReferenceDate1movch  : if @@cwReferenceMONTH1 < 10 then "0"+$$string:@@cwReferenceMONTH1 else $$string:@@cwReferenceMONTH1
+ReferenceDate1YEARvch  : if @@ccwReferenceYEAR1 < 10 then "0"+$$string:@@ccwReferenceYEAR1 else $$string:@@ccwReferenceYEAR1
+
+cwReferenceday: $$DAYOFDATE:$ReferenceDate
+cwReferenceMONTH1 : $$MONTHOFDATE:$ReferenceDate
+ccwReferenceYEAR1 : $$YEAROFDATE:$ReferenceDate
+
+
+
+[Line: LncwExportvch2]
+Fields: nf,d1,nf2,d2,snf,d3,fwf,d4
+right field:Qtyf,d5,Amtf,d6,snf9,d7,snf10,d8,snf11,d9,snf12,d10,snf13,d11
+
+local:field: nf: set as:$VoucherTypename ;; "Voucher Type"
+local:field: nf2: set as:$vouchernumber  ;; "Voucher No"
+local:field: snf: set as:@@cwshortmfdvch ;; "Date"
+local:field: fwf: set as:$partyledgername ;; "Party Name"
+local:field: qtyf: set as:$$CollQtyTotal:inventoryentries:$billedqty ;; "Qty"
+local:field: amtf: set as:$amount;; "Value"
+Local: Field: snf9: Set As:$cwTargetGodownpurc
+Local: Field: snf10: Set As:@@CWStockEntrymovvch2
+Local: Field: snf11: Set As:$reference
+Local: Field: snf12: Set As:@@ReferenceDate1
+local:field: snf13: set as:$Masterid ;; "Master id"
+
+
+
+local:field: nf:  width :100
+local:field: nf: max :100
+
+local:field: nf2:  width :100
+local:field: nf2: max :100
+
+local:field: snf:  width :100
+local:field: snf: max :100
+
+local:field: snf9:  width :100
+local:field: snf9: max :100
+
+local:field: fwf:  width :100
+local:field: fwf: max :100
+
+local:field: qtyf:  width :100
+local:field: qtyf: max :100
+
+local:field: amtf:  width :100
+local:field: amtf: max :100
+
+local:field: snf13:  width :100
+local:field: snf13: max :100
+
+
+      [line: LncwExportvch2Totals]
+        use: LncwExportvch2
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

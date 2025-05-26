@@ -1,0 +1,349 @@
+; Created By: Khokan on 2022-11-21 12:49, ID:
+
+ [#Line: SJNPC1]
+
+  add:option:cwSJNPC1opt:@@IsStockJrnl and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+ [!line:cwSJNPC1opt]
+
+ add:Right Field:At beginning:snf3,snf4,snf5,numf,snfx
+
+ local: field: snf3 : set as : ""
+ local: field: snf4 : set as :""
+ local: field: snf5 : set as :""
+ local: field: numf : set as : ""
+ local: field: snfx : set as : ""
+
+ Local: field: snf3: Width:6									
+ Local: field: snf4: Width:8									
+ Local: field: snf5: Width:10									
+ Local: field: snf6: Width:10
+ Local: field: SJNQty: Width:10
+
+ [#Line: SJNPC2]
+ 
+  add:option:cwSJNPC2opt:@@IsStockJrnl and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+ [!line:cwSJNPC2opt]
+ 
+ add:Right Field:At beginning:snf3,snf4,snf5,numf,snfx
+
+ local: field: snf3 : set as : "GSM"
+ local: field: snf4 : set as :"Size"
+ local: field: snf5 : set as :"Unit Wt."
+ local: field: numf : set as : "Unit"
+ local: field: snfx : set as : ""
+
+ Local: field: snf3: Width:6									
+ Local: field: snf4: Width:8									
+ Local: field: snf5: Width:10									
+ Local: field: snf6: Width:10
+ Local: field: SJNQty: Width:10
+ 
+  [#Field: SJNName]
+   add:option:cwSJNNameopt:@@IsStockJrnl and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+  [!field:cwSJNNameopt]
+
+  Set as : $cwQuality:stockitem:$stockitemname
+	
+
+ 
+
+     
+  [#Line: SJN PRNDetails]
+   add:option:cwNrmlSJNBatchDetailsopt:@@IsStockJrnl and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+  [!line:cwNrmlSJNBatchDetailsopt]
+
+ add:Right Field:At beginning:snf3,snf4,snf5,numf,snfx
+
+ local: field: snf3 : set as :$cwsortno:stockitem:$stockitemname  ;;$cwGSM:stockitem:$stockitemname
+ local: field: snf4 : set as :$cwSize:stockitem:$stockitemname ;; "Size"
+ local: field: snf5 : set as :$cwPacknew:stockitem:$stockitemname ;; "Unit Wt."
+  Local: Field: numf:  set as :$cwQTY
+   Local: Field: SNFx: set as :$cwUOM
+ local: field: snf6 : set as :$CWBundles   ;;If $IsBatchWiseOnItem Then $CWBundles Else $$Owner:$CWBundles
+									
+Local: field: snf3: Align:centre									
+Local: field: snf4: Align:centre									
+Local: field: snf5: Align:centre									
+Local: field: snf6: Align:centre
+
+ 									
+ Local: field: snf3: Width:6									
+ Local: field: snf4: Width:8									
+ Local: field: snf5: Width:10									
+ Local: field: snf6: Width:10								
+ Local: field: SJNQtyMain: Width:10	
+  							
+
+ [#Line: SJNTotals]
+  add:option:cwSJNTotalsopt:@@IsStockJrnl and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+  [!line:cwSJNTotalsopt]
+ local:field:SJNQtyTotal:width:10
+ 
+ 
+ 
+ ;;=================================================================================================
+  [#Line: PPR VchDate]
+;; {16.Dec.22 17:26}   add:option:PPRVchDateopt:@@IsStockJrnl and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+ [!line:PPRVchDateopt]
+ 
+ Local : Field : PPR VchDate  :Width     : 17
+ Local : Field : PPR VchNumber  :Width     : 17
+ Local : Field : Short Prompt  : Width     :10
+ Local : Field : Simple Prompt  : Width     :10
+ 
+ [#Form: NormalSJPrint]
+
+ add:option:NormalSJPrintopt:@@IsStockJrnl and @@cwEnableCustomization and @@KrishnavanijyaEnabled
+ [!form:NormalSJPrintopt]
+
+ delete:Parts  :SJN Title Main, SJNDetails
+;; {16.Dec.22 17:31}  add:Parts     : cwkrishnasalesTopPartsj,SJNTitle,SJNDetailspart
+ add:Parts     : cwkrishnasalesTopPartsj,cwkrishnasalesTopPartsj2,SJNDetailspart
+ 
+  add:Bottom Parts:At Beginning:totalpartsj
+
+  add:Width     : @@cwSapceWidthSJ inch
+  add:Height    : @@cwSapceHeightSJ inch
+  
+
+  add:option:salesinvoicechg4TopPartsjopt:##logi2
+  
+ [System: Formula]
+ cwSapceHeightSJ:$cwSapceHeightSJ:vouchertype:$vouchertypename
+ cwSapceWidthSJ:$cwSapceWidthSJ:vouchertype:$vouchertypename
+ cwSapceTopSJ:$cwSapceTopSJ:vouchertype:$vouchertypename
+
+
+ [!form:salesinvoicechg4TopPartsjopt]
+  delete:toppart:cwkrishnasalesTopPartsj
+  Space Top : @@cwSapceTopSJ inch
+  
+  
+ [part : cwkrishnasalesTopPartsj]
+ part:salesinvoicechg4TopPartasj,salesinvoicechg4TopPartbsj,salesinvoicechg4TopPartc ;;,krishnasalesTopPartc
+
+  height:1 inch
+
+ [part:salesinvoicechg4TopPartasj]
+ line:logoline1sj
+  add:option:logopart4:##SALogoPath <> ""
+
+  width:20% Screen
+  
+ [line:logoline1sj]
+ field:nf
+
+ [part:salesinvoicechg4TopPartbsj]
+
+ line:cmpnameline2,importersline
+;; width:80%page
+ 
+ 
+ 
+ [part:cwkrishnasalesTopPartsj2]
+ line:sjvchnoline
+ 
+ [line:sjvchnoline]
+right fields:sp,snf,sp2,sdf
+Local: Field: sp: Set As:"Voucher No."
+Local: Field: sp2: Set As:"Date"
+Local: Field: snf: Set As:$vouchernumber
+Local: Field: sdf: Set As:$date
+Local: field: sdf: Align:left
+ Local: Field: default: Style: small Bold
+ Local: field: sp: Width:18
+ Local: field: snf: Width:25
+ Local: field: sdf: Width:20
+
+ ;;=============================================================================
+
+ [Part:SJNDetailspart]
+ Part:SJNDetailsparta
+ Part:SJNDetailspartb
+ border:thin top
+   common border:yes
+ [Part:SJNDetailsparta]
+
+ line:itemtitleline1,itemtitleline,itemdetailline
+;; bottomline:totalitemdetailline
+ border:thin right
+ repeat:itemdetailline:inventoryentriesout
+ Scroll : vertical
+ common border:yes
+ totals:numf,qtyf
+
+ [line:itemtitleline1]
+ field:fwfc
+ Local: Field: fwfc: Set As:"Consumption"
+ 
+ [line:itemtitleline]
+
+ use:itemdetailline
+
+ Local: Field: nf: Set As:"Description"
+
+ local: field: snf3 : set as : "GSM"
+ local: field: snf4 : set as :"Size"
+ local: field: snf5 : set as :"Unit Wt."
+ local: field: numf : set as : "Unit"
+ local: field: snfx : set as : ""
+ local: field: qtyf : set as : "Quantity"
+ local: field: ratef : set as : "Rate"
+ local: field: amtf : set as : "Amount"
+ 
+ local: field: default: type: String
+ border:thin top bottom
+ Local: field: qtyf: Align: centre
+ Local: Field: default: Style: small Bold
+
+[line:itemdetailline]
+field:nf
+right field:snf3,snf4,snf5,numf,snfx,qtyf ;;,ratef,amtf
+
+Local: Field: nf: Set As:$cwQuality:stockitem:$stockitemname ;;"Product Description"
+
+
+;; {09.Jan.25 18:45}  local: field: snf3 : set as :$cwGSM:stockitem:$stockitemname
+ local: field: snf3 : set as :$cwsortno:stockitem:$stockitemname
+ local: field: snf4 : set as :$cwSize:stockitem:$stockitemname ;; "Size"
+ local: field: snf5 : set as :$cwsceneitem:stockitem:$stockitemname ;; "Unit Wt."
+;; {09.Jan.25 18:47}  local: field: snf5 : set as :$cwPacknew:stockitem:$stockitemname ;; "Unit Wt."
+ Local: Field: numf:  set as :$cwQTY
+ Local: Field: SNFx: set as  :$cwUOM
+ local: field: snf6 : set as :$CWBundles
+		
+ local: field: qtyf : set as :$billedqty;; "Quantity"
+ local: field: ratef : set as :$rate ;; "Rate"
+ local: field: amtf : set as :$amount ;; "Amount"
+ Local: Field: default: Style: small
+
+Local: field: ratef: Width:20
+Local: field: qtyf: Width:20
+Local: field: amtf: Width:20
+Local: field: snf3: Width:8
+Local: field: snfx: Width:8
+
+Local: field: numf: Format: "decimals:2"
+Local: field: default: Align: centre
+Local: field: qtyf: Align: right
+Local: field: numf: Align: right
+
+ 
+ [Part:SJNDetailspartb]
+
+ line:itemtitleline2x,itemtitleline2,itemdetailline2
+
+;; {24.Dec.22 10:07} bottomline:totalitemdetailline2new
+ Scroll : vertical
+ repeat:itemdetailline2:inventoryentriesin
+ totals:numf2,qtyf2
+
+ [line:itemtitleline2x]
+ field:fwfc
+ Local: Field: fwfc: Set As:"Production"
+
+ [line:itemtitleline2]
+
+ use:itemdetailline2
+
+ Local: Field: nf: Set As:"Description"
+ local: field: snf3 : set as : "GSM"
+ local: field: snf4 : set as :"Size"
+ local: field: snf5 : set as :"Unit Wt."
+ local: field: numf2 : set as : "Unit"
+ local: field: snfx : set as : ""
+ 
+ local: field: qtyf2 : set as : "Quantity"
+ local: field: ratef : set as : "Rate"
+ local: field: amtf : set as : "Amount"
+ local: field: default: type: String
+ local: field: numf2: type: String
+ Local: Field: default: Style: small Bold
+ border:thin top bottom
+ Local: field: qtyf: Align: centre
+ 
+ [line:itemdetailline2]
+
+ field:nf
+ right field:snf3,snf4,snf5,numf2,snfx,qtyf2 ;;,ratef,amtf
+
+ Local: Field: nf: Set As:$cwQuality:stockitem:$stockitemname ;;"Product Description"
+
+
+;; {09.Jan.25 18:49}  local: field: snf3 : set as :$cwGSM:stockitem:$stockitemname
+ local: field: snf3 : set as :$cwsortno:stockitem:$stockitemname
+ local: field: snf4 : set as :$cwSize:stockitem:$stockitemname ;; "Size"
+ local: field: snf5 : set as :$cwsceneitem:stockitem:$stockitemname ;; "Unit Wt."
+;; {09.Jan.25 18:50}  local: field: snf5 : set as :$cwPacknew:stockitem:$stockitemname ;; "Unit Wt."
+ Local: Field: numf2:  set as :$cwQTY
+ Local: Field: SNFx: set as :$cwUOM
+ local: field: snf6 : set as :$CWBundles
+		
+ local: field: qtyf2 : set as :$billedqty;; "Quantity"
+ local: field: ratef : set as :$rate ;; "Rate"
+ local: field: amtf : set as :$amount ;; "Amount"
+ Local: Field: default: Style: small
+ Local: field: ratef: Width:20
+ Local: field: qtyf2: Width:20
+ Local: field: amtf: Width:20
+ Local: field: snf3: Width:8
+ Local: field: snfx: Width:8
+ Local: field: numf2: Format: "decimals:2"
+ Local: field: default: Align: centre
+
+
+ Local: field: qtyf: Align: right
+ Local: field: numf2: Align: right
+
+
+
+ [part:totalpartsj]
+
+ part:totalpartsja,totalpartsjb
+
+
+ [part:totalpartsja]
+ 
+ line:totalitemdetailline2new
+ border:thin right
+  
+  
+  [line:totalitemdetailline2new]
+ use:itemdetailline
+ Local: Field: numf: Set As:$$total:numf
+ Local: Field: qtyf: Set As:$$total:qtyf
+
+ Local: Field: nf: Set As:"Total" ;;"Description"
+ local: field: snf3 : set as :"" ;; "GSM"
+ local: field: snf4 : set as :"" ;;"Size"
+ local: field: snf5 : set as :"" ;;"Unit Wt."
+ Local: Field: SNFx: set as  :$$CollectionField:$cwUOM:First:inventoryentriesout
+ Local: Field: default: Style: small Bold
+ border:thin top bottom
+
+  
+;;=========================
+
+ [part:totalpartsjb]
+
+ line:totalitemdetailline2new2
+ 
+ [line:totalitemdetailline2new2]
+  use:itemdetailline2
+   
+ Local: Field: numf2: Set As:$$total:numf2
+ Local: Field: qtyf2: Set As:$$total:qtyf2
+
+ Local: Field: nf: Set As:"Total" ;;"Description"
+ local: field: snf3 : set as :"" ;; "GSM"
+ local: field: snf4 : set as :"" ;;"Size"
+ local: field: snf5 : set as :"" ;;"Unit Wt."
+ Local: Field: SNFx: set as  :$$CollectionField:$cwUOM:First:inventoryentriesin
+
+ Local: Field: default: Style: small Bold
+ border:thin top bottom
+
+
+
+
+

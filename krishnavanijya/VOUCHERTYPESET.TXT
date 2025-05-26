@@ -1,0 +1,103 @@
+; Created By: Taniya on 2020-02-18 11:17, ID:
+
+[#Part: VTYP Behaviour]
+add:option:cwsvVTYPBehaviouropt:@@MahendraTrading2Enabled
+
+[!part:cwsvVTYPBehaviouropt]
+add:line:cwvchtypeenaemailline
+
+[line:cwvchtypeenaemailline]
+field:long prompt,cwlogical
+
+Local: Field: long prompt: info: "Enable Email ?"
+Local: Field:cwlogical : storage:cwvchtypeenaemail
+
+Local: Field: default: Color : blue
+
+Local: Field : cwlogical : SubForm :cwvchtypeenaemailrep : $$value
+
+[report:cwvchtypeenaemailrep]
+form:cwvchtypeenaemailform
+[form:cwvchtypeenaemailform]
+part:cwvchtypeenaemailpart
+
+width: 60% page
+
+[part:cwvchtypeenaemailpart]
+line:cwvchtypeenaemailsubline,cwvchtypeenaemailbodyline,cwvouchertypenameline,cwcompanynameline
+
+[line:cwvchtypeenasndtoslfline]
+field:mp,cwlogical
+
+Local: Field: mp: info: "Send to self also ?"
+Local: Field: cwlogical: storage:cwsendtoslfalso
+
+space bottom:0.5
+
+[line:cwvchtypeenaemailsubline]
+field:sp,fwf
+
+Local: Field: sp: info: "Subject"
+Local: Field: fwf: storage:cwvchtypeenaemailsub
+
+Local: Field: fwf: Style: Normal Bold
+
+space bottom:0.5
+
+[line:cwvchtypeenaemailbodyline]
+field:sp,fwf
+
+Local: Field: sp: info: "Body"
+Local: Field: fwf: storage:cwvchtypeenaemailbody
+Local : field : fwf: Lines :10
+Local: field: fwf: max:1000
+Local: field: fwf: case:normal
+
+Local: Field: fwf: Style: Normal Bold
+
+space bottom:0.5
+
+[line:cwvouchertypenameline]
+field:snf,snf2,snf3,snf4,snf5
+Local: Field: snf: set as : "$vouchertypename"
+Local: Field: snf: read only: Yes
+
+Local: Field: snf2: set as : "$companyname"
+Local: Field: snf2: read only: Yes
+
+Local: Field: snf3: set as : "$FirstLedger"
+Local: Field: snf3: read only: Yes
+
+Local: Field: snf4: set as : "$LedgerContact"
+Local: Field: snf4: read only: Yes
+
+Local: Field: snf5: set as : "$partygstno"
+Local: Field: snf5: read only: Yes
+
+
+[line:cwcompanynameline]
+field:snf,snf2,snf3;;,snf4
+
+Local: Field: snf: set as : "$vouchernumber"
+Local: Field: snf: read only: Yes
+
+Local: Field: snf2: set as : "$voucherdate"
+Local: Field: snf2: read only: Yes
+
+Local: Field: snf3: set as : "$DaybookAmount"
+Local: Field: snf3: read only: Yes
+
+Local: Field: snf4: set as : "$voucheragnstref"
+Local: Field: snf4: read only: Yes
+
+
+
+
+
+
+
+
+
+
+
+

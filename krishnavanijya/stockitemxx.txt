@@ -1,0 +1,53 @@
+; Created By: Khokan on 2025-03-01 16:32, ID: 
+
+[#Form: Stock Item]
+add:option:StockItemopt
+[!form:StockItemopt]
+add:part:AtBeginning:itempart
+
+local:line:MSTName:local:field:MSTName:set as:@@cwstockitemnamex
+local:line:MSTName:local:field:mst name:set always:yes
+local:line:MSTName:Local: field: mstname: Width:40
+local:line:MSTName:local:field:Short Prompt:info:"Product Name"
+local:line:MSTName:local:field:Short Prompt:Width:12
+
+[System: Formula]
+cwstockitemnamex:if @@cwstockitemnamexx = " " then $$value else @@cwstockitemnamexx
+cwstockitemnamexx:@@xs1+" "+@@xs2+" "+@@xs3
+xs1:if not $$issysname:#snf then #snf else ""
+xs2:if not $$issysname:#snf2 then #snf2 else ""
+xs3:if not $$issysname:#snf3 then #snf3 else ""
+
+[part:itempart]
+line:itemline
+
+[line:itemline]
+field:sp,snf,sp2,snf2,sp3,snf3
+
+Local: Field: sp: Set As:"Quality"
+Local: Field: sp2: Set As:"GSM"
+Local: Field: sp3: Set As:"Size"
+
+Local: Field:snf: table:collcwQuality ,Not Applicable
+Local: Field:snf: Show table: Always
+local:field:snf:variable:svcost centre
+local:field:SNF:key:Create Cost Centre, Alter CstCtr
+
+Local: Field:snf2: table:collGSM,Not Applicable
+Local: Field:snf2: Show table: Always
+local:field:snf2:variable:svcost centre
+local:field:SNF2:key:Create Cost Centre, Alter CstCtr
+
+
+
+ [Collection:collcwQuality]
+ Type: Cost Centre
+ title:"List of Quality"
+ child of:"Quality"
+
+ [Collection:collGSM]
+ Type: Cost Centre
+ title:"List of GSM"
+
+
+

@@ -1,0 +1,81 @@
+; Created By: Taniya on 2024-02-05 15:25, ID: 
+
+[#Report: Sales Register]
+
+local:Part: DSP Period:add:bottom lines:before:DSP Totals:cwkbnewline
+
+
+[line:cwkbnewline]
+fields:mp,cwkbSTATCancelled ;;,snf ;;,snf2
+
+Local: Field: mp: Set As:"No of Voucher's :"
+Local: field: mp: Width:25
+Local: Field: default: Color : red
+Local: Field: default: Style: style2
+Local: Field: snf: Set As:$$FilterNumTotal:StatVchType:IsSubVchType:$CancVal ;;$$FilterCount:cwcollsalesvchxx:cwfilternewxx
+Local: Field: snf2: Set As:$$FilterCount:cwcollsalesvchxx:cwcancelvoucherfltr
+Local: Field: snf: Border: thin box ;;left right
+
+[Field: cwkbSTATCancelled]
+
+	Use			: Number Field
+	Type		: String
+;; {11.Jan.25 11:32} set as:if $$isempty:$CancVal then $StatVal else $$string:$StatVal+"(" + $$String:$CancVal + $$LocaleString:"cancelled" + " )"
+set as:if $$isempty:$CancVal then @@cwtotalsalesvchno else $$string:@@cwtotalsalesvchno+"(" + $$String:@@cwtotalcancelvchno + $$LocaleString:"cancelled" + " )"
+;; {11.Jan.25 11:46} set as:$$ReportObject:$$FilterNumTotal:StatVchType:IsSubVchType:$StatVal
+Align		:left
+full width:yes
+
+[System: Formula]
+cwtotalsalesvchno:$$ReportObject:$$FilterNumTotal:StatVchType:IsSubVchType:$StatVal
+cwtotalcancelvchno:$$FilterNumTotal:StatVchType:IsSubVchType:$CancVal
+
+/*[#Part: VCH Title Middle]
+ add:option:vchtitlmiddlnewopt:@@issales and @@KrishnavanijyaEnabled
+ [!part:vchtitlmiddlnewopt]
+
+  ADD:LINE:At Beginning:cwkbnewline2
+
+[line:cwkbnewline2]
+fields:mp,cwkbSTATCancelled2
+
+Local: Field: mp: Set As:"No of Voucher's :"
+Local: field: mp: Width:25
+Local: Field: default: Color : red
+Local: Field: default: Style: style2
+Local: Field: default: skip:yes
+Local: Field: snf: Set As: $$FilterCount:cwcollsalesvchxx:cwfilternewxx
+Local: Field: snf: Skip: Yes
+
+invisible:not $$increatemode
+
+[Field: cwkbSTATCancelled2]
+Use			: Number Field
+Type		: String
+set as:if $$isempty:@@cwkbvchallcancelvch then @@cwkbvchallvch else $$string:@@cwkbvchallvch+" (" + $$String:@@cwkbvchallcancelvch + $$LocaleString:"cancelled" + " )"
+;; {11.Jan.25 11:56} set as:$$ReportObject:$$FilterNumTotal:StatVchType:IsSubVchType:$StatVal
+Align		:left
+full width:yes
+;; {11.Jan.25 10:41}  Invisible: yes */
+
+
+[System: Formula]
+cwSaveVchType : $name = ##svVouchertype
+cwkbvchallvch:$$filtervalue:$StatVal:STATVchType:1:cwSaveVchType
+cwkbvchallcancelvch:$$filtervalue:$CancVal:STATVchType:1:cwSaveVchType
+cwfilternewxx:yes
+
+
+;;=================
+ [Collection: cwcollsalesvchxx]
+
+
+ Type	: Vouchers : Vouchertype
+ Child of : $$VchTypesales
+	
+ Belongs To  : Yes
+;; {10.Jan.25 18:29}  filter:cwcancelvoucherfltr
+;; {10.Jan.25 17:00}  Keep Source: Yes	
+[System: Formula]
+cwcancelvoucherfltr: $isCancelled
+

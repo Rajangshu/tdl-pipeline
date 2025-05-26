@@ -1,0 +1,201 @@
+; Created By: Taniya on 2021-09-24 14:50, ID:
+
+;; {20.Jan.23 17:50}  [#form : Sales Color]
+
+;; F6 =====   E:\Works\Krishnavanijya\Docs\
+
+
+[line:cwbccanvchlocline]
+field:lp,nf
+Local: Field: lp: info: "Voucher Location "
+Local: Field: nf: storage:cwbccanvchloc
+Local: Field: nf: Style: Normal Bold
+Local: Field: nf:width:45
+
+[System: Formula]
+cwbcfssinoopt:$cwbcfssino:company:##svcurrentcompany
+cwbccanvchlocopt:$cwbccanvchloc:company:##svcurrentcompany
+
+[field : fsnf]
+ use : short name field
+
+
+[#Line: VCH Display Number]
+ add:field:fsnf
+
+ Local: Field: fsnf: Set As:$vouchernumber
+ Local: Field: fsnf:storage:cwdisvouchernumber
+ Local: Field: fsnf:invisible:yes
+
+ [System: UDF]
+ cwdisvouchernumber:string:908
+
+[System: Formula]
+cwExportFileName :if $$isempty:$vouchernumber then #fsnf else $vouchernumber;;+ ".pdf"
+
+
+
+
+;;==========================================================================
+
+
+
+ [#form : PURCHASE Color]
+   add : option : cwcgupnew   ;;:@@BalajiIcecreamEnabled
+
+[!form : cwcgupnew]
+add : button : cwcgupnew
+
+[key : cwcgupnew]
+title : "Upload vch"
+key : alt + U
+action : call :cwcguptml
+
+[function:cwcguptml]
+object:voucher:$$Sprintf:@@VCHMasterID:@@GSTCurntVchrMSTID
+parameter : fromBulk : logical : false
+
+variable : cwExportLocation : string : @@cwbccanvchlocopt
+variable : cwExportFileName : string : @@cwExportFileName
+variable : CwPDfFileNameWithPath : string : ##cwExportLocation + ##cwExportFileName
+
+variable : cwTxtFilename : string
+variable:str:string:""
+variable:row,col:number:0
+
+variable:CWVCHSCHDISC:amount:$$FilteramtTotal:ledgerentries:schdiscamtfilt:$amount
+variable:CWVCHCASHDISC:amount:$$FilteramtTotal:ledgerentries:cashdiscamtfilt:$amount
+variable:CWVCHCGST:amount:@@cwVCHCGSTVALUE
+variable:CWVCHSGST:amount:@@cwVCHSGSTVALUE
+variable:CWVCHIGST:amount:@@cwVCHIGSTVALUE
+variable:CWVCHRO:amount:@@cwRoffValue
+
+
+80 : QueryBox:"Upload vch?":Yes:No
+90 : do if : not $$lastresult : continue
+
+A10 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"\":"_"
+ A11 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"/":"_"
+ A12 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"?":"_"
+ A13 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:":":"_"
+ A14 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"*":"_"
+ A15 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:'"':"_"
+ A16 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"<":"_"
+ A17 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:">":"_"
+ A18 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:"|":"_"
+ A19 : set : cwExportFileName : $$cwReplaceCharacters:##cwExportFileName:" ":"_"
+
+
+ A25 : set : cwTxtFilename :##cwExportLocation+##cwExportFileName+".xlsx"
+
+
+ ; Exporting Supporting File
+
+        B10 : OPEN FILE : ##cwTxtFilename  : Excel  : WRITE
+;; {25.Sep.21 12:42}         B10a :ADD SHEET : “Sheet 1”
+
+                            /*
+           B51 : WRITE Cell : 1:1: "VOUCHERNUMBER" ;;+ $VOUCHERNUMBER
+         B51a : WRITE Cell : 2:1: $VOUCHERNUMBER
+
+        B52 : WRITE Cell :1:2 :"VOUCHERDATE";; + $$STRING:$DATE
+        B52a : WRITE Cell :2:2 :$$STRING:$DATE
+
+        B53 : WRITE Cell :1:3: "PARTYNAME" ;;+ $partyledgername
+        B53a : WRITE Cell :2:3: $partyledgername
+
+        B54 : WRITE Cell :1:4: "VEHICLENO";; + $cwslvchvehlno
+        B54a : WRITE Cell :2:4:$cwslvchvehlno
+
+        B55 : WRITE Cell :1:5: "VEHICLEALLOCATIONDATE";; +$$STRING:$cwslvchvehldate
+        B55a : WRITE Cell :2:5:$$STRING:$cwslvchvehldate
+
+        B56 : WRITE Cell :1:6: "AREA";; + $cwslvchareanm
+        B56a : WRITE Cell :2:6: $cwslvchareanm
+
+        B57 : WRITE Cell :1:7: "OUTLET";; + $cwslvchoutltty
+        B57a: WRITE Cell : 2:7:$cwslvchoutltty
+
+        B58 : WRITE Cell :1:8: "SALESMAN";; + $cwslvchsalemn
+        B58x : WRITE Cell :2:8:$cwslvchsalemn
+
+        B58a : WRITE Cell :1:9: "SCH DISC" ;;+ $$string:##CWVCHSCHDISC:"nocomma"
+        B58ax: WRITE Cell :2:9:$$string:##CWVCHSCHDISC:"nocomma"
+
+        B58b : WRITE Cell :1:10: "CASH DISC" ;;+ $$string:##CWVCHCASHDISC:"nocomma"
+        B58bx : WRITE Cell :2:10:$$string:##CWVCHCASHDISC:"nocomma"
+
+        B58c : WRITE Cell :1:11: "CGST" ;;+ $$string:##CWVCHGST:"nocomma"
+        B58cx : WRITE Cell :2:11:$$string:##CWVCHCGST:"nocomma"
+
+        B58c1 : WRITE Cell :1:12: "SGST" ;;+ $$string:##CWVCHGST:"nocomma"
+        B58c1x : WRITE Cell :2:12:$$string:##CWVCHSGST:"nocomma"
+
+        B5c2f : WRITE Cell :1:13: "IGST" ;;+ $$string:##CWVCHGST:"nocomma"
+        B58c2x : WRITE Cell :2:13:$$string:##CWVCHIGST:"nocomma"
+
+        B58c3 : WRITE Cell :1:14: "ROUND OFF" ;;+ $$string:##CWVCHGST:"nocomma"
+        B58c3x : WRITE Cell :2:14:$$string:##CWVCHRO:"nocomma"
+
+        B58d : WRITE Cell :1:15: "BILL AMOUNT" ;;+ $$string:$amount:"nocomma"
+        B58dx : WRITE Cell :2:15:$$string:$amount:"nocomma"
+                       */
+        B58e1 : WRITE Cell :1:1: "PartNo"
+
+       B58f2 : WRITE Cell :1:2: "ITEM NAME"
+       B58f2BN : WRITE Cell :1:3: "Batch NAME"
+
+        B58g4 : WRITE Cell :1:4: "QUANTITY"
+        B58h5 : WRITE Cell :1:5: "MRP"
+        B58h6 : WRITE Cell :1:6: "MOP"
+        B58i7 : WRITE Cell :1:7: "RATE"
+        B58j8 : WRITE Cell :1:8: "DISC%"
+        B58k9 : WRITE Cell :1:9: "AMOUNT"
+
+;; {20.Jan.23 18:00}         B59:set:str:"PartNo,ITEM NAME,Batch NAME,QUANTITY,MRP,MOP,RATE,DISC%,AMOUNT"
+        B59:set:str:"PartNo,ITEM NAME,Batch NAME"
+;; {24.Sep.21 19:01}         B59a:WRITE FILE LINE:##str
+
+        r001 : set : row : 2
+
+
+
+        B60:walk:inventoryentries
+           r002 : set : col :0
+           r0031 :write cell : ##row : ##col+1 : $PARTNO:STOCKITEM:$stockitemname
+           r0041 :write cell : ##row : ##col+2 : $stockitemname
+           r0045 :write cell : ##row : ##col+3 : $BATCHNAME
+           r0061 :write cell : ##row : ##col+4 : $$string:$billedqty:"secondary,nocomma"
+           r0071 :write cell : ##row : ##col+5 : $$string:$rate:"nocomma"
+           r0072 :write cell : ##row : ##col+6 : $$string:$rate:"nocomma"
+           r0073 :write cell : ##row : ##col+7 : $$string:$rate:"nocomma"
+           r0084 :write cell : ##row : ##col+8 : $$string:$discount:"nocomma,percentage,nozero"
+           r0095 :write cell : ##row : ##col+9 : $$string:$amount:"nocomma,decimals:2"
+
+
+           /*
+           r0061 :write cell : ##row : ##col : $$string:$billedqty:"secondary,nocomma"
+           r0071 :write cell : ##row : ##col : $$string:$rate:"nocomma"
+           r0072 :write cell : ##row : ##col : $$string:$rate:"nocomma"
+           r0073 :write cell : ##row : ##col : $$string:$rate:"nocomma"
+           r0084 :write cell : ##row : ##col : $$string:$discount:"nocomma,percentage,nozero"
+           r0095 :write cell : ##row : ##col : $$string:$amount:"nocomma,decimals:2"
+                      */
+
+        r100 : incr : row
+
+;; {24.Sep.21 19:01}         B61:set:str:$stockitemname+","+$cwbcitemstatus+","+$$string:$billedqty:"nocomma"++
+;; {24.Sep.21 19:01}         ","+$$string:$billedqty:"secondary,nocomma"+","+$$string:$rate:"nocomma"+","++
+;; {24.Sep.21 19:02}         $$string:$discount:"nocomma,percentage,nozero"+","+$$string:$amount:"nocomma,decimals:2"
+
+;; {24.Sep.21 18:56}         B62:WRITE FILE LINE:##str
+        B63:end walk
+
+
+
+        C175 : CLOSE TARGET FILE
+
+        [System: Formula]
+
+        CWPARTNO:$PARTNO:STOCKITERM:$stockitemname
+

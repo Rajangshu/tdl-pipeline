@@ -1,0 +1,43 @@
+; Created By: Khokan on 2022-10-08 15:33, ID: 
+
+ [#menu: Gateway of Tally]
+;; {25.Sep.24 10:09}  add:item :before:@@locquit:"0. MIS":menu:mismenu1
+
+
+
+ [menu:mismenu1]
+ title:"Mis Menu"
+
+ add:item:@@stocksummaryReport: Display: Repstocksummary
+ add: Item: Blank
+ add: Item: @@stocksummarymillwisechgReport: Display: Repstocksummarymillwisechg
+ add: Item: Blank
+ add: Item: @@DespatchupdaterepReport: alter: RepDespatchupdaterep
+ add: Item: Blank
+ add: Item: @@DespatchrepReport: Display: RepDespatchrep
+ add: Item: Blank
+ add: Item: @@ClaimamountreportReport: Display Collection: collRepClaimamountreport
+ add: Item: Blank
+ add: Item: @@ProductmasterReport: Display: RepProductmaster
+ add: Item: Blank
+ add: Item: @@pricelistReport: Display Collection  : collReppricelistreport2
+ add: Item: Blank
+ add: Item: @@purchaseregisterReport: Display: Reppurchaseregister
+ add: Item: Blank
+ add: Item: @@salesregisterReport: Display: Repsalesregister
+
+ add: Item: Blank
+ add: Item: @@salesreportmailReport: Display: Repsalesreportmail
+ add: Item: Blank
+ 
+  add: Item: @@cwkbpricedifferenceReport: Display: Repcwkbpricedifference;;:$$MachineDate < $$Date:"29/07/2024"
+ add: Item: Blank
+ 
+  add: Item: @@cwkbapprovepriceReport: Display: Repcwkbapproveprice;;:$$MachineDate < $$Date:"29/07/2024"
+ add: Item: Blank
+ add: Item: @@SalesDeliveryReportReport: Display: RepSalesDeliveryReport
+ add: Item: Blank
+;; {03.Mar.25 16:26}  add: Item: @@stocksummarymillwisemfgReport: Display: Repstocksummarymillwisemfg
+;; {03.Mar.25 16:26}   add: Item: Blank
+
+

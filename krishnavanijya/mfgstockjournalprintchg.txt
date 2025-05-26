@@ -1,0 +1,701 @@
+; Created By: Khokan on 2024-11-11 17:11, ID:
+
+
+[System: Formula]
+cwUseasMfgJournalinv:$cwUseasMfgJournal:vouchertype:$vouchertypename="yes"
+cwUseasMfgJournalinv2:$cwUseasMfgJournal:vouchertype:$vouchertypename="no"
+
+[#form : Simple Printed Invoice]
+;;   add : option : mfgstockjournalchgOpt : @@mfgstockjournalchgSales
+
+[#form : ComprehensiveInvoice]
+
+[#Form: NormalSJPrint]
+   add : option : mfgstockjournalchgOpt: @@cwUseasMfgJournalinv
+
+[!form : mfgstockjournalchgOpt]
+Delete : Part
+Delete : Bottom Part
+Delete : Page Break
+   add : Top part : cwkrishnasalesTopPartsj,mfgstockjournalchgTopPart
+;; {16.Dec.24 18:12}    add : Top part : mfgstockjournalchgTopPart,cwkrishnasalesTopPartsj
+   add : Part : mfgstockjournalchgInvACCPart  ;;,mfgstockjournalledLine
+;; {04.Feb.25 18:24}    Add : bottom Part :  mfgstockjournalledLine
+   add : page Break : mfgstockjournalchgCLBreak, mfgstockjournalchgOPBreak
+
+ [Part : mfgstockjournalchgCLBreak]
+   part :continaprt ;; mfgstockjournalledLine
+   Local: part: continaprt: Border: thin top
+
+ [Part : mfgstockjournalchgOpBreak]
+  part :mfgstockjournalchgTopPart,cwkrishnasalesTopPartsj,partmfgstockjournalchgInvLineTitle
+  Vertical:yes
+  
+  
+  
+  
+  [part: partmfgstockjournalchgInvLineTitle]
+  line: mfgstockjournalchgInvLineTitle
+
+ [part : mfgstockjournalchgTopPart]
+ line:cwvchnolmfgine
+ 
+ [line:cwvchnolmfgine]
+right fields:sp,snf,sp2,sdf
+Local: Field: sp: Set As:"Voucher No."
+Local: Field: sp2: Set As:"Date"
+Local: Field: snf: Set As:$vouchernumber
+Local: Field: sdf: Set As:$date
+Local: field: sdf: Align:left
+ Local: Field: default: Style: small Bold
+ Local: field: sp: Width:18
+ Local: field: snf: Width:25
+ Local: field: sdf: Width:20
+ 
+
+
+ [part : mfgstockjournalchgINVACCPart]
+;; {16.Dec.24 18:13} Parts       : mfgstockjournalchgInvPart,mfgstockjournalchgInvPart2,mfgstockjournalledLine   ;;,mfgstockjournalchgACCPart
+Parts       : mfgstockjournalchgInvPart2,mfgstockjournalchgexp,mfgstockjournalledLine ;;,mfgstockjournalchgInvPart,mfgstockjournalledLine   ;;,mfgstockjournalchgACCPart
+;; {21.Jan.25 17:25} Parts       : mfgstockjournalchgInvPart  ;;,mfgstockjournalchgInvPart  ;;,mfgstockjournalledLine   ;;,mfgstockjournalchgACCPart
+CommonBorder: Yes
+Vertical    : Yes
+Scroll      : Vertical
+Float       : No
+;;Total       :
+
+ [part : mfgstockjournalchgInvPart]
+  line : mfgstockjournalchgInvLineTitle,mfgstockjournalchgInvLine   ;;,mfgstockjournalchgInvLineTotal
+repeat : mfgstockjournalchgInvLine : InventoryEntriesIn
+Scroll : vertical
+Common border : yes
+ float : no
+
+
+ [Line : mfgstockjournalchgInvLine1]
+ use:mfgstockjournalchgInvLine
+ Local: Field: fwf: Set As:$$CollectionField:$stockitemname:1:InventoryEntriesIn
+ local : field : qtyf : set as :$$CollqtyTotal:InventoryEntriesIn:$billedqty
+ local : field : amtf : set as :$$CollAmtTotal:InventoryEntriesIn:$amount
+ Local: Field: snf: Set As:""
+ Local: Field: snf1: Set As:""
+ Local: Field: snf2: Set As:""
+ Local: Field: snf3: Set As:""
+ Local: Field: numf: Set As:$$CollnumTotal:InventoryEntriesIn:$cwBDL
+ Local: Field: numf1: Set As:""
+ Local: Field: numf2: Set As:$$CollnumTotal:InventoryEntriesIn:$cwPKT
+ 
+ Local: Field: default: Style: small bold
+ 
+ [Line : mfgstockjournalchgInvLine]
+ field :fwf
+ right field :snf,snf3,numf1,numf,numf2,qtyf,amtf
+
+ local: field: fwf : set as :@@invitemname  ;; "FG Product"
+ local : field : snf : set as :"";;$$CollectionField:$batchname:1:BatchAllocations
+ local : field : snf1 : set as :$parent:stockitem:#fwf
+ local : field : snf2: set as :"";;$godownname  ;; "Location"
+ local : field : qtyf : set as :$billedqty ;;$$CollectionField:$billedqty:1:BatchAllocations
+ local : field : amtf : set as :$amount ;;$$CollectionField:$amount:1:BatchAllocations
+ 
+  Local: Field: snf3: set as :"" ;;$$CollectionField:$cwOtherssj:1:BatchAllocations ;;"Others"
+
+ local : field : numf1 : set as :"" ;;$$CollectionField:$cwsqmtWeightper:1:BatchAllocations ;; "Weight"
+ local : field : numf : set as :$cwQTY  ;;$$CollNumTotal:BatchAllocations:$cwBDL ;;$$CollectionField:$cwBDL:1:BatchAllocations ;;"Reel/Pkt"
+ local : field : numf2 : set as :$cwPKT  ;;$cwPKT ;;$$CollNumTotal:BatchAllocations:$cwPKT ;;$$CollectionField:$cwPKT:1:BatchAllocations ;;"Mtr"
+
+
+;; {16.Dec.24 18:25}  explode : mfgstockjournalchgBUDPart : $basicuserdescription != ''
+ explode : mfgstockjournalchgBatchPart: $batchname != "Primary batch"
+
+ local : field : ratef : type : number
+ local : field : ratef : align : right
+ local : field : ratef : format :"Decimals:2,NoZero"
+ local : field : qtyf : format :"Decimals:2,NoZero"
+ Local: field: qtyf: Width:12
+ Local: field: SNF: Width:20
+ Local: field: snf1: Width:20
+  Local: Field: default: Style: small Bold
+  Local: field: numf: Align:centre
+  Local: field: numf1: Align:centre
+  Local: field: numf2: Align:centre
+  Local: field: snf3: Align:centre
+
+
+[part : mfgstockjournalchgBatchPart]
+line : mfgstockjournalchgBatchLine
+repeat : mfgstockjournalchgBatchLine : BatchAllocations
+
+[line : mfgstockjournalchgBatchLine]
+use : mfgstockjournalchgBUDLine
+local: field: fwf : set as :$stockitemname ;;$$CollectionField:$stockitemname:@@linep1:BatchAllocations
+
+local : field : snf : set as :$batchname  ;;$$CollectionField:$batchname:@@linep1:BatchAllocations
+Local: Field: snf3: set as :$cwOtherssj  ;;$$CollectionField:$cwOtherssj:@@linep1:BatchAllocations ;;"Others"
+
+
+local : field : snf2: set as :$godownname  ;;$$CollectionField:$godownname:@@linep1:BatchAllocations   ;; "Location"
+local : field : qtyf : set as :$billedqty  ;;$$CollectionField:$billedqty:@@linep1:BatchAllocations
+local : field : amtf : set as :$amount ;;$$CollectionField:$amount:@@linep1:BatchAllocations
+
+local : field : numf1 : set as :$cwsqmtWeightper  ;;$$CollectionField:$cwsqmtWeightper:@@linep1:BatchAllocations ;; "Weight"
+ local : field : numf : set as :$cwQTY ;;$$CollectionField:$cwBDL:@@linep1:BatchAllocations ;;"Reel/Pkt"
+ local : field : numf2 : set as :$cwPKT  ;;$$CollectionField:$cwPKT:@@linep1:BatchAllocations ;;"Mtr"
+
+Local: Field: default: Style: small
+
+[part : mfgstockjournalchgBUDPart]
+line: mfgstockjournalchgBUDLine
+repeat : mfgstockjournalchgbudline : basicuserdescription
+
+[line : mfgstockjournalchgBudLine]
+ use  : mfgstockjournalchgINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : $basicuserdescription
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : ""
+
+[line : mfgstockjournalchgInvLineTotal]
+ use  : mfgstockjournalchgINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : ""
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : $$collamttotal:inventoryentries:$amount
+local : field : amtf : border :thin top
+space bottom : 0.05
+
+
+[part:mfgstockjournalchgInvPart2]
+Line :cwblankline,mfgstockjournalchgInvLineTitle2,mfgstockjournalchgInvLineTitle3,mfgstockjournalchgInv2,consuline,mfgstockjournalchgexpnew
+
+;; {21.Jan.25 17:25} repeat:mfgstockjournalchgInv2:cwcollsjmfgpro
+repeat:mfgstockjournalchgInv2:collinventoryentriesout
+
+[Collection: collinventoryentriesout]
+source collection:default
+walk:inventoryentriesout,batchallocations
+by:stockitemname:$stockitemname
+by:batchname:$batchname
+by:cwstockgrraw1:$..cwstockgrraw
+by:cwUOM1:$cwUOM
+compute:cwQTY1:IF $$ISEMPTY:$cwQTY THEN $..cwQTY ELSE $cwQTY
+
+compute:cwPKT1:$cwPKT
+compute:cwOtherssj1:$cwOtherssj
+compute:cwsqmtWeightper1:$..cwsqmtWeightper
+aggr compute:billedqty:sum:$billedqty
+aggr compute:amount:sum:$amount
+sort:@@default:$cwstockgrraw1
+
+[line: mfgstockjournalchgInvLineTitle2]
+ use : mfgstockjournalchgInv2
+delete : explode
+   local : field: default : type : string
+
+  border:thin top bottom
+ local: field: fwf : set as :"Consumption" ;; " Bill of Material"
+ local: field: snf1 : set as :"Reel Details"
+ Local: Field: snf3: info:"Others"
+ local : field : snf2: set as : "Batch No"
+
+ local : field : numf1 : set as : "Weight"
+ local : field : numf : set as : "Reel/Pkt"
+ local : field : numf2 : set as : "Mtr"
+ local : field : qtyf : set as : "Sqmt/Kg"
+ local : field : snfx : set as : "/Kg"
+ local : field : amtf : setas: "Amount"
+ Local: Field: default: Style: small Bold
+ Local: field: numf3: Align: Right ;;centre
+ Local: field: snfx: Align:left
+ local: field: qtyf: type: String
+ height:1.5
+ space top:0.3
+
+ [field:cwamtfnew]
+ use:amtf
+ set as :$$CollAmtTotal:cwcollsjmfgpro:@@cwrawmamt
+ Invisible: yes
+
+ [field:snfxuom]
+ use:snfx
+ set as :$baseunits:stockitem:$cwsjRawMaterial1
+ Invisible: yes
+ 
+ 
+ [line:consuline]
+ 
+ use : mfgstockjournalchgInv2
+delete : explode
+   local : field: default : type : string
+
+  border:thin top bottom
+ local: field: fwf : set as :"Consumption Total" ;; " Bill of Material"
+ local: field: snf1 : set as :""
+ Local: Field: snf3: info:""
+ local : field : snf2: set as : ""
+
+  local : field : numf1 : set as :"" ;;$$CollNumTotal:inventoryentriesout:$cwsqmtWeightper ;; "Weight"
+ local : field : numf : set as :$$CollNumTotal:inventoryentriesout:$cwQTY ;; "Reel/Pkt"
+ local : field : numf2 : set as :$$CollNumTotal:inventoryentriesout:$cwPKT ;; "Mtr"
+ local : field : qtyf : set as :$$CollNumTotal:inventoryentriesout:$billedqty ;; "Sqmt"
+ local : field : snfx : set as :""  ;; "Qty."
+ local : field : amtf : setas:$$CollNumTotal:inventoryentriesout:$amount ;; "Amount"
+
+ local : field : snfx : set as : ""
+
+ Local: Field: default: Style: small Bold
+ 
+[Line : mfgstockjournalchgInv2]
+field :fwf
+right field :snf2,snf3,numf1,numf,numf2,qtyf,amtf,qtyf2,amtf3,snfxuom,qtyf3
+
+  Local: Field: snf1: Set As:$cwUOM1
+local: field: fwf : set as :$stockitemname ;;"Reel Details"
+ Local: Field: snf3: setas:$cwsjRawMothersnew1 ;;"Others"
+ local : field : snf2: set as :if $batchname="Primary batch" then "" else $batchname ;;"Batch No"
+ Local: Field: snf3: set as :$cwOtherssj1 ;;"Others"
+ local : field : numf1 : set as :$cwsqmtWeightper1 ;; "Weight"
+ local : field : numf : set as :$cwQTY1 ;; "Reel/Pkt"
+ local : field : numf2 : set as :if $cwUOM1="pkt" then "" else $cwPKT1 ;; "Mtr"
+ local : field : qtyf : set as :$billedqty ;; "Sqmt"
+ local : field : snfx : set as :$baseunits:stockitem:#fwf  ;; "Qty."
+ local : field : amtf : setas:$amount ;; "Amount"
+
+local : field : numf : format :"Decimals:2,NoZero"
+Local: field: snfx: Width:8
+Local: field: snf1: Width:20
+Local: field: snf2: Width:20
+Local: field: numf: Width:10
+Local: field: qtyf: Width:15
+Local: Field: default: Style: small
+local: field: amtf3: Invisible: yes
+local: field: qtyf2: Invisible: yes
+local: field: qtyf3: Invisible: yes
+;; {21.Jan.25 18:25} Local: Field: default: Border: thin box ;;left right
+
+ Local: Field: qtyf3: Set As:if $$line=1 then #qtyf else $$prevlinefield+#qtyf
+ Local: Field: qtyf2: Set As:if $$line=1 then #qtyf else if $cwstockgrraw1 <> $$prevOBJ:$cwstockgrraw1 then #qtyf else $$prevlinefield+#qtyf
+ Local: Field: amtf3: Set As:if $$line=1 then #amtf else if $cwstockgrraw1 <> $$prevOBJ:$cwstockgrraw1 then #amtf else $$prevlinefield+#amtf
+
+local: field: qtyf: type: quantity
+local: field: qtyf2: type: quantity
+
+add:explode:mfgstockjournalchgexpnew:$$line=$$numitems or $cwstockgrraw1 <> $$NEXTOBJ:$cwstockgrraw1
+
+[line:mfgstockjournalchgInvLineTitle3]
+
+use : mfgstockjournalchgInv2
+delete : explode
+   local : field: default : type : string
+
+ ;; border:thin top bottom
+ local: field: fwf : set as :$$CollectionField:$cwstockgrraw1:First:collinventoryentriesout
+ local: field: snf1 : set as :""
+ Local: Field: snf3: info:""
+ local : field : snf2: set as : ""
+
+ local : field : numf1 : set as : ""
+ local : field : numf : set as : ""
+ local : field : numf2 : set as : ""
+ local : field : qtyf : set as : ""
+ local : field : snfx : set as : ""
+ local : field : amtf : setas: ""
+ Local: Field: default: Style: small bold
+
+
+[part:mfgstockjournalchgexpnew]
+line:commfgtotalline ,mfgstockjournalchgexpnew
+
+[line:mfgstockjournalchgexpnew]
+use : mfgstockjournalchgInv2
+delete : explode
+   local : field: default : type : string
+
+  ;;border:thin top bottom
+ local: field: fwf : set as :$$NEXTOBJ:$cwstockgrraw1 ;; " Bill of Material"
+ local: field: snf1 : set as :""
+ Local: Field: snf3: info:""
+ local : field : snf2: set as : ""
+
+ local : field : numf1 : set as : ""
+ local : field : numf : set as : ""
+
+ local : field : numf2 : set as : ""
+ local : field : qtyf : set as : ""
+ local : field : qtyf2 : set as : ""
+ local : field : qtyf3 : set as : ""
+ local : field : snfx : set as : ""
+ local : field : amtf : setas: ""
+ Local: Field: default: Style: small bold
+ 
+ [line:commfgtotalline]
+use : mfgstockjournalchgInv2
+delete : explode
+   local : field: default : type : string
+
+  border:thin top bottom
+ local: field: fwf : set as :"Total";; " Bill of Material"
+ local: field: snf1 : set as :""
+ Local: Field: snf3: info:""
+ local : field : snf2: set as : ""
+
+ local : field : numf1 : set as : ""
+ local : field : numf : set as : ""
+ local : field : numf2 : set as : ""
+ local : field : qtyf : set as :#qtyf2 ;;if $$isempty:#qtyf3 then "" else #qtyf2
+ local : field : snfx : set as : ""
+ local : field : amtf : setas: #amtf3
+  Local: Field: qtyf2: Set As:$$prevlinefield
+  Local: Field: qtyf3: Set As:$$prevlinefield
+ Local: Field: amtf3: Set As:$$prevlinefield
+
+ Local: Field: default: Style: small bold
+ height:1.5
+ space top:0.3
+
+ 
+;;==============================================================
+  
+ [line : mfgstockjournalchgTotLine1]
+ use:mfgstockjournalchgInv2
+ height:1.5
+ space top:0.3
+
+ Local: Field: amtf:border:totals
+ Local: Field: numf:border:totals
+ Local: Field: snfx:border:totals
+
+ local : field : ratef  : set as :""
+ local : field : fwf : set as : ""
+ local : field : fwf : set as : "Total"
+ local: field: snfx : set as :"";;$baseunits:stockitem:@@cwsjMfgProductn
+
+ Local: Field: numf: Set As:""
+ Local: Field: numf1: Set As:""
+ Local: Field: numf2: Set As:""
+ Local: Field: numf3: Set As:"" ;;$$CollnumTotal:InventoryEntriesout:$billedqty
+ Local: Field: amtf: Set As:#cwamtfnew
+
+ Local: Field: numf4: Set As:$$prevlinefield
+ Local: Field: amtf3: Set As:$$prevlinefield
+
+  
+  local : field : fwf : align : right
+  local : field : amtf : format : "noShowBaseSymbol"
+ Local: Field: default: Style: small bold
+
+
+
+
+[part:mfgstockjournalchgexp]
+line:mfgstockjournalchgInvLineTitle,mfgstockjournalchgInvLineTitle2X,mfgstockjournalchgexp,mfgstockjournalchgTotLine
+repeat:mfgstockjournalchgexp:inventoryentriesin
+;; {04.Feb.25 17:36} repeat:mfgstockjournalchgexp:cwcolllrm
+
+totals:amtf
+
+[Collection:cwcolllrm]
+source COLLECTION :default
+;; {21.Jan.25 18:22} walk :cwcollsjmfgpro,cwcollsjRawMaterial
+walk:inventoryentriesin,batchallocations
+by:stockitemname:$stockitemname
+by:batchname:$batchname
+by:cwstockgrraw1:$cwstockgrraw
+compute:cwQTY1:$cwQTY
+compute:cwPKT1:$cwPKT
+compute:cwUOM1:$cwUOM
+compute:cwOtherssj1:$cwOtherssj
+compute:cwsqmtWeightper1:$cwsqmtWeightper
+
+compute:billedqty:$billedqty
+compute:amount:$amount
+
+;; {07.Jan.25 12:47} SORT:@@DEFAULT:$cwstockgrraw1
+
+
+
+ [line: mfgstockjournalchgInvLineTitle]
+ use : mfgstockjournalchgInv2
+ delete : explode
+   local : field: default : type : string
+   local: field: fwf : set as :"Production" ;; " Bill of Material"
+ local: field: snf1 : set as :"Reel Details"
+ Local: Field: snf3: info:"Others"
+ local : field : snf2: set as : "Batch No"
+
+ local : field : numf1 : set as : "Weight"
+ local : field : numf : set as : "Reel/Pkt"
+ local : field : numf2 : set as : "Mtr"
+ local : field : qtyf : set as : "Sqmt/Kg"
+ local : field : snfx : set as : ""
+ local : field : amtf : setas: "Amount"
+ Local: Field: default: Style: small Bold
+ Local: field: numf3: Align: Right ;;centre
+ Local: field: snfx: Align:left
+ local: field: qtyf: type: String
+ height:1.5
+ space top:0.3
+ Local: Field: default: Style: small Bold
+ border:thin top bottom
+  height:1.5
+ space top:0.3
+
+
+
+[line:mfgstockjournalchgexp]
+
+use:mfgstockjournalchgInv2
+
+delete:explode
+
+local: field: fwf : set as :$stockitemname ;;$cwsjRawMaterial1
+
+local : field : snf2: set as :"" ;;$batchname  ;;"Batch No"
+
+
+ local : field : numf :set as :$cwQTY  ;;"Reel"
+ local : field : numf2 : set as :if $cwUOM="pkt" then "" else $cwPKT  ;;"MTR"
+ local : field : qtyf : set as :$billedqty  ;; "SQMT"
+ local : field : snfx : set as :$baseunits:stockitem:#fwf  ;; "Qty."
+ local : field : amtf : set as :$amount  ;;"Amount"
+ Local: Field: snf3: set as :$cwOtherssj ;;"Others"
+ local : field : numf1 : set as :$cwsqmtWeightper ;; "Weight"
+ 
+;; {22.Jan.25 10:17}  Local: Field: numf4: Set As:if $$line=1 then #numf3 else if $cwstockgrraw1 <> $$prevOBJ:$cwstockgrraw1 then #numf3 else $$prevlinefield+#numf3
+;; {22.Jan.25 10:17}  Local: Field: amtf3: Set As:if $$line=1 then #amtf else if $cwstockgrraw1 <> $$prevOBJ:$cwstockgrraw1 then #amtf else $$prevlinefield+#amtf
+
+
+Local: Field: default: Style: small bold
+;; {22.Jan.25 10:17} add:explode:cwsjrmpart:$$line=$$numitems or $cwstockgrraw1 <> $$NEXTOBJ:$cwstockgrraw1
+space bottom:0.2
+
+
+add:explode:mfgstockjournalchgexpbatch :$batchname != "Primary batch"
+
+[part:mfgstockjournalchgexpbatch]
+line:mfgstockjournalchgexpbatch
+repeat :mfgstockjournalchgexpbatch: BatchAllocations
+
+[line:mfgstockjournalchgexpbatch]
+
+
+use:mfgstockjournalchgInv2
+
+delete:explode
+
+local: field: fwf : set as :$stockitemname ;;$cwsjRawMaterial1
+
+local : field : snf2: set as :$batchname  ;;"Batch No"
+
+
+ local : field : numf :set as :$cwQTY  ;;"Reel"
+ local : field : numf2 : set as :if $cwUOM="pkt" then "" else $cwPKT  ;;"MTR"
+ local : field : qtyf : set as :$billedqty  ;; "SQMT"
+ local : field : snfx : set as :$baseunits:stockitem:#fwf  ;; "Qty."
+ local : field : amtf : set as :$amount  ;;"Amount"
+ Local: Field: snf3: set as :$cwOtherssj ;;"Others"
+ local : field : numf1 : set as :$cwsqmtWeightper ;; "Weight"
+
+;; {22.Jan.25 10:17}  Local: Field: numf4: Set As:if $$line=1 then #numf3 else if $cwstockgrraw1 <> $$prevOBJ:$cwstockgrraw1 then #numf3 else $$prevlinefield+#numf3
+;; {22.Jan.25 10:17}  Local: Field: amtf3: Set As:if $$line=1 then #amtf else if $cwstockgrraw1 <> $$prevOBJ:$cwstockgrraw1 then #amtf else $$prevlinefield+#amtf
+
+
+Local: Field: default: Style: small
+;; {22.Jan.25 10:17} add:explode:cwsjrmpart:$$line=$$numitems or $cwstockgrraw1 <> $$NEXTOBJ:$cwstockgrraw1
+space bottom:0.2
+
+
+
+ [line : mfgstockjournalchgTotLine]
+ use:mfgstockjournalchgInv2
+  border:totals
+    height:1.5
+ space top:0.3
+  local : field : ratef  : set as :""
+  local : field : fwf : set as : "Total"
+ Local: Field: amtf: Set As:$$CollAmtTotal:InventoryEntriesIn:$AMOUNT ;;#cwamtfnew
+ Local: Field: qtyf: Set As:$$CollnumTotal:InventoryEntriesIn:$billedqty
+  Local: Field: numf: Set As:""
+  Local: Field: numf1: Set As:""
+  Local: Field: numf2: Set As:""
+  Local: Field: numf3: Set As:"" ;;$$CollnumTotal:InventoryEntriesIn:$billedqty
+  local : field : fwf : align : right
+  local : field : amtf : format : "noShowBaseSymbol"
+ Local: Field: default: Style: small bold
+ local: field: snfx : set as :"" ;;$baseunits:stockitem:@@cwsjrProductn
+
+
+[LINE:mfgstockjournalchgInvLineTitle2X]
+use:mfgstockjournalchgInv2
+
+delete:explode
+
+local: field: fwf : set as :$$CollectionField:$cwstockgrraw1:1:cwcolllrm
+;; {07.Jan.25 12:21} local: field: fwf : set as :$$CollectionField:$cwsjRawMaterial1:1:cwcolllrm
+local : field : snf : set as :""
+local : field : snf3 : set as :""
+
+local : field : snf2: set as :""
+local: field: snfx : set as :""
+local : field : numf : set as :""
+local : field : amtf : set as :"" ;;$$CollectionField:$amount:1:BatchAllocations
+
+Local: Field: amtf1: Set As:"" ;;$$CollAmtTotal:cwcollsjmfgpro:@@cwrawmamt
+Local: Field: default: Style: small bold
+
+
+[part:cwsjrmpart]
+line:cwsjrmsubtotalpart,cwsjrmpart
+
+[line:cwsjrmpart]
+
+use:mfgstockjournalchgInv2
+
+delete:explode
+
+local: field: fwf : set as :$$NEXTOBJ:$cwstockgrraw1
+local : field : snf : set as :""
+local : field : snf3 : set as :""
+
+local : field : snf2: set as :""
+local: field: snfx : set as :""
+local : field : numf : set as :""
+local : field : numf1 : set as :""
+local : field : numf2 : set as :""
+local : field : numf3 : set as :""
+local : field : amtf : set as :"" ;;$$CollectionField:$amount:1:BatchAllocations
+
+Local: Field: amtf1: Set As:"" ;;$$CollAmtTotal:cwcollsjmfgpro:@@cwrawmamt
+Local: Field: default: Style: small bold
+  
+
+[System: Formula]
+cwrawmamt:$$CollAmtTotal:cwcollsjRawMaterial:$cwsjRawMAmount
+
+[line:cwsjrmsubtotalpart]
+
+
+use:mfgstockjournalchgInv2
+    height:1.5
+ space top:0.3
+delete:explode
+ border:totals
+local: field: fwf : set as :"Total"
+local : field : snf : set as :""
+local : field : snf3 : set as :""
+
+local : field : snf2: set as :""
+;; {07.Jan.25 12:13} local: field: snfx : set as :""
+local : field : numf : set as :""
+local : field : numf1 : set as :""
+local : field : numf2 : set as :""
+local : field : numf3 : set as :#numf4
+Local: Field: numf4: Set As:$$prevlinefield
+Local: Field: amtf3: Set As:$$prevlinefield
+local : field : amtf : set as :#amtf3 ;;$$CollectionField:$amount:1:BatchAllocations
+
+Local: Field: amtf1: Set As:"" ;;$$CollAmtTotal:cwcollsjmfgpro:@@cwrawmamt
+Local: Field: default: Style: small bold
+Local: field: fwf: Align: Right ;;centre
+
+Local: Field: snfx: Set As:#snfxuom ;$baseunits:stockitem:@@cwsjrProductn
+add:field:snf12
+Local: Field: snf12: Set As :@@cwsjrProductn ;;$baseunits:stockitem:@@cwsjrProductn
+ [System: Formula]
+ cwsjrProductout:$$CollectionField:$cwsjRawMaterial1:First:cwcolllrm
+ 
+
+
+
+
+ 
+ [System: Formula]
+
+ cwsjMfgProductn:$$CollectionField:$stockitemname:First:InventoryEntriesout
+
+[part : mfgstockjournalchgACCPart]
+  line : mfgstockjournalchgACCLine
+;; {13.Nov.24 10:27} repeat : mfgstockjournalchgACCLine : cwcolllabourchg
+;; {13.Nov.24 10:03} Scroll : vertical
+;; {13.Nov.24 10:03} Common border : yes
+;; {13.Nov.24 10:03}  float : no
+
+ [part : mfgstockjournalledLine]
+ Line : mfgstockjournalledLine,mfgstockjournalledtotalLine,cwMakerline,cwGodownsjline
+
+ repeat : mfgstockjournalledLine : cwcolllabourchg
+ 
+
+
+ [Collection: cwcolllabourchgnewp]
+ source collection:default
+
+ walk :cwcollsjmfgpro,cwcolllabourchg
+
+
+ by:cwledchg11 :$cwledchg
+ aggr compute:cwamtchg11 :sum:$cwamtchg
+
+
+
+
+
+ [Line : mfgstockjournalledLine]
+ field:fwf
+ right fields:amtf
+
+ local: field: fwf : set as :$cwledchg
+ local : field : snf : set as :""
+ local : field : snf2: set as :""
+ local : field : numf : set as :""
+ local : field : amtf : set as :$cwamtchg
+;; {14.Nov.24 15:26}  Local: field: fwf: Align: Right ;;centre
+
+ Local: Field: default: Style: small Bold
+
+ delete : explode
+ 
+ 
+ [line : mfgstockjournalledtotalLine]
+ use:mfgstockjournalledLine
+    height:1.5
+ space top:0.3
+;; Local: Field: amtf:border:thin top
+ local : field : ratef  : set as :""
+ local : field : fwf : set as : "Total"
+ Local: Field: amtf: Set As:$$CollAmtTotal:cwcolllabourchg:$cwamtchg ;;#cwamtfnew
+
+ local : field : fwf : align : right
+ local : field : amtf : format : "noShowBaseSymbol"
+ Local: Field: default: Style: small bold
+ border:totals
+ delete : explode
+
+ [part : mfgstockjournalchgBottomPart]
+ line : mfgstockjournalchgTotLine
+
+ [System: Formula]
+ cwsjrProductn:$$CollectionField:$stockitemname:First:InventoryEntriesIn
+
+ 
+  ;;line:cwMakerline
+  
+ [line:cwMakerline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Maker"
+
+ Local: Field:nf: setas:$cwMaker
+ Local: Field: default: Style: small
+ border:thin top
+ 
+ [line:cwGodownsjline]
+  field:sp,nf
+  Local: Field: sp: Set As:"Godown"
+
+ Local: Field:nf: setas:$$CollectionField:$godownname:1:InventoryEntriesIn
+ Local: Field: default: Style: small
+

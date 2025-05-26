@@ -1,0 +1,319 @@
+; Created By: Khokan on 2022-09-17 10:46, ID: 
+
+[System: UDF]
+ cwQuality:string:1000
+       ;; BARCODE on
+
+;; {09.Oct.24 12:08} cwGSM:string:1001
+;; {09.Oct.24 10:57} cwSize:string:1002
+;; {09.Oct.24 11:05} cwSheet:string:1003
+;; {09.Oct.24 11:10} cwPack:string:1004
+;; {09.Oct.24 11:30} cwunitply3:string:1005
+;; {14.Oct.24 10:27} cwunitalt3:string:1006
+
+;; BARCODE on
+
+cwConversion3:number:1007
+cwDenominator3:number:1008
+cwunitply4:string:1009
+cwConversion4:number:1010
+cwunitalt4:string:1011
+cwDenominator4:number:1012
+cwPKT:number:1013
+cwBDL:number:1014
+cwKGS:number:1015
+cwSHEETS:number:1016
+cwTransactionUOM:string:1017
+cwIsKgs:logical:1018
+cwIsPkt:logical:1019
+cwIsBdl:logical:1020
+cwIsSheet:logical:1021
+cwsalesStartingNumber:number:1022
+cwPKT2:string:1023
+cwBDL2:string:1024
+cwSHEETS2:string:1025
+cwremarks:string:1026
+cwcwTransporterName:string:1027
+CWBundles:string:1028
+cwsheetnew1:number:1029
+cwsheetnew2:number:1030
+cwsheetnew3:number:1031
+;; {09.Oct.24 12:32} cwPacknew:string:1032
+cwSapceTop:number:1033
+cwSapceWidth:number:1034
+cwSapceHeight:number:1035
+cwUOM:string:1036
+cwQTY:number:1037
+
+cwSapceTop2:number:1038
+cwSapceWidth2:number:1039
+cwSapceHeight2:number:1040
+cwSapceTopSpace:number:1041
+cwHeader:string:1042
+cwtitle:string:1043
+cwtitle2:string:1044
+cwAC:string:1045
+cwDespatchDate:date:1047
+cwisship:logical:1048
+cwIsDespatch:logical:1049
+cwFreightled:logical:1050
+cwspaceLeftSimple:number:1051
+cwShowTransactions:logical:1052
+
+cwSourceGodownpurc:string:1054
+cwTargetGodownpurc:string:1055
+
+cwStockEntryDate:date:1057
+cwClaimAccount:string:1058
+cwClaimAccountamt:amount:1059
+
+cwClaimAccount2:string:1060
+cwClaimAccountamt2:amount:1061
+
+cwccQualityyes:logical:1066
+cwccGSMyes:logical:1067
+cwccSizeyes:logical:1068
+cwccSheetyes:logical:1069
+cwIsReelProduct:logical:1070
+cwtrsSlipNo:string:1071
+cwtrsVehicle:string:1072
+cwvchtypecolor:string:1073
+cwBackgroundcolor:string:1074
+
+cwSapceTopSJ:number:1075
+cwSapceLeftSJ:number:1076
+cwSapceTopSpaceSJ:number:1077
+cwSapceWidthSJ:number:1078
+cwSapceHeightSJ:number:1079
+cwreelyes:logical:1080
+cwuom1item:string:1081
+cwuom2item:string:1082
+cwuomaltitem:string:1083
+cwuom1ReelNO:string:1084
+cwuom2ReelNO:string:1085
+cwuomaltReelNO:string:1086
+cwuom3ReelNO:string:1087
+cwuom3altReelNO:string:1088
+cwuom4ReelNO:string:1089
+cwuom4altReelNO:string:1090
+cwsendmailyes:string:1091
+cwkvFileFormat:string:1092
+
+cwClaimAccount3:string:1093
+cwClaimAccountamt3:amount:1094
+cwClaimAccount4:string:1095
+cwClaimAccountamt4:amount:1096
+
+cwtitle2Packing:string:1097
+cwSapceTopSpacePacking:number:1098
+cwSapceWidthPacking:number:1099
+cwSapceHeightPacking:number:1100
+cwSapceLeftPacking:number:1101
+spaceRightnewKhamPacking:number:1102
+cwSapceTopPacking:number:1103
+cwopqtyalt:number:1104
+salesdeliveryrep:logical:1105
+cwIsProduct:logical:1106
+cwuom1itemmfg:string:1107
+cwuom2itemmfg:string:1108
+cwuomaltitemmfg:string:1109
+cwreelyesmfg:string:1110
+cwuom1ReelNOmfg:string:1111
+cwuom2ReelNOmfg:string:1112
+cwuomaltReelNOmfg:string:1113
+cwuom3ReelNOmfg:string:1114
+cwuom3altReelNOmfg:string:1115
+cwIsSqmt:logical:1116
+cwIsReelProductmfg:logical:1117
+cwunitalt3:string:1118
+cwuom3itemmfg:string:1119
+cwuomaltitemmfg3:string:1120
+cwuom4ReelNOmfg:string:1121
+cwuom4altReelNOmfg:string:1122
+cwIsMTR:logical:1123
+cwIsReelvchtmfg:logical:1124
+cwsjMfgQtynew:number:1125
+cwsqmtmtr:number:1126
+cwsqmtWeightper:number:1127
+cwPKTsjour:number:1128
+cwQTYsjour:number:1129
+cwMaker:string:1130
+cwOtherssj:string:1131
+cwbatchUOMsj:string:1132
+cwbatchMTRsj:number:1133
+cwbatchSQMTKGsj:number:1134
+cwsjRawMothersnew:string:1135
+cwstockgrrawnew:string:1136
+cwWeightnew:number:1137
+cwPKTnew:string:1138
+cwnewmtr1:number:1139
+
+
+
+
+
+
+[System: UDF]
+ cwJSONexepath:string:1150
+ cwPathtoSavefile:string:1151
+ 
+ [System: UDF]
+ cwAutopostVoucherpurc:logical:2055
+cwAutoPostVoucherType:string:2056     ;;bc
+cwIsRLL:logical:2057        ;;bc
+cwisApproveBy:logical:2058  ;;bc
+cwGroupnamenew:string:2059
+cwSkipVoucherNo:logical:2060  ;;bc
+
+[System: UDF]
+cwautogentednm:logical:2200
+cwcustcode:string:2100
+cwNumZeros:number:2101
+ManualStartNumber:number:2102
+cwCustomercode:string:2103
+cwmstparntcd:string:2104
+cwbillscheme:string:2105
+
+
+
+[System: UDF]
+cwquantity:logical:5001
+cwaltunit:logical:5002
+cwrate:logical:5003
+cwvalue:logical:5004
+cwgoodsinward:logical:5005
+cwgoodsoutward:logical:5006
+cwitemwisestock:logical:5007
+
+[System: UDF]
+cwstatus:string:5031
+
+
+[System: UDF]
+
+collcwGroupname:aggregate:9505
+cwGroupname:string:9506
+cwGroupname2:string:9507
+cwledgerblk:string:9508
+
+;;===============================================
+
+
+[System: UDF]
+cwcollsjmfgpro:aggregate:7505
+cwsjMfgProduct:string:7506
+cwsjMfgGodown:string:7507
+cwsjMfgBatch:string:7508
+cwsjMfgLength:number:7509
+cwsjMfgWidth:number:7510
+cwsjMfgQty:number:7511
+cwsjMfgConsumption:logical:7512
+cwsjMfgRate:number:7513
+cwsjMfgAmount:amount:7514
+
+cwledchg1new:string:7515
+cwamtchg1new:amount:7516
+
+cwledchg2new:string:7517
+cwamtchg2new:amount:7518
+
+cwledchg3new:string:7519
+cwamtchg3new:amount:7520
+
+cwledchg4new:string:7521
+cwamtchg4new:amount:7522
+
+cwledchg5new:string:7523
+cwamtchg6new:amount:7524
+cwUOMmfg:string:7525
+cwOthersMfg:string:7526
+cwWeightMfg:number:7527
+
+[System: UDF]
+
+cwledchg1:string:7555
+cwledchg2:string:7556
+cwledchg3:string:7557
+cwledchg4:string:7558
+cwledchg5:string:7559
+
+cwamtchg1:amount:7560
+cwamtchg2:amount:7561
+cwamtchg3:amount:7562
+cwamtchg4:amount:7563
+cwamtchg5:amount:7564
+
+
+
+[System: UDF]
+cwcollsjRawMaterial:aggregate:7605
+cwstockgrraw:string:7606
+cwsjRawMaterial:string:7607
+cwsjRawMGodown:string:7608
+cwsjRawMBatch:string:7609
+cwsjRawMLength:number:7610
+cwsjRawMWidth:number:7611
+cwsjRawMQty:number:7612
+cwsjRawMRate:number:7613
+cwsjRawMAmount:amount:7614
+cwEffeciveratesj:number:7615
+cwUOMraw:string:7616
+cwsjRawMothers:string:7617
+cwWeight:number:7618
+
+[System: UDF]
+cwcolllabourchg:aggregate:7705
+cwledchg:string:7706
+cwamtchg:amount:7707
+
+[System: UDF]
+cwAllocationtoPrimaryProduct:amount:7770
+cwfgqty:amount:7771
+cwEffecivetoPrimaryProduct:amount:7772
+cwUseasMfgJournal:logical:7773
+cwIsTrading1:logical:7774
+cwIsManufacturing1:logical:7775
+cwQualityitem2:string:7776
+cwGSMitem2:string:7777
+cwSizeitem1:string:7778
+cwSizeitem2:string:7779
+cwWeightperPktitem:string:7780
+cwIsTradingvchtype:logical:7781
+cwIsManufacturingvchtype:logical:7782
+
+
+[System: UDF]
+collcwFacePaper:aggregate:7805
+cwsjRawMaterialfp:string:7806
+cwsjRawMGodownfp:string:7807
+cwsjRawMBatchfp:string:7808
+cwsjRawMothersfp:string:7809
+cwsjRawMLengthfp:number:7810
+cwsjRawMWidthfp:number:7811
+cwsjRawMQtyfp:number:7812
+cwsjRawMRatefp:number:7813
+cwsjRawMAmountfp:amount:7814
+cwUOMrawfp:string:7815
+
+
+
+[System: UDF]
+collcwOthers:aggregate:7905
+cwsjRawMaterialoth:string:7906
+cwsjRawMGodownoth:string:7907
+cwsjRawMBatchoth:string:7908
+cwsjRawMothersoth:string:7909
+cwsjRawMLengthoth:number:7910
+cwsjRawMWidthoth:number:7911
+cwsjRawMQtyoth:number:7912
+cwsjRawMRateoth:number:7913
+cwsjRawMAmountoth:amount:7914
+cwUOMrawoth:string:7915
+
+
+
+
+
+
+
+

@@ -1,0 +1,71 @@
+; Created By: Khokan on 2022-11-11 09:17, ID:
+
+ [#Field: DSP VchNumber]
+ add:option:cwDSPVchNumberopt:@@KrishnavanijyaEnabled
+
+ [!field:cwDSPVchNumberopt]
+
+ Use         : Short Name Field
+ Width       : @@DSPNumberWidth - 2
+;; {11.Nov.22 10:49}  Set as      :if $$isempty:$reference then @@cwDSPVchNumber else $reference
+    
+    
+ [System: Formula]
+ cwDSPVchNumber:if NOT $$IsVoucher then "" else @OptStr + @VchNo
+ 
+ ;;=============================================================================
+
+
+ [#Line: DSP VchInv1Titles]
+  add:option:cwDSPVVchInv1Titlesopt:@@KrishnavanijyaEnabled
+
+ [!line:cwDSPVVchInv1Titlesopt]
+ 
+ add : right field :after:DSP VchNumberTitle :snf2,sdf3 ;;,snf3
+
+
+ Local: Field: snf2: Set As: "Sup. Inv No"
+ Local: Field: snf3: Set As: "Inward"
+ Local: Field: sdf3: Set As: "Sup. Inv Date"
+ local: field: sdf3: type: String
+   Local: field: sdf3: Width:12
+   
+   [#line:DSP VchInv2Titles]
+   
+    add:option:cwDSPVVchInv2Titlesopt:@@KrishnavanijyaEnabled
+
+ [!line:cwDSPVVchInv2Titlesopt]
+   add : right field :after:DSP VchNumberTitle :snf2,sdf3 ;;,snf3
+
+
+ Local: Field: snf2: Set As: ""
+ Local: Field: snf3: Set As: ""
+ Local: Field: sdf3: Set As: ""
+ local: field: sdf3: type: String
+   Local: field: sdf3: Width:12
+
+
+ [#Line: DSP VchInvDetail]
+ add:option:cwDSPVchInvDetailopt:@@KrishnavanijyaEnabled
+
+ [!line:cwDSPVchInvDetailopt]
+ add : right field :after:DSP VchNumber :snf11,sdf3 ;;,snf3,qtyf,qtyf2
+
+ Local: Field: snf11: Set As:$reference
+ Local: Field: snf3: Set As:$isinwards1
+
+
+ Local: Field: sdf3: Set As:$REFERENCEDATE
+ Local: Field: qtyf: Set As:$$FilterQtyTotal:InventoryEntries:OwnItemInEntries:$BILLEDQTY
+ Local: Field: qtyf2: Set As:$$FilterQtyTotal:InventoryEntries:OwnItemOutEntries:$BILLEDQTY
+;; {01.Mar.23 17:00}  Local: Field: qtyf2: Set As:$$FilterQtyTotal:InventoryEntries:OwnItemInEntriesout:$BILLEDQTY
+
+
+ Local: Field: snf2: Style: Normal Bold
+ Local: field: sdf3: Width:12
+
+
+ [#collection: Vouchers of Stock Item]
+    fetch:ReferenceDate,cwStockEntryDate,reference
+  compute:isinwards1:$$isinwards
+  

@@ -1,0 +1,203 @@
+; Created By: Khokan on 2022-11-05 10:25, ID: 
+
+     [#menu: Gateway of Tally]
+        add: Option: test2Lock ;; : @@test2DemoLock
+       
+
+     [#menu : cw_Debug_menu]   
+        add: Item: before: @@locQuit: @@test2Report: Display: Reptest2
+
+
+
+     [!menu: test2Lock]
+        add: Item: before: @@locQuit: @@test2Report: Display: Reptest2
+        add: Item: before: @@locQuit: Blank
+        
+    [System: formula]
+   test2Report: "test2"
+;; test2DemoLock: $$MachineDate < $$Date:"01/04/2013"
+     
+    [Report: Reptest2]
+        use: Dsp Template
+      Title: @@test2Report
+   Printset: Report Title: @@test2Report
+       Form: Frmtest2
+     Export: Yes
+     set  : svfromdate : ##svcurrentdate
+     set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+     
+      [Form: Frmtest2]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0test2,Prttest2
+      Width: 100% Page
+     Height: 100% Page
+;; Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: test2botbrk,test2botOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: test2botBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: test2botopbrk]
+        use: dspacctitles
+  add: part: test2TitlePart
+
+      [part: test2TitlePart]
+       line: Lntest2Title
+       
+      [line: Lntest2CurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0test2]
+      line : Lntest2CurrPeriod
+      
+      [Part: Prttest2]
+       Line: Lntest2Title,Lntest2
+bottom Line: Lntest2Totals
+     repeat: Lntest2: Coltest2
+     scroll: Vertical
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: Coltest2]
+      type:bills
+   fetch : LedgerEntries.InventoryEntries.BilledQty
+   fetch : LedgerEntries.InventoryEntries.vouchernumber
+    [system: Formula]
+Coltest2Filter: Yes
+
+      [Line: Lntest2Title]
+        use: Lntest2
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+local:field: sdf: set as: "Date"
+local:field: nf: set as: "Name"
+local:field: fwf: set as: "Description"
+local:field: qtyf: set as: "Qty."
+local:field: amtf: set as: "Value"
+local:field: ratepf : set as : "Rate"
+      local: field: default : style: normal bold
+
+      [Line: Lntest2]
+     Fields: sdf,nf,fwf
+right field: ratepf,numf,numf1,numf2
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : voucher : $$isvoucher
+option : alter on enter
+local : field : fwf : alter : voucher : $$isvoucher
+;; local : field : fwf : alter : ledger : $$isledger
+ local : field : sdf : set as : $billdate
+ local : field : nf : set as : $name
+ local : field : fwf : set as :$$CollectionField:$vouchernumber:First:ledgerentries
+ local : field : amtf : set as :$closingbalance
+ local : field : numf1 : set as :$$FilterNumTotal:LedgerEntries:cwnsaleFilter:@@cwQty
+ local : field : numf : set as :$$funcwnsale:#nf ;;$$FilterNumTotal:LedgerEntries:cwnsaleFilter:@@cwQty
+;; {05.Nov.22 12:53}  local : field : numf2 : set as :$$funcwnsale:#fwf ;;$$FilterNumTotal:LedgerEntries:cwnsaleFilter:@@cwQty
+
+ [System: Formula]
+ cwnsaleFilter:($date >= @@dspFromDate and $date <= @@dspToDate) and ($$isSales:$voucherTypeName or $$IsCreditNote:$voucherTypeName )
+
+ cwQty : if $$issales:$vouchertypename then @@cwGetBilledQtyNumber else if $$iscreditnote:$voucherTypename then -1 * @@cwGetBilledQtyNumber else @@cwGetBilledQtyNumber
+
+ cwGetBilledQtyNumber : $$collnumtotal:InventoryEntries:@@cwBilledQtyNum
+ 
+ 
+ [Function:funcwnsale]
+ 
+ parameter :mygroupname :string
+ variable :myvchname :string:$$CollectionField:$vouchernumber:First:ledgerentries
+
+   variable : isFirst : logical :no
+;10 :walk collection:LedgerEntries
+
+
+
+;; {05.Nov.22 12:43} 10a : if : $vouchernumber=##mygroupname ;;##myvchname ;= ##mygroupname
+10a : if : ##myvchname = ##mygroupname
+
+;;10a : if : $name = ##mygroupname
+
+
+20: do if :##isfirst : set target :  LedgerEntries[1]
+
+;; {05.Nov.22 11:33} 30 : do if :not ##isFirst : insert collection object : billallocations
+;; {05.Nov.22 11:34} 30 : do if :not ##isFirst : insert collection object : LedgerEntries
+
+40: set : isFirst :no
+1900: log :$$FilterNumTotal:LedgerEntries:cwnsaleFilter:@@cwQty
+100a: end if
+;100 :end walk
+;;3400:SET TARGET:..
+
+1900: Return :$$FilterNumTotal:LedgerEntries:cwnsaleFilter:@@cwQty
+
+
+
+
+
+         /*
+  [function:Groupautofill2]
+  parameter :mygroupname :string
+  variable : isFirst : logical :no
+
+ 10 :walk collection:cwstkgrpcoll
+
+ 10a : if : $name= ##mygroupname
+ 20: do if :##isfirst : set target :  billallocations[1]
+ 30 : do if :not ##isFirst : insert collection object : billallocations
+
+ 40: set : isFirst :no
+
+ 34011:log:$$FilterNumTotal:LedgerEntries:cwnsaleFilter:@@cwQty
+
+
+ 100a: end if
+
+       1900: Return :$$FilterNumTotal:LedgerEntries:cwnsaleFilter:@@cwQty
+        
+
+        ;;345:SET TARGET:..
+;; {07.Jan.19 15:30}         350:set value:cwgrphistory:$cwgrphistory+##mygroupname+","
+         002wwwww :end walk
+
+
+     [collection:cwstkgrpcoll]
+        type        : bills
+      ;child of:##mygroupname
+      
+       keep source : no
+;       ;filter : ofsameg
+
+       [System: Formula]
+        ofsameg : $parent = ##mygroupname
+
+          */
+
+
+
+
+      [line: Lntest2Totals]
+        use: Lntest2
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

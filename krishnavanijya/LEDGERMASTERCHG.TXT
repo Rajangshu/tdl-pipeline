@@ -1,0 +1,31 @@
+; Created By: Khokan on 2022-11-02 16:47, ID: 
+
+[#Form: Group]
+add:option:cwGroupopt:@@KrishnavanijyaEnabled
+
+[!form:cwGroupopt]
+add:part:isshipaprt
+
+[part:isshipaprt]
+line:isshipaprt
+
+[line:isshipaprt]
+field:long prompt,cwlogical
+Local: Field: long prompt: Set As:"Is Ship?"
+Local: Field: cwlogical: storage:cwisship
+Local: field: long prompt: Width:40
+
+
+ [#Part: MST LED Details]
+ add:option:cwMSTLEDDetailsopt:@@KrishnavanijyaEnabled
+
+[!part:cwMSTLEDDetailsopt]
+ add:line:cwFreightledline
+ 
+ [line:cwFreightledline]
+ field:long prompt,cwlogical
+ Local: Field: long prompt: Set As:"Is Freight?"
+ Local: Field: cwlogical: storage:cwFreightled
+ Local: field: long prompt: Width:34
+
+

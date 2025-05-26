@@ -1,0 +1,158 @@
+; Created By: Taniya on 2022-07-08 12:01, ID:
+
+
+     [#menu: Gateway of Tally]
+;; {29.Oct.22 17:39}         add: Option: LedMasterLock ;; : @@LedMasterDemoLock
+
+
+;; {08.Jul.22 12:01}      [#menu : cw_Debug_menu]
+;; {08.Jul.22 12:01}         add: Item: before: @@locQuit: @@LedMasterReport: Display: RepLedMaster
+
+
+
+     [!menu: LedMasterLock]
+        add: Item: before: @@locQuit: @@LedMasterReport: Display: RepLedMaster
+        add: Item: before: @@locQuit: Blank
+
+    [System: formula]
+   LedMasterReport: "Ledger Master"
+;; LedMasterDemoLock: $$MachineDate < $$Date:"01/04/2013"
+
+    [Report: RepLedMaster]
+        use: Dsp Template
+      Title: @@LedMasterReport
+   Printset: Report Title: @@LedMasterReport
+       Form: FrmLedMaster
+     Export: Yes
+;; {29.Jul.20 11:22}      set  : svfromdate : ##svcurrentdate
+;; {29.Jul.20 11:22}      set  : svTodate : ##svcurrentdate
+    Local       : Button   : RelReports        : Inactive : Yes
+    variable:ledgername
+
+      [Form: FrmLedMaster]
+        use: DSP Template
+       Part: DspAccTitles,PrtTitle0LedMaster,PrtLedMaster
+      Width: 100% Page
+     Height: 100% Page
+ Background: @@SV_STOCKSUMMARY
+     delete: page break
+        add: page break: LedMasterbotbrk,LedMasterbotOpbrk
+Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn3, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11,BottomToolBarBtn12
+;; BottomToolBarBtn2, BottomToolBarBtn4, BottomToolBarBtn5,BottomToolBarBtn6, BottomToolBarBtn7,
+;;                        1 Quit, 2 Accept, 3 Delete, 4 Cancel, 5 Duplicate Voucher, 6 Add Voucher, 7 Insert Voucher, 8 Remove Line, 9 Restore Line, 10 Restore all, 11 Select, 12 Select All
+;;    local : button : report config : action :modify variable: MyPLConfigure
+
+      [part: LedMasterbotBrk]
+       line: EXPINV PageBreak
+     border: thin top
+
+      [part: LedMasterbotopbrk]
+        use: dspacctitles
+  add: part: LedMasterTitlePart
+
+      [part: LedMasterTitlePart]
+       line: LnLedMasterTitle
+
+      [line: LnLedMasterCurrPeriod]
+      field: fwf,fwf2
+      Local: field: fwf2: Align: Right
+      Local: Field: fwf: Style: normal bold
+      Local: Field: fwf2: Style: normal bold
+      Local: Field: fwf2: Set As: @@dspDateStr
+  invisible: $$inprintmode
+
+      [part: PrtTitle0LedMaster]
+      line : LnLedMasterCurrPeriod
+
+      [Part: PrtLedMaster]
+       Line: LnLedMasterTitle,LnLedMaster
+bottom Line: LnLedMasterTotals
+     repeat: LnLedMaster: ColLedMaster
+     scroll: both
+ Common Border: YEs
+      Total: Qtyf,amtf
+
+[Collection: ColLedMaster]
+     type:ledger
+/*
+        Use: Vouchers of Company
+     delete: filter : daybookfilter */
+     Filter: ColLedMasterFilter ;;,IsNonOptionalCancelledVchs
+
+    [system: Formula]
+ColLedMasterFilter: if $$issysname:##ledgername then yes else ($name=##ledgername or $cwpartycode=##ledgername)
+
+      [Line: LnLedMasterTitle]
+        use: LnLedMaster
+     option: titleopt
+;;     local: field:default: set as: $$DescName
+Local: Field: snfx: Set As:"Lavel"
+local:field: fwf: set as: "Name"
+local:field: fwf2: set as: "Address."
+local:field: nf: set as: "State"
+local:field: nf1: set as: "GST IN"
+local:field: nf2 : set as : "Pin Code"
+Local: Field: nf3: Set As:"PAN No."
+local : field:nf4:SET AS:"Mobile"
+local : field : nf5 : set as : "Contact Person"
+Local: Field: nf6: Set As:"E-Mail"
+      local: field: default : style: normal bold
+
+      [Line: LnLedMaster]
+     Fields: snfx,d1,fwf,d2,fwf2,d3,nf,d4,nf1,d5,nf2,d6,nf3,d7,nf4,d8,nf5,d9,nf6,d10
+
+     Option: Alter on Enter
+local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero"
+;;local:field: qtyf : Format : "NoSymbol, Short Form, No Compact,NoZero,decimals:0"
+local:field: ratepf : setas  : #amtf/#qtyf
+     local: field: fwf: alter : ledger : $$isledger
+option : alter on enter
+local : field : fwf : alter : ledger : $$isledger
+;; local : field : fwf : alter : ledger : $$isledger
+Local: Field: snfx: Set As:"0" ;;"Lavel"
+local:field: fwf: set as:$name ;; "Name"
+local:field: fwf2: set as:$$CollectionField:$address:@@linep1ex:address  ;;"Address."
+local:field: nf: set as:$LedStateName ;; "State"
+local:field: nf1: set as:$PartyGSTIN ;; "GST IN"
+local:field: nf2 : set as :$pincode ;; "Pin Code"
+Local: Field: nf3: Set As:$incometaxnumber ;;"PAN No."
+local : field:nf4:SET AS:$LedgerMobile ;;"Mobile"
+local : field : nf5 : set as :$LedgerContact ;; "Contact Person"
+Local: Field: nf6: Set As:$EMAIL ;;"E-Mail"
+
+Local: field: fwf: Width:500
+Local: field: fwf2: Width:500
+Local: field: fwf: max:1000
+Local: field: fwf2: max:1000
+
+add:explode:cwexplodepartx
+[part:cwexplodepartx]
+line:cwexplodelinex
+repeat:cwexplodelinex:address
+
+[line:cwexplodelinex]
+use:LnLedMaster
+delete:explode
+Local: Field: snfx: Set As:"1" ;;"Lavel"
+local:field: fwf: set as:"" ;; "Name"
+local:field: fwf2: set as:$$owner:$$CollectionField:$address:@@linep1:address ;; "Address."
+local:field: nf: set as:"" ;; "State"
+local:field: nf1: set as:"" ;; "GST IN"
+local:field: nf2 : set as :"" ;; "Pin Code"
+Local: Field: nf3: Set As:"" ;;"PAN No."
+local : field:nf4:SET AS:""  ;;"Mobile"
+local : field : nf5 : set as :""  ;; "Contact Person"
+Local: Field: nf6: Set As:""  ;;"E-Mail"
+
+
+      [line: LnLedMasterTotals]
+        use: LnLedMaster
+     option: totalOpt
+      local: field: fwf: align: right
+      local: field: default : style: normal bold
+      local: field: qtyf: set as: $$total:qtyf
+      local: field: fwf: set as: "Total"
+      local: field: fwf: set as: ""
+      local: field: amtf : set as :  $$total:amtf
+
+

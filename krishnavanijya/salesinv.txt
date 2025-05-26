@@ -1,0 +1,140 @@
+; Created By: Khokan on 2024-12-16 12:07, ID: 
+
+[#form : Simple Printed Invoice]
+;;   add : option : saleinOpt : @@saleinSales
+
+[#form : ComprehensiveInvoice]
+   add : option : saleinOpt;; : @@saleinSales
+
+[!form : saleinOpt]
+Delete : Part
+Delete : Bottom Part
+Delete : Page Break
+   add : Top part : saleinTopPart
+   add : Part : saleinInvACCPart
+   Add : bottom Part :  saleinBottomPart
+   add : page Break : saleinCLBreak, saleinOPBreak
+
+ [Part : saleinCLBreak]
+   use : saleinBottomPart
+
+ [Part : saleinOpBreak]
+  part : saleinTopPart
+
+ [part : saleinTopPart]
+line : cwblankline
+;;@@SaleTitle
+;;@@InvPartyName
+;; party address : cwParty collection, cwPartyFullAddress formula
+ [part : saleinINVACCPart]
+Parts       : saleinInvPart, saleinAccPart
+CommonBorder: Yes
+Vertical    : Yes
+Scroll      : Vertical
+Float       : No
+;;Total       :
+
+ [part : saleinInvPart]
+  line : saleinInvLineTitle,saleinInvLine,saleinInvLineTotal
+repeat : saleinInvLine : Inventory Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+
+ [Line : saleinInvLine]
+ field : snf,fwf
+right field : qtyf,ratef,amtf
+local : field : fwf : set as : @@invitemname
+local : field: snf :set as : $$linenumber
+local : field : qtyf : set as : $billedqty
+local : field : ratef : set as : $rate
+local : field : amtf : set as : $amount
+explode : saleinBUDPart : $basicuserdescription != ''
+explode : saleinBatchPart : $batchname != "Primary batch"
+
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"Decimals:2,NoZero"
+Local: Field: default: Border: cwThickBoxError6
+
+[line: saleinInvLineTitle]
+ use : saleinInvLine
+delete : explode
+   local : field: default : type : string
+   
+   local : field : snf: set as : "SL"
+ local: field: fwf : set as : "Description"
+ local : field : qtyf : set as : "Qty."
+ local: field : ratef : set as : "Rate"
+ local : field : amtf : set as :"Amount"
+ 
+ local : field : qtyf : align : right
+ local: field : ratef : align : right
+ local : field : amtf : align : right
+
+
+[part : saleinBatchPart]
+line : saleinBatchLine
+repeat : saleinBatchLine : BatchAllocations
+
+[line : saleinBatchLine]
+  use : saleinBUDLine
+local : field : fwf : set as : $batchname
+
+[part : saleinBUDPart]
+line: saleinBUDLine
+repeat : saleinbudline : basicuserdescription
+
+[line : saleinBudLine]
+ use  : saleinINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : $basicuserdescription
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : ""
+
+[line : saleinInvLineTotal]
+ use  : saleinINVLINE
+delete : explode
+local : field : snf : set as : ""
+local : field : fwf : set as : ""
+local : field : qtyf : set as : ""
+local : field : ratef : set as : ""
+local : field : amtf : set as : $$collamttotal:inventoryentries:$amount
+local : field : amtf : border :thin top
+space bottom : 0.05
+
+
+ [part : saleinACCPart]
+  line : saleinACCLine
+repeat : saleinACCLine : Ledger Entries
+Scroll : vertical
+Common border : yes
+ float : no
+
+ [Line : saleinACCLine]
+   use : saleinINVLine
+empty : $ledgername = $partyledgername or $$issysname:$ledgername or $$isempty:$amount
+local : field : ratef : type : number
+local : field : ratef : align : right
+local : field : ratef : format :"NoZero,Percentage"
+local : field : ratef  : set as : $basicrateofinvoicetax
+local : field : snf : set as : ""
+local : field : fwf : set as : $ledgername
+local : field : qtyf : set as : ""
+delete : explode
+
+  [part : saleinBottomPart]
+   line : saleinTotLine,cwblankline
+  
+  [line : saleinTotLine]
+    use : saleinACCLine
+ delete : empty
+  local : field : ratef  : set as :""
+  local : field : fwf : set as : "Total:"
+  local : field : fwf : align : right
+  local : field : amtf : format : "ShowBaseSymbol" 
+  
+  

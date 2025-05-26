@@ -1,0 +1,80 @@
+; Created By: Khokan on 2022-11-07 16:19, ID: 
+
+ [System: Formula]
+ cwkvpurchaseVoucher:$$Ispurchase:$parent
+
+
+ [#Part: VTYP Behaviour]
+
+ add:option:purcVTYPBehaviouropt :@@cwkvpurchaseVoucher and @@KrishnavanijyaEnabled
+
+ [!part:purcVTYPBehaviouropt]
+ 
+ add:line:cwSourceGodownline,cwTargetGodownline,cwAutopostVoucherline ;;,cwitemwisestockline
+
+ [line:cwSourceGodownline]
+  field:long prompt,snf
+
+ Local: Field: long prompt: Set As:"Source Godown:"
+ Local: Field: snf: storage:cwSourceGodownpurc
+ Local: Field: default: Style:small
+ 
+ Local: Field:snf: table:colsourgodown ,Not Applicable
+ Local: Field: snf: Show table: Always
+ 
+ [Collection: colsourgodown]
+ type:godown
+ title:"List of Godown"
+ 
+ [line:cwTargetGodownline]
+  field:long prompt,snf
+
+ Local: Field: long prompt: Set As:"Target Godown:"
+ Local: Field: snf: storage:cwTargetGodownpurc
+ Local: Field: default: Style:small
+ Local: Field:snf: table:colsourgodown ,Not Applicable
+ Local: Field: snf: Show table: Always
+
+ 
+ [line:cwAutopostVoucherline]
+  field:long prompt,cwlogical
+
+ Local: Field: long prompt: Set As:"Auto Post Voucher:"
+ Local: Field: cwlogical: storage:cwAutopostVoucherpurc
+ Local: Field: default: Style:small
+ Local: Field : cwlogical : SubForm : repcwAutopostVoucherpurc: $$value
+ 
+ [report:repcwAutopostVoucherpurc]
+ form:repcwAutopostVoucherpurc
+ 
+ [form:repcwAutopostVoucherpurc]
+ part:repcwAutopostVoucherpurc
+ 
+ [part:repcwAutopostVoucherpurc]
+ line:vchpurcline
+ 
+ [line:vchpurcline]
+ field:sp,nf
+ Local: Field: sp: Set As:"Auto Post Voucher Type:"
+ Local: Field: nf: storage:cwAutoPostVoucherType
+ Local: Field: nf: table: cwVouchertypes,Not Applicable
+ Local: Field:nf: Show table: Always
+ Local: Field: sp:width:20
+ Local: Field: nf:width:20
+ 
+
+[#Part: VTYP Behaviour]
+add:option:cwVTYPBehaviouropt5:@@KrishnavanijyaEnabled
+[!Part: cwVTYPBehaviouropt5]
+add:line:cwitemwisestockline
+ [line:cwitemwisestockline]
+ field:long prompt,cwlogical
+
+ Local: Field: long prompt: Set As:"Is Item Wise Stock:"
+ Local: Field: cwlogical: storage:cwitemwisestock
+ Local: Field: default: Style:small
+ 
+ [System: Formula]
+ cwitemwisestock5:$cwitemwisestock:vouchertype:$vouchertypename
+
+

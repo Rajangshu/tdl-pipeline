@@ -1,0 +1,1119 @@
+; Created By: Khokan on 2022-09-17 16:50, ID: 
+
+[#Form: Stock Item]
+add:option:StockItemopt:@@KrishnavanijyaEnabled
+[!form:StockItemopt]
+
+ add:part:AtBeginning:itempart1,itempart ;;;,itempart2
+
+ local:line:MSTName:local:field:MSTName:set as:@@cwstockitemnamex
+ local:line:MSTName:local:field:mst name:set always:yes
+ local:line:MSTName:Local: field: mstname: Width:40
+ local:line:MSTName:local:field:Short Prompt:info:"Product Name"
+ local:line:MSTName:local:field:Short Prompt:Width:12
+
+
+ [System: Formula]
+
+ cwstockitemnamex:if @@cwstockitemnamexx = " " then $$value else @@cwstockitemnamexx
+;; {16.Dec.24 17:04}  cwstockitemnamexx:@@xs1+" "+@@xs2+" "+@@xs3+" "+@@xs4+" "+@@xs5 +" "+@@xs11+" "+@@xs12+" "+@@xs13+" "+@@xs14+" "+@@xs15
+ cwstockitemnamexx:@@xs1+" "+@@xs2+" "+@@xs3+" "+@@xs4+" "+@@xs5  ;;+" "+@@xs11+" "+@@xs12+" "+@@xs13+" "+@@xs15
+
+ xs1:if not $$issysname:#snf then #snf else ""
+ xs2:if not $$issysname:#snf2 then #snf2 else ""
+ xs3:if not $$issysname:#snf3 then #snf3 else ""
+ xs4:if not $$issysname:#snf4 then #snf4 else ""
+ xs5:if not $$issysname:#snf5 then #snf5 else ""
+ 
+ xs11:if not $$issysname:#snf11 then #snf11 else ""
+ xs12:if not $$issysname:#snf12 then #snf12 else ""
+ xs13:if not $$issysname:#snf13 then #snf13 else ""
+ xs14:if not $$issysname:#snf14 then #snf14 else ""
+ xs15:if not $$issysname:#snf15 then #snf15 else ""
+
+
+
+ [part:itempart1]
+ line:cwitemTradingline,cwitemIsManufacturing1line,isreelproductline,isreelproductmfgline
+ 
+ [line:cwitemTradingline]
+ field:sp,cwlogical
+ Local: Field: sp: Set As:"Is Trading"
+ Local: Field:cwlogical : storage:cwIsTrading1
+ Local: field: sp: Width:15
+ 
+ [line:cwitemIsManufacturing1line]
+ field:sp,cwlogical
+ Local: Field: sp: Set As:"Is Manufacturing"
+ Local: Field:cwlogical : storage:cwIsManufacturing1
+ Local: field: sp: Width:15
+
+ ;;=========================================================
+ 
+
+ [part:itempart]
+ line:itemline,itemline2
+
+ [line:itemline]
+ field:sp,snf,sp2,snf2,sp3,snf3
+;; {26.Nov.24 14:50}  local: field: default: inactive:not $cwIsTrading1
+;; {17.Dec.24 10:16}  local: field: default: inactive:$cwIsReelProductmfg="yes" ;;and not $cwIsTrading1 or not $cwIsManufacturing1
+ 
+ Local: Field: sp: Set As:"Quality"
+ Local: Field: sp2: Set As:"GSM"
+ Local: Field: sp3: Set As:"Size"
+
+ 
+ local:field:default:Color:blue
+ 
+ Local: Field: snf: storage:cwQuality
+ Local: Field: snf2: Set As:if $$isempty:$$value then $cwsortno else $$value
+
+;; {09.Oct.24 10:58}  Local: Field: snf2: storage:cwGSM  ;; cwsortno BARCODE tcp on
+ Local: Field: snf2: storage:cwsortno  ;; cwsortno BARCODE tcp on
+
+ Local: Field: snf3: storage:cwSize    ;; BARCODE tcp on
+
+ Local: Field: snf: Style: small Bold
+ Local: Field: snf2: Style: small Bold
+ Local: Field: snf3: Style: small Bold
+
+ Local: Field:snf: table:collcwQuality ,Not Applicable
+ Local: Field:snf: Show table: Always
+ local:field:snf:variable:svcost centre
+ local:field:SNF:key:Create Cost Centre, Alter CstCtr
+
+ Local: Field:snf2: table:collGSM,Not Applicable
+ Local: Field:snf2: Show table: Always
+ local:field:snf2:variable:svcost centre
+ local:field:SNF2:key:Create Cost Centre, Alter CstCtr
+
+ Local: Field:snf3: table:collSize,Not Applicable
+ Local: Field:snf3: Show table: Always
+ local:field:snf3:variable:svcost centre
+ local:field:SNF3:key:Create Cost Centre, Alter CstCtr
+
+ local:field:Sp:Width:12
+  local:field:Sp2:Width:16
+ local:field:snf:Width:30
+ local:field:snf2:Width:25
+ 
+
+ 
+ [Collection:collcwQuality]
+ Type: Cost Centre
+ title:"List of Quality"
+ child of:"Quality"
+ 
+ [Collection:collGSM]
+ Type: Cost Centre
+ title:"List of GSM"
+;; {26.Nov.22 15:45}  child of:"GSM"
+
+ filter:cwccGSMyesfilter
+ 
+;;add:sub title:"name","GSM","Sheet"
+;; add:format:$name,10
+  ;; add:format:$cwccGSMyes,10
+  ;;add:format:$cwccSheetyes,10
+
+ [System: Formula]
+ cwccGSMyesfilter:if $cwccGSMyes="yes" then yes else no
+ cwccSheetyesfilter:if $cwccSheetyes="yes" then yes else no
+
+ [Collection:collSize]
+ Type: Cost Centre
+ title:"List of Size"
+ child of:"Size"
+ 
+ [Collection:collSheet]
+ Type: Cost Centre
+ title:"List of Sheet"
+;; {26.Nov.22 15:45}  child of:"Sheet"
+ filter:cwccSheetyesfilter ;;,cwccGSMyesfilter
+ 
+ ;;  add:sub title:"name","GSM","Sheet"
+   
+  ;; add:format:$name,10
+  ;; add:format:$cwccGSMyes,10
+ ;; add:format:$cwccSheetyes,10
+
+ [line:itemline2]
+ field:sp,snf4,sp2,snf5,sp3
+;; {26.Nov.24 15:01}  local: field: default: inactive:not $cwIsTrading1
+;; {17.Dec.24 10:16}  local: field: default: inactive:$cwIsReelProductmfg="yes"
+ 
+ Local: Field: sp: Set As:"Sheet"
+ Local: Field: sp2: Set As:if $cwIsReelProductmfg="yes" then "Weight Per Pkt" else "Pack Weight"
+
+;; {09.Oct.24 11:05}  Local: Field: snf4: storage:cwSheet    ;; cwproduct BARCODE tcp on
+ Local: Field: snf4: storage:cwproduct    ;; cwproduct BARCODE tcp on
+ 
+ Local: Field: snf4: skip:if $cwIsReelProductmfg="yes" then "yes" else "no"
+
+
+
+;; {09.Oct.24 11:35}  Local: Field: snf5: storage:cwPacknew   ;; cwproduct2 BARCODE tcp on
+ Local: Field: snf5: storage:cwsceneitem   ;; cwproduct2 BARCODE tcp on
+
+
+ Local: Field: snf4: Style: small Bold
+ Local: Field: snf5: Style: small Bold
+ Local: Field: snf3: Style: small Bold
+ 
+ Local: Field:snf4: table:collSheet,Not Applicable
+ Local: Field:snf4: Show table: Always
+ local:field:snf4:variable:svcost centre
+ local:field:SNF4:key:Create Cost Centre, Alter CstCtr
+ 
+ local:field:Sp:Width:12
+ local:field:Sp2:Width:16
+ local:field:snf4:Width:30
+
+ local:field:default:Color:blue
+
+  [Collection:collPack]
+ Type: Cost Centre
+ title:"List of Pack"
+ child of:"Pack"
+
+ [Collection:collWeight]
+ Type: Cost Centre
+ title:"List of Weight"
+ child of:"Weight"
+ 
+ 
+
+ ;;=====================================
+
+ [#Form: Unit]
+ ADD:OPTION:cwUnitUOMopt:@@KrishnavanijyaEnabled
+[!form:cwUnitUOMopt]
+ ADD:PART:CWUOMART
+ height:40% page
+ 
+ [PART:CWUOMART]
+ LINE:CWKgsLINE,CWPktLINE,CWBdlLINE,CWSheetLINE,CWcwIsRLLLINE,CWcwIsSqmtLINE,CWcwIsMTRLINE,showtransactionsline
+ 
+ [LINE:CWKgsLINE]
+ FIELD:SP,CWLOGICAL
+ Local: Field: SP: Set As:"Is Kgs"
+ Local: Field:CWLOGICAL : storage:cwIsKgs
+
+ Local: Field: default: Style: small
+ Local: field: sp: Width:21
+
+
+ [LINE:CWPktLINE]
+  FIELD:SP,CWLOGICAL
+ Local: Field: SP: Set As:"Is Pkt"
+ Local: Field:CWLOGICAL : storage:cwIsPkt
+ Local: Field: default: Style: small
+ Local: field: sp: Width:21
+ 
+ [LINE:CWBdlLINE]
+  FIELD:SP,CWLOGICAL
+ Local: Field: SP: Set As:"Is Bdl"
+ local: Field:CWLOGICAL : storage:cwIsBdl
+
+ Local: Field: default: Style: small
+ Local: field: sp: Width:21
+ 
+ [LINE:CWSheetLINE]
+  FIELD:SP,CWLOGICAL
+ Local: Field: SP: Set As:"Is Sheet"
+ local: Field:CWLOGICAL : storage:cwIsSheet
+ Local: Field: default: Style: small
+ Local: field: sp: Width:21
+ 
+ [LINE:CWcwIsRLLLINE]
+  FIELD:SP,CWLOGICAL
+ Local: Field: SP: Set As:"Is RLL"
+ local: Field:CWLOGICAL : storage:cwIsRLL
+ Local: Field: default: Style: small
+ Local: field: sp: Width:21
+ 
+  [LINE:CWcwIsSqmtLINE]
+  FIELD:SP,CWLOGICAL
+ Local: Field: SP: Set As:"Is Sqmt"
+ local: Field:CWLOGICAL : storage:cwIsSqmt
+ Local: Field: default: Style: small
+ Local: field: sp: Width:21
+ 
+ [LINE:CWcwIsMTRLINE]
+  FIELD:SP,CWLOGICAL
+ Local: Field: SP: Set As:"Is MTR"
+ local: Field:CWLOGICAL : storage:cwIsMTR
+ Local: Field: default: Style: small
+ Local: field: sp: Width:21
+
+ ;;=====================================
+ 
+  [line:showtransactionsline]
+ FIELD:SP,CWLOGICAL
+ Local: Field: SP: Set As:"Show Transactions "
+ local: Field:CWLOGICAL : storage:cwShowTransactions
+ Local: Field: default: Style: small
+ Local: field: sp: Width:21
+
+ ;;=====================================
+
+        [#Line: STKI Parent]
+        ADD:OPTION:cwSTKIParentUOMopt:@@KrishnavanijyaEnabled
+         [!line:cwSTKIParentUOMopt]
+        	
+        Local       : Field : Short Prompt : Info : $$LocaleString:"Under (Quality Group)"
+
+
+        [#Line: STKI Category]
+        	
+        ADD:OPTION:cwSTKICategoryUOMopt:@@KrishnavanijyaEnabled
+         [!line:cwSTKICategoryUOMopt]
+
+         Local       : Field : Short Prompt : Info : $$LocaleString:"Category (Mill Group)"
+
+         [#Part: STKI Units]
+
+         [#Part: STKI Parent]
+;; {23.Nov.24 17:09}          ADD:OPTION:cwSTKIUnitsUOMopt:@@KrishnavanijyaEnabled
+         [!part:cwSTKIUnitsUOMopt]
+
+        ;; {28.Nov.22 12:25}  add:line:before:STKIBaseUOM:isreelproductline
+;; {23.Nov.24 16:19}          add:line:AtBeginning :isreelproductline,isreelproductmfgline
+
+         [line:isreelproductline]
+          FIELD:Short Prompt,CWLOGICAL
+
+         Local: Field: Short Prompt: Set As:"Is Reel Product"
+         local: Field:CWLOGICAL : storage:cwIsReelProduct
+         Local: Field: default: Style: small
+        local: field: default: inactive:not $cwIsTrading1
+         Local: field: Short Prompt: Width:15
+         
+         [line:isreelproductmfgline]
+          FIELD:Short Prompt,CWLOGICAL
+
+         Local: Field: Short Prompt: Set As:"Is Reel Product"
+         local: Field:CWLOGICAL : storage:cwIsReelProductmfg
+         Local: Field: default: Style: small
+         Local: field: Short Prompt: Width:15
+         local: field: default: inactive:not $cwIsManufacturing1
+
+         [#Line: STKI BaseUOM]
+        ADD:OPTION:BaseUOMvBaseUOMopt:@@KrishnavanijyaEnabled
+        [!line:BaseUOMvBaseUOMopt]
+
+         Local : Field : Short Prompt : Info : $$LocaleString:"UOM-1 (Kgs)"
+        	
+
+         
+        [#Field: STKI BaseUOM]
+
+        ADD:OPTION:STKIBaseUOMopt: @@KrishnavanijyaEnabled
+;; {08.Oct.24 16:23}         ADD:OPTION:STKIBaseUOMopt2:@@KrishnavanijyaEnabled  ;;:NOT $cwIsManufacturing1 AND @@KrishnavanijyaEnabled
+        [!field:STKIBaseUOMopt]
+
+;; {08.Oct.24 16:23}         set as:if $cwIsReelProduct="yes" then  @@cwuom1item else if $cwIsReelProduct="no" then  @@cwuom1ReelNO else $$value
+
+        set as:if $cwIsTrading1="yes" then (if $cwIsReelProduct="yes" then  @@cwuom1item else if $cwIsReelProduct="no" then  @@cwuom1ReelNO else $$value ) else @@cwuom1itemMFGopt
+
+
+        [System: Formula]
+        cwuom1itemMFGopt:if $cwIsReelProductmfg="yes" then @@cwuom1itemMFG else if $cwIsReelProductmfg="no" then  @@cwuom1ReelNOmfg else $$value
+
+
+        
+        [#Field: STKI AltUOM]
+
+        ADD:OPTION:STKIAltUOMUOMopt:@@KrishnavanijyaEnabled
+        [!field:STKIAltUOMUOMopt]
+
+;; {08.Oct.24 15:57}         set as:if $cwIsReelProduct="yes" then  @@cwuom2item else if $cwIsReelProduct="no" then  @@cwuom2ReelNO else if $cwIsReelProductmfg="yes" then  @@cwuom2itemmfg else if $cwIsReelProductmfg="no" then  @@cwuom2ReelNOmfg else $$value
+        set as:if $cwIsTrading1="yes" then (if $cwIsReelProduct="yes" then  @@cwuom2item else if $cwIsReelProduct="no" then  @@cwuom2ReelNO else $$value ) else @@cwuom2itemmfgopt
+
+       [System: Formula]
+        cwuom2itemmfgopt:if $cwIsReelProductmfg="yes" then  @@cwuom2itemmfg else if $cwIsReelProductmfg="no" then  @@cwuom2ReelNOmfg else $$value
+
+
+        
+
+        [#Line: STKI AltUOM]
+        ADD:OPTION:BaseUOMvAltUOMopt:@@KrishnavanijyaEnabled
+        [!line:BaseUOMvAltUOMopt]
+
+
+        Local: Field:Short Prompt: Set as:If $$IsSysName:$BaseUnits then "" else $$LocaleString:"UOM-2 (Pkt = Kgs)"
+        	
+
+        [#Line: STKI Conversion]
+        add:option:cwSTKIConversionopt:@@KrishnavanijyaEnabled
+        [!Line: cwSTKIConversionopt]
+        Local: field:STKI Denom : Width:4
+
+
+         [#Part: STKI Units]
+         ADD:OPTION:tkiunitopt:@@KrishnavanijyaEnabled
+         [!part:tkiunitopt]
+         add:line:unitline1,unitline2,unitline3,unitline4,TransactionUOMline
+
+        [line:unitline1]
+        Fields      : Short Prompt,snf
+        Local       : Field : Short Prompt : Info : $$LocaleString:"UOM -  3 (Bdl = Pkt)"
+        Local       : Field : Short Prompt : Width	: @@ShortNameWidth+13
+        Space Top	: 0.5
+        Local: Field: SNF:Key         : Create Units, Alter Unit
+        Local: Field: SNF:Variable    : SV Unit
+
+        Local: Field: SNF:Set always  : Yes
+        Local: Field: SNF:Table       : Unit, Not Applicable
+        Local: Field: SNF:Show Table  : Always
+
+        Local: Field: snf: set as:if $cwIsTrading1="yes" then (if $cwIsReelProduct="no" then  @@cwuom3ReelNO else $$value ) else (if $cwIsReelProductmfg="no" then  @@cwuom3ReelNOmfg else @@cwuom3itemmfg)
+
+         Local: Field: default: Style: small
+        ;; {26.Nov.22 16:16}  local: field: default: Invisible:$cwIsReelProduct="yes"
+         local: field:default : inactive: $cwIsReelProduct="yes"  ;;or $cwIsReelProductmfg="yes"
+
+        ;; {19.Sep.22 11:05} Local: Field: default: Color : blue
+        ;;border:thin top
+
+        [line:unitline2]
+         Fields      : Short Prompt,numf,cwSTKITrail1,numf2,snf2
+         Local       : Field : Short Prompt : Info   : $$LocaleString:"where"
+         Local       : Field : Short Prompt : Indent : 2
+         Local       : Field : Short Prompt : Width	: @@ShortNameWidth+13
+        Space Top	: 0.5
+
+        Local: Field: SNF2:Table       : Unit, Not Applicable
+        Local: Field: SNF2:Show Table  : Always
+
+        Local: Field: SNF2:Key         : Create Units, Alter Unit
+        Local: Field: SNF2:Variable    : SV Unit
+
+        Local: Field: snf2: storage:cwunitalt3
+
+
+        Local: Field: numf: Width  : 8
+
+        Local: Field: numf:Storage : cwConversion3
+        Local: Field: numf:Format: "decimals:2"
+
+        Local: Field: numf2:Storage     : cwDenominator3
+        Local: Field: numf2: Width  : 2
+
+        Local: Field: numf: Style: small Bold
+        Local: Field: numf2: Style: small Bold
+
+        local: field:default : inactive: $cwIsReelProduct="yes" ;; or $cwIsReelProductmfg="yes"
+
+       ;; Local: Field: snf2: set as:if $cwIsReelProduct="no" then  @@cwuom3altReelNO else $$value
+
+        Local: Field: snf2: set as:if $cwIsTrading1="yes" then (if $cwIsReelProduct="no" then  @@cwuom3altReelNO else $$value ) else (if $cwIsReelProductmfg="no" then  @@cwuom3altReelNOmfg else @@cwuomaltitemmfg3)
+
+
+        [Field: cwSTKITrail1]
+
+        Skip        : Yes
+        Width       : 5
+        Max         : @@MaxNumberWidth
+        ;;Set as      :$$TailUnits:$cwunitply3 + " ="
+        Set always  : Yes
+;; {09.Oct.24 12:59}         storage:cwunitply3
+        storage:cwproduct3 ;;BARCODE tcp on
+
+;; {14.Oct.24 10:15}         set as:if $cwIsReelProduct="no" then  @@cwuom3ReelNO else $$value
+
+        set as:if $cwIsTrading1="yes" then (if $cwIsReelProduct="no" then  @@cwuom3ReelNO else $$value ) else (if $cwIsReelProductmfg="no" then  @@cwuom3ReelNOmfg else @@cwuom3itemmfg)
+        ;;  border:thin box
+          
+        [line:unitline3]
+        Fields      : Short Prompt,snf
+        Local       : Field : Short Prompt : Info : $$LocaleString:"UOM - 4 (Sheet = Pkt)"
+        Local       : Field : Short Prompt : Width	: @@ShortNameWidth+13
+        Space Top	: 0.5
+        Local: Field: snf: storage:cwunitply4
+
+        Local: Field: snf: set as:if $cwIsTrading1="yes" then (if $cwIsReelProduct="no" then  @@cwuom4ReelNO else $$value) else  (if $cwIsReelProductmfg="no" then  @@cwuom4ReelNOmfg else $$value)
+
+
+        Local: Field: SNF:Key         : Create Units, Alter Unit
+        Local: Field: SNF:Variable    : SV Unit
+
+        Local: Field: SNF:Set always  : Yes
+        Local: Field: SNF:Table       : Unit, Not Applicable
+        Local: Field: SNF:Show Table  : Always
+
+;; {23.Nov.24 17:26}         local: field:default : inactive:$cwIsTrading1="no" or $cwIsReelProduct="yes"
+         local: field:default : inactive:$cwIsReelProduct="yes" or $cwIsReelProductmfg="yes"
+
+
+        [line:unitline4]
+         Fields      : Short Prompt,numf,cwSTKITrail12,numf2,snf2
+         Local       : Field : Short Prompt : Info   : $$LocaleString:"where"
+         Local       : Field : Short Prompt : Indent : 2
+
+        Local       : Field : Short Prompt : Width	: @@ShortNameWidth+13
+
+;; {23.Nov.24 17:27}         local: field:default : inactive:$cwIsTrading1="no" or $cwIsReelProduct="yes"
+        local: field:default : inactive:$cwIsReelProductmfg="yes" or $cwIsReelProduct="yes"
+
+        Local: Field: numf: Width  : 8
+
+        Local: Field: numf:Storage : cwConversion4
+        Local: Field: numf:Format: "decimals:2"
+
+        Local: Field: numf2:Storage     : cwDenominator4
+        Local: Field: numf2: Width  : 2
+
+        Local: Field: snf2: storage:cwunitalt4
+
+        Local: Field: snf2: set as:if $cwIsReelProduct="no" then  @@cwuom4altReelNO else $$value
+
+
+
+         Space Top	: 0.5
+
+        Local: Field: SNF2:Table       : Unit, Not Applicable
+        Local: Field: SNF2:Show Table  : Always
+
+        Local: Field: SNF2:Key         : Create Units, Alter Unit
+        Local: Field: SNF2:Variable    : SV Unit
+
+        Local: Field: numf: Style: small Bold
+        Local: Field: numf2: Style: small Bold
+
+        [Field: cwSTKITrail12]
+
+        Skip        : Yes
+        Width       : 5
+        Max         : @@MaxNumberWidth
+        Set as      : $$TailUnits:$cwunitply4 + " ="
+        Set always  : Yes
+
+        [field:numf15op]
+        use:numf
+         storage:cwopqtyalt
+      Invisible: yes
+      
+         [line:TransactionUOMline]
+
+         Fields      : Short Prompt,snf,numf15op
+         Local       : Field : Short Prompt : Info : $$LocaleString:"Transaction UOM (Pkt/Reel)"
+         Local       : Field : Short Prompt : Width	: @@ShortNameWidth+13
+         Local: Field: snf: storage:cwTransactionUOM
+
+         Space Top	: 0.5
+
+         Local: Field: SNF:Table       : Unit, Not Applicable
+         Local: Field: SNF:Show Table  : Always
+
+         Local: Field: SNF:Key         : Create Units, Alter Unit
+         Local: Field: SNF:Variable    : SV Unit
+
+         Local: Field: Short Prompt: Style: small
+         Local: Field: snf: Style: small Bold
+
+;;==========================================================
+
+[System: Formula]
+;;cwIscwIsKgs:if $cwIsSheet:unit:$cwTransactionUOM="yes" then $cwTransactionUOM else if $cwIsBdl:unit:$cwTransactionUOM="yes" then $cwTransactionUOM else if $cwIsKgs:unit:$cwTransactionUOM="yes" then $cwTransactionUOM else if $cwIsPkt:unit:$cwTransactionUOM="yes" then $cwTransactionUOM else $$value
+
+cwIscwIsKgs:if $cwIsPkt:unit:$cwTransactionUOM="yes" then "BDL" else ""
+
+cwIscwIsKgs2:if $cwIsPkt:unit:$cwTransactionUOM="yes" then "BDL" else ""
+
+;; {21.Sep.22 17:56} cwIscwIsKgs3:if $cwIsKgs:unit:$cwTransactionUOM="yes" then "PKT" else if $cwIsBdl:unit:$cwTransactionUOM="yes" then "PKT" else if $cwIsPkt:unit:$cwTransactionUOM="yes" then "BDL" else ""
+
+cwIscwIsKgs3:if $cwIsKgs:unit:$cwTransactionUOM="yes" then "PKT" else if $cwIsPkt:unit:$cwTransactionUOM="yes" then "BDL" else if $cwIsBdl:unit:$cwTransactionUOM="yes" then "PKT" else if $cwIsBdl:unit:$cwTransactionUOM="yes" then "KGS" else ""
+
+cwIscwIsKgs4:if $cwIsKgs:unit:$cwTransactionUOM="yes" then "BDL" else if $cwIsPkt:unit:$cwTransactionUOM="yes" then "KGS" else if $cwIsRLL:unit:$cwTransactionUOM="yes" then "KGS" else ""
+
+
+ [#Line: STKI BalTitles]
+ ADD:OPTION:STKIBalTitlesopt:@@KrishnavanijyaEnabled
+ [!line:STKIBalTitlesopt]
+
+ add:Field:before:qtyTitleField:numf,numf2,snf2
+ 
+ add:Field:after:qtyTitleField:numf4
+ 
+ Local: Field: snfx: Set As:$cwIsKgs:unit:$cwTransactionUOM
+ Local: Field: snfx2: Set As:$cwIsBdl:unit:$cwTransactionUOM
+ Local: Field: snfx3: Set As:$cwIsPkt:unit:$cwTransactionUOM
+
+ Local : Field : snf2 :SET AS:"Units" ;; @@cwIscwIsKgs4  ;;"KGS"
+ Local : Field : snf2 :Align       : Right
+ 
+ Local : Field : Qty TitleField :INFO  : $$LocaleString:#snf2  ;;"KGS"
+
+  local: field:qtyTitleField : Invisible: yes
+  local: field:snf2 : width:@@QtyWidth
+  
+ Local: Field: numf: SET AS:$cwTransactionUOM  ;;@@cwIscwIsKgs
+ 
+;; {26.Nov.22 17:06}  Local: Field: numf2: set as:@@cwIscwIsKgs3  ;;if #snfx2="yes" then "PKT"else ""
+ Local: Field: numf2: set as:if $cwIsRLL:unit:$cwTransactionUOM="yes" then "KGS" else @@cwIscwIsKgs3
+
+ Local: Field: numf4: info:"SHEETS"  ;;@@cwIscwIsKgs4  ;;"SHEETS"
+
+ Local: Field: numf: Skip: Yes
+ Local: Field: snf2: Skip: Yes
+
+ local: field: NUMF: type: String
+ local: field: NUMF1: type: String
+ local: field: NUMF2: type: String
+ local: field: NUMF3: type: String
+ local: field: NUMF4: type: String
+ Local: Field: NUMF: Skip: Yes
+ Local: Field: NUMF1: Skip: Yes
+ Local: Field: NUMF2: Skip: Yes
+ Local: Field: NUMF3: Skip: Yes
+ Local: Field: NUMF4: Skip: Yes
+
+ Local: Field: numf: Style: small
+ Local: Field: snf2: Style: small
+ Local: Field: numf1: Style: small
+ Local: Field: numf2: Style: small
+ Local: Field: numf3: Style: small
+ Local: Field: numf4: Style: small
+ 
+;; {26.Nov.22 16:19}  local: field: numf4: Invisible:$cwIsReelProduct="yes"
+ local: field: numf4: inactive:$cwIsReelProduct="yes"
+ 
+ [System: Formula]
+;; {22.Sep.22 10:19}  cwIsPktvalue2:if $cwIsBdl:unit:$cwTransactionUOM="yes" then $cwPKT/$cwDenominator3 else if $cwIsPkt:unit:$cwTransactionUOM="yes" then $cwPKT/$cwDenominator3 else $$value
+ cwIsPktvalue2:if $cwIsPkt:unit:$cwTransactionUOM="yes" then $cwPKT/$cwDenominator3 else if $cwIsBdl:unit:$cwTransactionUOM="yes" then $cwPKT*$cwDenominator3 else if $cwIsKgs:unit:$cwTransactionUOM then $cwPKT/$Denominator else $$value
+
+;; cwIscwIsKgs3:if $cwIsKgs:unit:$cwTransactionUOM="yes" then "PKT" else if $cwIsPkt:unit:$cwTransactionUOM="yes" then "BDL" else if $cwIsBdl:unit:$cwTransactionUOM="yes" then "PKT" else ""
+
+;;cwIscwIsKgs4:if $cwIsKgs:unit:$cwTransactionUOM="yes" then "BDL" else if $cwIsPkt:unit:$cwTransactionUOM="yes" then "KGS" else if $cwIsBdl:unit:$cwTransactionUOM="yes" then "KGS" else ""
+
+
+[System : Formula]
+MYQTY : @@MYQTY0 + " = "  + @@MYQTY1
+MYQTY0 : $$STRING:#NUMF5 + " " + #SNFX
+MYQTY1 : $$STRING:#NUMF6 + " " + #SNFX2
+
+MYQTYITEM : @@MYQTY0ITEM + " = "  + @@MYQTY1ITEM
+MYQTY0ITEM : $$STRING:#NUMF5 + " " + #SNFX
+MYQTY1ITEM : $$STRING:#NUMF6 + " " + #SNFX2
+
+;;Local: Field: numf6: Set As:IF @@cwIsRLLfil2="yes" THEN #NUMF1 ELSE #numf5 * ($conversion:stockitem:#allocname/$denominator:stockitem:#allocname)
+
+cwIsRLLfil2 :$cwIsRLL:UNIT:$cwTransactionUOM
+cwIsRLLfil2X:$$OWNER:$cwIsRLL:UNIT:$cwTransactionUOM
+
+cwIsRLLfil3:IF @@cwIsRLLfil2="yes" THEN #NUMF1 ELSE #numf5 * ($conversion/$denominator)
+
+itemHasAltQty : not $$issysname:$Additionalunits:stockitem:$stockitemname
+
+cwstclkkv1:$$number:($$String:@@cwstclkkv2:"NoSymbol,Secondary")
+cwstclkkv2:$closingbalance:stockitem:$name
+
+ [#Line: STKI OpBal]
+ ADD:OPTION:STKIOpBalunitopt:@@KrishnavanijyaEnabled
+ [!line:STKIOpBalunitopt]
+
+ add:Field:before: STKI OpBal:numf,numf8,numf9,numf2,numf10
+
+ add:Field:after: STKI OpBal:numf4
+ add:field:before:STKI OpBal:NUMF7,numf5,snfx,numf6,snfx2
+;; {22.Aug.24 17:51}  Local: Field: numf10: Set As:$$abs:$$number:#stkiopalt
+ Local: Field: numf10: Set As:#numf15op
+ Local: Field: numf: Set As:#numf10 ;;cwopqtyalt
+
+ 
+ local: field: numf5: Invisible: yes
+ local: field: numf6: Invisible: yes
+ local: field: numf7: Invisible: yes
+ local: field: numf10: Invisible: yes
+ 
+ Local: Field: NUMF5: Border: thin box ;;left right
+ Local: Field: NUMF6: Border: thin box ;;left right
+ Local: Field: NUMF7: Border: thin box ;;left right
+ Local: Field: NUMF10: Border: thin box ;;left right
+
+ local: field: snfx: Invisible: yes
+ local: field: snfx2: Invisible: yes
+
+ local: field: numf4: inactive:$cwIsReelProduct="yes"
+ 
+ Local: Field: numf: storage :cwPKT
+ Local: Field: numf2: storage :cwBDL
+
+ Local: Field: numf3: storage :cwKGS
+ Local: Field: numf4:storage :cwSHEETS
+
+ Local: Field: numf8: Set As:IF $cwTransactionUOM="BDL" or $$owner:$cwTransactionUOM="Sqmt" THEN #NUMF ELSE $cwDenominator3
+ Local: Field: numf9: Set As:$$RoundDown:@@itemopbatchno:1
+ local: field: numf8: Invisible: yes
+ local: field: numf9: Invisible: yes
+  
+;; Local: Field: numf2: Set As:@@cwIsPktvalue2
+
+ Local: Field: numf7: Set As:if $cwTransactionUOM="PKT" or $$owner:$cwTransactionUOM="Sqmt" THEN #NUMF else if  $cwTransactionUOM="BDL" or $$owner:$cwTransactionUOM="Sqmt" then #NUMF*$cwDenominator3 else if $cwTransactionUOM="kgs" then #NUMF/$Denominator else if @@cwIsRLLfil2="yes" THEN #NUMF2 else $$value
+
+ Local: Field: numf2: Set As:IF $cwTransactionUOM="BDL" or $$owner:$cwTransactionUOM="Sqmt" THEN #NUMF ELSE  (if #numf8 > #numf then 0 else #numf9) ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+
+
+;; {27.Dec.22 12:48}   Local: Field: numf2: Border: thin box ;;left right
+
+ Local: Field: numf4: Set As:$cwPKT*$cwConversion4
+ 
+ 
+ Local: Field: numf5: Set As:if @@cwIsRLLfil2X="yes" THEN #NUMF2 else #numf7*$denominator
+
+ Local: Field: numf6: Set As:@@cwunitsitem ;;IF @@cwIsRLLfil2="yes" THEN #NUMF ELSE #numf5 * ($conversion/$denominator)
+
+
+ Local: Field: SNFX : Set As:$BASEUNITS
+ Local: Field: SNFX2 : Set As:$AdditionalUnits
+    
+ 
+ Local: Field:STKI OpBal : Set As:$$ASQTY:@@MYQTYITEM
+
+ Local: Field: STKI OpBal: Set Always:yes
+ Local: Field: STKI OpBal:type:quantity:forced
+
+ Local: Field: numf: Style: small Bold
+ Local: Field: numf1: Style: small Bold
+ Local: Field: numf2: Style: small Bold
+ Local: Field: numf3: Style: small Bold
+ Local: Field: numf4: Style: small Bold
+ 
+  [System: Formula]
+
+  cwunitsitem2:IF @@cwIsRLLfil2="yes" THEN #NUMF ELSE #numf5 * ($conversion/$denominator)
+
+  cwunitsitem3:$$RoundUp:@@cwunitsitem2:1
+
+  cwunitsitem:if #numf=@@cwunitsitem3 then @@cwunitsitem3 else #numf    ;;if #numf=@@kcwvvchqtyalt3 then @@kcwvvchqtyalt3 else #numf
+
+
+  cwunitsitem2op:IF @@cwIsRLLfil2x="yes" THEN #NUMF ELSE #numf5 * ($conversion/$denominator)
+
+  cwunitsitem3op:$$RoundUp:@@cwunitsitem2op:1
+
+  cwunitsitemop:if #numf=@@cwunitsitem3op then @@cwunitsitem3op else #numf    ;;if #numf=@@kcwvvchqtyalt3 then @@kcwvvchqtyalt3 else #numf
+
+
+
+ [#Line: STKI OpAlt]
+
+  add:option:newSTKOpAltopt:@@KrishnavanijyaEnabled
+ [!line:newSTKOpAltopt]
+
+ add:Field:before: STKI OpAlt:numf11,numf12
+
+ add:Field:after: STKI OpAlt:numf14
+
+ Local: Field: numf11: info: ""
+ Local: Field: numf12: info: ""
+ Local: Field: numf14: info: ""
+
+ 
+ ;;=============================================================================
+
+ [System: Formula]
+ cwIscwIsKgs3:if $cwIsKgs:unit:$cwTransactionUOM="yes" then "PKT" else if $cwIsPkt:unit:$cwTransactionUOM="yes" then "BDL" else if $cwIsBdl:unit:$cwTransactionUOM="yes" then "PKT" else if $cwIsSqmt:unit:$cwTransactionUOM="yes" then "Sqmt" else ""
+
+
+
+  [#Line: STKALLOC Column]
+ add:option:newSTKALLOCColumnopt:@@KrishnavanijyaEnabled
+ [!line:newSTKALLOCColumnopt]
+ 
+ 
+ ;;=================================================================
+;; {28.Nov.22 10:03}  add:Field:before:qtyTitleField:numf,numf2,snf2
+
+;; {28.Nov.22 10:03}  add:Field:after:qtyTitleField:numf4
+
+;; {28.Nov.22 10:11}  add:Field:AtBeginning:numf,numf2
+
+ add:right Field:before:STKALLOC QtyTitle:numf,numf2
+
+;; {28.Nov.22 10:10}  add:right Field:after:STKALLOC QtyTitle:snf2,numf4
+
+
+ Local: Field: snfx: Set As:$cwIsKgs:unit:$cwTransactionUOM
+ Local: Field: snfx2: Set As:$cwIsBdl:unit:$cwTransactionUOM
+ Local: Field: snfx3: Set As:$cwIsPkt:unit:$cwTransactionUOM
+
+ Local : Field : snf2 :SET AS: @@cwIscwIsKgs4  ;;"KGS"
+ Local : Field : snf2 :Align       : Right
+
+ Local : Field : Qty TitleField :INFO  : $$LocaleString:#snf2  ;;"KGS"
+
+ local: field:qtyTitleField : Invisible: yes
+ local: field:snf2 : width:@@QtyWidth
+
+ Local: Field: numf: SET AS:$cwTransactionUOM  ;;@@cwIscwIsKgs
+
+;; {26.Nov.22 17:06}  Local: Field: numf2: set as:@@cwIscwIsKgs3  ;;if #snfx2="yes" then "PKT"else ""
+ Local: Field: numf2: set as:if $cwIsRLL:unit:$cwTransactionUOM="yes" then "KGS" else @@cwIscwIsKgs3
+
+ Local: Field: numf4: info:"SHEETS"  ;;@@cwIscwIsKgs4  ;;"SHEETS"
+
+ Local: Field: numf: Skip: Yes
+ Local: Field: snf2: Skip: Yes
+
+ local: field: NUMF: type: String
+ local: field: NUMF1: type: String
+ local: field: NUMF2: type: String
+ local: field: NUMF3: type: String
+ local: field: NUMF4: type: String
+ 
+ Local: Field: NUMF: Skip: Yes
+ Local: Field: NUMF1: Skip: Yes
+ Local: Field: NUMF2: Skip: Yes
+ Local: Field: NUMF3: Skip: Yes
+ Local: Field: NUMF4: Skip: Yes
+
+ Local: Field: numf: Style: small
+ Local: Field: snf2: Style: small
+ Local: Field: numf1: Style: small
+ Local: Field: numf2: Style: small
+ Local: Field: numf3: Style: small
+ Local: Field: numf4: Style: small
+
+;; {26.Nov.22 16:19}  local: field: numf4: Invisible:$cwIsReelProduct="yes"
+ local: field: numf4: inactive:$cwIsReelProduct="yes"
+
+ ;;==============================================
+
+ [System: Formula]
+ batchoptno:if $$isempty:#numf then "" else "X"
+
+
+ [#Line: STKALLOC MainLine]
+ add:option:newSTKALLOCMainLineopt:@@KrishnavanijyaEnabled
+ [!line:newSTKALLOCMainLineopt]
+ 
+ 
+ 
+;;=================================================
+
+;; {28.Nov.22 10:12} add:Field:AtBeginning:numf,numf2
+
+add:right Field:before:STKALLOCQty:numf,numf2,numf7,numf8,numf9,numf4,numf5,snfx,numf6,snfx2
+
+;; {28.Nov.22 10:10} add:right Field:after:STKALLOCQty:numf4,numf5,snfx,numf6,snfx2
+
+
+ local: field: snfx: Invisible: yes
+ local: field: snfx2: Invisible: yes
+ local: field: numf4: inactive:$cwIsReelProduct="yes"
+
+ Local: Field: numf: storage :cwPKT
+ Local: Field: numf2: storage :cwBDL
+
+ Local: Field: numf3: storage :cwKGS
+ Local: Field: numf4:storage :cwSHEETS
+
+ Local: Field: numf: Set As:If $$IsFieldEdited Then $$Value Else $$owner:$cwPKT
+;; {28.Dec.22 16:48}  local: field: numf: type: number:forced
+ 
+ Local: Field: numf2: Set As:If $$IsFieldEdited Then $$Value Else $$owner:$cwBDL
+;; {28.Dec.22 16:48}  local: field: numf2: type: number:forced
+ 
+ Local: Field: numf4: Set As:$cwPKT*$cwConversion4
+;; {08.Oct.24 17:59}  Local: Field: numf: Border: thin box ;;left right
+
+
+ 
+ ;;====================================
+ 
+ Local: Field: numf8: Set As:IF $$owner:$cwTransactionUOM="BDL" THEN #NUMF ELSE $$owner:$cwDenominator3
+ Local: Field: numf9: Set As:$$RoundDown:@@itemopbatchno:1
+ local: field: numf8: Invisible: yes
+ local: field: numf9: Invisible: yes
+Local: Field: numf8: Border: thin box ;;left right
+Local: Field: numf9: Border: thin box ;;left right
+
+;; {28.Dec.22 16:46}  Local: Field: numf7: Set As:if $$owner:$cwTransactionUOM="PKT" THEN #NUMF else if  $$owner:$cwTransactionUOM="BDL" then #NUMF*$$owner:$cwDenominator3 else if $$owner:$cwTransactionUOM="kgs" then #NUMF/$Denominator else if @@cwIsRLLfil2x="yes" THEN #NUMF2 else $$value
+;; {08.Oct.24 17:54}  Local: Field: numf7: Set As:if $$owner:$cwTransactionUOM="PKT" THEN #NUMF else if  $$owner:$cwTransactionUOM="BDL" then #NUMF*$$owner:$cwDenominator3 else if $$owner:$cwTransactionUOM="kgs" then #NUMF/$Denominator else $$value
+ Local: Field: numf7: Set As:if $$owner:$cwTransactionUOM="PKT" or $$owner:$cwTransactionUOM="Sqmt" THEN #NUMF else if  $$owner:$cwTransactionUOM="BDL" or $$owner:$cwTransactionUOM="Sqmt" then #NUMF*$$owner:$cwDenominator3 else if $$owner:$cwTransactionUOM="kgs" then #NUMF/$Denominator else $$value
+
+Local: Field: numf2: Set As:IF $$owner:$cwTransactionUOM="BDL" or $$owner:$cwTransactionUOM="Sqmt" THEN #NUMF ELSE if @@cwIsRLLfil2x="yes" THEN $$owner:$cwBDL ELSE (if #numf8 > #numf then 0 else #numf9) ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+;; {28.Dec.22 16:44} Local: Field: numf2: Set As:If $$IsFieldEdited Then $$Value Else (IF $$owner:$cwTransactionUOM="BDL" THEN #NUMF ELSE if @@cwIsRLLfil2x="yes" THEN $$owner:$cwBDL else (if #numf8 > #numf then 0 else #numf9)) ;;  if $$isempty:$$value then #numf/#numf9 else $$value
+
+
+
+ Local: Field: numf5: Set As:#numf7*$denominator
+
+ Local: Field: numf6: Set As:$$round:@@cwitemunit:1   ;;IF @@cwIsRLLfil2X="yes" THEN #NUMF ELSE #numf5 * ($conversion/$denominator)
+
+
+
+  Local: Field: numf5: Set As:if @@cwIsRLLfil2X="yes" THEN #NUMF2 else #numf7*$denominator
+
+ Local: Field: numf6: Set As:@@cwunitsitemop  ;;$$round:@@cwunitsitem2:1 ;;IF @@cwIsRLLfil2="yes" THEN #NUMF ELSE #numf5 * ($conversion/$denominator)
+
+ Local: Field: numf5: Border: thin box ;;left right
+ Local: Field: numf6: Border: thin box ;;left right
+
+ Local: Field: SNFX : Set As:$BASEUNITS
+ Local: Field: SNFX2 : Set As:$AdditionalUnits
+
+
+;; {05.Jan.23 12:51}  Local: Field:STKALLOCQty : Set As:$$ASQTY:@@MYQTYITEM
+
+;; {05.Jan.23 12:52}  Local: Field: STKALLOCQty: Set Always:yes
+;; {05.Jan.23 12:52}  Local: Field: STKALLOCQty:type:quantity:forced
+ 
+ ;;====================================
+ 
+ local: field: numf4: Invisible: yes
+ local: field: numf5: Invisible: yes
+ local: field: numf6: Invisible: yes
+ local: field: numf7: Invisible: yes
+
+ local: field: snfx: Invisible: yes
+ local: field: snfx2: Invisible: yes
+
+
+ Local: Field: numf: Style: small Bold
+ Local: Field: numf1: Style: small Bold
+ Local: Field: numf2: Style: small Bold
+ Local: Field: numf3: Style: small Bold
+ Local: Field: numf4: Style: small Bold
+ Local: Field: numf7: Style: small Bold
+ Local: Field: numf8: Style: small Bold
+ Local: Field: numf9: Style: small Bold
+
+;;=================================================
+
+     
+     
+ [System: Formula]
+ itemopbatchno:#numf/#numf8
+ cwitemunit:IF @@cwIsRLLfil2X="yes" THEN #NUMF ELSE #numf5 * ($conversion/$denominator)
+ 
+ ;;===============================================================================
+ 
+  [#Field: STKI PartNo]
+  add:option:newSTKPartNoopt:@@KrishnavanijyaEnabled
+  [!field:newSTKPartNoopt]
+ 
+  set as:if $$line=1 then $$GetMyPrevNo else $$value
+ 
+ [function : GetMyPrevNo]
+ returns :string
+ variable:currno: string
+ variable:numz  : number :$cwNumZeros:COMPANY:##SVCURRENTCOMPANY
+
+ variable:strx  : string
+ variable:mycwCustomercode:string
+ variable:mycwcustcode:string
+ variable:currnonew:string
+
+
+ 01:set:mycwCustomercode:$$alias;;$cwCustomercode
+ 03:set:mycwcustcode:$cwcustcode:COMPANY:##SVCURRENTCOMPANY
+ 03a : set : currnonew : $$collectionfield:$partno:1:myledcode
+ 04 : set : currno :$ManualStartNumber:COMPANY:##SVCURRENTCOMPANY;; $$collectionfield:$$alias:1:myledcode
+
+
+  30 : if :$$number:##currnonew = 0
+ 35 : set : currno :$ManualStartNumber:COMPANY:##SVCURRENTCOMPANY
+
+ 36: set : currno :$$zerofill:($$number:##currno):##numz   ;;@@SHVVchPrefixName + $$zerofill:##currno:##numz + @@SHVVchSuffixName
+
+ 40 : else
+ 45 : set : currno :$$number:##currno + $$numitems:newcolled
+
+ 46: set : currno :$$zerofill:($$number:##currno):##numz
+ 50 : end if
+
+
+
+ 555 : return : ##currno
+
+[collection : myledcode]
+ type : stockitem
+
+  belongs to:yes
+  
+   [Collection: newcolled]
+ type:stockitem
+
+
+
+ [System: Formula]
+ mycwcustcodeled:$cwcustcode:COMPANY:##SVCURRENTCOMPANY
+ 
+ ;;=======================================
+ 
+ 
+ [System: Formula]
+cwautogentednmopt:$cwautogentednm:company:##svcurrentcompany
+
+[#part:CMP TallyShopFeatures Left]
+add:bottom lines:cwautogenrtline
+
+[line:cwautogenrtline]
+field:medium prompt,cwlogical
+
+Local: Field: medium prompt: Set As:"Auto Generated Number ?"
+Local: Field: cwlogical: storage:cwautogentednm
+
+Local: field:medium prompt : Width:23
+Local: Field: default: Color : blue
+local: field: default: inactive:not $KrishnavanijyaEnabled
+
+Local: Field : cwlogical : SubForm : cwsubgennumrep: $$value
+
+[report:cwsubgennumrep]
+form:cwsubgennumform
+[form:cwsubgennumform]
+part:cwsubgennumpart
+
+[part:cwsubgennumpart]
+height:10% Screen
+width:20% Screen
+
+line:VTYPManualStart,vtypmanualnumzeros
+
+
+[line:billingtyprline]
+space bottom:.5
+ field:Long Prompt,custcode
+ Local: Field:Long Prompt: Set As:"Code:"
+
+ Local: field: Long Prompt: Width:15
+
+ [field:custcode]
+
+  Use    : Short Name Field
+  storage:cwcustcode
+  Width	 : @@ShortWidth
+  style:normal bold
+
+
+ [line : vtyp manual num zeros]
+ field :long prompt,number field
+ Local: Field: long prompt: Set As: "Num Zeros:"
+ Local: Field: number field: storage: cwNumZeros
+ Local: Field: number field: style:normal bold
+
+
+ Local: field: Long Prompt: Width:15
+
+                		
+[Line: VTYP Manual Start]
+SPACE BOTTOM:0.5
+
+Field   : Long Prompt, VTYP Manual Start
+		
+Local   : Field : Long Prompt   : Set as    : "Starting Number :"
+
+Local: field: Long Prompt: Width:15
+	
+
+			
+[Field: VTYP Manual Start]
+
+Use         : Number Field
+Set as      : $ManualStartNumber
+Storage     : ManualStartNumber
+Width       : @@ShortWidth
+style:normal bold
+			
+			
+	
+;;======================================================
+
+
+[part:itempart2]
+ line:itemlinenew
+ 
+ 
+  [field:itemsizef]
+ use:snf
+
+ [line:itemlinenew]
+ ;;field:sp,snf11,sp2,snf12,sp3,snf13,sp4,snf14,sp5,snf15
+ field:sp,snf11,sp2,snf12,sp3,snf13,sp5,snf15
+
+ local: field: default: inactive:not $cwIsManufacturing1 or $cwIsReelProductmfg="no"
+
+ Local: Field: sp: Set As:"Quality"
+ Local: Field: sp2: Set As:"GSM"
+ Local: Field: sp3: Set As:"Size-1 (Width)"
+ Local: Field: sp4: Set As:"Size-2 (Width)"
+ Local: Field: sp5: Set As:"Weight Per Pkt"
+
+ local:field:default:Color:blue
+
+ Local: Field: snf11: storage:cwQualityitem2
+ Local: Field: snf12: storage:cwGSMitem2
+ Local: Field: snf13: storage:cwSizeitem1
+ Local: Field: snf14: storage:cwSizeitem2
+ Local: Field: snf15: storage:cwWeightperPktitem
+
+ Local: Field: snf: Style: small Bold
+ Local: Field: snf2: Style: small Bold
+ Local: Field: snf3: Style: small Bold
+
+ Local: Field:snf11: table:collcwQuality ,Not Applicable
+ Local: Field:snf11: Show table: Always
+ local:field:snf11:variable:svcost centre
+ local:field:SNF11:key:Create Cost Centre, Alter CstCtr
+
+ Local: Field:snf12: table:collGSM,Not Applicable
+ Local: Field:snf12: Show table: Always
+ local:field:snf12:variable:svcost centre
+ local:field:SNF12:key:Create Cost Centre, Alter CstCtr
+
+ Local: Field:snf13: table:collSize,Not Applicable
+ Local: Field:snf13: Show table: Always
+ local:field:snf13:variable:svcost centre
+ local:field:SNF13:key:Create Cost Centre, Alter CstCtr
+ 
+ Local: Field:snf14: table:collSize,Not Applicable
+ Local: Field:snf14: Show table: Always
+ local:field:snf14:variable:svcost centre
+ local:field:SNF14:key:Create Cost Centre, Alter CstCtr
+ 
+ local:field:Sp:Width:12
+ local:field:Sp3:Width:13
+ local:field:Sp4:Width:13
+ local:field:Sp5:Width:14
+ local:field:snf:Width:30
+ local:field:snf2:Width:25
+
+
+ ;;===========================
+ 
+                 /*
+ [#Collection    : List of ExtractStockItems]
+delete:Option : List of ExtractStockItems Server : NOT $$IsRemoteCompany
+delete:Option : List of ExtractStockItems Remote : $$IsRemoteCompany
+add:Option    : ListofExtractStockItemsServeropt  ;;:@@RMSPLEnabled
+
+[!Collection: ListofExtractStockItemsServeropt]
+Use         : collitemlist
+Fetch       : Name
+Report      : Stock Item
+Variable    : SStockItem
+Trigger     : SStockItem
+
+[Collection: collitemlist]
+Title  : $$LocaleString:"List of Stock Items"
+type:stockitem
+
+[#Collection: CA StockItem]
+Use : List of ExtractStockItems
+Option: cwDeleteFormat
+
+[!Collection: cwDeleteFormat]
+Delete	: Format
+add:subtitle:"Part No","Item Name"
+Add	: Format	:$partno,10
+Add	: Format	: $$Name,50
+Align			: Center
+Column Align	: Left, Right
+*/
